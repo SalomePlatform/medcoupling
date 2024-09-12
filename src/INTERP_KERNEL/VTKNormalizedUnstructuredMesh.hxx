@@ -21,6 +21,7 @@
 #ifndef __VTKNORMALIZEDUNSTRUCTUREDMESH_HXX__
 #define __VTKNORMALIZEDUNSTRUCTUREDMESH_HXX__
 
+#include "NormalizedUnstructuredMesh.hxx"
 
 #include "vtkType.h"
 

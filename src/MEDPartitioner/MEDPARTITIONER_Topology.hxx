@@ -20,10 +20,10 @@
 #ifndef __MEDPARTITIONER_TOPOLOGY_HXX__
 #define __MEDPARTITIONER_TOPOLOGY_HXX__
 
-#include "MCIdType.hxx"
 #include "MEDPARTITIONER.hxx"
+#include "MCType.hxx"
 
-#include <utility>
+#include <map>
 #include <vector>
 
 namespace MEDCoupling
@@ -41,9 +41,9 @@ namespace MEDPARTITIONER
   class MEDPARTITIONER_EXPORT Topology
   {
   public:
-    Topology() = default;
+    Topology() { }
     Topology(std::vector<MEDCoupling::MEDCouplingUMesh*>, std::vector<MEDPARTITIONER::ConnectZone*>) { }
-    virtual ~Topology() = default;
+    virtual ~Topology() { }
     
     /*! converts a list of global cell numbers
      *  to a distributed array with local cell numbers

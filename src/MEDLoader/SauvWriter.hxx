@@ -25,13 +25,11 @@
 
 #include "MEDLoaderDefines.hxx"
 #include "MEDCouplingRefCountObject.hxx"
-#include "NormalizedGeometricTypes"
+#include "NormalizedUnstructuredMesh.hxx"
 #include "SauvUtilities.hxx"
 #include "MCAuto.hxx"
 #include "MCType.hxx"
 
-#include <cstddef>
-#include <fstream>
 #include <vector>
 #include <string>
 #include <map>
@@ -57,8 +55,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("SauvWriter"); }
   private:
     SauvWriter();
-    std::size_t getHeapMemorySizeWithoutChildren() const override;
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     /*!
      * \brief Class representing a GIBI sub-mesh (described in the pile 1 of the SAUVE file).
      * It stands for a named med sub-mesh (family, etc) and contains either cell IDs or other sub-meshes. 

@@ -21,7 +21,6 @@
 #include "InterpKernelException.hxx"
 
 #include <cstdlib>
-#include <string>
 #ifdef WIN32
 #include<direct.h>
 #define getcwd _getcwd
@@ -42,7 +41,7 @@ namespace INTERP_TEST
         resourceFile = getenv("MEDCOUPLING_ROOT_DIR");
         resourceFile += "/share/resources/med/";
         resourceFile += filename;
-        std::ifstream const my_file(resourceFile.c_str());
+        std::ifstream my_file(resourceFile.c_str());
         if (my_file.good())
           return resourceFile;
     }
@@ -52,12 +51,12 @@ namespace INTERP_TEST
         resourceFile.erase(std::remove(resourceFile.begin(), resourceFile.end(), ':'), resourceFile.end());
         resourceFile += "/";
         resourceFile += filename;
-        std::ifstream const my_file(resourceFile.c_str());
+        std::ifstream my_file(resourceFile.c_str());
         if (my_file.good())
           return resourceFile;
     }
     // else
-    char * tmp_c = getcwd(nullptr, 0);
+    char * tmp_c = getcwd(NULL, 0);
     resourceFile = tmp_c;
     free(tmp_c);
     resourceFile += "/";
@@ -65,7 +64,7 @@ namespace INTERP_TEST
       resourceFile += "../";
     resourceFile += "resources/";
     resourceFile += filename;
-    std::ifstream const my_file(resourceFile.c_str());
+    std::ifstream my_file(resourceFile.c_str());
     if (!my_file.good())
       {
         std::stringstream ss;

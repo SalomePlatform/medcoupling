@@ -21,15 +21,9 @@
 #define __INTERPOLATION_TXX__
 
 #include "Interpolation.hxx"
+#include "IntegralUniformIntersector.hxx"
 #include "IntegralUniformIntersector.txx"
-#include "InterpolationOptions.hxx"
-#include "InterpKernelException.hxx"
 #include "VectorUtils.hxx"
-#include <algorithm>
-#include <string>
-#include <limits>
-#include <iostream>
-#include <vector>
 
 namespace INTERP_KERNEL
 { 

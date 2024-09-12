@@ -19,31 +19,20 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingCMesh.hxx"
-#include "MCAuto.hxx"
-#include "MCType.hxx"
-#include "MCIdType.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingCurveLinearMesh.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
-#include "MEDCouplingStructuredMesh.hxx"
-#include "MEDCouplingMesh.hxx"
-#include "MEDCouplingRefCountObject.hxx"
 
-#include <cstddef>
 #include <functional>
 #include <algorithm>
-#include <iterator>
-#include <ostream>
 #include <sstream>
-#include <string>
-#include <vector>
-#include <utility>
+#include <numeric>
 
 using namespace MEDCoupling;
 
-MEDCouplingCMesh::MEDCouplingCMesh():_x_array(nullptr),_y_array(nullptr),_z_array(nullptr)
+MEDCouplingCMesh::MEDCouplingCMesh():_x_array(0),_y_array(0),_z_array(0)
 {
 }
 
@@ -54,15 +43,15 @@ MEDCouplingCMesh::MEDCouplingCMesh(const MEDCouplingCMesh& other, bool deepCpy):
       if(other._x_array)
         _x_array=other._x_array->deepCopy();
       else
-        _x_array=nullptr;
+        _x_array=0;
       if(other._y_array)
         _y_array=other._y_array->deepCopy();
       else
-        _y_array=nullptr;
+        _y_array=0;
       if(other._z_array)
         _z_array=other._z_array->deepCopy();
       else
-        _z_array=nullptr;
+        _z_array=0;
     }
   else
     {
@@ -95,7 +84,7 @@ MEDCouplingCMesh *MEDCouplingCMesh::New()
 
 MEDCouplingCMesh *MEDCouplingCMesh::New(const std::string& meshName)
 {
-  auto *ret(new MEDCouplingCMesh);
+  MEDCouplingCMesh *ret(new MEDCouplingCMesh);
   ret->setName(meshName);
   return ret;
 }
@@ -118,7 +107,7 @@ const DataArrayDouble *MEDCouplingCMesh::getDirectAccessOfCoordsArrIfInStructure
 MEDCouplingCurveLinearMesh *MEDCouplingCMesh::buildCurveLinear() const
 {
   checkConsistencyLight();
-  std::size_t const dim(getSpaceDimension());
+  std::size_t dim(getSpaceDimension());
   MCAuto<MEDCouplingCurveLinearMesh> ret(MEDCouplingCurveLinearMesh::New());
   ret->MEDCouplingStructuredMesh::operator=(*this);
   INTERP_KERNEL::AutoPtr<mcIdType> ngs(new mcIdType[dim]);
@@ -160,7 +149,7 @@ std::vector<const BigMemoryObject *> MEDCouplingCMesh::getDirectChildrenWithNull
 void MEDCouplingCMesh::copyTinyStringsFrom(const MEDCouplingMesh *other)
 {
   MEDCouplingStructuredMesh::copyTinyStringsFrom(other);
-  const auto *otherC(dynamic_cast<const MEDCouplingCMesh *>(other));
+  const MEDCouplingCMesh *otherC(dynamic_cast<const MEDCouplingCMesh *>(other));
   if(!otherC)
     throw INTERP_KERNEL::Exception("MEDCouplingCMesh::copyTinyStringsFrom : meshes have not same type !");
   if(_x_array && otherC->_x_array)
@@ -175,7 +164,7 @@ bool MEDCouplingCMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingCMesh::isEqualIfNotWhy : input other pointer is null !");
-  const auto *otherC=dynamic_cast<const MEDCouplingCMesh *>(other);
+  const MEDCouplingCMesh *otherC=dynamic_cast<const MEDCouplingCMesh *>(other);
   if(!otherC)
     {
       reason="mesh given in input is not castable in MEDCouplingCMesh !";
@@ -188,7 +177,7 @@ bool MEDCouplingCMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec
   std::ostringstream oss; oss.precision(15);
   for(int i=0;i<3;i++)
     {
-      if((thisArr[i]!=nullptr && otherArr[i]==nullptr) || (thisArr[i]==nullptr && otherArr[i]!=nullptr))
+      if((thisArr[i]!=0 && otherArr[i]==0) || (thisArr[i]==0 && otherArr[i]!=0))
         {
           oss << "Only one CMesh between the two this and other has its coordinates of rank" << i << " defined !";
           reason=oss.str();
@@ -207,14 +196,14 @@ bool MEDCouplingCMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec
 
 bool MEDCouplingCMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const
 {
-  const auto *otherC=dynamic_cast<const MEDCouplingCMesh *>(other);
+  const MEDCouplingCMesh *otherC=dynamic_cast<const MEDCouplingCMesh *>(other);
   if(!otherC)
     return false;
   const DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
   const DataArrayDouble *otherArr[3]={otherC->_x_array,otherC->_y_array,otherC->_z_array};
   for(int i=0;i<3;i++)
     {
-      if((thisArr[i]!=nullptr && otherArr[i]==nullptr) || (thisArr[i]==nullptr && otherArr[i]!=nullptr))
+      if((thisArr[i]!=0 && otherArr[i]==0) || (thisArr[i]==0 && otherArr[i]!=0))
         return false;
       if(thisArr[i])
         if(!thisArr[i]->isEqualWithoutConsideringStr(*otherArr[i],prec))
@@ -223,8 +212,8 @@ bool MEDCouplingCMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *other
   return true;
 }
 
-void MEDCouplingCMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int  /*cellCompPol*/, double prec,
-                                            DataArrayIdType *& /*cellCor*/, DataArrayIdType *& /*nodeCor*/) const
+void MEDCouplingCMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                            DataArrayIdType *&cellCor, DataArrayIdType *&nodeCor) const
 {
   if(!isEqualWithoutConsideringStr(other,prec))
     throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkDeepEquivalWith : Meshes are not the same !");
@@ -234,8 +223,8 @@ void MEDCouplingCMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int  /
  * Nothing is done here (except to check that the other is a MEDCoupling::MEDCouplingCMesh instance too).
  * The user intend that the nodes are the same, so by construction of MEDCoupling::MEDCouplingCMesh, \a this and \a other are the same !
  */
-void MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int  /*cellCompPol*/, double prec,
-                                                       DataArrayIdType *& /*cellCor*/) const
+void MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                                       DataArrayIdType *&cellCor) const
 {
   if(!isEqualWithoutConsideringStr(other,prec))
     throw INTERP_KERNEL::Exception("MEDCouplingCMesh::checkDeepEquivalOnSameNodesWith : Meshes are not the same !");
@@ -342,7 +331,7 @@ std::vector<mcIdType> MEDCouplingCMesh::getNodeGridStructure() const
 MEDCouplingStructuredMesh *MEDCouplingCMesh::buildStructuredSubPart(const std::vector< std::pair<mcIdType,mcIdType> >& cellPart) const
 {
   checkConsistencyLight();
-  int const dim(getSpaceDimension());
+  int dim(getSpaceDimension());
   if(dim!=ToIdType(cellPart.size()))
     {
       std::ostringstream oss; oss << "MEDCouplingCMesh::buildStructuredSubPart : the space dimension is " << dim << " and cell part size is " << cellPart.size() << " !";
@@ -369,7 +358,7 @@ int MEDCouplingCMesh::getSpaceDimension() const
 void MEDCouplingCMesh::getCoordinatesOfNode(mcIdType nodeId, std::vector<double>& coo) const
 {
   mcIdType tmp[3];
-  int const spaceDim=getSpaceDimension();
+  int spaceDim=getSpaceDimension();
   getSplitNodeValues(tmp);
   const DataArrayDouble *tabs[3]={getCoordsAt(0),getCoordsAt(1),getCoordsAt(2)};
   mcIdType tmp2[3];
@@ -385,7 +374,7 @@ std::string MEDCouplingCMesh::simpleRepr() const
   ret << "Cartesian mesh with name : \"" << getName() << "\"\n";
   ret << "Description of mesh : \"" << getDescription() << "\"\n";
   int tmpp1,tmpp2;
-  double const tt=getTime(tmpp1,tmpp2);
+  double tt=getTime(tmpp1,tmpp2);
   ret << "Time attached to the mesh [unit] : " << tt << " [" << getTimeUnit() << "]\n";
   ret << "Iteration : " << tmpp1  << " Order : " << tmpp2 << "\n";
   ret << "Space dimension : " << getSpaceDimension() << "\n\nArrays :\n________\n\n";
@@ -545,7 +534,7 @@ void MEDCouplingCMesh::setCoords(const DataArrayDouble *coordsX, const DataArray
 
 void MEDCouplingCMesh::getBoundingBox(double *bbox) const
 {
-  int const dim=getSpaceDimension();
+  int dim=getSpaceDimension();
   int j=0;
   for (int idim=0; idim<dim; idim++)
     {
@@ -553,7 +542,7 @@ void MEDCouplingCMesh::getBoundingBox(double *bbox) const
       if(c)
         {
           const double *coords=c->getConstPointer();
-          mcIdType const nb=ToIdType(c->getNbOfElems());
+          mcIdType nb=ToIdType(c->getNbOfElems());
           bbox[2*j]=coords[0];
           bbox[2*j+1]=coords[nb-1];
           j++;
@@ -572,11 +561,11 @@ void MEDCouplingCMesh::getBoundingBox(double *bbox) const
  *         and one time . The caller is to delete this field using decrRef() as it is no
  *         more needed.
  */
-MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureField(bool  /*isAbs*/) const
+MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureField(bool isAbs) const
 {
   std::string name="MeasureOfMesh_";
   name+=getName();
-  mcIdType const nbelem=ToIdType(getNumberOfCells());
+  mcIdType nbelem=ToIdType(getNumberOfCells());
   MEDCouplingFieldDouble *field=MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME);
   field->setName(name);
   DataArrayDouble* array=DataArrayDouble::New();
@@ -588,8 +577,8 @@ MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureField(bool  /*isAbs*/) const
   field->synchronizeTimeWithMesh();
   mcIdType tmp[3];
   getSplitCellValues(tmp);
-  int const dim=getSpaceDimension();
-  const auto **thisArr=new const double *[dim];
+  int dim=getSpaceDimension();
+  const double **thisArr=new const double *[dim];
   const DataArrayDouble *thisArr2[3]={_x_array,_y_array,_z_array};
   for(int i=0;i<dim;i++)
     thisArr[i]=thisArr2[i]->getConstPointer();
@@ -608,7 +597,7 @@ MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureField(bool  /*isAbs*/) const
 /*!
  * not implemented yet !
  */
-MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureFieldOnNode(bool  /*isAbs*/) const
+MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureFieldOnNode(bool isAbs) const
 {
   throw INTERP_KERNEL::Exception("MEDCouplingCMesh::getMeasureFieldOnNode : not implemented yet !");
   //return 0;
@@ -616,14 +605,14 @@ MEDCouplingFieldDouble *MEDCouplingCMesh::getMeasureFieldOnNode(bool  /*isAbs*/)
 
 mcIdType MEDCouplingCMesh::getCellContainingPoint(const double *pos, double eps) const
 {
-  int const dim=getSpaceDimension();
+  int dim=getSpaceDimension();
   mcIdType ret=0;
   mcIdType coeff=1;
   for(int i=0;i<dim;i++)
     {
       const double *d=getCoordsAt(i)->getConstPointer();
-      mcIdType const nbOfNodes=getCoordsAt(i)->getNbOfElems();
-      double const ref=pos[i];
+      mcIdType nbOfNodes=getCoordsAt(i)->getNbOfElems();
+      double ref=pos[i];
       const double *w=std::find_if(d,d+nbOfNodes,std::bind(std::greater_equal<double>(),std::placeholders::_1,ref));
       mcIdType w2=ToIdType(std::distance(d,w));
       if(w2<nbOfNodes)
@@ -646,11 +635,11 @@ mcIdType MEDCouplingCMesh::getCellContainingPoint(const double *pos, double eps)
 
 void MEDCouplingCMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<mcIdType>& elts) const
 {
-  mcIdType const ret(getCellContainingPoint(pos,eps));
+  mcIdType ret(getCellContainingPoint(pos,eps));
   elts.push_back(ret);
 }
 
-void MEDCouplingCMesh::rotate(const double * /*center*/, const double * /*vector*/, double  /*angle*/)
+void MEDCouplingCMesh::rotate(const double *center, const double *vector, double angle)
 {
   throw INTERP_KERNEL::Exception("No rotation available on CMesh : Traduce it to untructured mesh to apply it !");
 }
@@ -688,7 +677,7 @@ void MEDCouplingCMesh::scale(const double *point, double factor)
       if(c)
         {
           double *coords=c->getPointer();
-          mcIdType const lgth=ToIdType(c->getNbOfElems());
+          mcIdType lgth=ToIdType(c->getNbOfElems());
           std::transform(coords,coords+lgth,coords,std::bind(std::minus<double>(),std::placeholders::_1,point[i]));
           std::transform(coords,coords+lgth,coords,std::bind(std::multiplies<double>(),std::placeholders::_1,factor));
           std::transform(coords,coords+lgth,coords,std::bind(std::plus<double>(),std::placeholders::_1,point[i]));
@@ -698,10 +687,10 @@ void MEDCouplingCMesh::scale(const double *point, double factor)
   updateTime();
 }
 
-MEDCouplingMesh *MEDCouplingCMesh::mergeMyselfWith(const MEDCouplingMesh * /*other*/) const
+MEDCouplingMesh *MEDCouplingCMesh::mergeMyselfWith(const MEDCouplingMesh *other) const
 {
   //not implemented yet !
-  return nullptr;
+  return 0;
 }
 
 /*!
@@ -714,8 +703,8 @@ MEDCouplingMesh *MEDCouplingCMesh::mergeMyselfWith(const MEDCouplingMesh * /*oth
 DataArrayDouble *MEDCouplingCMesh::getCoordinatesAndOwner() const
 {
   MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
-  int const spaceDim(getSpaceDimension());
-  mcIdType const nbNodes(getNumberOfNodes());
+  int spaceDim(getSpaceDimension());
+  mcIdType nbNodes(getNumberOfNodes());
   ret->alloc(nbNodes,spaceDim);
   double *pt(ret->getPointer());
   mcIdType tmp[3];
@@ -748,8 +737,8 @@ DataArrayDouble *MEDCouplingCMesh::getCoordinatesAndOwner() const
 DataArrayDouble *MEDCouplingCMesh::computeCellCenterOfMass() const
 {
   DataArrayDouble *ret=DataArrayDouble::New();
-  int const spaceDim=getSpaceDimension();
-  mcIdType const nbCells=ToIdType(getNumberOfCells());
+  int spaceDim=getSpaceDimension();
+  mcIdType nbCells=ToIdType(getNumberOfCells());
   ret->alloc(nbCells,spaceDim);
   double *pt=ret->getPointer();
   mcIdType tmp[3];
@@ -758,7 +747,7 @@ DataArrayDouble *MEDCouplingCMesh::computeCellCenterOfMass() const
   std::vector<double> tabsPtr[3];
   for(int j=0;j<spaceDim;j++)
     {
-      mcIdType const sz=tabs[j]->getNbOfElems()-1;
+      mcIdType sz=tabs[j]->getNbOfElems()-1;
       ret->setInfoOnComponent(j,tabs[j]->getInfoOnComponent(0));
       const double *srcPtr=tabs[j]->getConstPointer();
       tabsPtr[j].insert(tabsPtr[j].end(),srcPtr,srcPtr+sz);
@@ -780,7 +769,7 @@ DataArrayDouble *MEDCouplingCMesh::computeIsoBarycenterOfNodesPerCell() const
   return MEDCouplingCMesh::computeCellCenterOfMass();
 }
 
-void MEDCouplingCMesh::renumberCells(const mcIdType * /*old2NewBg*/, bool  /*check*/)
+void MEDCouplingCMesh::renumberCells(const mcIdType *old2NewBg, bool check)
 {
   throw INTERP_KERNEL::Exception("Functionality of renumbering cell not available for CMesh !");
 }
@@ -788,7 +777,7 @@ void MEDCouplingCMesh::renumberCells(const mcIdType * /*old2NewBg*/, bool  /*che
 void MEDCouplingCMesh::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<mcIdType>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
   int it,order;
-  double const time=getTime(it,order);
+  double time=getTime(it,order);
   tinyInfo.clear();
   tinyInfoD.clear();
   littleStrings.clear();
@@ -796,14 +785,14 @@ void MEDCouplingCMesh::getTinySerializationInformation(std::vector<double>& tiny
   littleStrings.push_back(getDescription());
   littleStrings.push_back(getTimeUnit());
   const DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
-  for(auto & i : thisArr)
+  for(int i=0;i<3;i++)
     {
       mcIdType val=-1;
       std::string st;
-      if(i)
+      if(thisArr[i])
         {
-          val=i->getNumberOfTuples();
-          st=i->getInfoOnComponent(0);
+          val=thisArr[i]->getNumberOfTuples();
+          st=thisArr[i]->getInfoOnComponent(0);
         }
       tinyInfo.push_back(val);
       littleStrings.push_back(st);
@@ -813,7 +802,7 @@ void MEDCouplingCMesh::getTinySerializationInformation(std::vector<double>& tiny
   tinyInfoD.push_back(time);
 }
 
-void MEDCouplingCMesh::resizeForUnserialization(const std::vector<mcIdType>& tinyInfo, DataArrayIdType *a1, DataArrayDouble *a2, std::vector<std::string>&  /*littleStrings*/) const
+void MEDCouplingCMesh::resizeForUnserialization(const std::vector<mcIdType>& tinyInfo, DataArrayIdType *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
 {
   a1->alloc(0,1);
   mcIdType sum=0;
@@ -829,20 +818,20 @@ void MEDCouplingCMesh::serialize(DataArrayIdType *&a1, DataArrayDouble *&a2) con
   a1->alloc(0,1);
   const DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
   mcIdType sz=0;
-  for(auto & i : thisArr)
+  for(int i=0;i<3;i++)
     {
-      if(i)
-        sz+=i->getNumberOfTuples();
+      if(thisArr[i])
+        sz+=thisArr[i]->getNumberOfTuples();
     }
   a2=DataArrayDouble::New();
   a2->alloc(sz,1);
   double *a2Ptr=a2->getPointer();
-  for(auto & i : thisArr)
-    if(i)
-      a2Ptr=std::copy(i->getConstPointer(),i->getConstPointer()+i->getNumberOfTuples(),a2Ptr);
+  for(int i=0;i<3;i++)
+    if(thisArr[i])
+      a2Ptr=std::copy(thisArr[i]->getConstPointer(),thisArr[i]->getConstPointer()+thisArr[i]->getNumberOfTuples(),a2Ptr);
 }
 
-void MEDCouplingCMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<mcIdType>& tinyInfo, const DataArrayIdType * /*a1*/, DataArrayDouble *a2,
+void MEDCouplingCMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<mcIdType>& tinyInfo, const DataArrayIdType *a1, DataArrayDouble *a2,
                                        const std::vector<std::string>& littleStrings)
 {
   setName(littleStrings[0]);
@@ -868,10 +857,10 @@ void MEDCouplingCMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
 {
   std::ostringstream extent;
   DataArrayDouble *thisArr[3]={_x_array,_y_array,_z_array};
-  for(auto & i : thisArr)
+  for(int i=0;i<3;i++)
     {
-      if(i)
-        { extent << "0 " <<  i->getNumberOfTuples()-1 << " "; }
+      if(thisArr[i])
+        { extent << "0 " <<  thisArr[i]->getNumberOfTuples()-1 << " "; }
       else
         { extent << "0 0 "; }
     }
@@ -882,10 +871,10 @@ void MEDCouplingCMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData
   ofs << "      <CellData>\n" << cellData << std::endl;
   ofs << "      </CellData>\n";
   ofs << "      <Coordinates>\n";
-  for(auto & i : thisArr)
+  for(int i=0;i<3;i++)
     {
-      if(i)
-        i->writeVTK(ofs,8,"Array",byteData);
+      if(thisArr[i])
+        thisArr[i]->writeVTK(ofs,8,"Array",byteData);
       else
         {
           MCAuto<DataArrayDouble> coo=DataArrayDouble::New(); coo->alloc(1,1);
@@ -907,19 +896,19 @@ void MEDCouplingCMesh::reprQuickOverview(std::ostream& stream) const
   mcIdType nbOfCells=1,nbOfNodes=1;
   for(int i=0;i<3;i++)
     {
-      isDef[i]=thisArr[i]!=nullptr;
+      isDef[i]=thisArr[i]!=0;
       if(isDef[i])
         {    
-          char const tmp=(char)((int)('X')+i);
+          char tmp=(char)((int)('X')+i);
           stream2[i] << tmp << " positions array ";
           if(!thisArr[i]->isAllocated())
             stream2[i] << "set but not allocated.";
           else
             {
-              std::size_t const nbCompo=thisArr[i]->getNumberOfComponents();
+              std::size_t nbCompo=thisArr[i]->getNumberOfComponents();
               if(nbCompo==1)
                 {
-                  mcIdType const nbTuples=thisArr[i]->getNumberOfTuples();
+                  mcIdType nbTuples=thisArr[i]->getNumberOfTuples();
                   if(nbTuples<1)
                     { stream2[i] << "set and allocated - WARNING number of elements < 1 !"; nbOfCells=-1; nbOfNodes=-1; }
                   else

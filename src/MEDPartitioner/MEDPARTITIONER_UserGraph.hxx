@@ -20,7 +20,6 @@
 #ifndef __MEDPARTITIONER_USERGRAPH_HXX__
 #define __MEDPARTITIONER_USERGRAPH_HXX__
 
-#include "MCIdType.hxx"
 #include "MEDPARTITIONER.hxx"
 #include "MEDPARTITIONER_Graph.hxx"
 
@@ -32,8 +31,8 @@ namespace MEDPARTITIONER
   {
   public:
     UserGraph(MEDCoupling::MEDCouplingSkyLineArray*, const int*, mcIdType);
-    ~UserGraph() override;
-    void partGraph(int, const std::string& options=std::string(""), ParaDomainSelector *sel=nullptr) override;
+    virtual ~UserGraph();
+    void partGraph(int, const std::string& options=std::string(""), ParaDomainSelector *sel=0);
   };
 }
 #endif

@@ -17,10 +17,12 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "Log.hxx"
 #include "TransformedTriangle.hxx"
+#include <iostream>
+#include <fstream>
 #include <cassert>
 #include <cmath>
+#include "VectorUtils.hxx"
 
 namespace INTERP_KERNEL
 {

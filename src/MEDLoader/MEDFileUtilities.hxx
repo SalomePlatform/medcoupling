@@ -21,13 +21,13 @@
 #ifndef __MEDFILEUTILITIES_HXX__
 #define __MEDFILEUTILITIES_HXX__
 
+#include "InterpKernelException.hxx"
 #include "MEDLoaderDefines.hxx"
 
 #include "MCAuto.hxx"
 #include "MEDCouplingMemArray.hxx"
 
 #include "med.h"
-#include <string>
 
 namespace MEDFileUtilities
 {
@@ -53,7 +53,7 @@ namespace MEDCoupling
   {
   public:
     MEDFileWritable();
-    virtual ~MEDFileWritable() = default;
+    virtual ~MEDFileWritable() {}
     void copyOptionsFrom(const MEDFileWritable& other) const;
     int getTooLongStrPolicy() const;
     void setTooLongStrPolicy(int newVal);

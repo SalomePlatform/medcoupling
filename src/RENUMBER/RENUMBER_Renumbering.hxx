@@ -20,10 +20,10 @@
 #ifndef RENUMBERING_HXX_
 #define RENUMBERING_HXX_
 
-#include "MCIdType.hxx"
 #include "RENUMBERDefines.hxx"
 #include "MCType.hxx"
 
+#include <vector>
 
 namespace MEDCoupling
 {
@@ -34,7 +34,7 @@ class RENUMBER_EXPORT Renumbering
 {
 public:
   virtual void renumber(const mcIdType *graph, const mcIdType *index_graph, mcIdType nbCell, MEDCoupling::DataArrayIdType *&iperm, MEDCoupling::DataArrayIdType *&perm) = 0;
-  virtual ~Renumbering() = default;
+  virtual ~Renumbering() { }
 }; 
 
 #endif /*RENUMBERING_HXX_*/

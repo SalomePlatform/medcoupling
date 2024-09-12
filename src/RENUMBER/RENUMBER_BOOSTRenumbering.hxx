@@ -20,15 +20,13 @@
 #ifndef __BOOSTRENUMBERING_HXX__
 #define __BOOSTRENUMBERING_HXX__
 
-#include "MCIdType.hxx"
-#include "MCType.hxx"
 #include "RENUMBERDefines.hxx"
 #include "RENUMBER_Renumbering.hxx"
 
 class RENUMBER_EXPORT BOOSTRenumbering:public Renumbering
 {
 public:
-  void renumber(const mcIdType *graph, const mcIdType *index_graph, mcIdType nbCell, MEDCoupling::DataArrayIdType *&iperm, MEDCoupling::DataArrayIdType *&perm) override;
+  void renumber(const mcIdType *graph, const mcIdType *index_graph, mcIdType nbCell, MEDCoupling::DataArrayIdType *&iperm, MEDCoupling::DataArrayIdType *&perm);
 };
 
 #endif /*BOOSTRENUMBERING_HXX_*/

@@ -18,7 +18,6 @@
 //
 
 #include "MEDPARTITIONER_ParMetisGraph.hxx"
-#include "MCIdType.hxx"
 #include "MEDPARTITIONER_ParaDomainSelector.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 
@@ -26,8 +25,6 @@
 #include "InterpKernelException.hxx"
 
 #include <iostream>
-#include <string>
-#include <vector>
 
 #ifdef MED_ENABLE_PARMETIS
 #include <parmetis.h>
@@ -48,11 +45,12 @@ ParMETISGraph::ParMETISGraph(MEDCoupling::MEDCouplingSkyLineArray* graph, int* e
 }
 
 ParMETISGraph::~ParMETISGraph()
-= default;
+{
+}
 
 void ParMETISGraph::partGraph(int ndomain,
-                           const std::string&  /*options_string*/,
-                           ParaDomainSelector * /*parallelizer*/)
+                           const std::string& options_string,
+                           ParaDomainSelector *parallelizer)
 {
   using std::vector;
   vector<int> ran,vx,va; //for randomize
@@ -61,7 +59,7 @@ void ParMETISGraph::partGraph(int ndomain,
     std::cout << "proc " << MyGlobals::_Rank << " : ParMETISGraph::partGraph" << std::endl;
   
   // number of graph vertices
-  int const n=FromIdType<int>(_graph->getNumberOf());
+  int n=FromIdType<int>(_graph->getNumberOf());
   //graph
 #ifdef MEDCOUPLING_USE_64BIT_IDS
   std::vector<int> indexVec( _graph->getIndex(), _graph->getIndexArray()->end() );
@@ -75,11 +73,11 @@ void ParMETISGraph::partGraph(int ndomain,
   //constraints
   int * vwgt=_cell_weight;
   int * adjwgt=_edge_weight;
-  int const wgtflag=(_edge_weight!=nullptr)?1:0+(_cell_weight!=nullptr)?2:0;
+  int wgtflag=(_edge_weight!=0)?1:0+(_cell_weight!=0)?2:0;
   //base 0 or 1
-  int const base=0;
+  int base=0;
   //ndomain
-  int const nparts=ndomain;
+  int nparts=ndomain;
   //options
   /*
     (0=default_option,option,random_seed) see defs.h
@@ -89,7 +87,7 @@ void ParMETISGraph::partGraph(int ndomain,
     #define PMV3_OPTION_PSR 3
     seems no changes int options[4]={1,0,33,0}; //test for a random seed of 33
   */
-  int const options[4]={0,0,0,0};
+  int options[4]={0,0,0,0};
   // output parameters
   int edgecut;
 #if !defined(MED_ENABLE_PARMETIS)

@@ -20,9 +20,9 @@
 #ifndef __SauvLoaderTest_HXX__
 #define __SauvLoaderTest_HXX__
 
-#include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include "MEDLoaderTest.hxx"
 
 namespace MEDCoupling
 {
@@ -43,7 +43,7 @@ namespace MEDCoupling
     void testCellsWithLingNames();
 
   public:
-    void tearDown() override;
+    void tearDown();
   };
 }
 

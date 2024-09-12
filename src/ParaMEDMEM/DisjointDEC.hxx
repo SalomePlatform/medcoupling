@@ -21,7 +21,7 @@
 #define __DISJOINTDEC_HXX__
 
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingNatureOfFieldEnum"
+#include "NormalizedUnstructuredMesh.hxx"
 #include "DEC.hxx"
 
 #include <mpi.h>
@@ -69,8 +69,8 @@ namespace MEDCoupling
   class DisjointDEC : public DEC
   {
   public:
-    DisjointDEC():_local_field(nullptr),_union_group(nullptr),_source_group(nullptr),_target_group(nullptr),
-    _comm_interface(nullptr),
+    DisjointDEC():_local_field(0),_union_group(0),_source_group(0),_target_group(0),
+    _comm_interface(0),
     _owns_field(false),_owns_groups(false),
     _union_comm(MPI_COMM_NULL)
     { }
@@ -79,7 +79,7 @@ namespace MEDCoupling
     DisjointDEC &operator=(const DisjointDEC& s);
     DisjointDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids,
                 const MPI_Comm& world_comm=MPI_COMM_WORLD);
-    ~DisjointDEC() override;
+    virtual ~DisjointDEC();
 
     void setNature(NatureOfField nature);
     void attachLocalField( MEDCouplingFieldDouble *field);
@@ -90,8 +90,8 @@ namespace MEDCoupling
     virtual void prepareTargetDE() = 0;
     virtual void recvData() = 0;
     virtual void sendData() = 0;
-    void sendRecvData(bool way=true) override;
-    void synchronize() override = 0;
+    void sendRecvData(bool way=true);
+    virtual void synchronize() = 0;
 
     virtual void computeProcGroup() { }
     void renormalizeTargetField(bool isWAbs);

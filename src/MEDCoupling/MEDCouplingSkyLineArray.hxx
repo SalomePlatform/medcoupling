@@ -19,17 +19,11 @@
 
 #pragma once
 
-#include "MCType.hxx"
-#include "MCIdType.hxx"
 #include "MEDCoupling.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MCAuto.hxx"
-#include "MEDCouplingRefCountObject.hxx"
+#include "NormalizedGeometricTypes"
 
-#include <cstddef>
-#include <algorithm>
-#include <string>
-#include <iterator>
 #include <vector>
 #include <functional>
 
@@ -84,16 +78,16 @@ namespace MEDCoupling
     
     static std::vector< MCAuto<DataArrayIdType> > RetrieveVecOfSkyLineArrayGen(const std::vector< MCAuto<MEDCouplingSkyLineArray> >& vecSka, std::function<DataArrayIdType *(MEDCouplingSkyLineArray *)> fct)
     {
-       std::size_t const sz(vecSka.size());
+       std::size_t sz(vecSka.size());
        std::vector< MCAuto<DataArrayIdType> > ret(sz);
-       auto it(ret.begin());
+       std::vector< MCAuto<DataArrayIdType> >::iterator it(ret.begin());
        std::for_each(vecSka.begin(),vecSka.end(),[&it,fct](MCAuto<MEDCouplingSkyLineArray> elt) { *it++ = MCAuto<DataArrayIdType>::TakeRef(fct(elt)); } );
        return ret;
     }
 
     std::string getClassName() const override { return std::string("MEDCouplingSkyLineArray"); }
-    std::size_t getHeapMemorySizeWithoutChildren() const override;
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
 
     void set( DataArrayIdType* index, DataArrayIdType* value );
     void set3( DataArrayIdType* superIndex, DataArrayIdType* index, DataArrayIdType* value );
@@ -139,7 +133,7 @@ namespace MEDCoupling
 
   private:
     MEDCouplingSkyLineArray();
-    ~MEDCouplingSkyLineArray() override;
+    ~MEDCouplingSkyLineArray();
 
     void checkSuperIndex(const std::string& func) const;
     void validSuperIndex(const std::string& func, mcIdType superIndex) const;

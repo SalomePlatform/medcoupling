@@ -20,22 +20,18 @@
 
 #include "InterpKernelUnit.hxx"
 #include "InterpKernelExprParser.hxx"
-#include "InterpKernelException.hxx"
 
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
-#include <map>
 #include <sstream>
 #include <iomanip>
 #include <limits>
-#include <string>
 
 using namespace INTERP_KERNEL;
 
 const UnitDataBase& UnitDataBase::GetUniqueMapForExpr()
 {
-  static UnitDataBase const db;
+  static UnitDataBase db;
   return db;
 }
 
@@ -116,19 +112,19 @@ UnitDataBase::UnitDataBase()
 
 const short *UnitDataBase::getInfoForUnit(const std::string& unit, double& addFact, double& mFact) const
 {
-  std::size_t const lgth=unit.length();
+  std::size_t lgth=unit.length();
   std::string work,work2;
-  const short *ret=nullptr;
+  const short *ret=0;
   for(std::size_t i=0;i<lgth && !ret;i++)
     {
       work=unit.substr(i);
-      auto const iter=_units_semantic.find(work);
+      std::map<std::string,const short *>::const_iterator iter=_units_semantic.find(work);
       if(iter!=_units_semantic.end())
         {
           ret=(*iter).second;
-          auto const iter2=_units_add.find(work);
+          std::map<std::string,double>::const_iterator iter2=_units_add.find(work);
           addFact=(*iter2).second;
-          auto const iter3=_units_mul.find(work);
+          std::map<std::string,double>::const_iterator iter3=_units_mul.find(work);
           mFact=(*iter3).second;
           work2=unit.substr(0,i);
         }
@@ -141,7 +137,7 @@ const short *UnitDataBase::getInfoForUnit(const std::string& unit, double& addFa
     }
   if(!work2.empty())
     {
-      auto const iter4=_prefix_pow_10.find(work2);
+      std::map<std::string,double>::const_iterator iter4=_prefix_pow_10.find(work2);
       if(iter4==_prefix_pow_10.end())
         {
           std::ostringstream os;
@@ -196,13 +192,13 @@ void DecompositionInUnitBase::getTranslationParams(const DecompositionInUnitBase
 
 bool DecompositionInUnitBase::isEqual(short mass, short lgth, short time, short intensity, short temp, double add, double mult)
 {
-  bool const ret1=mass==_value[0];
-  bool const ret2=lgth==_value[1];
-  bool const ret3=time==_value[2];
-  bool const ret4=intensity==_value[3];
-  bool const ret5=temp==_value[4];
-  bool const ret6=areDoubleEquals(add,_add_to_base);
-  bool const ret7=areDoubleEquals(mult,_mult_fact_to_base);
+  bool ret1=mass==_value[0];
+  bool ret2=lgth==_value[1];
+  bool ret3=time==_value[2];
+  bool ret4=intensity==_value[3];
+  bool ret5=temp==_value[4];
+  bool ret6=areDoubleEquals(add,_add_to_base);
+  bool ret7=areDoubleEquals(mult,_mult_fact_to_base);
   return ret1 && ret2 && ret3 && ret4 && ret5 && ret6 && ret7;
 }
 
@@ -223,7 +219,7 @@ bool DecompositionInUnitBase::isUnitary() const
 
 void DecompositionInUnitBase::tryToConvertInUnit(double val)
 {
-  int const valI=(int)val;
+  int valI=(int)val;
   if((val-(double)valI)!=0.)
     {
       std::ostringstream os;
@@ -261,7 +257,7 @@ DecompositionInUnitBase &DecompositionInUnitBase::operator^(const DecompositionI
 {
   if(!other.isAdimensional())
     throw INTERP_KERNEL::Exception("Trying to execute operator ^ with a second member not adimensionnal");
-  int const exp=couldItBeConsideredAsInt(other._mult_fact_to_base);
+  int exp=couldItBeConsideredAsInt(other._mult_fact_to_base);
   // *= causes ' conversion to 'short int' from 'int' may alter its value [-Wconversion]'
   _value[0]=(short)(_value[0]*exp); _value[1]=(short)(_value[1]*exp); _value[2]=(short)(_value[2]*exp); _value[3]=(short)(_value[3]*exp); _value[4]=(short)(_value[4]*exp);
   _mult_fact_to_base=powInt(_mult_fact_to_base,exp);
@@ -292,7 +288,7 @@ double DecompositionInUnitBase::powInt(double val, int exp)
       work*=val;
   else
     {
-      int const tmp=-exp;
+      int tmp=-exp;
       for(int i=0;i<tmp;i++)
         work*=1/val;
     }
@@ -303,14 +299,14 @@ bool DecompositionInUnitBase::areDoubleEquals(double a, double b)
 {
   if(a==0. || b==0.)
     return a==b;
-  double const ref=std::max(a,b);
+  double ref=std::max(a,b);
   return fabs((a-b)/ref)<1e-7;
 }
 
 int DecompositionInUnitBase::couldItBeConsideredAsInt(double val)
 {
-  int const ret=(int)val;
-  auto const valT=(double) ret;
+  int ret=(int)val;
+  double valT=(double) ret;
   if(valT==val)
     return ret;
   else
@@ -328,7 +324,7 @@ Unit::Unit(const char *reprC, bool tryToInterp):_coarse_repr(reprC),
     tryToInterprate();
 }
 
-Unit::Unit(const char *reprFortran, int sizeOfRepr, bool  /*tryToInterp*/):_coarse_repr(ExprParser::buildStringFromFortran(reprFortran,sizeOfRepr)),
+Unit::Unit(const char *reprFortran, int sizeOfRepr, bool tryToInterp):_coarse_repr(ExprParser::buildStringFromFortran(reprFortran,sizeOfRepr)),
                                                                       _is_interpreted(false),
                                                                       _is_interpretation_ok(false)
 {

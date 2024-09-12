@@ -19,17 +19,14 @@
 
 #include "RENUMBER_BOOSTRenumbering.hxx"
 
-#include "MCIdType.hxx"
-#include "MCType.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MCAuto.hxx"
 
+#include <boost/config.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/cuthill_mckee_ordering.hpp>
-#include <boost/graph/graph_selectors.hpp>
-#include <boost/graph/detail/adjacency_list.hpp>
 #include <boost/graph/properties.hpp>
-#include <boost/pending/property.hpp>
+#include <boost/graph/bandwidth.hpp>
 
 void BOOSTRenumbering::renumber(const mcIdType *graph, const mcIdType *index_graph, mcIdType nbCell, MEDCoupling::DataArrayIdType *&iperm, MEDCoupling::DataArrayIdType *&perm)
 {
@@ -45,7 +42,7 @@ void BOOSTRenumbering::renumber(const mcIdType *graph, const mcIdType *index_gra
     for (mcIdType j=index_graph[i];j<index_graph[i+1];++j)
       add_edge(i,graph[j],G);
   boost::property_map<Graph, boost::vertex_index_t>::type
-    const index_map = boost::get(boost::vertex_index, G);
+    index_map = boost::get(boost::vertex_index, G);
   boost::cuthill_mckee_ordering(G, out0->getPointer(), boost::get(boost::vertex_color, G),
                            boost::make_degree_map(G));
   mcIdType *out0Ptr(out0->getPointer()),*out1Ptr(out1->getPointer());

@@ -20,14 +20,11 @@
 
 #include "InterpKernelValue.hxx"
 #include "InterpKernelFunction.hxx"
-#include "InterpKernelUnit.hxx"
-#include "InterpKernelException.hxx"
 
 #include <cmath>
 #include <limits>
 #include <algorithm>
 #include <functional>
-#include <string>
 
 using namespace INTERP_KERNEL;
 
@@ -49,7 +46,7 @@ void ValueDouble::setDouble(double val)
   _data=val;
 }
 
-void ValueDouble::setVarname(int  /*fastPos*/, const std::string& var)
+void ValueDouble::setVarname(int fastPos, const std::string& var)
 {
   std::string msg("Error var : "); msg+=var; msg+=" not numeric : use another expression evaluator !";
   throw INTERP_KERNEL::Exception(msg.c_str());
@@ -202,14 +199,15 @@ Value *ValueDouble::ifFunc(const Value *the, const Value *els) const
 
 const ValueDouble *ValueDouble::checkSameType(const Value *val)
 {
-  const auto *valC=dynamic_cast<const ValueDouble *>(val);
+  const ValueDouble *valC=dynamic_cast<const ValueDouble *>(val);
   if(!valC)
     throw INTERP_KERNEL::Exception("Trying to operate on non homogeneous Values (double with other type) !");
   return valC;
 }
 
 ValueUnit::ValueUnit()
-= default;
+{
+}
 
 Value *ValueUnit::newInstance() const
 {
@@ -225,7 +223,7 @@ void ValueUnit::setDouble(double val)
   _data.tryToConvertInUnit(val);
 }
 
-void ValueUnit::setVarname(int  /*fastPos*/, const std::string& var)
+void ValueUnit::setVarname(int fastPos, const std::string& var)
 {
   double add,mul;
   const short *projInBase=UnitDataBase::GetUniqueMapForExpr().getInfoForUnit(var,add,mul);
@@ -312,34 +310,34 @@ void ValueUnit::log10()
   unsupportedOp(Log10Function::REPR);
 }
 
-Value *ValueUnit::plus(const Value * /*other*/) const
+Value *ValueUnit::plus(const Value *other) const
 {
   unsupportedOp(PlusFunction::REPR);
-  return nullptr;
+  return 0;
 }
 
-Value *ValueUnit::minus(const Value * /*other*/) const
+Value *ValueUnit::minus(const Value *other) const
 {
   unsupportedOp(MinusFunction::REPR);
-  return nullptr;
+  return 0;
 }
 
-Value *ValueUnit::greaterThan(const Value * /*other*/) const
+Value *ValueUnit::greaterThan(const Value *other) const
 {
   unsupportedOp(GreaterThanFunction::REPR);
-  return nullptr;
+  return 0;
 }
 
-Value *ValueUnit::lowerThan(const Value * /*other*/) const
+Value *ValueUnit::lowerThan(const Value *other) const
 {
   unsupportedOp(LowerThanFunction::REPR);
-  return nullptr;
+  return 0;
 }
 
-Value *ValueUnit::ifFunc(const Value * /*the*/, const Value * /*els*/) const
+Value *ValueUnit::ifFunc(const Value *the, const Value *els) const
 {
   unsupportedOp(IfFunction::REPR);
-  return nullptr;
+  return 0;
 }
 
 Value *ValueUnit::mult(const Value *other) const
@@ -366,21 +364,21 @@ Value *ValueUnit::pow(const Value *other) const
   return new ValueUnit(tmp);
 }
 
-Value *ValueUnit::max(const Value * /*other*/) const
+Value *ValueUnit::max(const Value *other) const
 {
   unsupportedOp(MaxFunction::REPR);
-  return nullptr;
+  return 0;
 }
 
-Value *ValueUnit::min(const Value * /*other*/) const
+Value *ValueUnit::min(const Value *other) const
 {
   unsupportedOp(MinFunction::REPR);
-  return nullptr;
+  return 0;
 }
 
 const ValueUnit *ValueUnit::checkSameType(const Value *val)
 {
-  const auto *valC=dynamic_cast<const ValueUnit *>(val);
+  const ValueUnit *valC=dynamic_cast<const ValueUnit *>(val);
   if(!valC)
     throw INTERP_KERNEL::Exception("Trying to operate on non homogeneous Values (Units with other type) !");
   return valC;
@@ -413,7 +411,7 @@ void ValueDoubleExpr::setDouble(double val)
   std::fill(_dest_data,_dest_data+_sz_dest_data,val);
 }
 
-void ValueDoubleExpr::setVarname(int fastPos, const std::string&  /*var*/)
+void ValueDoubleExpr::setVarname(int fastPos, const std::string& var)
 {
   if(fastPos==-2)
     std::copy(_src_data,_src_data+_sz_dest_data,_dest_data);
@@ -528,71 +526,71 @@ void ValueDoubleExpr::log10()
 
 Value *ValueDoubleExpr::plus(const Value *other) const
 {
-  const auto *otherC=static_cast<const ValueDoubleExpr *>(other);
-  auto *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
   std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::plus<double>());
   return ret;
 }
 
 Value *ValueDoubleExpr::minus(const Value *other) const
 {
-  const auto *otherC=static_cast<const ValueDoubleExpr *>(other);
-  auto *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
   std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::minus<double>());
   return ret;
 }
 
 Value *ValueDoubleExpr::mult(const Value *other) const
 {
-  const auto *otherC=static_cast<const ValueDoubleExpr *>(other);
-  auto *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
   std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::multiplies<double>());
   return ret;
 }
 
 Value *ValueDoubleExpr::div(const Value *other) const
 {
-  const auto *otherC=static_cast<const ValueDoubleExpr *>(other);
+  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
   double *it=std::find(otherC->getData(),otherC->getData()+_sz_dest_data,0.);
   if(it!=otherC->getData()+_sz_dest_data)
     throw INTERP_KERNEL::Exception("Trying to operate division by 0. !");
-  auto *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
   std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::divides<double>());
   return ret;
 }
 
 Value *ValueDoubleExpr::pow(const Value *other) const
 {
-  const auto *otherC=static_cast<const ValueDoubleExpr *>(other);
-  double const p=otherC->getData()[0];
+  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
+  double p=otherC->getData()[0];
   double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::less<double>(),std::placeholders::_1,0.));
   if(it!=_dest_data+_sz_dest_data)
     throw INTERP_KERNEL::Exception("Trying to operate pow(a,b) with a<0. !");
-  auto *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
   std::transform(_dest_data,_dest_data+_sz_dest_data,ret->getData(),std::bind([](double x, double y){return std::pow(x,y);},std::placeholders::_1,p));
   return ret;
 }
 
 Value *ValueDoubleExpr::max(const Value *other) const
 {
-  const auto *otherC=static_cast<const ValueDoubleExpr *>(other);
-  auto *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
   std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),[](const double& x, const double& y){return std::max(x,y);});
   return ret;
 }
 
 Value *ValueDoubleExpr::min(const Value *other) const
 {
-  const auto *otherC=static_cast<const ValueDoubleExpr *>(other);
-  auto *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
   std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),[](const double& x, const double& y){return std::min(x,y);});
   return ret;
 }
 
 Value *ValueDoubleExpr::greaterThan(const Value *other) const
 {
-  const auto *otherC=static_cast<const ValueDoubleExpr *>(other);
-  auto *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
   for(int i=0;i<_sz_dest_data;i++)
     if(_dest_data[i]<=otherC->getData()[i])
       {
@@ -605,8 +603,8 @@ Value *ValueDoubleExpr::greaterThan(const Value *other) const
 
 Value *ValueDoubleExpr::lowerThan(const Value *other) const
 {
-  const auto *otherC=static_cast<const ValueDoubleExpr *>(other);
-  auto *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
   for(int i=0;i<_sz_dest_data;i++)
     if(_dest_data[i]>=otherC->getData()[i])
       {
@@ -619,9 +617,9 @@ Value *ValueDoubleExpr::lowerThan(const Value *other) const
 
 Value *ValueDoubleExpr::ifFunc(const Value *the, const Value *els) const
 {
-  const auto *theC=static_cast<const ValueDoubleExpr *>(the);
-  const auto *elsC=static_cast<const ValueDoubleExpr *>(els);
-  auto *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
+  const ValueDoubleExpr *theC=static_cast<const ValueDoubleExpr *>(the);
+  const ValueDoubleExpr *elsC=static_cast<const ValueDoubleExpr *>(els);
+  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
   bool okmax=true;
   bool okmin=true;
   for(int i=0;i<_sz_dest_data && (okmax || okmin);i++)

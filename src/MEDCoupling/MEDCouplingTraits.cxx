@@ -19,7 +19,6 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingTraits.hxx"
-#include "MCType.hxx"
 
 using namespace MEDCoupling;
 

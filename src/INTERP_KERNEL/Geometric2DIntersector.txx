@@ -21,7 +21,6 @@
 #define __GEOMETRIC2DINTERSECTOR_TXX__
 
 #include "Geometric2DIntersector.hxx"
-#include "PlanarIntersector.txx"
 #include "PlanarIntersectorP0P0.txx"
 #include "Planar2D1DIntersectorP0P0.txx"
 #include "PlanarIntersectorP0P1.txx"
@@ -29,19 +28,12 @@
 #include "PlanarIntersectorP1P1.txx"
 #include "PlanarIntersectorP1P0Bary.txx"
 #include "PlanarIntersectorP0P1Bary.txx"
-#include "InterpolationUtils.hxx"
 #include "CellModel.hxx"
-#include "NormalizedGeometricTypes"
 
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DEdgeLin.hxx"
 #include "InterpKernelGeo2DNode.hxx"
-
-#include <vector>
-#include <cstddef>
-#include <limits>
-
 
 #define GEO2D_INTERSECTOR    Geometric2DIntersector<MyMeshType,MyMatrix,InterpType>
 #define INTERSECTOR_TEMPLATE template<class MyMeshType, class MyMatrix, template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType>

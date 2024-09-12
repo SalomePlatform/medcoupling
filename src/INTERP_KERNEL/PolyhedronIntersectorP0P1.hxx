@@ -24,7 +24,6 @@
 #include "Intersector3DP0P1.hxx"
 #include "SplitterTetra.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
-#include <vector>
 
 namespace INTERP_KERNEL
 {

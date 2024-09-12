@@ -21,11 +21,7 @@
 #define __INTEGRALUNIFORMINTERSECTOR_TXX__
 
 #include "IntegralUniformIntersector.hxx"
-#include "NormalizedGeometricTypes"
-#include "NormalizedUnstructuredMesh.hxx"
-#include "InterpolationUtils.hxx"
 #include "VolSurfUser.txx"
-#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -91,7 +87,7 @@ namespace INTERP_KERNEL
   }
   
   template<class MyMeshType, class MyMatrix>
-  void IntegralUniformIntersectorP0<MyMeshType,MyMatrix>::intersectCells(ConnType  /*targetCell*/, const std::vector<ConnType>&  /*srcCells*/, MyMatrix& res)
+  void IntegralUniformIntersectorP0<MyMeshType,MyMatrix>::intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res)
   {
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
     res.resize(getNumberOfRowsOfResMatrix());
@@ -131,7 +127,7 @@ namespace INTERP_KERNEL
   }
   
   template<class MyMeshType, class MyMatrix>
-  void IntegralUniformIntersectorP1<MyMeshType,MyMatrix>::intersectCells(ConnType  /*targetCell*/, const std::vector<ConnType>&  /*srcCells*/, MyMatrix& res)
+  void IntegralUniformIntersectorP1<MyMeshType,MyMatrix>::intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res)
   {
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
     res.resize(getNumberOfRowsOfResMatrix());

@@ -19,12 +19,12 @@
 
 #pragma once
 
-#include "MCType.hxx"
-#include "MCAuto.hxx"
 #include "MEDCouplingPointSet.hxx"
 #include "ProcessorGroup.hxx"
+#include "MEDCouplingMemArray.hxx"
 
 #include <string>
+#include <vector>
 
 namespace MEDCoupling
 {

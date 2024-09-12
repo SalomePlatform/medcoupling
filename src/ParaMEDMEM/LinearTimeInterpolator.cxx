@@ -18,7 +18,6 @@
 //
 
 #include "LinearTimeInterpolator.hxx"
-#include "TimeInterpolator.hxx"
 
 using namespace std;
 
@@ -32,10 +31,11 @@ namespace MEDCoupling
   }
   
   LinearTimeInterpolator::~LinearTimeInterpolator()
-  = default; 
+  {
+  } 
   
   void LinearTimeInterpolator::doInterp( double time0, double time1, double time,
-                                         int recvcount , int  /*nbuff0*/, int  /*nbuff1*/,
+                                         int recvcount , int nbuff0, int nbuff1,
                                          int **recvbuff0, int **recvbuff1, int *result )
   {
     for(int i = 0 ; i < recvcount ; i++ )
@@ -43,7 +43,7 @@ namespace MEDCoupling
   }
 
   void LinearTimeInterpolator::doInterp( double time0, double time1, double time,
-                                         int recvcount , int  /*nbuff0*/, int  /*nbuff1*/,
+                                         int recvcount , int nbuff0, int nbuff1,
                                          double **recvbuff0, double **recvbuff1,
                                          double *result )
   {

@@ -20,7 +20,6 @@
 #ifndef __MEDPARTITIONERTEST_HXX__
 #define __MEDPARTITIONERTEST_HXX__
 
-#include <cppunit/TestFixture.h>
 #ifdef WIN32
 # if defined MEDPARTITIONERTEST_EXPORTS || defined MEDPARTITIONERTest_EXPORTS
 #  define MEDPARTITIONERTEST_EXPORT __declspec( dllexport )
@@ -34,7 +33,9 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <set>
 #include <string>
+#include <iostream>
 
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
@@ -117,8 +118,8 @@ public:
   void deleteTestMeshes();
 
   //for CPPUNIT_TEST
-  void setUp() override;
-  void tearDown() override;
+  void setUp();
+  void tearDown();
   void testMeshCollectionSingle();
   void testMeshCollectionXml();
 #if defined(MED_ENABLE_METIS)

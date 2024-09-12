@@ -24,7 +24,6 @@
 #ifndef __UNITTETRAINTERSECTIONBARYTEST_HXX__
 #define __UNITTETRAINTERSECTIONBARYTEST_HXX__
 
-#include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "InterpKernelTestExport.hxx"

@@ -21,8 +21,11 @@
 #ifndef __MEDFILESAFECALLER_TXX__
 #define __MEDFILESAFECALLER_TXX__
 
+#include "med.h"
 
+#include "InterpKernelException.hxx"
 
+#include <sstream>
 
 // TXX extension to avoid to be installed.
 

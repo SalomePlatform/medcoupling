@@ -30,8 +30,8 @@
 #include "InterpKernelHashMap.hxx"
 #include "MCIdType.hxx"
 
-#include <cstddef>
-#include <utility>
+#include <set>
+#include <map>
 #include <vector>
 #include <iostream>
 
@@ -99,7 +99,7 @@ void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSe
   for (int idomain=0; idomain<_nb_domain; idomain++)
     {
       _loc_to_glob[idomain].resize(_nb_cells[idomain]);
-      mcIdType const domainCellShift=domainSelector->getDomainCellShift(idomain);
+      mcIdType domainCellShift=domainSelector->getDomainCellShift(idomain);
       for (mcIdType i=0; i<_nb_cells[idomain]; i++)
         {
           mcIdType global=domainCellShift+i ;
@@ -118,7 +118,7 @@ void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSe
   for (int idomain=0; idomain<_nb_domain; idomain++)
     {
       _node_loc_to_glob[idomain].resize(_nb_nodes[idomain]);
-      mcIdType const domainNodeShift=domainSelector->getDomainNodeShift(idomain);
+      mcIdType domainNodeShift=domainSelector->getDomainNodeShift(idomain);
       for (mcIdType i=0; i<_nb_nodes[idomain]; i++)
         {
           mcIdType global=domainNodeShift+i ;
@@ -150,7 +150,7 @@ ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMe
   _nb_domain=(int)meshes.size();
   mcIdType index_global=0;
   mcIdType index_node_global=0;
-  mcIdType const index_face_global=0;
+  mcIdType index_face_global=0;
 
   _nb_cells.resize(_nb_domain);
   _nb_nodes.resize(_nb_domain);
@@ -230,7 +230,7 @@ ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMe
               for (mcIdType i=0; i< nb_node; i++)
                 {
                   mcIdType local= node_corresp[i*2];
-                  mcIdType const distant = node_corresp[i*2+1];
+                  mcIdType distant = node_corresp[i*2+1];
                   local2distant.insert(std::make_pair(local, std::make_pair(distant_ip,distant)));    
                 }
             }
@@ -301,7 +301,7 @@ ParallelTopology::ParallelTopology(Graph* graph, Topology* oldTopology, int nb_d
   int icellProc=0; //all cells of my domains are concatenated in part
   for (int iold=0; iold<oldTopology->nbDomain(); iold++)
     {
-      mcIdType const ioldNbCell=oldTopology->getCellNumber(iold);
+      mcIdType ioldNbCell=oldTopology->getCellNumber(iold);
       //std::cout<<"proc "<<MyGlobals::_Rank<<" : cell number old domain "<<iold<<" : "<<ioldNbCell<<std::endl;
       //if not my old domains getCellNumber is 0
       std::vector<mcIdType> globalids(ioldNbCell);
@@ -340,7 +340,7 @@ ParallelTopology::ParallelTopology(Graph* graph, Topology* oldTopology, int nb_d
           int iGlobDom = FromIdType<int>(part[ iGlob ]);
           for ( mcIdType i = index[ iGlob ]; i < index[ iGlob+1 ]; i++ )
             {
-              mcIdType const iGlobNear = value[ i ];
+              mcIdType iGlobNear = value[ i ];
               if ( iGlob > iGlobNear )
                 continue; // treat ( iGlob, iGlobNear ) pair once
               int iGlobNearDom = FromIdType<int>(part[ iGlobNear ]);
@@ -362,7 +362,7 @@ ParallelTopology::ParallelTopology(Graph* graph, Topology* oldTopology, int nb_d
               std::vector< mcIdType > & corresp = cellCorresp[ idomain ][ idomainNear ];
               if ( corresp.empty() )
                 continue;
-              auto* cz = new MEDPARTITIONER::ConnectZone();
+              MEDPARTITIONER::ConnectZone* cz = new MEDPARTITIONER::ConnectZone();
               cz->setName( "Connect Zone defined by MEDPARTITIONER" );
               cz->setDistantDomainNumber( idomainNear );
               cz->setLocalDomainNumber  ( idomain );
@@ -375,10 +375,10 @@ ParallelTopology::ParallelTopology(Graph* graph, Topology* oldTopology, int nb_d
 
 ParallelTopology::~ParallelTopology()
 {
-  for (auto & _connect_zone : _connect_zones)
+  for ( size_t i = 0; i < _connect_zones.size(); ++i )
     {
-      delete _connect_zone;
-      _connect_zone = nullptr;
+      delete _connect_zones[i];
+      _connect_zones[i] = 0;
     }
   _connect_zones.clear();
 }
@@ -564,7 +564,7 @@ void ParallelTopology::convertToLocal2ndVersion(mcIdType* nodes, mcIdType nbnode
   for (mcIdType inode=0; inode<nbnodes; inode++)
     {
       //      cout <<" inode :"<<inode<< " global = "<<type_connectivity[type][inode];
-      mcIdType const global = nodes[inode];
+      mcIdType global = nodes[inode];
       typedef INTERP_KERNEL::HashMultiMap<mcIdType,std::pair<int,mcIdType> >::iterator mmiter;
       std::pair<mmiter,mmiter> range=_node_glob_to_loc.equal_range(global);
       for (mmiter it=range.first; it !=range.second; it++)

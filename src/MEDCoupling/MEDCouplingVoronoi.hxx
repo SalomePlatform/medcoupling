@@ -21,9 +21,8 @@
 #ifndef __MEDCOUPLINGVORONOI_HXX__
 #define __MEDCOUPLINGVORONOI_HXX__
 
-#include "MCAuto.hxx"
+#include "MEDCoupling.hxx"
 
-#include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingUMesh.hxx"
 
 namespace MEDCoupling
@@ -39,22 +38,22 @@ namespace MEDCoupling
   class Voronizer1D : public Voronizer
   {
   public:
-    MCAuto<MEDCouplingUMesh> doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const override;
-    int getDimension() const override;
+    MCAuto<MEDCouplingUMesh> doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const;
+    int getDimension() const;
   };
 
   class Voronizer2D : public Voronizer
   {
   public:
-    MCAuto<MEDCouplingUMesh> doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const override;
-    int getDimension() const override;
+    MCAuto<MEDCouplingUMesh> doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const;
+    int getDimension() const;
   };
 
   class Voronizer3D : public Voronizer
   {
   public:
-    MCAuto<MEDCouplingUMesh> doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const override;
-    int getDimension() const override;
+    MCAuto<MEDCouplingUMesh> doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const;
+    int getDimension() const;
   };
 }
 

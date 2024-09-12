@@ -21,14 +21,12 @@
 #ifndef __MEDCOUPLINGTIMEDISCRETIZATION_HXX__
 #define __MEDCOUPLINGTIMEDISCRETIZATION_HXX__
 
-#include "MCType.hxx"
 #include "MEDCoupling.hxx"
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
+#include "InterpKernelException.hxx"
 #include "MEDCouplingTraits.hxx"
 
-#include <string>
-#include <cstddef>
 #include <vector>
 
 namespace MEDCoupling
@@ -47,8 +45,8 @@ namespace MEDCoupling
     void copyTinyAttrFrom(const TimeHolder& other) { _time_unit=other._time_unit; }
   protected:
     TimeHolder() { }
-    TimeHolder(const TimeHolder& other) = default;
-    virtual ~TimeHolder() = default;
+    TimeHolder(const TimeHolder& other):_time_unit(other._time_unit) { }
+    virtual ~TimeHolder() { }
   private:
     std::string _time_unit;
   };
@@ -57,7 +55,7 @@ namespace MEDCoupling
   class MEDCouplingTimeDiscretizationTemplate : public TimeLabel, public BigMemoryObject, public TimeHolder
   {
   public:
-    MEDCOUPLING_EXPORT void updateTime() const override;
+    MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT virtual void setArray(typename Traits<T>::ArrayType *array, TimeLabel *owner);
     MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *getArray() { return _array; }
     MEDCOUPLING_EXPORT const typename Traits<T>::ArrayType *getArray() const { return _array; }
@@ -90,8 +88,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual void copyTinyAttrFrom(const MEDCouplingTimeDiscretizationTemplate<T>& other);
     MEDCOUPLING_EXPORT virtual void copyTinyStringsFrom(const MEDCouplingTimeDiscretizationTemplate<T>& other);
     MEDCOUPLING_EXPORT virtual void checkConsistencyLight() const;
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    MEDCOUPLING_EXPORT virtual std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDCOUPLING_EXPORT virtual std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     //
     MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<T> *other, T prec, std::string& reason) const = 0;
     MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<T> *other, T prec) const = 0;
@@ -100,7 +98,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual bool areCompatible(const MEDCouplingTimeDiscretizationTemplate<T> *other) const;
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretizationTemplate<T> *other) const;
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretizationTemplate<T> *other) const;
-    MEDCOUPLING_EXPORT ~MEDCouplingTimeDiscretizationTemplate() override;
+    MEDCOUPLING_EXPORT virtual ~MEDCouplingTimeDiscretizationTemplate();
     MEDCOUPLING_EXPORT virtual void getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const;
     MEDCOUPLING_EXPORT virtual void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
     MEDCOUPLING_EXPORT virtual void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
@@ -120,7 +118,7 @@ namespace MEDCoupling
   class MEDCouplingTimeKeeper
   {
   public:
-    MEDCOUPLING_EXPORT MEDCouplingTimeKeeper() = default;
+    MEDCOUPLING_EXPORT MEDCouplingTimeKeeper():_time(0.),_iteration(-1),_order(-1) { }
     MEDCOUPLING_EXPORT double getAllInfo(int& iteration, int& order) const { iteration=_iteration; order=_order; return _time; }
     MEDCOUPLING_EXPORT void setAllInfo(double time, int iteration, int order) { _time=time; _iteration=iteration; _order=order; }
     MEDCOUPLING_EXPORT int getIteration() const { return _iteration; }
@@ -134,9 +132,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void copyFrom(const MEDCouplingTimeKeeper& other);
     MEDCOUPLING_EXPORT void checkTimePresence(double time, double eps) const;
   private:
-    double _time{0.};
-    int _iteration{-1};
-    int _order{-1};
+    double _time;
+    int _iteration;
+    int _order;
   };
 
   class MEDCouplingTimeDiscretization : public MEDCouplingTimeDiscretizationTemplate<double>
@@ -147,8 +145,8 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT static MEDCouplingTimeDiscretization *New(TypeOfTimeDiscretization type);
     MEDCOUPLING_EXPORT virtual bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
-    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec) const override;
-    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec, std::string& reason) const override;
+    MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec) const;
+    MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingTimeDiscretization *other, double prec) const;
     MEDCOUPLING_EXPORT virtual MEDCouplingTimeDiscretization *buildNewTimeReprFromThis(TypeOfTimeDiscretization type, bool deepCopy) const;
     MEDCOUPLING_EXPORT virtual void synchronizeTimeWith(const MEDCouplingMesh *mesh) = 0;
@@ -217,18 +215,18 @@ namespace MEDCoupling
   class MEDCouplingTimeDiscretizationSimple : public MEDCouplingTimeDiscretizationTemplate<T>
   {
   public:
-    std::string getStringRepr() const override;
-    double getStartTime(int& iteration, int& order) const override { return _tk.getAllInfo(iteration,order); }
-    void setStartIteration(int it) override { _tk.setIteration(it); }
-    void setStartOrder(int order) override { _tk.setOrder(order); }
-    void setStartTimeValue(double time) override { _tk.setTimeValue(time); } 
-    void setStartTime(double time, int iteration, int order) override { _tk.setAllInfo(time,iteration,order); }
-    double getEndTime(int& iteration, int& order) const override;
-    void setEndIteration(int it) override;
-    void setEndOrder(int order) override;
-    void setEndTimeValue(double time) override;
-    void setEndTime(double time, int iteration, int order) override;
-    TypeOfTimeDiscretization getEnum() const override { return DISCRETIZATION; }
+    std::string getStringRepr() const;
+    double getStartTime(int& iteration, int& order) const { return _tk.getAllInfo(iteration,order); }
+    void setStartIteration(int it) { _tk.setIteration(it); }
+    void setStartOrder(int order) { _tk.setOrder(order); }
+    void setStartTimeValue(double time) { _tk.setTimeValue(time); } 
+    void setStartTime(double time, int iteration, int order) { _tk.setAllInfo(time,iteration,order); }
+    double getEndTime(int& iteration, int& order) const;
+    void setEndIteration(int it);
+    void setEndOrder(int order);
+    void setEndTimeValue(double time);
+    void setEndTime(double time, int iteration, int order);
+    TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
   protected:
     MEDCouplingTimeDiscretizationSimple(const MEDCouplingTimeDiscretizationSimple<T>& other, bool deepCopy);
     MEDCouplingTimeDiscretizationSimple() { }
@@ -243,23 +241,23 @@ namespace MEDCoupling
   class MEDCouplingTimeDiscretizationInt32 : public MEDCouplingTimeDiscretizationSimple<Int32>
   {
   public:
-    MEDCouplingTimeDiscretizationInt32() = default;
+    MEDCouplingTimeDiscretizationInt32() { }
     std::string getClassName() const override { return std::string("MEDCouplingTimeDiscretizationInt32"); }
     MEDCouplingTimeDiscretizationInt32(const MEDCouplingTimeDiscretizationInt32& other, bool deepCopy);
     static MEDCouplingTimeDiscretizationInt32 *New(TypeOfTimeDiscretization type);
-    MEDCouplingTimeDiscretizationInt32 *performCopyOrIncrRef(bool deepCopy) const override;
-    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<Int32> *other, Int32 prec, std::string& reason) const override;
-    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<Int32> *other, Int32 prec) const override;
+    MEDCouplingTimeDiscretizationInt32 *performCopyOrIncrRef(bool deepCopy) const;
+    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<Int32> *other, Int32 prec, std::string& reason) const;
+    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<Int32> *other, Int32 prec) const;
   };
 
   class MEDCouplingTimeDiscretizationInt64 : public MEDCouplingTimeDiscretizationSimple<Int64>
   {
   public:
-    MEDCouplingTimeDiscretizationInt64() = default;
+    MEDCouplingTimeDiscretizationInt64() { }
     std::string getClassName() const override { return std::string("MEDCouplingTimeDiscretizationInt64"); }
     MEDCouplingTimeDiscretizationInt64(const MEDCouplingTimeDiscretizationInt64& other, bool deepCopy);
     static MEDCouplingTimeDiscretizationInt64 *New(TypeOfTimeDiscretization type);
-    MEDCouplingTimeDiscretizationInt64 *performCopyOrIncrRef(bool deepCopy) const override;
+    MEDCouplingTimeDiscretizationInt64 *performCopyOrIncrRef(bool deepCopy) const;
     bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<Int64> *other, Int64 prec, std::string& reason) const override;
     bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<Int64> *other, Int64 prec) const override;
   };
@@ -267,13 +265,13 @@ namespace MEDCoupling
   class MEDCouplingTimeDiscretizationFloat : public MEDCouplingTimeDiscretizationSimple<float>
   {
   public:
-    MEDCouplingTimeDiscretizationFloat() = default;
+    MEDCouplingTimeDiscretizationFloat() { }
     std::string getClassName() const override { return std::string("MEDCouplingTimeDiscretizationFloat"); }
     MEDCouplingTimeDiscretizationFloat(const MEDCouplingTimeDiscretizationFloat& other, bool deepCopy);
     static MEDCouplingTimeDiscretizationFloat *New(TypeOfTimeDiscretization type);
-    MEDCouplingTimeDiscretizationFloat *performCopyOrIncrRef(bool deepCopy) const override;
-    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<float> *other, float prec, std::string& reason) const override;
-    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<float> *other, float prec) const override;
+    MEDCouplingTimeDiscretizationFloat *performCopyOrIncrRef(bool deepCopy) const;
+    bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<float> *other, float prec, std::string& reason) const;
+    bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<float> *other, float prec) const;
   private:
     static const TypeOfTimeDiscretization DISCRETIZATION=ONE_TIME;
   };
@@ -283,56 +281,56 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT MEDCouplingNoTimeLabel();
     MEDCOUPLING_EXPORT MEDCouplingNoTimeLabel(const MEDCouplingTimeDiscretization& other, bool deepCopy);
-    MEDCOUPLING_EXPORT std::string getStringRepr() const override;
+    MEDCOUPLING_EXPORT std::string getStringRepr() const;
     MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingNoTimeLabel"); }
-    MEDCOUPLING_EXPORT TypeOfTimeDiscretization getEnum() const override { return DISCRETIZATION; }
-    MEDCOUPLING_EXPORT void synchronizeTimeWith(const MEDCouplingMesh *mesh) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void addEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void substractEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void multiplyEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void divideEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void powEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec, std::string& reason) const override;
-    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec) const override;
-    MEDCOUPLING_EXPORT bool areCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other) const override;
-    MEDCOUPLING_EXPORT bool areStrictlyCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other, std::string& reason) const override;
-    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretizationTemplate<double> *other) const override;
-    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretizationTemplate<double> *other) const override;
-    MEDCOUPLING_EXPORT bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCopyOrIncrRef(bool deepCopy) const override;
-    MEDCOUPLING_EXPORT void checkNoTimePresence() const override { }
-    MEDCOUPLING_EXPORT void checkTimePresence(double time) const override;
-    MEDCOUPLING_EXPORT std::vector< const DataArrayDouble *> getArraysForTime(double time) const override;
-    MEDCOUPLING_EXPORT void getValueForTime(double time, const std::vector<double>& vals, double *res) const override;
-    MEDCOUPLING_EXPORT bool isBefore(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT bool isStrictlyBefore(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT double getStartTime(int& iteration, int& order) const override;
-    MEDCOUPLING_EXPORT double getEndTime(int& iteration, int& order) const override;
-    MEDCOUPLING_EXPORT void setStartIteration(int it) override;
-    MEDCOUPLING_EXPORT void setEndIteration(int it) override;
-    MEDCOUPLING_EXPORT void setStartOrder(int order) override;
-    MEDCOUPLING_EXPORT void setEndOrder(int order) override;
-    MEDCOUPLING_EXPORT void setStartTimeValue(double time) override;
-    MEDCOUPLING_EXPORT void setEndTimeValue(double time) override;
-    MEDCOUPLING_EXPORT void setStartTime(double time, int iteration, int order) override;
-    MEDCOUPLING_EXPORT void setEndTime(double time, int iteration, int order) override;
-    MEDCOUPLING_EXPORT void getValueOnTime(mcIdType eltId, double time, double *value) const override;
-    MEDCOUPLING_EXPORT void getValueOnDiscTime(mcIdType eltId, int iteration, int order, double *value) const override;
-    MEDCOUPLING_EXPORT void getTinySerializationIntInformation2(std::vector<mcIdType>& tinyInfo) const override;
-    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const override;
-    MEDCOUPLING_EXPORT void finishUnserialization2(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD) override;
+    MEDCOUPLING_EXPORT TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
+    MEDCOUPLING_EXPORT void synchronizeTimeWith(const MEDCouplingMesh *mesh);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void addEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void substractEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void multiplyEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void divideEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void powEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec, std::string& reason) const;
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec) const;
+    MEDCOUPLING_EXPORT bool areCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other) const;
+    MEDCOUPLING_EXPORT bool areStrictlyCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other, std::string& reason) const;
+    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretizationTemplate<double> *other) const;
+    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretizationTemplate<double> *other) const;
+    MEDCOUPLING_EXPORT bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCopyOrIncrRef(bool deepCopy) const;
+    MEDCOUPLING_EXPORT void checkNoTimePresence() const { }
+    MEDCOUPLING_EXPORT void checkTimePresence(double time) const;
+    MEDCOUPLING_EXPORT std::vector< const DataArrayDouble *> getArraysForTime(double time) const;
+    MEDCOUPLING_EXPORT void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
+    MEDCOUPLING_EXPORT bool isBefore(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT bool isStrictlyBefore(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT double getStartTime(int& iteration, int& order) const;
+    MEDCOUPLING_EXPORT double getEndTime(int& iteration, int& order) const;
+    MEDCOUPLING_EXPORT void setStartIteration(int it);
+    MEDCOUPLING_EXPORT void setEndIteration(int it);
+    MEDCOUPLING_EXPORT void setStartOrder(int order);
+    MEDCOUPLING_EXPORT void setEndOrder(int order);
+    MEDCOUPLING_EXPORT void setStartTimeValue(double time);
+    MEDCOUPLING_EXPORT void setEndTimeValue(double time);
+    MEDCOUPLING_EXPORT void setStartTime(double time, int iteration, int order);
+    MEDCOUPLING_EXPORT void setEndTime(double time, int iteration, int order);
+    MEDCOUPLING_EXPORT void getValueOnTime(mcIdType eltId, double time, double *value) const;
+    MEDCOUPLING_EXPORT void getValueOnDiscTime(mcIdType eltId, int iteration, int order, double *value) const;
+    MEDCOUPLING_EXPORT void getTinySerializationIntInformation2(std::vector<mcIdType>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void finishUnserialization2(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=NO_TIME;
     MEDCOUPLING_EXPORT static const char REPR[];
@@ -347,57 +345,57 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT MEDCouplingWithTimeStep();
     MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingWithTimeLabel"); }
-    MEDCOUPLING_EXPORT std::string getStringRepr() const override;
-    MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingTimeDiscretizationTemplate<double>& other) override;
-    MEDCOUPLING_EXPORT TypeOfTimeDiscretization getEnum() const override { return DISCRETIZATION; }
-    MEDCOUPLING_EXPORT void synchronizeTimeWith(const MEDCouplingMesh *mesh) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void addEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void substractEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void multiplyEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void divideEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void powEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec, std::string& reason) const override;
-    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec) const override;
-    MEDCOUPLING_EXPORT bool areCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other) const override;
-    MEDCOUPLING_EXPORT bool areStrictlyCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other, std::string& reason) const override;
-    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretizationTemplate<double> *other) const override;
-    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretizationTemplate<double> *other) const override;
-    MEDCOUPLING_EXPORT bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const override;
-    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const override;
-    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS) override;
-    MEDCOUPLING_EXPORT void getTinySerializationIntInformation2(std::vector<mcIdType>& tinyInfo) const override;
-    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const override;
-    MEDCOUPLING_EXPORT void finishUnserialization2(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCopyOrIncrRef(bool deepCopy) const override;
-    MEDCOUPLING_EXPORT void checkNoTimePresence() const override;
-    MEDCOUPLING_EXPORT void checkTimePresence(double time) const override;
-    MEDCOUPLING_EXPORT void setStartTime(double time, int iteration, int order) override { _tk.setAllInfo(time,iteration,order); }
-    MEDCOUPLING_EXPORT void setEndTime(double time, int iteration, int order) override { _tk.setAllInfo(time,iteration,order); }
-    MEDCOUPLING_EXPORT double getStartTime(int& iteration, int& order) const override { return _tk.getAllInfo(iteration,order); }
-    MEDCOUPLING_EXPORT double getEndTime(int& iteration, int& order) const override { return _tk.getAllInfo(iteration,order); }
-    MEDCOUPLING_EXPORT void setStartIteration(int it) override { _tk.setIteration(it); }
-    MEDCOUPLING_EXPORT void setEndIteration(int it) override { _tk.setIteration(it); }
-    MEDCOUPLING_EXPORT void setStartOrder(int order) override { _tk.setOrder(order); }
-    MEDCOUPLING_EXPORT void setEndOrder(int order) override { _tk.setOrder(order); }
-    MEDCOUPLING_EXPORT void setStartTimeValue(double time) override { _tk.setTimeValue(time); }
-    MEDCOUPLING_EXPORT void setEndTimeValue(double time) override { _tk.setTimeValue(time); }
-    MEDCOUPLING_EXPORT std::vector< const DataArrayDouble *> getArraysForTime(double time) const override;
-    MEDCOUPLING_EXPORT void getValueForTime(double time, const std::vector<double>& vals, double *res) const override;
-    MEDCOUPLING_EXPORT void getValueOnTime(mcIdType eltId, double time, double *value) const override;
-    MEDCOUPLING_EXPORT void getValueOnDiscTime(mcIdType eltId, int iteration, int order, double *value) const override;
+    MEDCOUPLING_EXPORT std::string getStringRepr() const;
+    MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingTimeDiscretizationTemplate<double>& other);
+    MEDCOUPLING_EXPORT TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
+    MEDCOUPLING_EXPORT void synchronizeTimeWith(const MEDCouplingMesh *mesh);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void addEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void substractEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void multiplyEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void divideEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void powEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec, std::string& reason) const;
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec) const;
+    MEDCOUPLING_EXPORT bool areCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other) const;
+    MEDCOUPLING_EXPORT bool areStrictlyCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other, std::string& reason) const;
+    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretizationTemplate<double> *other) const;
+    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretizationTemplate<double> *other) const;
+    MEDCOUPLING_EXPORT bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
+    MEDCOUPLING_EXPORT void getTinySerializationIntInformation2(std::vector<mcIdType>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void finishUnserialization2(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCopyOrIncrRef(bool deepCopy) const;
+    MEDCOUPLING_EXPORT void checkNoTimePresence() const;
+    MEDCOUPLING_EXPORT void checkTimePresence(double time) const;
+    MEDCOUPLING_EXPORT void setStartTime(double time, int iteration, int order) { _tk.setAllInfo(time,iteration,order); }
+    MEDCOUPLING_EXPORT void setEndTime(double time, int iteration, int order) { _tk.setAllInfo(time,iteration,order); }
+    MEDCOUPLING_EXPORT double getStartTime(int& iteration, int& order) const { return _tk.getAllInfo(iteration,order); }
+    MEDCOUPLING_EXPORT double getEndTime(int& iteration, int& order) const { return _tk.getAllInfo(iteration,order); }
+    MEDCOUPLING_EXPORT void setStartIteration(int it) { _tk.setIteration(it); }
+    MEDCOUPLING_EXPORT void setEndIteration(int it) { _tk.setIteration(it); }
+    MEDCOUPLING_EXPORT void setStartOrder(int order) { _tk.setOrder(order); }
+    MEDCOUPLING_EXPORT void setEndOrder(int order) { _tk.setOrder(order); }
+    MEDCOUPLING_EXPORT void setStartTimeValue(double time) { _tk.setTimeValue(time); }
+    MEDCOUPLING_EXPORT void setEndTimeValue(double time) { _tk.setTimeValue(time); }
+    MEDCOUPLING_EXPORT std::vector< const DataArrayDouble *> getArraysForTime(double time) const;
+    MEDCOUPLING_EXPORT void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
+    MEDCOUPLING_EXPORT void getValueOnTime(mcIdType eltId, double time, double *value) const;
+    MEDCOUPLING_EXPORT void getValueOnDiscTime(mcIdType eltId, int iteration, int order, double *value) const;
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=ONE_TIME;
     MEDCOUPLING_EXPORT static const char REPR[];
@@ -414,57 +412,57 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT MEDCouplingConstOnTimeInterval();
     MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingConstOnTimeInterval"); }
-    MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingTimeDiscretizationTemplate<double>& other) override;
-    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const override;
-    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const override;
-    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS) override;
-    MEDCOUPLING_EXPORT void getTinySerializationIntInformation2(std::vector<mcIdType>& tinyInfo) const override;
-    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const override;
-    MEDCOUPLING_EXPORT void finishUnserialization2(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCopyOrIncrRef(bool deepCopy) const override;
-    MEDCOUPLING_EXPORT bool areCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other) const override;
-    MEDCOUPLING_EXPORT bool areStrictlyCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other, std::string& reason) const override;
-    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretizationTemplate<double> *other) const override;
-    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretizationTemplate<double> *other) const override;
-    MEDCOUPLING_EXPORT bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec, std::string& reason) const override;
-    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec) const override;
-    MEDCOUPLING_EXPORT std::vector< const DataArrayDouble *> getArraysForTime(double time) const override;
-    MEDCOUPLING_EXPORT void getValueForTime(double time, const std::vector<double>& vals, double *res) const override;
-    MEDCOUPLING_EXPORT void getValueOnTime(mcIdType eltId, double time, double *value) const override;
-    MEDCOUPLING_EXPORT void getValueOnDiscTime(mcIdType eltId, int iteration, int order, double *value) const override;
-    MEDCOUPLING_EXPORT TypeOfTimeDiscretization getEnum() const override { return DISCRETIZATION; }
-    MEDCOUPLING_EXPORT void synchronizeTimeWith(const MEDCouplingMesh *mesh) override;
-    MEDCOUPLING_EXPORT std::string getStringRepr() const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void addEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void substractEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void multiplyEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void divideEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void powEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT void setStartTime(double time, int iteration, int order) override { _start.setAllInfo(time,iteration,order); }
-    MEDCOUPLING_EXPORT void setEndTime(double time, int iteration, int order) override { _end.setAllInfo(time,iteration,order); }
-    MEDCOUPLING_EXPORT double getStartTime(int& iteration, int& order) const override { return _start.getAllInfo(iteration,order); }
-    MEDCOUPLING_EXPORT double getEndTime(int& iteration, int& order) const override { return _end.getAllInfo(iteration,order); }
-    MEDCOUPLING_EXPORT void setStartIteration(int it) override { _start.setIteration(it); }
-    MEDCOUPLING_EXPORT void setEndIteration(int it) override { _end.setIteration(it); }
-    MEDCOUPLING_EXPORT void setStartOrder(int order) override { _start.setOrder(order); }
-    MEDCOUPLING_EXPORT void setEndOrder(int order) override { _end.setOrder(order); }
-    MEDCOUPLING_EXPORT void setStartTimeValue(double time) override { _start.setTimeValue(time); }
-    MEDCOUPLING_EXPORT void setEndTimeValue(double time) override { _end.setTimeValue(time); }
-    MEDCOUPLING_EXPORT void checkNoTimePresence() const override;
-    MEDCOUPLING_EXPORT void checkTimePresence(double time) const override;
+    MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingTimeDiscretizationTemplate<double>& other);
+    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
+    MEDCOUPLING_EXPORT void getTinySerializationIntInformation2(std::vector<mcIdType>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void finishUnserialization2(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCopyOrIncrRef(bool deepCopy) const;
+    MEDCOUPLING_EXPORT bool areCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other) const;
+    MEDCOUPLING_EXPORT bool areStrictlyCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other, std::string& reason) const;
+    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretizationTemplate<double> *other) const;
+    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretizationTemplate<double> *other) const;
+    MEDCOUPLING_EXPORT bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec, std::string& reason) const;
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec) const;
+    MEDCOUPLING_EXPORT std::vector< const DataArrayDouble *> getArraysForTime(double time) const;
+    MEDCOUPLING_EXPORT void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
+    MEDCOUPLING_EXPORT void getValueOnTime(mcIdType eltId, double time, double *value) const;
+    MEDCOUPLING_EXPORT void getValueOnDiscTime(mcIdType eltId, int iteration, int order, double *value) const;
+    MEDCOUPLING_EXPORT TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
+    MEDCOUPLING_EXPORT void synchronizeTimeWith(const MEDCouplingMesh *mesh);
+    MEDCOUPLING_EXPORT std::string getStringRepr() const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void addEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void substractEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void multiplyEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void divideEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void powEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT void setStartTime(double time, int iteration, int order) { _start.setAllInfo(time,iteration,order); }
+    MEDCOUPLING_EXPORT void setEndTime(double time, int iteration, int order) { _end.setAllInfo(time,iteration,order); }
+    MEDCOUPLING_EXPORT double getStartTime(int& iteration, int& order) const { return _start.getAllInfo(iteration,order); }
+    MEDCOUPLING_EXPORT double getEndTime(int& iteration, int& order) const { return _end.getAllInfo(iteration,order); }
+    MEDCOUPLING_EXPORT void setStartIteration(int it) { _start.setIteration(it); }
+    MEDCOUPLING_EXPORT void setEndIteration(int it) { _end.setIteration(it); }
+    MEDCOUPLING_EXPORT void setStartOrder(int order) { _start.setOrder(order); }
+    MEDCOUPLING_EXPORT void setEndOrder(int order) { _end.setOrder(order); }
+    MEDCOUPLING_EXPORT void setStartTimeValue(double time) { _start.setTimeValue(time); }
+    MEDCOUPLING_EXPORT void setEndTimeValue(double time) { _end.setTimeValue(time); }
+    MEDCOUPLING_EXPORT void checkNoTimePresence() const;
+    MEDCOUPLING_EXPORT void checkTimePresence(double time) const;
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=CONST_ON_TIME_INTERVAL;
     MEDCOUPLING_EXPORT static const char REPR[];
@@ -480,45 +478,45 @@ namespace MEDCoupling
   protected:
     MEDCOUPLING_EXPORT MEDCouplingTwoTimeSteps(const MEDCouplingTwoTimeSteps& other, bool deepCopy);
     MEDCOUPLING_EXPORT MEDCouplingTwoTimeSteps();
-    MEDCOUPLING_EXPORT ~MEDCouplingTwoTimeSteps() override;
+    MEDCOUPLING_EXPORT ~MEDCouplingTwoTimeSteps();
   public:
     MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingTwoTimeSteps"); }
-    MEDCOUPLING_EXPORT void updateTime() const override;
-    MEDCOUPLING_EXPORT void synchronizeTimeWith(const MEDCouplingMesh *mesh) override;
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
-    MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingTimeDiscretizationTemplate<double>& other) override;
-    MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingTimeDiscretizationTemplate<double>& other) override;
-    MEDCOUPLING_EXPORT const DataArrayDouble *getEndArray() const override;
-    MEDCOUPLING_EXPORT DataArrayDouble *getEndArray() override;
-    MEDCOUPLING_EXPORT void checkConsistencyLight() const override;
-    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec, std::string& reason) const override;
-    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec) const override;
-    MEDCOUPLING_EXPORT void checkNoTimePresence() const override;
-    MEDCOUPLING_EXPORT void checkTimePresence(double time) const override;
-    MEDCOUPLING_EXPORT void getArrays(std::vector<DataArrayDouble *>& arrays) const override;
-    MEDCOUPLING_EXPORT void setEndArray(DataArrayDouble *array, TimeLabel *owner) override;
-    MEDCOUPLING_EXPORT void setStartTime(double time, int iteration, int order) override { _start.setAllInfo(time,iteration,order); }
-    MEDCOUPLING_EXPORT void setEndTime(double time, int iteration, int order) override { _end.setAllInfo(time,iteration,order); }
-    MEDCOUPLING_EXPORT double getStartTime(int& iteration, int& order) const override { return _start.getAllInfo(iteration,order); }
-    MEDCOUPLING_EXPORT double getEndTime(int& iteration, int& order) const override { return _end.getAllInfo(iteration,order); }
-    MEDCOUPLING_EXPORT void setStartIteration(int it) override { _start.setIteration(it); }
-    MEDCOUPLING_EXPORT void setEndIteration(int it) override { _end.setIteration(it); }
-    MEDCOUPLING_EXPORT void setStartOrder(int order) override { _start.setOrder(order); }
-    MEDCOUPLING_EXPORT void setEndOrder(int order) override { _end.setOrder(order); }
-    MEDCOUPLING_EXPORT void setStartTimeValue(double time) override { _start.setTimeValue(time); }
-    MEDCOUPLING_EXPORT void setEndTimeValue(double time) override { _end.setTimeValue(time); }
-    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const override;
-    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const override;
-    MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const override;
-    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<mcIdType>& tinyInfoI, std::vector<DataArrayDouble *>& arrays) override;
-    MEDCOUPLING_EXPORT void checkForUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<DataArrayDouble *>& arrays) override;
-    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS) override;
-    MEDCOUPLING_EXPORT void getTinySerializationIntInformation2(std::vector<mcIdType>& tinyInfo) const override;
-    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const override;
-    MEDCOUPLING_EXPORT void finishUnserialization2(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD) override;
-    MEDCOUPLING_EXPORT std::vector< const DataArrayDouble *> getArraysForTime(double time) const override;
-    MEDCOUPLING_EXPORT void setArrays(const std::vector<DataArrayDouble *>& arrays, TimeLabel *owner) override;
+    MEDCOUPLING_EXPORT void updateTime() const;
+    MEDCOUPLING_EXPORT void synchronizeTimeWith(const MEDCouplingMesh *mesh);
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    MEDCOUPLING_EXPORT void copyTinyAttrFrom(const MEDCouplingTimeDiscretizationTemplate<double>& other);
+    MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingTimeDiscretizationTemplate<double>& other);
+    MEDCOUPLING_EXPORT const DataArrayDouble *getEndArray() const;
+    MEDCOUPLING_EXPORT DataArrayDouble *getEndArray();
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec, std::string& reason) const;
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingTimeDiscretizationTemplate<double> *other, double prec) const;
+    MEDCOUPLING_EXPORT void checkNoTimePresence() const;
+    MEDCOUPLING_EXPORT void checkTimePresence(double time) const;
+    MEDCOUPLING_EXPORT void getArrays(std::vector<DataArrayDouble *>& arrays) const;
+    MEDCOUPLING_EXPORT void setEndArray(DataArrayDouble *array, TimeLabel *owner);
+    MEDCOUPLING_EXPORT void setStartTime(double time, int iteration, int order) { _start.setAllInfo(time,iteration,order); }
+    MEDCOUPLING_EXPORT void setEndTime(double time, int iteration, int order) { _end.setAllInfo(time,iteration,order); }
+    MEDCOUPLING_EXPORT double getStartTime(int& iteration, int& order) const { return _start.getAllInfo(iteration,order); }
+    MEDCOUPLING_EXPORT double getEndTime(int& iteration, int& order) const { return _end.getAllInfo(iteration,order); }
+    MEDCOUPLING_EXPORT void setStartIteration(int it) { _start.setIteration(it); }
+    MEDCOUPLING_EXPORT void setEndIteration(int it) { _end.setIteration(it); }
+    MEDCOUPLING_EXPORT void setStartOrder(int order) { _start.setOrder(order); }
+    MEDCOUPLING_EXPORT void setEndOrder(int order) { _end.setOrder(order); }
+    MEDCOUPLING_EXPORT void setStartTimeValue(double time) { _start.setTimeValue(time); }
+    MEDCOUPLING_EXPORT void setEndTimeValue(double time) { _end.setTimeValue(time); }
+    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<mcIdType>& tinyInfoI, std::vector<DataArrayDouble *>& arrays);
+    MEDCOUPLING_EXPORT void checkForUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<DataArrayDouble *>& arrays);
+    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
+    MEDCOUPLING_EXPORT void getTinySerializationIntInformation2(std::vector<mcIdType>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation2(std::vector<double>& tinyInfo) const;
+    MEDCOUPLING_EXPORT void finishUnserialization2(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD);
+    MEDCOUPLING_EXPORT std::vector< const DataArrayDouble *> getArraysForTime(double time) const;
+    MEDCOUPLING_EXPORT void setArrays(const std::vector<DataArrayDouble *>& arrays, TimeLabel *owner);
   protected:
     static const char EXCEPTION_MSG[];
   protected:
@@ -533,35 +531,35 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingLinearTime(const MEDCouplingLinearTime& other, bool deepCopy);
   public:
     MEDCOUPLING_EXPORT MEDCouplingLinearTime();
-    MEDCOUPLING_EXPORT std::string getStringRepr() const override;
-    MEDCOUPLING_EXPORT TypeOfTimeDiscretization getEnum() const override { return DISCRETIZATION; }
-    MEDCOUPLING_EXPORT void checkConsistencyLight() const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCopyOrIncrRef(bool deepCopy) const override;
-    MEDCOUPLING_EXPORT bool areCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other) const override;
-    MEDCOUPLING_EXPORT bool areStrictlyCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other, std::string& reason) const override;
-    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretizationTemplate<double> *other) const override;
-    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretizationTemplate<double> *other) const override;
-    MEDCOUPLING_EXPORT bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void getValueForTime(double time, const std::vector<double>& vals, double *res) const override;
-    MEDCOUPLING_EXPORT void getValueOnTime(mcIdType eltId, double time, double *value) const override;
-    MEDCOUPLING_EXPORT void getValueOnDiscTime(mcIdType eltId, int iteration, int order, double *value) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void addEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void substractEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void multiplyEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void divideEqual(const MEDCouplingTimeDiscretization *other) override;
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const override;
-    MEDCOUPLING_EXPORT void powEqual(const MEDCouplingTimeDiscretization *other) override;
+    MEDCOUPLING_EXPORT std::string getStringRepr() const;
+    MEDCOUPLING_EXPORT TypeOfTimeDiscretization getEnum() const { return DISCRETIZATION; }
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *performCopyOrIncrRef(bool deepCopy) const;
+    MEDCOUPLING_EXPORT bool areCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other) const;
+    MEDCOUPLING_EXPORT bool areStrictlyCompatible(const MEDCouplingTimeDiscretizationTemplate<double> *other, std::string& reason) const;
+    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretizationTemplate<double> *other) const;
+    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretizationTemplate<double> *other) const;
+    MEDCOUPLING_EXPORT bool areCompatibleForMeld(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
+    MEDCOUPLING_EXPORT void getValueOnTime(mcIdType eltId, double time, double *value) const;
+    MEDCOUPLING_EXPORT void getValueOnDiscTime(mcIdType eltId, int iteration, int order, double *value) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *aggregate(const std::vector<const MEDCouplingTimeDiscretization *>& other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *meld(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *dot(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *crossProduct(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *max(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *min(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *add(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void addEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *substract(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void substractEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *multiply(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void multiplyEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *divide(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void divideEqual(const MEDCouplingTimeDiscretization *other);
+    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *pow(const MEDCouplingTimeDiscretization *other) const;
+    MEDCOUPLING_EXPORT void powEqual(const MEDCouplingTimeDiscretization *other);
   public:
     static const TypeOfTimeDiscretization DISCRETIZATION=LINEAR_TIME;
     MEDCOUPLING_EXPORT static const char REPR[];

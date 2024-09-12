@@ -22,12 +22,10 @@
 
 #include "BBTreeStandAlone.txx"
 #include "MeshElement.txx"
-#include "BoundingBox.hxx"
 #include "Log.hxx"
 
 #include <memory>
 #include <functional>
-#include <utility>
 
 namespace INTERP_KERNEL
 {

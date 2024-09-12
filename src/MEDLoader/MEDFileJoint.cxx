@@ -18,28 +18,13 @@
 //
 
 #include "MEDFileJoint.hxx"
-#include "MCAuto.hxx"
-#include "MEDCouplingRefCountObject.hxx"
-#include "MCType.hxx"
 #include "MEDFileBasis.hxx"
-#include "MEDFileUtilities.hxx"
+#include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileSafeCaller.txx"
 
 #include "CellModel.hxx"
 #include "InterpKernelAutoPtr.hxx"
-#include "med.h"
-#include "NormalizedGeometricTypes"
-#include <cstddef>
-#include <vector>
-#include <string>
-#include "medfile.h"
-#include <sstream>
-#include "medsubdomain.h"
-#include <ostream>
-#include <utility>
-#include <algorithm>
-#include <iterator>
 
 // From MEDLOader.cxx TU
 extern med_geometry_type                 typmai[MED_N_CELL_FIXED_GEO];
@@ -121,8 +106,8 @@ MEDFileJointCorrespondence *MEDFileJointCorrespondence::New()
  */
 void MEDFileJointCorrespondence::write(const std::string& fileName, int mode, const std::string& localMeshName, const std::string& jointName, int order, int iteration) const
 {
-  med_access_mode const medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid const fid=MEDfileOpen(fileName.c_str(),medmod);
+  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
 
   std::ostringstream oss; oss << "MEDFileJointCorrespondence : error on attempt to write in file : \"" << fileName << "\"";
   MEDFileUtilities::CheckMEDCode((int)fid,fid,oss.str());
@@ -221,8 +206,8 @@ std::string MEDFileJointCorrespondence::simpleRepr() const
 
       const DataArrayIdType* tmp=getCorrespondence();
       oss << "- Correspondence : <<";
-      for(long const it : *tmp)
-        oss<< it << " ";
+      for(const mcIdType *it=tmp->begin();it!=tmp->end();it++)
+        oss<< *it << " ";
     }
   else
     {
@@ -249,7 +234,7 @@ std::vector<const BigMemoryObject *> MEDFileJointOneStep::getDirectChildrenWithN
 
 MEDFileJointOneStep *MEDFileJointOneStep::New(int dt, int it)
 {
-  auto* j = new MEDFileJointOneStep();
+  MEDFileJointOneStep* j = new MEDFileJointOneStep();
   j->setOrder( dt );
   j->setIteration( it );
   return j;
@@ -268,7 +253,7 @@ MEDFileJointOneStep *MEDFileJointOneStep::New(int dt, int it)
 MEDFileJointOneStep *MEDFileJointOneStep::New(const std::string& fileName, const std::string& mName, const std::string& jointName, int num)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid const fid=MEDfileOpen(fileName.c_str(), MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(), MED_ACC_RDONLY);
   return new MEDFileJointOneStep(fid, mName, jointName, num);
 }
 
@@ -318,8 +303,8 @@ MEDFileJointOneStep::MEDFileJointOneStep(med_idt fid, const std::string& mName, 
  */
 void MEDFileJointOneStep::write(const std::string& fileName, int mode, const std::string& localMeshName, const std::string& jointName) const
 {
-  med_access_mode const medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid const fid=MEDfileOpen(fileName.c_str(),medmod);
+  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
   std::ostringstream oss; oss << "MEDFileJointOneStep : error on attempt to write in file : \"" << fileName << "\"";
   MEDFileUtilities::CheckMEDCode((int)fid,fid,oss.str());
   if ( _correspondences.empty() )
@@ -329,9 +314,9 @@ void MEDFileJointOneStep::write(const std::string& fileName, int mode, const std
 
 void MEDFileJointOneStep::writeLL(med_idt fid, const std::string& localMeshName, const std::string& jointName) const
 {
-  for(const auto & _correspondence : _correspondences)
+  for(std::vector< MCAuto<MEDFileJointCorrespondence> >::const_iterator it=_correspondences.begin();it!=_correspondences.end();it++)
     {
-      _correspondence->writeLL(fid, localMeshName, jointName, getOrder(), getIteration());
+      (*it)->writeLL(fid, localMeshName, jointName, getOrder(), getIteration());
     }
 }
 
@@ -402,7 +387,7 @@ MEDFileJointOneStep *MEDFileJointOneStep::deepCopy() const
 {
   std::vector< MCAuto<MEDFileJointCorrespondence> > correspondences(_correspondences.size());
   std::size_t i=0;
-  for(auto it=_correspondences.begin();it!=_correspondences.end();it++,i++)
+  for(std::vector< MCAuto<MEDFileJointCorrespondence> >::const_iterator it=_correspondences.begin();it!=_correspondences.end();it++,i++)
     if((const MEDFileJointCorrespondence *)*it)
       correspondences[i]=(*it)->deepCopy();
   MCAuto<MEDFileJointOneStep> ret= new MEDFileJointOneStep;
@@ -426,9 +411,9 @@ std::string MEDFileJointOneStep::simpleRepr() const
   std::ostringstream oss;
   oss << "(*************************************)\n(* JOINT_ONE_STEP INFORMATION: *)\n(*************************************)\n";
   oss << "- Number of the correspondences : <<" << _correspondences.size() << ">>\n";
-  for(const auto & _correspondence : _correspondences)
+  for(std::vector< MCAuto<MEDFileJointCorrespondence> >::const_iterator it=_correspondences.begin();it!=_correspondences.end();it++)
     {
-      oss << _correspondence->simpleRepr();
+      oss << (*it)->simpleRepr();
     }
   return oss.str();
 }
@@ -465,7 +450,7 @@ MEDFileJoint *MEDFileJoint::New()
 MEDFileJoint *MEDFileJoint::New(const std::string& fileName, const std::string& mName, int curJoint)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid const fid=MEDfileOpen(fileName.c_str(), MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(), MED_ACC_RDONLY);
   return new MEDFileJoint(fid,mName,curJoint);
 }
 
@@ -476,7 +461,7 @@ MEDFileJoint *MEDFileJoint::New(med_idt fid, const std::string& mName, int curJo
 
 MEDFileJoint *MEDFileJoint::New(const std::string& jointName, const std::string& locMeshName, const std::string& remoteMeshName, int remoteMeshNum)
 {
-  auto* j = new MEDFileJoint();
+  MEDFileJoint* j = new MEDFileJoint();
   j->setJointName( jointName );
   j->setLocalMeshName( locMeshName );
   j->setRemoteMeshName( remoteMeshName );
@@ -485,7 +470,8 @@ MEDFileJoint *MEDFileJoint::New(const std::string& jointName, const std::string&
 }
 
 MEDFileJoint::MEDFileJoint()
-= default;
+{
+}
 
 /*!
  * Returns a new MEDFileJoint holding the mesh data that has been read from a given MED
@@ -521,8 +507,8 @@ void MEDFileJoint::writeLL(med_idt fid) const
   // if ( _loc_mesh_name.empty() )
   //   throw INTERP_KERNEL::Exception("MEDFileJoint::write : name of a local mesh not defined!");
   MEDFILESAFECALLERWR0(MEDsubdomainJointCr,(fid,getLocalMeshName().c_str(),getJointName().c_str(),getDescription().c_str(),getDomainNumber(),getRemoteMeshName().c_str()));
-  for(const auto & it : _joint)
-    it->writeLL(fid, getLocalMeshName(),getJointName());
+  for(std::vector< MCAuto<MEDFileJointOneStep> >::const_iterator it=_joint.begin();it!=_joint.end();it++)
+    (*it)->writeLL(fid, getLocalMeshName(),getJointName());
 }
 
 void MEDFileJoint::pushStep(MEDFileJointOneStep* step)
@@ -567,7 +553,7 @@ bool MEDFileJoint::isEqual(const MEDFileJoint *other) const
     return false;
   if(_domain_number!=other->_domain_number)
     return false;
-  int const nbTS(getNumberOfSteps());
+  int nbTS(getNumberOfSteps());
   if(nbTS!=other->getNumberOfSteps())
     return false;
   std::vector<bool> found(nbTS,false);
@@ -592,7 +578,7 @@ MEDFileJoint *MEDFileJoint::deepCopy() const
 {
   std::vector< MCAuto<MEDFileJointOneStep> > joint(_joint.size());
   std::size_t i=0;
-  for(auto it=_joint.begin();it!=_joint.end();it++,i++)
+  for(std::vector< MCAuto<MEDFileJointOneStep> >::const_iterator it=_joint.begin();it!=_joint.end();it++,i++)
     if((const MEDFileJointOneStep *)*it)
       joint[i]=(*it)->deepCopy();
   MCAuto<MEDFileJoint> ret=new MEDFileJoint(*this);
@@ -608,11 +594,11 @@ MEDFileJoint *MEDFileJoint::shallowCpy() const
 
 bool MEDFileJoint::changeJointNames(const std::vector< std::pair<std::string,std::string> >& modifTab)
 {
-  for(const auto & it : modifTab)
+  for(std::vector< std::pair<std::string,std::string> >::const_iterator it=modifTab.begin();it!=modifTab.end();it++)
     {
-      if(it.first==_joint_name)
+      if((*it).first==_joint_name)
         {
-          _joint_name=it.second;
+          _joint_name=(*it).second;
           return true;
         }
     }
@@ -633,9 +619,9 @@ std::string MEDFileJoint::simpleRepr() const
   oss << "- Description : <<" << getDescription() << ">>\n";
   oss << "- Joint name : <<" << getJointName() << ">>\n";
   oss << "- Domain number : " << getDomainNumber() << "\n";
-  for(const auto & it : _joint)
+  for(std::vector< MCAuto<MEDFileJointOneStep> >::const_iterator it=_joint.begin();it!=_joint.end();it++)
     {
-      oss << it->simpleRepr();
+      oss << (*it)->simpleRepr();
     }
   return oss.str();
 }
@@ -648,7 +634,7 @@ MEDFileJoints *MEDFileJoints::New()
 MEDFileJoints *MEDFileJoints::New(const std::string& fileName, const std::string& meshName)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid const fid=MEDfileOpen(fileName.c_str(), MED_ACC_RDONLY);
+  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(), MED_ACC_RDONLY);
   return new MEDFileJoints( fid, meshName );
 }
 
@@ -659,8 +645,8 @@ MEDFileJoints *MEDFileJoints::New(med_idt fid, const std::string& meshName)
 
 void MEDFileJoints::writeLL(med_idt fid) const
 {
-  for(const auto & _joint : _joints)
-    _joint->writeLL(fid);
+  for(std::vector< MCAuto<MEDFileJoint> >::const_iterator it=_joints.begin();it!=_joints.end();it++)
+    (*it)->writeLL(fid);
 }
 
 std::string MEDFileJoints::getMeshName() const
@@ -694,7 +680,7 @@ MEDFileJoint *MEDFileJoints::getJointAtPos(int i) const
 MEDFileJoint *MEDFileJoints::getJointWithName(const std::string& jname) const
 {
   std::vector<std::string> js=getJointsNames();
-  auto const it=std::find(js.begin(),js.end(),jname);
+  std::vector<std::string>::iterator it=std::find(js.begin(),js.end(),jname);
   if(it==js.end())
     {
       std::ostringstream oss; oss << "MEDFileJoints::getJointWithName : Joint  \"" << jname << "\" does not exist in this ! Existing are : ";
@@ -708,7 +694,7 @@ std::vector<std::string> MEDFileJoints::getJointsNames() const
 {
   std::vector<std::string> ret(_joints.size());
   int i=0;
-  for(auto it=_joints.begin();it!=_joints.end();it++,i++)
+  for(std::vector< MCAuto<MEDFileJoint> >::const_iterator it=_joints.begin();it!=_joints.end();it++,i++)
     {
       const MEDFileJoint *f=(*it);
       if(f)
@@ -727,9 +713,9 @@ std::vector<std::string> MEDFileJoints::getJointsNames() const
 bool MEDFileJoints::changeJointNames(const std::vector< std::pair<std::string,std::string> >& modifTab)
 {
   bool ret=false;
-  for(auto & _joint : _joints)
+  for(std::vector< MCAuto<MEDFileJoint> >::iterator it=_joints.begin();it!=_joints.end();it++)
     {
-      MEDFileJoint *cur(_joint);
+      MEDFileJoint *cur(*it);
       if(cur)
         ret=cur->changeJointNames(modifTab) || ret;
     }
@@ -774,11 +760,12 @@ void MEDFileJoints::destroyJointAtPos(int i)
 }
 
 MEDFileJoints::MEDFileJoints()
-= default;
+{
+}
 
 MEDFileJoints::MEDFileJoints(med_idt fid, const std::string& meshName)
 {
-  med_int const num_joint=MEDnSubdomainJoint(fid, meshName.c_str() );
+  med_int num_joint=MEDnSubdomainJoint(fid, meshName.c_str() );
   for(int i = 1; i <= num_joint; i++)
     _joints.push_back(MEDFileJoint::New(fid,meshName,i));
 }
@@ -787,7 +774,7 @@ MEDFileJoints *MEDFileJoints::deepCopy() const
 {
   std::vector< MCAuto<MEDFileJoint> > joints(_joints.size());
   std::size_t i=0;
-  for(auto it=_joints.begin();it!=_joints.end();it++,i++)
+  for(std::vector< MCAuto<MEDFileJoint> >::const_iterator it=_joints.begin();it!=_joints.end();it++,i++)
     if((const MEDFileJoint *)*it)
       joints[i]=(*it)->deepCopy();
   MCAuto<MEDFileJoints> ret=MEDFileJoints::New();
@@ -803,8 +790,8 @@ std::size_t MEDFileJoints::getHeapMemorySizeWithoutChildren() const
 std::vector<const BigMemoryObject *> MEDFileJoints::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  for(const auto & _joint : _joints)
-    ret.push_back((const MEDFileJoint *)_joint);
+  for(std::vector< MCAuto<MEDFileJoint> >::const_iterator it=_joints.begin();it!=_joints.end();it++)
+    ret.push_back((const MEDFileJoint *)*it);
   return ret;
 }
 
@@ -818,13 +805,13 @@ std::string MEDFileJoints::simpleRepr() const
 
 void MEDFileJoints::simpleReprWithoutHeader(std::ostream& oss) const
 {
-  int const nbOfJoints=getNumberOfJoints();
+  int nbOfJoints=getNumberOfJoints();
   oss << "There are " << nbOfJoints << " joints with the following names : \n";
   std::vector<std::string> jns=getJointsNames();
   for(int i=0;i<nbOfJoints;i++)
     oss << "  - #" << i << " \"" << jns[i] << "\"\n";
-  for(const auto & _joint : _joints)
+  for(std::vector< MCAuto<MEDFileJoint> >::const_iterator it=_joints.begin();it!=_joints.end();it++)
     {
-      oss << _joint->simpleRepr();
+      oss << (*it)->simpleRepr();
     }
 }

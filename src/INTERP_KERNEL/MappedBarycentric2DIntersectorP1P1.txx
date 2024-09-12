@@ -21,14 +21,12 @@
 #ifndef __MappedBarycentric2DIntersectorP1P1_TXX__
 #define __MappedBarycentric2DIntersectorP1P1_TXX__
 
-#include "InterpolationUtils.hxx"
 #include "MappedBarycentric2DIntersectorP1P1.hxx"
-#include "PlanarIntersector.hxx"
-#include "NormalizedGeometricTypes"
-#include "InterpKernelUtilities.hxx"
+#include "PlanarIntersector.txx"
+#include "CellModel.hxx"
 
 #include "PointLocatorAlgos.txx"
-#include <vector>
+#include "MeshUtils.hxx"
 
 namespace INTERP_KERNEL
 {

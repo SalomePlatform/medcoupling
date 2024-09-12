@@ -18,9 +18,6 @@
 //
 
 #include "CommInterface.hxx"
-#include "MCType.hxx"
-#include "MCAuto.hxx"
-#include "MEDCouplingMemArray.hxx"
 
 namespace MEDCoupling
 {

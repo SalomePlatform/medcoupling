@@ -22,7 +22,7 @@
 #define __INTERPOLATIONOPTIONS_HXX__
 
 #include "INTERPKERNELDefines.hxx"
-#include "NormalizedGeometricTypes"
+#include "NormalizedUnstructuredMesh.hxx"
 
 #include <string>
 

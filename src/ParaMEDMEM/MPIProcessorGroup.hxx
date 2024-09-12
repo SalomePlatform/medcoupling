@@ -22,8 +22,8 @@
 
 #include "ProcessorGroup.hxx"
 
+#include <set>
 #include <mpi.h>
-#include <string>
 
 namespace MEDCoupling
 {
@@ -38,18 +38,18 @@ namespace MEDCoupling
     MPIProcessorGroup (const ProcessorGroup& proc_group, std::set<int> proc_ids);
     MPIProcessorGroup(const CommInterface& interface,int pstart, int pend, const MPI_Comm& world_comm=MPI_COMM_WORLD);
     MPIProcessorGroup(const MPIProcessorGroup& other);
-    ~MPIProcessorGroup() override;
+    virtual ~MPIProcessorGroup();
     void release();
 
-    MPIProcessorGroup *deepCopy() const override;
-    ProcessorGroup* fuse (const ProcessorGroup&) const override;
-    void intersect (ProcessorGroup&) override { }
-    int myRank() const override;
-    bool containsMyRank() const override { int rank; MPI_Group_rank(_group, &rank); return (rank!=MPI_UNDEFINED); }
-    int translateRank(const ProcessorGroup* group, int rank) const override;
+    virtual MPIProcessorGroup *deepCopy() const;
+    virtual ProcessorGroup* fuse (const ProcessorGroup&) const;
+    void intersect (ProcessorGroup&) { }
+    int myRank() const;
+    bool containsMyRank() const { int rank; MPI_Group_rank(_group, &rank); return (rank!=MPI_UNDEFINED); }
+    int translateRank(const ProcessorGroup* group, int rank) const;
     const MPI_Comm* getComm() const { return &_comm; }
-    ProcessorGroup* createComplementProcGroup() const override;
-    ProcessorGroup* createProcGroup() const override;
+    ProcessorGroup* createComplementProcGroup() const;
+    ProcessorGroup* createProcGroup() const;
     MPI_Comm getWorldComm() { return _world_comm; }
   private:
     void updateMPISpecificAttributes();

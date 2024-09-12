@@ -20,7 +20,10 @@
 #ifndef __TIMEINTERPOLATOR_HXX__
 #define __TIMEINTERPOLATOR_HXX__
 
+#include "ProcessorGroup.hxx"
 
+#include <map>
+#include <iostream>
 
 namespace MEDCoupling
 {

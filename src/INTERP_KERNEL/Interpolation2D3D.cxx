@@ -18,7 +18,6 @@
 //
 
 #include "Interpolation2D3D.hxx"
-#include "InterpolationOptions.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -27,7 +26,8 @@ namespace INTERP_KERNEL
    * 
    */
   Interpolation2D3D::Interpolation2D3D()
-  = default;
+  {
+  }
   Interpolation2D3D::Interpolation2D3D(const InterpolationOptions& io):Interpolation<Interpolation2D3D>(io)
   {
   }

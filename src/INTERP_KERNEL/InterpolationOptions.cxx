@@ -19,13 +19,10 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "InterpolationOptions.hxx"
+#include "InterpKernelGeo2DPrecision.hxx"
 #include "InterpKernelException.hxx"
-#include "NormalizedGeometricTypes"
 
-#include <ostream>
-#include <ios>
 #include <sstream>
-#include <string>
 
 const double INTERP_KERNEL::InterpolationOptions::DFT_MEDIAN_PLANE=0.5;
 
@@ -168,7 +165,7 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionInt(const std::string& key, i
       }
     else if(key==MEASURE_ABS_STR)
       {
-        bool const valBool=(value!=0);
+        bool valBool=(value!=0);
         setMeasureAbsStatus(valBool);
         return true;
       }

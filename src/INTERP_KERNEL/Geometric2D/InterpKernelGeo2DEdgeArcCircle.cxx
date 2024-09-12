@@ -19,23 +19,14 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
-#include "InterpKernelGeo2DEdge.hxx"
 #include "InterpKernelGeo2DEdgeLin.hxx"
 #include "InterpKernelException.hxx"
 #include "InterpKernelGeo2DNode.hxx"
-#include "InterpKernelGeo2DPrecision.hxx"
-#include "MCIdType.hxx"
-#include "NormalizedGeometricTypes"
+#include "NormalizedUnstructuredMesh.hxx"
 
-#include <cmath>
-#include <math.h>
-#include <list>
-#include <istream>
-#include <ostream>
+#include <sstream>
 #include <algorithm>
 #include <limits>
-#include <string>
-#include <vector>
 
 using namespace INTERP_KERNEL;
 
@@ -66,8 +57,8 @@ void ArcCArcCIntersector::getPlacements(Node *start, Node *end, TypeOfLocInEdge&
   obviousCaseForCurvAbscisse(end,whereEnd,commonNode,obvious2);
   if(obvious1 && obvious2)
     return ;
-  double const angleInRadStart=getAngle(start);
-  double const angleInRadEnd=getAngle(end);
+  double angleInRadStart=getAngle(start);
+  double angleInRadEnd=getAngle(end);
   if(obvious1 || obvious2)
     {
       if(obvious1)
@@ -129,8 +120,8 @@ double ArcCArcCIntersector::getAngle(Node *node) const
 bool ArcCArcCIntersector::internalAreColinears(const EdgeArcCircle& a1, const EdgeArcCircle& a2, double& distBetweenCenters, double& cst,
                                                double& radiusL, double centerL[2], double& radiusB, double centerB[2])
 {
-  double const lgth1=fabs(a1.getAngle()*a1.getRadius());
-  double const lgth2=fabs(a2.getAngle()*a2.getRadius());
+  double lgth1=fabs(a1.getAngle()*a1.getRadius());
+  double lgth2=fabs(a2.getAngle()*a2.getRadius());
   if(lgth1<lgth2)
     {//a1 is the little one ('L') and a2 the big one ('B')
       a1.getCenter(centerL); radiusL=a1.getRadius();
@@ -164,8 +155,8 @@ bool ArcCArcCIntersector::areArcsOverlapped(const EdgeArcCircle& a1, const EdgeA
   tmp=sqrt(tmp);
   if(Node::areDoubleEqualsWPLeft(tmp,0.,10*std::max(radiusL,radiusB)))
     return Node::areDoubleEquals(radiusL,radiusB);
-  double const phi=EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect((centerL[0]-centerB[0])/tmp,(centerL[1]-centerB[1])/tmp);
-  double const cst2=2*radiusL*tmp/(radiusB*radiusB);
+  double phi=EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect((centerL[0]-centerB[0])/tmp,(centerL[1]-centerB[1])/tmp);
+  double cst2=2*radiusL*tmp/(radiusB*radiusB);
   double cmpContainer[4];
   int sizeOfCmpContainer=2;
   cmpContainer[0]=cst+cst2*cos(phi-angle0L);
@@ -183,7 +174,7 @@ bool ArcCArcCIntersector::areArcsOverlapped(const EdgeArcCircle& a1, const EdgeA
 void ArcCArcCIntersector::areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped)
 {
   _dist=Node::distanceBtw2Pt(getE1().getCenter(),getE2().getCenter());
-  double const radius1=getE1().getRadius(); double const radius2=getE2().getRadius();
+  double radius1=getE1().getRadius(); double radius2=getE2().getRadius();
   if(_dist>radius1+radius2+QuadraticPlanarPrecision::getPrecision() || _dist+std::min(radius1,radius2)+QuadraticPlanarPrecision::getPrecision()<std::max(radius1,radius2))
     {
       obviousNoIntersection=true;
@@ -212,13 +203,13 @@ std::list< IntersectElement > ArcCArcCIntersector::getIntersectionsCharacteristi
   std::list< IntersectElement > ret;
   const double *center1=getE1().getCenter();
   const double *center2=getE2().getCenter();
-  double const radius1=getE1().getRadius(); double const radius2=getE2().getRadius();
-  double const d1_1=(_dist*_dist-radius2*radius2+radius1*radius1)/(2.*_dist);  // computation of 'x' on wolfram
+  double radius1=getE1().getRadius(); double radius2=getE2().getRadius();
+  double d1_1=(_dist*_dist-radius2*radius2+radius1*radius1)/(2.*_dist);  // computation of 'x' on wolfram
   double u[2];//u is normalized vector from center1 to center2.
   u[0]=(center2[0]-center1[0])/_dist; u[1]=(center2[1]-center1[1])/_dist;
-  double const d1_1y=EdgeArcCircle::SafeSqrt(radius1*radius1-d1_1*d1_1);      // computation of 'y' on wolfram
-  double const angleE1=EdgeArcCircle::NormalizeAngle(getE1().getAngle0()+getE1().getAngle());
-  double const angleE2=EdgeArcCircle::NormalizeAngle(getE2().getAngle0()+getE2().getAngle());
+  double d1_1y=EdgeArcCircle::SafeSqrt(radius1*radius1-d1_1*d1_1);      // computation of 'y' on wolfram
+  double angleE1=EdgeArcCircle::NormalizeAngle(getE1().getAngle0()+getE1().getAngle());
+  double angleE2=EdgeArcCircle::NormalizeAngle(getE2().getAngle0()+getE2().getAngle());
   if(!Node::areDoubleEquals(d1_1y,0))
     {
       //2 intersections
@@ -228,24 +219,24 @@ std::list< IntersectElement > ArcCArcCIntersector::getIntersectionsCharacteristi
       v2[0]=u[0]*d1_1+u[1]*d1_1y; v2[1]=u[1]*d1_1-u[0]*d1_1y;
       Node *node1=new Node(center1[0]+v1[0],center1[1]+v1[1]); node1->declareOn();
       Node *node2=new Node(center1[0]+v2[0],center1[1]+v2[1]); node2->declareOn();
-      double const angle1_1=EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(v1[0]/radius1,v1[1]/radius1);
-      double const angle2_1=EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(v2[0]/radius1,v2[1]/radius1);
+      double angle1_1=EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(v1[0]/radius1,v1[1]/radius1);
+      double angle2_1=EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(v2[0]/radius1,v2[1]/radius1);
       double v3[2],v4[2];
       v3[0]=center1[0]-center2[0]+v1[0]; v3[1]=center1[1]-center2[1]+v1[1];
       v4[0]=center1[0]-center2[0]+v2[0]; v4[1]=center1[1]-center2[1]+v2[1];
-      double const angle1_2=EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(v3[0]/radius2,v3[1]/radius2);
-      double const angle2_2=EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(v4[0]/radius2,v4[1]/radius2);
+      double angle1_2=EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(v3[0]/radius2,v3[1]/radius2);
+      double angle2_2=EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(v4[0]/radius2,v4[1]/radius2);
       // Check whether intersection points are exactly ON the other arc or not
       //   -> the curvilinear distance (=radius*angle) must below eps
-      bool const e1_1S=Node::areDoubleEqualsWPLeft(angle1_1,getE1().getAngle0(),radius1);
-      bool const e1_1E=Node::areDoubleEqualsWPLeft(angle1_1,angleE1,radius1);
-      bool const e1_2S=Node::areDoubleEqualsWPLeft(angle1_2,getE2().getAngle0(),radius1);
-      bool const e1_2E=Node::areDoubleEqualsWPLeft(angle1_2,angleE2,radius1);
+      bool e1_1S=Node::areDoubleEqualsWPLeft(angle1_1,getE1().getAngle0(),radius1);
+      bool e1_1E=Node::areDoubleEqualsWPLeft(angle1_1,angleE1,radius1);
+      bool e1_2S=Node::areDoubleEqualsWPLeft(angle1_2,getE2().getAngle0(),radius1);
+      bool e1_2E=Node::areDoubleEqualsWPLeft(angle1_2,angleE2,radius1);
       //
-      bool const e2_1S=Node::areDoubleEqualsWPLeft(angle2_1,getE1().getAngle0(),radius2);
-      bool const e2_1E=Node::areDoubleEqualsWPLeft(angle2_1,angleE1,radius2);
-      bool const e2_2S=Node::areDoubleEqualsWPLeft(angle2_2,getE2().getAngle0(),radius2);
-      bool const e2_2E=Node::areDoubleEqualsWPLeft(angle2_2,angleE2,radius2);
+      bool e2_1S=Node::areDoubleEqualsWPLeft(angle2_1,getE1().getAngle0(),radius2);
+      bool e2_1E=Node::areDoubleEqualsWPLeft(angle2_1,angleE1,radius2);
+      bool e2_2S=Node::areDoubleEqualsWPLeft(angle2_2,getE2().getAngle0(),radius2);
+      bool e2_2E=Node::areDoubleEqualsWPLeft(angle2_2,angleE2,radius2);
       ret.push_back(IntersectElement(angle1_1,angle1_2,e1_1S,e1_1E,e1_2S,e1_2E,node1,_e1,_e2,keepOrder()));
       ret.push_back(IntersectElement(angle2_1,angle2_2,e2_1S,e2_1E,e2_2S,e2_2E,node2,_e1,_e2,keepOrder()));
     }
@@ -255,12 +246,12 @@ std::list< IntersectElement > ArcCArcCIntersector::getIntersectionsCharacteristi
       double v1[2],v2[2];
       v1[0]=d1_1*u[0]; v1[1]=d1_1*u[1];
       v2[0]=center1[0]-center2[0]+v1[0]; v2[1]=center1[1]-center2[1]+v1[1];
-      double const angle0_1=EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(v1[0]/radius1,v1[1]/radius1);
-      double const angle0_2=EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(v2[0]/radius2,v2[1]/radius2);
-      bool const e0_1S=Node::areDoubleEqualsWPLeft(angle0_1,getE1().getAngle0(),radius1);
-      bool const e0_1E=Node::areDoubleEqualsWPLeft(angle0_1,angleE1,radius1);
-      bool const e0_2S=Node::areDoubleEqualsWPLeft(angle0_2,getE2().getAngle0(),radius2);
-      bool const e0_2E=Node::areDoubleEqualsWPLeft(angle0_2,angleE2,radius2);
+      double angle0_1=EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(v1[0]/radius1,v1[1]/radius1);
+      double angle0_2=EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(v2[0]/radius2,v2[1]/radius2);
+      bool e0_1S=Node::areDoubleEqualsWPLeft(angle0_1,getE1().getAngle0(),radius1);
+      bool e0_1E=Node::areDoubleEqualsWPLeft(angle0_1,angleE1,radius1);
+      bool e0_2S=Node::areDoubleEqualsWPLeft(angle0_2,getE2().getAngle0(),radius2);
+      bool e0_2E=Node::areDoubleEqualsWPLeft(angle0_2,angleE2,radius2);
       Node *node=new Node(center1[0]+d1_1*u[0],center1[1]+d1_1*u[1]); node->declareOnTangent();
       ret.push_back(IntersectElement(angle0_1,angle0_2,e0_1S,e0_1E,e0_2S,e0_2E,node,_e1,_e2,keepOrder()));
     }
@@ -360,14 +351,14 @@ void ArcCSegIntersector::areOverlappedOrOnlyColinears(bool& obviousNoIntersectio
 
   // We need to compute d = R*R-_cross*_cross/_drSq
   // In terms of numerical precision, this can trigger 'catastrophic cancellation' and is hence better expressed as:
-  double const _dr = sqrt(_drSq);
+  double _dr = sqrt(_drSq);
   double diff = (R-_cross/_dr), add=(R+_cross/_dr);
   // Ah ah: we will be taking a square root later. If we want the user to be able to use an epsilon finer than 1.0e-8, then we need
   // to prevent ourselves going below machine precision (typ. 1.0e-16 for double).
   const double eps_machine = std::numeric_limits<double>::epsilon();
   diff = fabs(diff/R) < eps_machine ? 0.0 : diff;
   add  = fabs(add/R)  < eps_machine ? 0.0 : add;
-  double const d = add*diff;
+  double d = add*diff;
   // Compute deltaRoot_div_dr := sqrt(delta)/dr, where delta has the meaning of Wolfram.
   // Then 2*deltaRoot_div_dr is the distance between the two intersection points of the line with the circle. This is what we compare to eps.
   // We compute it in such a way that it can be used in boolean tests too (a very negative value means we're far apart from intersection)
@@ -387,7 +378,7 @@ bool ArcCSegIntersector::areColinears() const
   return false;
 }
 
-void ArcCSegIntersector::getPlacements(Node * /*start*/, Node * /*end*/, TypeOfLocInEdge&  /*whereStart*/, TypeOfLocInEdge&  /*whereEnd*/, MergePoints&  /*commonNode*/) const
+void ArcCSegIntersector::getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const
 {
   throw Exception("Internal error. Should never been called : no overlapping possible between arc of circle and a segment.");
 }
@@ -405,9 +396,9 @@ std::list< IntersectElement > ArcCSegIntersector::getIntersectionsCharacteristic
           // There we can tell if the arc of circle is 'moving away' from the seg, or if it might intersect it twice
           const Node &n(*_earlyInter->getNodeOnly());
 
-          double const tang[2] = {-(n[1]-center[1]), n[0]-center[0]};  // (-y, x) is the tangent vector in the trigo direction with (x,y) = (center->node)
-          bool const invSeg = _i1S2E || _i1E2E;
-          double const linEdge[2] = {invSeg ? (-_dx) : _dx, invSeg ? (-_dy) : _dy};
+          double tang[2] = {-(n[1]-center[1]), n[0]-center[0]};  // (-y, x) is the tangent vector in the trigo direction with (x,y) = (center->node)
+          bool invSeg = _i1S2E || _i1E2E;
+          double linEdge[2] = {invSeg ? (-_dx) : _dx, invSeg ? (-_dy) : _dy};
           if(tang[1]*linEdge[0]-tang[0]*linEdge[1] < 0)
             {
               ret.push_back(*_earlyInter);
@@ -415,12 +406,12 @@ std::list< IntersectElement > ArcCSegIntersector::getIntersectionsCharacteristic
             }
         }
 
-      double const determinant=fabs(_deltaRoot_div_dr)/sqrt(_drSq);
-      double const x1=(_cross*_dy/_drSq+Node::sign(_dy)*_dx*determinant)+center[0];
-      double const y1=(-_cross*_dx/_drSq+fabs(_dy)*determinant)+center[1];
+      double determinant=fabs(_deltaRoot_div_dr)/sqrt(_drSq);
+      double x1=(_cross*_dy/_drSq+Node::sign(_dy)*_dx*determinant)+center[0];
+      double y1=(-_cross*_dx/_drSq+fabs(_dy)*determinant)+center[1];
       Node *intersect1=new Node(x1,y1); intersect1->declareOn();
-      double const x2=(_cross*_dy/_drSq-Node::sign(_dy)*_dx*determinant)+center[0];
-      double const y2=(-_cross*_dx/_drSq-fabs(_dy)*determinant)+center[1];
+      double x2=(_cross*_dy/_drSq-Node::sign(_dy)*_dx*determinant)+center[0];
+      double y2=(-_cross*_dx/_drSq-fabs(_dy)*determinant)+center[1];
       Node *intersect2=new Node(x2,y2); intersect2->declareOn();
 
       bool isN1(false), isN2(false);
@@ -429,8 +420,8 @@ std::list< IntersectElement > ArcCSegIntersector::getIntersectionsCharacteristic
           // Which node do we actually already found? Assume this is the closest ...
           const Node &iN = *(_earlyInter->getNodeOnly());
           const Node &n1(*intersect1), &n2(*intersect2);
-          double const d1 = std::max(fabs(iN[0]-n1[0]), fabs(iN[1]-n1[1]));
-          double const d2 = std::max(fabs(iN[0]-n2[0]), fabs(iN[1]-n2[1]));
+          double d1 = std::max(fabs(iN[0]-n1[0]), fabs(iN[1]-n1[1]));
+          double d2 = std::max(fabs(iN[0]-n2[0]), fabs(iN[1]-n2[1]));
           isN1 = d1 < d2; isN2 = !isN1;
           if (isN1) intersect1->decrRef();
           if (isN2) intersect2->decrRef();
@@ -438,18 +429,18 @@ std::list< IntersectElement > ArcCSegIntersector::getIntersectionsCharacteristic
         }
       if (!isN1)
         {
-          bool const i1_1S=_e1.getStartNode()->isEqual(*intersect1);
-          bool const i1_1E=_e1.getEndNode()->isEqual(*intersect1);
-          bool const i1_2S=_e2.getStartNode()->isEqual(*intersect1);
-          bool const i1_2E=_e2.getEndNode()->isEqual(*intersect1);
+          bool i1_1S=_e1.getStartNode()->isEqual(*intersect1);
+          bool i1_1E=_e1.getEndNode()->isEqual(*intersect1);
+          bool i1_2S=_e2.getStartNode()->isEqual(*intersect1);
+          bool i1_2E=_e2.getEndNode()->isEqual(*intersect1);
           ret.push_back(IntersectElement(getE1().getCharactValue(*intersect1),getE2().getCharactValue(*intersect1),i1_1S,i1_1E,i1_2S,i1_2E,intersect1,_e1,_e2,keepOrder()));
         }
       if(!isN2)
         {
-          bool const i2_1S=_e1.getStartNode()->isEqual(*intersect2);
-          bool const i2_1E=_e1.getEndNode()->isEqual(*intersect2);
-          bool const i2_2S=_e2.getStartNode()->isEqual(*intersect2);
-          bool const i2_2E=_e2.getEndNode()->isEqual(*intersect2);
+          bool i2_1S=_e1.getStartNode()->isEqual(*intersect2);
+          bool i2_1E=_e1.getEndNode()->isEqual(*intersect2);
+          bool i2_2S=_e2.getStartNode()->isEqual(*intersect2);
+          bool i2_2E=_e2.getEndNode()->isEqual(*intersect2);
           ret.push_back(IntersectElement(getE1().getCharactValue(*intersect2),getE2().getCharactValue(*intersect2),i2_1S,i2_1E,i2_2S,i2_2E,intersect2,_e1,_e2,keepOrder()));
         }
     }
@@ -460,13 +451,13 @@ std::list< IntersectElement > ArcCSegIntersector::getIntersectionsCharacteristic
           ret.push_back(*_earlyInter);
           return ret;
         }
-      double const x=(_cross*_dy)/_drSq+center[0];
-      double const y=(-_cross*_dx)/_drSq+center[1];
+      double x=(_cross*_dy)/_drSq+center[0];
+      double y=(-_cross*_dx)/_drSq+center[1];
       Node *intersect3=new Node(x,y); intersect3->declareOnTangent();
-      bool const i_1S=_e1.getStartNode()->isEqual(*intersect3);
-      bool const i_1E=_e1.getEndNode()->isEqual(*intersect3);
-      bool const i_2S=_e2.getStartNode()->isEqual(*intersect3);
-      bool const i_2E=_e2.getEndNode()->isEqual(*intersect3);
+      bool i_1S=_e1.getStartNode()->isEqual(*intersect3);
+      bool i_1E=_e1.getEndNode()->isEqual(*intersect3);
+      bool i_2S=_e2.getStartNode()->isEqual(*intersect3);
+      bool i_2E=_e2.getEndNode()->isEqual(*intersect3);
       ret.push_back(IntersectElement(_e1.getCharactValue(*intersect3),_e2.getCharactValue(*intersect3),i_1S,i_1E,i_2S,i_2E,intersect3,_e1,_e2,keepOrder()));
     }
   return ret;
@@ -519,11 +510,11 @@ void EdgeArcCircle::changeMiddle(Node *newMiddle)
 
 Edge *EdgeArcCircle::buildEdgeLyingOnMe(Node *start, Node *end, bool direction) const
 {
-  double const sx=((*start)[0]-_center[0])/_radius;
-  double const sy=((*start)[1]-_center[1])/_radius;
-  double const ex=((*end)[0]-_center[0])/_radius;
-  double const ey=((*end)[1]-_center[1])/_radius;
-  double const angle0=GetAbsoluteAngleOfNormalizedVect(direction?sx:ex,direction?sy:ey);
+  double sx=((*start)[0]-_center[0])/_radius;
+  double sy=((*start)[1]-_center[1])/_radius;
+  double ex=((*end)[0]-_center[0])/_radius;
+  double ey=((*end)[1]-_center[1])/_radius;
+  double angle0=GetAbsoluteAngleOfNormalizedVect(direction?sx:ex,direction?sy:ey);
   double deltaAngle=GetAbsoluteAngleOfNormalizedVect(sx*ex+sy*ey,sx*ey-sy*ex);
   if(deltaAngle>0. && _angle<0.)
     deltaAngle-=2.*M_PI;
@@ -557,18 +548,18 @@ void EdgeArcCircle::unApplySimilarity(double xBary, double yBary, double dimChar
 void EdgeArcCircle::tesselate(const mcIdType *conn, mcIdType offset, double eps, std::vector<mcIdType>& newConn, std::vector<double>& addCoo) const
 {
   newConn.push_back(INTERP_KERNEL::NORM_POLYL);
-  int const nbOfSubDiv=(int)(fabs(_angle)/eps);
+  int nbOfSubDiv=(int)(fabs(_angle)/eps);
   if(nbOfSubDiv<=2)
     {
       newConn.push_back(conn[0]); newConn.push_back(conn[2]); newConn.push_back(conn[1]);
       return ;
     }
-  double const signOfAngle=_angle>0.?1.:-1.;
+  double signOfAngle=_angle>0.?1.:-1.;
   mcIdType offset2=offset+(ToIdType(addCoo.size()))/2;
   newConn.push_back(conn[0]);
   for(int i=1;i<nbOfSubDiv;i++,offset2++)
     {
-      double const angle=_angle0+i*eps*signOfAngle;
+      double angle=_angle0+i*eps*signOfAngle;
       newConn.push_back(offset2);
       addCoo.push_back(_center[0]+_radius*cos(angle)); addCoo.push_back(_center[1]+_radius*sin(angle));
     }
@@ -580,17 +571,17 @@ EdgeArcCircle *EdgeArcCircle::BuildFromNodes(Node *start, Node *middle, Node *en
   EdgeLin *e1,*e2;
   e1=new EdgeLin(start,middle);
   e2=new EdgeLin(middle,end);
-  SegSegIntersector const inters(*e1,*e2);
-  bool const colinearity=inters.areColinears();
+  SegSegIntersector inters(*e1,*e2);
+  bool colinearity=inters.areColinears();
   delete e1; delete e2;
   if(colinearity)
     {
       start->decrRef(); middle->decrRef(); end->decrRef();
-      return nullptr;
+      return 0;
     }
   else
     {
-      auto *ret=new EdgeArcCircle(start,middle,end);
+      EdgeArcCircle *ret=new EdgeArcCircle(start,middle,end);
       start->decrRef(); middle->decrRef(); end->decrRef();
       return ret;
     }
@@ -618,14 +609,14 @@ double EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(double ux, double uy)
 void EdgeArcCircle::GetArcOfCirclePassingThru(const double *start, const double *middle, const double *end, 
                                               double *center, double& radius, double& angleInRad, double& angleInRad0)
 {
-  double const delta=(middle[0]-start[0])*(end[1]-middle[1])-(end[0]-middle[0])*(middle[1]-start[1]);
-  double const b1=(middle[1]*middle[1]+middle[0]*middle[0]-start[0]*start[0]-start[1]*start[1])/2;
-  double const b2=(end[1]*end[1]+end[0]*end[0]-middle[0]*middle[0]-middle[1]*middle[1])/2;
+  double delta=(middle[0]-start[0])*(end[1]-middle[1])-(end[0]-middle[0])*(middle[1]-start[1]);
+  double b1=(middle[1]*middle[1]+middle[0]*middle[0]-start[0]*start[0]-start[1]*start[1])/2;
+  double b2=(end[1]*end[1]+end[0]*end[0]-middle[0]*middle[0]-middle[1]*middle[1])/2;
   center[0]=((end[1]-middle[1])*b1+(start[1]-middle[1])*b2)/delta;
   center[1]=((middle[0]-end[0])*b1+(middle[0]-start[0])*b2)/delta;
   radius=SafeSqrt((start[0]-center[0])*(start[0]-center[0])+(start[1]-center[1])*(start[1]-center[1]));
   angleInRad0=GetAbsoluteAngleOfNormalizedVect((start[0]-center[0])/radius,(start[1]-center[1])/radius);
-  double const angleInRadM=GetAbsoluteAngleOfNormalizedVect((middle[0]-center[0])/radius,(middle[1]-center[1])/radius);
+  double angleInRadM=GetAbsoluteAngleOfNormalizedVect((middle[0]-center[0])/radius,(middle[1]-center[1])/radius);
   angleInRad=GetAbsoluteAngleOfNormalizedVect(((start[0]-center[0])*(end[0]-center[0])+(start[1]-center[1])*(end[1]-center[1]))/(radius*radius),
       ((start[0]-center[0])*(end[1]-center[1])-(start[1]-center[1])*(end[0]-center[0]))/(radius*radius));
   if(IsAngleNotIn(angleInRad0,angleInRad,angleInRadM))
@@ -699,14 +690,14 @@ void EdgeArcCircle::getBarycenter(double *bary) const
  */
 void EdgeArcCircle::getBarycenterOfZone(double *bary) const
 {
-  double const x0=_center[0];
-  double const y0=_center[1];
-  double const angle1=_angle0+_angle;
-  double const tmp1=sin(angle1);
-  double const tmp0=sin(_angle0);
-  double const tmp2=_radius*_radius*_radius;
-  double const tmp3=cos(angle1);
-  double const tmp4=cos(_angle0);
+  double x0=_center[0];
+  double y0=_center[1];
+  double angle1=_angle0+_angle;
+  double tmp1=sin(angle1);
+  double tmp0=sin(_angle0);
+  double tmp2=_radius*_radius*_radius;
+  double tmp3=cos(angle1);
+  double tmp4=cos(_angle0);
   bary[0]=_radius*x0*y0*(tmp4-tmp3)+_radius*_radius*(y0*(cos(2*_angle0)-cos(2*angle1))/4.+
       x0*(_angle/2.+(sin(2.*_angle0)-sin(2.*angle1))/4.))
       +tmp2*(tmp1*tmp1*tmp1-tmp0*tmp0*tmp0)/3.;
@@ -803,16 +794,16 @@ bool EdgeArcCircle::isLower(double val1, double val2) const
  */
 double EdgeArcCircle::getCharactValue(const Node& node) const
 {
-  double const dx=(node[0]-_center[0])/_radius;
-  double const dy=(node[1]-_center[1])/_radius;
+  double dx=(node[0]-_center[0])/_radius;
+  double dy=(node[1]-_center[1])/_radius;
   return GetAbsoluteAngleOfNormalizedVect(dx,dy);
 }
 
 double EdgeArcCircle::getCharactValueBtw0And1(const Node& node) const
 {
-  double const dx=(node[0]-_center[0])/_radius;
-  double const dy=(node[1]-_center[1])/_radius;
-  double const angle=GetAbsoluteAngleOfNormalizedVect(dx,dy);
+  double dx=(node[0]-_center[0])/_radius;
+  double dy=(node[1]-_center[1])/_radius;
+  double angle=GetAbsoluteAngleOfNormalizedVect(dx,dy);
   //
   double myDelta=angle-_angle0;
   if(_angle>0.)
@@ -824,23 +815,23 @@ double EdgeArcCircle::getCharactValueBtw0And1(const Node& node) const
 
 double EdgeArcCircle::getDistanceToPoint(const double *pt) const
 {
-  double const angle=Node::computeAngle(_center,pt);
+  double angle=Node::computeAngle(_center,pt);
   if(IsIn2Pi(_angle0,_angle,angle))
     return fabs(Node::distanceBtw2Pt(_center,pt)-_radius);
   else
     {
-      double const dist1=Node::distanceBtw2Pt(*_start,pt);
-      double const dist2=Node::distanceBtw2Pt(*_end,pt);
+      double dist1=Node::distanceBtw2Pt(*_start,pt);
+      double dist2=Node::distanceBtw2Pt(*_end,pt);
       return std::min(dist1,dist2);
     }
 }
 
 bool EdgeArcCircle::isNodeLyingOn(const double *coordOfNode) const
 {
-  double const dist=Node::distanceBtw2Pt(_center,coordOfNode);
+  double dist=Node::distanceBtw2Pt(_center,coordOfNode);
   if(Node::areDoubleEquals(dist,_radius))
     {
-      double const angle=Node::computeAngle(_center,coordOfNode);
+      double angle=Node::computeAngle(_center,coordOfNode);
       return IsIn2Pi(_angle0,_angle,angle);
     }
   else

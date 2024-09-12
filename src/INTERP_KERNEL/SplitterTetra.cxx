@@ -19,11 +19,6 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "SplitterTetra.hxx"
-#include "MCIdType.hxx"
-#include "InterpKernelException.hxx"
-#include <vector>
-#include <iterator>
-#include <cstddef>
 
 namespace INTERP_KERNEL
 {
@@ -71,7 +66,7 @@ namespace INTERP_KERNEL
               tmp2[0]=0.; tmp2[1]=0.; tmp2[2]=0.;
               for(int j=0;j<4;j++,conn+=4)
                 {
-                  mcIdType const tmp3(nodalConnBg[GENERAL_24_SUB_NODES_WO[4*i+j]]);
+                  mcIdType tmp3(nodalConnBg[GENERAL_24_SUB_NODES_WO[4*i+j]]);
                   tmp2[0]+=coords[3*tmp3+0];
                   tmp2[1]+=coords[3*tmp3+1];
                   tmp2[2]+=coords[3*tmp3+2];
@@ -131,7 +126,7 @@ namespace INTERP_KERNEL
       {
       case NORM_TETRA4:
         {
-          std::size_t const sz(std::distance(nodalConnBg,nodalConnEnd));
+          std::size_t sz(std::distance(nodalConnBg,nodalConnEnd));
           if(sz!=4)
             throw INTERP_KERNEL::Exception("SplitIntoTetras : input tetra do not have 4 nodes !");
           tetrasNodalConn.insert(tetrasNodalConn.end(),nodalConnBg,nodalConnEnd);
@@ -208,12 +203,12 @@ namespace INTERP_KERNEL
                   conn[0]=work[j]; conn[1]=work[(j+1)%nbOfNodesOfFace]; conn[2]=-(i+1); conn[3]=ToIdType(-(nbOfFaces+1));
                   tmp[0]+=coords[3*work[j]+0]; tmp[1]+=coords[3*work[j]+1]; tmp[2]+=coords[3*work[j]+2];
                 }
-              auto const nbNF = (double)nbOfNodesOfFace;
+              double nbNF = (double)nbOfNodesOfFace;
               tmp[0]/=nbNF; tmp[1]/=nbNF; tmp[2]/=nbNF;
               tmp2[0]+=tmp[0]; tmp2[1]+=tmp[1]; tmp2[2]+=tmp[2];
               work+=nbOfNodesOfFace+1;
             }
-          auto const nbF = (double)nbOfFaces;
+          double nbF = (double)nbOfFaces;
           tmp2[0]/=nbF; tmp2[1]/=nbF; tmp2[2]/=nbF;
           return ;
         }

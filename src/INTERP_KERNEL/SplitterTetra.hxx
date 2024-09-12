@@ -21,18 +21,18 @@
 #define __SPLITTERTETRA_HXX__
 
 #include "INTERPKERNELDefines.hxx"
-#include "InterpKernelHashFun.hxx"
 #include "TransformedTriangle.hxx"
 #include "TetraAffineTransform.hxx"
+#include "InterpolationOptions.hxx"
+#include "InterpKernelException.hxx"
 #include "InterpKernelHashMap.hxx"
 #include "VectorUtils.hxx"
 #include "MCIdType.hxx"
-#include "NormalizedGeometricTypes"
 
 #include <functional>
-#include <utility>
 #include <vector>
 #include <cassert>
+#include <map>
 #include <set>
 
 namespace INTERP_KERNEL
@@ -362,7 +362,7 @@ namespace INTERP_KERNEL
   class SplitterTetra
   {
   public:
-    using ConnType = typename MyMeshType::MyConnType;
+    typedef typename MyMeshType::MyConnType ConnType;
     
     SplitterTetra(const MyMeshType& srcMesh, const double** tetraCorners, const typename MyMeshType::MyConnType *nodesId);
 
@@ -370,7 +370,7 @@ namespace INTERP_KERNEL
 
     ~SplitterTetra();
 
-    double intersectSourceCell(typename MyMeshType::MyConnType srcCell, double* baryCentre=nullptr);
+    double intersectSourceCell(typename MyMeshType::MyConnType srcCell, double* baryCentre=0);
     double intersectSourceFace(const NormalizedCellType polyType,
                                const ConnType polyNodesNbr,
                                const ConnType *const polyNodes,
@@ -483,7 +483,7 @@ namespace INTERP_KERNEL
   inline void SplitterTetra<MyMeshType>::calculateNode(typename MyMeshType::MyConnType globalNodeNum)
   {  
     const double* node = _src_mesh.getCoordinatesPtr()+MyMeshType::MY_SPACEDIM*globalNodeNum;
-    auto* transformedNode = new double[MyMeshType::MY_SPACEDIM];
+    double* transformedNode = new double[MyMeshType::MY_SPACEDIM];
     assert(transformedNode != 0);
     _t->apply(transformedNode, node);
     _nodes[globalNodeNum] = transformedNode;
@@ -503,7 +503,7 @@ namespace INTERP_KERNEL
   template<class MyMeshType>
   inline void SplitterTetra<MyMeshType>::calculateNode2(typename MyMeshType::MyConnType globalNodeNum, const double* node)
   {
-    auto* transformedNode = new double[MyMeshType::MY_SPACEDIM];
+    double* transformedNode = new double[MyMeshType::MY_SPACEDIM];
     assert(transformedNode != 0);
     _t->apply(transformedNode, node);
     _nodes[globalNodeNum] = transformedNode;

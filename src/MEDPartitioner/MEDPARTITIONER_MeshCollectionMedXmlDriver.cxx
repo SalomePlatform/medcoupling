@@ -26,13 +26,14 @@
 
 #include "MEDCouplingUMesh.hxx"
 #include "MEDLoader.hxx"
-#include "libxml/xmlstring.h"
+#include "MEDFileMesh.hxx"
 
-#include <cstdio>
-#include <ctime>
+#include <map>
+#include <set>
 #include <vector>
 #include <string>
 #include <cstring>
+#include <fstream>
 #include <sstream>
 #include <iostream>
 #ifdef WIN32
@@ -44,6 +45,7 @@
 #include <libxml/tree.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
+#include <libxml/xpathInternals.h>
 
 using namespace MEDPARTITIONER;
 
@@ -90,7 +92,7 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
       //number of domains
       xmlXPathContextPtr xpathCtx = xmlXPathNewContext(master_doc);
       xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression(BAD_CAST "//splitting/subdomain", xpathCtx);
-      if (xpathObj==nullptr || xpathObj->nodesetval->nodeNr ==0)
+      if (xpathObj==0 || xpathObj->nodesetval->nodeNr ==0)
         throw INTERP_KERNEL::Exception("Xml Master File does not contain /MED/splitting/subdomain node");
 
       //as subdomain has only one property which is "number"
@@ -101,7 +103,7 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
       //mesh name
       xmlXPathFreeObject(xpathObj);
       xpathObj = xmlXPathEvalExpression(BAD_CAST "//content/mesh", xpathCtx);
-      if (xpathObj==nullptr || xpathObj->nodesetval->nodeNr ==0)
+      if (xpathObj==0 || xpathObj->nodesetval->nodeNr ==0)
         throw INTERP_KERNEL::Exception("Xml Master File does not contain /MED/content/mesh node");
       _collection->setName( (const char*)xpathObj->nodesetval->nodeTab[0]->properties->children->content);
 
@@ -117,20 +119,20 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
       const char filechar[]="//files/subfile";
       xmlXPathFreeObject(xpathObj);
       xpathObj = xmlXPathEvalExpression(BAD_CAST filechar, xpathCtx);
-      if (xpathObj==nullptr || xpathObj->nodesetval->nodeNr ==0)
+      if (xpathObj==0 || xpathObj->nodesetval->nodeNr ==0)
         throw INTERP_KERNEL::Exception("Xml Master File does not contain /MED/files/subfile nodes");
-      int const nbfiles = xpathObj->nodesetval ->nodeNr;
+      int nbfiles = xpathObj->nodesetval ->nodeNr;
     
       for (int i=0; i<nbfiles;i++)
         {
           //reading information about the domain
-          std::string const host;
+          std::string host;
           //reading file names 
           std::ostringstream name_search_string;
           name_search_string<<"//files/subfile[@id=\""<<i+1<<"\"]/name";
           xmlXPathObjectPtr xpathObjfilename =
             xmlXPathEvalExpression(BAD_CAST name_search_string.str().c_str(),xpathCtx);
-          if (xpathObjfilename->nodesetval ==nullptr)
+          if (xpathObjfilename->nodesetval ==0)
             throw INTERP_KERNEL::Exception("Error retrieving a file name from subfile of Xml Master File");
           MyGlobals::_File_Names[i]=(const char*)xpathObjfilename->nodesetval->nodeTab[0]->children->content;
 
@@ -139,7 +141,7 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
           mesh_search_string<<"//mapping/mesh/chunk[@subdomain=\""<<i+1<<"\"]/name";
 
           xmlXPathObjectPtr xpathMeshObj = xmlXPathEvalExpression(BAD_CAST mesh_search_string.str().c_str(),xpathCtx);
-          if (xpathMeshObj->nodesetval ==nullptr)
+          if (xpathMeshObj->nodesetval ==0)
             throw INTERP_KERNEL::Exception("Error retrieving mesh name from chunk of Xml Master File");
           MyGlobals::_Mesh_Names[i]=(const char*)xpathMeshObj->nodesetval->nodeTab[0]->children->content;
 
@@ -160,7 +162,7 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
       throw INTERP_KERNEL::Exception("I/O error reading parallel MED file");
     }
 
-  auto* aPT = new ParallelTopology(_collection->getMesh());
+  ParallelTopology* aPT = new ParallelTopology(_collection->getMesh());
   //creation of topology from mesh and connect zones
   if ( _collection->isParallelMode() )
     {
@@ -180,18 +182,18 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
  */
 void MeshCollectionMedXmlDriver::write(const char* filename, ParaDomainSelector* domainSelector) const
 {
-  xmlDocPtr master_doc = nullptr;
-  xmlNodePtr root_node = nullptr, node, node2;
+  xmlDocPtr master_doc = 0;
+  xmlNodePtr root_node = 0, node, node2;
   char buff[256];
 
   //Creating the Xml document
   master_doc = xmlNewDoc(BAD_CAST "1.0");
-  root_node = xmlNewNode(nullptr, BAD_CAST "root");
+  root_node = xmlNewNode(0, BAD_CAST "root");
   xmlDocSetRootElement(master_doc,root_node);
 
   //Creating child nodes
   // Version tag
-  node = xmlNewChild(root_node, nullptr, BAD_CAST "version",nullptr);
+  node = xmlNewChild(root_node, 0, BAD_CAST "version",0);
   xmlNewProp(node, BAD_CAST "maj", BAD_CAST "2");
   xmlNewProp(node, BAD_CAST "min", BAD_CAST "3");
   xmlNewProp(node, BAD_CAST "ver", BAD_CAST "1");
@@ -214,39 +216,39 @@ void MeshCollectionMedXmlDriver::write(const char* filename, ParaDomainSelector*
           ,st.wDay);
 #endif
 
-  node = xmlNewChild(root_node,nullptr, BAD_CAST "description",nullptr);
+  node = xmlNewChild(root_node,0, BAD_CAST "description",0);
 
   xmlNewProp(node, BAD_CAST "what", BAD_CAST _collection->getDescription().c_str());
   xmlNewProp(node, BAD_CAST "when", BAD_CAST date);
 
   //Content tag
-  node =xmlNewChild(root_node,nullptr, BAD_CAST "content",nullptr);
-  node2 = xmlNewChild(node, nullptr, BAD_CAST "mesh",nullptr);
+  node =xmlNewChild(root_node,0, BAD_CAST "content",0);
+  node2 = xmlNewChild(node, 0, BAD_CAST "mesh",0);
   xmlNewProp(node2, BAD_CAST "name", BAD_CAST _collection->getName().c_str());
 
   //Splitting tag
-  node=xmlNewChild(root_node,nullptr,BAD_CAST "splitting",nullptr);
-  node2=xmlNewChild(node,nullptr,BAD_CAST "subdomain",nullptr);
+  node=xmlNewChild(root_node,0,BAD_CAST "splitting",0);
+  node2=xmlNewChild(node,0,BAD_CAST "subdomain",0);
   sprintf(buff, "%d", (int)_collection->getMesh().size());
   xmlNewProp(node2, BAD_CAST "number", BAD_CAST buff);
-  node2=xmlNewChild(node,nullptr,BAD_CAST "global_numbering",nullptr);
+  node2=xmlNewChild(node,0,BAD_CAST "global_numbering",0);
   xmlNewProp(node2, BAD_CAST "present", BAD_CAST "yes");
 
   //Files tag
-  xmlNodePtr file_node=xmlNewChild(root_node,nullptr,BAD_CAST "files",nullptr);
+  xmlNodePtr file_node=xmlNewChild(root_node,0,BAD_CAST "files",0);
 
   //Mapping tag
-  node = xmlNewChild(root_node,nullptr,BAD_CAST "mapping",nullptr);
-  xmlNodePtr mesh_node = xmlNewChild(node, nullptr, BAD_CAST "mesh",nullptr);
+  node = xmlNewChild(root_node,0,BAD_CAST "mapping",0);
+  xmlNodePtr mesh_node = xmlNewChild(node, 0, BAD_CAST "mesh",0);
   xmlNewProp(mesh_node, BAD_CAST "name", BAD_CAST _collection->getName().c_str());
 
-  int const nbdomains= _collection->getNbOfGlobalMeshes();
+  int nbdomains= _collection->getNbOfGlobalMeshes();
 
   //loop on the domains
   std::string finalMeshName="";
   if (MyGlobals::_General_Informations.size()!=0)
     {
-      std::size_t const found=MyGlobals::_General_Informations[0].find("finalMeshName=");
+      std::size_t found=MyGlobals::_General_Informations[0].find("finalMeshName=");
      if ((found!=std::string::npos) && (found>0))
        {
          finalMeshName=ExtractFromDescription(MyGlobals::_General_Informations[0], "finalMeshName=");
@@ -278,15 +280,15 @@ void MeshCollectionMedXmlDriver::write(const char* filename, ParaDomainSelector*
       if (domainSelector->rank()==0)
         {
           //updating the ascii description file
-          node = xmlNewChild(file_node, nullptr, BAD_CAST "subfile",nullptr);
+          node = xmlNewChild(file_node, 0, BAD_CAST "subfile",0);
           sprintf (buff,"%d",idomain+1);
           xmlNewProp(node, BAD_CAST "id", BAD_CAST buff);
-          xmlNewChild(node,nullptr,BAD_CAST "name",BAD_CAST distfilename.c_str());
-          xmlNewChild(node,nullptr,BAD_CAST "machine",BAD_CAST "localhost");
+          xmlNewChild(node,0,BAD_CAST "name",BAD_CAST distfilename.c_str());
+          xmlNewChild(node,0,BAD_CAST "machine",BAD_CAST "localhost");
 
-          node = xmlNewChild(mesh_node,nullptr, BAD_CAST "chunk",nullptr);
+          node = xmlNewChild(mesh_node,0, BAD_CAST "chunk",0);
           xmlNewProp(node, BAD_CAST "subdomain", BAD_CAST buff);
-          xmlNewChild(node,nullptr,BAD_CAST "name", BAD_CAST finalMeshName.c_str());
+          xmlNewChild(node,0,BAD_CAST "name", BAD_CAST finalMeshName.c_str());
           //xmlNewChild(node,0,BAD_CAST "name", BAD_CAST ((_collection->getMesh())[idomain]->getName()).c_str());
         }
     }

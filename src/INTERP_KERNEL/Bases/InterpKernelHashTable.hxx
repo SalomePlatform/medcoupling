@@ -49,13 +49,13 @@
 #ifndef __INTERPKERNELHASHTABLE_HXX__
 #define __INTERPKERNELHASHTABLE_HXX__
 
+#include "InterpKernelStlExt.hxx"
+#include "InterpKernelHashFun.hxx"
 
-#include <memory>
-#include <cstddef>
-#include <utility>
 #include <vector>
 #include <iterator>
 #include <algorithm>
+#include <functional>
 
 namespace INTERP_KERNEL
 {
@@ -82,16 +82,21 @@ namespace INTERP_KERNEL
            class _ExtractKey, class _EqualKey, class _Alloc>
   struct _Hashtable_iterator
   {
-    using _Hashtable = hashtable<_Val, _Key, _HashFcn, _ExtractKey, _EqualKey, _Alloc>;
-    using iterator = _Hashtable_iterator<_Val, _Key, _HashFcn, _ExtractKey, _EqualKey, _Alloc>;
-    using const_iterator = _Hashtable_const_iterator<_Val, _Key, _HashFcn, _ExtractKey, _EqualKey, _Alloc>;
-    using _Node = _Hashtable_node<_Val>;
-    using iterator_category = std::forward_iterator_tag;
-    using value_type = _Val;
-    using difference_type = std::ptrdiff_t;
-    using size_type = std::size_t;
-    using reference = _Val &;
-    using pointer = _Val *;
+    typedef hashtable<_Val, _Key, _HashFcn, _ExtractKey, _EqualKey, _Alloc>
+    _Hashtable;
+    typedef _Hashtable_iterator<_Val, _Key, _HashFcn,
+                                _ExtractKey, _EqualKey, _Alloc>
+    iterator;
+    typedef _Hashtable_const_iterator<_Val, _Key, _HashFcn,
+                                      _ExtractKey, _EqualKey, _Alloc>
+    const_iterator;
+    typedef _Hashtable_node<_Val> _Node;
+    typedef std::forward_iterator_tag iterator_category;
+    typedef _Val value_type;
+    typedef std::ptrdiff_t difference_type;
+    typedef std::size_t size_type;
+    typedef _Val& reference;
+    typedef _Val* pointer;
       
     _Node* _M_cur;
     _Hashtable* _M_ht;
@@ -99,7 +104,7 @@ namespace INTERP_KERNEL
     _Hashtable_iterator(_Node* __n, _Hashtable* __tab)
       : _M_cur(__n), _M_ht(__tab) { }
 
-    _Hashtable_iterator() = default;
+    _Hashtable_iterator() { }
 
     reference
     operator*() const
@@ -128,17 +133,22 @@ namespace INTERP_KERNEL
            class _ExtractKey, class _EqualKey, class _Alloc>
   struct _Hashtable_const_iterator
   {
-    using _Hashtable = hashtable<_Val, _Key, _HashFcn, _ExtractKey, _EqualKey, _Alloc>;
-    using iterator = _Hashtable_iterator<_Val, _Key, _HashFcn, _ExtractKey, _EqualKey, _Alloc>;
-    using const_iterator = _Hashtable_const_iterator<_Val, _Key, _HashFcn, _ExtractKey, _EqualKey, _Alloc>;
-    using _Node = _Hashtable_node<_Val>;
+    typedef hashtable<_Val, _Key, _HashFcn, _ExtractKey, _EqualKey, _Alloc>
+    _Hashtable;
+    typedef _Hashtable_iterator<_Val,_Key,_HashFcn,
+                                _ExtractKey,_EqualKey,_Alloc>
+    iterator;
+    typedef _Hashtable_const_iterator<_Val, _Key, _HashFcn,
+                                      _ExtractKey, _EqualKey, _Alloc>
+    const_iterator;
+    typedef _Hashtable_node<_Val> _Node;
 
-    using iterator_category = std::forward_iterator_tag;
-    using value_type = _Val;
-    using difference_type = std::ptrdiff_t;
-    using size_type = std::size_t;
-    using reference = const _Val &;
-    using pointer = const _Val *;
+    typedef std::forward_iterator_tag iterator_category;
+    typedef _Val value_type;
+    typedef std::ptrdiff_t difference_type;
+    typedef std::size_t size_type;
+    typedef const _Val& reference;
+    typedef const _Val* pointer;
       
     const _Node* _M_cur;
     const _Hashtable* _M_ht;
@@ -146,7 +156,7 @@ namespace INTERP_KERNEL
     _Hashtable_const_iterator(const _Node* __n, const _Hashtable* __tab)
       : _M_cur(__n), _M_ht(__tab) { }
 
-    _Hashtable_const_iterator() = default;
+    _Hashtable_const_iterator() { }
 
     _Hashtable_const_iterator(const iterator& __it)
       : _M_cur(__it._M_cur), _M_ht(__it._M_ht) { }
@@ -209,33 +219,33 @@ namespace INTERP_KERNEL
   class hashtable
   {
   public:
-    using key_type = _Key;
-    using value_type = _Val;
-    using hasher = _HashFcn;
-    using key_equal = _EqualKey;
+    typedef _Key key_type;
+    typedef _Val value_type;
+    typedef _HashFcn hasher;
+    typedef _EqualKey key_equal;
 
-    using size_type = std::size_t;
-    using difference_type = std::ptrdiff_t;
-    using pointer = value_type *;
-    using const_pointer = const value_type *;
-    using reference = value_type &;
-    using const_reference = const value_type &;
+    typedef std::size_t            size_type;
+    typedef std::ptrdiff_t         difference_type;
+    typedef value_type*       pointer;
+    typedef const value_type* const_pointer;
+    typedef value_type&       reference;
+    typedef const value_type& const_reference;
 
     hasher hash_funct() const { return _M_hash; }
 
     key_equal key_eq() const { return _M_equals; }
 
   private:
-    using _Node = _Hashtable_node<_Val>;
+    typedef _Hashtable_node<_Val> _Node;
 
   public:
-    using allocator_type = typename _Alloc::template rebind<value_type>::other;
+    typedef typename _Alloc::template rebind<value_type>::other allocator_type;
     allocator_type get_allocator() const { return _M_node_allocator; }
 
   private:
-    using _Node_Alloc = typename _Alloc::template rebind<_Node>::other;
-    using _Nodeptr_Alloc = typename _Alloc::template rebind<_Node *>::other;
-    using _Vector_type = std::vector<_Node *, _Nodeptr_Alloc>;
+    typedef typename _Alloc::template rebind<_Node>::other _Node_Alloc;
+    typedef typename _Alloc::template rebind<_Node*>::other _Nodeptr_Alloc;
+    typedef std::vector<_Node*, _Nodeptr_Alloc> _Vector_type;
 
     _Node_Alloc _M_node_allocator;
 
@@ -251,8 +261,12 @@ namespace INTERP_KERNEL
     size_type             _M_num_elements;
       
   public:
-    using iterator = _Hashtable_iterator<_Val, _Key, _HashFcn, _ExtractKey, _EqualKey, _Alloc>;
-    using const_iterator = _Hashtable_const_iterator<_Val, _Key, _HashFcn, _ExtractKey, _EqualKey, _Alloc>;
+    typedef _Hashtable_iterator<_Val, _Key, _HashFcn, _ExtractKey,
+                                _EqualKey, _Alloc>
+    iterator;
+    typedef _Hashtable_const_iterator<_Val, _Key, _HashFcn, _ExtractKey,
+                                      _EqualKey, _Alloc>
+    const_iterator;
 
     friend struct
     _Hashtable_iterator<_Val, _Key, _HashFcn, _ExtractKey, _EqualKey, _Alloc>;

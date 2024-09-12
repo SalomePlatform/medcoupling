@@ -19,8 +19,6 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "InterpKernelGeo2DEdgeInfLin.hxx"
-#include "InterpKernelGeo2DNode.hxx"
-#include <cmath>
 
 using namespace INTERP_KERNEL;
 

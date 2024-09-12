@@ -21,6 +21,7 @@
 #ifndef __MEDFILEFIELDVISITOR_HXX__
 #define __MEDFILEFIELDVISITOR_HXX__
 
+#include "MEDLoaderDefines.hxx"
 #include "MEDFileField.hxx"
 
 namespace MEDCoupling
@@ -47,7 +48,7 @@ namespace MEDCoupling
     virtual void endPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt) = 0;
     //
     virtual void newPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc *pmptpd) = 0;
-    virtual ~MEDFileFieldVisitor() = default;
+    virtual ~MEDFileFieldVisitor() { }
   };
 }
 

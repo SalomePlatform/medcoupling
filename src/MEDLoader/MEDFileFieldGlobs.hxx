@@ -21,19 +21,13 @@
 #ifndef __MEDFILEFIELDGLOBS_HXX__
 #define __MEDFILEFIELDGLOBS_HXX__
 
-#include "MEDCouplingRefCountObject.hxx"
-#include "MCType.hxx"
 #include "MEDLoaderDefines.hxx"
 
 #include "NormalizedGeometricTypes"
+#include "MEDCouplingMemArray.hxx"
 #include "MCAuto.hxx"
 
 #include "med.h"
-#include <string>
-#include <cstddef>
-#include <vector>
-#include <ostream>
-#include <utility>
 
 namespace MEDCoupling
 {
@@ -48,8 +42,8 @@ namespace MEDCoupling
     static MEDFileFieldGlobs *New(med_idt fid);
     static MEDFileFieldGlobs *New();
     std::string getClassName() const override { return std::string("MEDFileFieldGlobs"); }
-    std::size_t getHeapMemorySizeWithoutChildren() const override;
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDFileFieldGlobs *deepCopy() const;
     MEDFileFieldGlobs *shallowCpyPart(const std::vector<std::string>& pfls, const std::vector<std::string>& locs) const;
     MEDFileFieldGlobs *deepCpyPart(const std::vector<std::string>& pfls, const std::vector<std::string>& locs) const;
@@ -96,7 +90,7 @@ namespace MEDCoupling
   protected:
     MEDFileFieldGlobs(med_idt fid);
     MEDFileFieldGlobs();
-    ~MEDFileFieldGlobs() override;
+    ~MEDFileFieldGlobs();
   protected:
     std::vector< MCAuto<DataArrayIdType> > _pfls;
     std::vector< MCAuto<MEDFileFieldLoc> > _locs;
@@ -134,7 +128,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void loadProfileInFile(med_idt fid, int id, const std::string& pflName);
     MEDLOADER_EXPORT void loadProfileInFile(med_idt fid, int id);
     MEDLOADER_EXPORT void loadGlobals(med_idt fid);
-    MEDLOADER_EXPORT void loadAllGlobals(med_idt fid, const MEDFileEntities *entities=nullptr);
+    MEDLOADER_EXPORT void loadAllGlobals(med_idt fid, const MEDFileEntities *entities=0);
     MEDLOADER_EXPORT void writeGlobals(med_idt fid, const MEDFileWritable& opt) const;
     MEDLOADER_EXPORT std::vector<std::string> getPfls() const;
     MEDLOADER_EXPORT std::vector<std::string> getLocs() const;

@@ -19,26 +19,14 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingIMesh.hxx"
-#include "MCType.hxx"
-#include "MCAuto.hxx"
-#include "MCIdType.hxx"
 #include "MEDCouplingCMesh.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingStructuredMesh.hxx"
-#include "MEDCouplingMesh.hxx"
-#include "MEDCouplingRefCountObject.hxx"
 
-#include <cmath>
-#include <cstddef>
 #include <functional>
 #include <algorithm>
-#include <iterator>
-#include <ostream>
 #include <sstream>
 #include <numeric>
-#include <vector>
-#include <utility>
 
 using namespace MEDCoupling;
 
@@ -57,7 +45,8 @@ MEDCouplingIMesh::MEDCouplingIMesh(const MEDCouplingIMesh& other, bool deepCpy):
 }
 
 MEDCouplingIMesh::~MEDCouplingIMesh()
-= default;
+{
+}
 
 MEDCouplingIMesh *MEDCouplingIMesh::New()
 {
@@ -104,7 +93,7 @@ MEDCouplingIMesh *MEDCouplingIMesh::buildWithGhost(mcIdType ghostLev) const
   if(ghostLev<0)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::buildWithGhost : the ghostLev must be >= 0 !");
   checkConsistencyLight();
-  int const spaceDim(getSpaceDimension());
+  int spaceDim(getSpaceDimension());
   double origin[3],dxyz[3];
   mcIdType structure[3];
   for(int i=0;i<spaceDim;i++)
@@ -121,7 +110,7 @@ MEDCouplingIMesh *MEDCouplingIMesh::buildWithGhost(mcIdType ghostLev) const
 void MEDCouplingIMesh::setNodeStruct(const mcIdType *nodeStrctStart, const mcIdType *nodeStrctStop)
 {
   checkSpaceDimension();
-  auto sz((mcIdType)std::distance(nodeStrctStart,nodeStrctStop));
+  mcIdType sz((mcIdType)std::distance(nodeStrctStart,nodeStrctStop));
   if(sz!=_space_dim)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::setNodeStruct : input vector of node structure has not the right size ! Or change space dimension before calling it !");
   std::copy(nodeStrctStart,nodeStrctStop,_structure);
@@ -137,7 +126,7 @@ std::vector<mcIdType> MEDCouplingIMesh::getNodeStruct() const
 void MEDCouplingIMesh::setOrigin(const double *originStart, const double *originStop)
 {
   checkSpaceDimension();
-  mcIdType const sz(ToIdType(std::distance(originStart,originStop)));
+  mcIdType sz(ToIdType(std::distance(originStart,originStop)));
   if(sz!=_space_dim)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::setOrigin : input vector of origin vector has not the right size ! Or change space dimension before calling it !");
   std::copy(originStart,originStop,_origin);
@@ -153,7 +142,7 @@ std::vector<double> MEDCouplingIMesh::getOrigin() const
 void MEDCouplingIMesh::setDXYZ(const double *dxyzStart, const double *dxyzStop)
 {
   checkSpaceDimension();
-  mcIdType const sz(ToIdType(std::distance(dxyzStart,dxyzStop)));
+  mcIdType sz(ToIdType(std::distance(dxyzStart,dxyzStop)));
   if(sz!=_space_dim)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::setDXYZ : input vector of dxyz vector has not the right size ! Or change space dimension before calling it !");
   std::copy(dxyzStart,dxyzStop,_dxyz);
@@ -187,7 +176,7 @@ std::string MEDCouplingIMesh::getAxisUnit() const
 double MEDCouplingIMesh::getMeasureOfAnyCell() const
 {
   checkConsistencyLight();
-  int const dim(getSpaceDimension());
+  int dim(getSpaceDimension());
   double ret(1.);
   for(int i=0;i<dim;i++)
     ret*=fabs(_dxyz[i]);
@@ -208,7 +197,7 @@ MEDCouplingCMesh *MEDCouplingIMesh::convertToCartesian() const
   try
   { ret->copyTinyInfoFrom(this); }
   catch(INTERP_KERNEL::Exception& ) { }
-  int const spaceDim(getSpaceDimension());
+  int spaceDim(getSpaceDimension());
   std::vector<std::string> infos(buildInfoOnComponents());
   for(int i=0;i<spaceDim;i++)
     {
@@ -239,8 +228,8 @@ void MEDCouplingIMesh::refineWithFactor(const std::vector<mcIdType>& factors)
           std::ostringstream oss; oss << "MEDCouplingIMesh::refineWithFactor : factor for axis #" << i << " (" << factors[i] << ")is invalid ! Must be > 0 !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
-      mcIdType const factAbs(std::abs(factors[i]));
-      double const fact2(1./(double)factors[i]);
+      mcIdType factAbs(std::abs(factors[i]));
+      double fact2(1./(double)factors[i]);
       structure[i]=(_structure[i]-1)*factAbs+1;
       dxyz[i]=fact2*_dxyz[i];
     }
@@ -298,9 +287,9 @@ void MEDCouplingIMesh::CondenseFineToCoarse(const std::vector<mcIdType>& coarseS
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : All input vectors (dimension) must have the same size !");
   if(!coarseDA || !coarseDA->isAllocated() || !fineDA || !fineDA->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : the parameters 1 or 3 are NULL or not allocated !");
-  std::size_t const meshDim(coarseSt.size());
+  std::size_t meshDim(coarseSt.size());
   mcIdType nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseSt)),nbOfTuplesInFineExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(fineLocInCoarse));
-  std::size_t const nbCompo=fineDA->getNumberOfComponents();
+  std::size_t nbCompo=fineDA->getNumberOfComponents();
   if(coarseDA->getNumberOfComponents()!=nbCompo)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : the number of components of fine DA and coarse one mismatches !");
   if(meshDim!=fineLocInCoarse.size() || meshDim!=facts.size())
@@ -310,7 +299,7 @@ void MEDCouplingIMesh::CondenseFineToCoarse(const std::vector<mcIdType>& coarseS
       std::ostringstream oss; oss << "MEDCouplingIMesh::CondenseFineToCoarse : Expecting " << nbOfTuplesInCoarseExp << " tuples having " << coarseDA->getNumberOfTuples() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  mcIdType const nbTuplesFine(fineDA->getNumberOfTuples());
+  mcIdType nbTuplesFine(fineDA->getNumberOfTuples());
   if(nbOfTuplesInFineExp==0)
     {
       if(nbTuplesFine==0)
@@ -320,7 +309,7 @@ void MEDCouplingIMesh::CondenseFineToCoarse(const std::vector<mcIdType>& coarseS
     }
   if(nbTuplesFine%nbOfTuplesInFineExp!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarse : Invalid nb of tuples in fine DataArray regarding its structure !");
-  mcIdType const fact(std::accumulate(facts.begin(),facts.end(),1,std::multiplies<mcIdType>()));
+  mcIdType fact(std::accumulate(facts.begin(),facts.end(),1,std::multiplies<mcIdType>()));
   if(nbTuplesFine!=fact*nbOfTuplesInFineExp)
     {
       std::ostringstream oss; oss << "MEDCouplingIMesh::CondenseFineToCoarse : Invalid number of tuples ("  << nbTuplesFine << ") of fine dataarray is invalid ! Must be " << fact*nbOfTuplesInFineExp << "!";
@@ -429,9 +418,9 @@ void MEDCouplingIMesh::CondenseFineToCoarseGhost(const std::vector<mcIdType>& co
   if(!coarseDA || !coarseDA->isAllocated() || !fineDA || !fineDA->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarseGhost : the parameters 1 or 3 are NULL or not allocated !");
   std::vector<mcIdType> coarseStG(coarseSt.size()); std::transform(coarseSt.begin(),coarseSt.end(),coarseStG.begin(),std::bind(std::plus<mcIdType>(),std::placeholders::_1,2*ghostSize));
-  std::size_t const meshDim(coarseSt.size());
-  mcIdType const nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseStG));
-  std::size_t const nbCompo(fineDA->getNumberOfComponents());
+  std::size_t meshDim(coarseSt.size());
+  mcIdType nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseStG));
+  std::size_t nbCompo(fineDA->getNumberOfComponents());
   if(coarseDA->getNumberOfComponents()!=nbCompo)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::CondenseFineToCoarseGhost : the number of components of fine DA and coarse one mismatches !");
   if(meshDim!=fineLocInCoarse.size() || meshDim!=facts.size())
@@ -477,7 +466,7 @@ void MEDCouplingIMesh::CondenseFineToCoarseGhost(const std::vector<mcIdType>& co
       }
     case 2:
       {
-        mcIdType const nxwg(coarseSt[0]+2*ghostSize);
+        mcIdType nxwg(coarseSt[0]+2*ghostSize);
         mcIdType kk(fineLocInCoarse[0].first+ghostSize+nxwg*(fineLocInCoarse[1].first+ghostSize)),fact1(facts[1]),fact0(facts[0]);
         inPtr+=(dims[0]*fact0+2*ghostSize)*ghostSize*nbCompo;
         for(int j=0;j<dims[1];j++)
@@ -514,7 +503,7 @@ void MEDCouplingIMesh::CondenseFineToCoarseGhost(const std::vector<mcIdType>& co
                 inPtr+=ghostSize*(dims[0]*fact0+2*ghostSize)*nbCompo;
                 for(int j=0;j<dims[1];j++)
                   {
-                    mcIdType const kky(j*nxwg);
+                    mcIdType kky(j*nxwg);
                     for(mcIdType jfact=0;jfact<fact1;jfact++)
                       {
                         inPtr+=ghostSize*nbCompo;
@@ -559,9 +548,9 @@ void MEDCouplingIMesh::SpreadCoarseToFine(const DataArrayDouble *coarseDA, const
       throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFine : All input vectors (dimension) must have the same size !");
   if(!coarseDA || !coarseDA->isAllocated() || !fineDA || !fineDA->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFine : the parameters 1 or 3 are NULL or not allocated !");
-  std::size_t const meshDim(coarseSt.size());
+  std::size_t meshDim(coarseSt.size());
   mcIdType nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseSt)),nbOfTuplesInFineExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenRangeInCompactFrmt(fineLocInCoarse));
-  std::size_t const nbCompo=fineDA->getNumberOfComponents();
+  std::size_t nbCompo=fineDA->getNumberOfComponents();
   if(coarseDA->getNumberOfComponents()!=nbCompo)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFine : the number of components of fine DA and coarse one mismatches !");
   if(meshDim!=fineLocInCoarse.size() || meshDim!=facts.size())
@@ -571,10 +560,10 @@ void MEDCouplingIMesh::SpreadCoarseToFine(const DataArrayDouble *coarseDA, const
       std::ostringstream oss; oss << "MEDCouplingIMesh::SpreadCoarseToFine : Expecting " << nbOfTuplesInCoarseExp << " tuples having " << coarseDA->getNumberOfTuples() << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  mcIdType const nbTuplesFine(fineDA->getNumberOfTuples());
+  mcIdType nbTuplesFine(fineDA->getNumberOfTuples());
   if(nbTuplesFine%nbOfTuplesInFineExp!=0)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFine : Invalid nb of tuples in fine DataArray regarding its structure !");
-  mcIdType const fact(std::accumulate(facts.begin(),facts.end(),1,std::multiplies<mcIdType>()));
+  mcIdType fact(std::accumulate(facts.begin(),facts.end(),1,std::multiplies<mcIdType>()));
   if(nbTuplesFine!=fact*nbOfTuplesInFineExp)
     {
       std::ostringstream oss; oss << "MEDCouplingIMesh::SpreadCoarseToFine : Invalid number of tuples ("  << nbTuplesFine << ") of fine dataarray is invalid ! Must be " << fact*nbOfTuplesInFineExp << "!";
@@ -666,9 +655,9 @@ void MEDCouplingIMesh::SpreadCoarseToFineGhost(const DataArrayDouble *coarseDA, 
   if(!coarseDA || !coarseDA->isAllocated() || !fineDA || !fineDA->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhost : the parameters 1 or 3 are NULL or not allocated !");
   std::vector<mcIdType> coarseStG(coarseSt.size()); std::transform(coarseSt.begin(),coarseSt.end(),coarseStG.begin(),std::bind(std::plus<mcIdType>(),std::placeholders::_1,2*ghostSize));
-  std::size_t const meshDim(coarseSt.size());
-  mcIdType const nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseStG));
-  std::size_t const nbCompo=fineDA->getNumberOfComponents();
+  std::size_t meshDim(coarseSt.size());
+  mcIdType nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseStG));
+  std::size_t nbCompo=fineDA->getNumberOfComponents();
   if(coarseDA->getNumberOfComponents()!=nbCompo)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhost : the number of components of fine DA and coarse one mismatches !");
   if(meshDim!=fineLocInCoarse.size() || meshDim!=facts.size())
@@ -759,9 +748,9 @@ void MEDCouplingIMesh::SpreadCoarseToFineGhostZone(const DataArrayDouble *coarse
   if(!coarseDA || !coarseDA->isAllocated() || !fineDA || !fineDA->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhostZone : the parameters 1 or 3 are NULL or not allocated !");
   std::vector<mcIdType> coarseStG(coarseSt.size()); std::transform(coarseSt.begin(),coarseSt.end(),coarseStG.begin(),std::bind(std::plus<mcIdType>(),std::placeholders::_1,2*ghostSize));
-  std::size_t const meshDim(coarseSt.size());
-  mcIdType const nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseStG));
-  std::size_t const nbCompo=fineDA->getNumberOfComponents();
+  std::size_t meshDim(coarseSt.size());
+  mcIdType nbOfTuplesInCoarseExp(MEDCouplingStructuredMesh::DeduceNumberOfGivenStructure(coarseStG));
+  std::size_t nbCompo=fineDA->getNumberOfComponents();
   if(coarseDA->getNumberOfComponents()!=nbCompo)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::SpreadCoarseToFineGhostZone : the number of components of fine DA and coarse one mismatches !");
   if(meshDim!=fineLocInCoarse.size() || meshDim!=facts.size())
@@ -853,7 +842,7 @@ std::vector<const BigMemoryObject *> MEDCouplingIMesh::getDirectChildrenWithNull
  */
 void MEDCouplingIMesh::copyTinyStringsFrom(const MEDCouplingMesh *other)
 { 
-  const auto *otherC=dynamic_cast<const MEDCouplingIMesh *>(other);
+  const MEDCouplingIMesh *otherC=dynamic_cast<const MEDCouplingIMesh *>(other);
   if(!otherC)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::copyTinyStringsFrom : meshes have not same type !");
   MEDCouplingStructuredMesh::copyTinyStringsFrom(other);
@@ -864,7 +853,7 @@ bool MEDCouplingIMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::isEqualIfNotWhy : input other pointer is null !");
-  const auto *otherC(dynamic_cast<const MEDCouplingIMesh *>(other));
+  const MEDCouplingIMesh *otherC(dynamic_cast<const MEDCouplingIMesh *>(other));
   if(!otherC)
     {
       reason="mesh given in input is not castable in MEDCouplingIMesh !";
@@ -884,7 +873,7 @@ bool MEDCouplingIMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec
 
 bool MEDCouplingIMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const
 {
-  const auto *otherC=dynamic_cast<const MEDCouplingIMesh *>(other);
+  const MEDCouplingIMesh *otherC=dynamic_cast<const MEDCouplingIMesh *>(other);
   if(!otherC)
     return false;
   std::string tmp;
@@ -893,7 +882,7 @@ bool MEDCouplingIMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *other
 
 bool MEDCouplingIMesh::isEqualWithoutConsideringStrInternal(const MEDCouplingMesh *other, double prec, std::string& reason) const
 {
-  const auto *otherC=dynamic_cast<const MEDCouplingIMesh *>(other);
+  const MEDCouplingIMesh *otherC=dynamic_cast<const MEDCouplingIMesh *>(other);
   if(!otherC)
     return false;
   if(_space_dim!=otherC->_space_dim)
@@ -936,8 +925,8 @@ bool MEDCouplingIMesh::isEqualWithoutConsideringStrInternal(const MEDCouplingMes
   return true;
 }
 
-void MEDCouplingIMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int  /*cellCompPol*/, double prec,
-                                            DataArrayIdType *& /*cellCor*/, DataArrayIdType *& /*nodeCor*/) const
+void MEDCouplingIMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                            DataArrayIdType *&cellCor, DataArrayIdType *&nodeCor) const
 {
   if(!isEqualWithoutConsideringStr(other,prec))
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::checkDeepEquivalWith : Meshes are not the same !");
@@ -947,8 +936,8 @@ void MEDCouplingIMesh::checkDeepEquivalWith(const MEDCouplingMesh *other, int  /
  * Nothing is done here (except to check that the other is a MEDCoupling::MEDCouplingIMesh instance too).
  * The user intend that the nodes are the same, so by construction of MEDCoupling::MEDCouplingIMesh, \a this and \a other are the same !
  */
-void MEDCouplingIMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int  /*cellCompPol*/, double prec,
-                                                       DataArrayIdType *& /*cellCor*/) const
+void MEDCouplingIMesh::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
+                                                       DataArrayIdType *&cellCor) const
 {
   if(!isEqualWithoutConsideringStr(other,prec))
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::checkDeepEquivalOnSameNodesWith : Meshes are not the same !");
@@ -965,7 +954,7 @@ void MEDCouplingIMesh::checkConsistencyLight() const
       }
 }
 
-void MEDCouplingIMesh::checkConsistency(double  /*eps*/) const
+void MEDCouplingIMesh::checkConsistency(double eps) const
 {
   checkConsistencyLight();
 }
@@ -986,7 +975,7 @@ std::vector<mcIdType> MEDCouplingIMesh::getNodeGridStructure() const
 MEDCouplingStructuredMesh *MEDCouplingIMesh::buildStructuredSubPart(const std::vector< std::pair<mcIdType,mcIdType> >& cellPart) const
 {
   checkConsistencyLight();
-  int const dim(getSpaceDimension());
+  int dim(getSpaceDimension());
   if(dim!=ToIdType(cellPart.size()))
     {
       std::ostringstream oss; oss << "MEDCouplingIMesh::buildStructuredSubPart : the space dimension is " << dim << " and cell part size is " << cellPart.size() << " !";
@@ -998,7 +987,7 @@ MEDCouplingStructuredMesh *MEDCouplingIMesh::buildStructuredSubPart(const std::v
   for(int i=0;i<dim;i++)
     {
       mcIdType startNode(cellPart[i].first),endNode(cellPart[i].second+1);
-      mcIdType const myDelta(endNode-startNode);
+      mcIdType myDelta(endNode-startNode);
       if(startNode<0 || startNode>=_structure[i])
         {
           std::ostringstream oss; oss << "MEDCouplingIMesh::buildStructuredSubPart : At dimension #" << i << " the start node id is " << startNode << " it should be in [0," << _structure[i] << ") !";
@@ -1029,7 +1018,7 @@ int MEDCouplingIMesh::getSpaceDimension() const
 void MEDCouplingIMesh::getCoordinatesOfNode(mcIdType nodeId, std::vector<double>& coo) const
 {
   mcIdType tmp[3];
-  int const spaceDim(getSpaceDimension());
+  int spaceDim(getSpaceDimension());
   getSplitNodeValues(tmp);
   mcIdType tmp2[3];
   GetPosFromId(nodeId,spaceDim,tmp,tmp2);
@@ -1043,8 +1032,8 @@ std::string MEDCouplingIMesh::simpleRepr() const
   ret << "Image grid with name : \"" << getName() << "\"\n";
   ret << "Description of mesh : \"" << getDescription() << "\"\n";
   int tmpp1,tmpp2;
-  double const tt(getTime(tmpp1,tmpp2));
-  int const spaceDim(_space_dim);
+  double tt(getTime(tmpp1,tmpp2));
+  int spaceDim(_space_dim);
   ret << "Time attached to the mesh [unit] : " << tt << " [" << getTimeUnit() << "]\n";
   ret << "Iteration : " << tmpp1  << " Order : " << tmpp2 << "\n";
   ret << "Space dimension : " << spaceDim << "\n";
@@ -1066,7 +1055,7 @@ std::string MEDCouplingIMesh::advancedRepr() const
 void MEDCouplingIMesh::getBoundingBox(double *bbox) const
 {
   checkConsistencyLight();
-  int const dim(getSpaceDimension());
+  int dim(getSpaceDimension());
   for(int idim=0; idim<dim; idim++)
     {
       bbox[2*idim]=_origin[idim];
@@ -1093,12 +1082,12 @@ void MEDCouplingIMesh::getBoundingBox(double *bbox) const
  *         and one time . The caller is to delete this field using decrRef() as it is no
  *         more needed.
  */
-MEDCouplingFieldDouble *MEDCouplingIMesh::getMeasureField(bool  /*isAbs*/) const
+MEDCouplingFieldDouble *MEDCouplingIMesh::getMeasureField(bool isAbs) const
 {
   checkConsistencyLight();
   std::string name="MeasureOfMesh_";
   name+=getName();
-  std::size_t const nbelem=getNumberOfCells();
+  std::size_t nbelem=getNumberOfCells();
   MEDCouplingFieldDouble *field(MEDCouplingFieldDouble::New(ON_CELLS,ONE_TIME));
   field->setName(name);
   DataArrayDouble* array(DataArrayDouble::New());
@@ -1114,20 +1103,20 @@ MEDCouplingFieldDouble *MEDCouplingIMesh::getMeasureField(bool  /*isAbs*/) const
 /*!
  * not implemented yet !
  */
-MEDCouplingFieldDouble *MEDCouplingIMesh::getMeasureFieldOnNode(bool  /*isAbs*/) const
+MEDCouplingFieldDouble *MEDCouplingIMesh::getMeasureFieldOnNode(bool isAbs) const
 {
   throw INTERP_KERNEL::Exception("MEDCouplingIMesh::getMeasureFieldOnNode : not implemented yet !");
   //return 0;
 }
 
-mcIdType MEDCouplingIMesh::getCellContainingPoint(const double *pos, double  /*eps*/) const
+mcIdType MEDCouplingIMesh::getCellContainingPoint(const double *pos, double eps) const
 {
   mcIdType dim(getSpaceDimension()),ret(0),coeff(1);
   for(mcIdType i=0;i<dim;i++)
     {
-      mcIdType const nbOfCells(_structure[i]-1);
-      double const ref(pos[i]);
-      mcIdType const tmp(ToIdType((ref-_origin[i])/_dxyz[i]));
+      mcIdType nbOfCells(_structure[i]-1);
+      double ref(pos[i]);
+      mcIdType tmp(ToIdType((ref-_origin[i])/_dxyz[i]));
       if(tmp>=0 && tmp<nbOfCells)
         {
           ret+=coeff*tmp;
@@ -1141,11 +1130,11 @@ mcIdType MEDCouplingIMesh::getCellContainingPoint(const double *pos, double  /*e
 
 void MEDCouplingIMesh::getCellsContainingPoint(const double *pos, double eps, std::vector<mcIdType>& elts) const
 {
-  mcIdType const ret(getCellContainingPoint(pos,eps));
+  mcIdType ret(getCellContainingPoint(pos,eps));
   elts.push_back(ret);
 }
 
-void MEDCouplingIMesh::rotate(const double * /*center*/, const double * /*vector*/, double  /*angle*/)
+void MEDCouplingIMesh::rotate(const double *center, const double *vector, double angle)
 {
   throw INTERP_KERNEL::Exception("No rotation available on IMesh : Traduce it to unstructured mesh to apply it !");
 }
@@ -1159,7 +1148,7 @@ void MEDCouplingIMesh::rotate(const double * /*center*/, const double * /*vector
 void MEDCouplingIMesh::translate(const double *vector)
 {
   checkSpaceDimension();
-  int const dim(getSpaceDimension());
+  int dim(getSpaceDimension());
   std::transform(_origin,_origin+dim,vector,_origin,std::plus<double>());
   declareAsNew();
 }
@@ -1173,7 +1162,7 @@ void MEDCouplingIMesh::translate(const double *vector)
 void MEDCouplingIMesh::scale(const double *point, double factor)
 {
   checkSpaceDimension();
-  int const dim(getSpaceDimension());
+  int dim(getSpaceDimension());
   std::transform(_origin,_origin+dim,point,_origin,std::minus<double>());
   std::transform(_origin,_origin+dim,_origin,std::bind(std::multiplies<double>(),std::placeholders::_1,factor));
   std::transform(_dxyz,_dxyz+dim,_dxyz,std::bind(std::multiplies<double>(),std::placeholders::_1,factor));
@@ -1181,10 +1170,10 @@ void MEDCouplingIMesh::scale(const double *point, double factor)
   declareAsNew();
 }
 
-MEDCouplingMesh *MEDCouplingIMesh::mergeMyselfWith(const MEDCouplingMesh * /*other*/) const
+MEDCouplingMesh *MEDCouplingIMesh::mergeMyselfWith(const MEDCouplingMesh *other) const
 {
   //not implemented yet !
-  return nullptr;
+  return 0;
 }
 
 /*!
@@ -1198,8 +1187,8 @@ DataArrayDouble *MEDCouplingIMesh::getCoordinatesAndOwner() const
 {
   checkConsistencyLight();
   MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
-  int const spaceDim(getSpaceDimension());
-  mcIdType const nbNodes(getNumberOfNodes());
+  int spaceDim(getSpaceDimension());
+  mcIdType nbNodes(getNumberOfNodes());
   ret->alloc(nbNodes,spaceDim);
   double *pt(ret->getPointer());
   ret->setInfoOnComponents(buildInfoOnComponents());
@@ -1226,7 +1215,7 @@ DataArrayDouble *MEDCouplingIMesh::computeCellCenterOfMass() const
 {
   checkConsistencyLight();
   MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
-  int const spaceDim(getSpaceDimension());
+  int spaceDim(getSpaceDimension());
   mcIdType nbCells(ToIdType(getNumberOfCells())),tmp[3],tmp2[3];
   ret->alloc(nbCells,spaceDim);
   double *pt(ret->getPointer()),shiftOrigin[3];
@@ -1248,7 +1237,7 @@ DataArrayDouble *MEDCouplingIMesh::computeIsoBarycenterOfNodesPerCell() const
   return MEDCouplingIMesh::computeCellCenterOfMass();
 }
 
-void MEDCouplingIMesh::renumberCells(const mcIdType * /*old2NewBg*/, bool  /*check*/)
+void MEDCouplingIMesh::renumberCells(const mcIdType *old2NewBg, bool check)
 {
   throw INTERP_KERNEL::Exception("Functionality of renumbering cell not available for IMesh !");
 }
@@ -1256,7 +1245,7 @@ void MEDCouplingIMesh::renumberCells(const mcIdType * /*old2NewBg*/, bool  /*che
 void MEDCouplingIMesh::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<mcIdType>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
   int it,order;
-  double const time(getTime(it,order));
+  double time(getTime(it,order));
   tinyInfo.clear();
   tinyInfoD.clear();
   littleStrings.clear();
@@ -1273,7 +1262,7 @@ void MEDCouplingIMesh::getTinySerializationInformation(std::vector<double>& tiny
   tinyInfoD.insert(tinyInfoD.end(),_origin,_origin+3);
 }
 
-void MEDCouplingIMesh::resizeForUnserialization(const std::vector<mcIdType>&  /*tinyInfo*/, DataArrayIdType *a1, DataArrayDouble *a2, std::vector<std::string>&  /*littleStrings*/) const
+void MEDCouplingIMesh::resizeForUnserialization(const std::vector<mcIdType>& tinyInfo, DataArrayIdType *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
 {
   a1->alloc(0,1);
   a2->alloc(0,1);
@@ -1287,7 +1276,7 @@ void MEDCouplingIMesh::serialize(DataArrayIdType *&a1, DataArrayDouble *&a2) con
   a2->alloc(0,1);
 }
 
-void MEDCouplingIMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<mcIdType>& tinyInfo, const DataArrayIdType * /*a1*/, DataArrayDouble * /*a2*/,
+void MEDCouplingIMesh::unserialization(const std::vector<double>& tinyInfoD, const std::vector<mcIdType>& tinyInfo, const DataArrayIdType *a1, DataArrayDouble *a2,
                                        const std::vector<std::string>& littleStrings)
 {
   setName(littleStrings[0]);
@@ -1302,7 +1291,7 @@ void MEDCouplingIMesh::unserialization(const std::vector<double>& tinyInfoD, con
   declareAsNew();
 }
 
-void MEDCouplingIMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte * /*byteData*/) const
+void MEDCouplingIMesh::writeVTKLL(std::ostream& ofs, const std::string& cellData, const std::string& pointData, DataArrayByte *byteData) const
 {
   checkConsistencyLight();
   std::ostringstream extent,origin,spacing;
@@ -1336,8 +1325,8 @@ void MEDCouplingIMesh::reprQuickOverview(std::ostream& stream) const
   bool isPb(false);
   for(int i=0;i<_space_dim;i++)
     {
-      char const tmp=(char)((int)('X')+i);
-      mcIdType const tmpNodes(_structure[i]);
+      char tmp=(char)((int)('X')+i);
+      mcIdType tmpNodes(_structure[i]);
       stream1 << "- Axis " << tmp << " : " << tmpNodes << " nodes (orig=" << _origin[i] << ", inter=" << _dxyz[i] << ").";
       if(i!=_space_dim-1)
         stream1 << std::endl;
@@ -1371,12 +1360,12 @@ std::string MEDCouplingIMesh::getVTKDataSetType() const
 std::vector<std::string> MEDCouplingIMesh::buildInfoOnComponents() const
 {
   checkSpaceDimension();
-  int const dim(getSpaceDimension());
+  int dim(getSpaceDimension());
   std::vector<std::string> ret(dim);
   for(int i=0;i<dim;i++)
     {
       std::ostringstream oss;
-      char const tmp=(char)((int)('X')+i); oss << tmp;
+      char tmp=(char)((int)('X')+i); oss << tmp;
       ret[i]=DataArray::BuildInfoFromVarAndUnit(oss.str(),_axis_unit);
     }
   return ret;
@@ -1403,18 +1392,18 @@ int MEDCouplingIMesh::FindIntRoot(int val, int order)
     return val;
   if(order!=2 && order!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::FindIntRoot : the order available are 0,1,2 or 3 !");
-  auto const valf((double)val);
+  double valf((double)val);
   if(order==2)
     {
-      double const retf(sqrt(valf));
-      int const ret((int)retf);
+      double retf(sqrt(valf));
+      int ret((int)retf);
       if(ret*ret!=val)
         throw INTERP_KERNEL::Exception("MEDCouplingIMesh::FindIntRoot : the input val is not a perfect square root !");
       return ret;
     }
   else//order==3
     {
-      double const retf(std::pow(val,0.3333333333333333));
+      double retf(std::pow(val,0.3333333333333333));
       int ret((int)retf),ret2(ret+1);
       if(ret*ret*ret!=val && ret2*ret2*ret2!=val)
         throw INTERP_KERNEL::Exception("MEDCouplingIMesh::FindIntRoot : the input val is not a perfect cublic root !");
@@ -1498,7 +1487,7 @@ void MEDCouplingIMesh::SpreadCoarseToFineGhostZone2D(const double *inPtr, double
         {
           for(mcIdType ig=0;ig<ghostSize;ig++)
             outPtr2=std::copy(inPtr+kk*nbCompo,inPtr+(kk+1)*nbCompo,outPtr2);
-          mcIdType const kk0(kk+1+dims[0]);//1 not ghost. We make the hypothesis that factors is >= ghostlev
+          mcIdType kk0(kk+1+dims[0]);//1 not ghost. We make the hypothesis that factors is >= ghostlev
           outPtr2+=fact0*nbCompo*dims[0];
           for(mcIdType ig=0;ig<ghostSize;ig++)
             outPtr2=std::copy(inPtr+kk0*nbCompo,inPtr+(kk0+1)*nbCompo,outPtr2);

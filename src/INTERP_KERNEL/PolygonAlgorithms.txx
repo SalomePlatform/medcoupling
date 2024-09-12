@@ -21,14 +21,9 @@
 
 #include "PolygonAlgorithms.hxx"
 #include "InterpolationUtils.hxx"
-#include <cmath>
-#include <deque>
-#include <cstdlib>
 #include <list>
 #include <map>
 #include <iostream>
-#include <utility>
-#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -175,7 +170,7 @@ namespace INTERP_KERNEL
   /* i is the local index of the current vertex                */
   /*************************************************************/ 
   template<int DIM>
-  inline void PolygonAlgorithms<DIM>::addNewVertex( int i, int i_glob, int i_next_glob, int  /*i_prev_glob*/,
+  inline void PolygonAlgorithms<DIM>::addNewVertex( int i, int i_glob, int i_next_glob, int i_prev_glob,
                                                     const double * P)
   {    
     /* Question:Should we add vertex i to the front or back ? */
@@ -249,8 +244,8 @@ namespace INTERP_KERNEL
       //fifth and sixth arguments are useless here
       {
         /* Updating _End_segments */
-        std::pair< int,int > const i_i_next = std::make_pair(i, i_next);
-        std::pair< int,int > const j_j_next = std::make_pair(j, j_next); 
+        std::pair< int,int > i_i_next = std::make_pair(i, i_next);
+        std::pair< int,int > j_j_next = std::make_pair(j, j_next); 
         if( _End_segments[0] == i_i_next)
           {         
             for(int idim=DIM-1;idim>-1;idim--) _Inter.push_front(ABCD[idim]);
@@ -265,7 +260,7 @@ namespace INTERP_KERNEL
          
         /* Updating _Status */
         _Status.insert(make_pair(i_next,std::make_pair(i, false)));
-        auto mi =_Status.find(j_next);
+        std::multimap< int, std::pair< int,bool> >::iterator mi =_Status.find(j_next);
         ((* mi).second).second= !((* mi).second).second;
       }
     else        _Status.insert(std::make_pair(i_next,std::make_pair(i,true)));
@@ -338,7 +333,7 @@ namespace INTERP_KERNEL
                                                     int& j3, int& j3_glob, int& j4,  int& j4_glob, 
                                                     int& i_glob, int& i_next_glob, int& i_prev_glob, 
                                                     const double * P_1, const double * P_2, 
-                                                    int N1, int N2, int  /*sign*/)
+                                                    int N1, int N2, int sign)
   {
     int N0, shift;
     if(i_glob < N1)
@@ -348,7 +343,7 @@ namespace INTERP_KERNEL
         Poly1 = P_1;
         Poly2 = P_2;
        
-        auto mi1=_Status.rbegin();
+        std::multimap< int, std::pair< int,bool> >::reverse_iterator mi1=_Status.rbegin();
         j1_glob=((*mi1).second).first;
         j1=j1_glob-N1;
         j2_glob=(*mi1).first;
@@ -366,7 +361,7 @@ namespace INTERP_KERNEL
         Poly1 = P_2;
         Poly2 = P_1;
        
-        auto mi2= _Status.begin();
+        std::multimap< int, std::pair< int,bool> >::iterator mi2= _Status.begin();
         j1_glob=((*mi2).second).first;
         j1=j1_glob;
         j2_glob=(*mi2).first;
@@ -423,7 +418,7 @@ namespace INTERP_KERNEL
         /******** Treatment of the first vertex ********/
         mi1=events.begin();
         i_glob = (* mi1).second;
-        bool const which_start = i_glob < N1;
+        bool which_start = i_glob < N1;
         if(i_glob < N1){ i_next_glob = (i_glob   +1)%N1;     i_prev_glob = (i_glob   -1+N1)%N1;}
         else{            i_next_glob = (i_glob-N1+1)%N2 + N1;i_prev_glob = (i_glob-N1-1+N2)%N2 + N1;}
         _Status.insert(std::make_pair(i_next_glob,std::make_pair(i_glob, false)));
@@ -626,12 +621,12 @@ namespace INTERP_KERNEL
                           which_is_inside[inside_j2] =  std::make_pair(j1_glob,j2_glob);
                           which_is_inside[inside_j4] =  std::make_pair(j3_glob,j4_glob);
 
-                          auto const min = which_is_inside.begin();
-                          auto minext = min;
+                          std::map<double, std::pair<int,int> >::iterator min = which_is_inside.begin();
+                          std::map<double, std::pair<int,int> >::iterator minext = min;
                           minext++;
-                          auto const max = which_is_inside.rbegin();
-                          auto j2_in_status = _Status.find(((*min).second).second);
-                          auto j4_in_status = _Status.find(((*minext).second).second);
+                          std::map<double, std::pair<int,int> >::reverse_iterator max = which_is_inside.rbegin();
+                          std::multimap< int, std::pair< int,bool> >::iterator j2_in_status = _Status.find(((*min).second).second);
+                          std::multimap< int, std::pair< int,bool> >::iterator j4_in_status = _Status.find(((*minext).second).second);
 
                           if((*min).first < -_epsilon) //there is someone clearly inside
                             {
@@ -684,24 +679,24 @@ namespace INTERP_KERNEL
   /* in the end, subP contains only the elements belonging to the convex hull, and  not_in_hull the others */
   /**************************************************************************/
   template<int DIM>
-  inline void PolygonAlgorithms<DIM>::convHull(const double *P, int  /*N*/, double * normal,  
+  inline void PolygonAlgorithms<DIM>::convHull(const double *P, int N, double * normal,  
                                                std::map< int,int >& subP, std::map< int,int >& not_in_hull,
                                                int& NsubP, const double epsilon)
   {
     if(NsubP>3)
       {
-        auto mi_prev = subP.begin();
-        auto  mi = mi_prev;
+        std::map< int,int >::iterator mi_prev = subP.begin();
+        std::map< int,int >::iterator  mi = mi_prev;
         mi++;
-        auto  mi_next = mi;
+        std::map< int,int >::iterator  mi_next = mi;
         mi_next++;
         double directframe=0.;
        
         /* Check if the polygon subP is positively oriented */
-        auto mi1=mi;
+        std::map< int,int >::iterator mi1=mi;
         while(mi1 != subP.end() && distance2<DIM>(&P[DIM*(*subP.begin()).second],&P[DIM*(*mi1).second])< epsilon) 
           mi1++;
-        auto mi2=mi1;
+        std::map< int,int >::iterator mi2=mi1;
         while(mi2 != subP.end() && fabs(directframe)<epsilon)
           {
             directframe =direct_frame<DIM>(&P[DIM* (*mi1).second],

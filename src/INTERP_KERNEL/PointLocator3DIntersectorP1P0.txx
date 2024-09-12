@@ -20,16 +20,9 @@
 #ifndef __POINTLOCATOR3DINTERSECTORP1P0_TXX__
 #define __POINTLOCATOR3DINTERSECTORP1P0_TXX__
 
-#include "Intersector3DP1P0.txx"
-#include "InterpolationUtils.hxx"
-#include "InterpKernelUtilities.hxx"
-#include "NormalizedGeometricTypes"
 #include "PointLocator3DIntersectorP1P0.hxx"
-#include "CellModel.hxx"
-#include "PointLocatorAlgos.txx"
-#include "VolSurfFormulae.hxx"
-#include <vector>
-#include <cmath>
+#include "Intersector3DP1P0.txx"
+#include "MeshUtils.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -46,7 +39,8 @@ namespace INTERP_KERNEL
 
   template<class MyMeshType, class MyMatrix>
   PointLocator3DIntersectorP1P0<MyMeshType,MyMatrix>::~PointLocator3DIntersectorP1P0()
-  = default;
+  {
+  }
 
   /**
    * @param targetCell in C mode.

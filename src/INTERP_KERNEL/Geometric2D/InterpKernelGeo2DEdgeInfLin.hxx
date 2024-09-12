@@ -21,9 +21,7 @@
 #ifndef __INTERPKERNELGEO2DEDGEINFLIN_HXX__
 #define __INTERPKERNELGEO2DEDGEINFLIN_HXX__
 
-#include "InterpKernelGeo2DEdge.hxx"
 #include "InterpKernelGeo2DEdgeLin.hxx"
-#include "InterpKernelGeo2DNode.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -32,11 +30,11 @@ namespace INTERP_KERNEL
   public:
     EdgeInfLin(Node *start, Node *end):EdgeLin(start,end,true) { }
     EdgeInfLin(Node *pointPassingThrough, double slope);
-    bool isIn(double  /*characterVal*/) const override { return true; }
+    bool isIn(double characterVal) const { return true; }
     void dynCastFunction(const EdgeLin * &seg,
-                         const EdgeArcCircle * & /*arcSeg*/) const override { seg=this; }
+                         const EdgeArcCircle * &arcSeg) const { seg=this; }
   protected:
-    ~EdgeInfLin() override = default;
+    ~EdgeInfLin() { }
   };
 }
 

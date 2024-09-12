@@ -19,13 +19,6 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDFileMeshElt.hxx"
-#include "MCType.hxx"
-#include "MCAuto.hxx"
-#include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingRefCountObject.hxx"
-#include "MEDCouplingPartDefinition.hxx"
-#include "MEDCoupling1GTUMesh.hxx"
-#include "MCIdType.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDFileMeshReadSelector.hxx"
 #include "MEDFileBasis.hxx"
@@ -37,17 +30,8 @@
 #include "CellModel.hxx"
 
 #include "MEDFilterEntity.hxx"
-#include "med.h"
-#include "NormalizedGeometricTypes"
-#include "medmesh.h"
 
-#include <algorithm>
-#include <cstddef>
-#include <functional>
 #include <iostream>
-#include <vector>
-#include <iterator>
-#include <sstream>
 
 
 // From MEDLOader.cxx TU
@@ -64,7 +48,7 @@ void MEDFileUMeshPerTypeCommon::loadCommonPart(med_idt fid, const char *mName, i
                                                med_entity_type entity, MEDFileMeshReadSelector *mrs)
 {
   med_bool changement,transformation;
-  _fam=nullptr;
+  _fam=0;
   if(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
     {    
       if(!mrs || mrs->isCellFamilyFieldReading())
@@ -76,7 +60,7 @@ void MEDFileUMeshPerTypeCommon::loadCommonPart(med_idt fid, const char *mName, i
           _fam=FromMedIntArray<mcIdType>( miFam );
         }
     }
-  _num=nullptr;
+  _num=0;
   if(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_NUMBER,MED_NODAL,&changement,&transformation)>0)
     {
       if(!mrs || mrs->isCellNumFieldReading())
@@ -84,11 +68,11 @@ void MEDFileUMeshPerTypeCommon::loadCommonPart(med_idt fid, const char *mName, i
           MCAuto<DataArrayMedInt> miNum=DataArrayMedInt::New();
           miNum->alloc(curNbOfElem,1);
           if(MEDmeshEntityNumberRd(fid,mName,dt,it,entity,geoElt,miNum->getPointer())!=0)
-            miNum=nullptr;
+            miNum=0;
           _num=FromMedIntArray<mcIdType>(miNum);
         }
     }
-  _names=nullptr;
+  _names=0;
   if(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_NAME,MED_NODAL,&changement,&transformation)>0)
     {
       if(!mrs || mrs->isCellNameFieldReading())
@@ -96,7 +80,7 @@ void MEDFileUMeshPerTypeCommon::loadCommonPart(med_idt fid, const char *mName, i
           _names=DataArrayAsciiChar::New();
           _names->alloc(curNbOfElem+1,MED_SNAME_SIZE);//not a bug to avoid the memory corruption due to last \0 at the end
           if(MEDmeshEntityNameRd(fid,mName,dt,it,entity,geoElt,_names->getPointer())!=0)
-            _names=nullptr;
+            _names=0;
           else
             _names->reAlloc(curNbOfElem);//not a bug to avoid the memory corruption due to last \0 at the end
         }
@@ -121,17 +105,17 @@ MEDFileUMeshPerType *MEDFileUMeshPerType::New(med_idt fid, const char *mName, in
 {
   med_entity_type whichEntity;
   if(!isExisting(fid,mName,dt,it,geoElt,whichEntity))
-    return nullptr;
+    return 0;
   return new MEDFileUMeshPerType(fid,mName,dt,it,mdim,geoElt,geoElt2,whichEntity,mrs);
 }
 
 
 MEDFileUMeshPerType *MEDFileUMeshPerType::NewPart(med_idt fid, const char *mName, int dt, int it, int mdim, INTERP_KERNEL::NormalizedCellType geoElt2, mcIdType strt, mcIdType stp, mcIdType step, MEDFileMeshReadSelector *mrs)
 {
-  int const geoElt2i((int)geoElt2);
+  int geoElt2i((int)geoElt2);
   if(geoElt2i<0 || geoElt2i>=INTERP_KERNEL::NORM_MAXTYPE)
     throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::NewPart : Not recognized MEDCoupling/MEDLoader geometric type !");
-  med_geometry_type const geoElt(typmai3[geoElt2]);
+  med_geometry_type geoElt(typmai3[geoElt2]);
   med_entity_type whichEntity;
   if(!isExisting(fid,mName,dt,it,geoElt,whichEntity))
     throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::NewPart : The specified geo type is not present in the specified mesh !");
@@ -142,10 +126,10 @@ MEDFileUMeshPerType *MEDFileUMeshPerType::NewPart(med_idt fid, const char *mName
 
 MEDFileUMeshPerType *MEDFileUMeshPerType::NewPart(med_idt fid, const char *mName, int dt, int it, int mdim, INTERP_KERNEL::NormalizedCellType geoElt2, const std::vector<mcIdType>& distrib, MEDFileMeshReadSelector *mrs)
 {
-  int const geoElt2i((int)geoElt2);
+  int geoElt2i((int)geoElt2);
   if(geoElt2i<0 || geoElt2i>=INTERP_KERNEL::NORM_MAXTYPE)
     throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::NewPart : Not recognized MEDCoupling/MEDLoader geometric type !");
-  med_geometry_type const geoElt(typmai3[geoElt2]);
+  med_geometry_type geoElt(typmai3[geoElt2]);
   med_entity_type whichEntity;
   if(!isExisting(fid,mName,dt,it,geoElt,whichEntity))
     throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::NewPart : The specified geo type is not present in the specified mesh !");
@@ -173,7 +157,7 @@ bool MEDFileUMeshPerType::isExisting(med_idt fid, const char *mName, int dt, int
   for(int i=0;i<3;i++)
     {
       med_bool changement,transformation;
-      mcIdType const tmp(MEDmeshnEntity(fid,mName,dt,it,entities[i],geoElt,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
+      mcIdType tmp(MEDmeshnEntity(fid,mName,dt,it,entities[i],geoElt,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
       if(tmp>nbOfElt)
         {
           nbOfElt=tmp;
@@ -191,13 +175,14 @@ int MEDFileUMeshPerType::getDim() const
 }
 
 MEDFileUMeshPerType::MEDFileUMeshPerType()
-= default;
+{
+}
 
 MEDFileUMeshPerType::MEDFileUMeshPerType(med_idt fid, const char *mName, int dt, int it, int mdim, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType type,
                                          med_entity_type entity, MEDFileMeshReadSelector *mrs)
 {
   med_bool changement,transformation;
-  mcIdType const curNbOfElem(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
+  mcIdType curNbOfElem(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
   const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(type));
   if(!cm.isDynamic())
     {
@@ -217,7 +202,7 @@ void MEDFileUMeshPerType::loadPart(med_idt fid, const char *mName, int dt, int i
                                    med_entity_type entity, const std::vector<mcIdType>& distrib, MEDFileMeshReadSelector *mrs)
 {
   med_bool changement,transformation;
-  mcIdType const curNbOfElem(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
+  mcIdType curNbOfElem(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
   const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(type));
   MCAuto<DataArrayIdType> listOfIds=DataArrayIdType::New();
   listOfIds->useArray(distrib.data(),false,DeallocType::C_DEALLOC,distrib.size(),1);
@@ -234,7 +219,7 @@ void MEDFileUMeshPerType::loadPart(med_idt fid, const char *mName, int dt, int i
                                    med_entity_type entity, mcIdType strt, mcIdType end, mcIdType step, MEDFileMeshReadSelector *mrs)
 {
   med_bool changement,transformation;
-  mcIdType const curNbOfElem(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
+  mcIdType curNbOfElem(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
   const INTERP_KERNEL::CellModel& cm(INTERP_KERNEL::CellModel::GetCellModel(type));
   _pd=PartDefinition::New(strt,end,step);
   if(!cm.isDynamic())
@@ -246,13 +231,13 @@ void MEDFileUMeshPerType::loadPart(med_idt fid, const char *mName, int dt, int i
 }
 
 
-void MEDFileUMeshPerType::loadFromStaticType(med_idt fid, const char *mName, int dt, int it, int  /*mdim*/, mcIdType curNbOfElem, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType type,
+void MEDFileUMeshPerType::loadFromStaticType(med_idt fid, const char *mName, int dt, int it, int mdim, mcIdType curNbOfElem, med_geometry_type geoElt, INTERP_KERNEL::NormalizedCellType type,
                                              med_entity_type entity, MEDFileMeshReadSelector *mrs)
 {
   _m=MEDCoupling1SGTUMesh::New(mName,type);
-  auto *mc(dynamic_cast<MEDCoupling1SGTUMesh *>((MEDCoupling1GTUMesh *)_m));
+  MEDCoupling1SGTUMesh *mc(dynamic_cast<MEDCoupling1SGTUMesh *>((MEDCoupling1GTUMesh *)_m));
   MCAuto<DataArrayMedInt> conn(DataArrayMedInt::New());
-  mcIdType const nbOfNodesPerCell(mc->getNumberOfNodesPerCell());
+  mcIdType nbOfNodesPerCell(mc->getNumberOfNodesPerCell());
   conn->alloc(nbOfNodesPerCell*curNbOfElem,1);
   MEDFILESAFECALLERRD0(MEDmeshElementConnectivityRd,(fid,mName,dt,it,entity,geoElt,MED_NODAL,MED_FULL_INTERLACE,conn->getPointer()));
   std::transform(conn->begin(),conn->end(),conn->getPointer(),std::bind(std::plus<med_int>(),std::placeholders::_1,-1));
@@ -264,12 +249,12 @@ void MEDFileUMeshPerType::loadPartStaticType(med_idt fid, const char *mName, int
                                              med_entity_type entity, MEDFileMeshReadSelector *mrs)
 {
   _m=MEDCoupling1SGTUMesh::New(mName,type);
-  auto *mc(dynamic_cast<MEDCoupling1SGTUMesh *>((MEDCoupling1GTUMesh *)_m));
+  MEDCoupling1SGTUMesh *mc(dynamic_cast<MEDCoupling1SGTUMesh *>((MEDCoupling1GTUMesh *)_m));
   MCAuto<DataArrayMedInt> conn(DataArrayMedInt::New());
-  mcIdType const nbOfNodesPerCell(mc->getNumberOfNodesPerCell());
+  mcIdType nbOfNodesPerCell(mc->getNumberOfNodesPerCell());
   if(!_pd)
     throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::loadPartStaticType : no part definition !");
-  mcIdType const nbOfEltsToLoad(_pd->getNumberOfElems());
+  mcIdType nbOfEltsToLoad(_pd->getNumberOfElems());
   conn->alloc(nbOfNodesPerCell*nbOfEltsToLoad,1);
   {
     MEDFilterEntity filter;
@@ -284,13 +269,13 @@ void MEDFileUMeshPerType::loadPartStaticType(med_idt fid, const char *mName, int
 }
 
 
-void MEDFileUMeshPerType::loadPartOfCellCommonPart(med_idt fid, const char *mName, int dt, int it, int  /*mdim*/, mcIdType curNbOfElem, med_geometry_type geoElt, med_entity_type entity, MEDFileMeshReadSelector *mrs)
+void MEDFileUMeshPerType::loadPartOfCellCommonPart(med_idt fid, const char *mName, int dt, int it, int mdim, mcIdType curNbOfElem, med_geometry_type geoElt, med_entity_type entity, MEDFileMeshReadSelector *mrs)
 {
   med_bool changement,transformation;
   if(!_pd)
     throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::loadPartOfCellCommonPart : no part definition !");
-  mcIdType const nbOfEltsToLoad(_pd->getNumberOfElems());
-  _fam=nullptr;
+  mcIdType nbOfEltsToLoad(_pd->getNumberOfElems());
+  _fam=0;
   if(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
     {
       if(!mrs || mrs->isCellFamilyFieldReading())
@@ -306,7 +291,7 @@ void MEDFileUMeshPerType::loadPartOfCellCommonPart(med_idt fid, const char *mNam
           _fam=FromMedIntArray<mcIdType>(miFam);
         }
     }
-  _num=nullptr;
+  _num=0;
   if(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_NUMBER,MED_NODAL,&changement,&transformation)>0)
     {
       if(!mrs || mrs->isCellNumFieldReading())
@@ -322,7 +307,7 @@ void MEDFileUMeshPerType::loadPartOfCellCommonPart(med_idt fid, const char *mNam
           _num=FromMedIntArray<mcIdType>(miNum);
         }
     }
-  _names=nullptr;
+  _names=0;
   if(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_NAME,MED_NODAL,&changement,&transformation)>0)
     {
       if(!mrs || mrs->isCellNameFieldReading())
@@ -334,18 +319,18 @@ void MEDFileUMeshPerType::loadPartOfCellCommonPart(med_idt fid, const char *mNam
               MED_ALL_CONSTITUENT,MED_FULL_INTERLACE,MED_COMPACT_STMODE,MED_NO_PROFILE,
               _pd);
           if(MEDmeshEntityAttributeAdvancedRd(fid,mName,MED_NAME,dt,it,entity,geoElt,filter.getPtr(),_names->getPointer())!=0)
-            _names=nullptr;
+            _names=0;
           else
             _names->reAlloc(nbOfEltsToLoad);//not a bug to avoid the memory corruption due to last \0 at the end
         }
     }
 }
 
-void MEDFileUMeshPerType::loadPolyg(med_idt fid, const char *mName, int dt, int it, int  /*mdim*/, mcIdType arraySize, med_geometry_type geoElt,
+void MEDFileUMeshPerType::loadPolyg(med_idt fid, const char *mName, int dt, int it, int mdim, mcIdType arraySize, med_geometry_type geoElt,
                                     med_entity_type entity, MEDFileMeshReadSelector *mrs)
 {
   med_bool changement,transformation;
-  mcIdType const curNbOfElem(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_INDEX_NODE,MED_NODAL,&changement,&transformation)-1);
+  mcIdType curNbOfElem(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_INDEX_NODE,MED_NODAL,&changement,&transformation)-1);
   _m=MEDCoupling1DGTUMesh::New(mName,geoElt==MED_POLYGON?INTERP_KERNEL::NORM_POLYGON:INTERP_KERNEL::NORM_QPOLYG);
   MCAuto<MEDCoupling1DGTUMesh> mc(DynamicCast<MEDCoupling1GTUMesh,MEDCoupling1DGTUMesh>(_m));
   MCAuto<DataArrayMedInt> conn(DataArrayMedInt::New()),connI(DataArrayMedInt::New());
@@ -357,12 +342,12 @@ void MEDFileUMeshPerType::loadPolyg(med_idt fid, const char *mName, int dt, int 
   loadCommonPart(fid,mName,dt,it,curNbOfElem,geoElt,entity,mrs);
 }
 
-void MEDFileUMeshPerType::loadPolyh(med_idt fid, const char *mName, int dt, int it, int  /*mdim*/, mcIdType connFaceLgth, med_geometry_type  /*geoElt*/,
+void MEDFileUMeshPerType::loadPolyh(med_idt fid, const char *mName, int dt, int it, int mdim, mcIdType connFaceLgth, med_geometry_type geoElt,
                                     med_entity_type entity, MEDFileMeshReadSelector *mrs)
 {
   med_bool changement,transformation;
-  med_int const indexFaceLgth(MEDmeshnEntity(fid,mName,dt,it,MED_CELL,MED_POLYHEDRON,MED_INDEX_NODE,MED_NODAL,&changement,&transformation));
-  mcIdType const curNbOfElem(MEDmeshnEntity(fid,mName,dt,it,MED_CELL,MED_POLYHEDRON,MED_INDEX_FACE,MED_NODAL,&changement,&transformation)-1);
+  med_int indexFaceLgth(MEDmeshnEntity(fid,mName,dt,it,MED_CELL,MED_POLYHEDRON,MED_INDEX_NODE,MED_NODAL,&changement,&transformation));
+  mcIdType curNbOfElem(MEDmeshnEntity(fid,mName,dt,it,MED_CELL,MED_POLYHEDRON,MED_INDEX_FACE,MED_NODAL,&changement,&transformation)-1);
   _m=MEDCoupling1DGTUMesh::New(mName,INTERP_KERNEL::NORM_POLYHED);
   MCAuto<MEDCoupling1DGTUMesh> mc(DynamicCastSafe<MEDCoupling1GTUMesh,MEDCoupling1DGTUMesh>(_m));
   INTERP_KERNEL::AutoPtr<med_int> index=new med_int[curNbOfElem+1];
@@ -393,19 +378,19 @@ void MEDFileUMeshPerType::loadPolyh(med_idt fid, const char *mName, int dt, int 
   loadCommonPart(fid,mName,dt,it,curNbOfElem,MED_POLYHEDRON,entity,mrs);
 }
 
-void MEDFileUMeshPerType::Write(med_idt fid, const std::string& mname, int  /*mdim*/, const MEDCoupling1GTUMesh *m, const DataArrayIdType *fam, const DataArrayIdType *num, const DataArrayAsciiChar *names)
+void MEDFileUMeshPerType::Write(med_idt fid, const std::string& mname, int mdim, const MEDCoupling1GTUMesh *m, const DataArrayIdType *fam, const DataArrayIdType *num, const DataArrayAsciiChar *names)
 {
-  mcIdType const nbOfCells=m->getNumberOfCells();
+  mcIdType nbOfCells=m->getNumberOfCells();
   if(nbOfCells<1)
     return ;
   int dt,it;
-  double const timm=m->getTime(dt,it);
-  INTERP_KERNEL::NormalizedCellType const ikt=m->getTypeOfCell(0);
+  double timm=m->getTime(dt,it);
+  INTERP_KERNEL::NormalizedCellType ikt=m->getTypeOfCell(0);
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(ikt);
-  med_geometry_type const curMedType=typmai3[(int)ikt];
+  med_geometry_type curMedType=typmai3[(int)ikt];
   if(!cm.isDynamic())
     {
-      const auto *m0(dynamic_cast<const MEDCoupling1SGTUMesh *>(m));
+      const MEDCoupling1SGTUMesh *m0(dynamic_cast<const MEDCoupling1SGTUMesh *>(m));
       if(!m0)
         throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::Write : internal error #1 !");
       MCAuto<DataArrayMedInt> arr(DataArrayMedInt_Copy(m0->getNodalConnectivity()));
@@ -414,7 +399,7 @@ void MEDFileUMeshPerType::Write(med_idt fid, const std::string& mname, int  /*md
     }
   else
     {
-      const auto *m0(dynamic_cast<const MEDCoupling1DGTUMesh *>(m));
+      const MEDCoupling1DGTUMesh *m0(dynamic_cast<const MEDCoupling1DGTUMesh *>(m));
       if(!m0)
         throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::Write : internal error #2 !");
       if(ikt==INTERP_KERNEL::NORM_POLYGON || ikt==INTERP_KERNEL::NORM_QPOLYG)
@@ -427,8 +412,8 @@ void MEDFileUMeshPerType::Write(med_idt fid, const std::string& mname, int  /*md
       else
         {
           const mcIdType *conn(m0->getNodalConnectivity()->begin()),*connI(m0->getNodalConnectivityIndex()->begin());
-          mcIdType const meshLgth=m0->getNodalConnectivityLength();
-          mcIdType const nbOfFaces=ToIdType(std::count(conn,conn+meshLgth,-1)+nbOfCells);
+          mcIdType meshLgth=m0->getNodalConnectivityLength();
+          mcIdType nbOfFaces=ToIdType(std::count(conn,conn+meshLgth,-1)+nbOfCells);
           INTERP_KERNEL::AutoPtr<med_int> tab1=new med_int[nbOfCells+1];
           med_int *w1=tab1; *w1=1;
           INTERP_KERNEL::AutoPtr<med_int> tab2=new med_int[nbOfFaces+1];
@@ -442,7 +427,7 @@ void MEDFileUMeshPerType::Write(med_idt fid, const std::string& mname, int  /*md
                 {
                   const mcIdType *wend=std::find(w,conn+connI[i+1],-1);
                   bt=std::transform(w,wend,bt,std::bind(std::plus<mcIdType>(),std::placeholders::_1,1));
-                  std::size_t const nbOfNode=std::distance(w,wend);
+                  std::size_t nbOfNode=std::distance(w,wend);
                   w2[1]=w2[0]+(med_int)nbOfNode;
                   if(wend!=conn+connI[i+1])
                     w=wend+1;

@@ -19,15 +19,9 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingDefinitionTime.hxx"
-#include "MCIdType.hxx"
-#include "MCAuto.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingRefCountObject.hxx"
 
 #include <cmath>
-#include <vector>
-#include <ostream>
-#include <cstddef>
 
 using namespace MEDCoupling;
 
@@ -80,7 +74,7 @@ MEDCouplingDefinitionTimeSlice *MEDCouplingDefinitionTimeSlice::New(TypeOfTimeDi
   }
 }
 
-bool MEDCouplingDefinitionTimeSlice::isEqual(const MEDCouplingDefinitionTimeSlice& other, double  /*eps*/) const
+bool MEDCouplingDefinitionTimeSlice::isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const
 {
   if(_mesh_id!=other._mesh_id)
     return false;
@@ -109,8 +103,8 @@ void MEDCouplingDefinitionTimeSlice::appendRepr(std::ostream& stream) const
 MEDCouplingDefinitionTimeSlice::MEDCouplingDefinitionTimeSlice(const MEDCouplingFieldDouble *f, int meshId, int arrId, int fieldId):_mesh_id(meshId),_array_id(arrId),_field_id(fieldId)
 {
   int tmp1,tmp2;
-  double const t1=f->getStartTime(tmp1,tmp2);
-  double const t2=f->getEndTime(tmp1,tmp2);
+  double t1=f->getStartTime(tmp1,tmp2);
+  double t2=f->getEndTime(tmp1,tmp2);
   if(t2<t1)
     throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTimeSlice : End time strictly before Start time ...");
 }
@@ -127,41 +121,41 @@ std::vector<const BigMemoryObject *> MEDCouplingDefinitionTimeSlice::getDirectCh
 
 bool MEDCouplingDefinitionTimeSlice::isFullyIncludedInMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const
 {
-  double const t1=getStartTime();
-  double const t2=getEndTime();
-  double const o1=other->getStartTime();
-  double const o2=other->getEndTime();
+  double t1=getStartTime();
+  double t2=getEndTime();
+  double o1=other->getStartTime();
+  double o2=other->getEndTime();
   return o1>t1-eps && o2<t2+eps;
 }
 
 bool MEDCouplingDefinitionTimeSlice::isOverllapingWithMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const
 {
-  double const t1=getStartTime();
-  double const t2=getEndTime();
-  double const o1=other->getStartTime();
-  double const o2=other->getEndTime();
+  double t1=getStartTime();
+  double t2=getEndTime();
+  double o1=other->getStartTime();
+  double o2=other->getEndTime();
   return (o1<t1+eps && o2<t1+eps) || (o1>t2-eps && o2>t2-eps);
 }
 
 bool MEDCouplingDefinitionTimeSlice::isAfterMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const
 {
-  double const t2=getEndTime();
-  double const o1=other->getStartTime();
-  double const o2=other->getEndTime();
+  double t2=getEndTime();
+  double o1=other->getStartTime();
+  double o2=other->getEndTime();
   return (o1>t2-eps && o2>t2-eps);
 }
 
 bool MEDCouplingDefinitionTimeSlice::isBeforeMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const
 {
-  double const t1=getStartTime();
-  double const o1=other->getStartTime();
-  double const o2=other->getEndTime();
+  double t1=getStartTime();
+  double o1=other->getStartTime();
+  double o2=other->getEndTime();
   return (o1<t1+eps && o2<t1+eps);
 }
 
 MEDCouplingDefinitionTimeSliceInst *MEDCouplingDefinitionTimeSliceInst::New(const std::vector<int>& tiI, const std::vector<double>& tiD)
 {
-  auto *ret=new MEDCouplingDefinitionTimeSliceInst;
+  MEDCouplingDefinitionTimeSliceInst *ret=new MEDCouplingDefinitionTimeSliceInst;
   ret->unserialize(tiI,tiD);
   return ret;
 }
@@ -194,7 +188,7 @@ bool MEDCouplingDefinitionTimeSliceInst::isEqual(const MEDCouplingDefinitionTime
 {
   if(!MEDCouplingDefinitionTimeSlice::isEqual(other,eps))
     return false;
-  const auto *otherC=dynamic_cast<const MEDCouplingDefinitionTimeSliceInst *>(&other);
+  const MEDCouplingDefinitionTimeSliceInst *otherC=dynamic_cast<const MEDCouplingDefinitionTimeSliceInst *>(&other);
   if(!otherC)
     return false;
   return fabs(otherC->_instant-_instant)<eps;
@@ -206,7 +200,7 @@ void MEDCouplingDefinitionTimeSliceInst::getHotSpotsTime(std::vector<double>& re
   ret[0]=_instant;
 }
 
-void MEDCouplingDefinitionTimeSliceInst::getIdsOnTime(double  /*tm*/, double  /*eps*/, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const
+void MEDCouplingDefinitionTimeSliceInst::getIdsOnTime(double tm, double eps, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const
 {
   meshId=_mesh_id;
   arrId=_array_id;
@@ -238,9 +232,9 @@ double MEDCouplingDefinitionTimeSliceInst::getEndTime() const
 MEDCouplingDefinitionTimeSliceInst::MEDCouplingDefinitionTimeSliceInst(const MEDCouplingFieldDouble *f, int meshId, int arrId, int fieldId):MEDCouplingDefinitionTimeSlice(f,meshId,arrId,fieldId)
 {
   int tmp1,tmp2;
-  double const t1=f->getStartTime(tmp1,tmp2);
-  double const t2=f->getEndTime(tmp1,tmp2);
-  double const eps=f->getTimeTolerance();
+  double t1=f->getStartTime(tmp1,tmp2);
+  double t2=f->getEndTime(tmp1,tmp2);
+  double eps=f->getTimeTolerance();
   if(fabs(t1-t2)>eps)
     throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTimeSliceInst : times differs in this");
   _instant=t1;
@@ -248,7 +242,7 @@ MEDCouplingDefinitionTimeSliceInst::MEDCouplingDefinitionTimeSliceInst(const MED
 
 MEDCouplingDefinitionTimeSliceCstOnTI *MEDCouplingDefinitionTimeSliceCstOnTI::New(const std::vector<int>& tiI, const std::vector<double>& tiD)
 {
-  auto *ret=new MEDCouplingDefinitionTimeSliceCstOnTI;
+  MEDCouplingDefinitionTimeSliceCstOnTI *ret=new MEDCouplingDefinitionTimeSliceCstOnTI;
   ret->unserialize(tiI,tiD);
   return ret;
 }
@@ -262,7 +256,7 @@ bool MEDCouplingDefinitionTimeSliceCstOnTI::isEqual(const MEDCouplingDefinitionT
 {
   if(!MEDCouplingDefinitionTimeSlice::isEqual(other,eps))
     return false;
-  const auto *otherC=dynamic_cast<const MEDCouplingDefinitionTimeSliceCstOnTI *>(&other);
+  const MEDCouplingDefinitionTimeSliceCstOnTI *otherC=dynamic_cast<const MEDCouplingDefinitionTimeSliceCstOnTI *>(&other);
   if(!otherC)
     return false;
   if(fabs(otherC->_start-_start)>eps)
@@ -276,7 +270,7 @@ void MEDCouplingDefinitionTimeSliceCstOnTI::getHotSpotsTime(std::vector<double>&
   ret[0]=(_start+_end)/2.;
 }
 
-void MEDCouplingDefinitionTimeSliceCstOnTI::getIdsOnTime(double  /*tm*/, double  /*eps*/, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const
+void MEDCouplingDefinitionTimeSliceCstOnTI::getIdsOnTime(double tm, double eps, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const
 {
   meshId=_mesh_id;
   arrId=_array_id;
@@ -327,15 +321,15 @@ TypeOfTimeDiscretization MEDCouplingDefinitionTimeSliceCstOnTI::getTimeType() co
 MEDCouplingDefinitionTimeSliceCstOnTI::MEDCouplingDefinitionTimeSliceCstOnTI(const MEDCouplingFieldDouble *f, int meshId, int arrId, int fieldId):MEDCouplingDefinitionTimeSlice(f,meshId,arrId,fieldId)
 {
   int tmp1,tmp2;
-  double const t1=f->getStartTime(tmp1,tmp2);
-  double const t2=f->getEndTime(tmp1,tmp2);
+  double t1=f->getStartTime(tmp1,tmp2);
+  double t2=f->getEndTime(tmp1,tmp2);
   _start=t1;
   _end=t2;
 }
 
 MEDCouplingDefinitionTimeSliceLT *MEDCouplingDefinitionTimeSliceLT::New(const std::vector<int>& tiI, const std::vector<double>& tiD)
 {
-  auto *ret=new MEDCouplingDefinitionTimeSliceLT;
+  MEDCouplingDefinitionTimeSliceLT *ret=new MEDCouplingDefinitionTimeSliceLT;
   ret->unserialize(tiI,tiD);
   return ret;
 }
@@ -349,7 +343,7 @@ bool MEDCouplingDefinitionTimeSliceLT::isEqual(const MEDCouplingDefinitionTimeSl
 {
   if(!MEDCouplingDefinitionTimeSlice::isEqual(other,eps))
     return false;
-  const auto *otherC=dynamic_cast<const MEDCouplingDefinitionTimeSliceLT *>(&other);
+  const MEDCouplingDefinitionTimeSliceLT *otherC=dynamic_cast<const MEDCouplingDefinitionTimeSliceLT *>(&other);
   if(!otherC)
     return false;
   if(_array_id_end!=otherC->_array_id_end)
@@ -436,8 +430,8 @@ TypeOfTimeDiscretization MEDCouplingDefinitionTimeSliceLT::getTimeType() const
 MEDCouplingDefinitionTimeSliceLT::MEDCouplingDefinitionTimeSliceLT(const MEDCouplingFieldDouble *f, int meshId, int arrId, int arr2Id, int fieldId):MEDCouplingDefinitionTimeSlice(f,meshId,arrId,fieldId),_array_id_end(arr2Id)
 {
   int tmp1,tmp2;
-  double const t1=f->getStartTime(tmp1,tmp2);
-  double const t2=f->getEndTime(tmp1,tmp2);
+  double t1=f->getStartTime(tmp1,tmp2);
+  double t2=f->getEndTime(tmp1,tmp2);
   _start=t1;
   _end=t2;
 }
@@ -448,7 +442,7 @@ MEDCouplingDefinitionTime::MEDCouplingDefinitionTime():_eps(EPS_DFT)
 
 MEDCouplingDefinitionTime::MEDCouplingDefinitionTime(const std::vector<const MEDCouplingFieldDouble *>& fs, const std::vector<int>& meshRefs, const std::vector<std::vector<int> >& arrRefs)
 {
-  std::size_t const sz=fs.size();
+  std::size_t sz=fs.size();
   if(sz!=arrRefs.size())
     throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTime constructor : internal error ! should never happen !");
   _slices.resize(sz);
@@ -487,7 +481,7 @@ std::vector<const BigMemoryObject *> MEDCouplingDefinitionTime::getDirectChildre
 
 void MEDCouplingDefinitionTime::assign(const MEDCouplingDefinitionTime& other)
 {
-  std::size_t const sz=other._slices.size();
+  std::size_t sz=other._slices.size();
   _slices.resize(sz);
   for(std::size_t i=0;i<sz;i++)
     _slices[i]=other._slices[i]->copy();
@@ -495,7 +489,7 @@ void MEDCouplingDefinitionTime::assign(const MEDCouplingDefinitionTime& other)
 
 bool MEDCouplingDefinitionTime::isEqual(const MEDCouplingDefinitionTime& other) const
 {
-  std::size_t const sz=_slices.size();
+  std::size_t sz=_slices.size();
   if(sz!=other._slices.size())
     return false;
   for(std::size_t i=0;i<sz;i++)
@@ -534,12 +528,12 @@ void MEDCouplingDefinitionTime::getIdsOnTime(double tm, std::vector<int>& meshId
 {
   std::vector<int> ids;
   int id=0;
-  for(auto it=_slices.begin();it!=_slices.end();it++,id++)
+  for(std::vector< MCAuto<MEDCouplingDefinitionTimeSlice> >::const_iterator it=_slices.begin();it!=_slices.end();it++,id++)
     if((*it)->isContaining(tm,_eps))
       ids.push_back(id);
   if(ids.empty())
     throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTime::getIdsOnTime : No matching slice for such time !");
-  std::size_t const sz=ids.size();
+  std::size_t sz=ids.size();
   if(sz>2)
     throw INTERP_KERNEL::Exception("MEDCouplingDefinitionTime::getIdsOnTime : Too many slices match this time !");
   //
@@ -554,10 +548,10 @@ void MEDCouplingDefinitionTime::getIdsOnTime(double tm, std::vector<int>& meshId
 std::vector<double> MEDCouplingDefinitionTime::getHotSpotsTime() const
 {
   std::vector<double> ret;
-  for(const auto & _slice : _slices)
+  for(std::vector< MCAuto<MEDCouplingDefinitionTimeSlice> >::const_iterator it=_slices.begin();it!=_slices.end();it++)
     {
       std::vector<double> tmp;
-      _slice->getHotSpotsTime(tmp);
+      (*it)->getHotSpotsTime(tmp);
       if(!ret.empty())
         {
           if(fabs(ret.back()-tmp.front())>_eps)
@@ -574,17 +568,17 @@ std::vector<double> MEDCouplingDefinitionTime::getHotSpotsTime() const
 void MEDCouplingDefinitionTime::appendRepr(std::ostream& stream) const
 {
   stream << "Time definition :\n";
-  for(const auto & _slice : _slices)
+  for(std::vector< MCAuto<MEDCouplingDefinitionTimeSlice> >::const_iterator it=_slices.begin();it!=_slices.end();it++)
     {
       stream << " - ";
-      _slice->appendRepr(stream);
+      (*it)->appendRepr(stream);
       stream << std::endl;
     }
 }
 
 void MEDCouplingDefinitionTime::getTinySerializationInformation(std::vector<int>& tinyInfoI, std::vector<double>& tinyInfoD) const
 {
-  int const sz=(int)_slices.size();
+  int sz=(int)_slices.size();
   tinyInfoD.resize(1);
   tinyInfoD[0]=_eps;
   tinyInfoI.resize(3*sz+2);
@@ -607,18 +601,18 @@ void MEDCouplingDefinitionTime::getTinySerializationInformation(std::vector<int>
 
 void MEDCouplingDefinitionTime::unserialize(const std::vector<int>& tinyInfoI, const std::vector<double>& tinyInfoD)
 {
-  int const sz=tinyInfoI[0];
+  int sz=tinyInfoI[0];
   _slices.resize(sz);
   _eps=tinyInfoD[0];
   int offset1=0;
   int offset2=1;
   for(int i=0;i<sz;i++)
     {
-      auto const ty=(TypeOfTimeDiscretization) tinyInfoI[i+2];  
-      int const sz1=tinyInfoI[i+sz+2];
-      int const sz2=tinyInfoI[i+2*sz+2];
-      std::vector<int> const tmp1(tinyInfoI.begin()+3*sz+2+offset1,tinyInfoI.begin()+3*sz+2+offset1+sz1);
-      std::vector<double> const tmp2(tinyInfoD.begin()+offset2,tinyInfoD.begin()+offset2+sz2);
+      TypeOfTimeDiscretization ty=(TypeOfTimeDiscretization) tinyInfoI[i+2];  
+      int sz1=tinyInfoI[i+sz+2];
+      int sz2=tinyInfoI[i+2*sz+2];
+      std::vector<int> tmp1(tinyInfoI.begin()+3*sz+2+offset1,tinyInfoI.begin()+3*sz+2+offset1+sz1);
+      std::vector<double> tmp2(tinyInfoD.begin()+offset2,tinyInfoD.begin()+offset2+sz2);
       MEDCouplingDefinitionTimeSlice *pt=MEDCouplingDefinitionTimeSlice::New(ty,tmp1,tmp2);
       _slices[i]=pt;
       offset1+=sz1;

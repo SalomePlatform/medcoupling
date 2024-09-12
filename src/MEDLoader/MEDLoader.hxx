@@ -21,14 +21,13 @@
 #pragma once
 
 #include "MEDLoaderDefines.hxx"
+#include "InterpKernelException.hxx"
 #include "MEDCouplingRefCountObject.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
 #include "MCAuto.hxx"
 #include "MCIdType.hxx"
-#include "NormalizedGeometricTypes"
 
-#include <string>
-#include <utility>
-#include <map>
+#include <list>
 #include <vector>
 
 namespace MEDCoupling

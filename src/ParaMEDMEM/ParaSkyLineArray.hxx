@@ -20,12 +20,10 @@
 
 #pragma once
 
-#include "MEDCouplingRefCountObject.hxx"
-#include "MCAuto.hxx"
-#include "MCType.hxx"
 #include "MEDCouplingSkyLineArray.hxx"
+#include "ProcessorGroup.hxx"
+#include "MEDCouplingMemArray.hxx"
 
-#include <cstddef>
 #include <string>
 #include <vector>
 
@@ -43,7 +41,7 @@ namespace MEDCoupling
     MCAuto<ParaSkyLineArray> equiRedistribute(mcIdType nbOfEntities) const;
     MEDCouplingSkyLineArray *getSkyLineArray() const;
     DataArrayIdType *getGlobalIdsArray() const;
-    ~ParaSkyLineArray() override = default;
+    virtual ~ParaSkyLineArray() { }
   private:
     ParaSkyLineArray(MEDCouplingSkyLineArray *ska, DataArrayIdType *globalIds);
   protected:

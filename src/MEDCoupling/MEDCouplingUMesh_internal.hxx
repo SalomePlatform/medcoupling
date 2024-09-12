@@ -17,20 +17,6 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 // Author : Anthony Geay (EdF)
-#include "MCAuto.hxx"
-#include "MCIdType.hxx"
-#include "MCType.hxx"
-#include "InterpKernelException.hxx"
-#include "InterpKernelGeo2DPrecision.hxx"
-#include "MEDCouplingMemArray.hxx"
-#include "CellModel.hxx"
-#include "MEDCouplingUMesh.hxx"
-#include "NormalizedGeometricTypes"
-#include "NormalizedUnstructuredMesh.hxx"
-#include "BBTree.txx"
-#include "InterpKernelAutoPtr.hxx"
-#include "PointLocatorAlgos.txx"
-
 
 using namespace MEDCoupling;
 
@@ -104,9 +90,9 @@ namespace MEDCoupling
     static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
     // begin
     // useless, but for windows compilation ...
-    const double* getCoordinatesPtr() const { return nullptr; }
-    const MyConnType* getConnectivityPtr() const { return nullptr; }
-    const MyConnType* getConnectivityIndexPtr() const { return nullptr; }
+    const double* getCoordinatesPtr() const { return 0; }
+    const MyConnType* getConnectivityPtr() const { return 0; }
+    const MyConnType* getConnectivityIndexPtr() const { return 0; }
     INTERP_KERNEL::NormalizedCellType getTypeOfElement(MyConnType) const { return (INTERP_KERNEL::NormalizedCellType)0; }
     // end
   };

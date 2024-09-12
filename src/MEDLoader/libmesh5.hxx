@@ -52,7 +52,6 @@
 // see MeshGems/Docs/meshgems_formats_description.pdf
 extern const char* GmfKwdFmt[ GmfMaxKwd + 1 ][4];
 // occ/24009
-#include <cstdio>
 #include "MEDLoaderDefines.hxx"
 /*----------------------------------------------------------*/
 /* Structures                                                                                           */

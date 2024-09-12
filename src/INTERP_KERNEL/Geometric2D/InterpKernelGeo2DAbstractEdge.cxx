@@ -20,14 +20,11 @@
 
 #include "InterpKernelGeo2DAbstractEdge.hxx"
 #include "InterpKernelGeo2DComposedEdge.hxx"
-#include "InterpKernelGeo2DEdge.hxx"
 #include "InterpKernelGeo2DElementaryEdge.hxx"
-#include <list>
-#include <cstddef>
 
 using namespace INTERP_KERNEL;
 
-IteratorOnComposedEdge::IteratorOnComposedEdge():_list_handle(nullptr)
+IteratorOnComposedEdge::IteratorOnComposedEdge():_list_handle(0)
 {
 }
 
@@ -99,18 +96,18 @@ bool IteratorOnComposedEdge::goToNextInOn(bool direction, int& i, int nbMax)
 void IteratorOnComposedEdge::assignMySelfToAllElems(ComposedEdge *elems)
 {
   std::list<ElementaryEdge *> *myList=elems->getListBehind();
-  for(auto & iter : *myList)
-    iter->getIterator()=(*this);
+  for(std::list<ElementaryEdge *>::iterator iter=myList->begin();iter!=myList->end();iter++)
+    (*iter)->getIterator()=(*this);
 }
 
 void IteratorOnComposedEdge::insertElemEdges(ComposedEdge *elems, bool changeMySelf)
 {
   std::list<ElementaryEdge *> *myListToInsert=elems->getListBehind();
-  auto iter=myListToInsert->begin();
+  std::list<ElementaryEdge *>::iterator iter=myListToInsert->begin();
   *_deep_it=*iter;
   _deep_it++;
   iter++;
-  std::size_t const sizeOfMyList=myListToInsert->size();
+  std::size_t sizeOfMyList=myListToInsert->size();
   _list_handle->insert(_deep_it,iter,myListToInsert->end());
   if(!changeMySelf)
     {

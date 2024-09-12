@@ -18,11 +18,7 @@
 //
 
 #include "MEDPARTITIONER_ParaDomainSelector.hxx"
-#include "MEDPARTITIONER_Graph.hxx"
-#include "MCType.hxx"
-#include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingPointSet.hxx"
-#include "MEDCouplingMesh.hxx"
+#include "MEDPARTITIONER_UserGraph.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 
@@ -30,9 +26,8 @@
 #include "MEDCouplingSkyLineArray.hxx"
 #include "MCIdType.hxx"
 
-#include <cstddef>
 #include <iostream>
-#include <linux/sysinfo.h>
+#include <numeric>
 
 #ifdef HAVE_MPI
 
@@ -81,7 +76,8 @@ MEDPARTITIONER::ParaDomainSelector::ParaDomainSelector(bool mesure_memory)
 }
 
 MEDPARTITIONER::ParaDomainSelector::~ParaDomainSelector()
-= default;
+{
+}
 
 /*!
  * \brief Return true if is running on different hosts
@@ -96,9 +92,9 @@ bool MEDPARTITIONER::ParaDomainSelector::isOnDifferentHosts() const
   int size;
   MPI_Get_processor_name( name_here, &size);
 
-  int const next_proc = (rank() + 1) % nbProcs();
-  int const prev_proc = (rank() - 1 + nbProcs()) % nbProcs();
-  int const tag  = 1111111;
+  int next_proc = (rank() + 1) % nbProcs();
+  int prev_proc = (rank() - 1 + nbProcs()) % nbProcs();
+  int tag  = 1111111;
 
   MPI_Status status;
   MPI_Sendrecv((void*)&name_here[0],  MPI_MAX_PROCESSOR_NAME, MPI_CHAR, next_proc, tag,
@@ -226,7 +222,7 @@ void MEDPARTITIONER::ParaDomainSelector::gatherNbOf(const std::vector<MEDCouplin
   _nb_vert_of_procs[0] = 0; // base = 0
   for (int i=0; i<nb_domains; ++i)
     {
-      int const rankk = getProcessorID(i);
+      int rankk = getProcessorID(i);
       _nb_vert_of_procs[rankk+1] += all_nb_elems[i*2];
     }
   for (std::size_t i=1; i<_nb_vert_of_procs.size(); ++i)
@@ -301,7 +297,7 @@ mcIdType MEDPARTITIONER::ParaDomainSelector::getProcNodeShift() const
  */
 std::unique_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gatherGraph(const Graph* graph) const
 {
-  Graph* glob_graph = nullptr;
+  Graph* glob_graph = 0;
 
   evaluateMemory();
 #ifdef HAVE_MPI
@@ -314,8 +310,8 @@ std::unique_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gathe
   for ( std::size_t i = 1; i < _nb_vert_of_procs.size(); ++i )
     index_size_of_proc[i-1] = FromIdType<int>(_nb_vert_of_procs[ i ] - _nb_vert_of_procs[ i-1 ]);
 
-  mcIdType const index_size = 1 + _cell_shift_by_domain.back();
-  auto *graph_index = new mcIdType[ index_size ];
+  mcIdType index_size = 1 + _cell_shift_by_domain.back();
+  mcIdType *graph_index = new mcIdType[ index_size ];
   const mcIdType *index = graph->getGraph()->getIndex();
   MCAuto< DataArrayInt > nb_vert_of_procs = FromIdTypeVec( _nb_vert_of_procs );
   int *proc_index_displacement = nb_vert_of_procs->getPointer();
@@ -344,7 +340,7 @@ std::unique_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gathe
   // update graph_index
   for ( int i = 1; i < nbProcs(); ++i )
     {
-      mcIdType const shift = graph_index[ proc_index_displacement[i]-1 ]-graph_index[0];
+      mcIdType shift = graph_index[ proc_index_displacement[i]-1 ]-graph_index[0];
       for ( int j = proc_index_displacement[i]; j < proc_index_displacement[i+1]; ++j )
         graph_index[ j ] += shift;
     }
@@ -353,8 +349,8 @@ std::unique_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gathe
   // Gather values
   // --------------
 
-  mcIdType const value_size = graph_index[ index_size-1 ] - graph_index[ 0 ];
-  auto *graph_value = new mcIdType[ value_size ];
+  mcIdType value_size = graph_index[ index_size-1 ] - graph_index[ 0 ];
+  mcIdType *graph_value = new mcIdType[ value_size ];
   const mcIdType *value = graph->getGraph()->getValues();
 
   MPI_Allgatherv((void*) value,                // send local value
@@ -370,7 +366,7 @@ std::unique_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gathe
   // Gather partition
   // -----------------
 
-  auto * partition = new mcIdType[ _cell_shift_by_domain.back() ];
+  mcIdType * partition = new mcIdType[ _cell_shift_by_domain.back() ];
   const mcIdType* part = graph->getPart();
   
   MPI_Allgatherv((void*) part,              // send local partition
@@ -413,7 +409,7 @@ void MEDPARTITIONER::ParaDomainSelector::setNbCellPairs( mcIdType nb_cell_pairs,
       if ( _nb_cell_pairs_by_joint.empty() )
         _nb_cell_pairs_by_joint.resize( _nb_result_domains*(_nb_result_domains+1), 0);
 
-      int const joint_id = jointId( loc_domain, dist_domain );
+      int joint_id = jointId( loc_domain, dist_domain );
       _nb_cell_pairs_by_joint[ joint_id ] = nb_cell_pairs;
     }
   evaluateMemory();
@@ -429,7 +425,7 @@ mcIdType MEDPARTITIONER::ParaDomainSelector::getNbCellPairs( int dist_domain, in
 {
   evaluateMemory();
 
-  int const joint_id = jointId( loc_domain, dist_domain );
+  int joint_id = jointId( loc_domain, dist_domain );
   return _nb_cell_pairs_by_joint[ joint_id ];
 }
 
@@ -471,12 +467,12 @@ mcIdType MEDPARTITIONER::ParaDomainSelector::getFisrtGlobalIdOfSubentity( int lo
   // (got in gatherNbOf( MED_FACE )).
   evaluateMemory();
 
-  mcIdType const total_nb_faces = _face_shift_by_domain.empty() ? 0 : _face_shift_by_domain.back();
+  mcIdType total_nb_faces = _face_shift_by_domain.empty() ? 0 : _face_shift_by_domain.back();
   mcIdType id = total_nb_faces + 1;
 
   if ( _nb_cell_pairs_by_joint.empty() )
     throw INTERP_KERNEL::Exception("gatherNbCellPairs() must be called before");
-  int const joint_id = jointId( loc_domain, dist_domain );
+  int joint_id = jointId( loc_domain, dist_domain );
   for ( int j = 0; j < joint_id; ++j )
     id += _nb_cell_pairs_by_joint[ j ];
 
@@ -494,8 +490,8 @@ int *MEDPARTITIONER::ParaDomainSelector::exchangeSubentityIds( int loc_domain, i
 {
   int* loc_ids_dist = new int[ loc_ids_here.size()];
 #ifdef HAVE_MPI
-  int const dest = getProcessorID( dist_domain );
-  int const tag  = 2002 + jointId( loc_domain, dist_domain );
+  int dest = getProcessorID( dist_domain );
+  int tag  = 2002 + jointId( loc_domain, dist_domain );
   MPI_Status status;
   MPI_Sendrecv((void*)&loc_ids_here[0], (int)loc_ids_here.size(), MPI_INT, dest, tag,
                (void*) loc_ids_dist,    (int)loc_ids_here.size(), MPI_INT, dest, tag,
@@ -567,12 +563,12 @@ void MEDPARTITIONER::ParaDomainSelector::sendMesh(const MEDCoupling::MEDCoupling
 
   if (mesh.getNumberOfCells()>0) //no sends if empty
     {
-      MEDCoupling::DataArrayIdType *v1Local=nullptr;
-      MEDCoupling::DataArrayDouble *v2Local=nullptr;
+      MEDCoupling::DataArrayIdType *v1Local=0;
+      MEDCoupling::DataArrayDouble *v2Local=0;
       //serialization of local mesh to send data to distant proc.
       mesh.serialize(v1Local,v2Local);
       int nbLocalElems=0;
-      mcIdType* ptLocal=nullptr;
+      mcIdType* ptLocal=0;
       if(v1Local) //if empty getNbOfElems() is 1!
         {
           nbLocalElems=FromIdType<int>(v1Local->getNbOfElems()); // if empty be 1!
@@ -580,7 +576,7 @@ void MEDPARTITIONER::ParaDomainSelector::sendMesh(const MEDCoupling::MEDCoupling
         }
       MPI_Send(ptLocal, nbLocalElems, MPI_ID_TYPE, target, 1111, MPI_COMM_WORLD);
       int nbLocalElems2=0;
-      double *ptLocal2=nullptr;
+      double *ptLocal2=0;
       if(v2Local) //if empty be 0!
         {
           nbLocalElems2=FromIdType<int>(v2Local->getNbOfElems());
@@ -632,14 +628,14 @@ void MEDPARTITIONER::ParaDomainSelector::recvMesh(MEDCoupling::MEDCouplingUMesh*
  
       mesh->resizeForUnserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
       int nbDistElem=0;
-      mcIdType *ptDist=nullptr;
+      mcIdType *ptDist=0;
       if(v1Distant)
         {
           nbDistElem=FromIdType<int>(v1Distant->getNbOfElems());
           ptDist=v1Distant->getPointer();
         }
       MPI_Recv(ptDist, nbDistElem, MPI_ID_TYPE, source,1111, MPI_COMM_WORLD, &status);
-      double *ptDist2=nullptr;
+      double *ptDist2=0;
       nbDistElem=0;
       if(v2Distant)
         {
@@ -675,7 +671,7 @@ int MEDPARTITIONER::ParaDomainSelector::evaluateMemory() const
       int used_memory = 0;
 #if !defined WIN32 && !defined __APPLE__
       struct sysinfo si;
-      int const err = sysinfo( &si );
+      int err = sysinfo( &si );
       if ( !err )
         used_memory = (int)(( si.totalram - si.freeram + si.totalswap - si.freeswap ) * si.mem_unit ) / 1024;
 #endif

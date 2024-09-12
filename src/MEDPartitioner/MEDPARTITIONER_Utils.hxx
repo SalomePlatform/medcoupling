@@ -20,17 +20,11 @@
 #ifndef __MEDPARTITIONER_UTILS_HXX__
 #define __MEDPARTITIONER_UTILS_HXX__
 
-#include "MCIdType.hxx"
-#include "MCType.hxx"
-#include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingMesh.hxx"
-#include "MCAuto.hxx"
 #include "MEDPARTITIONER.hxx"
 
 #include "MEDCouplingUMesh.hxx"
 #include "BBTree.txx"
 
-#include <cstddef>
 #include <string>
 #include <vector>
 #include <map>

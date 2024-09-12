@@ -21,20 +21,15 @@
 #ifndef __MEDFILEFIELDOVERVIEW_HXX__
 #define __MEDFILEFIELDOVERVIEW_HXX__
 
-#include "MCType.hxx"
-#include "MEDCouplingMemArray.hxx"
-#include "CellModel.hxx"
 #include "MEDLoaderDefines.hxx"
 
 #include "MCAuto.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 
-#include "NormalizedGeometricTypes"
+#include "NormalizedUnstructuredMesh.hxx"
+#include "InterpKernelException.hxx"
 
-#include <string>
-#include <cstddef>
-#include <utility>
 #include <vector>
 
 namespace MEDCoupling
@@ -56,8 +51,8 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT static MEDFileMeshStruct *New(const MEDFileMesh *mesh);
     std::string getClassName() const override { return std::string("MEDFileMeshStruct"); }
-    std::size_t getHeapMemorySizeWithoutChildren() const override;
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     const MEDFileMesh *getTheMesh() const { return _mesh; }
     mcIdType getNumberOfNodes() const { return _nb_nodes; }
     bool doesManageGeoType(INTERP_KERNEL::NormalizedCellType t) const;
@@ -81,8 +76,8 @@ namespace MEDCoupling
   class MEDMeshMultiLev : public RefCountObject
   {
   public:
-    std::size_t getHeapMemorySizeWithoutChildren() const override;
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     std::string getClassName() const override { return std::string("MEDMeshMultiLev"); }
   public:
     static MEDMeshMultiLev *New(const MEDFileMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities);
@@ -139,13 +134,13 @@ namespace MEDCoupling
   public:
     static MEDUMeshMultiLev *New(const MEDFileUMesh *m, const std::vector<int>& levs);
     static MEDUMeshMultiLev *New(const MEDFileUMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities);
-    void selectPartOfNodes(const DataArrayIdType *pflNodes) override;
+    void selectPartOfNodes(const DataArrayIdType *pflNodes);
     std::string getClassName() const override { return std::string("MEDUMeshMultiLev"); }
-    MEDMeshMultiLev *prepare() const override;
+    MEDMeshMultiLev *prepare() const;
     MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MCAuto<MEDCoupling1GTUMesh>& part);
     MEDLOADER_EXPORT bool buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayIdType *&cellLocations, DataArrayIdType *& cells, DataArrayIdType *&faceLocations, DataArrayIdType *&faces) const;
   protected:
-    void appendVertices(const DataArrayIdType *verticesToAdd, DataArrayIdType *nr) override;
+    void appendVertices(const DataArrayIdType *verticesToAdd, DataArrayIdType *nr);
   private:
     void reorderNodesIfNecessary(MCAuto<DataArrayDouble>& coords, DataArrayIdType *nodalConnVTK, DataArrayIdType *polyhedNodalConnVTK) const;
   private:
@@ -161,7 +156,7 @@ namespace MEDCoupling
   class MEDStructuredMeshMultiLev : public MEDMeshMultiLev
   {
   public:
-    void selectPartOfNodes(const DataArrayIdType *pflNodes) override;
+    void selectPartOfNodes(const DataArrayIdType *pflNodes);
     virtual std::vector<mcIdType> getNodeGridStructure() const = 0;
     std::string getClassName() const override { return std::string("MEDStructuredMeshMultiLev"); }
   protected:
@@ -185,9 +180,9 @@ namespace MEDCoupling
   public:
     static MEDCMeshMultiLev *New(const MEDFileCMesh *m, const std::vector<int>& levs);
     static MEDCMeshMultiLev *New(const MEDFileCMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls, const std::vector<mcIdType>& nbEntities);
-    std::vector<mcIdType> getNodeGridStructure() const override;
+    std::vector<mcIdType> getNodeGridStructure() const;
     std::string getClassName() const override { return std::string("MEDCMeshMultiLev"); }
-    MEDMeshMultiLev *prepare() const override;
+    MEDMeshMultiLev *prepare() const;
     MEDLOADER_EXPORT std::vector< DataArrayDouble * > buildVTUArrays(bool& isInternal) const;
   private:
     MEDCMeshMultiLev(const MEDCMeshMultiLev& other);
@@ -203,8 +198,8 @@ namespace MEDCoupling
     static MEDCurveLinearMeshMultiLev *New(const MEDFileCurveLinearMesh *m, const std::vector<int>& levs);
     static MEDCurveLinearMeshMultiLev *New(const MEDFileCurveLinearMesh *m, const std::vector<INTERP_KERNEL::NormalizedCellType>& gts, const std::vector<const DataArrayIdType *>& pfls , const std::vector<mcIdType>& nbEntities);
     std::string getClassName() const override { return std::string("MEDCurveLinearMeshMultiLev"); }
-    std::vector<mcIdType> getNodeGridStructure() const override;
-    MEDMeshMultiLev *prepare() const override;
+    std::vector<mcIdType> getNodeGridStructure() const;
+    MEDMeshMultiLev *prepare() const;
     MEDLOADER_EXPORT void buildVTUArrays(DataArrayDouble *&coords, std::vector<mcIdType>& nodeStrct, bool& isInternal) const;
   private:
     MEDCurveLinearMeshMultiLev(const MEDCurveLinearMeshMultiLev& other);
@@ -225,8 +220,8 @@ namespace MEDCoupling
     void checkWithMeshStructForGaussNE(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
     void checkWithMeshStructForGaussPT(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
     //
-    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     //
     const DataArrayIdType *getPfl(const MEDFileFieldGlobsReal *globs) const;
     INTERP_KERNEL::NormalizedCellType getGeo() const { return _geo_type; }
@@ -259,8 +254,8 @@ namespace MEDCoupling
     void checkWithMeshStruct(const MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
     bool operator==(const MEDFileField1TSStructItem& other) const;
     std::string getClassName() const override { return std::string("MEDFileField1TSStructItem"); }
-    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     bool isEntityCell() const;
     bool isComputed() const { return _computed; }
     TypeOfField getType() const { return _type; }
@@ -286,9 +281,9 @@ namespace MEDCoupling
   public:
     static MEDFileField1TSStruct *New(const MEDFileAnyTypeField1TS *ref, MEDFileMeshStruct *mst);
     void checkWithMeshStruct(MEDFileMeshStruct *mst, const MEDFileFieldGlobsReal *globs);
-    std::size_t getHeapMemorySizeWithoutChildren() const override;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
     std::string getClassName() const override { return std::string("MEDFileField1TSStruct"); }
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     bool isEqualConsideringThePast(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *mst) const;
     bool isSupportSameAs(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt);
     bool isCompatibleWithNodesDiscr(const MEDFileAnyTypeField1TS *other, const MEDFileMeshStruct *meshSt);
@@ -314,8 +309,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getGeoTypesAt(int timeStepId, const MEDFileMesh *m) const;
     bool isEqual(const MEDFileAnyTypeFieldMultiTS *other);
     bool isCompatibleWithNodesDiscr(const MEDFileAnyTypeFieldMultiTS *other);
-    std::size_t getHeapMemorySizeWithoutChildren() const override;
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
   private:
     MEDFileFastCellSupportComparator(const MEDFileMeshStruct *m, const MEDFileAnyTypeFieldMultiTS *ref);
   private:

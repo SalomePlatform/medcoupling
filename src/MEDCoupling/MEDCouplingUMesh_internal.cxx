@@ -18,37 +18,37 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#include "MCType.hxx"
-#include "MCAuto.hxx"
-#include "MCIdType.hxx"
-#include "InterpKernelGeo2DPrecision.hxx"
-#include "MEDCouplingRefCountObject.hxx"
-#include "MEDCouplingMemArray.hxx"
-#include "InterpKernelException.hxx"
-#include "MEDCouplingPointSet.hxx"
 #include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingCMesh.hxx"
+#include "MEDCoupling1GTUMesh.hxx"
+#include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingSkyLineArray.hxx"
 #include "CellModel.hxx"
-#include "NormalizedGeometricTypes"
-#include "VolSurfUser.hxx"
-#include "SplitterTetra.txx"
+#include "VolSurfUser.txx"
+#include "InterpolationUtils.hxx"
+#include "PointLocatorAlgos.txx"
+#include "BBTree.txx"
+#include "BBTreeDst.txx"
+#include "SplitterTetra.hxx"
+#include "DiameterCalculator.hxx"
+#include "DirectedBoundingBox.hxx"
+#include "InterpKernelMatrixTools.hxx"
+#include "InterpKernelMeshQuality.hxx"
+#include "InterpKernelCellSimplify.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelAutoPtr.hxx"
 #include "InterpKernelGeo2DNode.hxx"
+#include "InterpKernelGeo2DEdgeLin.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
+#include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "MEDCouplingUMesh_internal.hxx"
 
-#include <algorithm>
-#include <iterator>
-#include <cmath>
-#include <map>
-#include <set>
-#include <cstdlib>
-#include <functional>
 #include <sstream>
+#include <fstream>
+#include <numeric>
 #include <cstring>
 #include <limits>
-#include <utility>
-#include <vector>
+#include <list>
 
 using namespace MEDCoupling;
 
@@ -72,9 +72,9 @@ void MEDCouplingUMesh::checkConnectivityFullyDefined() const
 
 void MEDCouplingUMesh::reprConnectivityOfThisLL(std::ostringstream& stream) const
 {
-  if(_nodal_connec!=nullptr && _nodal_connec_index!=nullptr)
+  if(_nodal_connec!=0 && _nodal_connec_index!=0)
     {
-      mcIdType const nbOfCells=getNumberOfCells();
+      mcIdType nbOfCells=getNumberOfCells();
       const mcIdType *c=_nodal_connec->getConstPointer();
       const mcIdType *ci=_nodal_connec_index->getConstPointer();
       for(mcIdType i=0;i<nbOfCells;i++)
@@ -98,9 +98,9 @@ DataArrayIdType *MEDCouplingUMesh::simplexizePol0()
   checkConnectivityFullyDefined();
   if(getMeshDimension()!=2)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::simplexizePol0 : this policy is only available for mesh with meshdim == 2 !");
-  mcIdType const nbOfCells=getNumberOfCells();
+  mcIdType nbOfCells=getNumberOfCells();
   MCAuto<DataArrayIdType> ret=DataArrayIdType::New();
-  mcIdType const nbOfCutCells=getNumberOfCellsWithType(INTERP_KERNEL::NORM_QUAD4);
+  mcIdType nbOfCutCells=getNumberOfCellsWithType(INTERP_KERNEL::NORM_QUAD4);
   ret->alloc(nbOfCells+nbOfCutCells,1);
   if(nbOfCutCells==0) { ret->iota(0); return ret.retn(); }
   mcIdType *retPt=ret->getPointer();
@@ -151,9 +151,9 @@ DataArrayIdType *MEDCouplingUMesh::simplexizePol1()
   checkConnectivityFullyDefined();
   if(getMeshDimension()!=2)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::simplexizePol0 : this policy is only available for mesh with meshdim == 2 !");
-  mcIdType const nbOfCells=getNumberOfCells();
+  mcIdType nbOfCells=getNumberOfCells();
   MCAuto<DataArrayIdType> ret=DataArrayIdType::New();
-  mcIdType const nbOfCutCells=getNumberOfCellsWithType(INTERP_KERNEL::NORM_QUAD4);
+  mcIdType nbOfCutCells=getNumberOfCellsWithType(INTERP_KERNEL::NORM_QUAD4);
   ret->alloc(nbOfCells+nbOfCutCells,1);
   if(nbOfCutCells==0) { ret->iota(0); return ret.retn(); }
   mcIdType *retPt=ret->getPointer();
@@ -204,9 +204,9 @@ DataArrayIdType *MEDCouplingUMesh::simplexizePlanarFace5()
   checkConnectivityFullyDefined();
   if(getMeshDimension()!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::simplexizePlanarFace5 : this policy is only available for mesh with meshdim == 3 !");
-  mcIdType const nbOfCells=getNumberOfCells();
+  mcIdType nbOfCells=getNumberOfCells();
   MCAuto<DataArrayIdType> ret=DataArrayIdType::New();
-  mcIdType const nbOfCutCells=getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8);
+  mcIdType nbOfCutCells=getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8);
   ret->alloc(nbOfCells+4*nbOfCutCells,1);
   if(nbOfCutCells==0) { ret->iota(0); return ret.retn(); }
   mcIdType *retPt=ret->getPointer();
@@ -256,9 +256,9 @@ DataArrayIdType *MEDCouplingUMesh::simplexizePlanarFace6()
   checkConnectivityFullyDefined();
   if(getMeshDimension()!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::simplexizePlanarFace6 : this policy is only available for mesh with meshdim == 3 !");
-  mcIdType const nbOfCells=getNumberOfCells();
+  mcIdType nbOfCells=getNumberOfCells();
   MCAuto<DataArrayIdType> ret=DataArrayIdType::New();
-  mcIdType const nbOfCutCells=getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8);
+  mcIdType nbOfCutCells=getNumberOfCellsWithType(INTERP_KERNEL::NORM_HEXA8);
   ret->alloc(nbOfCells+5*nbOfCutCells,1);
   if(nbOfCutCells==0) { ret->iota(0); return ret.retn(); }
   mcIdType *retPt=ret->getPointer();
@@ -319,12 +319,12 @@ void MEDCouplingUMesh::tessellate2DInternal(double eps)
   checkFullyDefined();
   if(getMeshDimension()!=2 || getSpaceDimension()!=2)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2DInternal works on umeshes with meshdim equal to 2 and spaceDim equal to 2 too!");
-  double const epsa=fabs(eps);
+  double epsa=fabs(eps);
   if(epsa<std::numeric_limits<double>::min())
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2DInternal : epsilon is null ! Please specify a higher epsilon. If too tiny it can lead to a huge amount of nodes and memory !");
   MCAuto<DataArrayIdType> desc1(DataArrayIdType::New()),descIndx1(DataArrayIdType::New()),revDesc1(DataArrayIdType::New()),revDescIndx1(DataArrayIdType::New());
   MCAuto<MEDCouplingUMesh> mDesc(buildDescendingConnectivity2(desc1,descIndx1,revDesc1,revDescIndx1));
-  revDesc1=nullptr; revDescIndx1=nullptr;
+  revDesc1=0; revDescIndx1=0;
   mDesc->tessellate2D(eps);
   subDivide2DMesh(mDesc->_nodal_connec->begin(),mDesc->_nodal_connec_index->begin(),desc1->begin(),descIndx1->begin());
   setCoords(mDesc->getCoords());
@@ -345,12 +345,12 @@ void MEDCouplingUMesh::tessellate2DCurveInternal(double eps)
   checkFullyDefined();
   if(getMeshDimension()!=1 || getSpaceDimension()!=2)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2DCurveInternal works on umeshes with meshdim equal to 1 and spaceDim equal to 2 too!");
-  double const epsa=fabs(eps);
+  double epsa=fabs(eps);
   if(epsa<std::numeric_limits<double>::min())
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::tessellate2DCurveInternal : epsilon is null ! Please specify a higher epsilon. If too tiny it can lead to a huge amount of nodes and memory !");
-  INTERP_KERNEL::QuadraticPlanarPrecision const arcPrec(1.e-10);  // RAII
-  mcIdType const nbCells=getNumberOfCells();
-  mcIdType const nbNodes=getNumberOfNodes();
+  INTERP_KERNEL::QuadraticPlanarPrecision arcPrec(1.e-10);  // RAII
+  mcIdType nbCells=getNumberOfCells();
+  mcIdType nbNodes=getNumberOfNodes();
   const mcIdType *conn=_nodal_connec->begin();
   const mcIdType *connI=_nodal_connec_index->begin();
   const double *coords=_coords->begin();
@@ -425,29 +425,29 @@ void MEDCouplingUMesh::subDivide2DMesh(const mcIdType *nodeSubdived, const mcIdT
   checkFullyDefined();
   if(getMeshDimension()!=2)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::subDivide2DMesh : works only on umesh with meshdim==2 !");
-  mcIdType const nbOfCells=getNumberOfCells();
+  mcIdType nbOfCells=getNumberOfCells();
   mcIdType *connI=_nodal_connec_index->getPointer();
   mcIdType newConnLgth=0;
   for(mcIdType i=0;i<nbOfCells;i++,connI++)
     {
-      mcIdType const offset=descIndex[i];
-      mcIdType const nbOfEdges=descIndex[i+1]-offset;
+      mcIdType offset=descIndex[i];
+      mcIdType nbOfEdges=descIndex[i+1]-offset;
       //
-      bool const ddirect=desc[offset+nbOfEdges-1]>0;
-      mcIdType const eedgeId=std::abs(desc[offset+nbOfEdges-1])-1;
+      bool ddirect=desc[offset+nbOfEdges-1]>0;
+      mcIdType eedgeId=std::abs(desc[offset+nbOfEdges-1])-1;
       mcIdType ref=ddirect?nodeSubdived[nodeIndxSubdived[eedgeId+1]-1]:nodeSubdived[nodeIndxSubdived[eedgeId]+1];
       for(mcIdType j=0;j<nbOfEdges;j++)
         {
-          bool const direct=desc[offset+j]>0;
-          mcIdType const edgeId=std::abs(desc[offset+j])-1;
+          bool direct=desc[offset+j]>0;
+          mcIdType edgeId=std::abs(desc[offset+j])-1;
           if(!INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)nodeSubdived[nodeIndxSubdived[edgeId]]).isQuadratic())
             {
-              mcIdType const id1=nodeSubdived[nodeIndxSubdived[edgeId]+1];
-              mcIdType const id2=nodeSubdived[nodeIndxSubdived[edgeId+1]-1];
-              mcIdType const ref2=direct?id1:id2;
+              mcIdType id1=nodeSubdived[nodeIndxSubdived[edgeId]+1];
+              mcIdType id2=nodeSubdived[nodeIndxSubdived[edgeId+1]-1];
+              mcIdType ref2=direct?id1:id2;
               if(ref==ref2)
                 {
-                  mcIdType const nbOfSubNodes=nodeIndxSubdived[edgeId+1]-nodeIndxSubdived[edgeId]-1;
+                  mcIdType nbOfSubNodes=nodeIndxSubdived[edgeId+1]-nodeIndxSubdived[edgeId]-1;
                   newConnLgth+=nbOfSubNodes-1;
                   ref=direct?id2:id1;
                 }
@@ -472,18 +472,18 @@ void MEDCouplingUMesh::subDivide2DMesh(const mcIdType *nodeSubdived, const mcIdT
   for(mcIdType i=0;i<nbOfCells;i++)
     {
       *work++=INTERP_KERNEL::NORM_POLYGON;
-      mcIdType const offset=descIndex[i];
-      mcIdType const nbOfEdges=descIndex[i+1]-offset;
+      mcIdType offset=descIndex[i];
+      mcIdType nbOfEdges=descIndex[i+1]-offset;
       for(mcIdType j=0;j<nbOfEdges;j++)
         {
-          bool const direct=desc[offset+j]>0;
-          mcIdType const edgeId=std::abs(desc[offset+j])-1;
+          bool direct=desc[offset+j]>0;
+          mcIdType edgeId=std::abs(desc[offset+j])-1;
           if(direct)
             work=std::copy(nodeSubdived+nodeIndxSubdived[edgeId]+1,nodeSubdived+nodeIndxSubdived[edgeId+1]-1,work);
           else
             {
-              mcIdType const nbOfSubNodes=nodeIndxSubdived[edgeId+1]-nodeIndxSubdived[edgeId]-1;
-              std::reverse_iterator<const mcIdType *> const it(nodeSubdived+nodeIndxSubdived[edgeId+1]);
+              mcIdType nbOfSubNodes=nodeIndxSubdived[edgeId+1]-nodeIndxSubdived[edgeId]-1;
+              std::reverse_iterator<const mcIdType *> it(nodeSubdived+nodeIndxSubdived[edgeId+1]);
               work=std::copy(it,it+nbOfSubNodes-1,work);
             }
         }
@@ -520,7 +520,7 @@ void MEDCouplingUMesh::fillCellIdsToKeepFromNodeIds(const mcIdType *begin, const
   for(const mcIdType *work=begin;work!=end;work++)
     if(*work>=0 && *work<sz)
       fastFinder[*work]=true;
-  mcIdType const nbOfCells=getNumberOfCells();
+  mcIdType nbOfCells=getNumberOfCells();
   const mcIdType *conn=getNodalConnectivity()->getConstPointer();
   const mcIdType *connIndex=getNodalConnectivityIndex()->getConstPointer();
   for(mcIdType i=0;i<nbOfCells;i++)
@@ -555,10 +555,10 @@ void MEDCouplingUMesh::split3DCurveWithPlane(const double *origin, const double 
   checkFullyDefined();
   if(getMeshDimension()!=1 || getSpaceDimension()!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::split3DCurveWithPlane works on umeshes with meshdim equal to 1 and spaceDim equal to 3 !");
-  mcIdType const ncells=getNumberOfCells();
-  mcIdType const nnodes=getNumberOfNodes();
+  mcIdType ncells=getNumberOfCells();
+  mcIdType nnodes=getNumberOfNodes();
   double vec2[3],vec3[3],vec4[3];
-  double const normm=sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2]);
+  double normm=sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2]);
   if(normm<1e-6)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::split3DCurveWithPlane : parameter 'vec' should have a norm2 greater than 1e-6 !");
   vec2[0]=vec[0]/normm; vec2[1]=vec[1]/normm; vec2[2]=vec[2]/normm;
@@ -574,16 +574,16 @@ void MEDCouplingUMesh::split3DCurveWithPlane(const double *origin, const double 
             {
               mcIdType st=conn[connI[i]+1],endd=conn[connI[i]+2];
               vec3[0]=coo[3*endd]-coo[3*st]; vec3[1]=coo[3*endd+1]-coo[3*st+1]; vec3[2]=coo[3*endd+2]-coo[3*st+2];
-              double const normm2=sqrt(vec3[0]*vec3[0]+vec3[1]*vec3[1]+vec3[2]*vec3[2]);
-              double const colin=std::abs((vec3[0]*vec2[0]+vec3[1]*vec2[1]+vec3[2]*vec2[2])/normm2);
+              double normm2=sqrt(vec3[0]*vec3[0]+vec3[1]*vec3[1]+vec3[2]*vec3[2]);
+              double colin=std::abs((vec3[0]*vec2[0]+vec3[1]*vec2[1]+vec3[2]*vec2[2])/normm2);
               if(colin>eps)//if colin<=eps -> current SEG2 is colinear to the input plane
                 {
                   const double *st2=coo+3*st;
                   vec4[0]=st2[0]-origin[0]; vec4[1]=st2[1]-origin[1]; vec4[2]=st2[2]-origin[2];
-                  double const pos=-(vec4[0]*vec2[0]+vec4[1]*vec2[1]+vec4[2]*vec2[2])/((vec3[0]*vec2[0]+vec3[1]*vec2[1]+vec3[2]*vec2[2]));
+                  double pos=-(vec4[0]*vec2[0]+vec4[1]*vec2[1]+vec4[2]*vec2[2])/((vec3[0]*vec2[0]+vec3[1]*vec2[1]+vec3[2]*vec2[2]));
                   if(pos>eps && pos<1-eps)
                     {
-                      mcIdType const nNode=ToIdType(addCoo.size())/3;
+                      mcIdType nNode=ToIdType(addCoo.size())/3;
                       vec4[0]=st2[0]+pos*vec3[0]; vec4[1]=st2[1]+pos*vec3[1]; vec4[2]=st2[2]+pos*vec3[2];
                       addCoo.insert(addCoo.end(),vec4,vec4+3);
                       cut3DCurve[i]=nnodes+nNode;
@@ -596,7 +596,7 @@ void MEDCouplingUMesh::split3DCurveWithPlane(const double *origin, const double 
     }
   if(!addCoo.empty())
     {
-      mcIdType const newNbOfNodes=nnodes+ToIdType(addCoo.size())/3;
+      mcIdType newNbOfNodes=nnodes+ToIdType(addCoo.size())/3;
       MCAuto<DataArrayDouble> coo2=DataArrayDouble::New();
       coo2->alloc(newNbOfNodes,3);
       double *tmp=coo2->getPointer();
@@ -613,12 +613,12 @@ void MEDCouplingUMesh::split3DCurveWithPlane(const double *origin, const double 
  */
 DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslation(const MEDCouplingUMesh *mesh1D, bool isQuad) const
 {
-  mcIdType const oldNbOfNodes=getNumberOfNodes();
-  mcIdType const nbOf1DCells=ToIdType(mesh1D->getNumberOfCells());
-  std::size_t const spaceDim=getSpaceDimension();
+  mcIdType oldNbOfNodes=getNumberOfNodes();
+  mcIdType nbOf1DCells=ToIdType(mesh1D->getNumberOfCells());
+  std::size_t spaceDim=getSpaceDimension();
   DataArrayDouble *ret=DataArrayDouble::New();
-  std::vector<bool> const isQuads;
-  mcIdType const nbOfLevsInVec=isQuad?2*nbOf1DCells+1:nbOf1DCells+1;
+  std::vector<bool> isQuads;
+  mcIdType nbOfLevsInVec=isQuad?2*nbOf1DCells+1:nbOf1DCells+1;
   ret->alloc(oldNbOfNodes*nbOfLevsInVec,spaceDim);
   double *retPtr=ret->getPointer();
   const double *coords=getCoords()->getConstPointer();
@@ -675,12 +675,12 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation2D(con
 {
   if(isQuad)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation2D : not implemented for quadratic cells !");
-  mcIdType const oldNbOfNodes=getNumberOfNodes();
-  mcIdType const nbOf1DCells=ToIdType(mesh1D->getNumberOfCells());
+  mcIdType oldNbOfNodes=getNumberOfNodes();
+  mcIdType nbOf1DCells=ToIdType(mesh1D->getNumberOfCells());
   if(nbOf1DCells<2)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation2D : impossible to detect any angle of rotation ! Change extrusion policy 1->0 !");
   MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
-  mcIdType const nbOfLevsInVec=nbOf1DCells+1;
+  mcIdType nbOfLevsInVec=nbOf1DCells+1;
   ret->alloc(oldNbOfNodes*nbOfLevsInVec,2);
   double *retPtr=ret->getPointer();
   retPtr=std::copy(getCoords()->getConstPointer(),getCoords()->getConstPointer()+getCoords()->getNbOfElems(),retPtr);
@@ -702,9 +702,9 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation2D(con
       const double *p1=i+1<nbOfLevsInVec?end:begin;
       const double *p2=i+1<nbOfLevsInVec?third:end;
       INTERP_KERNEL::EdgeArcCircle::GetArcOfCirclePassingThru(p0,p1,p2,tmp3,radius,alpha,alpha0);
-      double const cosangle=i+1<nbOfLevsInVec?(p0[0]-tmp3[0])*(p1[0]-tmp3[0])+(p0[1]-tmp3[1])*(p1[1]-tmp3[1]):(p2[0]-tmp3[0])*(p1[0]-tmp3[0])+(p2[1]-tmp3[1])*(p1[1]-tmp3[1]);
-      double const angle=acos(cosangle/(radius*radius));
-      tmp->rotate(end,nullptr,angle);
+      double cosangle=i+1<nbOfLevsInVec?(p0[0]-tmp3[0])*(p1[0]-tmp3[0])+(p0[1]-tmp3[1])*(p1[1]-tmp3[1]):(p2[0]-tmp3[0])*(p1[0]-tmp3[0])+(p2[1]-tmp3[1])*(p1[1]-tmp3[1]);
+      double angle=acos(cosangle/(radius*radius));
+      tmp->rotate(end,0,angle);
       retPtr=std::copy(tmp2->getConstPointer(),tmp2->getConstPointer()+tmp2->getNbOfElems(),retPtr);
     }
   return ret.retn();
@@ -719,12 +719,12 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation3D(con
 {
   if(isQuad)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation3D : not implemented for quadratic cells !");
-  mcIdType const oldNbOfNodes=getNumberOfNodes();
-  mcIdType const nbOf1DCells=ToIdType(mesh1D->getNumberOfCells());
+  mcIdType oldNbOfNodes=getNumberOfNodes();
+  mcIdType nbOf1DCells=ToIdType(mesh1D->getNumberOfCells());
   if(nbOf1DCells<2)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation3D : impossible to detect any angle of rotation ! Change extrusion policy 1->0 !");
   MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
-  mcIdType const nbOfLevsInVec=nbOf1DCells+1;
+  mcIdType nbOfLevsInVec=nbOf1DCells+1;
   ret->alloc(oldNbOfNodes*nbOfLevsInVec,3);
   double *retPtr=ret->getPointer();
   retPtr=std::copy(getCoords()->getConstPointer(),getCoords()->getConstPointer()+getCoords()->getNbOfElems(),retPtr);
@@ -750,15 +750,15 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation3D(con
         (p1[2]-p0[2])*(p2[0]-p1[0])-(p1[0]-p0[0])*(p2[2]-p1[2]),
         (p1[0]-p0[0])*(p2[1]-p1[1])-(p1[1]-p0[1])*(p2[0]-p1[0]),
       };
-      double const norm=sqrt(vecPlane[0]*vecPlane[0]+vecPlane[1]*vecPlane[1]+vecPlane[2]*vecPlane[2]);
+      double norm=sqrt(vecPlane[0]*vecPlane[0]+vecPlane[1]*vecPlane[1]+vecPlane[2]*vecPlane[2]);
       if(norm>1.e-7)
         {
           vecPlane[0]/=norm; vecPlane[1]/=norm; vecPlane[2]/=norm;
-          double const norm2=sqrt(vecPlane[0]*vecPlane[0]+vecPlane[1]*vecPlane[1]);
-          double const vec2[2]={vecPlane[1]/norm2,-vecPlane[0]/norm2};
-          double const s2=norm2;
+          double norm2=sqrt(vecPlane[0]*vecPlane[0]+vecPlane[1]*vecPlane[1]);
+          double vec2[2]={vecPlane[1]/norm2,-vecPlane[0]/norm2};
+          double s2=norm2;
           double c2=cos(asin(s2));
-          double const m[3][3]={
+          double m[3][3]={
             {vec2[0]*vec2[0]*(1-c2)+c2, vec2[0]*vec2[1]*(1-c2), vec2[1]*s2},
             {vec2[0]*vec2[1]*(1-c2), vec2[1]*vec2[1]*(1-c2)+c2, -vec2[0]*s2},
             {-vec2[1]*s2, vec2[0]*s2, c2}
@@ -767,8 +767,8 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation3D(con
           double p1r[3]={m[0][0]*p1[0]+m[0][1]*p1[1]+m[0][2]*p1[2], m[1][0]*p1[0]+m[1][1]*p1[1]+m[1][2]*p1[2], m[2][0]*p1[0]+m[2][1]*p1[1]+m[2][2]*p1[2]};
           double p2r[3]={m[0][0]*p2[0]+m[0][1]*p2[1]+m[0][2]*p2[2], m[1][0]*p2[0]+m[1][1]*p2[1]+m[1][2]*p2[2], m[2][0]*p2[0]+m[2][1]*p2[1]+m[2][2]*p2[2]};
           INTERP_KERNEL::EdgeArcCircle::GetArcOfCirclePassingThru(p0r,p1r,p2r,tmp3,radius,alpha,alpha0);
-          double const cosangle=i+1<nbOfLevsInVec?(p0r[0]-tmp3[0])*(p1r[0]-tmp3[0])+(p0r[1]-tmp3[1])*(p1r[1]-tmp3[1]):(p2r[0]-tmp3[0])*(p1r[0]-tmp3[0])+(p2r[1]-tmp3[1])*(p1r[1]-tmp3[1]);
-          double const angle=acos(cosangle/(radius*radius));
+          double cosangle=i+1<nbOfLevsInVec?(p0r[0]-tmp3[0])*(p1r[0]-tmp3[0])+(p0r[1]-tmp3[1])*(p1r[1]-tmp3[1]):(p2r[0]-tmp3[0])*(p1r[0]-tmp3[0])+(p2r[1]-tmp3[1])*(p1r[1]-tmp3[1]);
+          double angle=acos(cosangle/(radius*radius));
           tmp->rotate(end,vecPlane,angle);
         }
       retPtr=std::copy(tmp2->getConstPointer(),tmp2->getConstPointer()+tmp2->getNbOfElems(),retPtr);
@@ -784,9 +784,9 @@ DataArrayDouble *MEDCouplingUMesh::fillExtCoordsUsingTranslAndAutoRotation3D(con
  */
 MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMeshFromThisLowLev(mcIdType nbOfNodesOf1Lev, bool isQuad) const
 {
-  mcIdType const nbOf1DCells(getNumberOfNodes()/nbOfNodesOf1Lev-1);
-  mcIdType const nbOf2DCells=getNumberOfCells();
-  mcIdType const nbOf3DCells(nbOf2DCells*nbOf1DCells);
+  mcIdType nbOf1DCells(getNumberOfNodes()/nbOfNodesOf1Lev-1);
+  mcIdType nbOf2DCells=getNumberOfCells();
+  mcIdType nbOf3DCells(nbOf2DCells*nbOf1DCells);
   MEDCouplingUMesh *ret(MEDCouplingUMesh::New("Extruded",getMeshDimension()+1));
   const mcIdType *conn(_nodal_connec->begin()),*connI(_nodal_connec_index->begin());
   MCAuto<DataArrayIdType> newConn(DataArrayIdType::New()),newConnI(DataArrayIdType::New());
@@ -801,7 +801,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMeshFromThisLowLev(mcIdType nbO
     }
   newConn->alloc(newc.size()*nbOf1DCells,1);
   mcIdType *newConnPtr(newConn->getPointer());
-  mcIdType const deltaPerLev(isQuad?2*nbOfNodesOf1Lev:nbOfNodesOf1Lev);
+  mcIdType deltaPerLev(isQuad?2*nbOfNodesOf1Lev:nbOfNodesOf1Lev);
   newConnIPtr=newConnI->getPointer();
   for(mcIdType iz=0;iz<nbOf1DCells;iz++)
     {
@@ -810,7 +810,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildExtrudedMeshFromThisLowLev(mcIdType nbO
       const mcIdType *posOfTypeOfCell(newConnIPtr);
       for(std::vector<mcIdType>::const_iterator iter=newc.begin();iter!=newc.end();iter++,newConnPtr++)
         {
-          mcIdType const icell(ToIdType(iter-newc.begin()));//std::distance unfortunately cannot been called here in C++98
+          mcIdType icell(ToIdType(iter-newc.begin()));//std::distance unfortunately cannot been called here in C++98
           if(icell!=*posOfTypeOfCell)
             {
               if(*iter!=-1)
@@ -844,11 +844,11 @@ bool MEDCouplingUMesh::AreCellsEqualInPool(const std::vector<mcIdType>& candidat
   if(candidates.size()<1)
     return false;
   bool ret=false;
-  auto iter=candidates.begin();
-  mcIdType const start=(*iter++);
+  std::vector<mcIdType>::const_iterator iter=candidates.begin();
+  mcIdType start=(*iter++);
   for(;iter!=candidates.end();iter++)
     {
-      int const status=AreCellsEqual(conn,connI,start,*iter,compType);
+      int status=AreCellsEqual(conn,connI,start,*iter,compType);
       if(status!=0)
         {
           if(!ret)
@@ -873,12 +873,12 @@ bool MEDCouplingUMesh::AreCellsEqualInPool(const std::vector<mcIdType>& candidat
 MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const mcIdType *begin, const mcIdType *end) const
 {
   checkConnectivityFullyDefined();
-  mcIdType const ncell=getNumberOfCells();
+  mcIdType ncell=getNumberOfCells();
   MCAuto<MEDCouplingUMesh> ret=MEDCouplingUMesh::New();
   ret->_mesh_dim=_mesh_dim;
   ret->setCoords(_coords);
-  std::size_t const nbOfElemsRet=std::distance(begin,end);
-  auto *connIndexRet=(mcIdType *)malloc((nbOfElemsRet+1)*sizeof(mcIdType));
+  std::size_t nbOfElemsRet=std::distance(begin,end);
+  mcIdType *connIndexRet=(mcIdType *)malloc((nbOfElemsRet+1)*sizeof(mcIdType));
   connIndexRet[0]=0;
   const mcIdType *conn=_nodal_connec->getConstPointer();
   const mcIdType *connIndex=_nodal_connec_index->getConstPointer();
@@ -894,7 +894,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const mcIdType *
           throw INTERP_KERNEL::Exception(oss.str());
         }
     }
-  auto *connRet=(mcIdType *)malloc(connIndexRet[nbOfElemsRet]*sizeof(mcIdType));
+  mcIdType *connRet=(mcIdType *)malloc(connIndexRet[nbOfElemsRet]*sizeof(mcIdType));
   mcIdType *connRetWork=connRet;
   std::set<INTERP_KERNEL::NormalizedCellType> types;
   for(const mcIdType *work=begin;work!=end;work++)
@@ -919,11 +919,11 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoords(const mcIdType *
 MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoordsSlice(mcIdType start, mcIdType end, mcIdType step) const
 {
   checkFullyDefined();
-  mcIdType const ncell=getNumberOfCells();
+  mcIdType ncell=getNumberOfCells();
   MCAuto<MEDCouplingUMesh> ret=MEDCouplingUMesh::New();
   ret->_mesh_dim=_mesh_dim;
   ret->setCoords(_coords);
-  mcIdType const newNbOfCells=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"MEDCouplingUMesh::buildPartOfMySelfKeepCoordsSlice : ");
+  mcIdType newNbOfCells=DataArray::GetNumberOfItemGivenBESRelative(start,end,step,"MEDCouplingUMesh::buildPartOfMySelfKeepCoordsSlice : ");
   MCAuto<DataArrayIdType> newConnI=DataArrayIdType::New(); newConnI->alloc(newNbOfCells+1,1);
   mcIdType *newConnIPtr=newConnI->getPointer(); *newConnIPtr=0;
   mcIdType work=start;
@@ -957,7 +957,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildPartOfMySelfKeepCoordsSlice(mcIdType st
 }
 
 
-mcIdType MEDCouplingFastNbrer(mcIdType id, mcIdType  /*nb*/, const INTERP_KERNEL::CellModel&  /*cm*/, bool  /*compute*/, const mcIdType * /*conn1*/, const mcIdType * /*conn2*/)
+mcIdType MEDCouplingFastNbrer(mcIdType id, mcIdType nb, const INTERP_KERNEL::CellModel& cm, bool compute, const mcIdType *conn1, const mcIdType *conn2)
 {
   return id;
 }
@@ -987,14 +987,14 @@ DataArrayIdType *MEDCouplingUMesh::convertLinearCellsToQuadratic1D0(DataArrayIdT
   MCAuto<DataArrayIdType> newConn=DataArrayIdType::New(); newConn->alloc(0,1);
   MCAuto<DataArrayIdType> newConnI=DataArrayIdType::New(); newConnI->alloc(1,1); newConnI->setIJ(0,0,0);
   MCAuto<DataArrayIdType> ret=DataArrayIdType::New(); ret->alloc(0,1);
-  mcIdType const nbOfCells=getNumberOfCells();
-  mcIdType const nbOfNodes=getNumberOfNodes();
+  mcIdType nbOfCells=getNumberOfCells();
+  mcIdType nbOfNodes=getNumberOfNodes();
   const mcIdType *cPtr=_nodal_connec->begin();
   const mcIdType *icPtr=_nodal_connec_index->begin();
   mcIdType lastVal=0,offset=nbOfNodes;
   for(mcIdType i=0;i<nbOfCells;i++,icPtr++)
     {
-      auto const type=(INTERP_KERNEL::NormalizedCellType)cPtr[*icPtr];
+      INTERP_KERNEL::NormalizedCellType type=(INTERP_KERNEL::NormalizedCellType)cPtr[*icPtr];
       if(type==INTERP_KERNEL::NORM_SEG2)
         {
           types.insert(INTERP_KERNEL::NORM_SEG3);
@@ -1025,25 +1025,25 @@ DataArrayIdType *MEDCouplingUMesh::convertLinearCellsToQuadratic2DAnd3D0(const M
   MCAuto<DataArrayIdType> ret=DataArrayIdType::New(); ret->alloc(0,1);
   //
   const mcIdType *descPtr(desc->begin()),*descIPtr(descI->begin());
-  DataArrayIdType *conn1D=nullptr,*conn1DI=nullptr;
+  DataArrayIdType *conn1D=0,*conn1DI=0;
   std::set<INTERP_KERNEL::NormalizedCellType> types1D;
-  DataArrayDouble *coordsTmp=nullptr;
-  MCAuto<DataArrayIdType> ret1D=m1D->convertLinearCellsToQuadratic1D0(conn1D,conn1DI,coordsTmp,types1D); ret1D=nullptr;
+  DataArrayDouble *coordsTmp=0;
+  MCAuto<DataArrayIdType> ret1D=m1D->convertLinearCellsToQuadratic1D0(conn1D,conn1DI,coordsTmp,types1D); ret1D=0;
   MCAuto<DataArrayDouble> coordsTmpSafe(coordsTmp);
   MCAuto<DataArrayIdType> conn1DSafe(conn1D),conn1DISafe(conn1DI);
   const mcIdType *c1DPtr=conn1D->begin();
   const mcIdType *c1DIPtr=conn1DI->begin();
-  mcIdType const nbOfCells=getNumberOfCells();
+  mcIdType nbOfCells=getNumberOfCells();
   const mcIdType *cPtr=_nodal_connec->begin();
   const mcIdType *icPtr=_nodal_connec_index->begin();
   mcIdType lastVal=0;
   for(mcIdType i=0;i<nbOfCells;i++,icPtr++,descIPtr++)
     {
-      auto const typ=(INTERP_KERNEL::NormalizedCellType)cPtr[*icPtr];
+      INTERP_KERNEL::NormalizedCellType typ=(INTERP_KERNEL::NormalizedCellType)cPtr[*icPtr];
       const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
       if(!cm.isQuadratic())
         {
-          INTERP_KERNEL::NormalizedCellType const typ2=cm.getQuadraticType();
+          INTERP_KERNEL::NormalizedCellType typ2=cm.getQuadraticType();
           types.insert(typ2); newConn->pushBackSilent(typ2);
           newConn->pushBackValsSilent(cPtr+icPtr[0]+1,cPtr+icPtr[1]);
           for(const mcIdType *d=descPtr+descIPtr[0];d!=descPtr+descIPtr[1];d++)
@@ -1072,14 +1072,14 @@ DataArrayIdType *MEDCouplingUMesh::convertLinearCellsToQuadratic2DAnd3D0(const M
 DataArrayIdType *MEDCouplingUMesh::convertLinearCellsToQuadratic2D0(DataArrayIdType *&conn, DataArrayIdType *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const
 {
   MCAuto<DataArrayIdType> desc(DataArrayIdType::New()),descI(DataArrayIdType::New()),tmp2(DataArrayIdType::New()),tmp3(DataArrayIdType::New());
-  MCAuto<MEDCouplingUMesh> m1D=buildDescendingConnectivity(desc,descI,tmp2,tmp3); tmp2=nullptr; tmp3=nullptr;
+  MCAuto<MEDCouplingUMesh> m1D=buildDescendingConnectivity(desc,descI,tmp2,tmp3); tmp2=0; tmp3=0;
   return convertLinearCellsToQuadratic2DAnd3D0(m1D,desc,descI,conn,connI,coords,types);
 }
 
 DataArrayIdType *MEDCouplingUMesh::convertLinearCellsToQuadratic2D1(DataArrayIdType *&conn, DataArrayIdType *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const
 {
   MCAuto<DataArrayIdType> desc(DataArrayIdType::New()),descI(DataArrayIdType::New()),tmp2(DataArrayIdType::New()),tmp3(DataArrayIdType::New());
-  MCAuto<MEDCouplingUMesh> m1D=buildDescendingConnectivity(desc,descI,tmp2,tmp3); tmp2=nullptr; tmp3=nullptr;
+  MCAuto<MEDCouplingUMesh> m1D=buildDescendingConnectivity(desc,descI,tmp2,tmp3); tmp2=0; tmp3=0;
   //
   MCAuto<DataArrayIdType> newConn=DataArrayIdType::New(); newConn->alloc(0,1);
   MCAuto<DataArrayIdType> newConnI=DataArrayIdType::New(); newConnI->alloc(1,1); newConnI->setIJ(0,0,0);
@@ -1087,26 +1087,26 @@ DataArrayIdType *MEDCouplingUMesh::convertLinearCellsToQuadratic2D1(DataArrayIdT
   //
   MCAuto<DataArrayDouble> bary=computeCellCenterOfMass();
   const mcIdType *descPtr(desc->begin()),*descIPtr(descI->begin());
-  DataArrayIdType *conn1D=nullptr,*conn1DI=nullptr;
+  DataArrayIdType *conn1D=0,*conn1DI=0;
   std::set<INTERP_KERNEL::NormalizedCellType> types1D;
-  DataArrayDouble *coordsTmp=nullptr;
-  MCAuto<DataArrayIdType> ret1D=m1D->convertLinearCellsToQuadratic1D0(conn1D,conn1DI,coordsTmp,types1D); ret1D=nullptr;
+  DataArrayDouble *coordsTmp=0;
+  MCAuto<DataArrayIdType> ret1D=m1D->convertLinearCellsToQuadratic1D0(conn1D,conn1DI,coordsTmp,types1D); ret1D=0;
   MCAuto<DataArrayDouble> coordsTmpSafe(coordsTmp);
   MCAuto<DataArrayIdType> conn1DSafe(conn1D),conn1DISafe(conn1DI);
   const mcIdType *c1DPtr=conn1D->begin();
   const mcIdType *c1DIPtr=conn1DI->begin();
-  mcIdType const nbOfCells=getNumberOfCells();
+  mcIdType nbOfCells=getNumberOfCells();
   const mcIdType *cPtr=_nodal_connec->begin();
   const mcIdType *icPtr=_nodal_connec_index->begin();
   mcIdType lastVal=0;
-  mcIdType const offset=coordsTmpSafe->getNumberOfTuples();
+  mcIdType offset=coordsTmpSafe->getNumberOfTuples();
   for(mcIdType i=0;i<nbOfCells;i++,icPtr++,descIPtr++)
     {
-      auto const typ=(INTERP_KERNEL::NormalizedCellType)cPtr[*icPtr];
+      INTERP_KERNEL::NormalizedCellType typ=(INTERP_KERNEL::NormalizedCellType)cPtr[*icPtr];
       const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
       if(!cm.isQuadratic())
         {
-          INTERP_KERNEL::NormalizedCellType const typ2=cm.getQuadraticType2();
+          INTERP_KERNEL::NormalizedCellType typ2=cm.getQuadraticType2();
           types.insert(typ2); newConn->pushBackSilent(typ2);
           newConn->pushBackValsSilent(cPtr+icPtr[0]+1,cPtr+icPtr[1]);
           for(const mcIdType *d=descPtr+descIPtr[0];d!=descPtr+descIPtr[1];d++)
@@ -1137,16 +1137,16 @@ DataArrayIdType *MEDCouplingUMesh::convertLinearCellsToQuadratic2D1(DataArrayIdT
 DataArrayIdType *MEDCouplingUMesh::convertLinearCellsToQuadratic3D0(DataArrayIdType *&conn, DataArrayIdType *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const
 {
   MCAuto<DataArrayIdType> desc(DataArrayIdType::New()),descI(DataArrayIdType::New()),tmp2(DataArrayIdType::New()),tmp3(DataArrayIdType::New());
-  MCAuto<MEDCouplingUMesh> m1D=explode3DMeshTo1D(desc,descI,tmp2,tmp3); tmp2=nullptr; tmp3=nullptr;
+  MCAuto<MEDCouplingUMesh> m1D=explode3DMeshTo1D(desc,descI,tmp2,tmp3); tmp2=0; tmp3=0;
   return convertLinearCellsToQuadratic2DAnd3D0(m1D,desc,descI,conn,connI,coords,types);
 }
 
 DataArrayIdType *MEDCouplingUMesh::convertLinearCellsToQuadratic3D1(DataArrayIdType *&conn, DataArrayIdType *&connI, DataArrayDouble *& coords, std::set<INTERP_KERNEL::NormalizedCellType>& types) const
 {
   MCAuto<DataArrayIdType> desc2(DataArrayIdType::New()),desc2I(DataArrayIdType::New()),tmp2(DataArrayIdType::New()),tmp3(DataArrayIdType::New());
-  MCAuto<MEDCouplingUMesh> m2D=buildDescendingConnectivityGen<MinusOneSonsGeneratorBiQuadratic>(desc2,desc2I,tmp2,tmp3,MEDCouplingFastNbrer); tmp2=nullptr; tmp3=nullptr;
+  MCAuto<MEDCouplingUMesh> m2D=buildDescendingConnectivityGen<MinusOneSonsGeneratorBiQuadratic>(desc2,desc2I,tmp2,tmp3,MEDCouplingFastNbrer); tmp2=0; tmp3=0;
   MCAuto<DataArrayIdType> desc1(DataArrayIdType::New()),desc1I(DataArrayIdType::New()),tmp4(DataArrayIdType::New()),tmp5(DataArrayIdType::New());
-  MCAuto<MEDCouplingUMesh> m1D=explode3DMeshTo1D(desc1,desc1I,tmp4,tmp5); tmp4=nullptr; tmp5=nullptr;
+  MCAuto<MEDCouplingUMesh> m1D=explode3DMeshTo1D(desc1,desc1I,tmp4,tmp5); tmp4=0; tmp5=0;
   //
   MCAuto<DataArrayIdType> newConn=DataArrayIdType::New(); newConn->alloc(0,1);
   MCAuto<DataArrayIdType> newConnI=DataArrayIdType::New(); newConnI->alloc(1,1); newConnI->setIJ(0,0,0);
@@ -1154,9 +1154,9 @@ DataArrayIdType *MEDCouplingUMesh::convertLinearCellsToQuadratic3D1(DataArrayIdT
   //
   MCAuto<DataArrayDouble> bary=computeCellCenterOfMass();
   const mcIdType *descPtr(desc1->begin()),*descIPtr(desc1I->begin()),*desc2Ptr(desc2->begin()),*desc2IPtr(desc2I->begin());
-  DataArrayIdType *conn1D=nullptr,*conn1DI=nullptr,*conn2D=nullptr,*conn2DI=nullptr;
+  DataArrayIdType *conn1D=0,*conn1DI=0,*conn2D=0,*conn2DI=0;
   std::set<INTERP_KERNEL::NormalizedCellType> types1D,types2D;
-  DataArrayDouble *coordsTmp=nullptr,*coordsTmp2=nullptr;
+  DataArrayDouble *coordsTmp=0,*coordsTmp2=0;
   MCAuto<DataArrayIdType> ret1D=m1D->convertLinearCellsToQuadratic1D0(conn1D,conn1DI,coordsTmp,types1D); ret1D=DataArrayIdType::New(); ret1D->alloc(0,1);
   MCAuto<DataArrayIdType> conn1DSafe(conn1D),conn1DISafe(conn1DI);
   MCAuto<DataArrayDouble> coordsTmpSafe(coordsTmp);
@@ -1164,18 +1164,18 @@ DataArrayIdType *MEDCouplingUMesh::convertLinearCellsToQuadratic3D1(DataArrayIdT
   MCAuto<DataArrayDouble> coordsTmp2Safe(coordsTmp2);
   MCAuto<DataArrayIdType> conn2DSafe(conn2D),conn2DISafe(conn2DI);
   const mcIdType *c1DPtr=conn1D->begin(),*c1DIPtr=conn1DI->begin(),*c2DPtr=conn2D->begin(),*c2DIPtr=conn2DI->begin();
-  mcIdType const nbOfCells=getNumberOfCells();
+  mcIdType nbOfCells=getNumberOfCells();
   const mcIdType *cPtr=_nodal_connec->begin();
   const mcIdType *icPtr=_nodal_connec_index->begin();
   mcIdType lastVal=0;
   mcIdType offset=coordsTmpSafe->getNumberOfTuples();
   for(mcIdType i=0;i<nbOfCells;i++,icPtr++,descIPtr++,desc2IPtr++)
     {
-      auto const typ=(INTERP_KERNEL::NormalizedCellType)cPtr[*icPtr];
+      INTERP_KERNEL::NormalizedCellType typ=(INTERP_KERNEL::NormalizedCellType)cPtr[*icPtr];
       const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(typ);
       if(!cm.isQuadratic())
         {
-          INTERP_KERNEL::NormalizedCellType const typ2=cm.getQuadraticType2();
+          INTERP_KERNEL::NormalizedCellType typ2=cm.getQuadraticType2();
           if(typ2==INTERP_KERNEL::NORM_ERROR)
             {
               std::ostringstream oss; oss << "MEDCouplingUMesh::convertLinearCellsToQuadratic3D1 : On cell #" << i << " the linear cell type does not support advanced quadratization !";
@@ -1187,8 +1187,8 @@ DataArrayIdType *MEDCouplingUMesh::convertLinearCellsToQuadratic3D1(DataArrayIdT
             newConn->pushBackSilent(c1DPtr[c1DIPtr[*d]+3]);
           for(const mcIdType *d=desc2Ptr+desc2IPtr[0];d!=desc2Ptr+desc2IPtr[1];d++)
             {
-              mcIdType const nodeId2=c2DPtr[c2DIPtr[(*d)+1]-1];
-              mcIdType const tmpPos=newConn->getNumberOfTuples();
+              mcIdType nodeId2=c2DPtr[c2DIPtr[(*d)+1]-1];
+              mcIdType tmpPos=newConn->getNumberOfTuples();
               newConn->pushBackSilent(nodeId2);
               ret2D->pushBackSilent(nodeId2); ret1D->pushBackSilent(tmpPos);
             }
@@ -1215,15 +1215,15 @@ DataArrayIdType *MEDCouplingUMesh::convertLinearCellsToQuadratic3D1(DataArrayIdT
   for(const mcIdType *elt=ret1D->begin();elt!=ret1D->end();elt++)
     c[*elt]=o2nRet2D->getIJ(c[*elt],0)+offset;
   offset=coordsTmp2Safe->getNumberOfTuples();
-  for(long const elt : *ret)
-    c[cI[elt+1]-1]+=offset;
+  for(const mcIdType *elt=ret->begin();elt!=ret->end();elt++)
+    c[cI[(*elt)+1]-1]+=offset;
   coords=DataArrayDouble::Aggregate(v); conn=newConn.retn(); connI=newConnI.retn();
   return ret.retn();
 }
 
 DataArrayIdType *MEDCouplingUMesh::buildUnionOf2DMeshLinear(const MEDCouplingUMesh *skin, const DataArrayIdType *n2o) const
 {
-  mcIdType const nbOfNodesExpected(skin->getNumberOfNodes());
+  mcIdType nbOfNodesExpected(skin->getNumberOfNodes());
   const mcIdType *n2oPtr(n2o->begin());
   MCAuto<DataArrayIdType> revNodal(DataArrayIdType::New()),revNodalI(DataArrayIdType::New());
   skin->getReverseNodalConnectivity(revNodal,revNodalI);
@@ -1244,7 +1244,7 @@ DataArrayIdType *MEDCouplingUMesh::buildUnionOf2DMeshLinear(const MEDCouplingUMe
           conn.erase(prevNode);
           if(conn.size()==1)
             {
-              mcIdType const curNode(*(conn.begin()));
+              mcIdType curNode(*(conn.begin()));
               *work++=n2oPtr[curNode];
               std::set<mcIdType> shar(revNodalPtr+revNodalIPtr[curNode],revNodalPtr+revNodalIPtr[curNode+1]);
               shar.erase(prevCell);
@@ -1267,8 +1267,8 @@ DataArrayIdType *MEDCouplingUMesh::buildUnionOf2DMeshLinear(const MEDCouplingUMe
 
 DataArrayIdType *MEDCouplingUMesh::buildUnionOf2DMeshQuadratic(const MEDCouplingUMesh *skin, const DataArrayIdType *n2o) const
 {
-  mcIdType const nbOfNodesExpected(skin->getNumberOfNodes());
-  mcIdType const nbOfTurn(nbOfNodesExpected/2);
+  mcIdType nbOfNodesExpected(skin->getNumberOfNodes());
+  mcIdType nbOfTurn(nbOfNodesExpected/2);
   const mcIdType *n2oPtr(n2o->begin());
   MCAuto<DataArrayIdType> revNodal(DataArrayIdType::New()),revNodalI(DataArrayIdType::New());
   skin->getReverseNodalConnectivity(revNodal,revNodalI);
@@ -1289,13 +1289,13 @@ DataArrayIdType *MEDCouplingUMesh::buildUnionOf2DMeshQuadratic(const MEDCoupling
           conn.erase(prevNode);
           if(conn.size()==1)
             {
-              mcIdType const curNode(*(conn.begin()));
+              mcIdType curNode(*(conn.begin()));
               *work=n2oPtr[curNode];
               std::set<mcIdType> shar(revNodalPtr+revNodalIPtr[curNode],revNodalPtr+revNodalIPtr[curNode+1]);
               shar.erase(prevCell);
               if(shar.size()==1)
                 {
-                  mcIdType const curCell(*(shar.begin()));
+                  mcIdType curCell(*(shar.begin()));
                   work[nbOfTurn]=n2oPtr[nodalPtr[nodalIPtr[curCell]+3]];
                   prevCell=curCell;
                   prevNode=curNode;
@@ -1342,8 +1342,8 @@ void MEDCouplingUMesh::DeleteCellTypeInIndexedArray(const DataArrayIdType *arrIn
     *outArrIndxPtr++ = 0;
     for( mcIdType i = 0 ; i < arrIndxNbTuples - 1 ; ++i )
     {
-      mcIdType const startPos(*inArrIndxPtr++);
-      mcIdType const endPos(*inArrIndxPtr);
+      mcIdType startPos(*inArrIndxPtr++);
+      mcIdType endPos(*inArrIndxPtr);
       if(inArrPtr[startPos] == INTERP_KERNEL::NORM_POLYHED)
         {
           presenceOfPolyh = true;
@@ -1363,8 +1363,8 @@ void MEDCouplingUMesh::DeleteCellTypeInIndexedArray(const DataArrayIdType *arrIn
     *outArrIndxPtr++ = 0;
     for( mcIdType i = 0 ; i < arrIndxNbTuples - 1 ; ++i,++outArrIndxPtr )
     {
-      mcIdType const startPos(*inArrIndxPtr++);
-      mcIdType const endPos(*inArrIndxPtr);
+      mcIdType startPos(*inArrIndxPtr++);
+      mcIdType endPos(*inArrIndxPtr);
       if(inArrPtr[startPos] != INTERP_KERNEL::NORM_POLYHED)
       {
         arrOut->insertAtTheEnd(inArrPtr+startPos+1,inArrPtr+endPos);
@@ -1385,8 +1385,8 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesLL(const std::vector<const MEDCo
 {
   if(a.empty())
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::MergeUMeshes : input array must be NON EMPTY !");
-  auto it=a.begin();
-  int const meshDim=(*it)->getMeshDimension();
+  std::vector<const MEDCouplingUMesh *>::const_iterator it=a.begin();
+  int meshDim=(*it)->getMeshDimension();
   mcIdType nbOfCells=ToIdType((*it)->getNumberOfCells());
   mcIdType meshLgth=(*it++)->getNodalConnectivityArrayLen();
   for(;it!=a.end();it++)
@@ -1412,7 +1412,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::MergeUMeshesLL(const std::vector<const MEDCo
   mcIdType offset2=0;
   for(it=a.begin();it!=a.end();it++)
     {
-      mcIdType const curNbOfCell=ToIdType((*it)->getNumberOfCells());
+      mcIdType curNbOfCell=ToIdType((*it)->getNumberOfCells());
       const mcIdType *curCI=(*it)->_nodal_connec_index->begin();
       const mcIdType *curC=(*it)->_nodal_connec->begin();
       cIPtr=std::transform(curCI+1,curCI+curNbOfCell+1,cIPtr,std::bind(std::plus<mcIdType>(),std::placeholders::_1,offset));
@@ -1457,7 +1457,7 @@ void MEDCouplingUMesh::DistanceToPoint3DSurfAlg(const double *pt, const mcIdType
       {
         case INTERP_KERNEL::NORM_TRI3:
           {
-            double const tmp=INTERP_KERNEL::DistanceFromPtToTriInSpaceDim3(pt,coords+3*nc[ncI[*zeCell]+1],coords+3*nc[ncI[*zeCell]+2],coords+3*nc[ncI[*zeCell]+3]);
+            double tmp=INTERP_KERNEL::DistanceFromPtToTriInSpaceDim3(pt,coords+3*nc[ncI[*zeCell]+1],coords+3*nc[ncI[*zeCell]+2],coords+3*nc[ncI[*zeCell]+3]);
             if(tmp<ret0)
               { ret0=tmp; cellId=*zeCell; }
             break;
@@ -1465,7 +1465,7 @@ void MEDCouplingUMesh::DistanceToPoint3DSurfAlg(const double *pt, const mcIdType
         case INTERP_KERNEL::NORM_QUAD4:
         case INTERP_KERNEL::NORM_POLYGON:
           {
-            double const tmp=INTERP_KERNEL::DistanceFromPtToPolygonInSpaceDim3(pt,nc+ncI[*zeCell]+1,nc+ncI[*zeCell+1],coords);
+            double tmp=INTERP_KERNEL::DistanceFromPtToPolygonInSpaceDim3(pt,nc+ncI[*zeCell]+1,nc+ncI[*zeCell+1],coords);
             if(tmp<ret0)
               { ret0=tmp; cellId=*zeCell; }
             break;
@@ -1513,7 +1513,7 @@ DataArrayIdType *MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeedAlg(std::ve
   nbOfDepthPeelingPerformed=0;
   if(!seedBg || !seedEnd || !arrIn || !arrIndxIn)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeedAlg : some input pointer is NULL !");
-  mcIdType const nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
+  mcIdType nbOfTuples=arrIndxIn->getNumberOfTuples()-1;
   std::vector<bool> fetched2(nbOfTuples,false);
   int i=0;
   for(const mcIdType *seedElt=seedBg;seedElt!=seedEnd;seedElt++,i++)
@@ -1525,22 +1525,22 @@ DataArrayIdType *MEDCouplingUMesh::ComputeSpreadZoneGraduallyFromSeedAlg(std::ve
     }
   const mcIdType *arrInPtr=arrIn->begin();
   const mcIdType *arrIndxPtr=arrIndxIn->begin();
-  mcIdType const targetNbOfDepthPeeling=nbOfDepthPeeling!=-1?nbOfDepthPeeling:std::numeric_limits<mcIdType>::max();
+  mcIdType targetNbOfDepthPeeling=nbOfDepthPeeling!=-1?nbOfDepthPeeling:std::numeric_limits<mcIdType>::max();
   std::vector<mcIdType> idsToFetch1(seedBg,seedEnd);
   std::vector<mcIdType> idsToFetch2;
   std::vector<mcIdType> *idsToFetch=&idsToFetch1;
   std::vector<mcIdType> *idsToFetchOther=&idsToFetch2;
   while(!idsToFetch->empty() && nbOfDepthPeelingPerformed<targetNbOfDepthPeeling)
     {
-      for(long const it : *idsToFetch)
-        for(const mcIdType *it2=arrInPtr+arrIndxPtr[it];it2!=arrInPtr+arrIndxPtr[it+1];it2++)
+      for(std::vector<mcIdType>::const_iterator it=idsToFetch->begin();it!=idsToFetch->end();it++)
+        for(const mcIdType *it2=arrInPtr+arrIndxPtr[*it];it2!=arrInPtr+arrIndxPtr[*it+1];it2++)
           if(!fetched[*it2])
             { fetched[*it2]=true; fetched2[*it2]=true; idsToFetchOther->push_back(*it2); }
       std::swap(idsToFetch,idsToFetchOther);
       idsToFetchOther->clear();
       nbOfDepthPeelingPerformed++;
     }
-  mcIdType const lgth=ToIdType(std::count(fetched2.begin(),fetched2.end(),true));
+  mcIdType lgth=ToIdType(std::count(fetched2.begin(),fetched2.end(),true));
   i=0;
   MCAuto<DataArrayIdType> ret=DataArrayIdType::New(); ret->alloc(lgth,1);
   mcIdType *retPtr=ret->getPointer();
@@ -1580,10 +1580,10 @@ void MEDCouplingUMesh::FillInCompact3DMode(int spaceDim, mcIdType nbOfNodesInCel
  */
 void MEDCouplingUMesh::AppendExtrudedCell(const mcIdType *connBg, const mcIdType *connEnd, mcIdType nbOfNodesPerLev, bool isQuad, std::vector<mcIdType>& ret)
 {
-  auto const flatType=(INTERP_KERNEL::NormalizedCellType)connBg[0];
+  INTERP_KERNEL::NormalizedCellType flatType=(INTERP_KERNEL::NormalizedCellType)connBg[0];
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(flatType);
   ret.push_back(cm.getExtrudedType());
-  mcIdType const deltaz=isQuad?2*nbOfNodesPerLev:nbOfNodesPerLev;
+  mcIdType deltaz=isQuad?2*nbOfNodesPerLev:nbOfNodesPerLev;
   switch(flatType)
   {
     case INTERP_KERNEL::NORM_POINT1:
@@ -1638,10 +1638,10 @@ void MEDCouplingUMesh::AppendExtrudedCell(const mcIdType *connBg, const mcIdType
         std::back_insert_iterator< std::vector<mcIdType> > ii(ret);
         std::copy(connBg+1,connEnd,ii);
         *ii++=-1;
-        std::reverse_iterator<const mcIdType *> const rConnBg(connEnd);
-        std::reverse_iterator<const mcIdType *> const rConnEnd(connBg+1);
+        std::reverse_iterator<const mcIdType *> rConnBg(connEnd);
+        std::reverse_iterator<const mcIdType *> rConnEnd(connBg+1);
         std::transform(rConnBg,rConnEnd,ii,std::bind(std::plus<mcIdType>(),std::placeholders::_1,deltaz));
-        std::size_t const nbOfRadFaces=std::distance(connBg+1,connEnd);
+        std::size_t nbOfRadFaces=std::distance(connBg+1,connEnd);
         for(std::size_t i=0;i<nbOfRadFaces;i++)
           {
             *ii++=-1;
@@ -1675,17 +1675,17 @@ void MEDCouplingUMesh::AssemblyForSplitFrom3DCurve(const std::vector<mcIdType>& 
                                                    const mcIdType *desc, const mcIdType *descIndx,
                                                    std::vector< std::pair<mcIdType,mcIdType> >& cut3DSurf)
 {
-  std::set<mcIdType> const nodesOnP(nodesOnPlane.begin(),nodesOnPlane.end());
-  mcIdType const nbOf3DSurfCell=ToIdType(cut3DSurf.size());
+  std::set<mcIdType> nodesOnP(nodesOnPlane.begin(),nodesOnPlane.end());
+  mcIdType nbOf3DSurfCell=ToIdType(cut3DSurf.size());
   for(mcIdType i=0;i<nbOf3DSurfCell;i++)
     {
       std::vector<mcIdType> res;
-      mcIdType const offset=descIndx[i];
-      mcIdType const nbOfSeg=descIndx[i+1]-offset;
+      mcIdType offset=descIndx[i];
+      mcIdType nbOfSeg=descIndx[i+1]-offset;
       for(mcIdType j=0;j<nbOfSeg;j++)
         {
-          mcIdType const edgeId=desc[offset+j];
-          mcIdType const status=cut3DCurve[edgeId];
+          mcIdType edgeId=desc[offset+j];
+          mcIdType status=cut3DCurve[edgeId];
           if(status!=-2)
             {
               if(status>-1)
@@ -1716,7 +1716,7 @@ void MEDCouplingUMesh::AssemblyForSplitFrom3DCurve(const std::vector<mcIdType>& 
         case 1:
         case 0:
           {
-            std::set<mcIdType> const s1(nodal3DSurf+nodalIndx3DSurf[i]+1,nodal3DSurf+nodalIndx3DSurf[i+1]);
+            std::set<mcIdType> s1(nodal3DSurf+nodalIndx3DSurf[i]+1,nodal3DSurf+nodalIndx3DSurf[i+1]);
             std::set_intersection(nodesOnP.begin(),nodesOnP.end(),s1.begin(),s1.end(),std::back_insert_iterator< std::vector<mcIdType> >(res));
             if(res.size()==2)
               {
@@ -1759,12 +1759,12 @@ void MEDCouplingUMesh::assemblyForSplitFrom3DSurf(const std::vector< std::pair<m
   if(getMeshDimension()!=3 || getSpaceDimension()!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::assemblyForSplitFrom3DSurf works on umeshes with meshdim equal to 3 and spaceDim equal to 3 too!");
   const mcIdType *nodal3D(_nodal_connec->begin()),*nodalIndx3D(_nodal_connec_index->begin());
-  mcIdType const nbOfCells=getNumberOfCells();
+  mcIdType nbOfCells=getNumberOfCells();
   for(mcIdType i=0;i<nbOfCells;i++)
     {
       std::map<mcIdType, std::set<mcIdType> > m;
-      mcIdType const offset=descIndx[i];
-      mcIdType const nbOfFaces=descIndx[i+1]-offset;
+      mcIdType offset=descIndx[i];
+      mcIdType nbOfFaces=descIndx[i+1]-offset;
       mcIdType start=-1;
       mcIdType end=-1;
       for(int j=0;j<nbOfFaces;j++)
@@ -1781,10 +1781,10 @@ void MEDCouplingUMesh::assemblyForSplitFrom3DSurf(const std::vector< std::pair<m
               else
                 {
                   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)nodal3D[nodalIndx3D[i]]);
-                  mcIdType const sz=nodalIndx3D[i+1]-nodalIndx3D[i]-1;
+                  mcIdType sz=nodalIndx3D[i+1]-nodalIndx3D[i]-1;
                   INTERP_KERNEL::AutoPtr<mcIdType> tmp=new mcIdType[sz];
                   INTERP_KERNEL::NormalizedCellType cmsId;
-                  unsigned const nbOfNodesSon=cm.fillSonCellNodalConnectivity2(j,nodal3D+nodalIndx3D[i]+1,sz,tmp,cmsId);
+                  unsigned nbOfNodesSon=cm.fillSonCellNodalConnectivity2(j,nodal3D+nodalIndx3D[i]+1,sz,tmp,cmsId);
                   start=tmp[0]; end=tmp[nbOfNodesSon-1];
                   for(unsigned k=0;k<nbOfNodesSon;k++)
                     {
@@ -1800,14 +1800,14 @@ void MEDCouplingUMesh::assemblyForSplitFrom3DSurf(const std::vector< std::pair<m
       mcIdType prev=end;
       while(end!=start)
         {
-          std::map<mcIdType, std::set<mcIdType> >::const_iterator const it=m.find(start);
+          std::map<mcIdType, std::set<mcIdType> >::const_iterator it=m.find(start);
           const std::set<mcIdType>& s=(*it).second;
           std::set<mcIdType> s2; s2.insert(prev);
           std::set<mcIdType> s3;
           std::set_difference(s.begin(),s.end(),s2.begin(),s2.end(),inserter(s3,s3.begin()));
           if(s3.size()==1)
             {
-              mcIdType const val=*s3.begin();
+              mcIdType val=*s3.begin();
               conn.push_back(start);
               prev=start;
               start=val;
@@ -1832,7 +1832,7 @@ void MEDCouplingUMesh::ComputeAllTypesInternal(std::set<INTERP_KERNEL::Normalize
     {
       types.clear();
       const mcIdType *conn(nodalConnec->begin()),*connIndex(nodalConnecIndex->begin());
-      mcIdType const nbOfElem=ToIdType(nodalConnecIndex->getNbOfElems())-1;
+      mcIdType nbOfElem=ToIdType(nodalConnecIndex->getNbOfElems())-1;
       if(nbOfElem>0)
         for(const mcIdType *pt=connIndex;pt!=connIndex+nbOfElem;pt++)
           types.insert((INTERP_KERNEL::NormalizedCellType)conn[*pt]);
@@ -1855,7 +1855,7 @@ void MEDCouplingUMesh::ComputeAllTypesInternal(std::set<INTERP_KERNEL::Normalize
 void MEDCouplingUMesh::attractSeg3MidPtsAroundNodes(double ratio, const mcIdType *nodeIdsBg, const mcIdType *nodeIdsEnd)
 {
   checkFullyDefined();
-  int const mdim(getMeshDimension());
+  int mdim(getMeshDimension());
   if(mdim==2 || mdim==3)
     {
       MCAuto<MEDCouplingUMesh> edges;
@@ -1875,15 +1875,15 @@ void MEDCouplingUMesh::attractSeg3MidPtsAroundNodes(double ratio, const mcIdType
  */
 void MEDCouplingUMesh::attractSeg3MidPtsAroundNodesUnderground(double ratio, const mcIdType *nodeIdsBg, const mcIdType *nodeIdsEnd)
 {
-  int const spaceDim(getSpaceDimension());
+  int spaceDim(getSpaceDimension());
   double *coords(getCoords()->getPointer());
   auto nbNodes(getNumberOfNodes());
-  std::size_t const nbCells(getNumberOfCells());
+  std::size_t nbCells(getNumberOfCells());
   std::vector<bool> fastFinder(nbNodes,false);
   for(auto work=nodeIdsBg;work!=nodeIdsEnd;work++)
     if(*work>=0 && *work<nbNodes)
       fastFinder[*work]=true;
-  MCAuto<DataArrayIdType> const cellsIds(getCellIdsLyingOnNodes(nodeIdsBg,nodeIdsEnd,false));
+  MCAuto<DataArrayIdType> cellsIds(getCellIdsLyingOnNodes(nodeIdsBg,nodeIdsEnd,false));
   const mcIdType *nc(_nodal_connec->begin()),*nci(_nodal_connec_index->begin());
   for(std::size_t cellId=0;cellId<nbCells;cellId++,nci++)
     {

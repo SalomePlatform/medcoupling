@@ -20,22 +20,18 @@
 #ifndef MESHFORMATWRITER_HXX
 #define MESHFORMATWRITER_HXX
 
-#include <algorithm>
-#include <cstddef>
-#include <iterator>
-#include <map>
-#include <string>
-#include <string>
 #include <vector>
+#include <string>
+#include <string>
 #include "MCAuto.hxx"
-#include "NormalizedGeometricTypes"
-#include "MEDLoaderDefines.hxx"
-#include "MEDCouplingUMesh.hxx"
+#include "InterpKernelException.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
 #include "MCType.hxx"
 #include "MEDMESHConverterUtilities.hxx"
 #include "libmesh5.hxx"
 
 #include "MEDFileMesh.hxx"
+#include <fstream>
 
 namespace MEDCoupling
 {

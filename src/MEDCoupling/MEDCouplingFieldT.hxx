@@ -20,19 +20,11 @@
 
 #pragma once
 
-#include "MEDCoupling.hxx"
-#include "MCType.hxx"
 #include "MEDCouplingField.hxx"
-#include "MEDCouplingRefCountObject.hxx"
-#include "MEDCouplingFieldDiscretization.hxx"
-#include "MEDCouplingNatureOfFieldEnum"
 #include "MEDCouplingTraits.hxx"
 #include "MEDCouplingTimeDiscretization.hxx"
 
-#include <cstddef>
-#include <ostream>
-#include <vector>
-#include <string>
+#include <sstream>
 
 namespace MEDCoupling
 {
@@ -47,11 +39,11 @@ namespace MEDCoupling
     MEDCouplingFieldT(const MEDCouplingField& other, MEDCouplingTimeDiscretizationTemplate<T> *timeDiscr, bool deepCopy=true);
     MEDCouplingFieldT(TypeOfField type, MEDCouplingTimeDiscretizationTemplate<T> *timeDiscr);
     MEDCouplingFieldT(MEDCouplingFieldDiscretization *type, NatureOfField n, MEDCouplingTimeDiscretizationTemplate<T> *timeDiscr);
-    ~MEDCouplingFieldT() override;
+    ~MEDCouplingFieldT();
   public:
     MEDCOUPLING_EXPORT TypeOfTimeDiscretization getTimeDiscretization() const;
     MEDCOUPLING_EXPORT virtual typename Traits<T>::FieldType *clone(bool recDeepCpy) const = 0;
-    MEDCOUPLING_EXPORT void checkConsistencyLight() const override;
+    MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT typename Traits<T>::FieldType *cloneWithMesh(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT typename Traits<T>::FieldType *buildSubPart(const DataArrayIdType *part) const;
     MEDCOUPLING_EXPORT typename Traits<T>::FieldType *buildSubPart(const mcIdType *partBg, const mcIdType *partEnd) const;
@@ -85,11 +77,11 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec) const;
     MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec, std::string& reason) const;
     MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec) const;
-    MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingField *other) override;
-    MEDCOUPLING_EXPORT bool areStrictlyCompatible(const MEDCouplingField *other) const override;
-    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForMulDiv(const MEDCouplingField *other) const override;
+    MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingField *other);
+    MEDCOUPLING_EXPORT bool areStrictlyCompatible(const MEDCouplingField *other) const;
+    MEDCOUPLING_EXPORT bool areStrictlyCompatibleForMulDiv(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
-    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const override;
+    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     // specific
     MEDCOUPLING_EXPORT bool areCompatibleForMul(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT bool areCompatibleForDiv(const MEDCouplingField *other) const;

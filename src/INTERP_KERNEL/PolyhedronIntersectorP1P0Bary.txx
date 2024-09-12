@@ -20,15 +20,11 @@
 #ifndef __PolyhedronIntersectorP1P0Bary_TXX__
 #define __PolyhedronIntersectorP1P0Bary_TXX__
 
-#include "NormalizedGeometricTypes"
-#include "Intersector3DP1P0Bary.txx"
-#include "InterpolationUtils.hxx"
-#include "Intersector3D.txx"
 #include "PolyhedronIntersectorP1P0Bary.hxx"
-// #include "MeshUtils.hxx"
+#include "Intersector3DP1P0Bary.txx"
+#include "MeshUtils.hxx"
 
 #include "SplitterTetra.txx"
-#include <vector>
 
 namespace INTERP_KERNEL
 {

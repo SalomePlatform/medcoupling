@@ -25,18 +25,12 @@
 
 #include "InterpolationCU.hxx"
 
-#include "InterpolationUtils.hxx"
-#include "InterpolationOptions.hxx"
-#include "IntersectorCU.txx"
+#include "Interpolation.txx"
 #include "IntersectorCU1D.txx"
 #include "IntersectorCU2D.txx"
 #include "IntersectorCU3D.txx"
-#include "NormalizedGeometricTypes"
-#include "TargetIntersector.hxx"
-#include <string>
-#include <map>
-#include <vector>
 
+#include <map>
 
 // // convert index "From Mesh Index"
 #define _FMIU(i) OTT<typename MyUMeshType::MyConnType,MyUMeshType::My_numPol>::ind2C((i))
@@ -65,7 +59,8 @@ namespace INTERP_KERNEL
   //================================================================================
 
   InterpolationCU::InterpolationCU()
-  = default;
+  {
+  }
 
   InterpolationCU::InterpolationCU(const InterpolationOptions & io)
     :Interpolation<InterpolationCU>(io)
@@ -228,7 +223,7 @@ namespace INTERP_KERNEL
 
     MatrixType revResult;
     CConnType sizeT = interpolateMeshes( meshT, meshS, revResult, method );
-    auto sizeS = static_cast<UConnType>(revResult.size());
+    UConnType sizeS = static_cast<UConnType>(revResult.size());
     result.resize( sizeT );
 
     for ( CConnType iS = 0; iS < sizeS; ++iS )

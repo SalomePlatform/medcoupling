@@ -19,36 +19,17 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDFileData.hxx"
-#include "MEDFileUtilities.hxx"
-#include "MCAuto.hxx"
-#include "MEDFileField.hxx"
-#include "MEDFileMesh.hxx"
-#include "MEDFileParameter.hxx"
-#include "MEDCouplingRefCountObject.hxx"
-#include "MEDFileMeshSupport.hxx"
-#include "MEDFileStructureElement.hxx"
-#include "MCType.hxx"
-#include "MEDFileFieldMultiTS.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDFileBlowStrEltUp.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
-#include <string>
-#include "med.h"
-#include <cstddef>
-#include <vector>
-#include <sstream>
-#include <ostream>
-#include <utility>
-#include <set>
-#include "medfile.h"
 
 using namespace MEDCoupling;
 
 MEDFileData *MEDFileData::New(const std::string& fileName)
 {
-  MEDFileUtilities::AutoFid const fid(OpenMEDFileForRead(fileName));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
   return New(fid);
 }
 
@@ -203,7 +184,7 @@ bool MEDFileData::changeMeshNames(const std::vector< std::pair<std::string,std::
 
 bool MEDFileData::changeMeshName(const std::string& oldMeshName, const std::string& newMeshName)
 {
-  std::string const oldName(oldMeshName);
+  std::string oldName(oldMeshName);
   std::vector< std::pair<std::string,std::string> > v(1);
   v[0].first=oldName; v[0].second=newMeshName;
   return changeMeshNames(v);
@@ -231,8 +212,8 @@ bool MEDFileData::unPolyzeMeshes()
       if(m)
         {
           std::vector<mcIdType> oldCode,newCode;
-          DataArrayIdType *o2nRenumCell=nullptr;
-          bool const modif=m->unPolyze(oldCode,newCode,o2nRenumCell);
+          DataArrayIdType *o2nRenumCell=0;
+          bool modif=m->unPolyze(oldCode,newCode,o2nRenumCell);
           if(!modif)
             continue;
           renumParamsOfMeshImpacted.push_back(o2nRenumCell); memSaverIfThrow.push_back(o2nRenumCell);
@@ -272,7 +253,7 @@ MCAuto<MEDFileData> MEDFileData::Aggregate(const std::vector<const MEDFileData *
   MCAuto<MEDFileData> ret(MEDFileData::New());
   std::vector<const MEDFileUMesh *> ms(sz);
   std::vector< std::vector< std::pair<int,mcIdType> > > dts(sz);
-  for(auto it=mfds.begin();it!=mfds.end();it++,i++)
+  for(std::vector<const MEDFileData *>::const_iterator it=mfds.begin();it!=mfds.end();it++,i++)
     {
       const MEDFileData *elt(*it);
       if(!elt)
@@ -285,7 +266,7 @@ MCAuto<MEDFileData> MEDFileData::Aggregate(const std::vector<const MEDFileData *
       const MEDFileMesh *mesh(meshes->getMeshAtPos(0));
       if(!mesh)
         throw INTERP_KERNEL::Exception("MEDFileData::Aggregate : presence of null mesh in a MEDFileData instance among input vector !");
-      const auto *umesh(dynamic_cast<const MEDFileUMesh *>(mesh));
+      const MEDFileUMesh *umesh(dynamic_cast<const MEDFileUMesh *>(mesh));
       if(!umesh)
         throw INTERP_KERNEL::Exception("MEDFileData::Aggregate : works only for unstructured meshes !");
       ms[i]=umesh;
@@ -296,22 +277,22 @@ MCAuto<MEDFileData> MEDFileData::Aggregate(const std::vector<const MEDFileData *
   ret->setMeshes(mss);
   // fields
   std::vector<std::string> fieldNames(mfds[0]->getFields()->getFieldsNames());
-  std::set<std::string> const fieldNamess(fieldNames.begin(),fieldNames.end());
+  std::set<std::string> fieldNamess(fieldNames.begin(),fieldNames.end());
   if(fieldNames.size()!=fieldNamess.size())
     throw INTERP_KERNEL::Exception("MEDFileData::Aggregate : field names must be different each other !");
   std::vector< std::vector<const MEDFileAnyTypeFieldMultiTS *> > vectOfFields(fieldNames.size());
   std::vector< std::vector< MCAuto< MEDFileAnyTypeFieldMultiTS > > > vectOfFields2(fieldNames.size());
   MCAuto<MEDFileFields> fss(MEDFileFields::New());
-  for(auto mfd : mfds)
+  for(std::vector<const MEDFileData *>::const_iterator it=mfds.begin();it!=mfds.end();it++)
     {
-      std::vector<std::string> fieldNames0(mfd->getFields()->getFieldsNames());
-      std::set<std::string> const fieldNamess0(fieldNames0.begin(),fieldNames0.end());
+      std::vector<std::string> fieldNames0((*it)->getFields()->getFieldsNames());
+      std::set<std::string> fieldNamess0(fieldNames0.begin(),fieldNames0.end());
       if(fieldNamess!=fieldNamess0)
         throw INTERP_KERNEL::Exception("MEDFileData::Aggregate : field names must be the same for all input instances !");
       i=0;
       for(std::vector<std::string>::const_iterator it1=fieldNames.begin();it1!=fieldNames.end();it1++,i++)
         {
-          MCAuto<MEDFileAnyTypeFieldMultiTS> fmts(mfd->getFields()->getFieldWithName(*it1));
+          MCAuto<MEDFileAnyTypeFieldMultiTS> fmts((*it)->getFields()->getFieldWithName(*it1));
           if(fmts.isNull())
             throw INTERP_KERNEL::Exception("MEDFileData::Aggregate : internal error 1 !");
           vectOfFields2[i].push_back(fmts); vectOfFields[i].push_back(fmts);
@@ -329,7 +310,8 @@ MCAuto<MEDFileData> MEDFileData::Aggregate(const std::vector<const MEDFileData *
 }
 
 MEDFileData::MEDFileData()
-= default;
+{
+}
 
 MEDFileData::MEDFileData(med_idt fid)
 try
@@ -375,7 +357,7 @@ void MEDFileData::setHeader(const std::string& header)
 void MEDFileData::readHeader(med_idt fid)
 {
   INTERP_KERNEL::AutoPtr<char> header(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
-  int const ret(MEDfileCommentRd(fid,header));
+  int ret(MEDfileCommentRd(fid,header));
   if(ret==0)
     _header=MEDLoaderBase::buildStringFromFortran(header,MED_COMMENT_SIZE);
 }

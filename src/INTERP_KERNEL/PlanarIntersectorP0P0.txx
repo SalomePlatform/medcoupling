@@ -20,9 +20,7 @@
 #ifndef __PLANARINTERSECTORP0P0_TXX__
 #define __PLANARINTERSECTORP0P0_TXX__
 
-#include "PlanarIntersector.hxx"
 #include "PlanarIntersectorP0P0.hxx"
-#include "InterpolationUtils.hxx"
 
 namespace INTERP_KERNEL
 {

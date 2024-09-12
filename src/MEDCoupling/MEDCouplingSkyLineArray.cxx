@@ -18,21 +18,10 @@
 //
 
 #include "MEDCouplingSkyLineArray.hxx"
-#include "MCType.hxx"
-#include "NormalizedGeometricTypes"
-#include "MCIdType.hxx"
-#include "MCAuto.hxx"
-#include "MEDCouplingRefCountObject.hxx"
 
-#include <algorithm>
-#include <iterator>
-#include <cstddef>
-#include <ostream>
-#include <limits>
 #include <sstream>
 #include <deque>
 #include <set>
-#include <vector>
 
 using namespace MEDCoupling;
 
@@ -42,7 +31,8 @@ MEDCouplingSkyLineArray::MEDCouplingSkyLineArray():
 }
 
 MEDCouplingSkyLineArray::~MEDCouplingSkyLineArray()
-= default;
+{
+}
 
 MEDCouplingSkyLineArray* MEDCouplingSkyLineArray::New()
 {
@@ -52,7 +42,7 @@ MEDCouplingSkyLineArray* MEDCouplingSkyLineArray::New()
 MEDCouplingSkyLineArray* MEDCouplingSkyLineArray::New( const std::vector<mcIdType>& index,
                                                        const std::vector<mcIdType>& value )
 {
-  auto * ret = new MEDCouplingSkyLineArray();
+  MEDCouplingSkyLineArray * ret = new MEDCouplingSkyLineArray();
   ret->_index->reserve( index.size() );
   ret->_index->insertAtTheEnd( index.begin(), index.end() );
   ret->_values->reserve( value.size() );
@@ -62,14 +52,14 @@ MEDCouplingSkyLineArray* MEDCouplingSkyLineArray::New( const std::vector<mcIdTyp
 
 MEDCouplingSkyLineArray* MEDCouplingSkyLineArray::New( DataArrayIdType* index, DataArrayIdType* value )
 {
-  auto* ret = new MEDCouplingSkyLineArray();
+  MEDCouplingSkyLineArray* ret = new MEDCouplingSkyLineArray();
   ret->set(index, value);
   return ret;
 }
 
 MEDCouplingSkyLineArray* MEDCouplingSkyLineArray::New( const MEDCouplingSkyLineArray & other )
 {
-  auto* ret = new MEDCouplingSkyLineArray();
+  MEDCouplingSkyLineArray* ret = new MEDCouplingSkyLineArray();
   ret->_super_index = other._super_index;
   ret->_index = other._index;
   ret->_values = other._values;
@@ -84,7 +74,7 @@ MEDCouplingSkyLineArray * MEDCouplingSkyLineArray::BuildFromPolyhedronConn( cons
 {
   using namespace std;
 
-  auto* ret = new MEDCouplingSkyLineArray();
+  MEDCouplingSkyLineArray* ret = new MEDCouplingSkyLineArray();
 
   const mcIdType * cP(c->begin()), * cIP(cI->begin());
   mcIdType prev = -1;
@@ -92,7 +82,7 @@ MEDCouplingSkyLineArray * MEDCouplingSkyLineArray::BuildFromPolyhedronConn( cons
     throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::BuildFromDynamicConn: misformatted connectivity (wrong nb of tuples)!");
   for (mcIdType i=0; i < cI->getNbOfElems(); i++)
     {
-      mcIdType const j = cIP[i];
+      mcIdType j = cIP[i];
       if (cIP[i] < prev)
         throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::BuildFromDynamicConn: misformatted connectivity (indices not monotonic ascending)!");
       prev = cIP[i];
@@ -116,7 +106,7 @@ MEDCouplingSkyLineArray * MEDCouplingSkyLineArray::BuildFromPolyhedronConn( cons
       while (w2 != cP+end)
         {
           copy(w, w2, work);
-          mcIdType const d = ToIdType(distance(w, w2));
+          mcIdType d = ToIdType(distance(w, w2));
           cnt += d; work +=d;
           idx.push_back(cnt); cnt2++;
           w = w2+1;  // skip the -1
@@ -153,14 +143,14 @@ void MEDCouplingSkyLineArray::convertToPolyhedronConn( MCAuto<DataArrayIdType>& 
   cI->alloc(_super_index->getNbOfElems(),1);  // same number of super packs as number of cells
   mcIdType * cIVecP(cI->getPointer());
   MCAuto <DataArrayIdType> dsi = _index->deltaShiftIndex();
-  mcIdType const sz = dsi->accumulate((std::size_t)0) + ToIdType(dsi->getNbOfElems());  // think about it: one slot for the type, -1 at the end of each face of the cell
+  mcIdType sz = dsi->accumulate((std::size_t)0) + ToIdType(dsi->getNbOfElems());  // think about it: one slot for the type, -1 at the end of each face of the cell
   c->alloc(sz, 1);
   mcIdType * cVecP(c->getPointer());
 
   for ( mcIdType i=0; i < _super_index->getNbOfElems()-1; i++)
      {
        cIVecP[i]= cnt;
-       mcIdType const endId = siP[i+1];
+       mcIdType endId = siP[i+1];
        cVecP[cnt++] = INTERP_KERNEL::NORM_POLYHED;
        for (mcIdType j=siP[i]; j < endId; j++)
          {
@@ -230,7 +220,7 @@ MEDCouplingSkyLineArray *MEDCouplingSkyLineArray::deepCopy() const
   MCAuto<MEDCouplingSkyLineArray> ret(MEDCouplingSkyLineArray::New(indexCpy,valuesCpy));
   if(_super_index.isNotNull())
   {
-    MCAuto<DataArrayIdType> const superIndexCpy(this->_super_index->deepCopy());
+    MCAuto<DataArrayIdType> superIndexCpy(this->_super_index->deepCopy());
     ret->_super_index = superIndexCpy;
   }
   return ret.retn();
@@ -269,7 +259,7 @@ void MEDCouplingSkyLineArray::validIndex(const std::string& func, mcIdType idx) 
 void MEDCouplingSkyLineArray::validSuperIndexAndIndex(const std::string& func, mcIdType superIndex, mcIdType index) const
 {
   validSuperIndex(func, superIndex);
-  mcIdType const idx = _super_index->begin()[superIndex] + index;
+  mcIdType idx = _super_index->begin()[superIndex] + index;
   if(idx < 0 || idx >= _index->getNbOfElems())
     {
       std::ostringstream oss;
@@ -343,7 +333,7 @@ std::string MEDCouplingSkyLineArray::simpleRepr() const
  */
 void MEDCouplingSkyLineArray::thresholdPerPack(mcIdType threshold, MCAuto<MEDCouplingSkyLineArray>& left, MCAuto<MEDCouplingSkyLineArray>& right) const
 {
-  mcIdType const nbPacks(this->getNumberOf());
+  mcIdType nbPacks(this->getNumberOf());
   MCAuto<DataArrayIdType> lCount(DataArrayIdType::New()); lCount->alloc(nbPacks,1); lCount->fillWithZero();
   mcIdType *lCountPtr(lCount->getPointerSilent());
   const mcIdType *valuesPtr(this->_values->begin()),*indexPtr(this->_index->begin());
@@ -370,7 +360,7 @@ MEDCouplingSkyLineArray *MEDCouplingSkyLineArray::groupPacks(const DataArrayIdTy
   indexedPacks->checkAllocated();
   if( indexedPacks->getNumberOfComponents() != 1 )
     throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::groupPacks : number of components must be 1 !");
-  std::size_t const nbTuples(indexedPacks->getNumberOfTuples());
+  std::size_t nbTuples(indexedPacks->getNumberOfTuples());
   if( nbTuples == 0 )
     throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::groupPacks : number of tuples must be > 0 !");
   const DataArrayIdType *index(this->getIndexArray());
@@ -381,20 +371,20 @@ MEDCouplingSkyLineArray *MEDCouplingSkyLineArray::groupPacks(const DataArrayIdTy
 
 MEDCouplingSkyLineArray *MEDCouplingSkyLineArray::uniqueNotSortedByPack() const
 {
-  mcIdType const nbPacks(this->getNumberOf());
+  mcIdType nbPacks(this->getNumberOf());
   MCAuto<DataArrayIdType> retIndex(DataArrayIdType::New()); retIndex->alloc(nbPacks+1,1);
   const mcIdType *valuesPtr(this->_values->begin()),*indexPtr(this->_index->begin());
   mcIdType *retIndexPtr(retIndex->getPointer()); *retIndexPtr = 0;
   for(mcIdType i = 0 ; i < nbPacks ; ++i, ++retIndexPtr)
   {
-    std::set<mcIdType> const s(valuesPtr+indexPtr[i],valuesPtr+indexPtr[i+1]);
+    std::set<mcIdType> s(valuesPtr+indexPtr[i],valuesPtr+indexPtr[i+1]);
     retIndexPtr[1] = retIndexPtr[0] + ToIdType(s.size());
   }
   MCAuto<DataArrayIdType> retValues(DataArrayIdType::New()); retValues->alloc(retIndex->back(),1);
   mcIdType *retValuesPtr(retValues->getPointer());
   for(mcIdType i = 0 ; i < nbPacks ; ++i)
   {
-    std::set<mcIdType> const s(valuesPtr+indexPtr[i],valuesPtr+indexPtr[i+1]);
+    std::set<mcIdType> s(valuesPtr+indexPtr[i],valuesPtr+indexPtr[i+1]);
     retValuesPtr = std::copy(s.begin(),s.end(),retValuesPtr);
   }
   MCAuto<MEDCouplingSkyLineArray> ret(MEDCouplingSkyLineArray::New(retIndex,retValues));
@@ -416,7 +406,7 @@ MEDCouplingSkyLineArray *MEDCouplingSkyLineArray::AggregatePacks(const std::vect
   {
     if(sk)
     {
-      mcIdType const curNbPacks(sk->getNumberOf());
+      mcIdType curNbPacks(sk->getNumberOf());
       if(sksEff.empty())
         nbOfPacks = curNbPacks;
       if(nbOfPacks != curNbPacks)
@@ -442,7 +432,7 @@ MEDCouplingSkyLineArray *MEDCouplingSkyLineArray::AggregatePacks(const std::vect
     std::for_each(indicesIn.begin(),indicesIn.end(),[packId,&nbOfAggPacks](const mcIdType *elt) { nbOfAggPacks+=elt[packId+1]-elt[packId]; });
     indexPtr[1] = indexPtr[0] + nbOfAggPacks;
   }
-  mcIdType const nbOfTuplesOut(index->back());
+  mcIdType nbOfTuplesOut(index->back());
   MCAuto<DataArrayIdType> values(DataArrayIdType::New()); values->alloc(nbOfTuplesOut,1);
   mcIdType *valuesPtr(values->getPointer());
   // let's go to populate values array
@@ -467,7 +457,7 @@ void MEDCouplingSkyLineArray::getSimplePackSafe(const mcIdType absolutePackId, s
   if(absolutePackId < 0 || absolutePackId >= _index->getNbOfElems())
     throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::getPackSafe: invalid index!");
   const mcIdType * iP(_index->begin()), *vP(_values->begin());
-  mcIdType const sz = iP[absolutePackId+1]-iP[absolutePackId];
+  mcIdType sz = iP[absolutePackId+1]-iP[absolutePackId];
   pack.resize(sz);
   std::copy(vP+iP[absolutePackId], vP+iP[absolutePackId+1],pack.begin());
 }
@@ -502,14 +492,14 @@ void MEDCouplingSkyLineArray::findPackIds(const std::vector<mcIdType> & superPac
 
   checkSuperIndex("findPackIds");
 
-  mcIdType const packSz = ToIdType(std::distance(packBg, packEnd));
+  mcIdType packSz = ToIdType(std::distance(packBg, packEnd));
   if (!packSz)
     throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::findPackIds: void pack!");
 
   out.resize(superPackIndices.size());
   mcIdType i = 0;
   const mcIdType * siP(_super_index->begin()), * iP(_index->begin()), *vP(_values->begin());
-  for(auto it=superPackIndices.begin(); it!=superPackIndices.end(); ++it, i++)
+  for(vector<mcIdType>::const_iterator it=superPackIndices.begin(); it!=superPackIndices.end(); ++it, i++)
     {
       out[i] = -1;
       const mcIdType sPackIdx = *it;
@@ -544,7 +534,7 @@ void MEDCouplingSkyLineArray::deletePack(const mcIdType superIdx, const mcIdType
   _values->reAlloc(_values->getNbOfElems() - (end-start));
 
   // _index
-  mcIdType const nt = _index->getNbOfElems();
+  mcIdType nt = _index->getNbOfElems();
   std::copy(iP+siP[superIdx]+idx+1, iP+nt, iP+siP[superIdx]+idx);
   _index->reAlloc(nt-1); iP = _index->getPointer();  // better not forget this ...
   for(mcIdType ii = siP[superIdx]+idx; ii < nt-1; ii++)
@@ -563,8 +553,8 @@ void MEDCouplingSkyLineArray::deleteSimplePack(const mcIdType idx)
   const mcIdType start(iP[idx]), end(iP[idx+1]);
 
   // _values
-  mcIdType const initValSz=_values->getNbOfElems();
-  mcIdType const deltaSz( start-end );  // should be negative
+  mcIdType initValSz=_values->getNbOfElems();
+  mcIdType deltaSz( start-end );  // should be negative
   mcIdType *vP(_values->getPointer());
   if (deltaSz < 0)
     {
@@ -574,7 +564,7 @@ void MEDCouplingSkyLineArray::deleteSimplePack(const mcIdType idx)
   else
     throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::deleteSimplePack");
   // _index
-  mcIdType const nt=_index->getNbOfElems();
+  mcIdType nt=_index->getNbOfElems();
   std::copy(iP+idx+1, iP+nt, iP+idx);
   for(mcIdType ii = idx; ii < nt-1; ii++)
     iP[ii] += deltaSz;
@@ -586,8 +576,8 @@ void MEDCouplingSkyLineArray::replaceSimplePacks(const DataArrayIdType* idx, con
   if (idx->empty())
     return;
     
-  for (long const id : *idx)
-    validIndex("deleteSimplePacks", id);
+  for (const mcIdType * id = idx->begin(); id != idx->end(); id++)
+    validIndex("deleteSimplePacks", *id);
     
   if (idx->getNbOfElems() != ToIdType( packs.size()))
     throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::deleteSimplePacks: size of list of pack is incorrect");
@@ -596,23 +586,23 @@ void MEDCouplingSkyLineArray::replaceSimplePacks(const DataArrayIdType* idx, con
   std::deque< std::set<mcIdType> > valuesByIdx;
   mcIdType* vP(_values->getPointer());
   mcIdType* iP(_index->getPointer());
-  mcIdType const nt = _index->getNbOfElems();
+  mcIdType nt = _index->getNbOfElems();
   for (mcIdType ii = 0; ii < nt-1; ii++)
     valuesByIdx.push_back(std::set<mcIdType>(vP+iP[ii], vP+iP[ii+1]));
     
   // modify the deque<set<mcIdType>> according to idx and packs
   mcIdType ii(0);
-  for (long const id : *idx)
+  for (const mcIdType *id = idx->begin(); id != idx->end(); id++)
     {
-      valuesByIdx[id] = std::set<mcIdType>(packs[ii]->begin(), packs[ii]->end());
+      valuesByIdx[*id] = std::set<mcIdType>(packs[ii]->begin(), packs[ii]->end());
       ii++;
     }
   // copy back the deque<set<mcIdType>> into _index, _values
   mcIdType valSz(0);
   *iP = 0;
-  for (const auto & values : valuesByIdx)
+  for (std::deque< std::set<mcIdType> >::const_iterator values=valuesByIdx.begin();values!=valuesByIdx.end();values++)
     {
-      valSz += ToIdType(values.size());
+      valSz += ToIdType((*values).size());
       *(++iP) = valSz;
     }
   _values->reAlloc(valSz);
@@ -627,45 +617,45 @@ void MEDCouplingSkyLineArray::replaceSimplePacks(const DataArrayIdType* idx, con
 
 void MEDCouplingSkyLineArray::deleteSimplePacks(const DataArrayIdType* idx)
 {    
-  for (long const id : *idx)
-    validIndex("deleteSimplePacks", id);
+  for (auto id = idx->begin(); id != idx->end(); id++)
+    validIndex("deleteSimplePacks", *id);
   
-  std::set<mcIdType> const packsToDelete(idx->begin(), idx->end());
+  std::set<mcIdType> packsToDelete(idx->begin(), idx->end());
     
   // _values
   mcIdType* iP(_index->getPointer());
-  mcIdType const initValSz = _values->getNbOfElems();
+  mcIdType initValSz = _values->getNbOfElems();
   mcIdType *vP(_values->getPointer());
   mcIdType end_prec(0),start_prec(0);
-  for(long const ii : packsToDelete)
+  for(std::set<mcIdType>::const_iterator ii=packsToDelete.begin();ii!=packsToDelete.end();ii++)
     {
-      mcIdType const start = iP[ii];
+      mcIdType start = iP[*ii];
       if (end_prec != 0)
         std::copy(vP+end_prec, vP+start, vP+start_prec);
       start_prec += start-end_prec;
-      end_prec = iP[ii+1];
+      end_prec = iP[*ii+1];
     }
   if (end_prec != 0)
     std::copy(vP+end_prec, vP+initValSz, vP+start_prec);
   _values->reAlloc(initValSz-(end_prec-start_prec));
     
   // _index
-  mcIdType const nt = _index->getNbOfElems();
+  mcIdType nt = _index->getNbOfElems();
   mcIdType offset = 0;
   end_prec = 0;
   start_prec = 0;
   mcIdType deleted = 0;
-  for(long const ii : packsToDelete)
+  for(std::set<mcIdType>::const_iterator ii=packsToDelete.begin();ii!=packsToDelete.end();ii++)
     {
       if (end_prec != 0)
         {
-          std::copy(iP+end_prec, iP+ii, iP+start_prec);
-          for (mcIdType i=start_prec; i<ii; i++)
+          std::copy(iP+end_prec, iP+*ii, iP+start_prec);
+          for (mcIdType i=start_prec; i<*ii; i++)
             iP[i] -= offset;
         }
-      offset += iP[ii+1] - iP[ii];
-      start_prec = ii-deleted;
-      end_prec = ii+1;
+      offset += iP[*ii+1] - iP[*ii];
+      start_prec = *ii-deleted;
+      end_prec = *ii+1;
       deleted += 1;
     }
   if (end_prec != 0)
@@ -699,7 +689,7 @@ void MEDCouplingSkyLineArray::pushBackPack(const mcIdType superIdx, const mcIdTy
   copy(packBg, packEnd, vP+iP[siP[superIdx+1]]);
 
   // _index
-  mcIdType const nt = ToIdType(_index->getNbOfElems());
+  mcIdType nt = ToIdType(_index->getNbOfElems());
   _index->reAlloc(nt+1); iP = _index->getPointer();
   copy(iP+siP[superIdx+1]+1, iP+nt, iP+siP[superIdx+1]+2);
   iP[siP[superIdx+1]+1] = iP[siP[superIdx+1]] + sz;
@@ -720,12 +710,12 @@ void MEDCouplingSkyLineArray::replaceSimplePack(const mcIdType idx, const mcIdTy
   validIndex("replaceSimplePack", idx);
 
   mcIdType * iP(_index->getPointer());
-  mcIdType const newSz = ToIdType(std::distance(packBg, packEnd));
+  mcIdType newSz = ToIdType(std::distance(packBg, packEnd));
   const mcIdType start = iP[idx], end = iP[idx+1];
 
   // _values
-  mcIdType const initValSz = _values->getNbOfElems();
-  mcIdType const deltaSz = newSz-(end-start);  // can be negative
+  mcIdType initValSz = _values->getNbOfElems();
+  mcIdType deltaSz = newSz-(end-start);  // can be negative
   if (deltaSz)
     {
       if (deltaSz > 0)
@@ -754,12 +744,12 @@ void MEDCouplingSkyLineArray::replacePack(const mcIdType superIdx, const mcIdTyp
   validSuperIndexAndIndex("replacePack", superIdx, idx);
 
   mcIdType * siP(_super_index->getPointer()), *iP(_index->getPointer());
-  mcIdType const newSz = ToIdType(std::distance(packBg, packEnd));
+  mcIdType newSz = ToIdType(std::distance(packBg, packEnd));
   const mcIdType start = iP[siP[superIdx]+idx], end = iP[siP[superIdx]+idx+1];
 
   // _values
-  mcIdType const initValSz = _values->getNbOfElems();
-  mcIdType const deltaSz = newSz-(end-start);  // can be negative
+  mcIdType initValSz = _values->getNbOfElems();
+  mcIdType deltaSz = newSz-(end-start);  // can be negative
   if (deltaSz)
     {
       if (deltaSz > 0)

@@ -20,14 +20,12 @@
 #ifndef __MEDPARTITIONER_PARALLELTOPOLOGY_HXX__
 #define __MEDPARTITIONER_PARALLELTOPOLOGY_HXX__
 
-#include "MCIdType.hxx"
 #include "MEDPARTITIONER.hxx"
 #include "MEDPARTITIONER_Topology.hxx"
 
 #include "InterpKernelHashMap.hxx"
 
 #include <set>
-#include <utility>
 #include <vector>
 
 namespace MEDPARTITIONER
@@ -49,118 +47,118 @@ namespace MEDPARTITIONER
                      std::vector<mcIdType*>&,
                      std::vector<mcIdType*>&);
     ParallelTopology(Graph* graph, Topology* oldTopology, int nbdomain, int mesh_dimension);
-    ~ParallelTopology() override;
+    ~ParallelTopology();
     
     void setGlobalNumerotationDefault(ParaDomainSelector* domainSelector);
 
     /*! converts a list of global cell numbers
      * to a distributed array with local cell numbers
      */
-    void convertGlobalNodeList(const mcIdType*, mcIdType,mcIdType*,int*) override;
-    void convertGlobalNodeList(const mcIdType*, mcIdType,mcIdType*,int) override;
-    void convertGlobalNodeListWithTwins(const mcIdType* face_list, mcIdType nbnode, mcIdType*& local, int*& ip, mcIdType*& full_array, mcIdType& size) override;
+    void convertGlobalNodeList(const mcIdType*, mcIdType,mcIdType*,int*);
+    void convertGlobalNodeList(const mcIdType*, mcIdType,mcIdType*,int);
+    void convertGlobalNodeListWithTwins(const mcIdType* face_list, mcIdType nbnode, mcIdType*& local, int*& ip, mcIdType*& full_array, mcIdType& size);
 
     /*! converts a list of global node numbers
      * to a distributed array with local cell numbers
      */
-    void convertGlobalCellList(const mcIdType*, mcIdType , mcIdType*, int *) override;
+    void convertGlobalCellList(const mcIdType*, mcIdType , mcIdType*, int *);
 
     /*! converts a list of global face numbers
      *  to a distributed array with local face numbers
      */
-    void convertGlobalFaceList(const mcIdType*, mcIdType , mcIdType*, int *) override;  
-    void convertGlobalFaceList(const mcIdType*, mcIdType , mcIdType*, int) override;  
-    void convertGlobalFaceListWithTwins(const mcIdType* face_list, mcIdType nbface, mcIdType*& local, int*& ip, mcIdType*& full_array,mcIdType& size) override;
+    void convertGlobalFaceList(const mcIdType*, mcIdType , mcIdType*, int *);  
+    void convertGlobalFaceList(const mcIdType*, mcIdType , mcIdType*, int);  
+    void convertGlobalFaceListWithTwins(const mcIdType* face_list, mcIdType nbface, mcIdType*& local, int*& ip, mcIdType*& full_array,mcIdType& size);
 
     /*! converting node global numberings to local numberings */
-    void convertToLocal2ndVersion(mcIdType* nodes, mcIdType nbnodes, int idomain) override;
+    void convertToLocal2ndVersion(mcIdType* nodes, mcIdType nbnodes, int idomain);
 
     /*! converting node local numbering to global */
-    mcIdType convertNodeToGlobal(int ip, mcIdType icell) const override { return _node_loc_to_glob[ip][icell]; }
+    mcIdType convertNodeToGlobal(int ip, mcIdType icell) const { return _node_loc_to_glob[ip][icell]; }
 
     /*! converting face local numbering to global */
-    mcIdType convertFaceToGlobal(int ip, mcIdType iface) const override { return _face_loc_to_glob[ip][iface]; }
+    mcIdType convertFaceToGlobal(int ip, mcIdType iface) const { return _face_loc_to_glob[ip][iface]; }
 
     /*! converting cell global numbering to local */
-    mcIdType convertCellToGlobal(int ip, mcIdType icell) const override { return _loc_to_glob[ip][icell]; }
+    mcIdType convertCellToGlobal(int ip, mcIdType icell) const { return _loc_to_glob[ip][icell]; }
 
-    void convertNodeToGlobal(int ip, const mcIdType* local, mcIdType n, mcIdType *global) const override
+    void convertNodeToGlobal(int ip, const mcIdType* local, mcIdType n, mcIdType *global) const
     {
       for (mcIdType i=0; i<n; i++)
         global[i]=_node_loc_to_glob[ip][local[i]];
     }
 
-    void convertCellToGlobal(int ip, const mcIdType* local, mcIdType n, mcIdType *global) const override
+    void convertCellToGlobal(int ip, const mcIdType* local, mcIdType n, mcIdType *global) const
     {
       for (mcIdType i=0; i<n; i++)
         global[i]=_loc_to_glob[ip][local[i]];  
     }
 
-    void convertFaceToGlobal(int ip, const mcIdType* local, mcIdType n, mcIdType *global) const override
+    void convertFaceToGlobal(int ip, const mcIdType* local, mcIdType n, mcIdType *global) const
     {
       for (mcIdType i=0; i<n; i++) 
         global[i]=_face_loc_to_glob[ip][local[i]];
     }
 
-    int nbDomain() const override { return _nb_domain; }
+    int nbDomain() const { return _nb_domain; }
 
-    mcIdType nbCells() const override { return _nb_total_cells; }
+    mcIdType nbCells() const { return _nb_total_cells; }
     
-    mcIdType nbNodes() const override { return _nb_total_nodes; }
+    mcIdType nbNodes() const { return _nb_total_nodes; }
 
-    mcIdType nbCells( int idomain) const override { return _nb_cells[idomain]; }
+    mcIdType nbCells( int idomain) const { return _nb_cells[idomain]; }
 
     /*! retrieving number of nodes */
-    mcIdType getNodeNumber(int idomain) const override { return _nb_nodes[idomain]; }
+    mcIdType getNodeNumber(int idomain) const { return _nb_nodes[idomain]; }
 
-    mcIdType getNodeNumber() const override;
+    mcIdType getNodeNumber() const;
 
-    void getNodeList(int idomain, mcIdType* list) const override;
+    void getNodeList(int idomain, mcIdType* list) const;
 
     /*! retrieving cell numbers after merging in parallel mode */
-    std::vector<mcIdType> & getFusedCellNumbers(int idomain) override { return _cell_loc_to_glob_fuse[idomain]; }
+    std::vector<mcIdType> & getFusedCellNumbers(int idomain) { return _cell_loc_to_glob_fuse[idomain]; }
     
-    const std::vector<mcIdType>& getFusedCellNumbers(int idomain) const override { return _cell_loc_to_glob_fuse[idomain]; }
+    const std::vector<mcIdType>& getFusedCellNumbers(int idomain) const { return _cell_loc_to_glob_fuse[idomain]; }
 
     /*! retrieving face numbers after merging in parallel mode */
-    std::vector<mcIdType> & getFusedFaceNumbers(int idomain) override { return _face_loc_to_glob_fuse[idomain]; }
+    std::vector<mcIdType> & getFusedFaceNumbers(int idomain) { return _face_loc_to_glob_fuse[idomain]; }
 
-    const std::vector<mcIdType>& getFusedFaceNumbers(int idomain) const override { return _face_loc_to_glob_fuse[idomain]; }
+    const std::vector<mcIdType>& getFusedFaceNumbers(int idomain) const { return _face_loc_to_glob_fuse[idomain]; }
 
     /*! retrieving number of nodes */
-    mcIdType getCellNumber(int idomain) const override { return _nb_cells[idomain]; }
+    mcIdType getCellNumber(int idomain) const { return _nb_cells[idomain]; }
 
     mcIdType getCellDomainNumber(int global) const { return (_glob_to_loc.find(global)->second).first; }
 
-    void getCellList(int idomain, mcIdType* list) const override;
+    void getCellList(int idomain, mcIdType* list) const;
 
-    mcIdType getFaceNumber(int idomain) const override { return _nb_faces[idomain]; }
+    mcIdType getFaceNumber(int idomain) const { return _nb_faces[idomain]; }
 
-    mcIdType getFaceNumber() const override;
+    mcIdType getFaceNumber() const;
 
-    void getFaceList(int idomain, mcIdType* list) const override;
+    void getFaceList(int idomain, mcIdType* list) const;
 
     /*! converting a global cell number to a local representation (domain + local number) */
-    std::pair<int,mcIdType> convertGlobalCell(mcIdType iglobal) const override { return _glob_to_loc.find(iglobal)->second; }
+    std::pair<int,mcIdType> convertGlobalCell(mcIdType iglobal) const { return _glob_to_loc.find(iglobal)->second; }
 
-    mcIdType convertGlobalFace(mcIdType iglobal, int idomain) override;
+    mcIdType convertGlobalFace(mcIdType iglobal, int idomain);
 
-    mcIdType convertGlobalNode(mcIdType iglobal, int idomain) override;
+    mcIdType convertGlobalNode(mcIdType iglobal, int idomain);
     
-    std::vector<MEDPARTITIONER::ConnectZone*>& getCZ() override;
+    std::vector<MEDPARTITIONER::ConnectZone*>& getCZ();
 
     //adding a face to the topology
-    void appendFace(int idomain, mcIdType ilocal, mcIdType iglobal) override;
+    void appendFace(int idomain, mcIdType ilocal, mcIdType iglobal);
 
     //return max global face number
-    mcIdType getMaxGlobalFace() const override;
+    mcIdType getMaxGlobalFace() const;
 
   private:
     bool hasCellWithNodes( const MeshCollection&, int dom, const std::set<mcIdType>& nodes );
 
   private:
     //mapping global -> local
-    using TGlob2DomainLoc = INTERP_KERNEL::HashMultiMap<mcIdType, std::pair<int, mcIdType>>;
+    typedef INTERP_KERNEL::HashMultiMap<mcIdType,std::pair<int,mcIdType> > TGlob2DomainLoc;
 
     TGlob2DomainLoc _glob_to_loc;
     TGlob2DomainLoc _node_glob_to_loc;
@@ -174,7 +172,7 @@ namespace MEDPARTITIONER
     std::vector<std::vector <mcIdType> > _face_loc_to_glob_fuse; // glob nums after merging
 
     //mapping global -> local
-    using TGlob2LocsMap = INTERP_KERNEL::HashMultiMap<mcIdType, std::pair<int, mcIdType>>;
+    typedef INTERP_KERNEL::HashMultiMap<mcIdType,std::pair<int,mcIdType> > TGlob2LocsMap;
     TGlob2LocsMap _face_glob_to_loc;
 
     //mapping local -> global

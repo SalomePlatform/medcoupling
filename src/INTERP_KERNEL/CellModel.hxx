@@ -23,7 +23,7 @@
 
 #include "INTERPKERNELDefines.hxx"
 
-#include "NormalizedGeometricTypes"
+#include "NormalizedUnstructuredMesh.hxx"
 #include "MCIdType.hxx"
 
 #include <map>

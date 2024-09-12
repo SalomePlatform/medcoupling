@@ -19,19 +19,14 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "OverlapMapping.hxx"
-#include "MCType.hxx"
-#include "MEDCouplingMemArray.hxx"
-#include "MCIdType.hxx"
 #include "MPIProcessorGroup.hxx"
 
 #include "MEDCouplingFieldDouble.hxx"
 #include "MCAuto.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
-#include "OverlapElementLocator.hxx"
-#include "ParaIdType.hxx"
 
-#include <cstddef>
+#include <numeric>
 #include <algorithm>
 
 using namespace MEDCoupling;
@@ -69,7 +64,7 @@ void OverlapMapping::keepTracksOfTargetIds(int procId, DataArrayIdType *ids)
  *
  * One of the 2 is necessarily null (the two can be null together)
  */
-void OverlapMapping::addContributionST(const std::vector< SparseDoubleVec >& matrixST, const DataArrayIdType *srcIds, int srcProcId, const DataArrayIdType * /*trgIds*/, int trgProcId)
+void OverlapMapping::addContributionST(const std::vector< SparseDoubleVec >& matrixST, const DataArrayIdType *srcIds, int srcProcId, const DataArrayIdType *trgIds, int trgProcId)
 {
   _matrixes_st.push_back(matrixST);
   _source_proc_id_st.push_back(srcProcId);
@@ -102,15 +97,15 @@ void OverlapMapping::prepare(const std::vector< int >& procsToSendField, mcIdTyp
   printMatrixesST();
 #endif
 
-  CommInterface const commInterface=_group.getCommInterface();
-  const auto *group=static_cast<const MPIProcessorGroup*>(&_group);
+  CommInterface commInterface=_group.getCommInterface();
+  const MPIProcessorGroup *group=static_cast<const MPIProcessorGroup*>(&_group);
   const MPI_Comm *comm=group->getComm();
   std::size_t grpSize=_group.size();
   INTERP_KERNEL::AutoPtr<mcIdType> nbsend=new mcIdType[grpSize];
   INTERP_KERNEL::AutoPtr<int> nbsend2=new int[grpSize];
   INTERP_KERNEL::AutoPtr<int> nbsend3=new int[grpSize];
   std::fill<mcIdType *>(nbsend,nbsend+grpSize,0);
-  int const myProcId=_group.myRank();
+  int myProcId=_group.myRank();
   for(std::size_t i=0;i<_matrixes_st.size();i++)
     if(_source_proc_id_st[i]==myProcId)
       nbsend[_target_proc_id_st[i]]=(int)_matrixes_st[i].size();
@@ -121,7 +116,7 @@ void OverlapMapping::prepare(const std::vector< int >& procsToSendField, mcIdTyp
   INTERP_KERNEL::AutoPtr<int> nbrecv1=new int[grpSize];
   INTERP_KERNEL::AutoPtr<int> nbrecv2=new int[grpSize];
   //
-  mcIdType *tmp=nullptr;
+  mcIdType *tmp=0;
   serializeMatrixStep0ST(nbrecv,
                          tmp,nbsend2,nbsend3,
                          nbrecv1,nbrecv2);
@@ -134,7 +129,7 @@ void OverlapMapping::prepare(const std::vector< int >& procsToSendField, mcIdTyp
   std::fill<int *>(nbsend2,nbsend2+grpSize,0);
   INTERP_KERNEL::AutoPtr<int> nbrecv3=new int[grpSize];
   INTERP_KERNEL::AutoPtr<int> nbrecv4=new int[grpSize];
-  double *tmp2=nullptr;
+  double *tmp2=0;
   mcIdType lgthOfArr=serializeMatrixStep1ST(nbrecv,bigArrRecv,nbrecv1,nbrecv2,
                                        tmp,tmp2,
                                        nbsend2,nbsend3,nbrecv3,nbrecv4);
@@ -245,7 +240,7 @@ void OverlapMapping::computeDenoRevIntegral(const DataArrayDouble & targetAreas)
  */
 void OverlapMapping::computeDenoConservativeVolumic(mcIdType nbOfTuplesTrg)
 {
-  int const myProcId=_group.myRank();
+  int myProcId=_group.myRank();
   //
   _the_deno_st.clear();
   std::size_t sz1=_the_matrix_st.size();
@@ -310,10 +305,10 @@ void OverlapMapping::computeDenoConservativeVolumic(mcIdType nbOfTuplesTrg)
 void OverlapMapping::serializeMatrixStep0ST(const mcIdType *nbOfElemsSrc, mcIdType *&bigArr, int *count, int *offsets,
                                             int *countForRecv, int *offsetsForRecv) const
 {
-  std::size_t const grpSize=_group.size();
+  std::size_t grpSize=_group.size();
   std::fill<int *>(count,count+grpSize,0);
   std::size_t szz=0;
-  int const myProcId=_group.myRank();
+  int myProcId=_group.myRank();
   for(std::size_t i=0;i<_matrixes_st.size();i++)
     {
       if(_source_proc_id_st[i]==myProcId && _matrixes_st[i].size())// && _target_proc_id_st[i]!=myProcId
@@ -355,12 +350,12 @@ void OverlapMapping::serializeMatrixStep0ST(const mcIdType *nbOfElemsSrc, mcIdTy
  * This method performs step#1 and step#2/3. It returns the size of expected array to get allToAllV.
  * It is where the locally computed matrices are serialized to be sent to adequate final proc.
  */
-mcIdType OverlapMapping::serializeMatrixStep1ST(const mcIdType *nbOfElemsSrc, const mcIdType *recvStep0, const int * /*countStep0*/, const int *offsStep0,
+mcIdType OverlapMapping::serializeMatrixStep1ST(const mcIdType *nbOfElemsSrc, const mcIdType *recvStep0, const int *countStep0, const int *offsStep0,
                                            mcIdType *&bigArrI, double *&bigArrD, int *count, int *offsets,
                                            int *countForRecv, int *offsForRecv) const
 {
-  std::size_t const grpSize=_group.size();
-  int const myProcId=_group.myRank();
+  std::size_t grpSize=_group.size();
+  int myProcId=_group.myRank();
   offsForRecv[0]=0;
   mcIdType szz=0;
   for(std::size_t i=0;i<grpSize;i++)
@@ -423,15 +418,15 @@ mcIdType OverlapMapping::serializeMatrixStep1ST(const mcIdType *nbOfElemsSrc, co
  *      - The second is the pseudo id of source proc (correspondence with true id is in attribute _the_matrix_st_source_proc_id and _the_matrix_st_source_ids)
  *      - the third is the srcId in the pseudo source proc
  */
-void OverlapMapping::unserializationST(mcIdType  /*nbOfTrgElems*/,
+void OverlapMapping::unserializationST(mcIdType nbOfTrgElems,
                                        const mcIdType *nbOfElemsSrcPerProc,//first all2all
-                                       const mcIdType *bigArrRecv, const int * /*bigArrRecvCounts*/, const int *bigArrRecvOffs,//2nd all2all
-                                       const mcIdType *bigArrRecv2, const double *bigArrDRecv2, const int * /*bigArrRecv2Count*/, const int *bigArrRecv2Offs)//3rd and 4th all2alls
+                                       const mcIdType *bigArrRecv, const int *bigArrRecvCounts, const int *bigArrRecvOffs,//2nd all2all
+                                       const mcIdType *bigArrRecv2, const double *bigArrDRecv2, const int *bigArrRecv2Count, const int *bigArrRecv2Offs)//3rd and 4th all2alls
 {
   _the_matrix_st.clear();
   _the_matrix_st_source_proc_id.clear();
   //
-  std::size_t const grpSize=_group.size();
+  std::size_t grpSize=_group.size();
   for(unsigned int i=0;i<grpSize;i++)
     if(nbOfElemsSrcPerProc[i]!=0)
       _the_matrix_st_source_proc_id.push_back(i);
@@ -445,8 +440,8 @@ void OverlapMapping::unserializationST(mcIdType  /*nbOfTrgElems*/,
         _the_matrix_st[j].resize(nbOfElemsSrcPerProc[i]);
         for(mcIdType k=0;k<nbOfElemsSrcPerProc[i];k++)
           {
-            mcIdType const offs=bigArrRecv[bigArrRecvOffs[i]+k];
-            mcIdType const lgthOfMap=bigArrRecv[bigArrRecvOffs[i]+k+1]-offs;
+            mcIdType offs=bigArrRecv[bigArrRecvOffs[i]+k];
+            mcIdType lgthOfMap=bigArrRecv[bigArrRecvOffs[i]+k+1]-offs;
             for(mcIdType l=0;l<lgthOfMap;l++)
               _the_matrix_st[j][k][bigArrRecv2[bigArrRecv2Offs[i]+offs+l]]=bigArrDRecv2[bigArrRecv2Offs[i]+offs+l];
           }
@@ -462,7 +457,7 @@ void OverlapMapping::unserializationST(mcIdType  /*nbOfTrgElems*/,
  */
 void OverlapMapping::finishToFillFinalMatrixST()
 {
-  int const myProcId=_group.myRank();
+  int myProcId=_group.myRank();
   std::size_t sz=_matrixes_st.size();
   int nbOfEntryToAdd=0;
   for(std::size_t i=0;i<sz;i++)
@@ -471,7 +466,7 @@ void OverlapMapping::finishToFillFinalMatrixST()
   if(nbOfEntryToAdd==0)
     return ;
   std::size_t oldNbOfEntry=_the_matrix_st.size();
-  std::size_t const newNbOfEntry=oldNbOfEntry+nbOfEntryToAdd;
+  std::size_t newNbOfEntry=oldNbOfEntry+nbOfEntryToAdd;
   _the_matrix_st.resize(newNbOfEntry);
   std::size_t j=oldNbOfEntry;
   for(std::size_t i=0;i<sz;i++)
@@ -494,11 +489,11 @@ void OverlapMapping::multiply(const MEDCouplingFieldDouble *fieldInput, MEDCoupl
   using namespace std;
 
   std::size_t nbOfCompo=fieldInput->getNumberOfComponents();//to improve same number of components to test
-  CommInterface const commInterface=_group.getCommInterface();
-  const auto *group=static_cast<const MPIProcessorGroup*>(&_group);
+  CommInterface commInterface=_group.getCommInterface();
+  const MPIProcessorGroup *group=static_cast<const MPIProcessorGroup*>(&_group);
   const MPI_Comm *comm=group->getComm();
   int grpSize=_group.size();
-  int const myProcID=_group.myRank();
+  int myProcID=_group.myRank();
   //
   INTERP_KERNEL::AutoPtr<int> nbsend=new int[grpSize];
   INTERP_KERNEL::AutoPtr<int> nbsend2=new int[grpSize];
@@ -624,7 +619,7 @@ void OverlapMapping::multiply(const MEDCouplingFieldDouble *fieldInput, MEDCoupl
   INTERP_KERNEL::AutoPtr<double> tmp=new double[nbOfCompo];
 
   // By default field value set to default value - so mark which cells are hit
-  mcIdType const ntup = fieldOutput->getNumberOfTuples();
+  mcIdType ntup = fieldOutput->getNumberOfTuples();
   INTERP_KERNEL::AutoPtr<bool> hit_cells = new bool[ntup];
   std::fill((bool *)hit_cells, (bool *)hit_cells+ntup, false);
 
@@ -783,8 +778,8 @@ void OverlapMapping::fillSourceIdsZipReceivedForMultiply()
   /* When it is called, only the bits received from other processors (i.e. the remotely executed jobs) are in the
     big matrix _the_matrix_st. */
 
-  CommInterface const commInterface=_group.getCommInterface();
-  int const myProcId=_group.myRank();
+  CommInterface commInterface=_group.getCommInterface();
+  int myProcId=_group.myRank();
   std::size_t nbOfMatrixRecveived=_the_matrix_st_source_proc_id.size();
   for(std::size_t i=0;i<nbOfMatrixRecveived;i++)
     {

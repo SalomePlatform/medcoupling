@@ -19,12 +19,9 @@
 
 #include "MPIAccess/MPIAccess.hxx"
 
-#include "MPIProcessorGroup.hxx"
+#include "InterpolationUtils.hxx"
 
-#include <cstddef>
-#include <cstdlib>
 #include <iostream>
-#include <limits>
 
 using namespace std;
 
@@ -198,7 +195,7 @@ namespace MEDCoupling
   int MPIAccess::newRequest( MPI_Datatype datatype, int tag , int destsourcerank ,
                              bool fromsourcerank , bool asynchronous )
   {
-    auto *mpiaccessstruct = new RequestStruct;
+    RequestStruct *mpiaccessstruct = new RequestStruct;
     mpiaccessstruct->MPITag = tag ;
     mpiaccessstruct->MPIDatatype = datatype ;
     mpiaccessstruct->MPITarget = destsourcerank ;
@@ -300,7 +297,7 @@ namespace MEDCoupling
 
   // Returns in ArrayOfSendRequests with the dimension "size" all the
   // SendRequestIds
-  int MPIAccess::sendRequestIds(int  /*size*/, int *ArrayOfSendRequests)
+  int MPIAccess::sendRequestIds(int size, int *ArrayOfSendRequests)
   {
     int destrank ;
     int i = 0 ;
@@ -325,7 +322,7 @@ namespace MEDCoupling
 
   // Returns in ArrayOfRecvRequests with the dimension "size" all the
   // RecvRequestIds
-  int MPIAccess::recvRequestIds(int  /*size*/, int *ArrayOfRecvRequests)
+  int MPIAccess::recvRequestIds(int size, int *ArrayOfRecvRequests)
   {
     int sourcerank ;
     int i = 0 ;
@@ -378,7 +375,7 @@ namespace MEDCoupling
         int MPItag = newSendTag( datatype, target , aMethodIdent , false , RequestId ) ;
         if ( aMethodIdent == _message_time )
           {
-            auto *aTimeMsg = (TimeMessage *) buffer ;
+            TimeMessage *aTimeMsg = (TimeMessage *) buffer ;
             aTimeMsg->tag = MPItag ;
           }
         deleteRequest( RequestId ) ;
@@ -400,7 +397,7 @@ namespace MEDCoupling
   {
     int sts = MPI_SUCCESS ;
     RequestId = -1 ;
-    if ( OutCount != nullptr )
+    if ( OutCount != NULL )
       *OutCount = -1 ;
     if ( count )
       {
@@ -417,7 +414,7 @@ namespace MEDCoupling
             setMPICompleted( RequestId , true ) ;
             deleteStatus( RequestId ) ;
           }
-        if ( OutCount != nullptr )
+        if ( OutCount != NULL )
           *OutCount = outcount ;
         if ( _trace )
           cout << "MPIAccess::Recv" << _my_rank << " RecvRequestId "
@@ -440,7 +437,7 @@ namespace MEDCoupling
         int MPItag = newSendTag( datatype, target , aMethodIdent , true , RequestId ) ;
         if ( aMethodIdent == _message_time )
           {
-            auto *aTimeMsg = (TimeMessage *) buffer ;
+            TimeMessage *aTimeMsg = (TimeMessage *) buffer ;
             aTimeMsg->tag = MPItag ;
           }
         MPI_Request *aSendRequest = MPIRequest( RequestId ) ;
@@ -518,7 +515,7 @@ namespace MEDCoupling
                    << RecvRequestId << " outcount " << outcount << endl ;
           }
       }
-    if ( OutCount != nullptr )
+    if ( OutCount != NULL )
       {
         *OutCount = outcount ;
         if ( _trace )
@@ -691,7 +688,7 @@ namespace MEDCoupling
     return status ;
   }
 
-  int MPIAccess::waitAny(int  /*count*/, int * /*array_of_RequestIds*/, int &RequestId)
+  int MPIAccess::waitAny(int count, int *array_of_RequestIds, int &RequestId)
   {
     int status = MPI_ERR_OTHER ;
     RequestId = -1 ;
@@ -699,7 +696,7 @@ namespace MEDCoupling
     return status ;
   }
 
-  int MPIAccess::testAny(int  /*count*/, int * /*array_of_RequestIds*/, int &RequestId, int &flag)
+  int MPIAccess::testAny(int count, int *array_of_RequestIds, int &RequestId, int &flag)
   {
     int status = MPI_ERR_OTHER ;
     RequestId = -1 ;
@@ -762,16 +759,16 @@ namespace MEDCoupling
     return retstatus ;
   }
 
-  int MPIAccess::waitSome(int  /*count*/, int * /*array_of_RequestIds*/, int  /*outcount*/,
-                          int * /*outarray_of_RequestIds*/)
+  int MPIAccess::waitSome(int count, int *array_of_RequestIds, int outcount,
+                          int *outarray_of_RequestIds)
   {
     int status = MPI_ERR_OTHER ;
     cout << "MPIAccess::WaitSome not yet implemented" << endl ;
     return status ;
   }
 
-  int MPIAccess::testSome(int  /*count*/, int * /*array_of_RequestIds*/, int  /*outcounts*/,
-                          int * /*outarray_of_RequestIds*/)
+  int MPIAccess::testSome(int count, int *array_of_RequestIds, int outcounts,
+                          int *outarray_of_RequestIds)
   {
     int status = MPI_ERR_OTHER ;
     cout << "MPIAccess::TestSome not yet implemented" << endl ;

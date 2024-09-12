@@ -21,18 +21,18 @@
 #ifndef __INTERPOLATION1D0D_TXX__
 #define __INTERPOLATION1D0D_TXX__
 
-#include "InterpKernelException.hxx"
 #include "Interpolation1D0D.hxx"
-#include "MeshElement.hxx"
+#include "Interpolation.txx"
+#include "MeshElement.txx"
+#include "PointLocator3DIntersectorP0P0.txx"
+#include "PointLocator3DIntersectorP0P1.txx"
+#include "PointLocator3DIntersectorP1P0.txx"
+#include "PointLocator3DIntersectorP1P1.txx"
 #include "Log.hxx"
 
 #include "BBTree.txx"
 
 #include "InterpKernelAssert.hxx"
-#include <string>
-#include <vector>
-#include <map>
-#include <sstream>
 
 namespace INTERP_KERNEL
 {
@@ -44,7 +44,7 @@ namespace INTERP_KERNEL
   typename MyMeshType::MyConnType Interpolation1D0D::interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const std::string& method)
   {
     constexpr int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    typedef typename MyMeshType::MyConnType ConnType;
+    using ConnType=typename MyMeshType::MyConnType;
     IKAssert(SPACEDIM==3);
 
     if(InterpolationOptions::getIntersectionType() != PointLocator)

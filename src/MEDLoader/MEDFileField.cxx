@@ -19,18 +19,10 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDFileField.hxx"
-#include "MEDFileEntities.hxx"
-#include "MEDCouplingRefCountObject.hxx"
-#include "MCAuto.hxx"
-#include "MCType.hxx"
-#include "MCIdType.hxx"
-#include "MEDCouplingUMesh.hxx"
-#include "MEDCoupling1GTUMesh.hxx"
-#include "MEDFileFieldInternal.hxx"
-#include "InterpKernelException.hxx"
 #include "MEDFileMesh.hxx"
-#include "MEDFileUtilities.hxx"
+#include "MEDLoaderBase.hxx"
 #include "MEDLoaderTraits.hxx"
+#include "MEDFileSafeCaller.txx"
 #include "MEDFileFieldOverView.hxx"
 #include "MEDFileBlowStrEltUp.hxx"
 #include "MEDFileFieldVisitor.hxx"
@@ -38,20 +30,10 @@
 #include "MEDCouplingFieldDiscretization.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
-#include "NormalizedGeometricTypes"
-#include "med.h"
-#include "medfield.h"
+#include "CellModel.hxx"
 
 #include <algorithm>
-#include <cstddef>
 #include <iterator>
-#include <string>
-#include <vector>
-#include <utility>
-#include <set>
-#include <sstream>
-#include <ostream>
-#include <map>
 
 // From MEDLoader.cxx TU:
 extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
@@ -69,24 +51,24 @@ MEDFileFields *MEDFileFields::New()
 
 MEDFileFields *MEDFileFields::New(const std::string& fileName, bool loadAll)
 {
-  MEDFileUtilities::AutoFid const fid(OpenMEDFileForRead(fileName));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
   return New(fid,loadAll);
 }
 
 MEDFileFields *MEDFileFields::NewAdv(const std::string& fileName, bool loadAll, const MEDFileEntities *entities)
 {
-  MEDFileUtilities::AutoFid const fid(OpenMEDFileForRead(fileName));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
   return NewAdv(fid,loadAll,entities);
 }
 
 MEDFileFields *MEDFileFields::NewAdv(med_idt fid, bool loadAll, const MEDFileEntities *entities)
 {
-  return new MEDFileFields(fid,loadAll,nullptr,entities);
+  return new MEDFileFields(fid,loadAll,0,entities);
 }
 
 MEDFileFields *MEDFileFields::NewWithDynGT(const std::string& fileName, const MEDFileStructureElements *se, bool loadAll)
 {
-  MEDFileUtilities::AutoFid const fid(OpenMEDFileForRead(fileName));
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
   return NewWithDynGT(fid,se,loadAll);
 }
 
@@ -95,26 +77,26 @@ MEDFileFields *MEDFileFields::NewWithDynGT(med_idt fid, const MEDFileStructureEl
   if(!se)
     throw INTERP_KERNEL::Exception("MEDFileFields::NewWithDynGT : null struct element pointer !");
   INTERP_KERNEL::AutoCppPtr<MEDFileEntities> entities(MEDFileEntities::BuildFrom(*se));
-  return new MEDFileFields(fid,loadAll,nullptr,entities);
+  return new MEDFileFields(fid,loadAll,0,entities);
 }
 
 MEDFileFields *MEDFileFields::New(med_idt fid, bool loadAll)
 {
-  return new MEDFileFields(fid,loadAll,nullptr,nullptr);
+  return new MEDFileFields(fid,loadAll,0,0);
 }
 
 MEDFileFields *MEDFileFields::LoadPartOf(const std::string& fileName, bool loadAll, const MEDFileMeshes *ms)
 {
-  MEDFileUtilities::AutoFid const fid(OpenMEDFileForRead(fileName));
-  return new MEDFileFields(fid,loadAll,ms,nullptr);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return new MEDFileFields(fid,loadAll,ms,0);
 }
 
 MEDFileFields *MEDFileFields::LoadSpecificEntities(const std::string& fileName, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& entities, bool loadAll)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
   INTERP_KERNEL::AutoCppPtr<MEDFileEntities> ent(new MEDFileStaticEntities(entities));
-  MEDFileUtilities::AutoFid const fid(OpenMEDFileForRead(fileName));
-  return new MEDFileFields(fid,loadAll,nullptr,ent);
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
+  return new MEDFileFields(fid,loadAll,0,ent);
 }
 
 std::size_t MEDFileFields::getHeapMemorySizeWithoutChildren() const
@@ -127,8 +109,8 @@ std::size_t MEDFileFields::getHeapMemorySizeWithoutChildren() const
 std::vector<const BigMemoryObject *> MEDFileFields::getDirectChildrenWithNull() const
 {
   std::vector<const BigMemoryObject *> ret;
-  for(const auto & _field : _fields)
-    ret.push_back((const MEDFileAnyTypeFieldMultiTSWithoutSDA *)_field);
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
+    ret.push_back((const MEDFileAnyTypeFieldMultiTSWithoutSDA *)*it);
   return ret;
 }
 
@@ -136,7 +118,7 @@ MEDFileFields *MEDFileFields::deepCopy() const
 {
   MCAuto<MEDFileFields> ret(shallowCpy());
   std::size_t i(0);
-  for(auto it=_fields.begin();it!=_fields.end();it++,i++)
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++,i++)
     {
       if((const MEDFileAnyTypeFieldMultiTSWithoutSDA*)*it)
         ret->_fields[i]=(*it)->deepCopy();
@@ -165,11 +147,11 @@ std::vector< std::pair<int,int> > MEDFileFields::getCommonIterations(bool& areTh
   std::set< std::pair<int,int> > s;
   bool firstShot=true;
   areThereSomeForgottenTS=false;
-  for(const auto & _field : _fields)
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
     {
-      if(!(const MEDFileAnyTypeFieldMultiTSWithoutSDA*)_field)
+      if(!(const MEDFileAnyTypeFieldMultiTSWithoutSDA*)*it)
         continue;
-      std::vector< std::pair<int,int> > v=_field->getIterations();
+      std::vector< std::pair<int,int> > v=(*it)->getIterations();
       std::set< std::pair<int,int> > s1; std::copy(v.begin(),v.end(),std::inserter(s1,s1.end()));
       if(firstShot)
         { s=s1; firstShot=false; }
@@ -195,7 +177,7 @@ std::vector<std::string> MEDFileFields::getFieldsNames() const
 {
   std::vector<std::string> ret(_fields.size());
   int i(0);
-  for(auto it=_fields.begin();it!=_fields.end();it++,i++)
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++,i++)
     {
       const MEDFileAnyTypeFieldMultiTSWithoutSDA *f=(*it);
       if(f)
@@ -214,9 +196,9 @@ std::vector<std::string> MEDFileFields::getFieldsNames() const
 std::vector<std::string> MEDFileFields::getMeshesNames() const
 {
   std::vector<std::string> ret;
-  for(const auto & _field : _fields)
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
     {
-      const MEDFileAnyTypeFieldMultiTSWithoutSDA *cur(_field);
+      const MEDFileAnyTypeFieldMultiTSWithoutSDA *cur(*it);
       if(cur)
         ret.push_back(cur->getMeshName());
     }
@@ -233,11 +215,11 @@ std::string MEDFileFields::simpleRepr() const
 
 void MEDFileFields::simpleRepr(int bkOffset, std::ostream& oss) const
 {
-  int const nbOfFields(getNumberOfFields());
-  std::string const startLine(bkOffset,' ');
+  int nbOfFields(getNumberOfFields());
+  std::string startLine(bkOffset,' ');
   oss << startLine << "There are " << nbOfFields << " fields in this :" << std::endl;
   int i=0;
-  for(auto it=_fields.begin();it!=_fields.end();it++,i++)
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++,i++)
     {
       const MEDFileAnyTypeFieldMultiTSWithoutSDA *cur=(*it);
       if(cur)
@@ -250,10 +232,10 @@ void MEDFileFields::simpleRepr(int bkOffset, std::ostream& oss) const
         }
     }
   i=0;
-  for(auto it=_fields.begin();it!=_fields.end();it++,i++)
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++,i++)
     {
       const MEDFileAnyTypeFieldMultiTSWithoutSDA *cur=(*it);
-      std::string const chapter(17,(char)('0'+i));
+      std::string chapter(17,(char)('0'+i));
       oss << startLine << chapter << std::endl;
       if(cur)
         {
@@ -269,7 +251,8 @@ void MEDFileFields::simpleRepr(int bkOffset, std::ostream& oss) const
 }
 
 MEDFileFields::MEDFileFields()
-= default;
+{
+}
 
 MEDFileFields::MEDFileFields(med_idt fid, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities)
 try:MEDFileFieldGlobsReal(fid)
@@ -330,7 +313,7 @@ void MEDFileFields::writeLL(med_idt fid) const
 {
   int i=0;
   writeGlobals(fid,*this);
-  for(auto it=_fields.begin();it!=_fields.end();it++,i++)
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++,i++)
     {
       const MEDFileAnyTypeFieldMultiTSWithoutSDA *elt=*it;
       if(!elt)
@@ -353,10 +336,10 @@ void MEDFileFields::loadArrays()
 {
   if(getFileName().empty())
     throw INTERP_KERNEL::Exception("MEDFileFields::loadArrays : the structure does not come from a file !");
-  MEDFileUtilities::AutoFid const fid(OpenMEDFileForRead(getFileName()));
-  for(auto & _field : _fields)
+  MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(getFileName()));
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
     {
-      MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(_field);
+      MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
       if(elt)
         elt->loadBigArraysRecursively(fid,*elt);
     }
@@ -373,10 +356,10 @@ void MEDFileFields::loadArraysIfNecessary()
 {
   if(!getFileName().empty())
     {
-      MEDFileUtilities::AutoFid const fid(OpenMEDFileForRead(getFileName()));
-      for(auto & _field : _fields)
+      MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(getFileName()));
+      for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
         {
-          MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(_field);
+          MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
           if(elt)
             elt->loadBigArraysRecursivelyIfNecessary(fid,*elt);
         }
@@ -392,9 +375,9 @@ void MEDFileFields::loadArraysIfNecessary()
  */
 void MEDFileFields::unloadArrays()
 {
-  for(auto & _field : _fields)
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
     {
-      MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(_field);
+      MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
       if(elt)
         elt->unloadArrays();
     }
@@ -417,14 +400,14 @@ std::vector<std::string> MEDFileFields::getPflsReallyUsed() const
 {
   std::vector<std::string> ret;
   std::set<std::string> ret2;
-  for(const auto & _field : _fields)
+  for(std::vector< MCAuto< MEDFileAnyTypeFieldMultiTSWithoutSDA > >::const_iterator it=_fields.begin();it!=_fields.end();it++)
     {
-      std::vector<std::string> const tmp=_field->getPflsReallyUsed2();
-      for(const auto & it2 : tmp)
-        if(ret2.find(it2)==ret2.end())
+      std::vector<std::string> tmp=(*it)->getPflsReallyUsed2();
+      for(std::vector<std::string>::const_iterator it2=tmp.begin();it2!=tmp.end();it2++)
+        if(ret2.find(*it2)==ret2.end())
           {
-            ret.push_back(it2);
-            ret2.insert(it2);
+            ret.push_back(*it2);
+            ret2.insert(*it2);
           }
     }
   return ret;
@@ -434,14 +417,14 @@ std::vector<std::string> MEDFileFields::getLocsReallyUsed() const
 {
   std::vector<std::string> ret;
   std::set<std::string> ret2;
-  for(const auto & _field : _fields)
+  for(std::vector< MCAuto< MEDFileAnyTypeFieldMultiTSWithoutSDA > >::const_iterator it=_fields.begin();it!=_fields.end();it++)
     {
-      std::vector<std::string> const tmp(_field->getLocsReallyUsed2());
-      for(const auto & it2 : tmp)
-        if(ret2.find(it2)==ret2.end())
+      std::vector<std::string> tmp((*it)->getLocsReallyUsed2());
+      for(std::vector<std::string>::const_iterator it2=tmp.begin();it2!=tmp.end();it2++)
+        if(ret2.find(*it2)==ret2.end())
           {
-            ret.push_back(it2);
-            ret2.insert(it2);
+            ret.push_back(*it2);
+            ret2.insert(*it2);
           }
     }
   return ret;
@@ -450,9 +433,9 @@ std::vector<std::string> MEDFileFields::getLocsReallyUsed() const
 std::vector<std::string> MEDFileFields::getPflsReallyUsedMulti() const
 {
   std::vector<std::string> ret;
-  for(const auto & _field : _fields)
+  for(std::vector< MCAuto< MEDFileAnyTypeFieldMultiTSWithoutSDA > >::const_iterator it=_fields.begin();it!=_fields.end();it++)
     {
-      std::vector<std::string> tmp(_field->getPflsReallyUsedMulti2());
+      std::vector<std::string> tmp((*it)->getPflsReallyUsedMulti2());
       ret.insert(ret.end(),tmp.begin(),tmp.end());
     }
   return ret;
@@ -461,9 +444,9 @@ std::vector<std::string> MEDFileFields::getPflsReallyUsedMulti() const
 std::vector<std::string> MEDFileFields::getLocsReallyUsedMulti() const
 {
   std::vector<std::string> ret;
-  for(const auto & _field : _fields)
+  for(std::vector< MCAuto< MEDFileAnyTypeFieldMultiTSWithoutSDA > >::const_iterator it=_fields.begin();it!=_fields.end();it++)
     {
-      std::vector<std::string> tmp(_field->getLocsReallyUsed2());
+      std::vector<std::string> tmp((*it)->getLocsReallyUsed2());
       ret.insert(ret.end(),tmp.begin(),tmp.end());
     }
   return ret;
@@ -471,14 +454,14 @@ std::vector<std::string> MEDFileFields::getLocsReallyUsedMulti() const
 
 void MEDFileFields::changePflsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif)
 {
-  for(auto & _field : _fields)
-    _field->changePflsRefsNamesGen2(mapOfModif);
+  for(std::vector< MCAuto< MEDFileAnyTypeFieldMultiTSWithoutSDA > >::iterator it=_fields.begin();it!=_fields.end();it++)
+    (*it)->changePflsRefsNamesGen2(mapOfModif);
 }
 
 void MEDFileFields::changeLocsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif)
 {
-  for(auto & _field : _fields)
-    _field->changeLocsRefsNamesGen2(mapOfModif);
+  for(std::vector< MCAuto< MEDFileAnyTypeFieldMultiTSWithoutSDA > >::iterator it=_fields.begin();it!=_fields.end();it++)
+    (*it)->changeLocsRefsNamesGen2(mapOfModif);
 }
 
 void MEDFileFields::resize(int newSize)
@@ -488,8 +471,8 @@ void MEDFileFields::resize(int newSize)
 
 void MEDFileFields::pushFields(const std::vector<MEDFileAnyTypeFieldMultiTS *>& fields)
 {
-  for(auto field : fields)
-    pushField(field);
+  for(std::vector<MEDFileAnyTypeFieldMultiTS *>::const_iterator it=fields.begin();it!=fields.end();it++)
+    pushField(*it);
 }
 
 void MEDFileFields::pushField(MEDFileAnyTypeFieldMultiTS *field)
@@ -538,7 +521,7 @@ void MEDFileFields::destroyFieldsAtPos(const int *startIds, const int *endIds)
 void MEDFileFields::destroyFieldsAtPos2(int bg, int end, int step)
 {
   static const char msg[]="MEDFileFields::destroyFieldsAtPos2";
-  mcIdType const nbOfEntriesToKill(DataArrayIdType::GetNumberOfItemGivenBESRelative(bg,end,step,msg));
+  mcIdType nbOfEntriesToKill(DataArrayIdType::GetNumberOfItemGivenBESRelative(bg,end,step,msg));
   std::vector<bool> b(_fields.size(),true);
   int k=bg;
   for(int i=0;i<nbOfEntriesToKill;i++,k+=step)
@@ -561,9 +544,9 @@ void MEDFileFields::destroyFieldsAtPos2(int bg, int end, int step)
 bool MEDFileFields::changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab)
 {
   bool ret(false);
-  for(auto & _field : _fields)
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
     {
-      MEDFileAnyTypeFieldMultiTSWithoutSDA *cur(_field);
+      MEDFileAnyTypeFieldMultiTSWithoutSDA *cur(*it);
       if(cur)
         ret=cur->changeMeshNames(modifTab) || ret;
     }
@@ -582,9 +565,9 @@ bool MEDFileFields::changeMeshNames(const std::vector< std::pair<std::string,std
 bool MEDFileFields::renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<mcIdType>& oldCode, const std::vector<mcIdType>& newCode, const DataArrayIdType *renumO2N)
 {
   bool ret(false);
-  for(auto & _field : _fields)
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
     {
-      MEDFileAnyTypeFieldMultiTSWithoutSDA *fmts(_field);
+      MEDFileAnyTypeFieldMultiTSWithoutSDA *fmts(*it);
       if(fmts)
         {
           ret=fmts->renumberEntitiesLyingOnMesh(meshName,oldCode,newCode,renumO2N,*this) || ret;
@@ -604,7 +587,7 @@ MEDFileFields *MEDFileFields::extractPart(const std::map<int, MCAuto<DataArrayId
   if(!mm)
     throw INTERP_KERNEL::Exception("MEDFileFields::extractPart : input mesh is NULL !");
   MCAuto<MEDFileFields> fsOut(MEDFileFields::New());
-  int const nbFields(getNumberOfFields());
+  int nbFields(getNumberOfFields());
   for(int i=0;i<nbFields;i++)
     {
       MCAuto<MEDFileAnyTypeFieldMultiTS> fmts(getFieldAtPos(i));
@@ -621,12 +604,12 @@ MEDFileFields *MEDFileFields::extractPart(const std::map<int, MCAuto<DataArrayId
 
 void MEDFileFields::accept(MEDFileFieldVisitor& visitor) const
 {
-  for(const auto & _field : _fields)
-    if(_field.isNotNull())
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
+    if((*it).isNotNull())
       {
-        visitor.newFieldEntry(_field);
-        _field->accept(visitor);
-        visitor.endFieldEntry(_field);
+        visitor.newFieldEntry(*it);
+        (*it)->accept(visitor);
+        visitor.endFieldEntry(*it);
       }
 }
 
@@ -648,20 +631,20 @@ private:
 class MEDFileFieldLin2QuadVisitor : public MEDFileFieldVisitor
 {
 public:
-  MEDFileFieldLin2QuadVisitor(const MEDFileUMesh *lin, const MEDFileUMesh *quad, const MEDFileFieldGlobsReal *linGlobs, MEDFileFields* outFs):_lin(lin),_quad(quad),_lin_globs(linGlobs),_out_fs(outFs) { }
-  void newFieldEntry(const MEDFileAnyTypeFieldMultiTSWithoutSDA *field) override { if(field->getMeshName()!=_lin->getName()) return; _cur_fmts=MEDFileFieldMultiTS::New(); }
-  void endFieldEntry(const MEDFileAnyTypeFieldMultiTSWithoutSDA * /*field*/) override { if(_cur_fmts.isNotNull()) { if(_cur_fmts->getNumberOfTS()>0) _out_fs->pushField(_cur_fmts); } }
+  MEDFileFieldLin2QuadVisitor(const MEDFileUMesh *lin, const MEDFileUMesh *quad, const MEDFileFieldGlobsReal *linGlobs, MEDFileFields* outFs):_lin(lin),_quad(quad),_lin_globs(linGlobs),_out_fs(outFs),_gt(INTERP_KERNEL::NORM_ERROR),_1ts_update_requested(false) { }
+  void newFieldEntry(const MEDFileAnyTypeFieldMultiTSWithoutSDA *field) { if(field->getMeshName()!=_lin->getName()) return; _cur_fmts=MEDFileFieldMultiTS::New(); }
+  void endFieldEntry(const MEDFileAnyTypeFieldMultiTSWithoutSDA *field) { if(_cur_fmts.isNotNull()) { if(_cur_fmts->getNumberOfTS()>0) _out_fs->pushField(_cur_fmts); } }
   //
-  void newTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts) override;
-  void endTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts) override;
+  void newTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts);
+  void endTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts);
   //
-  void newMeshEntry(const MEDFileFieldPerMesh *fpm) override;
-  void endMeshEntry(const MEDFileFieldPerMesh *fpm) override { }
+  void newMeshEntry(const MEDFileFieldPerMesh *fpm);
+  void endMeshEntry(const MEDFileFieldPerMesh *fpm) { }
   //
-  void newPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt) override;
-  void endPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt) override { }
+  void newPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt);
+  void endPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt) { }
   //
-  void newPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc *pmptpd) override;
+  void newPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc *pmptpd);
 private:
   void updateData(MEDFileFieldPerMeshPerTypePerDisc *pmtd, mcIdType deltaNbNodes);
 private:
@@ -671,9 +654,9 @@ private:
   MEDFileFields *_out_fs;
   MCAuto<MEDFileFieldMultiTS> _cur_fmts;
   MCAuto<MEDFileField1TS> _cur_f1ts;
-  INTERP_KERNEL::NormalizedCellType _gt{INTERP_KERNEL::NORM_ERROR};
+  INTERP_KERNEL::NormalizedCellType _gt;
   // Info on 1TS modification
-  bool _1ts_update_requested{false};
+  bool _1ts_update_requested;
   // Cache of matrix to compute faster the values on newly created points
   std::map< std::string, PFLData > _cache;
   std::vector<std::string> _pfls_to_be_updated;
@@ -687,11 +670,11 @@ void MEDFileFieldLin2QuadVisitor::newPerMeshPerTypePerDisc(const MEDFileFieldPer
     throw INTERP_KERNEL::Exception("Not managed yet for ON_CELLS ON_GAUSS_NE and ON_GAUSS_PT");
   _1ts_update_requested=true;
   MEDFileAnyTypeField1TSWithoutSDA *ct(_cur_f1ts->contentNotNullBase());
-  int const locId(pmptpd->getFather()->locIdOfLeaf(pmptpd));
+  int locId(pmptpd->getFather()->locIdOfLeaf(pmptpd));
   MEDFileFieldPerMeshPerTypePerDisc *pmtdToModify(ct->getLeafGivenMeshAndTypeAndLocId(_lin->getName(),_gt,locId));
-  std::string const pflName(pmptpd->getProfile());
+  std::string pflName(pmptpd->getProfile());
   _pfls_to_be_updated.push_back(pflName);
-  auto const itCache(_cache.find(pflName));
+  std::map< std::string, PFLData >::iterator itCache(_cache.find(pflName));
   if(itCache!=_cache.end())
     {
       updateData(pmtdToModify,(*itCache).second.getNbOfAddPtsInPfl());
@@ -722,7 +705,7 @@ void MEDFileFieldLin2QuadVisitor::newPerMeshPerTypePerDisc(const MEDFileFieldPer
     DataArrayIdType *nodeConn(allSeg3->getNodalConnectivity());
     nodeConn->rearrange(3);
     {
-      std::vector<std::size_t> const v(1,2);
+      std::vector<std::size_t> v(1,2);
       midPts=nodeConn->keepSelectedComponents(v);
     }
     cellSeg3Ids=DataArrayIdType::FindPermutationFromFirstToSecond(midPts,newPtsIds);
@@ -741,7 +724,7 @@ void MEDFileFieldLin2QuadVisitor::newPerMeshPerTypePerDisc(const MEDFileFieldPer
       pflq=DataArrayIdType::Aggregate(vs);
       pflq->setName(pflName);
     }
-  PFLData const pdata(matrix,pflq,newPtsIds->getNumberOfTuples());
+  PFLData pdata(matrix,pflq,newPtsIds->getNumberOfTuples());
   _cache[pflName]=pdata;
   updateData(pmtdToModify,pdata.getNbOfAddPtsInPfl());
 }
@@ -753,7 +736,7 @@ void MEDFileFieldLin2QuadVisitor::updateData(MEDFileFieldPerMeshPerTypePerDisc *
 
 void MEDFileFieldLin2QuadVisitor::newPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt)
 {
-  const auto *pmpt2(dynamic_cast<const MEDFileFieldPerMeshPerType *>(pmpt));
+  const MEDFileFieldPerMeshPerType *pmpt2(dynamic_cast<const MEDFileFieldPerMeshPerType *>(pmpt));
   if(!pmpt2)
     throw INTERP_KERNEL::Exception("MEDFileFieldLin2QuadVisitor::newPerMeshPerTypeEntry : not managed for structure elements !");
   if(pmpt2->getNumberOfLoc()!=1)
@@ -772,7 +755,7 @@ void MEDFileFieldLin2QuadVisitor::newTimeStepEntry(const MEDFileAnyTypeField1TSW
   _1ts_update_requested=false; _pfls_to_be_updated.clear();
   if(!ts)
     return ;
-  const auto *tsd(dynamic_cast<const MEDFileField1TSWithoutSDA *>(ts));
+  const MEDFileField1TSWithoutSDA *tsd(dynamic_cast<const MEDFileField1TSWithoutSDA *>(ts));
   if(!tsd)
     return ;
   MCAuto<MEDFileAnyTypeField1TSWithoutSDA> contentCpy(ts->deepCopy());
@@ -783,25 +766,25 @@ void MEDFileFieldLin2QuadVisitor::newTimeStepEntry(const MEDFileAnyTypeField1TSW
   _cur_f1ts->deepCpyGlobs(*_lin_globs);
 }
 
-void MEDFileFieldLin2QuadVisitor::endTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA * /*ts*/)
+void MEDFileFieldLin2QuadVisitor::endTimeStepEntry(const MEDFileAnyTypeField1TSWithoutSDA *ts)
 {
   if(_cur_f1ts.isNull())
     return ;
   if(_1ts_update_requested)
     {
       MCAuto<DataArrayIdType> matrix,oldPfl;
-      for(const auto & it : _pfls_to_be_updated)
+      for(std::vector<std::string>::const_iterator it=_pfls_to_be_updated.begin();it!=_pfls_to_be_updated.end();it++)
         {
-          std::map< std::string, PFLData >::const_iterator const it2(_cache.find(it));
+          std::map< std::string, PFLData >::const_iterator it2(_cache.find(*it));
           if(it2==_cache.end())
             throw INTERP_KERNEL::Exception("MEDFileFieldLin2QuadVisitor::endTimeStepEntry : invalid situation !");
           matrix=(*it2).second.getMatrix();
-          if(it.empty())
+          if((*it).empty())
             continue;
-          int const locId(_cur_f1ts->getProfileId(it));
-          oldPfl.takeRef(_cur_f1ts->getProfile(it));
+          int locId(_cur_f1ts->getProfileId(*it));
+          oldPfl.takeRef(_cur_f1ts->getProfile(*it));
           {
-            std::vector<int> const locToKill(1,locId);
+            std::vector<int> locToKill(1,locId);
             _cur_f1ts->killProfileIds(locToKill);
           }
           _cur_f1ts->appendProfile((*it2).second.getProfile());
@@ -843,11 +826,11 @@ MCAuto<MEDFileFields> MEDFileFields::linearToQuadratic(const MEDFileMeshes *oldL
       MEDFileMesh *mm(oldLin->getMeshAtPos(i));
       if(!mm)
         continue;
-      auto *mmu(dynamic_cast<MEDFileUMesh *>(mm));
+      MEDFileUMesh *mmu(dynamic_cast<MEDFileUMesh *>(mm));
       if(!mmu)
         continue;
       MEDFileMesh *mmq(newQuad->getMeshWithName(mmu->getName()));
-      auto *mmqu(dynamic_cast<MEDFileUMesh *>(mmq));
+      MEDFileUMesh *mmqu(dynamic_cast<MEDFileUMesh *>(mmq));
       if(!mmqu)
         {
           std::ostringstream oss; oss << "MEDFileFields::linearToQuadratic : mismatch of name between input meshes for name \"" << mmu->getName() << "\"";
@@ -868,12 +851,12 @@ MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldAtPos(int i) const
     }
   const MEDFileAnyTypeFieldMultiTSWithoutSDA *fmts=_fields[i];
   if(!fmts)
-    return nullptr;
+    return 0;
   MCAuto<MEDFileAnyTypeFieldMultiTS> ret;
-  const auto *fmtsC(dynamic_cast<const MEDFileFieldMultiTSWithoutSDA *>(fmts));
-  const auto *fmtsC2(dynamic_cast<const MEDFileInt32FieldMultiTSWithoutSDA *>(fmts));
-  const auto *fmtsC4(dynamic_cast<const MEDFileInt64FieldMultiTSWithoutSDA *>(fmts));
-  const auto *fmtsC3(dynamic_cast<const MEDFileFloatFieldMultiTSWithoutSDA *>(fmts));
+  const MEDFileFieldMultiTSWithoutSDA *fmtsC(dynamic_cast<const MEDFileFieldMultiTSWithoutSDA *>(fmts));
+  const MEDFileInt32FieldMultiTSWithoutSDA *fmtsC2(dynamic_cast<const MEDFileInt32FieldMultiTSWithoutSDA *>(fmts));
+  const MEDFileInt64FieldMultiTSWithoutSDA *fmtsC4(dynamic_cast<const MEDFileInt64FieldMultiTSWithoutSDA *>(fmts));
+  const MEDFileFloatFieldMultiTSWithoutSDA *fmtsC3(dynamic_cast<const MEDFileFloatFieldMultiTSWithoutSDA *>(fmts));
   if(fmtsC)
     ret=MEDFileFieldMultiTS::New(*fmtsC,false);
   else if(fmtsC2)
@@ -899,7 +882,7 @@ MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldAtPos(int i) const
 MEDFileFields *MEDFileFields::buildSubPart(const int *startIds, const int *endIds) const
 {
   MCAuto<MEDFileFields> ret=shallowCpy();
-  std::size_t const sz=std::distance(startIds,endIds);
+  std::size_t sz=std::distance(startIds,endIds);
   std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> > fields(sz);
   int j=0;
   for(const int *i=startIds;i!=endIds;i++,j++)
@@ -929,13 +912,13 @@ MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldWithName(const std::string& f
 bool MEDFileFields::removeFieldsWithoutAnyTimeStep()
 {
   std::vector<MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> > newFields;
-  for(const auto & _field : _fields)
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
     {
-      const MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(_field);
+      const MEDFileAnyTypeFieldMultiTSWithoutSDA *elt(*it);
       if(elt)
         {
           if(elt->getNumberOfTS()>0)
-            newFields.push_back(_field);
+            newFields.push_back(*it);
         }
     }
   if(_fields.size()==newFields.size())
@@ -956,15 +939,15 @@ bool MEDFileFields::removeFieldsWithoutAnyTimeStep()
 MEDFileFields *MEDFileFields::partOfThisLyingOnSpecifiedMeshName(const std::string& meshName) const
 {
   MCAuto<MEDFileFields> ret(MEDFileFields::New());
-  for(const auto & _field : _fields)
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
     {
-      const MEDFileAnyTypeFieldMultiTSWithoutSDA *cur(_field);
+      const MEDFileAnyTypeFieldMultiTSWithoutSDA *cur(*it);
       if(!cur)
         continue;
       if(cur->getMeshName()==meshName)
         {
           cur->incrRef();
-          MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> const cur2(const_cast<MEDFileAnyTypeFieldMultiTSWithoutSDA *>(cur));
+          MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> cur2(const_cast<MEDFileAnyTypeFieldMultiTSWithoutSDA *>(cur));
           ret->_fields.push_back(cur2);
         }
     }
@@ -988,12 +971,12 @@ MEDFileFields *MEDFileFields::partOfThisLyingOnSpecifiedMeshName(const std::stri
 MEDFileFields *MEDFileFields::partOfThisLyingOnSpecifiedTimeSteps(const std::vector< std::pair<int,int> >& timeSteps) const
 {
   MCAuto<MEDFileFields> ret(MEDFileFields::New());
-  for(const auto & _field : _fields)
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
     {
-      const MEDFileAnyTypeFieldMultiTSWithoutSDA *cur(_field);
+      const MEDFileAnyTypeFieldMultiTSWithoutSDA *cur(*it);
       if(!cur)
         continue;
-      MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> const elt=cur->partOfThisLyingOnSpecifiedTimeSteps(timeSteps);
+      MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> elt=cur->partOfThisLyingOnSpecifiedTimeSteps(timeSteps);
       ret->_fields.push_back(elt);
     }
   ret->shallowCpyOnlyUsedGlobs(*this);
@@ -1006,9 +989,9 @@ MEDFileFields *MEDFileFields::partOfThisLyingOnSpecifiedTimeSteps(const std::vec
 MEDFileFields *MEDFileFields::partOfThisNotLyingOnSpecifiedTimeSteps(const std::vector< std::pair<int,int> >& timeSteps) const
 {
   MCAuto<MEDFileFields> ret=MEDFileFields::New();
-  for(const auto & _field : _fields)
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
     {
-      const MEDFileAnyTypeFieldMultiTSWithoutSDA *cur(_field);
+      const MEDFileAnyTypeFieldMultiTSWithoutSDA *cur(*it);
       if(!cur)
         continue;
       MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> elt=cur->partOfThisNotLyingOnSpecifiedTimeSteps(timeSteps);
@@ -1021,9 +1004,9 @@ MEDFileFields *MEDFileFields::partOfThisNotLyingOnSpecifiedTimeSteps(const std::
 
 bool MEDFileFields::presenceOfStructureElements() const
 {
-  for(const auto & _field : _fields)
-    if(_field.isNotNull())
-      if(_field->presenceOfStructureElements())
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
+    if((*it).isNotNull())
+      if((*it)->presenceOfStructureElements())
         return true;
   return false;
 }
@@ -1031,20 +1014,20 @@ bool MEDFileFields::presenceOfStructureElements() const
 void MEDFileFields::killStructureElements()
 {
   std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> > ret;
-  for(auto & _field : _fields)
-    if(_field.isNotNull())
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
+    if((*it).isNotNull())
       {
-        if(_field->presenceOfStructureElements())
+        if((*it)->presenceOfStructureElements())
           {
-            if(!_field->onlyStructureElements())
+            if(!(*it)->onlyStructureElements())
               {
-                _field->killStructureElements();
-                ret.push_back(_field);
+                (*it)->killStructureElements();
+                ret.push_back(*it);
               }
           }
         else
           {
-            ret.push_back(_field);
+            ret.push_back(*it);
           }
       }
   _fields=ret;
@@ -1053,14 +1036,14 @@ void MEDFileFields::killStructureElements()
 void MEDFileFields::keepOnlyStructureElements()
 {
   std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> > ret;
-  for(auto & _field : _fields)
-    if(_field.isNotNull())
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
+    if((*it).isNotNull())
       {
-        if(_field->presenceOfStructureElements())
+        if((*it)->presenceOfStructureElements())
           {
-            if(!_field->onlyStructureElements())
-              _field->keepOnlyStructureElements();
-            ret.push_back(_field);
+            if(!(*it)->onlyStructureElements())
+              (*it)->keepOnlyStructureElements();
+            ret.push_back(*it);
           }
       }
   _fields=ret;
@@ -1069,26 +1052,26 @@ void MEDFileFields::keepOnlyStructureElements()
 void MEDFileFields::keepOnlyOnMeshSE(const std::string& meshName, const std::string& seName)
 {
   std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> > ret;
-  for(auto & _field : _fields)
-    if(_field.isNotNull())
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::iterator it=_fields.begin();it!=_fields.end();it++)
+    if((*it).isNotNull())
       {
-        if(_field->getMeshName()!=meshName)
+        if((*it)->getMeshName()!=meshName)
           continue;
         std::vector< std::pair<std::string,std::string> > ps;
-        _field->getMeshSENames(ps);
-        std::pair<std::string,std::string> const p(meshName,seName);
+        (*it)->getMeshSENames(ps);
+        std::pair<std::string,std::string> p(meshName,seName);
         if(std::find(ps.begin(),ps.end(),p)!=ps.end())
-          _field->keepOnlyOnSE(seName);
-        ret.push_back(_field);
+          (*it)->keepOnlyOnSE(seName);
+        ret.push_back(*it);
       }
   _fields=ret;
 }
 
 void MEDFileFields::getMeshSENames(std::vector< std::pair<std::string,std::string> >& ps) const
 {
-  for(const auto & _field : _fields)
-    if(_field.isNotNull())
-      _field->getMeshSENames(ps);
+  for(std::vector< MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> >::const_iterator it=_fields.begin();it!=_fields.end();it++)
+    if((*it).isNotNull())
+      (*it)->getMeshSENames(ps);
 }
 
 void MEDFileFields::blowUpSE(MEDFileMeshes *ms, const MEDFileStructureElements *ses)
@@ -1111,7 +1094,7 @@ void MEDFileFields::aggregateFieldsOnSameMeshes(MEDFileMeshes *ms)
     THROW_IK_EXCEPTION("MEDFileFields::aggregateFieldsOnSameMeshes : ms is nullptr !");
   //
   std::vector<std::string> msNames(ms->getMeshesNames());
-  std::set<std::string> const msNamesSet(msNames.begin(),msNames.end());
+  std::set<std::string> msNamesSet(msNames.begin(),msNames.end());
   if(msNames.size() == msNamesSet.size())
     return ;
   //
@@ -1133,7 +1116,7 @@ void MEDFileFields::aggregateFieldsOnSameMeshes(MEDFileMeshes *ms)
         zeMeshNames.insert(fmtsWithSameName->getMeshName());
       if(zeMeshNames.size()!=1)
         THROW_IK_EXCEPTION("MEDFileFields::aggregateFieldsOnSameMeshes : Presence of multiple MultiTS instances with same name but lying on same meshName. Looks bad !");
-      std::string const meshNameToMerge = *zeMeshNames.begin();
+      std::string meshNameToMerge = *zeMeshNames.begin();
       if(expectedMeshNamesToMerge.find(meshNameToMerge) != expectedMeshNamesToMerge.end())
         THROW_IK_EXCEPTION("MEDFileFields::aggregateFieldsOnSameMeshes : unexpected situation ! Error in implementation !");
       expectedMeshNamesToMerge.insert(*zeMeshNames.begin());
@@ -1163,7 +1146,7 @@ void MEDFileFields::aggregateFieldsOnSameMeshes(MEDFileMeshes *ms)
       for(auto entry : entries)
         dtsToPush.push_back({entry.first.first,entry.second.second-entry.second.first});
       dtsToAggregate.push_back(dtsToPush);
-      MCAuto<MEDFileAnyTypeFieldMultiTS> const eltToAggregate = MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent(fieldToBeAggregated);
+      MCAuto<MEDFileAnyTypeFieldMultiTS> eltToAggregate = MEDFileAnyTypeFieldMultiTS::BuildNewInstanceFromContent(fieldToBeAggregated);
       eltsToAggregate.push_back(eltToAggregate);
     }
     MCAuto<MEDFileAnyTypeFieldMultiTS> gg = MEDFileAnyTypeFieldMultiTS::Aggregate(FromVecAutoToVecOfConst(eltsToAggregate),dtsToAggregate);
@@ -1197,7 +1180,7 @@ void MEDFileFields::aggregateFieldsOnSameMeshes(MEDFileMeshes *ms)
     {
       if(!curMesh->getNonEmptyLevels().empty())
         THROW_IK_EXCEPTION("MEDFileFields::aggregateFieldsOnSameMeshes : only meshes without cells supported.");
-      auto *curMeshU(dynamic_cast<MEDFileUMesh *>(curMesh));
+      MEDFileUMesh *curMeshU(dynamic_cast<MEDFileUMesh *>(curMesh));
       if(!curMeshU)
         THROW_IK_EXCEPTION("MEDFileFields::aggregateFieldsOnSameMeshes : only unstructured mesh supported.");
       coos.push_back(curMeshU->getCoords());
@@ -1231,12 +1214,12 @@ MCAuto<MEDFileFields> MEDFileFields::partOfThisLyingOnSpecifiedMeshSEName(const 
 
 void MEDFileFields::aggregate(const MEDFileFields& other)
 {
-  int const nbFieldsToAdd(other.getNumberOfFields());
+  int nbFieldsToAdd(other.getNumberOfFields());
   std::vector<std::string> fsn(getFieldsNames());
   for(int i=0;i<nbFieldsToAdd;i++)
     {
       MCAuto<MEDFileAnyTypeFieldMultiTS> elt(other.getFieldAtPos(i));
-      std::string const name(elt->getName());
+      std::string name(elt->getName());
       if(std::find(fsn.begin(),fsn.end(),name)!=fsn.end())
         {
           std::ostringstream oss; oss << "MEDFileFields::aggregate : name \"" << name << "\" already appears !";
@@ -1253,14 +1236,14 @@ MEDFileFieldsIterator *MEDFileFields::iterator()
 
 int MEDFileFields::getPosFromFieldName(const std::string& fieldName) const
 {
-  std::string const tmp(fieldName);
+  std::string tmp(fieldName);
   std::vector<std::string> poss;
   for(unsigned int i=0;i<_fields.size();i++)
     {
       const MEDFileAnyTypeFieldMultiTSWithoutSDA *f(_fields[i]);
       if(f)
         {
-          std::string const fname(f->getName());
+          std::string fname(f->getName());
           if(tmp==fname)
             return i;
           else
@@ -1283,7 +1266,8 @@ MEDFileFieldsIterator::MEDFileFieldsIterator(MEDFileFields *fs):_fs(fs),_iter_id
 }
 
 MEDFileFieldsIterator::~MEDFileFieldsIterator() 
-= default;
+{
+}
 
 MEDFileAnyTypeFieldMultiTS *MEDFileFieldsIterator::nextt()
 {
@@ -1293,8 +1277,8 @@ MEDFileAnyTypeFieldMultiTS *MEDFileFieldsIterator::nextt()
       if(fs)
         return fs->getFieldAtPos(_iter_id++);
       else
-        return nullptr;
+        return 0;
     }
   else
-    return nullptr;
+    return 0;
 }

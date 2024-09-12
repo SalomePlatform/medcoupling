@@ -21,6 +21,8 @@
 #ifndef __INTERPKERNELASMX86_HXX__
 #define __INTERPKERNELASMX86_HXX__
 
+#include "INTERPKERNELDefines.hxx"
+#include "InterpKernelException.hxx"
 
 #include <vector>
 #include <string>

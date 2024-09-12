@@ -24,6 +24,7 @@
 
 #include <cstdint>
 #include <stddef.h>
+#include <cstddef>
 
 namespace MEDCoupling
 {

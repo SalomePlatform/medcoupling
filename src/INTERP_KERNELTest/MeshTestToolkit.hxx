@@ -20,8 +20,9 @@
 #ifndef __TU_MESH_TEST_TOOLKIT_HXX__
 #define __TU_MESH_TEST_TOOLKIT_HXX__
 
-#include "InterpolationOptions.hxx"
-#include "MCIdType.hxx"
+#include "Interpolation3D.hxx"
+#include "Interpolation3D.txx"
+#include "InterpolationPlanar.hxx"
 
 #include <vector>
 #include <map>
@@ -52,12 +53,12 @@ namespace INTERP_TEST
   {
 
   public:
-    double _precision{1.e-6};
-    INTERP_KERNEL::IntersectionType _intersectionType{INTERP_KERNEL::Triangulation};//Used only in the case MESHDIM==2 (planar intersections)
+    double _precision;
+    INTERP_KERNEL::IntersectionType _intersectionType;//Used only in the case MESHDIM==2 (planar intersections)
 
-    MeshTestToolkit() = default;
+    MeshTestToolkit():_precision(1.e-6),_intersectionType(INTERP_KERNEL::Triangulation)  {}
   
-    ~MeshTestToolkit() = default;
+    ~MeshTestToolkit() {}
 
     void intersectMeshes(const char* mesh1, const char* mesh2, const double correctVol, const double prec = 1.0e-5, bool doubleTest = true) const;
 

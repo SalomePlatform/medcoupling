@@ -18,15 +18,12 @@
 //
 
 #include "MEDPARTITIONER_MEDPartitioner.hxx"
-#include "MCType.hxx"
-#include "MCAuto.hxx"
 #include "MEDPARTITIONER_MeshCollection.hxx"
 #include "MEDPARTITIONER_Topology.hxx"
 #include "MEDPARTITIONER_ParaDomainSelector.hxx"
 #include "MEDPARTITIONER_ParallelTopology.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 #include "MEDPARTITIONER_Graph.hxx"
-#include <string>
 #ifdef MED_ENABLE_METIS
 #  include "MEDPARTITIONER_MetisGraph.hxx"
 #endif
@@ -41,6 +38,7 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingSkyLineArray.hxx"
 
+#include <iostream>
 #include <vector>
 
 const char MEDPARTITIONER::MEDPartitioner::METIS_PART_ALG[]="Metis";
@@ -48,7 +46,7 @@ const char MEDPARTITIONER::MEDPartitioner::SCOTCH_PART_ALG[]="Scotch";
 const char MEDPARTITIONER::MEDPartitioner::PTSCOTCH_PART_ALG[]="PTScotch";
 
 MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const std::string& filename, int ndomains, const std::string& library,bool create_boundary_faces, bool create_joints, bool mesure_memory):
-  _input_collection( nullptr ), _output_collection( nullptr ), _new_topology( nullptr )
+  _input_collection( 0 ), _output_collection( 0 ), _new_topology( 0 )
 {
   MyGlobals::_World_Size = 1;
   MyGlobals::_Rank = 0;
@@ -59,7 +57,7 @@ MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const std::string& filename, int 
   _input_collection=new MeshCollection(filename,parallelizer);
   _input_collection->setParaDomainSelector( &parallelizer );
 
-  auto* aPT =
+  MEDPARTITIONER::ParallelTopology* aPT =
     (MEDPARTITIONER::ParallelTopology*) _input_collection->getTopology();
   aPT->setGlobalNumerotationDefault( _input_collection->getParaDomainSelector() );
   _input_collection->prepareFieldDescriptions();
@@ -69,7 +67,7 @@ MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const std::string& filename, int 
 }
 
 MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const MEDCoupling::MEDFileData* filedata, int ndomains, const std::string& library,bool create_boundary_faces, bool create_joints, bool mesure_memory):
-  _input_collection( nullptr ), _output_collection( nullptr ), _new_topology( nullptr )
+  _input_collection( 0 ), _output_collection( 0 ), _new_topology( 0 )
 {
   MyGlobals::_World_Size = 1;
   MyGlobals::_Rank = 0;
@@ -81,7 +79,7 @@ MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const MEDCoupling::MEDFileData* f
   _input_collection->setParaDomainSelector( &parallelizer );
   _input_collection->retrieveDriver()->readMEDFileData(filedata);
 
-  auto* aPT =
+  MEDPARTITIONER::ParallelTopology* aPT =
     (MEDPARTITIONER::ParallelTopology*) _input_collection->getTopology();
   aPT->setGlobalNumerotationDefault( _input_collection->getParaDomainSelector() );
   _input_collection->prepareFieldDescriptions();
@@ -91,7 +89,7 @@ MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const MEDCoupling::MEDFileData* f
 }
 
 MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const MEDCoupling::MEDFileData* filedata, MEDPARTITIONER ::Graph* graph, bool create_boundary_faces, bool create_joints, bool mesure_memory):
-  _input_collection( nullptr ), _output_collection( nullptr ), _new_topology( nullptr )
+  _input_collection( 0 ), _output_collection( 0 ), _new_topology( 0 )
 {
   MyGlobals::_World_Size = 1;
   MyGlobals::_Rank = 0;
@@ -103,7 +101,7 @@ MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const MEDCoupling::MEDFileData* f
   _input_collection->setParaDomainSelector( &parallelizer );
   _input_collection->retrieveDriver()->readMEDFileData(filedata);
 
-  auto* aPT =
+  MEDPARTITIONER::ParallelTopology* aPT =
     (MEDPARTITIONER::ParallelTopology*) _input_collection->getTopology();
   aPT->setGlobalNumerotationDefault( _input_collection->getParaDomainSelector() );
   _input_collection->prepareFieldDescriptions();
@@ -117,12 +115,12 @@ MEDPARTITIONER::MEDPartitioner::MEDPartitioner(const MEDCoupling::MEDFileData* f
 
 MEDPARTITIONER::MEDPartitioner::~MEDPartitioner()
 {
-  delete _input_collection; _input_collection = nullptr;
-  delete _output_collection; _output_collection = nullptr;
-  delete _new_topology; _new_topology = nullptr;
+  delete _input_collection; _input_collection = 0;
+  delete _output_collection; _output_collection = 0;
+  delete _new_topology; _new_topology = 0;
 }
 
-void MEDPARTITIONER::MEDPartitioner::createPartitionCollection(int ndomains, const std::string& library,bool  /*create_boundary_faces*/, bool  /*create_joints*/, bool  /*mesure_memory*/)
+void MEDPARTITIONER::MEDPartitioner::createPartitionCollection(int ndomains, const std::string& library,bool create_boundary_faces, bool create_joints, bool mesure_memory)
 {
   //ParallelTopology* aPT = (ParallelTopology*) _input_collection->getTopology();
   if (library == "metis")
@@ -148,7 +146,7 @@ MEDCoupling::MEDFileData* MEDPARTITIONER::MEDPartitioner::getMEDFileData()
 
 MEDPARTITIONER::Graph* MEDPARTITIONER::MEDPartitioner::Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split, int* edgeweight, DataArrayIdType *vlbloctab)
 {
-  MEDPARTITIONER::Graph* cellGraph=nullptr;
+  MEDPARTITIONER::Graph* cellGraph=0;
   // will be destroyed by XXXGraph class:
   MEDCoupling::MCAuto<MEDCoupling::MEDCouplingSkyLineArray> arr(MEDCoupling::MEDCouplingSkyLineArray::New(graph->getIndexArray(), graph->getValuesArray()));
   switch (split)

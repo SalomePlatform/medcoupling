@@ -22,15 +22,15 @@
 #define __PARAMEDMEM_MEDCOUPLINGREMAPPER_HXX__
 
 #include "MEDCoupling.hxx"
-#include "MEDCouplingNatureOfFieldEnum"
 #include "MEDCouplingTimeLabel.hxx"
 #include "InterpolationOptions.hxx"
+#include "MEDCouplingNatureOfField.hxx"
 #include "MCType.hxx"
 #include "MCAuto.hxx"
 
+#include "InterpKernelException.hxx"
 
 #include <map>
-#include <string>
 #include <vector>
 
 namespace MEDCoupling
@@ -54,7 +54,7 @@ namespace MEDCoupling
   {
   public:
     MEDCOUPLINGREMAPPER_EXPORT MEDCouplingRemapper();
-    MEDCOUPLINGREMAPPER_EXPORT ~MEDCouplingRemapper() override;
+    MEDCOUPLINGREMAPPER_EXPORT ~MEDCouplingRemapper();
     MEDCOUPLINGREMAPPER_EXPORT int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method);
     MEDCOUPLINGREMAPPER_EXPORT int prepareEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target);
     MEDCOUPLINGREMAPPER_EXPORT void setCrudeMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, const std::vector<std::map<mcIdType,double> >& m);
@@ -94,7 +94,7 @@ namespace MEDCoupling
     static int CheckInterpolationMethodManageableByNotOnlyInterpKernel(const std::string& method);
     //
     bool isInterpKernelOnlyOrNotOnly() const;
-    void updateTime() const override;
+    void updateTime() const;
     void checkPrepare() const;
     void synchronizeSizeOfSideMatricesAfterMatrixComputation(mcIdType nbOfColsInMatrix);
     std::string checkAndGiveInterpolationMethodStr(std::string& srcMeth, std::string& trgMeth) const;

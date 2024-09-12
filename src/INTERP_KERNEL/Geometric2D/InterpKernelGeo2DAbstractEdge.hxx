@@ -23,7 +23,9 @@
 
 #include "INTERPKERNELDefines.hxx"
 
+#include <set>
 #include <list>
+#include <fstream>
 
 namespace INTERP_KERNEL
 {
@@ -45,7 +47,7 @@ namespace INTERP_KERNEL
   public:
     INTERPKERNEL_EXPORT IteratorOnComposedEdge();
     INTERPKERNEL_EXPORT IteratorOnComposedEdge(ComposedEdge *compEdges);
-    INTERPKERNEL_EXPORT bool isValid() const { return _list_handle!=nullptr; } 
+    INTERPKERNEL_EXPORT bool isValid() const { return _list_handle!=0; } 
     INTERPKERNEL_EXPORT void operator=(const IteratorOnComposedEdge& other);
     INTERPKERNEL_EXPORT void first() { _deep_it=_list_handle->begin(); }
     INTERPKERNEL_EXPORT void next() { _deep_it++; }

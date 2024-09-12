@@ -21,7 +21,6 @@
 #define __BYSTRINGMPIPROCESSORGROUP_HXX__
 
 #include "MPIProcessorGroup.hxx"
-#include <string>
 
 namespace MEDCoupling
 {
@@ -33,8 +32,8 @@ namespace MEDCoupling
     ByStringMPIProcessorGroup(const CommInterface& interface);
     ByStringMPIProcessorGroup(const CommInterface& interface, const std::string& simCodeTag, const MPI_Comm& world_comm=MPI_COMM_WORLD);
     ByStringMPIProcessorGroup(const ByStringMPIProcessorGroup& other);
-    ~ByStringMPIProcessorGroup() override;
-    ByStringMPIProcessorGroup *deepCopy() const override;
+    virtual ~ByStringMPIProcessorGroup();
+    virtual ByStringMPIProcessorGroup *deepCopy() const;
     
   };
 }

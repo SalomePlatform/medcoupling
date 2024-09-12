@@ -26,9 +26,11 @@
 #include "mpi.h"
 
 #include <string>
+#include <vector>
+#include <map>
+#include "MCIdType.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "NormalizedGeometricTypes"
-#include "MCIdType.hxx"
 
 namespace MEDCoupling
 {
@@ -41,16 +43,16 @@ namespace MEDCoupling
   class ParaMEDFileMesh
   {
   public:
-    static MEDFileMesh *New(int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=nullptr);
-    static MEDFileMesh *ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=nullptr);
+    static MEDFileMesh *New(int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    static MEDFileMesh *ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
   };
 
   class ParaMEDFileUMesh
   {
   public:
-    static MEDFileUMesh *New(int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=nullptr);
-    static MEDFileUMesh *ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=nullptr);
-    static MEDFileUMesh *ParaNew(const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>&, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=nullptr);
+    static MEDFileUMesh *New(int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    static MEDFileUMesh *ParaNew(int iPart, int nbOfParts, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
+    static MEDFileUMesh *ParaNew(const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>&, const MPI_Comm& com, const MPI_Info& nfo, const std::string& fileName, const std::string& mName, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0);
 
   private:
     static MEDFileUMesh *NewPrivate(med_idt fid, int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs);

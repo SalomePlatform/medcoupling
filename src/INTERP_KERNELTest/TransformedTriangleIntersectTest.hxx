@@ -20,7 +20,6 @@
 #ifndef __TU_TRANSFORMED_TRIANGLE_INTERSECT_HXX__
 #define __TU_TRANSFORMED_TRIANGLE_INTERSECT_HXX__
 
-#include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "InterpKernelTestExport.hxx"

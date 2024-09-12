@@ -21,17 +21,10 @@
 #ifndef __MEDFILEPARAMETER_HXX__
 #define __MEDFILEPARAMETER_HXX__
 
-#include "MEDCouplingRefCountObject.hxx"
-#include "MEDFileUtilities.txx"
 #include "MEDLoaderDefines.hxx"
+#include "MEDFileUtilities.txx"
 #include "MEDCouplingMemArray.hxx"
 #include "MCAuto.hxx"
-#include <string>
-#include <ostream>
-#include "med.h"
-#include <cstddef>
-#include <vector>
-#include <utility>
 
 namespace MEDCoupling
 {
@@ -66,21 +59,21 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT static MEDFileParameterDouble1TSWTI *New(int iteration, int order, double time);
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileParameterDouble1TSWTI"); }
-    MEDLOADER_EXPORT MEDFileParameter1TS *deepCopy() const override;
+    MEDLOADER_EXPORT MEDFileParameter1TS *deepCopy() const;
     MEDLOADER_EXPORT void setValue(double val) { _arr=val; }
     MEDLOADER_EXPORT double getValue() const { return _arr; }
-    MEDLOADER_EXPORT bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const override;
-    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
-    MEDLOADER_EXPORT void readValue(med_idt fid, const std::string& name) override;
+    MEDLOADER_EXPORT bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    MEDLOADER_EXPORT void readValue(med_idt fid, const std::string& name);
     MEDLOADER_EXPORT std::string simpleRepr() const;
   protected:
     MEDFileParameterDouble1TSWTI();
     MEDFileParameterDouble1TSWTI(int iteration, int order, double time);
-    void simpleRepr2(int bkOffset, std::ostream& oss) const override;
+    void simpleRepr2(int bkOffset, std::ostream& oss) const;
     void finishLoading(med_idt fid, const std::string& name, int dt, int it, int nbOfSteps);
     void finishLoading(med_idt fid, const std::string& name, int timeStepId);
-    void writeAdvanced(med_idt fid, const std::string& name, const MEDFileWritable& mw) const override;
+    void writeAdvanced(med_idt fid, const std::string& name, const MEDFileWritable& mw) const;
   protected:
     double _arr;
   };
@@ -111,11 +104,11 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const std::string& fileName, const std::string& paramName);
     MEDLOADER_EXPORT static MEDFileParameterDouble1TS *New(const std::string& fileName, const std::string& paramName, int dt, int it);
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileParameterDouble1TS"); }
-    MEDLOADER_EXPORT MEDFileParameter1TS *deepCopy() const override;
-    MEDLOADER_EXPORT bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const override;
+    MEDLOADER_EXPORT virtual MEDFileParameter1TS *deepCopy() const;
+    MEDLOADER_EXPORT virtual bool isEqual(const MEDFileParameter1TS *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT virtual std::string simpleRepr() const;
-    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT void setName(const std::string& name) { _name=name; }
     MEDLOADER_EXPORT std::string getName() const { return _name; }
     MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
@@ -137,8 +130,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileParameterMultiTS"); }
     MEDLOADER_EXPORT std::string getName() const { return _name; }
     MEDLOADER_EXPORT void setName(const std::string& name) { _name=name; }
-    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileParameterMultiTS *deepCopy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileParameterMultiTS *other, double eps, std::string& what) const;
     MEDLOADER_EXPORT void write(const std::string& fileName, int mode) const;
@@ -172,11 +165,11 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileParameters *New(DataArrayByte *db) { return BuildFromMemoryChunk<MEDFileParameters>(db); }
     MEDLOADER_EXPORT static MEDFileParameters *New(const std::string& fileName);
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileParameters"); }
-    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileParameters *deepCopy() const;
     MEDLOADER_EXPORT bool isEqual(const MEDFileParameters *other, double eps, std::string& what) const;
-    MEDLOADER_EXPORT void writeLL(med_idt fid) const override;
+    MEDLOADER_EXPORT void writeLL(med_idt fid) const;
     MEDLOADER_EXPORT std::vector<std::string> getParamsNames() const;
     MEDLOADER_EXPORT std::string simpleRepr() const;
     MEDLOADER_EXPORT void simpleReprWithoutHeader(std::ostream& oss) const;

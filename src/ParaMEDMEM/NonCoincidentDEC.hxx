@@ -21,7 +21,6 @@
 #define __NONCOINCIDENTDEC_HXX__
 
 #include "DEC.hxx"
-#include "ProcessorGroup.hxx"
 
 struct _fvm_locator_t;
 
@@ -35,9 +34,9 @@ namespace MEDCoupling
     NonCoincidentDEC();
     NonCoincidentDEC(ProcessorGroup& , ProcessorGroup&);
 
-    ~NonCoincidentDEC() override;
+    virtual ~NonCoincidentDEC();
 
-    void synchronize() override;
+    void synchronize();
 
     void recvData();
 

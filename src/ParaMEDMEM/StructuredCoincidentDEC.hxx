@@ -86,14 +86,14 @@ namespace MEDCoupling
   public:
     StructuredCoincidentDEC();
     StructuredCoincidentDEC( ProcessorGroup& source, ProcessorGroup& target);
-    ~StructuredCoincidentDEC() override;
+    virtual ~StructuredCoincidentDEC();
     void release();
 
-    void synchronize() override;
-    void recvData() override;
-    void sendData() override;
-    void prepareSourceDE() override;
-    void prepareTargetDE() override;
+    void synchronize();
+    void recvData();
+    void sendData();
+    void prepareSourceDE();
+    void prepareTargetDE();
 
   private :
     void synchronizeTopology();

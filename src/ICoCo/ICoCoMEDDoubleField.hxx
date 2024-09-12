@@ -26,7 +26,6 @@
 #define ICoCoMEDDoubleField_included
 
 #include "ICoCoField.hxx"
-#include "ICoCo_DeclSpec.hxx"
 
 namespace MEDCoupling
 {
@@ -73,7 +72,7 @@ namespace ICoCo
 
     /*! @brief Destructor.
      */
-    ~MEDDoubleField() override;
+    virtual ~MEDDoubleField();
 
     /*! @brief Get the internal MEDCoupling field object.
      * @return a pointer to the MEDCouplingField object detained by this instance. Note that the corresponding

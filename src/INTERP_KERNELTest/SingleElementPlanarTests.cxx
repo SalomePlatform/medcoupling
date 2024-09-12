@@ -19,10 +19,10 @@
 
 #include "SingleElementPlanarTests.hxx"  
 #include "InterpolationUtils.hxx"
+#include "PolygonAlgorithms.hxx"
 #include "PolygonAlgorithms.txx"
-#include <cppunit/TestAssert.h>
+#include "InterpolationPlanarTestSuite.hxx"
 #include <deque>
-#include <vector>
 
 using namespace INTERP_KERNEL;
 
@@ -227,7 +227,7 @@ namespace INTERP_TEST
   // \brief Status : pass
   void SingleElementPlanarTests::identicalSquares()
   {
-    INTERP_KERNEL::PolygonAlgorithms<2> const intersector (_Epsilon, _Precision);;
+    INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     /*
       ////////////////// TEST DEACTIVATED by A. GEAY because memory fault : 
       // conditional jump INTERP_KERNEL::PolygonAlgorithms<2>::intersectConvexPolygons(double const*, double const*, int, int) (PolygonAlgorithms.txx:629)

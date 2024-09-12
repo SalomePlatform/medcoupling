@@ -18,12 +18,10 @@
 //
 
 #ifndef __INTERPKERNELMATRIX_HXX_
-#define __INTERPKERNELMATRIX_HXX_
+#define __INTERPKERNELMATRIX_HXX__
 
 #include "InterpolationUtils.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
 
-#include <utility>
 #include <vector>
 #include <iostream>
 #include <ostream>
@@ -77,7 +75,7 @@ namespace INTERP_KERNEL
 
       void erase(int elem) { std::vector< std::pair<int,T> >::erase(std::find_if(std::vector< std::pair<int,T> >::begin(),std::vector< std::pair<int,T> >::end(),KeyComparator(elem))); }
 
-      void insert(const std::pair<int,T>& myPair) { std::vector<std::pair<int,T> >::push_back(myPair); }
+      void insert(const std::pair<int,T>& myPair) { vector<std::pair<int,T> >::push_back(myPair); }
     };
     
   private:
@@ -90,14 +88,14 @@ namespace INTERP_KERNEL
     friend std::istream& operator>><>(std::istream& in, Matrix<T,type>& m);
     bool _is_configured;
   public:
-    using value_type = Row;
+    typedef Row value_type;
   public:
-    Matrix():_coeffs(0), _cols(nullptr), _nb_rows(0), _is_configured(false)
+    Matrix():_coeffs(0), _cols(0), _nb_rows(0), _is_configured(false)
     { }
-    Matrix(int nbrows):_coeffs(0), _cols(nullptr), _is_configured(false)
+    Matrix(int nbrows):_coeffs(0), _cols(0), _is_configured(false)
     { _nb_rows=nbrows; }
     Matrix(std::vector<std::map<int,T> > & matrix) :
-      _coeffs(0), _cols(nullptr), _is_configured(false)
+      _coeffs(0), _cols(0), _is_configured(false)
     {
       _nb_rows=matrix.size();
       _auxiliary_matrix.resize(_nb_rows);

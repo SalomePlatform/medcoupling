@@ -18,14 +18,14 @@
 //
 
 #include "TransformedTriangle.hxx"
-#include "Log.hxx"
 #include "VectorUtils.hxx"
 #include "TetraAffineTransform.hxx"
-#include <cmath>
-#include <cstddef>
 #include <iostream>
+#include <fstream>
 #include <cassert>
 #include <algorithm>
+#include <functional>
+#include <iterator>
 #include <math.h>
 #include <vector>
 
@@ -188,7 +188,7 @@ namespace INTERP_KERNEL
 //       };
 
 //     double sign = uv_xy[0] * uv_xy[3] - uv_xy[1] * uv_xy[2];
-    int const sign = isTriangleInclinedToFacet( OXY );
+    int sign = isTriangleInclinedToFacet( OXY );
 
     if(sign == 0 )
       {
@@ -314,13 +314,13 @@ namespace INTERP_KERNEL
       {
         if(testSurfaceEdgeIntersection(edge))
           {
-            auto* ptA = new double[3];
+            double* ptA = new double[3];
             calcIntersectionPtSurfaceEdge(edge, ptA);
             _polygonA.push_back(ptA);
             LOG(3,"Surface-edge (edge " << strTE(edge) << "): " << vToStr(ptA) << " added to A ");
             if(edge >= XY)
               {
-                auto* ptB = new double[3];
+                double* ptB = new double[3];
                 copyVector3(ptA, ptB);
                 _polygonB.push_back(ptB);
                 LOG(3,"Surface-edge (edge " << strTE(edge) << "): " << vToStr(ptB) << " added to B ");
@@ -334,7 +334,7 @@ namespace INTERP_KERNEL
       {
         if(testSurfaceRayIntersection(corner))
           {
-            auto* ptB = new double[3];
+            double* ptB = new double[3];
             copyVector3(&COORDS_TET_CORNER[3 * corner], ptB);
             _polygonB.push_back(ptB);
             LOG(3,"Surface-ray (corner " << strTC(corner) << "): " << vToStr(ptB) << " added to B");
@@ -362,13 +362,13 @@ namespace INTERP_KERNEL
 
             if(doTest && testSegmentFacetIntersection(seg, facet))
               {
-                auto* ptA = new double[3];
+                double* ptA = new double[3];
                 calcIntersectionPtSegmentFacet(seg, facet, ptA);
                 _polygonA.push_back(ptA);
                 LOG(3,"Segment-facet (facet " << strTF(facet) << ", seg " << strTriS(seg) << "): " << vToStr(ptA) << " added to A");
                 if(facet == XYZ)
                   {
-                    auto* ptB = new double[3];
+                    double* ptB = new double[3];
                     copyVector3(ptA, ptB);
                     _polygonB.push_back(ptB);
                     LOG(3,"Segment-facet (facet " << strTF(facet) << ", seg " << strTriS(seg) << "): " << vToStr(ptB) << " added to B");
@@ -380,17 +380,17 @@ namespace INTERP_KERNEL
         // segment - edge
         for(TetraEdge edge = OX ; edge <= ZX ; edge = TetraEdge(edge + 1))
           {
-            const auto edge_dp = DoubleProduct(edge);
+            const DoubleProduct edge_dp = DoubleProduct(edge);
 
             if(isZero[edge_dp] && testSegmentEdgeIntersection(seg, edge))
               {
-                auto* ptA = new double[3];
+                double* ptA = new double[3];
                 calcIntersectionPtSegmentEdge(seg, edge, ptA);
                 _polygonA.push_back(ptA);
                 LOG(3,"Segment-edge (edge " << strTE(edge) << ", seg " << strTriS(seg) << "): " << vToStr(ptA) << " added to A");
                 if(edge >= XY)
                   {
-                    auto* ptB = new double[3];
+                    double* ptB = new double[3];
                     copyVector3(ptA, ptB);
                     _polygonB.push_back(ptB);
                     LOG(3,"Segment-edge (edge " << strTE(edge) << ", seg " << strTriS(seg) << "): " << vToStr(ptA) << " added to B");
@@ -408,13 +408,13 @@ namespace INTERP_KERNEL
 
             if(doTest && testSegmentCornerIntersection(seg, corner))
               {
-                auto* ptA = new double[3];
+                double* ptA = new double[3];
                 copyVector3(&COORDS_TET_CORNER[3 * corner], ptA);
                 _polygonA.push_back(ptA);
                 LOG(3,"Segment-corner (corner " << strTC(corner) << ", seg " << strTriS(seg) << "): " << vToStr(ptA) << " added to A");
                 if(corner != O)
                   {
-                    auto* ptB = new double[3];
+                    double* ptB = new double[3];
                     _polygonB.push_back(ptB);
                     copyVector3(&COORDS_TET_CORNER[3 * corner], ptB);
                     LOG(3,"Segment-corner (corner " << strTC(corner) << ", seg " << strTriS(seg) << "): " << vToStr(ptB) << " added to B");
@@ -427,7 +427,7 @@ namespace INTERP_KERNEL
           {
             if(isZero[DP_SEGMENT_RAY_INTERSECTION[7*(corner-1)]] && testSegmentRayIntersection(seg, corner))
               {
-                auto* ptB = new double[3];
+                double* ptB = new double[3];
                 copyVector3(&COORDS_TET_CORNER[3 * corner], ptB);
                 _polygonB.push_back(ptB);
                 LOG(3,"Segment-ray (corner " << strTC(corner) << ", seg " << strTriS(seg) << "): " << vToStr(ptB) << " added to B");
@@ -449,7 +449,7 @@ namespace INTERP_KERNEL
 #endif
               if(testSegmentHalfstripIntersection(seg, edge))
                 {
-                  auto* ptB = new double[3];
+                  double* ptB = new double[3];
                   calcIntersectionPtSegmentHalfstrip(seg, edge, ptB);
                   _polygonB.push_back(ptB);
                   LOG(3,"Segment-halfstrip : " << vToStr(ptB) << " added to B");
@@ -464,7 +464,7 @@ namespace INTERP_KERNEL
         // tetrahedron
         if(testCornerInTetrahedron(corner))
           {
-            auto* ptA = new double[3];
+            double* ptA = new double[3];
             copyVector3(&_coords[5*corner], ptA);
             _polygonA.push_back(ptA);
             LOG(3,"Inclusion tetrahedron (corner " << strTriC(corner) << "): " << vToStr(ptA) << " added to A");
@@ -473,7 +473,7 @@ namespace INTERP_KERNEL
         // XYZ - plane
         if(testCornerOnXYZFacet(corner))
           {
-            auto* ptB = new double[3];
+            double* ptB = new double[3];
             copyVector3(&_coords[5*corner], ptB);
             _polygonB.push_back(ptB);
             LOG(3,"Inclusion XYZ-plane (corner " << strTriC(corner) << "): " << vToStr(ptB) << " added to B");
@@ -482,7 +482,7 @@ namespace INTERP_KERNEL
         // projection on XYZ - facet
         if(testCornerAboveXYZFacet(corner))
           {
-            auto* ptB = new double[3];
+            double* ptB = new double[3];
             copyVector3(&_coords[5*corner], ptB);
             ptB[2] = 1 - ptB[0] - ptB[1];   // lower z to project on XYZ
             assert(epsilonEqual(ptB[0]+ptB[1]+ptB[2] - 1, 0.0));
@@ -513,7 +513,7 @@ namespace INTERP_KERNEL
       {
         if(testSurfaceEdgeIntersection(edge))
           {
-            auto* ptA = new double[3];
+            double* ptA = new double[3];
             calcIntersectionPtSurfaceEdge(edge, ptA);
             _polygonA.push_back(ptA);
             LOG(3,"Surface-edge : " << vToStr(ptA) << " added to A ");
@@ -542,7 +542,7 @@ namespace INTERP_KERNEL
 
             if(doTest && testSegmentFacetIntersection(seg, facet))
               {
-                auto* ptA = new double[3];
+                double* ptA = new double[3];
                 calcIntersectionPtSegmentFacet(seg, facet, ptA);
                 _polygonA.push_back(ptA);
                 LOG(3,"Segment-facet : " << vToStr(ptA) << " added to A");
@@ -552,11 +552,11 @@ namespace INTERP_KERNEL
         // segment - edge
         for(TetraEdge edge = OX ; edge <= ZX ; edge = TetraEdge(edge + 1))
           {
-            const auto edge_dp = DoubleProduct(edge);
+            const DoubleProduct edge_dp = DoubleProduct(edge);
 
             if(isZero[edge_dp] && testSegmentEdgeIntersection(seg, edge))
               {
-                auto* ptA = new double[3];
+                double* ptA = new double[3];
                 calcIntersectionPtSegmentEdge(seg, edge, ptA);
                 _polygonA.push_back(ptA);
                 LOG(3,"Segment-edge : " << vToStr(ptA) << " added to A");
@@ -573,7 +573,7 @@ namespace INTERP_KERNEL
 
             if(doTest && testSegmentCornerIntersection(seg, corner))
               {
-                auto* ptA = new double[3];
+                double* ptA = new double[3];
                 copyVector3(&COORDS_TET_CORNER[3 * corner], ptA);
                 _polygonA.push_back(ptA);
                 LOG(3,"Segment-corner : " << vToStr(ptA) << " added to A");
@@ -589,7 +589,7 @@ namespace INTERP_KERNEL
             // tetrahedron
             if(testCornerInTetrahedron(corner))
               {
-                auto* ptA = new double[3];
+                double* ptA = new double[3];
                 copyVector3(&_coords[5*corner], ptA);
                 _polygonA.push_back(ptA);
                 LOG(3,"Inclusion tetrahedron : " << vToStr(ptA) << " added to A");
@@ -699,7 +699,7 @@ namespace INTERP_KERNEL
         }
 
       // create order object
-      SortOrder const order(barycenter, type);
+      SortOrder order(barycenter, type);
 
       // sort vector with this object
       // NB : do not change place of first object, with respect to which the order

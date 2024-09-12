@@ -18,16 +18,16 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#include "InterpKernelGeo2DPrecision.hxx"
-#include "InterpKernelGeo2DNode.hxx"
 #include "QuadraticPlanarInterpTest.hxx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
+#include "InterpKernelGeo2DElementaryEdge.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
+#include "InterpKernelGeo2DEdgeLin.hxx"
 
-#include <algorithm>
 #include <cmath>
-#include <cppunit/TestAssert.h>
-#include <vector>
+#include <sstream>
+#include <iostream>
+#include <iterator>
 
 using namespace INTERP_KERNEL;
 
@@ -1180,7 +1180,7 @@ void QuadraticPlanarInterpTest::checkGetMiddleOfPoints()
 
     Node * start = new Node(0.,0.); Node * end = new Node(0.,0.); // unused
     // start, end, center_x, center_y, radius, angle0, angle
-    EdgeArcCircle const e(start, end, e_center, 1.2264175471673588, -0.9533904350433241, 0.95339043504332388);
+    EdgeArcCircle e(start, end, e_center, 1.2264175471673588, -0.9533904350433241, 0.95339043504332388);
 
     e.getMiddleOfPoints(p1, p2, mid);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.37969180470645592, mid[0], 1.e-7);
@@ -1200,7 +1200,7 @@ void QuadraticPlanarInterpTest::checkGetMiddleOfPoints()
 
     Node * start = new Node(0.,0.); Node * end = new Node(0.,0.); // unused
     // start, end, center_x, center_y, radius, angle0, angle
-    EdgeArcCircle const e(start, end, e_center, 6.0104076400856474, -0.69522150912422953, -0.18035330854643861);
+    EdgeArcCircle e(start, end, e_center, 6.0104076400856474, -0.69522150912422953, -0.18035330854643861);
 
     e.getMiddleOfPoints(p1, p2, mid);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.6, mid[0], 1.e-7);
@@ -1220,7 +1220,7 @@ void QuadraticPlanarInterpTest::checkGetMiddleOfPoints()
 
     Node * start = new Node(0.,0.); Node * end = new Node(0.,0.); // unused
     // start, end, center_x, center_y, radius, angle0, angle
-    EdgeArcCircle const e(start, end, e_center, 2.0977501175200861, 1.0829141821052615, -0.59503203741562627);
+    EdgeArcCircle e(start, end, e_center, 2.0977501175200861, 1.0829141821052615, -0.59503203741562627);
 
     e.getMiddleOfPoints(p1, p2, mid);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(-0.5, mid[0], 1.e-7);
@@ -1244,7 +1244,7 @@ void QuadraticPlanarInterpTest::checkGetMiddleOfPointsOriented()
 
     Node * start = new Node(0.,0.); Node * end = new Node(0.,0.); // unused
     // start, end, center_x, center_y, radius, angle0, angle
-    EdgeArcCircle const e(start, end, e_center, 1.0, -0.7853981633974485, -1.5707963267948966);
+    EdgeArcCircle e(start, end, e_center, 1.0, -0.7853981633974485, -1.5707963267948966);
 
     e.getMiddleOfPointsOriented(p1, p2, mid);
     CPPUNIT_ASSERT_DOUBLES_EQUAL(1., mid[0], 1.e-7);

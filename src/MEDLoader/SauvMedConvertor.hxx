@@ -24,17 +24,12 @@
 #ifndef __SauvMedConvertor_HXX__
 #define __SauvMedConvertor_HXX__
 
-#include "MCIdType.hxx"
+#include "InterpKernelException.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "SauvUtilities.hxx"
 #include "MCType.hxx"
-#include "NormalizedGeometricTypes"
 
-#include <utility>
-#include <cstddef>
-#include <ostream>
-#include <string>
-#include <cstdio>
 #include <vector>
 #include <set>
 #include <map>
@@ -56,18 +51,18 @@ namespace SauvUtilities
   struct IntermediateMED;
 
   // ==============================================================================
-  using TID = mcIdType;  // an ID countered from 1
-  using Link = std::pair<TID, TID>; // a pair of node numbers
+  typedef mcIdType           TID;  // an ID countered from 1
+  typedef std::pair<TID,TID> Link; // a pair of node numbers
 
   typedef INTERP_KERNEL::NormalizedCellType TCellType;
 
   // ==============================================================================
   struct Node
   {
-    TID    _number{0};
+    TID    _number;
     size_t _coordID;
 
-    Node()= default;
+    Node():_number(0){}
     bool isUsed() const { return _number != 0; }
   };
 
@@ -75,13 +70,13 @@ namespace SauvUtilities
   struct Cell
   {
     std::vector< Node* > _nodes;
-    mutable bool         _reverse{false}; // to reverse orientation of a face only
-    mutable TID*         _sortedNodeIDs{nullptr}; // for comparison
-    mutable TID          _number{0};
+    mutable bool         _reverse; // to reverse orientation of a face only
+    mutable TID*         _sortedNodeIDs; // for comparison
+    mutable TID          _number;
 
-    Cell(size_t nnNodes=0) : _nodes(nnNodes) {}
+    Cell(size_t nnNodes=0) : _nodes(nnNodes),_reverse(false),_sortedNodeIDs(0),_number(0) {}
     Cell(const Cell& ma);
-    void init() const { if ( _sortedNodeIDs ) delete [] _sortedNodeIDs; _sortedNodeIDs = nullptr; }
+    void init() const { if ( _sortedNodeIDs ) delete [] _sortedNodeIDs; _sortedNodeIDs = 0; }
     ~Cell() { init(); }
 
     const TID* getSortedNodes() const; // creates if needed and return _sortedNodeIDs
@@ -96,11 +91,11 @@ namespace SauvUtilities
   // ==============================================================================
   struct Group
   {
-    TCellType                _cellType{INTERP_KERNEL::NORM_ERROR};
+    TCellType                _cellType;
     std::string              _name;
     std::vector<const Cell*> _cells;
     std::vector< Group* >    _groups;    // des sous-groupes composant le Group
-    bool                     _isProfile{false}; // is a field support or not
+    bool                     _isProfile; // is a field support or not
     std::vector<std::string> _refNames;  /* names of groups referring this one;
                                             _refNames is resized according to nb of references
                                             while reading a group (pile 1) and it is filled with
@@ -108,12 +103,12 @@ namespace SauvUtilities
                                             reference is converted into a copy of the medGroup
                                             (issue 0021311)
                                          */
-    MEDCoupling::DataArrayIdType* _medGroup{nullptr};   // result of conversion
+    MEDCoupling::DataArrayIdType* _medGroup;   // result of conversion
     std::vector< mcIdType >       _relocTable; // for _cells[i] gives its index in _medGroup
 
     bool empty() const { return _cells.empty() && _groups.empty(); }
     mcIdType  size()  const;
-    Group() {}
+    Group():_cellType(INTERP_KERNEL::NORM_ERROR), _isProfile(false), _medGroup(NULL) {}
   };
 
   // ==============================================================================
@@ -143,17 +138,17 @@ namespace SauvUtilities
     std::string              _name;
     std::string              _description; // field description
     std::vector< _Sub_data > _sub;
-    Group*                   _group{nullptr}; /* if _group == NULL then each subcomponent makes a
+    Group*                   _group; /* if _group == NULL then each subcomponent makes a
                                         separate med field, else all subcomponents
                                         are converted into timestamps of one med field.
                                         The latter is possible only if nb of components in all subs
                                         is the same and supports of subcomponents do not overlap
                                      */
     std::vector< std::vector< double > > _comp_values;
-    MEDCoupling::MEDFileFieldMultiTS*     _curMedField{nullptr};
+    MEDCoupling::MEDFileFieldMultiTS*     _curMedField;
 
     DoubleField( int nb_sub, int total_nb_comp )
-      : _sub(nb_sub) { _comp_values.reserve( total_nb_comp ); }
+      : _sub(nb_sub), _group(NULL), _curMedField(NULL) { _comp_values.reserve( total_nb_comp ); }
     ~DoubleField();
     std::vector< double >& addComponent( int nb_values ); // return a vector ready to fill in
     bool hasCommonSupport() const { return _group; } // true if there is one support for all subs
@@ -240,8 +235,8 @@ namespace SauvUtilities
    */
   struct IntermediateMED
   {
-    unsigned                   _spaceDim{0};
-    unsigned                   _nbNodes{0};
+    unsigned                   _spaceDim;
+    unsigned                   _nbNodes;
     NodeContainer              _points;
     std::vector<double>        _coords;
     std::vector<Group>         _groups;
@@ -254,13 +249,13 @@ namespace SauvUtilities
     std::list<nameGIBItoMED>  _listGIBItoMED_comp; // to read from table "MED_COMP" of PILE_TABLES
     std::map<int,std::string> _mapStrings;         // to read from PILE_STRINGS
 
-    IntermediateMED() = default;
+    IntermediateMED(): _spaceDim(0), _nbNodes(0) {}
     ~IntermediateMED();
 
     Node* getNode( TID nID ) { return _points.getNode( nID ); }
     mcIdType getNbCellsOfType( TCellType type ) const { return ToIdType(_cellsByType[type].size()); }
     const Cell* insert(TCellType type, const Cell& ma) { return &( *_cellsByType[type].insert( ma ).first ); }
-    Group* addNewGroup(std::vector<SauvUtilities::Group*>* groupsToFix=nullptr);
+    Group* addNewGroup(std::vector<SauvUtilities::Group*>* groupsToFix=0);
     MEDCoupling::MEDFileData* convertInMEDFileDS();
 
   private:
@@ -317,19 +312,19 @@ namespace SauvUtilities
   {
   public:
     ASCIIReader(const char* fileName);
-    ~ASCIIReader() override;
-    bool isASCII() const override;
-    bool open() override;
-    bool getNextLine (char* & line, bool raiseOEF = true ) override;
-    void initNameReading(int nbValues, int width = 8) override;
-    void initIntReading(int nbValues) override;
-    void initDoubleReading(int nbValues) override;
-    bool more() const override;
-    void next() override;
-    int    getInt() const override;
-    float  getFloat() const override;
-    double getDouble() const override;
-    std::string getName() const override;
+    virtual ~ASCIIReader();
+    virtual bool isASCII() const;
+    virtual bool open();
+    virtual bool getNextLine (char* & line, bool raiseOEF = true );
+    virtual void initNameReading(int nbValues, int width = 8);
+    virtual void initIntReading(int nbValues);
+    virtual void initDoubleReading(int nbValues);
+    virtual bool more() const;
+    virtual void next();
+    virtual int    getInt() const;
+    virtual float  getFloat() const;
+    virtual double getDouble() const;
+    virtual std::string getName() const;
     int lineNb() const { return _lineNb; }
     std::string getClassName() const override { return std::string("ASCIIReader"); }
   private:
@@ -356,19 +351,19 @@ namespace SauvUtilities
   {
   public:
     XDRReader(const char* fileName);
-    ~XDRReader() override;
-    bool isASCII() const override;
-    bool open() override;
-    bool getNextLine (char* & line, bool raiseOEF = true ) override;
-    void initNameReading(int nbValues, int width = 8) override;
-    void initIntReading(int nbValues) override;
-    void initDoubleReading(int nbValues) override;
-    bool more() const override;
-    void next() override;
-    int    getInt() const override;
-    float  getFloat() const override;
-    double getDouble() const override;
-    std::string getName() const override;
+    virtual ~XDRReader();
+    virtual bool isASCII() const;
+    virtual bool open();
+    virtual bool getNextLine (char* & line, bool raiseOEF = true );
+    virtual void initNameReading(int nbValues, int width = 8);
+    virtual void initIntReading(int nbValues);
+    virtual void initDoubleReading(int nbValues);
+    virtual bool more() const;
+    virtual void next();
+    virtual int    getInt() const;
+    virtual float  getFloat() const;
+    virtual double getDouble() const;
+    virtual std::string getName() const;
     std::string getClassName() const override { return std::string("XDRReader"); }
   private:
 

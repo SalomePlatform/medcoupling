@@ -122,7 +122,7 @@ namespace INTERP_KERNEL
     void setNode(Node *node) const;
     void performMerging(MergePoints& commonNode) const;
     Node *getNodeOnly() const { return _node; }
-    Node *getNodeAndReleaseIt() { Node *tmp=_node; _node=nullptr; return tmp; }
+    Node *getNodeAndReleaseIt() { Node *tmp=_node; _node=0; return tmp; }
     ~IntersectElement();
   private:
     bool _1S;  // true if starting point of edge 1 is located exactly on edge 2 (not nearby)
@@ -148,7 +148,7 @@ namespace INTERP_KERNEL
   {
   protected:
     //! All non symmetric methods are relative to 'e1'.
-    EdgeIntersector(const Edge& e1, const Edge& e2):_e1(e1),_e2(e2) { }
+    EdgeIntersector(const Edge& e1, const Edge& e2):_e1(e1),_e2(e2), _earlyInter(0) { }
   public:
     virtual ~EdgeIntersector() { if(_earlyInter) delete(_earlyInter); }
     virtual bool keepOrder() const = 0;
@@ -169,22 +169,22 @@ namespace INTERP_KERNEL
   protected:
     const Edge& _e1;
     const Edge& _e2;
-    IntersectElement *_earlyInter{nullptr};   // Non null if the intersection can be determined early -> see areOverlappedOrOnlyColinears()
+    IntersectElement *_earlyInter;   // Non null if the intersection can be determined early -> see areOverlappedOrOnlyColinears()
   };
 
   class INTERPKERNEL_EXPORT SameTypeEdgeIntersector : public EdgeIntersector
   {
   protected:
     SameTypeEdgeIntersector(const Edge& e1, const Edge& e2):EdgeIntersector(e1,e2) { }
-    bool keepOrder() const override { return true; }
+    bool keepOrder() const { return true; }
   };
 
   class INTERPKERNEL_EXPORT CrossTypeEdgeIntersector : public EdgeIntersector
   {
   protected:
     CrossTypeEdgeIntersector(const Edge& e1, const Edge& e2, bool reverse):EdgeIntersector(e1,e2),_reverse(reverse) { }
-    bool keepOrder() const override { return _reverse; }
-    bool haveTheySameDirection() const override { throw Exception("Cross type intersector is not supposed to deal with overlapped in cross type."); }
+    bool keepOrder() const { return _reverse; }
+    bool haveTheySameDirection() const { throw Exception("Cross type intersector is not supposed to deal with overlapped in cross type."); }
     const Edge *myE1() { if(_reverse) return &_e1; else return &_e2; }
     const Edge *myE2() { if(_reverse) return &_e2; else return &_e1; }
   protected:
@@ -223,7 +223,7 @@ namespace INTERP_KERNEL
     void unHitMeAfter(double xBary, double yBary, double dimChar) { if(!_hit) unHitMeAlone(xBary,yBary,dimChar); }
     const Bounds& getBounds() const { return _bounds; }
     void fillXfigStreamForLoc(std::ostream& stream) const;
-    Node *getNode(TypeOfLocInEdge where) const { if(where==START) return _start; else if(where==END) return _end; else return nullptr; }
+    Node *getNode(TypeOfLocInEdge where) const { if(where==START) return _start; else if(where==END) return _end; else return 0; }
     Node *getStartNode() const { return _start; }
     Node *getEndNode() const { return _end; }
     void setEndNodeWithoutChange(Node *newEnd);
@@ -292,7 +292,7 @@ namespace INTERP_KERNEL
                             std::vector<mcIdType>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType>& mapAddCoo) const;
 
   protected:
-    Edge():_cnt(1),_loc(FULL_UNKNOWN),_start(nullptr),_end(nullptr) { }
+    Edge():_cnt(1),_loc(FULL_UNKNOWN),_start(0),_end(0) { }
     virtual ~Edge();
     static int CombineCodes(TypeOfLocInEdge code1, TypeOfLocInEdge code2);
     static bool Intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, MergePoints& commonNode,

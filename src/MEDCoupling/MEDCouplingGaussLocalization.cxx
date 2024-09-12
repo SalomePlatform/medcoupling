@@ -19,26 +19,16 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingGaussLocalization.hxx"
-#include "InterpKernelException.hxx"
 #include "InterpKernelGaussCoords.hxx"
-#include "MCAuto.hxx"
-#include "MCIdType.hxx"
-#include "MCType.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
-#include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "CellModel.hxx"
-#include "NormalizedGeometricTypes"
 
 #include <cmath>
-#include <cstddef>
-#include <ostream>
-#include <iterator>
-#include <functional>
+#include <numeric>
 #include <sstream>
+#include <iterator>
 #include <algorithm>
-#include <string>
-#include <vector>
 
 using namespace MEDCoupling;
 
@@ -66,8 +56,8 @@ void MEDCouplingGaussLocalization::setType(INTERP_KERNEL::NormalizedCellType typ
 void MEDCouplingGaussLocalization::checkConsistencyLight() const
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
-  int const nbNodes=cm.getNumberOfNodes();
-  int const dim=cm.getDimension();
+  int nbNodes=cm.getNumberOfNodes();
+  int dim=cm.getDimension();
   if(!cm.isDynamic())
     {
       if(ToIdType(_ref_coord.size())!=nbNodes*dim)
@@ -99,7 +89,7 @@ int MEDCouplingGaussLocalization::getNumberOfPtsInRefCell() const
     const INTERP_KERNEL::CellModel& cm = INTERP_KERNEL::CellModel::GetCellModel(_type);
     return ((int)_ref_coord.size()) / ((int)cm.getDimension());
   }
-  int const dim( getDimension() );
+  int dim( getDimension() );
   return (int)_ref_coord.size()/dim;
 }
 
@@ -138,8 +128,8 @@ bool MEDCouplingGaussLocalization::isEqual(const MEDCouplingGaussLocalization& o
 double MEDCouplingGaussLocalization::getRefCoord(int ptIdInCell, int comp) const
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
-  int const nbNodes=cm.getNumberOfNodes();
-  int const dim=cm.getDimension();
+  int nbNodes=cm.getNumberOfNodes();
+  int dim=cm.getDimension();
   if(ptIdInCell<0 || ptIdInCell>=nbNodes)
     throw INTERP_KERNEL::Exception("ptIdInCell specified is invalid : must be in [0;nbNodesPerCell) !");
   if(comp<0 || comp>=dim)
@@ -149,7 +139,7 @@ double MEDCouplingGaussLocalization::getRefCoord(int ptIdInCell, int comp) const
 
 double MEDCouplingGaussLocalization::getGaussCoord(int gaussPtIdInCell, int comp) const
 {
-  int const dim=checkCoherencyOfRequest(gaussPtIdInCell,comp);
+  int dim=checkCoherencyOfRequest(gaussPtIdInCell,comp);
   return _gauss_coord[gaussPtIdInCell*dim+comp];
 }
 
@@ -216,12 +206,12 @@ MCAuto<DataArrayDouble> MEDCouplingGaussLocalization::localizePtsInRefCooForEach
   ptsInRefCoo->checkAllocated();
   mesh->checkConsistencyLight();
   //
-  mcIdType const nbCells=mesh->getNumberOfCells();
+  mcIdType nbCells=mesh->getNumberOfCells();
   const double *coords(mesh->getCoords()->begin());
   const mcIdType *connI(mesh->getNodalConnectivityIndex()->begin()),*conn(mesh->getNodalConnectivity()->begin());
   //
-  mcIdType const nbPts(ptsInRefCoo->getNumberOfTuples());
-  INTERP_KERNEL::NormalizedCellType const typ(getType());
+  mcIdType nbPts(ptsInRefCoo->getNumberOfTuples());
+  INTERP_KERNEL::NormalizedCellType typ(getType());
   int dim(INTERP_KERNEL::CellModel::GetCellModel(typ).getDimension()),outDim(mesh->getSpaceDimension());
   MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   ret->alloc(nbPts*nbCells,outDim);
@@ -268,7 +258,7 @@ MCAuto<DataArrayDouble> MEDCouplingGaussLocalization::getShapeFunctionValues() c
   double *retPtr(ret->getPointer());
   for(int iGaussPt = 0 ; iGaussPt < nbGaussPt ; ++iGaussPt)
   {
-    std::vector<double> const curGaussPt(_gauss_coord.begin()+iGaussPt*dim,_gauss_coord.begin()+(iGaussPt+1)*dim);
+    std::vector<double> curGaussPt(_gauss_coord.begin()+iGaussPt*dim,_gauss_coord.begin()+(iGaussPt+1)*dim);
     INTERP_KERNEL::GaussInfo gi(_type,curGaussPt,1,_ref_coord,nbPtsRefCell);
     gi.initLocalInfo();
     const double *funcVal( gi.getFunctionValues(0) );
@@ -286,7 +276,7 @@ MCAuto<DataArrayDouble> MEDCouplingGaussLocalization::getDerivativeOfShapeFuncti
   double *retPtr(ret->getPointer());
   for(int iGaussPt = 0 ; iGaussPt < nbGaussPt ; ++iGaussPt)
   {
-    std::vector<double> const curGaussPt(_gauss_coord.begin()+iGaussPt*dim,_gauss_coord.begin()+(iGaussPt+1)*dim);
+    std::vector<double> curGaussPt(_gauss_coord.begin()+iGaussPt*dim,_gauss_coord.begin()+(iGaussPt+1)*dim);
     INTERP_KERNEL::GaussInfo gi(_type,curGaussPt,1,_ref_coord,nbPtsRefCell);
     gi.initLocalInfo();
     const double *devOfFuncVal( gi.getDerivativeOfShapeFunctionAt(0) );
@@ -303,8 +293,8 @@ MCAuto<DataArrayDouble> MEDCouplingGaussLocalization::getDerivativeOfShapeFuncti
 void MEDCouplingGaussLocalization::setRefCoord(int ptIdInCell, int comp, double newVal)
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
-  int const nbNodes=cm.getNumberOfNodes();
-  int const dim=cm.getDimension();
+  int nbNodes=cm.getNumberOfNodes();
+  int dim=cm.getDimension();
   if(ptIdInCell<0 || ptIdInCell>=nbNodes)
     throw INTERP_KERNEL::Exception("ptIdInCell specified is invalid : must be in [0;nbNodesPerCell) !");
   if(comp<0 || comp>=dim)
@@ -314,7 +304,7 @@ void MEDCouplingGaussLocalization::setRefCoord(int ptIdInCell, int comp, double 
 
 void MEDCouplingGaussLocalization::setGaussCoord(int gaussPtIdInCell, int comp, double newVal)
 {
-  int const dim=checkCoherencyOfRequest(gaussPtIdInCell,comp);
+  int dim=checkCoherencyOfRequest(gaussPtIdInCell,comp);
   _gauss_coord[gaussPtIdInCell*dim+comp]=newVal;
 }
 
@@ -351,8 +341,8 @@ MEDCouplingGaussLocalization MEDCouplingGaussLocalization::BuildNewInstanceFromT
 int MEDCouplingGaussLocalization::checkCoherencyOfRequest(mcIdType gaussPtIdInCell, int comp) const
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(_type);
-  int const dim=cm.getDimension();
-  mcIdType const nbGsPts=getNumberOfGaussPt();
+  int dim=cm.getDimension();
+  mcIdType nbGsPts=getNumberOfGaussPt();
   if(gaussPtIdInCell<0 || gaussPtIdInCell>=nbGsPts)
     throw INTERP_KERNEL::Exception("gaussPtIdInCell specified is invalid : must be in [0:nbGsPts) !");
   if(comp<0 || comp>=dim)
@@ -362,7 +352,7 @@ int MEDCouplingGaussLocalization::checkCoherencyOfRequest(mcIdType gaussPtIdInCe
 
 bool MEDCouplingGaussLocalization::AreAlmostEqual(const std::vector<double>& v1, const std::vector<double>& v2, double eps)
 {
-  std::size_t const sz=v1.size();
+  std::size_t sz=v1.size();
   if(sz!=v2.size())
     return false;
   std::vector<double> tmp(sz);
@@ -376,7 +366,7 @@ MCAuto<DataArrayDouble> MEDCouplingGaussLocalization::GetDefaultReferenceCoordin
   std::vector<double> retCpp(INTERP_KERNEL::GaussInfo::GetDefaultReferenceCoordinatesOf(type));
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   auto nbDim(cm.getDimension());
-  std::size_t const sz(retCpp.size());
+  std::size_t sz(retCpp.size());
   MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   if( sz%std::size_t(nbDim) != 0 )
     THROW_IK_EXCEPTION("GetDefaultReferenceCoordinatesOf : unexpected size of defaut array : " << sz << " % " << nbDim << " != 0 !");

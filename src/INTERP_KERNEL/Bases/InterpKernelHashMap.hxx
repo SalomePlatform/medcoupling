@@ -48,13 +48,8 @@
 #ifndef __INTERPKERNELHASHMAP__
 #define __INTERPKERNELHASHMAP__
 
-#include "InterpKernelHashFun.hxx"
 #include "InterpKernelStlExt.hxx"
 #include "InterpKernelHashTable.hxx"
-#include <functional>
-#include <memory>
-#include <utility>
-#include <iterator>
 
 namespace INTERP_KERNEL
 {
@@ -63,29 +58,31 @@ namespace INTERP_KERNEL
   class HashMap
   {
   private:
-    using _Ht = hashtable<std::pair<const _Key, _Tp>, _Key, _HashFn, STLEXT::Select1st<std::pair<const _Key, _Tp>>, _EqualKey, _Alloc>;
+    typedef hashtable<std::pair<const _Key, _Tp>,_Key, _HashFn,
+                      STLEXT::Select1st<std::pair<const _Key, _Tp> >,
+                      _EqualKey, _Alloc> _Ht;
 
     _Ht _M_ht;
     
   public:
-    using key_type = typename _Ht::key_type;
-    using data_type = _Tp;
-    using mapped_type = _Tp;
-    using value_type = typename _Ht::value_type;
-    using hasher = typename _Ht::hasher;
-    using key_equal = typename _Ht::key_equal;
+    typedef typename _Ht::key_type key_type;
+    typedef _Tp data_type;
+    typedef _Tp mapped_type;
+    typedef typename _Ht::value_type value_type;
+    typedef typename _Ht::hasher hasher;
+    typedef typename _Ht::key_equal key_equal;
     
-    using size_type = typename _Ht::size_type;
-    using difference_type = typename _Ht::difference_type;
-    using pointer = typename _Ht::pointer;
-    using const_pointer = typename _Ht::const_pointer;
-    using reference = typename _Ht::reference;
-    using const_reference = typename _Ht::const_reference;
+    typedef typename _Ht::size_type size_type;
+    typedef typename _Ht::difference_type difference_type;
+    typedef typename _Ht::pointer pointer;
+    typedef typename _Ht::const_pointer const_pointer;
+    typedef typename _Ht::reference reference;
+    typedef typename _Ht::const_reference const_reference;
     
-    using iterator = typename _Ht::iterator;
-    using const_iterator = typename _Ht::const_iterator;
+    typedef typename _Ht::iterator iterator;
+    typedef typename _Ht::const_iterator const_iterator;
     
-    using allocator_type = typename _Ht::allocator_type;
+    typedef typename _Ht::allocator_type allocator_type;
       
     hasher hash_funct() const { return _M_ht.hash_funct(); }
 
@@ -200,27 +197,29 @@ namespace INTERP_KERNEL
   class HashMultiMap
   {
   private:
-    using _Ht = hashtable<std::pair<const _Key, _Tp>, _Key, _HashFn, STLEXT::Select1st<std::pair<const _Key, _Tp>>, _EqualKey, _Alloc>;
+    typedef hashtable<std::pair<const _Key, _Tp>, _Key, _HashFn,
+                      STLEXT::Select1st<std::pair<const _Key, _Tp> >, _EqualKey, _Alloc>
+    _Ht;
     _Ht _M_ht;
   public:
-    using key_type = typename _Ht::key_type;
-    using data_type = _Tp;
-    using mapped_type = _Tp;
-    using value_type = typename _Ht::value_type;
-    using hasher = typename _Ht::hasher;
-    using key_equal = typename _Ht::key_equal;
+    typedef typename _Ht::key_type key_type;
+    typedef _Tp data_type;
+    typedef _Tp mapped_type;
+    typedef typename _Ht::value_type value_type;
+    typedef typename _Ht::hasher hasher;
+    typedef typename _Ht::key_equal key_equal;
     
-    using size_type = typename _Ht::size_type;
-    using difference_type = typename _Ht::difference_type;
-    using pointer = typename _Ht::pointer;
-    using const_pointer = typename _Ht::const_pointer;
-    using reference = typename _Ht::reference;
-    using const_reference = typename _Ht::const_reference;
+    typedef typename _Ht::size_type size_type;
+    typedef typename _Ht::difference_type difference_type;
+    typedef typename _Ht::pointer pointer;
+    typedef typename _Ht::const_pointer const_pointer;
+    typedef typename _Ht::reference reference;
+    typedef typename _Ht::const_reference const_reference;
     
-    using iterator = typename _Ht::iterator;
-    using const_iterator = typename _Ht::const_iterator;
+    typedef typename _Ht::iterator iterator;
+    typedef typename _Ht::const_iterator const_iterator;
     
-    using allocator_type = typename _Ht::allocator_type;
+    typedef typename _Ht::allocator_type allocator_type;
   
     hasher hash_funct() const { return _M_ht.hash_funct(); }
     
@@ -337,15 +336,16 @@ namespace std
                                                _EqKey, _Alloc> >
   {
   protected:
-    using _Container = INTERP_KERNEL::HashMap<_Key, _Tp, _HashFn, _EqKey, _Alloc>;
+    typedef INTERP_KERNEL::HashMap<_Key, _Tp, _HashFn, _EqKey, _Alloc>
+    _Container;
     _Container* container;
   public:
-    using container_type = _Container;
-    using iterator_category = output_iterator_tag;
-    using value_type = void;
-    using difference_type = void;
-    using pointer = void;
-    using reference = void;
+    typedef _Container          container_type;
+    typedef output_iterator_tag iterator_category;
+    typedef void                value_type;
+    typedef void                difference_type;
+    typedef void                pointer;
+    typedef void                reference;
       
     insert_iterator(_Container& __x) : container(&__x) {}
     
@@ -369,17 +369,18 @@ namespace std
                                                     _EqKey, _Alloc> >
   {
   protected:
-    using _Container = INTERP_KERNEL::HashMultiMap<_Key, _Tp, _HashFn, _EqKey, _Alloc>;
+    typedef INTERP_KERNEL::HashMultiMap<_Key, _Tp, _HashFn, _EqKey, _Alloc>
+    _Container;
     _Container* container;
     typename _Container::iterator iter;
     
   public:
-    using container_type = _Container;
-    using iterator_category = output_iterator_tag;
-    using value_type = void;
-    using difference_type = void;
-    using pointer = void;
-    using reference = void;
+    typedef _Container          container_type;
+    typedef output_iterator_tag iterator_category;
+    typedef void                value_type;
+    typedef void                difference_type;
+    typedef void                pointer;
+    typedef void                reference;
     
     insert_iterator(_Container& __x) : container(&__x) {}
 

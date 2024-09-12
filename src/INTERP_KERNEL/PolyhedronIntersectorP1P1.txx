@@ -21,16 +21,10 @@
 #define __PolyhedronIntersectorP1P1_TXX__
 
 #include "PolyhedronIntersectorP1P1.hxx"
-
-#include "NormalizedGeometricTypes"
 #include "Intersector3DP1P1.txx"
-#include "InterpolationUtils.hxx"
-#include "Intersector3D.txx"
-// #include "MeshUtils.hxx"
+#include "MeshUtils.hxx"
 
 #include "SplitterTetra.txx"
-#include <vector>
-#include <utility>
 
 namespace INTERP_KERNEL
 {
@@ -43,7 +37,7 @@ namespace INTERP_KERNEL
    * @param policy      splitting policy to be used
    */
   template<class MyMeshType, class MyMatrix>
-  PolyhedronIntersectorP1P1<MyMeshType,MyMatrix>::PolyhedronIntersectorP1P1(const MyMeshType& targetMesh, const MyMeshType& srcMesh, SplittingPolicy  /*policy*/):Intersector3DP1P1<MyMeshType,MyMatrix>(targetMesh,srcMesh)
+  PolyhedronIntersectorP1P1<MyMeshType,MyMatrix>::PolyhedronIntersectorP1P1(const MyMeshType& targetMesh, const MyMeshType& srcMesh, SplittingPolicy policy):Intersector3DP1P1<MyMeshType,MyMatrix>(targetMesh,srcMesh)
   {
     // SPEC:
     // "Limitation. Concerning P1P1 3D improvement only tetrahedron will be supported.
@@ -68,7 +62,8 @@ namespace INTERP_KERNEL
    */
   template<class MyMeshType, class MyMatrix>
   PolyhedronIntersectorP1P1<MyMeshType,MyMatrix>::~PolyhedronIntersectorP1P1()
-  = default;
+  {
+  }
 
   /**
    * Calculates the volume of intersection of an element in the source mesh and the target element
@@ -108,17 +103,18 @@ namespace INTERP_KERNEL
         srcTetra.splitIntoDualCells(subTetrasS);
 
         // intersect each target subTetra with each source one
-        for(auto tmp : subTetrasS)
+        for(int i=0;i<24;i++)
           {
+            SplitterTetra<MyMeshType> *tmp=subTetrasS[i];
             ConnType sourceNode=OTT<ConnType,numPol>::indFC(tmp->getId(0));
-            for(auto & subTetraNode : subTetraNodes)
+            for(int j=0;j<24;j++)
               {
-                const double* tetraNodes12 = &subTetraNode.second[0];
+                const double* tetraNodes12 = &subTetraNodes[j].second[0];
                 const double* tetraNodesT[4]={ tetraNodes12, tetraNodes12+3, tetraNodes12+6, tetraNodes12+9 };
                 double volume = tmp->intersectTetra( tetraNodesT );
                 if(volume!=0.)
                   {
-                    ConnType tgtNode=subTetraNode.first;
+                    ConnType tgtNode=subTetraNodes[j].first;
                     typename MyMatrix::value_type& resRow = res[tgtNode];
                     typename MyMatrix::value_type::const_iterator iterRes=resRow.find( sourceNode );
                     if(iterRes!=resRow.end())

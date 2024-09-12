@@ -20,9 +20,7 @@
 
 #include "BoxSplittingOptions.hxx"
 
-#include <ostream>
 #include <sstream>
-#include <string>
 
 const double INTERP_KERNEL::BoxSplittingOptions::DFT_EFFICIENCY_GOAL=0.5;
 

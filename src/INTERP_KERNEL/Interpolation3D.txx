@@ -22,13 +22,9 @@
 #define __INTERPOLATION3D_TXX__
 
 #include "Interpolation3D.hxx"
-
-#include "BBTreeStandAlone.txx"
-#include "BoundingBox.hxx"
-#include "InterpolationOptions.hxx"
-#include "Intersector3D.hxx"
+#include "Interpolation.txx"
 #include "MeshElement.txx"
-
+#include "TransformedTriangle.hxx"
 #include "PolyhedronIntersectorP0P0.txx"
 #include "PointLocator3DIntersectorP0P0.txx"
 #include "PolyhedronIntersectorP0P1.txx"
@@ -41,10 +37,6 @@
 #include "Barycentric3DIntersectorP1P1.txx"
 #include "MappedBarycentric3DIntersectorP1P1.txx"
 #include "Log.hxx"
-#include "InterpKernelException.hxx"
-#include <memory>
-#include <string>
-#include <vector>
 // If defined, use recursion to traverse the binary search tree, else use the BBTree class
 //#define USE_RECURSIVE_BBOX_FILTER
 
@@ -59,6 +51,7 @@
 
 #endif
 
+#include <memory>
 
 namespace INTERP_KERNEL
 {

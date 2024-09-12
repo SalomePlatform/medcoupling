@@ -20,14 +20,10 @@
 
 #pragma once
 
-#include "CurveIntersector.hxx"
 #include "CurveIntersectorP1P1PL.hxx"
-#include "InterpolationUtils.hxx"
-#include "MCIdType.hxx"
+#include "CurveIntersector.txx"
 
 #include <cassert>
-#include <cstdlib>
-#include <vector>
 
 namespace INTERP_KERNEL
 {

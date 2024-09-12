@@ -19,24 +19,14 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingFieldTemplate.hxx"
-#include "MCIdType.hxx"
-#include "MCAuto.hxx"
-#include "MEDCouplingField.hxx"
-#include "MCType.hxx"
 #include "MEDCouplingMesh.hxx"
 #include "MEDCouplingFieldInt32.hxx"
 #include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
-#include "MEDCouplingRefCountObject.hxx"
-#include "MEDCouplingNatureOfField.hxx"
-#include "MEDCouplingNatureOfFieldEnum"
 
-#include <ostream>
 #include <sstream>
-#include <string>
-#include <vector>
 
 using namespace MEDCoupling;
 
@@ -142,7 +132,7 @@ MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldTemplat
 
 void MEDCouplingFieldTemplate::checkConsistencyLight() const
 {
-  if(_mesh==nullptr)
+  if(_mesh==0)
     throw INTERP_KERNEL::Exception("MEDCouplingFieldTemplate::checkConsistencyLight : Empty mesh !");
 }
 
@@ -200,8 +190,8 @@ void MEDCouplingFieldTemplate::resizeForUnserialization(const std::vector<mcIdTy
 {
   if(!((const MEDCouplingFieldDiscretization *)_type))
     throw INTERP_KERNEL::Exception("No spatial discretization underlying this field to perform resizeForUnserialization !");
-  dataInt=nullptr;
-  std::vector<mcIdType> const tinyInfoITmp(tinyInfoI.begin()+2,tinyInfoI.end());
+  dataInt=0;
+  std::vector<mcIdType> tinyInfoITmp(tinyInfoI.begin()+2,tinyInfoI.end());
   _type->resizeForUnserialization(tinyInfoITmp,dataInt);
 }
 
@@ -223,7 +213,7 @@ void MEDCouplingFieldTemplate::serialize(DataArrayIdType *&dataInt) const
 void MEDCouplingFieldTemplate::reprQuickOverview(std::ostream& stream) const
 {
   stream << "MEDCouplingFieldTemplate C++ instance at " << this << ". Name : \"" << _name << "\"." << std::endl;
-  const char *nat=nullptr;
+  const char *nat=0;
   try
   {
       nat=MEDCouplingNatureOfField::GetRepr(_nature);
@@ -243,13 +233,13 @@ void MEDCouplingFieldTemplate::reprQuickOverview(std::ostream& stream) const
     {
       std::ostringstream oss;
       _mesh->reprQuickOverview(oss);
-      std::string const tmp(oss.str());
+      std::string tmp(oss.str());
       stream << "\nMesh info : " << tmp.substr(0,tmp.find('\n'));
     }
 }
 
 MCAuto<MEDCouplingFieldTemplate> MEDCouplingFieldTemplate::clone(bool recDeepCpy) const
 {
-  MCAuto<MEDCouplingFieldTemplate> const ret(new MEDCouplingFieldTemplate(*this,recDeepCpy));
+  MCAuto<MEDCouplingFieldTemplate> ret(new MEDCouplingFieldTemplate(*this,recDeepCpy));
   return ret;
 }

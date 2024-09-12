@@ -21,27 +21,11 @@
 #ifndef __MEDCOUPLINGFIELDT_TXX__
 #define __MEDCOUPLINGFIELDT_TXX__
 
-#include "MCAuto.hxx"
-#include "InterpKernelException.hxx"
-#include "MEDCouplingFieldT.hxx"
+#include "MEDCouplingTimeDiscretization.hxx"
 #include "MEDCouplingMesh.hxx"
-#include "MCType.hxx"
-#include "MEDCouplingNatureOfField.hxx"
-#include "MEDCouplingNatureOfFieldEnum"
-#include "MEDCouplingField.hxx"
-#include "MEDCouplingRefCountObject.hxx"
-#include "MEDCouplingTraits.hxx"
-
-#include <sstream>
-#include <vector>
-#include <string>
-#include <cstddef>
-#include <iostream>
 
 namespace MEDCoupling
 {
-  class DataArray;
-
   template<class T>
   MEDCouplingFieldT<T>::MEDCouplingFieldT(const MEDCouplingFieldT<T>& other, bool deepCopy):MEDCouplingField(other,deepCopy),_time_discr(other._time_discr->performCopyOrIncrRef(deepCopy))
   {

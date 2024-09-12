@@ -20,26 +20,15 @@
 
 #include "InterpKernelGeo2DEdge.hxx"
 #include "InterpKernelGeo2DEdgeLin.hxx"
+#include "InterpKernelGeo2DEdgeInfLin.hxx"
 //#include "EdgeParabol.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
 #include "InterpKernelGeo2DComposedEdge.hxx"
 #include "InterpKernelException.hxx"
-#include "MCIdType.hxx"
 
 #include <algorithm>
 
-#include <cstddef>
 #include <functional>
-#include <map>
-#include <vector>
-#include <list>
-#include <ostream>
-#include <istream>
-#include <iostream>
-#include <string>
-#include <ios>
-#include <utility>
-#include <iterator>
 
 
 using namespace INTERP_KERNEL;
@@ -51,7 +40,7 @@ MergePoints::MergePoints():_ass1Start1(0),_ass1End1(0),_ass1Start2(0),_ass1End2(
 
 void MergePoints::start1Replaced()
 {
-  unsigned const nbOfAsso=getNumberOfAssociations();
+  unsigned nbOfAsso=getNumberOfAssociations();
   if(nbOfAsso==0)
     _ass1Start1=1;
   else
@@ -60,7 +49,7 @@ void MergePoints::start1Replaced()
 
 void MergePoints::end1Replaced()
 {
-  unsigned const nbOfAsso=getNumberOfAssociations();
+  unsigned nbOfAsso=getNumberOfAssociations();
   if(nbOfAsso==0)
     _ass1End1=1;
   else
@@ -69,7 +58,7 @@ void MergePoints::end1Replaced()
 
 void MergePoints::start1OnStart2()
 {
-  unsigned const nbOfAsso=getNumberOfAssociations();
+  unsigned nbOfAsso=getNumberOfAssociations();
   if(nbOfAsso==0)
     {
       _ass1Start1=1;
@@ -84,7 +73,7 @@ void MergePoints::start1OnStart2()
 
 void MergePoints::start1OnEnd2()
 {
-  unsigned const nbOfAsso=getNumberOfAssociations();
+  unsigned nbOfAsso=getNumberOfAssociations();
   if(nbOfAsso==0)
     {
       _ass1Start1=1;
@@ -99,7 +88,7 @@ void MergePoints::start1OnEnd2()
 
 void MergePoints::end1OnStart2()
 {
-  unsigned const nbOfAsso=getNumberOfAssociations();
+  unsigned nbOfAsso=getNumberOfAssociations();
   if(nbOfAsso==0)
     {
       _ass1End1=1;
@@ -114,7 +103,7 @@ void MergePoints::end1OnStart2()
 
 void MergePoints::end1OnEnd2()
 {
-  unsigned const nbOfAsso=getNumberOfAssociations();
+  unsigned nbOfAsso=getNumberOfAssociations();
   if(nbOfAsso==0)
     {
       _ass1End1=1;
@@ -363,7 +352,7 @@ bool EdgeIntersector::intersect(std::vector<Node *>& newNodes, bool& order, Merg
           iter=listOfIntesc.erase(iter);
           continue;
         }
-      unsigned const tmp=(*iter).isOnExtrForAnEdgeAndInForOtherEdge();
+      unsigned tmp=(*iter).isOnExtrForAnEdgeAndInForOtherEdge();
       if(tmp==IntersectElement::LIMIT_ALONE)
         {
           iter=listOfIntesc.erase(iter);
@@ -395,8 +384,8 @@ bool EdgeIntersector::intersect(std::vector<Node *>& newNodes, bool& order, Merg
       std::vector<IntersectElement> vecOfIntesc(listOfIntesc.begin(),listOfIntesc.end());
       listOfIntesc.clear();
       sort(vecOfIntesc.begin(),vecOfIntesc.end());
-      for(auto & iterV : vecOfIntesc)
-        newNodes.push_back(iterV.getNodeAndReleaseIt());
+      for(std::vector<IntersectElement>::iterator iterV=vecOfIntesc.begin();iterV!=vecOfIntesc.end();iterV++)
+        newNodes.push_back((*iterV).getNodeAndReleaseIt());
       order=vecOfIntesc.front().isLowerOnOther(vecOfIntesc.back());
     }
   return true;
@@ -478,7 +467,7 @@ Edge::~Edge()
 
 bool Edge::decrRef()
 {
-  bool const ret=(--_cnt==0);
+  bool ret=(--_cnt==0);
   if(ret)
     delete this;
   return ret;
@@ -615,9 +604,9 @@ void Edge::getNormalVector(double *vectOutput) const
 {
   std::copy((const double *)(*_end),(const double *)(*_end)+2,vectOutput);
   std::transform(vectOutput,vectOutput+2,(const double *)(*_start),vectOutput,std::minus<double>());
-  double const norm=1./Node::norm(vectOutput);
+  double norm=1./Node::norm(vectOutput);
   std::transform(vectOutput,vectOutput+2,vectOutput,bind(std::multiplies<double>(),std::placeholders::_1,norm));
-  double const tmp=vectOutput[0];
+  double tmp=vectOutput[0];
   vectOutput[0]=vectOutput[1];
   vectOutput[1]=-tmp;
 }
@@ -625,9 +614,9 @@ void Edge::getNormalVector(double *vectOutput) const
 Edge *Edge::BuildEdgeFrom3Points(const double *start, const double *middle, const double *end)
 {
   Node *b(new Node(start[0],start[1])),*m(new Node(middle[0],middle[1])),*e(new Node(end[0],end[1]));
-  auto *e1(new EdgeLin(b,m)),*e2(new EdgeLin(m,e));
-  SegSegIntersector const inters(*e1,*e2); bool const colinearity=inters.areColinears(); delete e1; delete e2;
-  Edge *ret=nullptr;
+  EdgeLin *e1(new EdgeLin(b,m)),*e2(new EdgeLin(m,e));
+  SegSegIntersector inters(*e1,*e2); bool colinearity=inters.areColinears(); delete e1; delete e2;
+  Edge *ret=0;
   if(colinearity)
     ret=new EdgeLin(b,e);
   else
@@ -652,7 +641,7 @@ Edge *Edge::BuildFromXfigLine(std::istream& str)
   else
     {
       std::cerr << "Unknown line found...";
-      return nullptr;
+      return 0;
     }
 }
 
@@ -671,7 +660,7 @@ bool Edge::intersectWith(const Edge *other, MergePoints& commonNode,
   if(!merge)
     return false;
   delete merge;
-  merge=nullptr;
+  merge=0;
   EdgeIntersector *intersector=BuildIntersectorWith(this,other);
   ret=Intersect(this,other,intersector,commonNode,outVal1,outVal2);
   delete intersector;
@@ -681,12 +670,12 @@ bool Edge::intersectWith(const Edge *other, MergePoints& commonNode,
 bool Edge::IntersectOverlapped(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, MergePoints& commonNode,
                                ComposedEdge& outValForF1, ComposedEdge& outValForF2)
 {
-  bool const rev=intersector->haveTheySameDirection();
+  bool rev=intersector->haveTheySameDirection();
   Node *f2Start=f2->getNode(rev?START:END);
   Node *f2End=f2->getNode(rev?END:START);
   TypeOfLocInEdge place1, place2;
   intersector->getPlacements(f2Start,f2End,place1,place2,commonNode);
-  int const codeForIntersectionCase=CombineCodes(place1,place2);
+  int codeForIntersectionCase=CombineCodes(place1,place2);
   return SplitOverlappedEdges(f1,f2,f2Start,f2End,rev,codeForIntersectionCase,outValForF1,outValForF2);
 }
 
@@ -695,25 +684,25 @@ bool Edge::IntersectOverlapped(const Edge *f1, const Edge *f2, EdgeIntersector *
  */
 void Edge::Interpolate1DLin(const std::vector<double>& distrib1, const std::vector<double>& distrib2, std::map<int, std::map<int,double> >& result)
 {
-  std::size_t const nbOfV1=distrib1.size()-1;
-  std::size_t const nbOfV2=distrib2.size()-1;
+  std::size_t nbOfV1=distrib1.size()-1;
+  std::size_t nbOfV2=distrib2.size()-1;
   Node *n1=new Node(0.,0.); Node *n3=new Node(0.,0.);
   Node *n2=new Node(0.,0.); Node *n4=new Node(0.,0.);
   MergePoints commonNode;
   for(unsigned int i=0;i<nbOfV1;i++)
     {
-      auto const iter=find_if(distrib2.begin()+1,distrib2.end(),bind(std::greater_equal<double>(),std::placeholders::_1,distrib1[i]));
+      std::vector<double>::const_iterator iter=find_if(distrib2.begin()+1,distrib2.end(),bind(std::greater_equal<double>(),std::placeholders::_1,distrib1[i]));
       if(iter!=distrib2.end())
         {
           for(unsigned int j=(unsigned)((iter-1)-distrib2.begin());j<nbOfV2;j++)
             {
               if(distrib2[j]<=distrib1[i+1])
                 {
-                  auto *e1=new EdgeLin(n1,n2); auto *e2=new EdgeLin(n3,n4);
+                  EdgeLin *e1=new EdgeLin(n1,n2); EdgeLin *e2=new EdgeLin(n3,n4);
                   n1->setNewCoords(distrib1[i],0.); n2->setNewCoords(distrib1[i+1],0.);
                   n3->setNewCoords(distrib2[j],0.); n4->setNewCoords(distrib2[j+1],0.);
-                  auto *f1=new ComposedEdge;
-                  auto *f2=new ComposedEdge;
+                  ComposedEdge *f1=new ComposedEdge;
+                  ComposedEdge *f2=new ComposedEdge;
                   SegSegIntersector inters(*e1,*e2);
                   bool b1,b2;
                   inters.areOverlappedOrOnlyColinears(b1,b2);
@@ -732,12 +721,12 @@ void Edge::Interpolate1DLin(const std::vector<double>& distrib1, const std::vect
 
 EdgeIntersector *Edge::BuildIntersectorWith(const Edge *e1, const Edge *e2)
 {
-  EdgeIntersector *ret=nullptr;
-  const EdgeLin *tmp1=nullptr;
-  const EdgeArcCircle *tmp2=nullptr;
+  EdgeIntersector *ret=0;
+  const EdgeLin *tmp1=0;
+  const EdgeArcCircle *tmp2=0;
   unsigned char type1=e1->getTypeOfFunc();
   e1->dynCastFunction(tmp1,tmp2);
-  unsigned char const type2=e2->getTypeOfFunc();
+  unsigned char type2=e2->getTypeOfFunc();
   e2->dynCastFunction(tmp1,tmp2);
   type1|=type2;
   switch(type1)
@@ -792,11 +781,11 @@ bool Edge::Intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersecto
     {
       if(newNodes.empty())
         throw Exception("Internal error occurred - error in intersector implementation!");// This case should never happen
-      auto const iter=newNodes.begin();
-      auto iterR=newNodes.rbegin();
+      std::vector<Node *>::iterator iter=newNodes.begin();
+      std::vector<Node *>::reverse_iterator iterR=newNodes.rbegin();
       f1->addSubEdgeInVector(f1->getStartNode(),*iter,outValForF1);
       f2->addSubEdgeInVector(f2->getStartNode(),order?*iter:*iterR,outValForF2);
-      for(auto iter2=newNodes.begin();iter2!=newNodes.end();iter2++,iterR++)
+      for(std::vector<Node *>::iterator iter2=newNodes.begin();iter2!=newNodes.end();iter2++,iterR++)
         {
           if((iter2+1)==newNodes.end())
             {
@@ -1001,7 +990,7 @@ bool Edge::sortSubNodesAbs(const double *coo, std::vector<mcIdType>& subNodes)
   b.prepareForAggregation();
   b.aggregate(getBounds());
   double xBary,yBary;
-  double const dimChar(b.getCaracteristicDim());
+  double dimChar(b.getCaracteristicDim());
   b.getBarycenter(xBary,yBary);
   applySimilarity(xBary,yBary,dimChar);
   _start->applySimilarity(xBary,yBary,dimChar);
@@ -1022,7 +1011,7 @@ bool Edge::sortSubNodesAbs(const double *coo, std::vector<mcIdType>& subNodes)
   bool ret(false);
   for(i=0;i<sz;i++)
     {
-      mcIdType const id(m[an2[i].second]);
+      mcIdType id(m[an2[i].second]);
       if(id!=subNodes[i])
         { subNodes[i]=id; ret=true; }
     }
@@ -1038,8 +1027,8 @@ bool Edge::sortSubNodesAbs(const double *coo, std::vector<mcIdType>& subNodes)
 void Edge::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, mcIdType>& mapp1,
                       const std::map<INTERP_KERNEL::Node *, mcIdType>& mapp2, std::vector<mcIdType>& edgesThis)
 {
-  mcIdType const startId=(*mapp1.find(_start)).second;
-  mcIdType const endId=(*mapp1.find(_end)).second;
+  mcIdType startId=(*mapp1.find(_start)).second;
+  mcIdType endId=(*mapp1.find(_end)).second;
   if (! addNodes.size()) // quick way out, no new node to add.
     {
       edgesThis.push_back(startId);
@@ -1051,31 +1040,31 @@ void Edge::sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const 
   b.prepareForAggregation();
   b.aggregate(getBounds());
   double xBary,yBary;
-  double const dimChar=b.getCaracteristicDim();
+  double dimChar=b.getCaracteristicDim();
   b.getBarycenter(xBary,yBary);
-  for(auto addNode : addNodes)
-    addNode->applySimilarity(xBary,yBary,dimChar);
+  for(std::vector<Node *>::const_iterator iter=addNodes.begin();iter!=addNodes.end();iter++)
+    (*iter)->applySimilarity(xBary,yBary,dimChar);
   applySimilarity(xBary,yBary,dimChar);
   _start->applySimilarity(xBary,yBary,dimChar);
   _end->applySimilarity(xBary,yBary,dimChar);
-  std::size_t const sz=addNodes.size();
+  std::size_t sz=addNodes.size();
   std::vector< std::pair<double,Node *> > an2(sz);
   for(std::size_t i=0;i<sz;i++)
     an2[i]=std::pair<double,Node *>(getCharactValueBtw0And1(*addNodes[i]),addNodes[i]);
   std::sort(an2.begin(),an2.end());
   std::vector<mcIdType> tmpp;
-  for(const auto & it : an2)
+  for(std::vector< std::pair<double,Node *> >::const_iterator it=an2.begin();it!=an2.end();it++)
     {
-      mcIdType const idd=(*mapp2.find(it.second)).second;
+      mcIdType idd=(*mapp2.find((*it).second)).second;
       tmpp.push_back(idd);
     }
   std::vector<mcIdType> tmpp2(tmpp.size()+2);
   tmpp2[0]=startId;
   std::copy(tmpp.begin(),tmpp.end(),tmpp2.begin()+1);
   tmpp2[tmpp.size()+1]=endId;
-  auto const itt=std::unique(tmpp2.begin(),tmpp2.end());
+  std::vector<mcIdType>::iterator itt=std::unique(tmpp2.begin(),tmpp2.end());
   tmpp2.resize(std::distance(tmpp2.begin(),itt));
-  std::size_t const nbOfEdges=tmpp2.size()-1;
+  std::size_t nbOfEdges=tmpp2.size()-1;
   for(std::size_t i=0;i<nbOfEdges;i++)
     {
       edgesThis.push_back(tmpp2[i]);

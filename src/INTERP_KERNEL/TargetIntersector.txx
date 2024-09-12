@@ -22,9 +22,7 @@
 #define __TARGETINTERSECTOR__TXX__
 
 #include "TargetIntersector.hxx"
-#include <cstddef>
 #include <limits>
-#include <vector>
 
 namespace INTERP_KERNEL
 {

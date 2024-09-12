@@ -20,15 +20,12 @@
 #ifndef __PLANARINTERSECTORP1P1PL_TXX__
 #define __PLANARINTERSECTORP1P1PL_TXX__
 
-#include "PlanarIntersector.txx"
-#include "InterpolationUtils.hxx"
-#include "NormalizedGeometricTypes"
 #include "PlanarIntersectorP1P1PL.hxx"
-#include "InterpKernelUtilities.hxx"
+#include "PlanarIntersector.txx"
+#include "CellModel.hxx"
 
 #include "PointLocatorAlgos.txx"
-#include <vector>
-#include <cmath>
+#include "MeshUtils.hxx"
 
 namespace INTERP_KERNEL
 {

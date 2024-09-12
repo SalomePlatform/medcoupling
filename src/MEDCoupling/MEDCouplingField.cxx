@@ -19,20 +19,10 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingField.hxx"
-#include "MCType.hxx"
-#include "MCIdType.hxx"
 #include "MEDCouplingMesh.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
-#include "MEDCouplingNatureOfField.hxx"
-#include "MEDCouplingRefCountObject.hxx"
-#include "MEDCouplingNatureOfFieldEnum"
-#include "NormalizedGeometricTypes"
 
-#include <cstddef>
-#include <set>
 #include <sstream>
-#include <string>
-#include <vector>
 
 using namespace MEDCoupling;
 
@@ -72,16 +62,16 @@ bool MEDCouplingField::isEqualIfNotWhyProtected(const MEDCouplingField *other, d
       reason.insert(0,"Spatial discretizations differ :");
       return false;
     }
-  if(_mesh==nullptr && other->_mesh==nullptr)
+  if(_mesh==0 && other->_mesh==0)
     return true;
-  if(_mesh==nullptr || other->_mesh==nullptr)
+  if(_mesh==0 || other->_mesh==0)
     {
       reason="Only one field between the two this and other has its underlying mesh defined !";
       return false;
     }
   if(_mesh==other->_mesh)
     return true;
-  bool const ret=_mesh->isEqualIfNotWhy(other->_mesh,meshPrec,reason);
+  bool ret=_mesh->isEqualIfNotWhy(other->_mesh,meshPrec,reason);
   if(!ret)
     reason.insert(0,"Underlying meshes of fields differ for the following reason : ");
   return ret;
@@ -106,9 +96,9 @@ bool MEDCouplingField::isEqualWithoutConsideringStrProtected(const MEDCouplingFi
     return false;
   if(_nature!=other->_nature)
     return false;
-  if(_mesh==nullptr && other->_mesh==nullptr)
+  if(_mesh==0 && other->_mesh==0)
     return true;
-  if(_mesh==nullptr || other->_mesh==nullptr)
+  if(_mesh==0 || other->_mesh==0)
     return false;
   if(_mesh==other->_mesh)
     return true;
@@ -486,16 +476,16 @@ MEDCouplingField::~MEDCouplingField()
     _mesh->decrRef();
 }
 
-MEDCouplingField::MEDCouplingField(MEDCouplingFieldDiscretization *type, NatureOfField nature):_nature(nature),_mesh(nullptr),_type(type)
+MEDCouplingField::MEDCouplingField(MEDCouplingFieldDiscretization *type, NatureOfField nature):_nature(nature),_mesh(0),_type(type)
 {
 }
 
-MEDCouplingField::MEDCouplingField(TypeOfField type):_nature(NoNature),_mesh(nullptr),_type(MEDCouplingFieldDiscretization::New(type))
+MEDCouplingField::MEDCouplingField(TypeOfField type):_nature(NoNature),_mesh(0),_type(MEDCouplingFieldDiscretization::New(type))
 {
 }
 
 MEDCouplingField::MEDCouplingField(const MEDCouplingField& other, bool deepCopy):RefCountObject(other),_name(other._name),_desc(other._desc),_nature(other._nature),
-    _mesh(nullptr),_type(nullptr)
+    _mesh(0),_type(0)
 {
   if(other._mesh)
     {
@@ -579,7 +569,7 @@ mcIdType MEDCouplingField::getNumberOfTuplesExpected() const
 
 void MEDCouplingField::setDiscretization(MEDCouplingFieldDiscretization *newDisc)
 {
-  bool const needUpdate=(const MEDCouplingFieldDiscretization *)_type!=newDisc;
+  bool needUpdate=(const MEDCouplingFieldDiscretization *)_type!=newDisc;
   _type=newDisc;
   if(newDisc)
     newDisc->incrRef();

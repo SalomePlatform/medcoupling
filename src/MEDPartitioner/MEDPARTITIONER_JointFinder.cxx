@@ -18,22 +18,13 @@
 //
 
 #include "MEDPARTITIONER_JointFinder.hxx"
-
-#include <algorithm>
-#include <cstddef>
-#include <iostream>
-#include <utility>
-#include <map>
-#include <vector>
-
-#include "MCType.hxx"
-#include "MCIdType.hxx"
 #include "MEDPARTITIONER_MeshCollection.hxx"
 #include "MEDPARTITIONER_Topology.hxx"
 #include "MEDPARTITIONER_ParaDomainSelector.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 
 #include "MEDCouplingUMesh.hxx"
+#include "BBTree.txx"
 
 /*!
  * Method contributing to the distant cell graph
@@ -43,11 +34,12 @@ MEDPARTITIONER::JointFinder::JointFinder(const MeshCollection& mc):_mesh_collect
 }
 
 MEDPARTITIONER::JointFinder::~JointFinder()
-= default;
+{
+}
 
 void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
 {
-  int const nbdomain=_topology->nbDomain();
+  int nbdomain=_topology->nbDomain();
   _distant_node_cell.resize(nbdomain);
   _node_node.resize(nbdomain);
   for (int i=0; i<nbdomain; i++) 
@@ -55,11 +47,11 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
       _distant_node_cell[i].resize(nbdomain);
       _node_node[i].resize(nbdomain);
     }
-  int const nbproc=_domain_selector->nbProcs();
-  std::vector<BBTreeOfDim* > bbtree(nbdomain,(BBTreeOfDim*) nullptr);
-  std::vector<double* > bbxi(nbdomain,(double*) nullptr);
-  std::vector<MEDCoupling::DataArrayIdType*> rev(nbdomain,(MEDCoupling::DataArrayIdType*) nullptr);
-  std::vector<MEDCoupling::DataArrayIdType*> revIndx(nbdomain,(MEDCoupling::DataArrayIdType*) nullptr);
+  int nbproc=_domain_selector->nbProcs();
+  std::vector<BBTreeOfDim* > bbtree(nbdomain,(BBTreeOfDim*) 0);
+  std::vector<double* > bbxi(nbdomain,(double*) 0);
+  std::vector<MEDCoupling::DataArrayIdType*> rev(nbdomain,(MEDCoupling::DataArrayIdType*) 0);
+  std::vector<MEDCoupling::DataArrayIdType*> revIndx(nbdomain,(MEDCoupling::DataArrayIdType*) 0);
   //int meshDim=-1;
   int spaceDim=-1;
 
@@ -74,14 +66,14 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
       rev[mydomain] = MEDCoupling::DataArrayIdType::New();
       revIndx[mydomain] = MEDCoupling::DataArrayIdType::New();
       myMesh->getReverseNodalConnectivity(rev[mydomain],revIndx[mydomain]);
-      auto* bbx=new double[2*spaceDim*myMesh->getNumberOfNodes()];
+      double* bbx=new double[2*spaceDim*myMesh->getNumberOfNodes()];
       for (int i=0; i<myMesh->getNumberOfNodes()*spaceDim; i++)
         {
           const double* coords=myMesh->getCoords()->getConstPointer();
           bbx[2*i]=(coords[i])-1e-12;
           bbx[2*i+1]=bbx[2*i]+2e-12;
         }
-      bbtree[mydomain]=new BBTreeOfDim( spaceDim, bbx,nullptr,0,myMesh->getNumberOfNodes(),-1e-12);
+      bbtree[mydomain]=new BBTreeOfDim( spaceDim, bbx,0,0,myMesh->getNumberOfNodes(),-1e-12);
       //keep bbx because need it in getIntersectingElems
       //no delete [] bbx yet
       bbxi[mydomain]=bbx;
@@ -98,7 +90,7 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
           if (_domain_selector->isMyDomain(isource))
             {
               //preparing data for treatment on target proc
-              int const targetProc = _domain_selector->getProcessorID(itarget);
+              int targetProc = _domain_selector->getProcessorID(itarget);
 
               std::vector<double> vec(spaceDim*sourceMesh->getNumberOfNodes());
               std::copy(sourceMesh->getCoords()->getConstPointer(),sourceMesh->getCoords()->getConstPointer()+sourceMesh->getNumberOfNodes()*spaceDim,&vec[0]);
@@ -117,13 +109,13 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
           if (_domain_selector->isMyDomain(itarget))
             {
               //receiving data from source proc
-              int const sourceProc = isource%nbproc;
+              int sourceProc = isource%nbproc;
               std::vector<double> recvVec;
               RecvDoubleVec(recvVec,sourceProc);
               std::map<mcIdType,mcIdType> commonNodes; // (local nodes, distant nodes) list
               for (mcIdType inode=0; inode<ToIdType(recvVec.size()/spaceDim); inode++)
                 {
-                  auto* bbox=new double[2*spaceDim];
+                  double* bbox=new double[2*spaceDim];
                   for (int i=0; i<spaceDim; i++)
                     {
                       bbox[2*i]=recvVec[inode*spaceDim+i]-1e-12;
@@ -140,15 +132,15 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
           
                 }
               std::vector<mcIdType> nodeCellCorrespondency;
-              for (auto & commonNode : commonNodes)
+              for (std::map<mcIdType,mcIdType>::iterator iter=commonNodes.begin(); iter!=commonNodes.end(); iter++)
                 {
-                  _node_node[itarget][isource].push_back(std::make_pair(commonNode.first, commonNode.second));//storing node pairs in a vector
+                  _node_node[itarget][isource].push_back(std::make_pair(iter->first, iter->second));//storing node pairs in a vector
                   const mcIdType* revIndxPtr=revIndx[itarget]->getConstPointer();
                   const mcIdType* revPtr=rev[itarget]->getConstPointer();
-                  for (mcIdType icell=revIndxPtr[commonNode.first]; icell<revIndxPtr[commonNode.first+1]; icell++)
+                  for (mcIdType icell=revIndxPtr[iter->first]; icell<revIndxPtr[iter->first+1]; icell++)
                     {
-                      nodeCellCorrespondency.push_back(commonNode.second); //
-                      mcIdType const globalCell=_topology->convertCellToGlobal(itarget,revPtr[icell]);
+                      nodeCellCorrespondency.push_back(iter->second); //
+                      mcIdType globalCell=_topology->convertCellToGlobal(itarget,revPtr[icell]);
                       nodeCellCorrespondency.push_back(globalCell);
                     }
                 }
@@ -160,13 +152,13 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
   //free  rev(nbdomain) revIndx(nbdomain) bbtree(nbdomain) bbxi(nbdomain)
   for (int i=0; i<nbdomain; i++)
     {
-      if (rev[i]!=nullptr)
+      if (rev[i]!=0)
         rev[i]->decrRef();
-      if (revIndx[i]!=nullptr)
+      if (revIndx[i]!=0)
         revIndx[i]->decrRef();
-      if (bbtree[i]!=nullptr)
+      if (bbtree[i]!=0)
         delete bbtree[i];
-      if (bbxi[i]!=nullptr)
+      if (bbxi[i]!=0)
         delete [] bbxi[i];
     }
 
@@ -187,7 +179,7 @@ std::vector<std::vector<std::vector<std::pair<mcIdType,mcIdType> > > >& MEDPARTI
 void MEDPARTITIONER::JointFinder::print()
 //it is for debug on small arrays under mpi 2,3 cpus
 {
-  int const nbdomain=_topology->nbDomain();
+  int nbdomain=_topology->nbDomain();
   //MPI_Barrier(MPI_COMM_WORLD);
   if (MyGlobals::_Is0verbose>0) 
     std::cout << "\nJointFinder print node-node (nn)iproc|itarget|isource|i|inodefirst-inodesecond\n\n" <<

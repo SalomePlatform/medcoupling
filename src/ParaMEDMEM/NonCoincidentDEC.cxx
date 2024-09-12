@@ -17,12 +17,13 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include <cstddef>
 #include <mpi.h>
-#include <string>
+#include "CommInterface.hxx"
 #include "Topology.hxx"
+#include "BlockTopology.hxx"
 #include "ComponentTopology.hxx"
 #include "ParaFIELD.hxx"
+#include "MPIProcessorGroup.hxx"
 #include "DEC.hxx"
 #include "NonCoincidentDEC.hxx"
 
@@ -241,7 +242,8 @@ namespace MEDCoupling
   }
   
   NonCoincidentDEC::NonCoincidentDEC()
-  = default;
+  {  
+  }
 
   /*! Constructor of a non coincident \ref para-dec "DEC" with
    * a source group on which lies a field lying on a mesh and a 
@@ -257,7 +259,8 @@ namespace MEDCoupling
   {}
                                    
   NonCoincidentDEC::~NonCoincidentDEC()
-  = default;
+  {
+  }
 
   /*! Synchronization process. Calling this method 
    * synchronizes the topologies so that the target side
@@ -344,7 +347,7 @@ namespace MEDCoupling
   {
     int nbelems = _local_field->getField()->getSupport()->getMesh()->getNumberOfElements(MED_EN::MED_CELL, MED_EN::MED_ALL_ELEMENTS);
     int nbcomp =  _local_field->getField()->getNumberOfComponents();
-    auto* values = new double [nbelems*nbcomp];
+    double* values = new double [nbelems*nbcomp];
     fvm_locator_exchange_point_var(_locator,
                                    0,
                                    values,
@@ -367,7 +370,7 @@ namespace MEDCoupling
   {
     const double* values=_local_field->getField()->getValue();
     int nbcomp = _local_field->getField()->getNumberOfComponents();
-    auto* distant_values = new double [_nb_distant_points*nbcomp];
+    double* distant_values = new double [_nb_distant_points*nbcomp];
 
     //cheap interpolation :  the value of the cell is transferred to the point
     for (int i=0; i<_nb_distant_points; i++)

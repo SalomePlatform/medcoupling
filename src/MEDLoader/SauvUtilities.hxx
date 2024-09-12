@@ -25,12 +25,10 @@
 
 #include "MEDLoaderDefines.hxx"
 #include "MEDCouplingRefCountObject.hxx"
-#include "NormalizedGeometricTypes"
+#include "NormalizedUnstructuredMesh.hxx"
 
-#include <cstddef>
 #include <string>
 #include <sstream>
-#include <vector>
 
 namespace SauvUtilities
 {
@@ -90,7 +88,7 @@ namespace SauvUtilities
   {
   public:
     FileReader(const char* fileName);
-    ~FileReader() override = default;
+    virtual ~FileReader() {}
     virtual bool isASCII() const = 0;
 
     virtual bool open() = 0;
@@ -106,8 +104,8 @@ namespace SauvUtilities
     virtual double getDouble() const = 0;
     virtual std::string getName() const = 0;
   protected:
-    std::size_t getHeapMemorySizeWithoutChildren() const override { return 0; }
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override { return std::vector<const BigMemoryObject *>(); }
+    std::size_t getHeapMemorySizeWithoutChildren() const { return 0; }
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const { return std::vector<const BigMemoryObject *>(); }
   protected:
     std::string _fileName;
     int _iRead, _nbToRead;

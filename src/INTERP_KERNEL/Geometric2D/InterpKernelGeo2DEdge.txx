@@ -20,9 +20,7 @@
 #ifndef __INTERPKERNELGEO2DEDGE_TXX__
 #define __INTERPKERNELGEO2DEDGE_TXX__
 
-#include "InterpKernelGeo2DEdge.hxx"
 #include "InterpKernelGeo2DEdgeArcCircle.hxx"
-#include "InterpKernelGeo2DNode.hxx"
 
 template<INTERP_KERNEL::TypeOfMod4QuadEdge type>
 INTERP_KERNEL::Edge *INTERP_KERNEL::Edge::BuildEdgeFrom(Node *start, Node *middle, Node *end)

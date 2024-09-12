@@ -20,10 +20,8 @@
 #ifndef __CURVEINTERSECTORP0P0_TXX__
 #define __CURVEINTERSECTORP0P0_TXX__
 
-#include "CurveIntersector.hxx"
 #include "CurveIntersectorP0P0.hxx"
-#include <vector>
-#include "InterpolationUtils.hxx"
+#include "CurveIntersector.txx"
 
 #define BASE_INTERSECTOR CurveIntersector<MyMeshType,MyMatrix>
 

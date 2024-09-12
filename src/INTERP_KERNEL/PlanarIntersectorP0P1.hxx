@@ -21,9 +21,8 @@
 #ifndef __PLANARINTERSECTORP0P1_HXX__
 #define __PLANARINTERSECTORP0P1_HXX__
 
-#include "NormalizedUnstructuredMesh.hxx"
 #include "PlanarIntersector.hxx"
-#include <vector>
+#include "InterpKernelUtilities.hxx"
 
 namespace INTERP_KERNEL
 {
@@ -33,7 +32,7 @@ namespace INTERP_KERNEL
   public:
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
     static const int MESHDIM=MyMeshType::MY_MESHDIM;
-    using ConnType = typename MyMeshType::MyConnType;
+    typedef typename MyMeshType::MyConnType ConnType;
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
   protected:
     PlanarIntersectorP0P1(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel);

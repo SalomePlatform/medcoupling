@@ -20,13 +20,9 @@
 // Implementation coming from Numerical Recipes in C of 1994 (version 2.04)
 
 #include "InterpKernelQRDecomp.hxx"
-#include "InterpKernelDenseMatrix.hxx"
 #include "InterpKernelException.hxx"
-#include "MCIdType.hxx"
 
 #include <cmath>
-#include <vector>
-#include <sstream>
 
 using namespace INTERP_KERNEL;
 

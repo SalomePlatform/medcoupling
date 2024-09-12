@@ -22,8 +22,8 @@
 
 #include "MCIdType.hxx"
 
-#include <utility>
 #include <vector>
+#include <map>
 #include <set>
 
 namespace MEDCoupling

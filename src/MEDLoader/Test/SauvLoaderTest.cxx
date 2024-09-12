@@ -19,30 +19,12 @@
 
 #include "SauvLoaderTest.hxx"
 
-#include "MCAuto.hxx"
-#include "MCIdType.hxx"
-#include "MCType.hxx"
-#include "MEDCouplingRefCountObject.hxx"
-#include "MEDCouplingUMesh.hxx"
-#include "NormalizedGeometricTypes"
-#include "MEDFileMesh.hxx"
-#include "MEDFileField.hxx"
-#include "MEDFileFieldMultiTS.hxx"
-#include "MEDCouplingMesh.hxx"
 #include "SauvReader.hxx"
 #include "SauvWriter.hxx"
 #include "MEDFileData.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "TestInterpKernelUtils.hxx"  // getResourceFile()
-#include <algorithm>
-#include <cppunit/TestAssert.h>
-#include <iostream>
-#include <cstddef>
-#include <map>
-#include <stdio.h>
-#include <vector>
-#include <utility>
 
 #ifdef WIN32
 #include <windows.h>
@@ -50,6 +32,7 @@
 # include <unistd.h>
 #endif
 
+#include <vector>
 #include <string>
 
 using namespace MEDCoupling;
@@ -57,7 +40,7 @@ using namespace MEDCoupling;
 void SauvLoaderTest::testSauv2Med()
 {
   // read a file containing all types of readable piles
-  std::string const file = INTERP_TEST::getResourceFile("allPillesTest.sauv", 3);
+  std::string file = INTERP_TEST::getResourceFile("allPillesTest.sauv", 3);
   MCAuto<SauvReader> sr=SauvReader::New(file.c_str());
   MCAuto<MEDFileData> d2=sr->loadInMEDFileDS();
   // write MED
@@ -130,7 +113,7 @@ void SauvLoaderTest::testMed2SauvOnAMeshWithVoidFamily()
   // read SAUV and check groups
   MCAuto<SauvReader> sr=SauvReader::New(sauvFile);
   MCAuto<MEDFileData> d2=sr->loadInMEDFileDS();
-  auto* m2 = static_cast<MEDFileUMesh*>( d2->getMeshes()->getMeshAtPos(0) );
+  MEDFileUMesh* m2 = static_cast<MEDFileUMesh*>( d2->getMeshes()->getMeshAtPos(0) );
   MCAuto<MEDCouplingUMesh> group1 = m2->getGroup(0, "Group1");
   CPPUNIT_ASSERT_EQUAL(1,(int)group1->getNumberOfCells());
   MCAuto<MEDCouplingUMesh> group2 = m2->getGroup(0, "Group2");
@@ -142,13 +125,13 @@ void SauvLoaderTest::testMed2SauvOnAMeshWithVoidFamily()
 void SauvLoaderTest::testSauv2MedOnA3SubsField()
 {
   // read SAUV
-  std::string const sauvFile = INTERP_TEST::getResourceFile("portico_3subs.sauv", 3);
+  std::string sauvFile = INTERP_TEST::getResourceFile("portico_3subs.sauv", 3);
   MCAuto<SauvReader> sr=SauvReader::New(sauvFile.c_str());
   MCAuto<MEDFileData> d2=sr->loadInMEDFileDS();
   // check mesh
-  auto* m2 = static_cast<MEDFileUMesh*>(d2->getMeshes()->getMeshAtPos(0));
+  MEDFileUMesh* m2 = static_cast<MEDFileUMesh*>(d2->getMeshes()->getMeshAtPos(0));
   MCAuto<MEDCouplingUMesh> mesh1d = m2->getMeshAtLevel(0);
-  MCAuto<MEDCouplingFieldDouble> length1dField = mesh1d->getMeasureField(false);
+  MCAuto<MEDCouplingFieldDouble> length1dField = mesh1d->getMeasureField(0);
   std::cout << "Length of 1d elements: " << length1dField->accumulate(0) << std::endl;
   CPPUNIT_ASSERT_DOUBLES_EQUAL(3, length1dField->accumulate(0), 1e-12);
   // check field
@@ -163,7 +146,7 @@ void SauvLoaderTest::testSauv2MedOnA3SubsField()
 
   // Check first component of the field
   // 2 gauss points per element => 12 values
-  double const values[12] = {
+  double values[12] = {
       -7.687500000000e-03,
       -7.687500000000e-03,
       -4.562500000000e-03,
@@ -186,11 +169,11 @@ void SauvLoaderTest::testSauv2MedOnA3SubsField()
 void SauvLoaderTest::testMed2Sauv()
 {
   // read pointe.med
-  std::string const file = INTERP_TEST::getResourceFile("pointe.med", 3);
+  std::string file = INTERP_TEST::getResourceFile("pointe.med", 3);
   MCAuto<MEDFileData> pointeMed=MEDFileData::New(file.c_str());
 
   // add 3 faces to pointeMed
-  auto* pointeMedMesh = static_cast<MEDFileUMesh*>(pointeMed->getMeshes()->getMeshAtPos(0));
+  MEDFileUMesh* pointeMedMesh = static_cast<MEDFileUMesh*>(pointeMed->getMeshes()->getMeshAtPos(0));
   MCAuto<MEDCouplingUMesh> pointeM1D = MEDCouplingUMesh::New();
   DataArrayDouble     *coords = pointeMedMesh->getCoords();
   pointeM1D->setCoords( coords );
@@ -255,7 +238,7 @@ void SauvLoaderTest::testMed2Sauv()
   MCAuto<MEDFileData> d2=sr->loadInMEDFileDS();
   CPPUNIT_ASSERT_EQUAL(1,d2->getNumberOfMeshes());
   CPPUNIT_ASSERT_EQUAL(4,d2->getNumberOfFields());
-  auto * m = static_cast<MEDFileUMesh*>( d2->getMeshes()->getMeshAtPos(0) );
+  MEDFileUMesh * m = static_cast<MEDFileUMesh*>( d2->getMeshes()->getMeshAtPos(0) );
   CPPUNIT_ASSERT_EQUAL(std::string("maa1"),std::string(m->getName() ));
   CPPUNIT_ASSERT_EQUAL(3,m->getMeshDimension());
   std::vector<std::string > groups = m->getGroupsNames();
@@ -279,8 +262,8 @@ void SauvLoaderTest::testMed2Sauv()
   DataArrayDouble *coo = m->getCoords();
   DataArrayDouble *pointeCoo = pointeMedMesh->getCoords();
   CPPUNIT_ASSERT(coo->isEqualWithoutConsideringStr(*pointeCoo,1e-12));
-  MCAuto<MEDCouplingFieldDouble> vol = um0->getMeasureField(false);
-  MCAuto<MEDCouplingFieldDouble> pointeVol = pointeUM0->getMeasureField(false);
+  MCAuto<MEDCouplingFieldDouble> vol = um0->getMeasureField(0);
+  MCAuto<MEDCouplingFieldDouble> pointeVol = pointeUM0->getMeasureField(0);
   CPPUNIT_ASSERT_DOUBLES_EQUAL( vol->accumulate(0), pointeVol->accumulate(0),1e-12);
   // check fields
   // fieldnodedouble
@@ -335,7 +318,7 @@ void SauvLoaderTest::testMed2Sauv()
 void SauvLoaderTest::testCellsWithLingNames()
 {
   // test IMP 3285: [CEA 1778] SauvReader: only keep the meshes named in the table MED_MAIL
-  std::string const file = INTERP_TEST::getResourceFile("test_MED_MAIL.sauv", 3);
+  std::string file = INTERP_TEST::getResourceFile("test_MED_MAIL.sauv", 3);
   MCAuto<SauvReader> sr=SauvReader::New(file.c_str());
   MCAuto<MEDFileData> d2=sr->loadInMEDFileDS();
   // check that the mesh contains
@@ -344,7 +327,7 @@ void SauvLoaderTest::testCellsWithLingNames()
   // - Nombre de mailles de type MED_QUAD4 : 43
   // - Nombre de mailles de type MED_HEXA8 : 24
   // - Nombre de mailles de type MED_PENTA6 : 3
-  auto* m = static_cast<MEDFileUMesh*>( d2->getMeshes()->getMeshAtPos(0));
+  MEDFileUMesh* m = static_cast<MEDFileUMesh*>( d2->getMeshes()->getMeshAtPos(0));
   CPPUNIT_ASSERT_EQUAL(ToIdType(6),  m->getNumberOfCellsWithType( INTERP_KERNEL::NORM_TRI3 ));
   CPPUNIT_ASSERT_EQUAL(ToIdType(43), m->getNumberOfCellsWithType( INTERP_KERNEL::NORM_QUAD4 ));
   CPPUNIT_ASSERT_EQUAL(ToIdType(24), m->getNumberOfCellsWithType( INTERP_KERNEL::NORM_HEXA8 ));
@@ -359,17 +342,17 @@ void SauvLoaderTest::tearDown()
 #else
   const char* fileToRemove[nbFilesToRemove] = { "allPillesTest.med", "pointe.sauv", "mesh_with_void_family.sauv" };
 #endif
-  for (auto & i : fileToRemove)
+  for ( int i = 0; i < nbFilesToRemove; ++i )
   {
 #ifdef WIN32
     if (GetFileAttributes(fileToRemove[i]) != INVALID_FILE_ATTRIBUTES)
 #else
-      if (access(i, F_OK) == 0)
+      if (access(fileToRemove[i], F_OK) == 0)
 #endif
 #if defined(WIN32) && defined(UNICODE)
                 _wremove(fileToRemove[i]);
 #else
-        remove(i);
+        remove(fileToRemove[i]);
 #endif
   }
 }

@@ -23,10 +23,9 @@
 
 #include "DEC.hxx"
 #include "InterpolationOptions.hxx"
-#include "MEDCouplingFieldDouble.hxx"
 
 #include <mpi.h>
-#include <ostream>
+#include <string>
 
 namespace ICoCo {
   class MEDDoubleField;
@@ -238,13 +237,13 @@ namespace MEDCoupling
   {
   public:
     OverlapDEC(const std::set<int>& procIds,const MPI_Comm& world_comm=MPI_COMM_WORLD);
-    ~OverlapDEC() override;
+    virtual ~OverlapDEC();
     void release();
 
-    void sendRecvData(bool way=true) override;
+    void sendRecvData(bool way=true);
     void sendData();
     void recvData();
-    void synchronize() override;
+    void synchronize();
     void attachSourceLocalField(ParaFIELD *field, bool ownPt=false);
     void attachTargetLocalField(ParaFIELD *field, bool ownPt=false);
     void attachSourceLocalField(MEDCouplingFieldDouble *field);

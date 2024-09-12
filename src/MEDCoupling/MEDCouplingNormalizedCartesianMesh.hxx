@@ -21,7 +21,6 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGNORMALIZEDCARTESIANMESH_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGNORMALIZEDCARTESIANMESH_HXX__
 
-#include "MCIdType.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 
 namespace MEDCoupling
@@ -35,7 +34,7 @@ class MEDCouplingNormalizedCartesianMesh
 public:
   static const int MY_SPACEDIM=SPACEDIM;
   static const int MY_MESHDIM=SPACEDIM;
-  using MyConnType = int;
+  typedef mcIdType MyConnType;
   static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
 public:
   MEDCouplingNormalizedCartesianMesh(const MEDCoupling::MEDCouplingCMesh *mesh);

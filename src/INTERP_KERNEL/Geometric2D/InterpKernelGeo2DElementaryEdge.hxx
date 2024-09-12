@@ -22,13 +22,9 @@
 #define __INTERPKERNELGEO2DELEMENTARYEDGE_HXX__
 
 #include "INTERPKERNELDefines.hxx"
+#include "InterpKernelException.hxx"
 #include "InterpKernelGeo2DAbstractEdge.hxx"
 #include "InterpKernelGeo2DEdge.hxx"
-#include <set>
-#include <ostream>
-#include <map>
-#include "MCIdType.hxx"
-#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -48,7 +44,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT Edge *getPtr() const { return _ptr; }
     INTERPKERNEL_EXPORT void reverse() { _direction=(!_direction); }
     INTERPKERNEL_EXPORT bool isNodeIn(Node *n) const;
-    INTERPKERNEL_EXPORT double getAreaOfZone() const { double const ret=_ptr->getAreaOfZone(); return _direction?ret:-ret; }
+    INTERPKERNEL_EXPORT double getAreaOfZone() const { double ret=_ptr->getAreaOfZone(); return _direction?ret:-ret; }
     INTERPKERNEL_EXPORT void getBarycenterOfZone(double *bary) const;
     INTERPKERNEL_EXPORT void fillBounds(Bounds& output) const;
     INTERPKERNEL_EXPORT void applySimilarity(double xBary, double yBary, double dimChar) { _ptr->applySimilarity(xBary,yBary,dimChar); }

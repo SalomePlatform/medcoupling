@@ -21,10 +21,6 @@
 #define __PLANAR2D1DINTERSECTORP0P0_TXX__
 
 #include "Planar2D1DIntersectorP0P0.hxx"
-#include "PlanarIntersector.hxx"
-#include "InterpolationUtils.hxx"
-#include <vector>
-#include <set>
 
 namespace INTERP_KERNEL
 {

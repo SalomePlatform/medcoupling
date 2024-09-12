@@ -21,9 +21,6 @@
 #define __MULTI_ELEMENT_3DSurf_TESTS_HXX_
 
 #include "InterpolationTestSuite.hxx"
-#include "InterpolationOptions.hxx"
-#include <cppunit/extensions/HelperMacros.h>
-#include "MeshTestToolkit.hxx"
 
 namespace INTERP_TEST
 {
@@ -35,7 +32,7 @@ namespace INTERP_TEST
    * different geometries : triangle, quadrilateral.
    *
    */
-  class MultiElement3DSurfTests : public InterpolationTestSuite<3,2>
+  class MultiElement2DTests : public InterpolationTestSuite<3,2>
   {
     CPPUNIT_TEST_SUITE( MultiElement3DSurfTests );
     

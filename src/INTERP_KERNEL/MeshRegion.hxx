@@ -22,6 +22,7 @@
 
 #include "MeshElement.hxx"
 #include "BoundingBox.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
 
 #include <vector>
 

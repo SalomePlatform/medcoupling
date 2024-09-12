@@ -24,19 +24,12 @@
 
 #include "InterpKernelException.hxx"
 
-#include <cstddef>
-#include <set>
-#include <ostream>
-#include <ios>
-#include <map>
 #include <sstream>
 #include <algorithm>
-#include <string>
-#include <vector>
 
 using namespace MEDCoupling;
 
-GlobalDict *GlobalDict::UNIQUE_INSTANCE=nullptr;
+GlobalDict *GlobalDict::UNIQUE_INSTANCE=0;
 
 const char *MEDCoupling::MEDCouplingVersionStr()
 {
@@ -50,7 +43,7 @@ int MEDCoupling::MEDCouplingVersion()
 
 void MEDCoupling::MEDCouplingVersionMajMinRel(int& maj, int& minor, int& releas)
 {
-  int const ver=MEDCOUPLING_VERSION;
+  int ver=MEDCOUPLING_VERSION;
   maj=(ver & 0xFF0000) >> 16;
   minor=(ver & 0xFF00) >> 8;
   releas=(ver & 0xFF);
@@ -74,7 +67,7 @@ std::size_t MEDCoupling::MEDCouplingSizeOfIDs()
 bool MEDCoupling::MEDCouplingByteOrder()
 {
   unsigned int x(1);
-  auto *xc(reinterpret_cast<unsigned char *>(&x));
+  unsigned char *xc(reinterpret_cast<unsigned char *>(&x));
   return xc[0]==1;
 }
 
@@ -112,7 +105,7 @@ std::string BigMemoryObject::debugHeapMemorySize() const
 	      ret = it->getHeapMemorySizeWithoutChildren(); sum+=ret;
               oss << it->getClassName() << " -> " <<  ret << std::endl;
               s1.insert(it);
-              std::vector<const BigMemoryObject *> const v2(it->getDirectChildren());
+              std::vector<const BigMemoryObject *> v2(it->getDirectChildren());
               for(auto it2 : v2)
                 if(s1.find(it2)==s1.end())
                   s3.push_back(it2);
@@ -126,7 +119,7 @@ std::string BigMemoryObject::debugHeapMemorySize() const
 
 std::size_t BigMemoryObject::getHeapMemorySize() const
 {
-  std::size_t const ret(getHeapMemorySizeWithoutChildren());
+  std::size_t ret(getHeapMemorySizeWithoutChildren());
   std::vector<const BigMemoryObject *> v(getDirectChildren());
   std::set<const BigMemoryObject *> s1,s2(v.begin(),v.end());
   return ret+GetHeapMemoryOfSet(s1,s2);
@@ -145,16 +138,16 @@ std::vector<const BigMemoryObject *> BigMemoryObject::getAllTheProgeny() const
     {
       ret.insert(ret.end(),s1.begin(),s1.end());
       std::vector<const BigMemoryObject *> s3;
-      for(auto it0 : s1)
+      for(std::vector<const BigMemoryObject *>::const_iterator it0=s1.begin();it0!=s1.end();it0++)
         {
           std::vector<const BigMemoryObject *> s2;
-          if(it0)
-            s2=it0->getDirectChildren();
-          for(auto it1 : s2)
+          if(*it0)
+            s2=(*it0)->getDirectChildren();
+          for(std::vector<const BigMemoryObject *>::const_iterator it1=s2.begin();it1!=s2.end();it1++)
             {
-              if(it1)
-                if(std::find(ret.begin(),ret.end(),it1)==ret.end())
-                  s3.push_back(it1);
+              if(*it1)
+                if(std::find(ret.begin(),ret.end(),*it1)==ret.end())
+                  s3.push_back(*it1);
             }
         }
       s1=s3;
@@ -179,15 +172,15 @@ std::size_t BigMemoryObject::GetHeapMemorySizeOfObjs(const std::vector<const Big
 {
   std::size_t ret(0);
   std::set<const BigMemoryObject *> s1,s2;
-  for(auto obj : objs)
+  for(std::vector<const BigMemoryObject *>::const_iterator it0=objs.begin();it0!=objs.end();it0++)
     {
-      if(obj)
-        if(s1.find(obj)==s1.end())
+      if(*it0)
+        if(s1.find(*it0)==s1.end())
           {
-            std::vector<const BigMemoryObject *> vTmp(obj->getDirectChildren());
+            std::vector<const BigMemoryObject *> vTmp((*it0)->getDirectChildren());
             s2.insert(vTmp.begin(),vTmp.end());
-            ret+=obj->getHeapMemorySizeWithoutChildren();
-            s1.insert(obj);
+            ret+=(*it0)->getHeapMemorySizeWithoutChildren();
+            s1.insert(*it0);
           }
     }
   return ret+GetHeapMemoryOfSet(s1,s2);
@@ -199,16 +192,16 @@ std::size_t BigMemoryObject::GetHeapMemoryOfSet(std::set<const BigMemoryObject *
   while(!s2.empty())
     {
       std::set<const BigMemoryObject *> s3;
-      for(auto it : s2)
+      for(std::set<const BigMemoryObject *>::const_iterator it=s2.begin();it!=s2.end();it++)
         {
-          if(s1.find(it)==s1.end())
+          if(s1.find(*it)==s1.end())
             {
-              ret+=it->getHeapMemorySizeWithoutChildren();
-              s1.insert(it);
-              std::vector<const BigMemoryObject *> const v2(it->getDirectChildren());
-              for(auto it2 : v2)
-                if(s1.find(it2)==s1.end())
-                  s3.insert(it2);
+              ret+=(*it)->getHeapMemorySizeWithoutChildren();
+              s1.insert(*it);
+              std::vector<const BigMemoryObject *> v2((*it)->getDirectChildren());
+              for(std::vector<const BigMemoryObject *>::const_iterator it2=v2.begin();it2!=v2.end();it2++)
+                if(s1.find(*it2)==s1.end())
+                  s3.insert(*it2);
             }
         }
       s2=s3;
@@ -233,7 +226,7 @@ std::string BigMemoryObject::getHeapMemorySizeStr() const
               std::ostringstream oss2; oss2 << std::fixed << ((double)remain)/1024.;
               std::string s(oss2.str());
               s=s.substr(1,4);
-              std::size_t const pos(s.find_last_not_of('0'));
+              std::size_t pos(s.find_last_not_of('0'));
               if(pos==4)
                 oss << s;
               else
@@ -259,15 +252,16 @@ std::string BigMemoryObject::getHeapMemorySizeStr() const
 std::vector<const BigMemoryObject *> BigMemoryObject::getDirectChildren() const
 {
   std::vector<const BigMemoryObject *> ret;
-  std::vector<const BigMemoryObject *> const retWithNull(getDirectChildrenWithNull());
-  for(auto it : retWithNull)
-    if(it)
-      ret.push_back(it);
+  std::vector<const BigMemoryObject *> retWithNull(getDirectChildrenWithNull());
+  for(std::vector<const BigMemoryObject *>::const_iterator it=retWithNull.begin();it!=retWithNull.end();it++)
+    if(*it)
+      ret.push_back(*it);
   return ret;
 }
 
 BigMemoryObject::~BigMemoryObject()
-= default;
+{
+}
 
 //=
 
@@ -275,13 +269,13 @@ RefCountObjectOnly::RefCountObjectOnly():_cnt(1)
 {
 }
 
-RefCountObjectOnly::RefCountObjectOnly(const RefCountObjectOnly&  /*other*/):_cnt(1)
+RefCountObjectOnly::RefCountObjectOnly(const RefCountObjectOnly& other):_cnt(1)
 {
 }
 
 bool RefCountObjectOnly::decrRef() const
 {
-  bool const ret=((--_cnt)==0);
+  bool ret=((--_cnt)==0);
   if(ret)
     delete this;
   return ret;
@@ -298,13 +292,14 @@ int RefCountObjectOnly::getRCValue() const
 }
 
 RefCountObjectOnly::~RefCountObjectOnly()
-= default;
+{
+}
 
 /*!
  * Do nothing here ! It is not a bug ( I hope :) ) because all subclasses that
  * copies using operator= should not copy the ref counter of \a other !
  */
-RefCountObjectOnly& RefCountObjectOnly::operator=(const RefCountObjectOnly&  /*other*/)
+RefCountObjectOnly& RefCountObjectOnly::operator=(const RefCountObjectOnly& other)
 {
   return *this;
 }
@@ -312,14 +307,16 @@ RefCountObjectOnly& RefCountObjectOnly::operator=(const RefCountObjectOnly&  /*o
 //=
 
 RefCountObject::RefCountObject()
-= default;
+{
+}
 
 RefCountObject::RefCountObject(const RefCountObject& other):RefCountObjectOnly(other)
 {
 }
 
 RefCountObject::~RefCountObject()
-= default;
+{
+}
 
 //=
 
@@ -332,13 +329,13 @@ GlobalDict *GlobalDict::GetInstance()
 
 bool GlobalDict::hasKey(const std::string& key) const
 {
-  auto const it(_my_map.find(key));
+  std::map<std::string, std::string>::const_iterator it(_my_map.find(key));
   return it!=_my_map.end();
 }
 
 std::string GlobalDict::value(const std::string& key) const
 {
-  auto const it(_my_map.find(key));
+  std::map<std::string, std::string>::const_iterator it(_my_map.find(key));
   if(it==_my_map.end())
     {
       std::ostringstream oss;
@@ -351,14 +348,14 @@ std::string GlobalDict::value(const std::string& key) const
 std::vector<std::string> GlobalDict::keys() const
 {
   std::vector<std::string> ret;
-  for(const auto & it : _my_map)
-    ret.push_back(it.first);
+  for(std::map<std::string, std::string>::const_iterator it=_my_map.begin();it!=_my_map.end();it++)
+    ret.push_back((*it).first);
   return ret;
 }
 
 void GlobalDict::erase(const std::string& key)
 {
-  auto const it(_my_map.find(key));
+  std::map<std::string, std::string>::iterator it(_my_map.find(key));
   if(it==_my_map.end())
     {
       std::ostringstream oss;
@@ -375,7 +372,7 @@ void GlobalDict::clear()
 
 void GlobalDict::setKeyValue(const std::string& key, const std::string& val)
 {
-  std::map<std::string, std::string>::const_iterator const it(_my_map.find(key));
+  std::map<std::string, std::string>::const_iterator it(_my_map.find(key));
   if(it!=_my_map.end())
     {
       std::ostringstream oss;
@@ -393,9 +390,9 @@ void GlobalDict::setKeyValueForce(const std::string& key, const std::string& val
 std::string GlobalDict::printSelf() const
 {
   std::ostringstream oss;
-  for(const auto & it : _my_map)
+  for(std::map<std::string, std::string>::const_iterator it=_my_map.begin();it!=_my_map.end();it++)
     {
-      oss << "(" << it.first << "," << it.second << ")" << std::endl;
+      oss << "(" << (*it).first << "," << (*it).second << ")" << std::endl;
     }
   return oss.str();
 }

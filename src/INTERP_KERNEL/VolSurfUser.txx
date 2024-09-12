@@ -20,18 +20,12 @@
 #ifndef __VOLSURFUSER_TXX__
 #define __VOLSURFUSER_TXX__
 
-#include "NormalizedGeometricTypes"
-#include "NormalizedUnstructuredMesh.hxx"
-#include "MCIdType.hxx"
-#include "InterpKernelGeo2DEdge.hxx"
 #include "VolSurfUser.hxx"
 #include "VolSurfFormulae.hxx"
 #include "InterpolationUtils.hxx"
 #include "VectorUtils.hxx"
 
 #include <algorithm>
-#include <functional>
-#include <cmath>
 
 namespace INTERP_KERNEL
 {
@@ -111,7 +105,7 @@ namespace INTERP_KERNEL
         break;
       case INTERP_KERNEL::NORM_POLYGON :
         {          
-          const auto **pts=new const double *[lgth];
+          const double **pts=new const double *[lgth];
           for(int inod=0;inod<lgth;inod++)
             pts[inod] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[inod]);
           double val=INTERP_KERNEL::calculateAreaForPolyg(pts,lgth,SPACEDIM);
@@ -121,7 +115,7 @@ namespace INTERP_KERNEL
         break;
       case INTERP_KERNEL::NORM_QPOLYG :
         {
-          const auto **pts=new const double *[lgth];
+          const double **pts=new const double *[lgth];
           for(int inod=0;inod<lgth;inod++)
             pts[inod] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[inod]);
           double val=INTERP_KERNEL::calculateAreaForQPolyg(pts,lgth,SPACEDIM);
@@ -342,7 +336,7 @@ namespace INTERP_KERNEL
         {
           if(SPACEDIM==2)
             {
-              auto **pts=new double *[lgth];
+              double **pts=new double *[lgth];
               for(int i=0;i<lgth;i++)
                 pts[i]=const_cast<double *>(coords+2*OTT<ConnType,numPol>::coo2C(connec[i]));
               computeQPolygonBarycenter2D(pts,lgth,2,res);
@@ -449,8 +443,8 @@ namespace INTERP_KERNEL
     double AB = getDistanceBtw2Pts<SPACEDIM>(PA,PB); double maxLength = AB;
     double BC = getDistanceBtw2Pts<SPACEDIM>(PB,PC); if (BC > maxLength) maxLength = BC;
     double CA = getDistanceBtw2Pts<SPACEDIM>(PC,PA); if (CA > maxLength) maxLength = CA;
-    double const perim( (AB+BC+CA)*0.5 );
-    double const num( 2*sqrt(perim*(perim-AB)*(perim-BC)*(perim-CA)) );
+    double perim( (AB+BC+CA)*0.5 );
+    double num( 2*sqrt(perim*(perim-AB)*(perim-BC)*(perim-CA)) );
     res[0] = num/AB; res[1] = num/BC; res[2] = num/CA;
     if (AB/maxLength <= EPS) 
       res[0] = BC;

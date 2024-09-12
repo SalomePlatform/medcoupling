@@ -22,16 +22,10 @@
 
 #include "InterpKernelException.hxx"
 #include "DiameterCalculator.hxx"
-#include "NormalizedGeometricTypes"
-#include "MCIdType.hxx"
 #include "OrientationInverter.hxx"
 
 #include <algorithm>
-#include <map>
-#include <cstddef>
-#include <iterator>
 #include <sstream>
-#include <utility>
 #include <vector>
 #include <limits>
 
@@ -492,7 +486,7 @@ namespace INTERP_KERNEL
    */
   unsigned CellModel::getNumberOfMicroEdges() const
   {
-    unsigned const mul(isQuadratic()?2:1);
+    unsigned mul(isQuadratic()?2:1);
     if(!isDynamic())
       {
         switch(getDimension())
@@ -564,7 +558,7 @@ namespace INTERP_KERNEL
    */
   unsigned CellModel::fillSonCellNodalConnectivity(int sonId, const mcIdType *nodalConn, mcIdType *sonNodalConn) const
   {
-    unsigned const nbOfTurnLoop=_nb_of_sons_con[sonId];
+    unsigned nbOfTurnLoop=_nb_of_sons_con[sonId];
     const unsigned *sonConn=_sons_con[sonId];
     for(unsigned i=0;i<nbOfTurnLoop;i++)
       sonNodalConn[i]=nodalConn[sonConn[i]];
@@ -625,7 +619,7 @@ namespace INTERP_KERNEL
       return fillSonCellNodalConnectivity2(sonId,nodalConn,lgth,sonNodalConn,typeOfSon);
   }
 
-  unsigned CellModel::fillSonEdgesNodalConnectivity3D(int sonId, const mcIdType *nodalConn, mcIdType  /*lgth*/, mcIdType *sonNodalConn, NormalizedCellType& typeOfSon) const
+  unsigned CellModel::fillSonEdgesNodalConnectivity3D(int sonId, const mcIdType *nodalConn, mcIdType lgth, mcIdType *sonNodalConn, NormalizedCellType& typeOfSon) const
   {
     if(!isDynamic())
       {
@@ -658,7 +652,7 @@ namespace INTERP_KERNEL
       {
         int edgeId(sonId/2),subEdgeId(sonId%2);
         typeOfSon=NORM_SEG2;
-        const unsigned *sonConn(nullptr);
+        const unsigned *sonConn(0);
         switch(getDimension())
           {
           case 2:
@@ -705,7 +699,7 @@ namespace INTERP_KERNEL
       }
     else
       {
-        unsigned int const sz2(sz/2);
+        unsigned int sz2(sz/2);
         std::vector<mcIdType> tmp0(sz2-1),tmp1(sz2);
         std::copy(nodalConn+1,nodalConn+sz2,tmp0.rbegin());
         std::copy(nodalConn+sz2,nodalConn+sz,tmp1.rbegin());
@@ -785,14 +779,14 @@ namespace INTERP_KERNEL
     if(!_quadratic)
       {
         std::vector<mcIdType> tmp(2*lgth);
-        auto it=std::copy(conn1,conn1+lgth,tmp.begin());
+        std::vector<mcIdType>::iterator it=std::copy(conn1,conn1+lgth,tmp.begin());
         std::copy(conn1,conn1+lgth,it);
         it=std::search(tmp.begin(),tmp.end(),conn2,conn2+lgth);
         if(it==tmp.begin())
           return true;
         if(it!=tmp.end())
           return _dim!=1;
-        auto const it2=std::search(tmp.rbegin(),tmp.rend(),conn2,conn2+lgth);
+        std::vector<mcIdType>::reverse_iterator it2=std::search(tmp.rbegin(),tmp.rend(),conn2,conn2+lgth);
         if(it2!=tmp.rend())
           return false;
         throw INTERP_KERNEL::Exception("CellModel::getOrientationStatus : Request of orientation status of non equal connectively cells !");
@@ -802,10 +796,10 @@ namespace INTERP_KERNEL
         if(_dim!=1)
           {
             std::vector<mcIdType> tmp(lgth);
-            auto it=std::copy(conn1,conn1+lgth/2,tmp.begin());
+            std::vector<mcIdType>::iterator it=std::copy(conn1,conn1+lgth/2,tmp.begin());
             std::copy(conn1,conn1+lgth/2,it);
             it=std::search(tmp.begin(),tmp.end(),conn2,conn2+lgth/2);
-            std::size_t const d=std::distance(tmp.begin(),it);
+            std::size_t d=std::distance(tmp.begin(),it);
             if(it==tmp.end())
               return false;
             it=std::copy(conn1+lgth/2,conn1+lgth,tmp.begin());
@@ -813,17 +807,17 @@ namespace INTERP_KERNEL
             it=std::search(tmp.begin(),tmp.end(),conn2,conn2+lgth);
             if(it==tmp.end())
               return false;
-            std::size_t const d2=std::distance(tmp.begin(),it);
+            std::size_t d2=std::distance(tmp.begin(),it);
             return d==d2;
           }
         else
           {
-            mcIdType const p=(lgth+1)/2;
+            mcIdType p=(lgth+1)/2;
             std::vector<mcIdType> tmp(2*p);
-            auto it=std::copy(conn1,conn1+p,tmp.begin());
+            std::vector<mcIdType>::iterator it=std::copy(conn1,conn1+p,tmp.begin());
             std::copy(conn1,conn1+p,it);
             it=std::search(tmp.begin(),tmp.end(),conn2,conn2+p);
-            std::size_t const d=std::distance(tmp.begin(),it);
+            std::size_t d=std::distance(tmp.begin(),it);
             if(it==tmp.end())
               return false;
             tmp.resize(2*p-2);
@@ -832,7 +826,7 @@ namespace INTERP_KERNEL
             it=std::search(tmp.begin(),tmp.end(),conn2+p,conn2+lgth);
             if(it==tmp.end())
               return false;
-            std::size_t const d2=std::distance(tmp.begin(),it);
+            std::size_t d2=std::distance(tmp.begin(),it);
             return d==d2;
           }
       }

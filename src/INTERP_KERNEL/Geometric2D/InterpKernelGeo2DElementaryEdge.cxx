@@ -19,14 +19,9 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "InterpKernelGeo2DElementaryEdge.hxx"
+#include "InterpKernelException.hxx"
 #include "InterpKernelGeo2DEdge.hxx"
 #include "InterpKernelGeo2DComposedEdge.hxx"
-#include <set>
-#include "InterpKernelGeo2DNode.hxx"
-#include <ostream>
-#include <map>
-#include "MCIdType.hxx"
-#include <vector>
 
 using namespace INTERP_KERNEL;
 

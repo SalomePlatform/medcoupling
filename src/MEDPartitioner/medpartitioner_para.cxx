@@ -39,10 +39,18 @@
 */
 
 
+#include "MEDPARTITIONER_MeshCollection.hxx"
+#include "MEDPARTITIONER_ParallelTopology.hxx"
+#include "MEDPARTITIONER_ParaDomainSelector.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 
+#include "MEDLoader.hxx"
 
+#include <fstream>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <string>
 #include <cstring>
 
 #ifdef HAVE_MPI
@@ -52,7 +60,7 @@
 using namespace std;
 using namespace MEDPARTITIONER;
 
-int main(int  /*argc*/, char**  /*argv*/)
+int main(int argc, char** argv)
 {
 #if !defined(MED_ENABLE_PARMETIS)
   cout << "Sorry, no one split method is available. Please, compile with ParMETIS."<<endl;

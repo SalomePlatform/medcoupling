@@ -23,7 +23,6 @@
 
 #include "Intersector3DP1P1.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
-#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -33,7 +32,7 @@ namespace INTERP_KERNEL
   public:
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
     static const int MESHDIM=MyMeshType::MY_MESHDIM;
-    using ConnType = typename MyMeshType::MyConnType;
+    typedef typename MyMeshType::MyConnType ConnType;
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
   public:
     Barycentric3DIntersectorP1P1(const MyMeshType& targetMesh, const MyMeshType& srcMesh, double precision);

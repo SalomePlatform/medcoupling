@@ -21,16 +21,13 @@
 #ifndef __MEDFILEBLOWSTRELTUP_HXX__
 #define __MEDFILEBLOWSTRELTUP_HXX__
 
-#include "MCAuto.hxx"
-#include "MEDFileMeshLL.hxx"
-#include "MEDFileFieldMultiTS.hxx"
+#include "MEDLoaderDefines.hxx"
+#include "MEDFileUtilities.txx"
 #include "MEDFileMesh.hxx"
 #include "MEDFileField.hxx"
 #include "MEDFileStructureElement.hxx"
 
-#include <string>
-#include <cstddef>
-#include <vector>
+#include "MEDCouplingRefCountObject.hxx"
 
 namespace MEDCoupling
 { 

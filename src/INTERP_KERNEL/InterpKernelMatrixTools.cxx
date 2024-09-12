@@ -21,7 +21,6 @@
 #include "InterpKernelMatrixTools.hxx"
 #include "InterpKernelException.hxx"
 #include "InterpKernelAutoPtr.hxx"
-#include "MCIdType.hxx"
 
 #include <sstream>
 #include <algorithm>
@@ -391,7 +390,7 @@ namespace INTERP_KERNEL
             t=work[j];
             daxpy(n,t,a+0+j*lda,1,a+0+k*lda,1);
           }
-        mcIdType const l=ipvt[k];
+        mcIdType l=ipvt[k];
         if(l!=k-1)
           dswap(n,a+0+k*lda,1,a+0+l*lda,1);
       }

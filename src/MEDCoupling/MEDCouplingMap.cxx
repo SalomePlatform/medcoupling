@@ -19,7 +19,6 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingMap.txx"
-#include "MCIdType.hxx"
 
 using namespace MEDCoupling;
 

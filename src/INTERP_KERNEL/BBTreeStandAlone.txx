@@ -21,8 +21,6 @@
 
 #include "BBTree.txx"
 #include <memory>
-#include <utility>
-#include <vector>
 
 /*!
  * Wrapper over BBTree to deal with ownership of bbox double array.

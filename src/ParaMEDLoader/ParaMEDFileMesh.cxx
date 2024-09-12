@@ -19,22 +19,15 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "ParaMEDFileMesh.hxx"
-#include "InterpKernelAutoPtr.hxx"
 #include "MCAuto.hxx"
-#include "MCIdType.hxx"
-#include "MEDCouplingMesh.hxx"
-#include "MEDCouplingMemArray.hxx"
-#include "MCType.hxx"
-#include "MEDCouplingRefCountObject.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDFileMeshLL.hxx"
+#include "MEDLoader.hxx"
 #include "MEDFileField1TS.hxx"
 #include "MEDFileUtilities.hxx"
 #include "MEDFileEntities.hxx"
-#include "med.h"
-#include "NormalizedGeometricTypes"
-#include "MEDLoader.hxx"
-#include <string>
+#include <iostream>
+#include <fstream>
 
 
 // From MEDLOader.cxx TU
@@ -174,7 +167,7 @@ MEDFileUMesh *ParaMEDFileUMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm
  * Loads mesh \a mName in parallel using a custom partition of the mesh cells among the processes.
  * See ParaMEDFileUMesh::ParaNew for detailed description.
  */
-MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, const MPI_Comm& com, const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>& distrib, const std::string&  /*fileName*/, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
+MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, const MPI_Comm& com, const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>& distrib, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MCAuto<MEDFileUMesh> ret;
   for(std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>::const_iterator iter=distrib.begin(); iter!= distrib.end(); iter++)

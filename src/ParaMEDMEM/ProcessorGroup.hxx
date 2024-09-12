@@ -22,7 +22,7 @@
 
 #include "CommInterface.hxx"
 
-#include <string>
+#include <set>
 
 namespace MEDCoupling
 {
@@ -45,7 +45,7 @@ namespace MEDCoupling
     ProcessorGroup (const CommInterface& interface, int start, int end);
     ProcessorGroup(const CommInterface& interface,std::map<std::string,std::set<int>> proc_ids_by_name,const std::string& simCodeTag):
       _comm_interface(interface),_proc_ids_by_name(proc_ids_by_name),_proc_ids(proc_ids_by_name.at(simCodeTag)) { }
-    virtual ~ProcessorGroup() = default;
+    virtual ~ProcessorGroup() { }
     virtual ProcessorGroup *deepCopy() const = 0;
     virtual ProcessorGroup* fuse (const ProcessorGroup&) const = 0;
     virtual void intersect (ProcessorGroup&) = 0;

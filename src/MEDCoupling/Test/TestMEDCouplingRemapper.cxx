@@ -19,7 +19,6 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingRemapperTest.hxx"
-#include <cppunit/extensions/HelperMacros.h>
 
 CPPUNIT_TEST_SUITE_REGISTRATION( MEDCoupling::MEDCouplingRemapperTest );
 

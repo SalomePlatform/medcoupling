@@ -18,7 +18,6 @@
 //
 
 #include "MeshElement.hxx"
-#include "BoundingBox.hxx"
 
 namespace INTERP_KERNEL
 { 

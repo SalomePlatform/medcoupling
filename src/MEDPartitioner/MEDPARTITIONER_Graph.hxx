@@ -20,9 +20,9 @@
 #ifndef __MEDPARTITIONER_GRAPH_HXX__
 #define __MEDPARTITIONER_GRAPH_HXX__
 
-#include "MCIdType.hxx"
 #include "MEDPARTITIONER.hxx"
 #include "MCAuto.hxx"
+#include "MCType.hxx"
 
 #include <string>
 
@@ -39,18 +39,18 @@ namespace MEDPARTITIONER
   class MEDPARTITIONER_EXPORT Graph
   {
   public:
-    using splitter_type = enum {METIS,SCOTCH,PTSCOTCH};
+    typedef enum {METIS,SCOTCH,PTSCOTCH} splitter_type;
 
     Graph();
     //creates a graph from a SKYLINEARRAY- WARNING!! Graph takes ownership of the array.
-    Graph(MEDCouplingSkyLineArray* graph, int* edgeweight=nullptr);
+    Graph(MEDCouplingSkyLineArray* graph, int* edgeweight=0);
     virtual ~Graph();
 
     void setEdgesWeights(int *edgeweight) { _edge_weight=edgeweight; }
     void setVerticesWeights(int *cellweight) { _cell_weight=cellweight; }
     
     //computes partitioning of the graph
-    virtual void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=nullptr) = 0;
+    virtual void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=0) = 0;
     
     //returns the partitioning
     const mcIdType *getPart() const;

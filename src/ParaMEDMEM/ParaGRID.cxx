@@ -20,9 +20,11 @@
 #include "ParaGRID.hxx"
 #include "Topology.hxx"
 #include "BlockTopology.hxx"
+#include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingCMesh.hxx"
 #include "InterpKernelUtilities.hxx"
 
+#include <iostream>
 
 using namespace std;
 
@@ -33,13 +35,13 @@ namespace MEDCoupling
     _global_axis()
   {
     _block_topology = dynamic_cast<BlockTopology*>(topology);
-    if(_block_topology==nullptr)
+    if(_block_topology==0)
       throw INTERP_KERNEL::Exception(LOCALIZED("ParaGRID::ParaGRID topology must be block topology"));
     
     if (!_block_topology->getProcGroup()->containsMyRank())
       return;
     
-    int const dimension=_block_topology->getDimension() ;
+    int dimension=_block_topology->getDimension() ;
     if (dimension != global_grid->getSpaceDimension())
       throw INTERP_KERNEL::Exception(LOCALIZED("ParaGrid::ParaGrid incompatible topology"));
     _grid=global_grid;

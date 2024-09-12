@@ -19,12 +19,12 @@
 
 #include "UnitTetra3D2DIntersectionTest.hxx"
 
+#include "TetraAffineTransform.hxx"
+#include "InterpolationUtils.hxx"
 #include "SplitterTetra.txx"
-#include "NormalizedGeometricTypes"
 #include "MCIdType.hxx"
 
-#include <cppunit/TestAssert.h>
-#include <set>
+#include <iostream>
 
 using namespace INTERP_KERNEL;
 
@@ -32,7 +32,7 @@ namespace INTERP_TEST
 {
   struct __MESH_DUMMY
   {
-    using MyConnType = mcIdType;
+    typedef mcIdType MyConnType;
     static const int MY_SPACEDIM=3;
   };
 
@@ -47,7 +47,7 @@ namespace INTERP_TEST
 
     const double* tetraCoords[]={ targetCoords, targetCoords+3, targetCoords+6, targetCoords+9 };
 
-    __MESH_DUMMY const dummyMesh;
+    __MESH_DUMMY dummyMesh;
     SplitterTetra<__MESH_DUMMY>* targetTetra = new SplitterTetra<__MESH_DUMMY>( dummyMesh, tetraCoords, conn );
     return targetTetra;
   }
@@ -80,13 +80,13 @@ namespace INTERP_TEST
 
     CPPUNIT_ASSERT_EQUAL(4,(int)listOfTetraFacesTreated.size());
     std::multiset<TriangleFaceKey> correctListOfTetraFacesTreated;
-    TriangleFaceKey const key1 = TriangleFaceKey(0, 1, 2);
+    TriangleFaceKey key1 = TriangleFaceKey(0, 1, 2);
     correctListOfTetraFacesTreated.insert(key1);
-    TriangleFaceKey const key2 = TriangleFaceKey(0, 1, 3);
+    TriangleFaceKey key2 = TriangleFaceKey(0, 1, 3);
     correctListOfTetraFacesTreated.insert(key2);
-    TriangleFaceKey const key3 = TriangleFaceKey(0, 2, 3);
+    TriangleFaceKey key3 = TriangleFaceKey(0, 2, 3);
     correctListOfTetraFacesTreated.insert(key3);
-    TriangleFaceKey const key4 = TriangleFaceKey(1, 2, 3);
+    TriangleFaceKey key4 = TriangleFaceKey(1, 2, 3);
     correctListOfTetraFacesTreated.insert(key4);
     CPPUNIT_ASSERT(correctListOfTetraFacesTreated == listOfTetraFacesTreated);
 
@@ -126,13 +126,13 @@ namespace INTERP_TEST
 
     CPPUNIT_ASSERT_EQUAL(4,(int)listOfTetraFacesTreated.size());
     std::multiset<TriangleFaceKey> correctListOfTetraFacesTreated;
-    TriangleFaceKey const key1 = TriangleFaceKey(0, 1, 2);
+    TriangleFaceKey key1 = TriangleFaceKey(0, 1, 2);
     correctListOfTetraFacesTreated.insert(key1);
-    TriangleFaceKey const key2 = TriangleFaceKey(0, 1, 3);
+    TriangleFaceKey key2 = TriangleFaceKey(0, 1, 3);
     correctListOfTetraFacesTreated.insert(key2);
-    TriangleFaceKey const key3 = TriangleFaceKey(0, 2, 3);
+    TriangleFaceKey key3 = TriangleFaceKey(0, 2, 3);
     correctListOfTetraFacesTreated.insert(key3);
-    TriangleFaceKey const key4 = TriangleFaceKey(1, 2, 3);
+    TriangleFaceKey key4 = TriangleFaceKey(1, 2, 3);
     correctListOfTetraFacesTreated.insert(key4);
     CPPUNIT_ASSERT(correctListOfTetraFacesTreated == listOfTetraFacesTreated);
 

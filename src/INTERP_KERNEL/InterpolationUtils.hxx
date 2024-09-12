@@ -21,19 +21,16 @@
 #ifndef __INTERPOLATIONUTILS_HXX__
 #define __INTERPOLATIONUTILS_HXX__
 
+#include "INTERPKERNELDefines.hxx"
 #include "InterpKernelException.hxx"
-#include "MCIdType.hxx"
 #include "VolSurfUser.hxx"
-#include "NormalizedGeometricTypes"
 
 #include "NormalizedUnstructuredMesh.hxx"
 
-#include <cstddef>
 #include <deque>
-#include <iterator>
 #include <map>
 #include <cmath>
-#include <utility>
+#include <string>
 #include <vector>
 #include <algorithm>
 #include <iostream>
@@ -73,8 +70,8 @@ namespace INTERP_KERNEL
 
   inline double Surf_Tri(const double *P_1,const double *P_2,const double *P_3)
   {
-    double const A=(P_3[1]-P_1[1])*(P_2[0]-P_1[0])-(P_2[1]-P_1[1])*(P_3[0]-P_1[0]);
-    double const Surface = 0.5*fabs(A);
+    double A=(P_3[1]-P_1[1])*(P_2[0]-P_1[0])-(P_2[1]-P_1[1])*(P_3[0]-P_1[0]);
+    double Surface = 0.5*fabs(A);
     return Surface;
   }
 
@@ -90,7 +87,7 @@ namespace INTERP_KERNEL
                                 const double *P_2,
                                 const double *P_3)
   {
-    double const mon_det=(P_1[0]-P_3[0])*(P_2[1]-P_3[1])-(P_2[0]-P_3[0])*(P_1[1]-P_3[1]);
+    double mon_det=(P_1[0]-P_3[0])*(P_2[1]-P_3[1])-(P_2[0]-P_3[0])*(P_1[1]-P_3[1]);
     return mon_det;
   }
 
@@ -99,8 +96,8 @@ namespace INTERP_KERNEL
 
   inline double norme_vecteur(const double* P_1,const double* P_2)
   {
-    double const X=P_1[0]-P_2[0];
-    double const Y=P_1[1]-P_2[1];
+    double X=P_1[0]-P_2[0];
+    double Y=P_1[1]-P_2[1];
     return sqrt(X*X+Y*Y);
   }
 
@@ -120,18 +117,18 @@ namespace INTERP_KERNEL
   {
        
     std::vector<double> Vect;
-    double const P1_P2=norme_vecteur(P_1,P_2);
-    double const P2_P3=norme_vecteur(P_2,P_3);
-    double const P3_P1=norme_vecteur(P_3,P_1);
+    double P1_P2=norme_vecteur(P_1,P_2);
+    double P2_P3=norme_vecteur(P_2,P_3);
+    double P3_P1=norme_vecteur(P_3,P_1);
        
-    double const N=P1_P2*P1_P2+P3_P1*P3_P1-P2_P3*P2_P3;
-    double const D=2.0*P1_P2*P3_P1;
+    double N=P1_P2*P1_P2+P3_P1*P3_P1-P2_P3*P2_P3;
+    double D=2.0*P1_P2*P3_P1;
     double COS=N/D;
     if (COS>1.0) COS=1.0;
     if (COS<-1.0) COS=-1.0;
     Vect.push_back(COS);
-    double const V=mon_determinant(P_2,P_3,P_1);
-    double const D_1=P1_P2*P3_P1;
+    double V=mon_determinant(P_2,P_3,P_1);
+    double D_1=P1_P2*P3_P1;
     double SIN=V/D_1;
     if (SIN>1.0) SIN=1.0;
     if (SIN<-1.0) SIN=-1.0;
@@ -200,7 +197,7 @@ namespace INTERP_KERNEL
   inline std::vector<double> bary_poly(const std::vector<double>& V)
   {
     std::vector<double> Bary;
-    std::size_t const taille=V.size();
+    std::size_t taille=V.size();
     double x=0;
     double y=0;
 
@@ -209,8 +206,8 @@ namespace INTERP_KERNEL
         x=x+V[2*i];
         y=y+V[2*i+1];
       }
-    double const A=2*x/(static_cast<double>(taille));
-    double const B=2*y/(static_cast<double>(taille));
+    double A=2*x/(static_cast<double>(taille));
+    double B=2*y/(static_cast<double>(taille));
     Bary.push_back(A);//taille vecteur=2*nb de points.
     Bary.push_back(B);
 
@@ -291,7 +288,7 @@ namespace INTERP_KERNEL
         double max = std::fabs( M[ iR[i] ][i] );
         for ( int r = i+1; r < (int)nbRow; ++r )
           {
-            double const m = std::fabs( M[ iR[r] ][i] );
+            double m = std::fabs( M[ iR[r] ][i] );
             if ( m > max )
               {
                 max = m;
@@ -308,7 +305,7 @@ namespace INTERP_KERNEL
         for ( int r = i+1; r < (int)nbRow; ++r )
           {
             double* mRow = M[ iR[r] ];
-            double const coef = mRow[ i ] / tUpRow[ i ];
+            double coef = mRow[ i ] / tUpRow[ i ];
             for ( int c = i+1; c < nbCol; ++c )
               mRow[ c ] -= tUpRow[ c ] * coef;
           }
@@ -407,7 +404,7 @@ namespace INTERP_KERNEL
       T11 = triaCoords[0]-triaCoords[2*SPACEDIM], T12 = triaCoords[SPACEDIM]-triaCoords[2*SPACEDIM],
       T21 = triaCoords[1]-triaCoords[2*SPACEDIM+1], T22 = triaCoords[SPACEDIM+1]-triaCoords[2*SPACEDIM+1];
     // matrix determinant
-    double const Tdet = T11*T22 - T12*T21;
+    double Tdet = T11*T22 - T12*T21;
     if ( fabs( Tdet ) < std::numeric_limits<double>::min() ) {
       bc[0]=1; bc[1]=0; bc[2]=0;
       return;
@@ -424,7 +421,7 @@ namespace INTERP_KERNEL
 
   inline void barycentric_coords_seg2(const std::vector<const double*>& n, const double *p, double *bc)
   {
-    double const delta=n[0][0]-n[1][0];
+    double delta=n[0][0]-n[1][0];
     bc[0]=fabs((*p-n[1][0])/delta);
     bc[1]=fabs((*p-n[0][0])/delta);
   }
@@ -437,7 +434,7 @@ namespace INTERP_KERNEL
       T11 = n[0][_XX]-n[2][_XX], T12 = n[1][_XX]-n[2][_XX],
       T21 = n[0][_YY]-n[2][_YY], T22 = n[1][_YY]-n[2][_YY];
     // matrix determinant
-    double const Tdet = T11*T22 - T12*T21;
+    double Tdet = T11*T22 - T12*T21;
     if ( (std::fabs( Tdet) ) < (std::numeric_limits<double>::min()) )
       {
         bc[0]=1; bc[1]=bc[2]=0; // no solution
@@ -615,11 +612,11 @@ namespace INTERP_KERNEL
   inline bool IsPointOn3DSeg(const double segStart[3], const double segStop[3], const double point[3], double eps, double& bc0, double& bc1)
   {
     double AB[3]={segStop[0]-segStart[0],segStop[1]-segStart[1],segStop[2]-segStart[2]},AP[3]={point[0]-segStart[0],point[1]-segStart[1],point[2]-segStart[2]};
-    double const l_AB(sqrt(AB[0]*AB[0]+AB[1]*AB[1]+AB[2]*AB[2]));
+    double l_AB(sqrt(AB[0]*AB[0]+AB[1]*AB[1]+AB[2]*AB[2]));
     double AP_dot_AB((AP[0]*AB[0]+AP[1]*AB[1]+AP[2]*AB[2])/(l_AB*l_AB));
-    double const projOfPOnAB[3]={segStart[0]+AP_dot_AB*AB[0],segStart[1]+AP_dot_AB*AB[1],segStart[2]+AP_dot_AB*AB[2]};
-    double const V_dist_P_AB[3]={point[0]-projOfPOnAB[0],point[1]-projOfPOnAB[1],point[2]-projOfPOnAB[2]};
-    double const dist_P_AB(sqrt(V_dist_P_AB[0]*V_dist_P_AB[0]+V_dist_P_AB[1]*V_dist_P_AB[1]+V_dist_P_AB[2]*V_dist_P_AB[2]));
+    double projOfPOnAB[3]={segStart[0]+AP_dot_AB*AB[0],segStart[1]+AP_dot_AB*AB[1],segStart[2]+AP_dot_AB*AB[2]};
+    double V_dist_P_AB[3]={point[0]-projOfPOnAB[0],point[1]-projOfPOnAB[1],point[2]-projOfPOnAB[2]};
+    double dist_P_AB(sqrt(V_dist_P_AB[0]*V_dist_P_AB[0]+V_dist_P_AB[1]*V_dist_P_AB[1]+V_dist_P_AB[2]*V_dist_P_AB[2]));
     if(dist_P_AB>=eps)
       return false;//to far from segment [segStart,segStop]
     if(AP_dot_AB<-eps || AP_dot_AB>1.+eps)
@@ -649,22 +646,22 @@ namespace INTERP_KERNEL
    */
   inline void quad_mapped_coords(const std::vector<const double*>& n, const double *p, double *bc)
   {
-    double const prec = 1.0e-14;
+    double prec = 1.0e-14;
     enum { _XX=0, _YY, _ZZ };
 
     if(n.size() != 4)
       throw INTERP_KERNEL::Exception("INTERP_KERNEL::quad_mapped_coords : unrecognized geometric type! Only QUAD4 supported.");
 
-    double const A[2] = {n[1][_XX] - n[0][_XX],  n[1][_YY] - n[0][_YY]};
-    double const B[2] = {n[2][_XX] - n[0][_XX],  n[2][_YY] - n[0][_YY]};
-    double const C[2] = {n[3][_XX] - n[0][_XX],  n[3][_YY] - n[0][_YY]};
-    double const N[2] = {B[_XX] - A[_XX] - C[_XX], B[_YY] - A[_YY] - C[_YY]};
-    double const P[2] = {p[_XX] - n[0][_XX], p[_YY] - n[0][_YY]};
+    double A[2] = {n[1][_XX] - n[0][_XX],  n[1][_YY] - n[0][_YY]};
+    double B[2] = {n[2][_XX] - n[0][_XX],  n[2][_YY] - n[0][_YY]};
+    double C[2] = {n[3][_XX] - n[0][_XX],  n[3][_YY] - n[0][_YY]};
+    double N[2] = {B[_XX] - A[_XX] - C[_XX], B[_YY] - A[_YY] - C[_YY]};
+    double P[2] = {p[_XX] - n[0][_XX], p[_YY] - n[0][_YY]};
 
     // degenerated case: a rectangle:
     if (fabs(N[0]) < prec && fabs(N[1]) < prec)
       {
-        double const det = C[0]*A[1] -C[1]*A[0];
+        double det = C[0]*A[1] -C[1]*A[0];
         if (fabs(det) < prec)
           throw INTERP_KERNEL::Exception("MappedBarycentric intersection type: quad_mapped_coords() has a degenerated 2x2 system!");
         bc[0] = (P[0]*A[1]-P[1]*A[0])/det;
@@ -686,7 +683,7 @@ namespace INTERP_KERNEL
         c = -P[0]*A[1] + P[1]*A[0];
         cas1 = false;
       }
-    double const delta = b*b - 4.0*a*c;
+    double delta = b*b - 4.0*a*c;
     if (delta < 0.0)
       throw INTERP_KERNEL::Exception("MappedBarycentric intersection type: quad_mapped_coords(): imaginary solutions!");
     bc[1] = 0.5*(-b+sqrt(delta))/a;
@@ -696,7 +693,7 @@ namespace INTERP_KERNEL
       throw INTERP_KERNEL::Exception("MappedBarycentric intersection type: quad_mapped_coords(): point doesn't seem to be in quad4!");
     if (cas1)
       {
-        double const denom = C[0]+bc[1]*N[0];
+        double denom = C[0]+bc[1]*N[0];
         if (fabs(denom) < prec)
           throw INTERP_KERNEL::Exception("MappedBarycentric intersection type: quad_mapped_coords(): point doesn't seem to be in quad4!");
         bc[0] = (P[0]-bc[1]*A[0])/denom;
@@ -706,7 +703,7 @@ namespace INTERP_KERNEL
     else
       {
         bc[0] = bc[1];
-        double const denom = A[1]+bc[0]*N[1];
+        double denom = A[1]+bc[0]*N[1];
         if (fabs(denom) < prec)
           throw INTERP_KERNEL::Exception("MappedBarycentric intersection type: cuboid_mapped_coord(): point doesn't seem to be in quad4!");
         bc[1] = (P[1]-bc[0]*C[1])/denom;
@@ -736,7 +733,7 @@ namespace INTERP_KERNEL
 
   inline void cuboid_mapped_coords(const std::vector<const double*>& n, const double *p, double *bc)
   {
-    double const prec = 1.0e-14;
+    double prec = 1.0e-14;
     enum { _XX=0, _YY };
     if (n.size() != 8)
       throw INTERP_KERNEL::Exception("INTERP_KERNEL::cuboid_mapped_coords: unrecognized geometric type! Only HEXA8 supported.");
@@ -769,7 +766,7 @@ namespace INTERP_KERNEL
     double Surface=0;
     for(unsigned long i=0; i<(Poly.size())/2-2; i++)
       {
-        double const Surf=Surf_Tri( &Poly[0],&Poly[2*(i+1)],&Poly[2*(i+2)] ); 
+        double Surf=Surf_Tri( &Poly[0],&Poly[2*(i+1)],&Poly[2*(i+2)] ); 
         Surface=Surface + Surf ;
       }
     return Surface ;
@@ -787,9 +784,9 @@ namespace INTERP_KERNEL
   {
 
     bool A=false;
-    double const det_1=mon_determinant(P_1,P_3,P_0);
-    double const det_2=mon_determinant(P_3,P_2,P_0);
-    double const det_3=mon_determinant(P_2,P_1,P_0);
+    double det_1=mon_determinant(P_1,P_3,P_0);
+    double det_2=mon_determinant(P_3,P_2,P_0);
+    double det_3=mon_determinant(P_2,P_1,P_0);
     if( (det_1>=-eps && det_2>=-eps && det_3>=-eps) || (det_1<=eps && det_2<=eps && det_3<=eps) )
       {
         A=true;
@@ -805,7 +802,7 @@ namespace INTERP_KERNEL
 
   inline void verif_point_dans_vect(const double* P, std::vector<double>& V, double absolute_precision )
   {
-    std::size_t const taille=V.size();
+    std::size_t taille=V.size();
     bool isPresent=false;
     for(std::size_t i=0;i<taille/2;i++) 
       {
@@ -834,14 +831,14 @@ namespace INTERP_KERNEL
                                    std::vector<double>& V, double dim_caracteristic, double precision)
   {
 
-    double const absolute_precision = precision*dim_caracteristic;
-    bool const A_1=INTERP_KERNEL::point_dans_triangle(P_1,P_4,P_5,P_6,absolute_precision);
+    double absolute_precision = precision*dim_caracteristic;
+    bool A_1=INTERP_KERNEL::point_dans_triangle(P_1,P_4,P_5,P_6,absolute_precision);
     if(A_1)
       verif_point_dans_vect(P_1,V,absolute_precision);
-    bool const A_2=INTERP_KERNEL::point_dans_triangle(P_2,P_4,P_5,P_6,absolute_precision);
+    bool A_2=INTERP_KERNEL::point_dans_triangle(P_2,P_4,P_5,P_6,absolute_precision);
     if(A_2)
       verif_point_dans_vect(P_2,V,absolute_precision);
-    bool const A_3=INTERP_KERNEL::point_dans_triangle(P_3,P_4,P_5,P_6,absolute_precision);
+    bool A_3=INTERP_KERNEL::point_dans_triangle(P_3,P_4,P_5,P_6,absolute_precision);
     if(A_3)
       verif_point_dans_vect(P_3,V,absolute_precision);
   }
@@ -859,17 +856,17 @@ namespace INTERP_KERNEL
                                 double dim_caracteristic, double precision)
   {
     // calcul du determinant de P_1P_2 et P_3P_4.
-    double const det=(P_2[0]-P_1[0])*(P_4[1]-P_3[1])-(P_4[0]-P_3[0])*(P_2[1]-P_1[1]);
+    double det=(P_2[0]-P_1[0])*(P_4[1]-P_3[1])-(P_4[0]-P_3[0])*(P_2[1]-P_1[1]);
 
-    double const absolute_precision = dim_caracteristic*precision;
+    double absolute_precision = dim_caracteristic*precision;
     if(fabs(det)>absolute_precision)
       {
-        double const k_1=-((P_3[1]-P_4[1])*(P_3[0]-P_1[0])+(P_4[0]-P_3[0])*(P_3[1]-P_1[1]))/det;
+        double k_1=-((P_3[1]-P_4[1])*(P_3[0]-P_1[0])+(P_4[0]-P_3[0])*(P_3[1]-P_1[1]))/det;
 
         if (k_1 >= -absolute_precision && k_1 <= 1+absolute_precision)
           //if( k_1 >= -precision && k_1 <= 1+precision)
           {
-            double const k_2= ((P_1[1]-P_2[1])*(P_1[0]-P_3[0])+(P_2[0]-P_1[0])*(P_1[1]-P_3[1]))/det;
+            double k_2= ((P_1[1]-P_2[1])*(P_1[0]-P_3[0])+(P_2[0]-P_1[0])*(P_1[1]-P_3[1]))/det;
 
             if (k_2 >= -absolute_precision && k_2 <= 1+absolute_precision)
               //if( k_2 >= -precision && k_2 <= 1+precision)
@@ -915,7 +912,7 @@ namespace INTERP_KERNEL
 
   inline void verif_maill_dans_vect(int Num, std::vector<int>& V)
   {
-    std::size_t const taille=V.size();
+    std::size_t taille=V.size();
     int A=0;
     for(std::size_t i=0;i<taille;i++)
       {
@@ -936,10 +933,10 @@ namespace INTERP_KERNEL
   public:
     bool operator()(std::pair<double,double>theta1, std::pair<double,double> theta2) const
     {
-      double const norm1 = sqrt(theta1.first*theta1.first +theta1.second*theta1.second);
-      double const norm2 = sqrt(theta2.first*theta2.first +theta2.second*theta2.second);
+      double norm1 = sqrt(theta1.first*theta1.first +theta1.second*theta1.second);
+      double norm2 = sqrt(theta2.first*theta2.first +theta2.second*theta2.second);
       
-      double const epsilon = 1.e-12;
+      double epsilon = 1.e-12;
       
       if( norm1 < epsilon || norm2 < epsilon  ) 
         std::cout << "Warning InterpolationUtils.hxx: AngleLess : Vector with zero norm, cannot define the angle !!!! " << std::endl;
@@ -958,7 +955,7 @@ namespace INTERP_KERNEL
   inline std::vector<double> reconstruct_polygon(const std::vector<double>& V)
   {
 
-    int const taille((int)V.size());
+    int taille((int)V.size());
 
     //VB : why 6 ?
 
@@ -966,8 +963,8 @@ namespace INTERP_KERNEL
       {return V;}
     else
       {
-        auto *COS=new double[taille/2];
-        auto *SIN=new double[taille/2];
+        double *COS=new double[taille/2];
+        double *SIN=new double[taille/2];
         //double *angle=new double[taille/2];
         std::vector<double> Bary=bary_poly(V);
         COS[0]=1.0;
@@ -1004,7 +1001,7 @@ namespace INTERP_KERNEL
         //           }
         for(micossin=CosSin.begin();micossin!=CosSin.end();micossin++)
           {
-            int const j=(*micossin).second;
+            int j=(*micossin).second;
             Pt_ordonne.push_back(V[2*j]);
             Pt_ordonne.push_back(V[2*j+1]);
           }
@@ -1027,9 +1024,9 @@ namespace INTERP_KERNEL
     
     for (int i=0; i<nb_nodes; i++)
       {
-        double const x = coordsOfMesh[3*(iP+i)];
-        double const y = coordsOfMesh[3*(iP+i)+1];
-        double const z = coordsOfMesh[3*(iP+i)+2];
+        double x = coordsOfMesh[3*(iP+i)];
+        double y = coordsOfMesh[3*(iP+i)+1];
+        double z = coordsOfMesh[3*(iP+i)+2];
         bb[0]=(x<bb[0])?x:bb[0];
         bb[1]=(x>bb[1])?x:bb[1];
         bb[2]=(y<bb[2])?y:bb[2];
@@ -1047,13 +1044,13 @@ namespace INTERP_KERNEL
     std::vector<bool> sw(3,false);
     double inpVect2[3];
 	std::transform(inpVect,inpVect + 3,inpVect2,[](double c){return fabs(c);});
-    std::size_t const posMin(std::distance(inpVect2,std::min_element(inpVect2,inpVect2+3)));
+    std::size_t posMin(std::distance(inpVect2,std::min_element(inpVect2,inpVect2+3)));
     sw[posMin]=true;
     std::size_t posMax(std::distance(inpVect2,std::max_element(inpVect2,inpVect2+3)));
     if(posMax==posMin)
       { posMax=(posMin+1)%3; }
     sw[posMax]=true;
-    std::size_t const posMid(std::distance(sw.begin(),std::find(sw.begin(),sw.end(),false)));
+    std::size_t posMid(std::distance(sw.begin(),std::find(sw.begin(),sw.end(),false)));
     outVect[posMin]=0.; outVect[posMid]=1.; outVect[posMax]=-inpVect[posMid]/inpVect[posMax];
   }
   
@@ -1157,7 +1154,7 @@ namespace INTERP_KERNEL
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   /* Computes the geometric angle (in [0,Pi]) between two non zero vectors AB and AC */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/  
-  template<int dim> inline double angle(const double * A, const double * B, const double * C, double *  /*n*/)
+  template<int dim> inline double angle(const double * A, const double * B, const double * C, double * n)
   {   
     double AB[dim];
     double AC[dim];
@@ -1173,7 +1170,7 @@ namespace INTERP_KERNEL
     double AB_dot_AC=dotprod<dim>(AB,AC);
     for(int idim =0; idim<dim; idim++) orthAB[idim] = AC[idim]-AB_dot_AC*AB[idim];
 
-    double const denom= normAC+AB_dot_AC;
+    double denom= normAC+AB_dot_AC;
     double numer=norm<dim>(orthAB);
     
     return 2*atan2(numer,denom);
@@ -1302,13 +1299,13 @@ namespace INTERP_KERNEL
    */
   inline double TripleProduct(const double *A, const double *B, const double *C, const double *X)
   {
-    double const XA[3]={ A[0]-X[0], A[1]-X[1], A[2]-X[2] };
-    double const XB[3]={ B[0]-X[0], B[1]-X[1], B[2]-X[2] };
-    double const XC[3]={ C[0]-X[0], C[1]-X[1], C[2]-X[2] };
+    double XA[3]={ A[0]-X[0], A[1]-X[1], A[2]-X[2] };
+    double XB[3]={ B[0]-X[0], B[1]-X[1], B[2]-X[2] };
+    double XC[3]={ C[0]-X[0], C[1]-X[1], C[2]-X[2] };
     
-    double const XA_cross_XB[3] = {XA[1]*XB[2]-XA[2]*XB[1], XA[2]*XB[0]-XA[0]*XB[2], XA[0]*XB[1]-XA[1]*XB[0]};
+    double XA_cross_XB[3] = {XA[1]*XB[2]-XA[2]*XB[1], XA[2]*XB[0]-XA[0]*XB[2], XA[0]*XB[1]-XA[1]*XB[0]};
     // norm is equal to double the area of the triangle
-    double const norm = std::sqrt(XA_cross_XB[0]*XA_cross_XB[0]+XA_cross_XB[1]*XA_cross_XB[1]+XA_cross_XB[2]*XA_cross_XB[2]);
+    double norm = std::sqrt(XA_cross_XB[0]*XA_cross_XB[0]+XA_cross_XB[1]*XA_cross_XB[1]+XA_cross_XB[2]*XA_cross_XB[2]);
 
     return ( XA_cross_XB[0]*XC[0]+ XA_cross_XB[1]*XC[1] + XA_cross_XB[2]*XC[2] ) / norm;
   }

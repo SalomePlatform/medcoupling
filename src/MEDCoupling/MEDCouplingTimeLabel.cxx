@@ -22,8 +22,6 @@
 
 #include "InterpKernelException.hxx"
 
-#include <atomic>
-#include <cstddef>
 #include <limits>
 
 using namespace MEDCoupling;
@@ -35,9 +33,10 @@ TimeLabel::TimeLabel():_time(GLOBAL_TIME++)
 }
 
 TimeLabel::~TimeLabel()
-= default;
+{
+}
 
-TimeLabel& TimeLabel::operator=(const TimeLabel&  /*other*/)
+TimeLabel& TimeLabel::operator=(const TimeLabel& other)
 {
   _time=GLOBAL_TIME++;
   return *this;

@@ -19,8 +19,6 @@
 
 #include "MCAuto.hxx"
 #include "MEDCouplingCMesh.hxx"
-#include "MEDCouplingUMesh.hxx"
-#include "MEDCouplingMemArray.hxx"
 
 #include "MEDMeshMaker.hxx"
 

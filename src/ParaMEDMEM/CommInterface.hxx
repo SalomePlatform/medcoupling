@@ -19,18 +19,13 @@
 
 #pragma once
 
-#include "MCType.hxx"
-#include "MCAuto.hxx"
-#include "MEDCouplingTraits.hxx"
 #include "ParaIdType.hxx"
 #include "MEDCouplingMemArray.hxx"
 
-#include <limits>
-#include <cstddef>
 #include <mpi.h>
 
-#include <numeric>
 #include <memory>
+#include <numeric>
 
 namespace MEDCoupling
 {
@@ -95,8 +90,8 @@ namespace MEDCoupling
   class CommInterface
   {
   public:
-    CommInterface() = default;
-    virtual ~CommInterface() = default;
+    CommInterface() { }
+    virtual ~CommInterface() { }
     int worldSize() const {
       int size;
       MPI_Comm_size(MPI_COMM_WORLD, &size);

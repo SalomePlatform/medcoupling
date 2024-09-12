@@ -19,6 +19,7 @@
 
 #include "ComponentTopology.hxx"
 #include "ProcessorGroup.hxx"
+#include "InterpolationUtils.hxx"
 
 namespace MEDCoupling
 {
@@ -27,7 +28,7 @@ namespace MEDCoupling
    */
   ComponentTopology::ComponentTopology(int nb_comp, ProcessorGroup* group):_proc_group(group)
   {
-    int const nb_blocks=group->size();
+    int nb_blocks=group->size();
   
     if (nb_blocks>nb_comp)
       throw INTERP_KERNEL::Exception("ComponentTopology Number of components must be larger than number of blocks");
@@ -45,7 +46,7 @@ namespace MEDCoupling
   /* Generic constructor for \a nb_comp components equally parted
    * in \a nb_blocks blocks
    */
-  ComponentTopology::ComponentTopology(int nb_comp, int nb_blocks):_proc_group(nullptr)
+  ComponentTopology::ComponentTopology(int nb_comp, int nb_blocks):_proc_group(0)
   {
     if (nb_blocks>nb_comp)
       throw INTERP_KERNEL::Exception("ComponentTopology Number of components must be larger than number of blocks");
@@ -62,7 +63,7 @@ namespace MEDCoupling
   }
   
   //!Constructor for one block of \a nb_comp components
-  ComponentTopology::ComponentTopology(int nb_comp):_proc_group(nullptr)
+  ComponentTopology::ComponentTopology(int nb_comp):_proc_group(0)
   {
     
     _component_array.resize(2);
@@ -72,7 +73,7 @@ namespace MEDCoupling
   }
 
   //! Constructor for one component
-  ComponentTopology::ComponentTopology():_proc_group(nullptr)
+  ComponentTopology::ComponentTopology():_proc_group(0)
   {
     _component_array.resize(2);
     _component_array[0]=0;
@@ -81,15 +82,16 @@ namespace MEDCoupling
   }
   
   ComponentTopology::~ComponentTopology()
-  = default;
+  {
+  }
 
   int ComponentTopology::nbLocalComponents() const
   {
-    if (_proc_group==nullptr)
+    if (_proc_group==0)
       return nbComponents();
   
     int nbcomp;
-    int const myrank = _proc_group->myRank();
+    int myrank = _proc_group->myRank();
     if (myrank!=-1)
       nbcomp = _component_array[myrank+1]-_component_array[myrank];
     else 
@@ -99,11 +101,11 @@ namespace MEDCoupling
 
   int ComponentTopology::firstLocalComponent() const
   {
-    if (_proc_group==nullptr)
+    if (_proc_group==0)
       return 0;
   
     int icomp;
-    int const myrank = _proc_group->myRank();
+    int myrank = _proc_group->myRank();
     if (myrank!=-1)
       icomp = _component_array[myrank];
     else 

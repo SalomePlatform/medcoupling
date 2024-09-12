@@ -19,28 +19,26 @@
 
 #include "DisjointDEC.hxx"
 #include "CommInterface.hxx"
-#include "DEC.hxx"
-#include "MEDCouplingNatureOfFieldEnum"
-#include "MEDCouplingPointSet.hxx"
-#include "MEDCouplingMesh.hxx"
-#include "MEDCouplingRefCountObject.hxx"
 #include "Topology.hxx"
+#include "BlockTopology.hxx"
 #include "ComponentTopology.hxx"
 #include "ParaFIELD.hxx"
 #include "ParaMESH.hxx"
+#include "ICoCoField.hxx"
 #include "ICoCoMEDDoubleField.hxx"
 #include "MPIProcessorGroup.hxx"
 
 #include <cmath>
+#include <iostream>
 
 
 namespace MEDCoupling
 {
   DisjointDEC::DisjointDEC(ProcessorGroup& source_group, ProcessorGroup& target_group):
-      _local_field(nullptr),
+      _local_field(0),
       _source_group(&source_group),
       _target_group(&target_group),
-      _comm_interface(nullptr),
+      _comm_interface(0),
       _owns_field(false),
       _owns_groups(false),
       _union_comm(MPI_COMM_NULL)
@@ -51,11 +49,11 @@ namespace MEDCoupling
   
   DisjointDEC::DisjointDEC(const DisjointDEC& s):
       DEC(s),
-      _local_field(nullptr),
-      _union_group(nullptr),
-      _source_group(nullptr),
-      _target_group(nullptr),
-      _comm_interface(nullptr),
+      _local_field(0),
+      _union_group(0),
+      _source_group(0),
+      _target_group(0),
+      _comm_interface(0),
       _owns_field(false),
       _owns_groups(false),
       _union_comm(MPI_COMM_NULL)
@@ -104,13 +102,13 @@ namespace MEDCoupling
   DisjointDEC::DisjointDEC(const std::set<int>& source_ids,
                            const std::set<int>& target_ids,
                            const MPI_Comm& world_comm):
-     _local_field(nullptr),
-     _comm_interface(nullptr),
+     _local_field(0),
+     _comm_interface(0),
      _owns_field(false),
      _owns_groups(true),
      _union_comm(MPI_COMM_NULL)
   {
-    MEDCoupling::CommInterface const comm;
+    MEDCoupling::CommInterface comm;
     // Create the list of procs including source and target
     std::set<int> union_ids; // source and target ids in world_comm
     union_ids.insert(source_ids.begin(),source_ids.end());
@@ -128,9 +126,9 @@ namespace MEDCoupling
     delete[] union_ranks_world;
     if (_union_comm==MPI_COMM_NULL)
       { // This process is not in union
-        _source_group=nullptr;
-        _target_group=nullptr;
-        _union_group=nullptr;
+        _source_group=0;
+        _target_group=0;
+        _union_group=0;
         comm.groupFree(&union_group);
         comm.groupFree(&world_group);
         return;
@@ -199,8 +197,8 @@ namespace MEDCoupling
   void DisjointDEC::checkPartitionGroup() const
   {
     int size = -1;
-    auto * tgt = static_cast<MPIProcessorGroup *>(_target_group);
-    auto * src = static_cast<MPIProcessorGroup *>(_source_group);
+    MPIProcessorGroup * tgt = static_cast<MPIProcessorGroup *>(_target_group);
+    MPIProcessorGroup * src = static_cast<MPIProcessorGroup *>(_source_group);
     MPI_Comm comm_t = tgt->getWorldComm();
     MPI_Comm comm_s = src->getWorldComm();
     if (comm_t != comm_s)
@@ -258,8 +256,8 @@ namespace MEDCoupling
       local_group=_target_group;
     else
       throw INTERP_KERNEL::Exception("Invalid procgroup for field attachment to DEC");
-    auto *paramesh=new ParaMESH(static_cast<MEDCouplingPointSet *>(const_cast<MEDCouplingMesh *>(field->getMesh())),*local_group,field->getMesh()->getName());
-    auto *tmp=new ParaFIELD(field, paramesh, *local_group);
+    ParaMESH *paramesh=new ParaMESH(static_cast<MEDCouplingPointSet *>(const_cast<MEDCouplingMesh *>(field->getMesh())),*local_group,field->getMesh()->getName());
+    ParaFIELD *tmp=new ParaFIELD(field, paramesh, *local_group);
     tmp->setOwnSupport(true);
     attachLocalField(tmp,true);
     //_comm_interface=&(local_group->getCommInterface());
@@ -306,7 +304,7 @@ namespace MEDCoupling
     if (_source_group->containsMyRank())
       for (int icomp=0; icomp<(int)_local_field->getField()->getArray()->getNumberOfComponents(); icomp++)
         {
-          double const total_norm = _local_field->getVolumeIntegral(icomp+1,isWAbs);
+          double total_norm = _local_field->getVolumeIntegral(icomp+1,isWAbs);
           double source_norm = total_norm;
           _comm_interface->broadcast(&source_norm, 1, MPI_DOUBLE, 0,* dynamic_cast<MPIProcessorGroup*>(_union_group)->getComm());
 
@@ -315,7 +313,7 @@ namespace MEDCoupling
       {
         for (int icomp=0; icomp<(int)_local_field->getField()->getArray()->getNumberOfComponents(); icomp++)
           {
-            double const total_norm = _local_field->getVolumeIntegral(icomp+1,isWAbs);
+            double total_norm = _local_field->getVolumeIntegral(icomp+1,isWAbs);
             double source_norm=total_norm;
             _comm_interface->broadcast(&source_norm, 1, MPI_DOUBLE, 0,* dynamic_cast<MPIProcessorGroup*>(_union_group)->getComm());
 
@@ -350,7 +348,7 @@ namespace MEDCoupling
   {
     if (_local_field)
       {
-        TypeOfField const entity = _local_field->getField()->getTypeOfField();
+        TypeOfField entity = _local_field->getField()->getTypeOfField();
         if ( getMethod() == "P0" )
           {
             if ( entity != ON_CELLS )

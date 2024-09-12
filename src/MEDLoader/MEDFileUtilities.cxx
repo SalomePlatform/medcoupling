@@ -19,19 +19,15 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDFileUtilities.hxx"
-#include "MCAuto.hxx"
-#include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingRefCountObject.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDLoaderBase.hxx"
 #include "MEDLoader.hxx"
+#include "MEDFileBasis.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
-#include "med.h"
-#include "medfile.h"
 
 #include <sstream>
-#include <string>
+#include <fstream>
 
 const char MEDCoupling::MEDFileWritableStandAlone::DFT_FILENAME_IN_MEM[]="DftFileNameInMemory";
 
@@ -71,7 +67,7 @@ const char *MEDFileUtilities::GetReadableMEDFieldType(med_field_type ft)
   }
 }
 
-void MEDFileUtilities::CheckMEDCode(int code, med_idt  /*fid*/, const std::string& msg)
+void MEDFileUtilities::CheckMEDCode(int code, med_idt fid, const std::string& msg)
 {
   if(code<0)
     {
@@ -83,7 +79,7 @@ void MEDFileUtilities::CheckMEDCode(int code, med_idt  /*fid*/, const std::strin
 
 void MEDFileUtilities::CheckFileForRead(const std::string& fileName)
 {
-  int const status=MEDLoaderBase::getStatusOfFile(fileName);
+  int status=MEDLoaderBase::getStatusOfFile(fileName);
   std::ostringstream oss;
   oss << " File : \"" << fileName << "\"";
   switch(status)
@@ -104,7 +100,7 @@ void MEDFileUtilities::CheckFileForRead(const std::string& fileName)
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
   }
-  AutoFid const fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
+  AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
   if(fid<0)
     {
       oss << " has been detected as unreadable by MED file : impossible to read anything !";
@@ -163,7 +159,7 @@ void MEDCoupling::MEDFileWritable::setZipConnPolicy(int newVal)
 
 std::string MEDCoupling::MEDFileWritable::FileNameFromFID(med_idt fid)
 {
-  med_int const lgth(MEDfileName(fid,nullptr,0));
+  med_int lgth(MEDfileName(fid,0,0));
   if(lgth<=0)
     return std::string();
   INTERP_KERNEL::AutoPtr<char> tmp(new char[lgth+1]);
@@ -190,8 +186,8 @@ MEDFileUtilities::AutoFid MEDCoupling::OpenMEDFileForRead(const std::string& fil
  */
 void MEDCoupling::MEDFileWritableStandAlone::write(const std::string& fileName, int mode) const
 {
-  med_access_mode const medmod(MEDFileUtilities::TraduceWriteMode(mode));
-  MEDFileUtilities::AutoFid const fid(MEDfileOpen(fileName.c_str(),medmod));
+  med_access_mode medmod(MEDFileUtilities::TraduceWriteMode(mode));
+  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),medmod));
   std::ostringstream oss; oss << "MEDFileWritableStandAlone : error on attempt to write in file : \"" << fileName << "\""; 
   MEDFileUtilities::CheckMEDCode((int)fid,fid,oss.str());
   writeLL(fid);
@@ -215,8 +211,8 @@ void MEDCoupling::MEDFileWritableStandAlone::write40(const std::string& fileName
 void MEDCoupling::MEDFileWritableStandAlone::writeXX(const std::string& fileName, int mode, med_int maj, med_int min, med_int rel) const
 {
 #if ( MED_NUM_MAJEUR>4 || ( MED_NUM_MAJEUR==4 && MED_NUM_MINEUR>=1 ) )
-  med_access_mode const medmod(MEDFileUtilities::TraduceWriteMode(mode));
-  MEDFileUtilities::AutoFid const fid(MEDfileVersionOpen(fileName.c_str(),medmod,maj,min,rel));
+  med_access_mode medmod(MEDFileUtilities::TraduceWriteMode(mode));
+  MEDFileUtilities::AutoFid fid(MEDfileVersionOpen(fileName.c_str(),medmod,maj,min,rel));
   writeLL(fid);
 #else
   std::ostringstream oss; oss << "MEDFileWritableStandAlone::write" << maj << min << " : the MED version used to compile medcoupling is " << MEDFileVersionStr() << " ! If you need this feature please use version >= 4.1.";
@@ -227,12 +223,12 @@ void MEDCoupling::MEDFileWritableStandAlone::writeXX(const std::string& fileName
 MEDCoupling::MCAuto<MEDCoupling::DataArrayByte> MEDCoupling::MEDFileWritableStandAlone::serialize() const
 {
   med_memfile memfile=MED_MEMFILE_INIT;
-  memfile.app_image_ptr=nullptr;
+  memfile.app_image_ptr=0;
   memfile.app_image_size=0;
   //
-  std::string const dftFileName(GenerateUniqueDftFileNameInMem());
+  std::string dftFileName(GenerateUniqueDftFileNameInMem());
   {// very important to let this braces ! The AutoFid destructor must be called, to have a "clean" memfile.app_image_ptr pointer embedded in the returned object.
-    MEDFileUtilities::AutoFid const fid(MEDmemFileOpen(dftFileName.c_str(),&memfile,MED_FALSE,MED_ACC_CREAT));
+    MEDFileUtilities::AutoFid fid(MEDmemFileOpen(dftFileName.c_str(),&memfile,MED_FALSE,MED_ACC_CREAT));
     writeLL(fid);
   }
   //

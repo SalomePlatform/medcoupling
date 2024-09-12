@@ -24,7 +24,6 @@
 #include "MEDCouplingBasicsTest4.hxx"
 #include "MEDCouplingBasicsTest5.hxx"
 #include "MEDCouplingBasicsTestInterp.hxx"
-#include <cppunit/extensions/HelperMacros.h>
 
 CPPUNIT_TEST_SUITE_REGISTRATION( MEDCoupling::MEDCouplingBasicsTest1 );
 CPPUNIT_TEST_SUITE_REGISTRATION( MEDCoupling::MEDCouplingBasicsTest2 );

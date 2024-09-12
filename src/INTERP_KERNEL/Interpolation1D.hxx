@@ -21,15 +21,14 @@
 #ifndef __INTERPOLATION1D_HXX__
 #define __INTERPOLATION1D_HXX__
 
-#include "InterpolationOptions.hxx"
-#include "InterpolationCurve.txx"
+#include "InterpolationCurve.hxx"
 
 namespace INTERP_KERNEL
 {
   class Interpolation1D : public InterpolationCurve<Interpolation1D>
   {
   public:
-    Interpolation1D() = default;
+    Interpolation1D() { }
     Interpolation1D(const InterpolationOptions& io):InterpolationCurve<Interpolation1D>(io) {}
   };
 }

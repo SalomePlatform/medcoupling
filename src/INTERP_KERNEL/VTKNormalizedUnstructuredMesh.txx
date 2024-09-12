@@ -20,6 +20,7 @@
 #ifndef __VTKNORMALIZEDUNSTRUCTUREDMESH_TXX__
 #define __VTKNORMALIZEDUNSTRUCTUREDMESH_TXX__
 
+#include "VTKNormalizedUnstructuredMesh.hxx"
 
 #include "vtkUnstructuredGrid.h"
 #include "vtkCellArray.h"

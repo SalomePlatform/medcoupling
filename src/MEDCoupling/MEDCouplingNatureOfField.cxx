@@ -19,14 +19,9 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingNatureOfField.hxx"
-#include "MEDCouplingNatureOfFieldEnum"
-#include "InterpKernelException.hxx"
 
 #include <algorithm>
-#include <cstddef>
-#include <iterator>
 #include <sstream>
-#include <string>
 
 namespace MEDCoupling
 {
@@ -48,7 +43,7 @@ namespace MEDCoupling
         oss << GetAllPossibilitiesStr() << " !";
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
-    std::size_t const pos2=std::distance(POS_OF_NATUREOFFIELD,pos);
+    std::size_t pos2=std::distance(POS_OF_NATUREOFFIELD,pos);
     return REPR_OF_NATUREOFFIELD[pos2];
   }
 
@@ -57,7 +52,7 @@ namespace MEDCoupling
     const int *pos=std::find(POS_OF_NATUREOFFIELD,POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES,(int)nat);
     if(pos==POS_OF_NATUREOFFIELD+NB_OF_POSSIBILITIES)
       return std::string("Unrecognized nature of field !");
-    std::size_t const pos2=std::distance(POS_OF_NATUREOFFIELD,pos);
+    std::size_t pos2=std::distance(POS_OF_NATUREOFFIELD,pos);
     return std::string(REPR_OF_NATUREOFFIELD[pos2]);
   }
 

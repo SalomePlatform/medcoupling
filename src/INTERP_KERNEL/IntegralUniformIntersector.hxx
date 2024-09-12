@@ -21,10 +21,9 @@
 #ifndef __INTEGRALUNIFORMINTERSECTOR_HXX__
 #define __INTEGRALUNIFORMINTERSECTOR_HXX__
 
-#include "TargetIntersector.hxx"
+#include "TargetIntersector.txx"
 
 #include <cmath>
-#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -32,7 +31,7 @@ namespace INTERP_KERNEL
   class IntegralUniformIntersector : public TargetIntersector<MyMeshType,MyMatrix>
   {
   public:
-    using ConnType = typename MyMeshType::MyConnType;
+    typedef typename MyMeshType::MyConnType ConnType;
   public:
     IntegralUniformIntersector(const MyMeshType& mesh, bool isAbs);
     double performNormalization(double val) const { if(_is_abs) return fabs(val); else return val; }
@@ -49,7 +48,7 @@ namespace INTERP_KERNEL
   class IntegralUniformIntersectorP0 : public IntegralUniformIntersector<MyMeshType,MyMatrix>
   {
   public:
-    using ConnType = typename MyMeshType::MyConnType;
+    typedef typename MyMeshType::MyConnType ConnType;
   public:
     IntegralUniformIntersectorP0(const MyMeshType& mesh, bool isAbs);
     ConnType getNumberOfRowsOfResMatrix() const;
@@ -61,7 +60,7 @@ namespace INTERP_KERNEL
   class IntegralUniformIntersectorP1 : public IntegralUniformIntersector<MyMeshType,MyMatrix>
   {
   public:
-    using ConnType = typename MyMeshType::MyConnType;
+    typedef typename MyMeshType::MyConnType ConnType;
   public:
     IntegralUniformIntersectorP1(const MyMeshType& mesh, bool isAbs);
     ConnType getNumberOfRowsOfResMatrix() const;

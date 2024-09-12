@@ -20,15 +20,11 @@
 #ifndef __POLYHEDRONINTERSECTORP1P0_TXX__
 #define __POLYHEDRONINTERSECTORP1P0_TXX__
 
-#include "NormalizedGeometricTypes"
-#include "Intersector3DP1P0.txx"
-#include "InterpKernelException.hxx"
-#include "InterpolationUtils.hxx"
-#include "Intersector3D.txx"
 #include "PolyhedronIntersectorP1P0.hxx"
+#include "Intersector3DP1P0.txx"
+#include "MeshUtils.hxx"
 
 #include "SplitterTetra.txx"
-#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -118,8 +114,9 @@ namespace INTERP_KERNEL
           {
             (*iter)->splitIntoDualCells(subTetras);
             double vol2 = 0.;
-            for(auto tmp : subTetras)
+            for(int i=0;i<24;i++)
               {
+                SplitterTetra<MyMeshType> *tmp=subTetras[i];
                 double volume = tmp->intersectSourceCell(targetCell);
                 vol2 += volume;
                 ConnType sourceNode=tmp->getId(0);

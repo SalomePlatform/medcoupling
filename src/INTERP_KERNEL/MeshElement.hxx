@@ -46,7 +46,7 @@ namespace INTERP_KERNEL
     template<class MyMeshType>
     void assign(const ConnType index, const MyMeshType& mesh);
 
-    ~MeshElement() = default;
+    ~MeshElement() { }
     
     nbnodesincelltype getNumberOfNodes() const { return _number; }
     
@@ -56,7 +56,7 @@ namespace INTERP_KERNEL
 
   private:
     /// disallow copying
-    MeshElement(const MeshElement& elem) = delete;
+    MeshElement(const MeshElement& elem);
 
     nbnodesincelltype _number;
     

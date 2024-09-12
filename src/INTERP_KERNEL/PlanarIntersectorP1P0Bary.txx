@@ -20,13 +20,8 @@
 #ifndef __PlanarIntersectorP1P0Bary_TXX__
 #define __PlanarIntersectorP1P0Bary_TXX__
 
-#include "NormalizedGeometricTypes"
-#include "PlanarIntersector.hxx"
 #include "PlanarIntersectorP1P0Bary.hxx"
 #include "InterpolationUtils.hxx"
-#include "InterpKernelUtilities.hxx"
-#include "CellModel.hxx"
-#include <vector>
 
 #define PLAN_INTERSECTOR PlanarIntersectorP1P0Bary<MyMeshType,MyMatrix,ConcreteP1P0Intersector>
 #define PLAN_INTER_TEMPLATE template<class MyMeshType, class MyMatrix, class ConcreteP1P0Intersector>

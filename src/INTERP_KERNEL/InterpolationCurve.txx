@@ -20,34 +20,24 @@
 #ifndef __INTERPOLATIONCURVE_TXX__
 #define __INTERPOLATIONCURVE_TXX__
 
-#include "Interpolation.txx"
-#include "BBTree.txx"
-#include "CurveIntersector.txx"
-#include "CurveIntersectorP0P0.txx"
-#include "CurveIntersectorP0P1.txx"
-#include "CurveIntersectorP1P0.txx"
-#include "CurveIntersectorP1P1.txx"
-#include "CurveIntersectorP1P1PL.txx"
 #include "InterpolationCurve.hxx"
 #include "InterpolationOptions.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
-#include "InterpolationUtils.hxx"
+#include "CurveIntersectorP0P0.txx"
+#include "CurveIntersectorP1P0.txx"
+#include "CurveIntersectorP0P1.txx"
+#include "CurveIntersectorP1P1.txx"
+#include "CurveIntersectorP1P1PL.txx"
 
-#include <string>
-#include <functional>
-#include <cstddef>
-#include <iostream>
-#include <ostream>
 #include <time.h>
 #include <memory>
-#include <vector>
 
 namespace INTERP_KERNEL
 {
 
   template<class RealCurve>
   InterpolationCurve<RealCurve>::InterpolationCurve()
-  = default;
+  {
+  }
 
   template<class RealCurve>
   InterpolationCurve<RealCurve>::InterpolationCurve (const InterpolationOptions& io)
@@ -90,7 +80,7 @@ namespace INTERP_KERNEL
     typedef typename MyMeshType::MyConnType ConnType;
     static const NumberingPolicy numPol = MyMeshType::My_numPol;
 
-    long const global_start = clock();
+    long global_start = clock();
     std::size_t counter=0;   
 
     ConnType nbMailleS = myMeshS.getNumberOfElements();
@@ -179,7 +169,7 @@ namespace INTERP_KERNEL
     /* Instantiate the intersector and initialise the result vector */
     /****************************************************************/
  
-    long const start_filtering=clock();
+    long start_filtering=clock();
  
     std::vector<double> bbox;
     intersector->createBoundingBoxes(myMeshS,bbox); // create the bounding boxes
@@ -187,14 +177,14 @@ namespace INTERP_KERNEL
         InterpolationOptions::getBoundingBoxAdjustmentAbs());
     BBTree<SPACEDIM,ConnType> my_tree(&bbox[0], 0, 0, nbMailleS);//creating the search structure 
 
-    long const end_filtering = clock();
+    long end_filtering = clock();
 
     result.resize(intersector->getNumberOfRowsOfResMatrix());//on initialise.
 
     /****************************************************/
     /* Loop on the target cells - core of the algorithm */
     /****************************************************/
-    long const start_intersection = clock();
+    long start_intersection = clock();
     const ConnType *connIndxT = myMeshT.getConnectivityIndexPtr();
     for(ConnType iT=0; iT<nbMailleT; iT++)
       {
@@ -209,10 +199,10 @@ namespace INTERP_KERNEL
     
     if (InterpolationOptions::getPrintLevel() >= 1)
       {
-        long const end_intersection=clock();
+        long end_intersection=clock();
         std::cout << "Filtering time= " << end_filtering-start_filtering << std::endl;
         std::cout << "Intersection time= " << end_intersection-start_intersection << std::endl;
-        long const global_end =clock();    
+        long global_end =clock();    
         std::cout << "Number of computed intersections = " << counter << std::endl;
         std::cout << "Global time= " << global_end - global_start << std::endl;
       }

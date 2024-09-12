@@ -22,6 +22,7 @@
 #include <vector>
 #include <algorithm>
 
+#include <iostream>
 #include <limits>
 #include <cmath>
 
@@ -65,7 +66,7 @@ public:
   BBTreePts(const double *pts, const ConnType *elems, int level, ConnType nbelems, double epsilon=1e-12):
     _left(0),_right(0),_level(level),_pts(pts),_terminal(nbelems < MIN_NB_ELEMS || level> MAX_LEVEL),_nbelems(nbelems),_epsilon(std::abs(epsilon))
   {
-    auto *nodes=new double[nbelems];
+    double *nodes=new double[nbelems];
     _elems.resize(nbelems);
     for (ConnType i=0;i<nbelems;i++)
       {

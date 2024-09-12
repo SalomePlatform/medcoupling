@@ -24,7 +24,6 @@
 
 #include "MCIdType.hxx"
 
-#include <ostream>
 #include <string>
 
 namespace MEDCoupling

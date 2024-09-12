@@ -22,8 +22,8 @@
 #define __INTERPKERNELVALUE_HXX__
 
 #include "INTERPKERNELDefines.hxx"
+#include "InterpKernelException.hxx"
 #include "InterpKernelUnit.hxx"
-#include <string>
 
 namespace INTERP_KERNEL
 {
@@ -31,7 +31,7 @@ namespace INTERP_KERNEL
   {
   public:
     virtual Value *newInstance() const = 0;
-    virtual ~Value() = default;
+    virtual ~Value() { }
     virtual void setDouble(double val) = 0;
     virtual void setVarname(int fastPos, const std::string& var) = 0;
     //unary
@@ -69,39 +69,39 @@ namespace INTERP_KERNEL
   {
   public:
     ValueDouble();
-    Value *newInstance() const override;
-    void setDouble(double val) override;
-    void setVarname(int fastPos, const std::string& var) override;
+    Value *newInstance() const;
+    void setDouble(double val);
+    void setVarname(int fastPos, const std::string& var);
     //
     double getData() const { return _data; }
-    void positive() override;
-    void negate() override;
-    void sqrt() override;
-    void cos() override;
-    void sin() override;
-    void tan() override;
-    void acos() override;
-    void asin() override;
-    void atan() override;
-    void cosh() override;
-    void sinh() override;
-    void tanh() override;
-    void abs() override;
-    void exp() override;
-    void ln() override;
-    void log10() override;
+    void positive();
+    void negate();
+    void sqrt();
+    void cos();
+    void sin();
+    void tan();
+    void acos();
+    void asin();
+    void atan();
+    void cosh();
+    void sinh();
+    void tanh();
+    void abs();
+    void exp();
+    void ln();
+    void log10();
     //
-    Value *plus(const Value *other) const override;
-    Value *minus(const Value *other) const override;
-    Value *mult(const Value *other) const override;
-    Value *div(const Value *other) const override;
-    Value *pow(const Value *other) const override;
-    Value *max(const Value *other) const override;
-    Value *min(const Value *other) const override;
-    Value *greaterThan(const Value *other) const override;
-    Value *lowerThan(const Value *other) const override;
+    Value *plus(const Value *other) const;
+    Value *minus(const Value *other) const;
+    Value *mult(const Value *other) const;
+    Value *div(const Value *other) const;
+    Value *pow(const Value *other) const;
+    Value *max(const Value *other) const;
+    Value *min(const Value *other) const;
+    Value *greaterThan(const Value *other) const;
+    Value *lowerThan(const Value *other) const;
     //
-    Value *ifFunc(const Value *the, const Value *els) const override;
+    Value *ifFunc(const Value *the, const Value *els) const;
   private:
     ValueDouble(double val);
     static const ValueDouble *checkSameType(const Value *val);
@@ -113,39 +113,39 @@ namespace INTERP_KERNEL
   {
   public:
     INTERPKERNEL_EXPORT ValueUnit();
-    INTERPKERNEL_EXPORT Value *newInstance() const override;
-    INTERPKERNEL_EXPORT void setDouble(double val) override;
-    INTERPKERNEL_EXPORT void setVarname(int fastPos, const std::string& var) override;
+    INTERPKERNEL_EXPORT Value *newInstance() const;
+    INTERPKERNEL_EXPORT void setDouble(double val);
+    INTERPKERNEL_EXPORT void setVarname(int fastPos, const std::string& var);
     //
     INTERPKERNEL_EXPORT DecompositionInUnitBase getData() const { return _data; }
-    INTERPKERNEL_EXPORT void positive() override;
-    INTERPKERNEL_EXPORT void negate() override;
-    INTERPKERNEL_EXPORT void sqrt() override;
-    INTERPKERNEL_EXPORT void cos() override;
-    INTERPKERNEL_EXPORT void sin() override;
-    INTERPKERNEL_EXPORT void tan() override;
-    INTERPKERNEL_EXPORT void acos() override;
-    INTERPKERNEL_EXPORT void asin() override;
-    INTERPKERNEL_EXPORT void atan() override;
-    INTERPKERNEL_EXPORT void cosh() override;
-    INTERPKERNEL_EXPORT void sinh() override;
-    INTERPKERNEL_EXPORT void tanh() override;
-    INTERPKERNEL_EXPORT void abs() override;
-    INTERPKERNEL_EXPORT void exp() override;
-    INTERPKERNEL_EXPORT void ln() override;
-    INTERPKERNEL_EXPORT void log10() override;
+    INTERPKERNEL_EXPORT void positive();
+    INTERPKERNEL_EXPORT void negate();
+    INTERPKERNEL_EXPORT void sqrt();
+    INTERPKERNEL_EXPORT void cos();
+    INTERPKERNEL_EXPORT void sin();
+    INTERPKERNEL_EXPORT void tan();
+    INTERPKERNEL_EXPORT void acos();
+    INTERPKERNEL_EXPORT void asin();
+    INTERPKERNEL_EXPORT void atan();
+    INTERPKERNEL_EXPORT void cosh();
+    INTERPKERNEL_EXPORT void sinh();
+    INTERPKERNEL_EXPORT void tanh();
+    INTERPKERNEL_EXPORT void abs();
+    INTERPKERNEL_EXPORT void exp();
+    INTERPKERNEL_EXPORT void ln();
+    INTERPKERNEL_EXPORT void log10();
     //
-    INTERPKERNEL_EXPORT Value *plus(const Value *other) const override;
-    INTERPKERNEL_EXPORT Value *minus(const Value *other) const override;
-    INTERPKERNEL_EXPORT Value *mult(const Value *other) const override;
-    INTERPKERNEL_EXPORT Value *div(const Value *other) const override;
-    INTERPKERNEL_EXPORT Value *pow(const Value *other) const override;
-    INTERPKERNEL_EXPORT Value *max(const Value *other) const override;
-    INTERPKERNEL_EXPORT Value *min(const Value *other) const override;
-    INTERPKERNEL_EXPORT Value *greaterThan(const Value *other) const override;
-    INTERPKERNEL_EXPORT Value *lowerThan(const Value *other) const override;
+    INTERPKERNEL_EXPORT Value *plus(const Value *other) const;
+    INTERPKERNEL_EXPORT Value *minus(const Value *other) const;
+    INTERPKERNEL_EXPORT Value *mult(const Value *other) const;
+    INTERPKERNEL_EXPORT Value *div(const Value *other) const;
+    INTERPKERNEL_EXPORT Value *pow(const Value *other) const;
+    INTERPKERNEL_EXPORT Value *max(const Value *other) const;
+    INTERPKERNEL_EXPORT Value *min(const Value *other) const;
+    INTERPKERNEL_EXPORT Value *greaterThan(const Value *other) const;
+    INTERPKERNEL_EXPORT Value *lowerThan(const Value *other) const;
     //
-    INTERPKERNEL_EXPORT Value *ifFunc(const Value *the, const Value *els) const override;
+    INTERPKERNEL_EXPORT Value *ifFunc(const Value *the, const Value *els) const;
   private:
     ValueUnit(const DecompositionInUnitBase& unit);
     static void unsupportedOp(const char *type);
@@ -158,40 +158,40 @@ namespace INTERP_KERNEL
   {
   public:
     ValueDoubleExpr(int szDestData, const double *srcData);
-    ~ValueDoubleExpr() override;
+    ~ValueDoubleExpr();
     double *getData() const { return _dest_data; }
-    Value *newInstance() const override;
-    void setDouble(double val) override;
-    void setVarname(int fastPos, const std::string& var) override;
+    Value *newInstance() const;
+    void setDouble(double val);
+    void setVarname(int fastPos, const std::string& var);
     //
-    void positive() override;
-    void negate() override;
-    void sqrt() override;
-    void cos() override;
-    void sin() override;
-    void tan() override;
-    void acos() override;
-    void asin() override;
-    void atan() override;
-    void cosh() override;
-    void sinh() override;
-    void tanh() override;
-    void abs() override;
-    void exp() override;
-    void ln() override;
-    void log10() override;
+    void positive();
+    void negate();
+    void sqrt();
+    void cos();
+    void sin();
+    void tan();
+    void acos();
+    void asin();
+    void atan();
+    void cosh();
+    void sinh();
+    void tanh();
+    void abs();
+    void exp();
+    void ln();
+    void log10();
     //
-    Value *plus(const Value *other) const override;
-    Value *minus(const Value *other) const override;
-    Value *mult(const Value *other) const override;
-    Value *div(const Value *other) const override;
-    Value *pow(const Value *other) const override;
-    Value *max(const Value *other) const override;
-    Value *min(const Value *other) const override;
-    Value *greaterThan(const Value *other) const override;
-    Value *lowerThan(const Value *other) const override;
+    Value *plus(const Value *other) const;
+    Value *minus(const Value *other) const;
+    Value *mult(const Value *other) const;
+    Value *div(const Value *other) const;
+    Value *pow(const Value *other) const;
+    Value *max(const Value *other) const;
+    Value *min(const Value *other) const;
+    Value *greaterThan(const Value *other) const;
+    Value *lowerThan(const Value *other) const;
     //
-    Value *ifFunc(const Value *the, const Value *els) const override;
+    Value *ifFunc(const Value *the, const Value *els) const;
   private:
     int _sz_dest_data;
     double *_dest_data;

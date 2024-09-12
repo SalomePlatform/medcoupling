@@ -20,7 +20,6 @@
 #ifndef __POLYGONALGORITHMS_HXX__
 #define __POLYGONALGORITHMS_HXX__
 
-#include <utility>
 #include <vector>
 #include <deque>
 #include <map>

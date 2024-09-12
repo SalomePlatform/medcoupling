@@ -24,10 +24,8 @@
 #include "InterpolationUtils.hxx"
 #include "TranslationRotationMatrix.hxx"
 
-#include <cmath>
 #include <iostream>
 #include <limits>
-#include <vector>
 
 namespace INTERP_KERNEL
 {
@@ -47,7 +45,8 @@ namespace INTERP_KERNEL
 
   template<class MyMeshType, class MyMatrix>
   PlanarIntersector<MyMeshType,MyMatrix>::~PlanarIntersector()
-  = default;
+  {
+  }
 
   /*!
     \brief creates the bounding boxes for all the cells of mesh \a mesh
@@ -84,7 +83,7 @@ namespace INTERP_KERNEL
             const double* coord_node=coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(conn[OTT<ConnType,numPol>::conn2C(conn_index[icell]+j)]);
             for(int idim=0; idim<SPACEDIM; idim++)
               {            
-                double const x=*(coord_node+idim);
+                double x=*(coord_node+idim);
                 bbox[ibox*2*SPACEDIM + 2*idim]   = (bbox[ibox*2*SPACEDIM + 2*idim]  <x)?bbox[ibox*2*SPACEDIM + 2*idim  ]:x;
                 bbox[ibox*2*SPACEDIM + 2*idim+1] = (bbox[ibox*2*SPACEDIM + 2*idim+1]>x)?bbox[ibox*2*SPACEDIM + 2*idim+1]:x;
               }
@@ -115,7 +114,7 @@ namespace INTERP_KERNEL
         const double* coord_node=coords+SPACEDIM*(OTT<ConnType,numPol>::coo2C(conn[OTT<ConnType,numPol>::conn2C(conn_index[OTT<ConnType,numPol>::ind2C(iP)]+i)]));
         for(int idim=0; idim<SPACEDIM; idim++)
           {            
-            double const x = *(coord_node+idim);
+            double x = *(coord_node+idim);
             //double y = *(mesh.getCoordinates(MED_FULL_INTERLACE)+3*(iP+i)+1);
             bb[2*idim  ] = (x<bb[2*idim  ])?x:bb[2*idim  ];
             bb[2*idim+1] = (x>bb[2*idim+1])?x:bb[2*idim+1];
@@ -311,7 +310,7 @@ namespace INTERP_KERNEL
         prodvect[0]=G1[1]*G2[2]-G1[2]*G2[1];
         prodvect[1]=G1[2]*G2[0]-G1[0]*G2[2];
         prodvect[2]=G1[0]*G2[1]-G1[1]*G2[0];
-        double const prodscal=prodvect[0]*G3[0]+prodvect[1]*G3[1]+prodvect[2]*G3[2];
+        double prodscal=prodvect[0]*G3[0]+prodvect[1]*G3[1]+prodvect[2]*G3[2];
         if(fabs(prodscal)>md3DSurf)
           return 0;
       }

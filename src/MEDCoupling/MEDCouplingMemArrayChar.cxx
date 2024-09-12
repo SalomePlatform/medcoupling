@@ -19,22 +19,14 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingMemArray.txx"
-#include "MCIdType.hxx"
-#include "MCType.hxx"
 #include "MCAuto.hxx"
-#include "MEDCouplingRefCountObject.hxx"
 
-#include <cstddef>
-#include <cstdlib>
-#include <iterator>
-#include <ostream>
 #include <set>
 #include <cmath>
+#include <limits>
 #include <numeric>
 #include <algorithm>
-#include <string>
-#include <sstream>
-#include <vector>
+#include <functional>
 
 using namespace MEDCoupling;
 
@@ -50,8 +42,8 @@ template class MEDCoupling::DataArrayTemplate<char>;
 mcIdType DataArrayChar::getHashCode() const
 {
   checkAllocated();
-  std::size_t const nbOfElems=getNbOfElems();
-  std::size_t const ret=nbOfElems*65536;
+  std::size_t nbOfElems=getNbOfElems();
+  std::size_t ret=nbOfElems*65536;
   std::size_t delta=3;
   if(nbOfElems>48)
     delta=nbOfElems/8;
@@ -130,7 +122,7 @@ DataArrayInt *DataArrayChar::convertToIntArr() const
   checkAllocated();
   DataArrayInt *ret=DataArrayInt::New();
   ret->alloc(getNumberOfTuples(),getNumberOfComponents());
-  std::size_t const nbOfVals=getNbOfElems();
+  std::size_t nbOfVals=getNbOfElems();
   const char *src=getConstPointer();
   int *dest=ret->getPointer();
   std::copy(src,src+nbOfVals,dest);
@@ -150,7 +142,7 @@ bool DataArrayChar::isUniform(char val) const
   checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayChar::isUniform : must be applied on DataArrayChar with only one component, you can call 'rearrange' method before !");
-  mcIdType const nbOfTuples=getNumberOfTuples();
+  mcIdType nbOfTuples=getNumberOfTuples();
   const char *w=getConstPointer();
   const char *end2=w+nbOfTuples;
   for(;w!=end2;w++)
@@ -179,11 +171,11 @@ void DataArrayChar::meldWith(const DataArrayChar *other)
     throw INTERP_KERNEL::Exception("DataArrayChar::meldWith : DataArrayChar pointer in input is NULL !");
   checkAllocated();
   other->checkAllocated();
-  mcIdType const nbOfTuples=getNumberOfTuples();
+  mcIdType nbOfTuples=getNumberOfTuples();
   if(nbOfTuples!=other->getNumberOfTuples())
     throw INTERP_KERNEL::Exception("DataArrayChar::meldWith : mismatch of number of tuples !");
-  std::size_t const nbOfComp1=getNumberOfComponents();
-  std::size_t const nbOfComp2=other->getNumberOfComponents();
+  std::size_t nbOfComp1=getNumberOfComponents();
+  std::size_t nbOfComp2=other->getNumberOfComponents();
   char *newArr=(char *)malloc(nbOfTuples*(nbOfComp1+nbOfComp2)*sizeof(char));
   char *w=newArr;
   const char *inp1=getConstPointer();
@@ -216,7 +208,7 @@ DataArrayIdType *DataArrayChar::findIdsEqual(char val) const
     throw INTERP_KERNEL::Exception("DataArrayChar::findIdsEqual : the array must have only one component, you can call 'rearrange' method before !");
   const char *cptr=getConstPointer();
   MCAuto<DataArrayIdType> ret(DataArrayIdType::New()); ret->alloc(0,1);
-  mcIdType const nbOfTuples=getNumberOfTuples();
+  mcIdType nbOfTuples=getNumberOfTuples();
   for(mcIdType i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr==val)
       ret->pushBackSilent(i);
@@ -239,7 +231,7 @@ DataArrayIdType *DataArrayChar::findIdsNotEqual(char val) const
     throw INTERP_KERNEL::Exception("DataArrayChar::findIdsNotEqual : the array must have only one component, you can call 'rearrange' method before !");
   const char *cptr=getConstPointer();
   MCAuto<DataArrayIdType> ret(DataArrayIdType::New()); ret->alloc(0,1);
-  mcIdType const nbOfTuples=getNumberOfTuples();
+  mcIdType nbOfTuples=getNumberOfTuples();
   for(mcIdType i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr!=val)
       ret->pushBackSilent(i);
@@ -258,7 +250,7 @@ mcIdType DataArrayChar::findIdSequence(const std::vector<char>& vals) const
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayChar::findIdSequence : works only for DataArrayChar instance with one component !");
   const char *cptr=getConstPointer();
-  std::size_t const nbOfVals=getNbOfElems();
+  std::size_t nbOfVals=getNbOfElems();
   const char *loc=std::search(cptr,cptr+nbOfVals,vals.begin(),vals.end());
   if(loc!=cptr+nbOfVals)
     return ToIdType(std::distance(cptr,loc));
@@ -280,7 +272,7 @@ mcIdType DataArrayChar::findIdSequence(const std::vector<char>& vals) const
 mcIdType DataArrayChar::findIdFirstEqualTuple(const std::vector<char>& tupl) const
 {
   checkAllocated();
-  std::size_t const nbOfCompo=getNumberOfComponents();
+  std::size_t nbOfCompo=getNumberOfComponents();
   if(nbOfCompo==0)
     throw INTERP_KERNEL::Exception("DataArrayChar::findIdFirstEqualTuple : 0 components in 'this' !");
   if(nbOfCompo!=tupl.size())
@@ -289,7 +281,7 @@ mcIdType DataArrayChar::findIdFirstEqualTuple(const std::vector<char>& tupl) con
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   const char *cptr=getConstPointer();
-  std::size_t const nbOfVals=getNbOfElems();
+  std::size_t nbOfVals=getNbOfElems();
   for(const char *work=cptr;work!=cptr+nbOfVals;)
     {
       work=std::search(work,cptr+nbOfVals,tupl.begin(),tupl.end());
@@ -353,7 +345,7 @@ mcIdType DataArrayChar::findIdFirstEqual(char value) const
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayChar::presenceOfValue : the array must have only one component, you can call 'rearrange' method before !");
   const char *cptr=getConstPointer();
-  mcIdType const nbOfTuples=getNumberOfTuples();
+  mcIdType nbOfTuples=getNumberOfTuples();
   const char *ret=std::find(cptr,cptr+nbOfTuples,value);
   if(ret!=cptr+nbOfTuples)
     return ToIdType(std::distance(cptr,ret));
@@ -373,7 +365,7 @@ mcIdType DataArrayChar::findIdFirstEqual(const std::vector<char>& vals) const
     throw INTERP_KERNEL::Exception("DataArrayChar::findIdFirstEqual : the array must have only one component, you can call 'rearrange' method before !");
   std::set<char> vals2(vals.begin(),vals.end());
   const char *cptr=getConstPointer();
-  mcIdType const nbOfTuples=getNumberOfTuples();
+  mcIdType nbOfTuples=getNumberOfTuples();
   for(const char *w=cptr;w!=cptr+nbOfTuples;w++)
     if(vals2.find(*w)!=vals2.end())
       return ToIdType(std::distance(cptr,w));
@@ -396,7 +388,7 @@ DataArrayIdType *DataArrayChar::findIdsInRange(char vmin, char vmax) const
     throw INTERP_KERNEL::Exception("DataArrayChar::findIdsInRange : this must have exactly one component !");
   const char *cptr=getConstPointer();
   MCAuto<DataArrayIdType> ret=DataArrayIdType::New(); ret->alloc(0,1);
-  mcIdType const nbOfTuples=getNumberOfTuples();
+  mcIdType nbOfTuples=getNumberOfTuples();
   for(mcIdType i=0;i<nbOfTuples;i++,cptr++)
     if(*cptr>=vmin && *cptr<vmax)
       ret->pushBackSilent(i);
@@ -441,13 +433,13 @@ DataArrayChar *DataArrayChar::Aggregate(const DataArrayChar *a1, const DataArray
 DataArrayChar *DataArrayChar::Aggregate(const std::vector<const DataArrayChar *>& arr)
 {
   std::vector<const DataArrayChar *> a;
-  for(auto it4 : arr)
-    if(it4)
-      a.push_back(it4);
+  for(std::vector<const DataArrayChar *>::const_iterator it4=arr.begin();it4!=arr.end();it4++)
+    if(*it4)
+      a.push_back(*it4);
   if(a.empty())
     throw INTERP_KERNEL::Exception("DataArrayChar::Aggregate : input list must be NON EMPTY !");
   std::vector<const DataArrayChar *>::const_iterator it=a.begin();
-  std::size_t const nbOfComp((*it)->getNumberOfComponents());
+  std::size_t nbOfComp((*it)->getNumberOfComponents());
   mcIdType nbt=(*it++)->getNumberOfTuples();
   for(;it!=a.end();it++)
     {
@@ -505,16 +497,16 @@ DataArrayChar *DataArrayChar::Meld(const DataArrayChar *a1, const DataArrayChar 
 DataArrayChar *DataArrayChar::Meld(const std::vector<const DataArrayChar *>& arr)
 {
   std::vector<const DataArrayChar *> a;
-  for(auto it4 : arr)
-    if(it4)
-      a.push_back(it4);
+  for(std::vector<const DataArrayChar *>::const_iterator it4=arr.begin();it4!=arr.end();it4++)
+    if(*it4)
+      a.push_back(*it4);
   if(a.empty())
     throw INTERP_KERNEL::Exception("DataArrayChar::Meld : array must be NON empty !");
   std::vector<const DataArrayChar *>::const_iterator it;
   for(it=a.begin();it!=a.end();it++)
     (*it)->checkAllocated();
   it=a.begin();
-  mcIdType const nbOfTuples=(*it)->getNumberOfTuples();
+  mcIdType nbOfTuples=(*it)->getNumberOfTuples();
   std::vector<std::size_t> nbc(a.size());
   std::vector<const char *> pts(a.size());
   nbc[0]=(*it)->getNumberOfComponents();
@@ -526,7 +518,7 @@ DataArrayChar *DataArrayChar::Meld(const std::vector<const DataArrayChar *>& arr
       nbc[i]=(*it)->getNumberOfComponents();
       pts[i]=(*it)->getConstPointer();
     }
-  std::size_t const totalNbOfComp=std::accumulate(nbc.begin(),nbc.end(),(std::size_t)0);
+  std::size_t totalNbOfComp=std::accumulate(nbc.begin(),nbc.end(),(std::size_t)0);
   DataArrayChar *ret=a[0]->buildEmptySpecializedDAChar();
   ret->alloc(nbOfTuples,totalNbOfComp);
   char *retPtr=ret->getPointer();
@@ -629,8 +621,8 @@ void DataArrayByte::reprWithoutNameStream(std::ostream& stream) const
   if(_mem.reprHeader(ToIdType(getNumberOfComponents()),stream))
     {
       const char *data=begin();
-      mcIdType const nbOfTuples=getNumberOfTuples();
-      std::size_t const nbCompo=getNumberOfComponents();
+      mcIdType nbOfTuples=getNumberOfTuples();
+      std::size_t nbCompo=getNumberOfComponents();
       for(mcIdType i=0;i<nbOfTuples;i++,data+=nbCompo)
         {
           stream << "Tuple #" << i << " : ";
@@ -648,8 +640,8 @@ void DataArrayByte::reprZipWithoutNameStream(std::ostream& stream) const
 
 void DataArrayByte::reprCppStream(const std::string& varName, std::ostream& stream) const
 {
-  mcIdType const nbTuples=getNumberOfTuples();
-  std::size_t const nbComp=getNumberOfComponents();
+  mcIdType nbTuples=getNumberOfTuples();
+  std::size_t nbComp=getNumberOfComponents();
   const char *data=getConstPointer();
   stream << "DataArrayByte *" << varName << "=DataArrayByte::New();" << std::endl;
   if(nbTuples*nbComp>=1)
@@ -673,10 +665,10 @@ void DataArrayByte::reprQuickOverview(std::ostream& stream) const
   stream << "DataArrayByte C++ instance at " << this << ". ";
   if(isAllocated())
     {
-      std::size_t const nbOfCompo=_info_on_compo.size();
+      std::size_t nbOfCompo=_info_on_compo.size();
       if(nbOfCompo>=1)
         {
-          mcIdType const nbOfTuples=getNumberOfTuples();
+          mcIdType nbOfTuples=getNumberOfTuples();
           stream << "Number of tuples : " << nbOfTuples << ". Number of components : " << nbOfCompo << "." << std::endl;
           reprQuickOverviewData(stream,MAX_NB_OF_BYTE_IN_REPR);
         }
@@ -690,8 +682,8 @@ void DataArrayByte::reprQuickOverview(std::ostream& stream) const
 void DataArrayByte::reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const
 {
   const char *data=begin();
-  mcIdType const nbOfTuples=getNumberOfTuples();
-  std::size_t const nbOfCompo=_info_on_compo.size();
+  mcIdType nbOfTuples=getNumberOfTuples();
+  std::size_t nbOfCompo=_info_on_compo.size();
   std::ostringstream oss2; oss2 << "[";
   std::string oss2Str(oss2.str());
   bool isFinished=true;
@@ -710,7 +702,7 @@ void DataArrayByte::reprQuickOverviewData(std::ostream& stream, std::size_t maxN
       else
         { oss2 << (int)*data; data++; }
       if(i!=nbOfTuples-1) oss2 << ", ";
-      std::string const oss3Str(oss2.str());
+      std::string oss3Str(oss2.str());
       if(oss3Str.length()<maxNbOfByteInRepr)
         oss2Str=oss3Str;
       else
@@ -724,7 +716,7 @@ void DataArrayByte::reprQuickOverviewData(std::ostream& stream, std::size_t maxN
 
 bool DataArrayByte::isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const
 {
-  const auto *otherC=dynamic_cast<const DataArrayByte *>(&other);
+  const DataArrayByte *otherC=dynamic_cast<const DataArrayByte *>(&other);
   if(!otherC)
     { reason="this is of type DataArrayByte whereas other is not a DataArrayByte instance"; return false; }
   return DataArrayChar::isEqualIfNotWhy(other,reason);
@@ -740,7 +732,7 @@ std::vector<bool> DataArrayByte::toVectorOfBool() const
   checkAllocated();
   if(getNumberOfComponents()!=1)
     throw INTERP_KERNEL::Exception("DataArrayByte::toVectorOfBool : this method can be used only if this has one component !");
-  mcIdType const nbt(getNumberOfTuples());
+  mcIdType nbt(getNumberOfTuples());
   std::vector<bool> ret(nbt,false);
   const char *pt(begin());
   for(mcIdType i=0;i<nbt;i++,pt++)
@@ -749,7 +741,7 @@ std::vector<bool> DataArrayByte::toVectorOfBool() const
   return ret;
 }
 
-DataArrayByteIterator::DataArrayByteIterator(DataArrayByte *da):_da(da),_pt(nullptr),_tuple_id(0),_nb_comp(0),_nb_tuple(0)
+DataArrayByteIterator::DataArrayByteIterator(DataArrayByte *da):_da(da),_pt(0),_tuple_id(0),_nb_comp(0),_nb_tuple(0)
 {
   if(_da)
     {
@@ -774,12 +766,12 @@ DataArrayByteTuple *DataArrayByteIterator::nextt()
   if(_tuple_id<_nb_tuple)
     {
       _tuple_id++;
-      auto *ret=new DataArrayByteTuple(_pt,_nb_comp);
+      DataArrayByteTuple *ret=new DataArrayByteTuple(_pt,_nb_comp);
       _pt+=_nb_comp;
       return ret;
     }
   else
-    return nullptr;
+    return 0;
 }
 
 DataArrayByteTuple::DataArrayByteTuple(char *pt, std::size_t nbOfComp):_pt(pt),_nb_of_compo(nbOfComp)
@@ -848,7 +840,7 @@ DataArrayAsciiChar *DataArrayAsciiChar::New(const std::string& st)
  */
 DataArrayAsciiChar::DataArrayAsciiChar(const std::string& st)
 {
-  std::size_t const lgth=st.length();
+  std::size_t lgth=st.length();
   if(lgth==0)
     throw INTERP_KERNEL::Exception("DataArrayAsciiChar constructor with string ! Size of input string is null !");
   alloc(1,lgth);
@@ -889,17 +881,17 @@ DataArrayAsciiChar::DataArrayAsciiChar(const std::vector<std::string>& vst, char
   if(vst.empty())
     throw INTERP_KERNEL::Exception("DataArrayAsciiChar constructor with vector of strings ! Empty array !");
   std::size_t nbCompo=0;
-  for(const auto & it : vst)
-    nbCompo=std::max(nbCompo,it.length());
+  for(std::vector<std::string>::const_iterator it=vst.begin();it!=vst.end();it++)
+    nbCompo=std::max(nbCompo,(*it).length());
   if(nbCompo==0)
     throw INTERP_KERNEL::Exception("DataArrayAsciiChar constructor with vector of strings ! All strings in not empty vector are empty !");
-  std::size_t const nbTuples=vst.size();
+  std::size_t nbTuples=vst.size();
   alloc(nbTuples,nbCompo);
   char *pt=getPointer();
   for(std::size_t i=0;i<nbTuples;i++,pt+=nbCompo)
     {
       const std::string& tmp=vst[i];
-      std::size_t const sz=tmp.length();
+      std::size_t sz=tmp.length();
       std::copy(tmp.begin(),tmp.begin()+sz,pt);
       std::fill(pt+sz,pt+nbCompo,defaultChar);
     }
@@ -982,8 +974,8 @@ void DataArrayAsciiChar::reprWithoutNameStream(std::ostream& stream) const
   if(_mem.reprHeader(ToIdType(getNumberOfComponents()),stream))
     {
       const char *data=begin();
-      mcIdType const nbOfTuples=getNumberOfTuples();
-      std::size_t const nbCompo=getNumberOfComponents();
+      mcIdType nbOfTuples=getNumberOfTuples();
+      std::size_t nbCompo=getNumberOfComponents();
       for(mcIdType i=0;i<nbOfTuples;i++,data+=nbCompo)
         {
           stream << "Tuple #" << i << " : \"";
@@ -1000,8 +992,8 @@ void DataArrayAsciiChar::reprZipWithoutNameStream(std::ostream& stream) const
 
 void DataArrayAsciiChar::reprCppStream(const std::string& varName, std::ostream& stream) const
 {
-  mcIdType const nbTuples=getNumberOfTuples();
-  std::size_t const nbComp=getNumberOfComponents();
+  mcIdType nbTuples=getNumberOfTuples();
+  std::size_t nbComp=getNumberOfComponents();
   const char *data=getConstPointer();
   stream << "DataArrayAsciiChar *" << varName << "=DataArrayAsciiChar::New();" << std::endl;
   if(nbTuples*nbComp>=1)
@@ -1025,10 +1017,10 @@ void DataArrayAsciiChar::reprQuickOverview(std::ostream& stream) const
   stream << "DataArrayAsciiChar C++ instance at " << this << ". ";
   if(isAllocated())
     {
-      std::size_t const nbOfCompo=_info_on_compo.size();
+      std::size_t nbOfCompo=_info_on_compo.size();
       if(nbOfCompo>=1)
         {
-          mcIdType const nbOfTuples=getNumberOfTuples();
+          mcIdType nbOfTuples=getNumberOfTuples();
           stream << "Number of tuples : " << nbOfTuples << ". Number of components : " << nbOfCompo << "." << std::endl;
           reprQuickOverviewData(stream,MAX_NB_OF_BYTE_IN_REPR);
         }
@@ -1042,8 +1034,8 @@ void DataArrayAsciiChar::reprQuickOverview(std::ostream& stream) const
 void DataArrayAsciiChar::reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const
 {
   const char *data=begin();
-  mcIdType const nbOfTuples=getNumberOfTuples();
-  std::size_t const nbOfCompo=_info_on_compo.size();
+  mcIdType nbOfTuples=getNumberOfTuples();
+  std::size_t nbOfCompo=_info_on_compo.size();
   std::ostringstream oss2; oss2 << "[";
   std::string oss2Str(oss2.str());
   bool isFinished=true;
@@ -1070,7 +1062,7 @@ void DataArrayAsciiChar::reprQuickOverviewData(std::ostream& stream, std::size_t
           oss2 << ")";
         }
       if(i!=nbOfTuples-1) oss2 << ", ";
-      std::string const oss3Str(oss2.str());
+      std::string oss3Str(oss2.str());
       if(oss3Str.length()<maxNbOfByteInRepr)
         oss2Str=oss3Str;
       else
@@ -1084,13 +1076,13 @@ void DataArrayAsciiChar::reprQuickOverviewData(std::ostream& stream, std::size_t
 
 bool DataArrayAsciiChar::isEqualIfNotWhy(const DataArrayChar& other, std::string& reason) const
 {
-  const auto *otherC=dynamic_cast<const DataArrayAsciiChar *>(&other);
+  const DataArrayAsciiChar *otherC=dynamic_cast<const DataArrayAsciiChar *>(&other);
   if(!otherC)
     { reason="this is of type DataArrayAsciiChar whereas other is not a DataArrayAsciiChar instance"; return false; }
   return DataArrayChar::isEqualIfNotWhy(other,reason);
 }
 
-DataArrayAsciiCharIterator::DataArrayAsciiCharIterator(DataArrayAsciiChar *da):_da(da),_pt(nullptr),_tuple_id(0),_nb_comp(0),_nb_tuple(0)
+DataArrayAsciiCharIterator::DataArrayAsciiCharIterator(DataArrayAsciiChar *da):_da(da),_pt(0),_tuple_id(0),_nb_comp(0),_nb_tuple(0)
 {
   if(_da)
     {
@@ -1115,12 +1107,12 @@ DataArrayAsciiCharTuple *DataArrayAsciiCharIterator::nextt()
   if(_tuple_id<_nb_tuple)
     {
       _tuple_id++;
-      auto *ret=new DataArrayAsciiCharTuple(_pt,_nb_comp);
+      DataArrayAsciiCharTuple *ret=new DataArrayAsciiCharTuple(_pt,_nb_comp);
       _pt+=_nb_comp;
       return ret;
     }
   else
-    return nullptr;
+    return 0;
 }
 
 DataArrayAsciiCharTuple::DataArrayAsciiCharTuple(char *pt, std::size_t nbOfComp):_pt(pt),_nb_of_compo(nbOfComp)

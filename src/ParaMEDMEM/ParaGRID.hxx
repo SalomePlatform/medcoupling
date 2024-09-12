@@ -20,6 +20,7 @@
 #ifndef __PARAGRID_HXX__
 #define __PARAGRID_HXX__
 
+#include "InterpolationUtils.hxx"
 
 #include <vector>
 

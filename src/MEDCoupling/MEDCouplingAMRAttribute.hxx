@@ -21,17 +21,9 @@
 #ifndef __MEDCOUPLINGAMRATTRIBUTE_HXX__
 #define __MEDCOUPLINGAMRATTRIBUTE_HXX__
 
-#include "MCType.hxx"
-#include "MCAuto.hxx"
 #include "MEDCoupling.hxx"
 #include "MEDCouplingNatureOfFieldEnum"
 #include "MEDCouplingCartesianAMRMesh.hxx"
-#include "MEDCouplingRefCountObject.hxx"
-#include "MEDCouplingTimeLabel.hxx"
-#include <vector>
-#include <utility>
-#include <string>
-#include <cstddef>
 
 namespace MEDCoupling
 {
@@ -65,9 +57,9 @@ namespace MEDCoupling
   private:
     DataArrayDoubleCollection(const std::vector< std::pair<std::string,int> >& fieldNames);
     DataArrayDoubleCollection(const DataArrayDoubleCollection& other);
-    std::size_t getHeapMemorySizeWithoutChildren() const override;
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
-    void updateTime() const override;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    void updateTime() const;
     static void CheckDiscriminantNames(const std::vector<std::string>& names);
     static bool IsConservativeNature(NatureOfField n);
     static void CheckSameNatures(NatureOfField n1, NatureOfField n2);
@@ -102,9 +94,9 @@ namespace MEDCoupling
   private:
     MEDCouplingGridCollection(const std::vector<const MEDCouplingCartesianAMRMeshGen *>& ms, const std::vector< std::pair<std::string,int> >& fieldNames);
     MEDCouplingGridCollection(const MEDCouplingGridCollection& other, const MEDCouplingCartesianAMRMeshGen *newGf, const MEDCouplingCartesianAMRMeshGen *oldGf);
-    std::size_t getHeapMemorySizeWithoutChildren() const override;
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
-    void updateTime() const override;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    void updateTime() const;
   private:
     std::vector< std::pair<const MEDCouplingCartesianAMRMeshGen *,MCAuto<DataArrayDoubleCollection> > > _map_of_dadc;
   };
@@ -160,22 +152,22 @@ namespace MEDCoupling
     //
     MEDCOUPLING_EXPORT MEDCouplingAMRAttribute *projectTo(MEDCouplingCartesianAMRMesh *targetGF) const;
     //
-    MEDCOUPLING_EXPORT void synchronizeFineToCoarse() override;
-    MEDCOUPLING_EXPORT void synchronizeFineToCoarseBetween(mcIdType fromLev, mcIdType toLev) override;
-    MEDCOUPLING_EXPORT void synchronizeCoarseToFine() override;
-    MEDCOUPLING_EXPORT void synchronizeCoarseToFineBetween(mcIdType fromLev, mcIdType toLev) override;
-    MEDCOUPLING_EXPORT void synchronizeAllGhostZones() override;
-    MEDCOUPLING_EXPORT void synchronizeAllGhostZonesOfDirectChidrenOf(const MEDCouplingCartesianAMRMeshGen *mesh) override;
-    MEDCOUPLING_EXPORT void synchronizeAllGhostZonesAtASpecifiedLevel(mcIdType level) override;
-    MEDCOUPLING_EXPORT void synchronizeAllGhostZonesAtASpecifiedLevelUsingOnlyFather(mcIdType level) override;
+    MEDCOUPLING_EXPORT void synchronizeFineToCoarse();
+    MEDCOUPLING_EXPORT void synchronizeFineToCoarseBetween(mcIdType fromLev, mcIdType toLev);
+    MEDCOUPLING_EXPORT void synchronizeCoarseToFine();
+    MEDCOUPLING_EXPORT void synchronizeCoarseToFineBetween(mcIdType fromLev, mcIdType toLev);
+    MEDCOUPLING_EXPORT void synchronizeAllGhostZones();
+    MEDCOUPLING_EXPORT void synchronizeAllGhostZonesOfDirectChidrenOf(const MEDCouplingCartesianAMRMeshGen *mesh);
+    MEDCOUPLING_EXPORT void synchronizeAllGhostZonesAtASpecifiedLevel(mcIdType level);
+    MEDCOUPLING_EXPORT void synchronizeAllGhostZonesAtASpecifiedLevelUsingOnlyFather(mcIdType level);
     //
-    MEDCOUPLING_EXPORT void alloc() override;
-    MEDCOUPLING_EXPORT void dealloc() override;
-    MEDCOUPLING_EXPORT bool changeGodFather(MEDCouplingCartesianAMRMesh *gf) override;
+    MEDCOUPLING_EXPORT void alloc();
+    MEDCOUPLING_EXPORT void dealloc();
+    MEDCOUPLING_EXPORT bool changeGodFather(MEDCouplingCartesianAMRMesh *gf);
     //
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
-    MEDCOUPLING_EXPORT void updateTime() const override;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    MEDCOUPLING_EXPORT void updateTime() const;
   private:
     MEDCouplingAMRAttribute(MEDCouplingCartesianAMRMesh *gf, const std::vector< std::pair<std::string,int> >& fieldNames, mcIdType ghostLev);
     MEDCouplingAMRAttribute(const MEDCouplingAMRAttribute& other, bool deepCpyGF);

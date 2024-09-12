@@ -21,7 +21,6 @@
 #ifndef __MEDLOADERNS_HXX__
 #define __MEDLOADERNS_HXX__
 
-#include "MEDCouplingTraits.hxx"
 #include <vector>
 #include <string>
 

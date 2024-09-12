@@ -20,12 +20,10 @@
 #ifndef __TU_INTERPOLATION_PLANAR_TEST_SUITE_HXX__
 #define __TU_INTERPOLATION_PLANAR_TEST_SUITE_HXX__
 
-#include <cppunit/TestFixture.h>
-#include <cstddef>
+#include <cppunit/extensions/HelperMacros.h>
 #include <deque>
 #include <cmath>
 #include <iostream>
-#include <vector>
 
 namespace INTERP_TEST
 {
@@ -45,12 +43,12 @@ namespace INTERP_TEST
      * Sets up the test suite.
      *
      */
-    void setUp() override
+    void setUp()
     {
       _Epsilon = 1.e-6;
       _Precision = 1.e-6;
     }
-    void tearDown() override  {}
+    void tearDown()  {}
 
     //     bool checkDequesEqual(std::deque< double > deque1, std::deque< double > deque2, double epsilon);
     //     bool checkVectorsEqual(std::vector< double > Vect1, std::vector< double > Vect2, double epsilon);
@@ -61,8 +59,8 @@ namespace INTERP_TEST
     bool checkDequesEqual(std::deque< double > deque1,  
                           std::deque< double > deque2, double epsilon)
     {
-      std::size_t const size1 = deque1.size();
-      std::size_t const size2 = deque2.size();
+      std::size_t size1 = deque1.size();
+      std::size_t size2 = deque2.size();
       bool are_equal = size1 == size2;
     
       if(are_equal)
@@ -74,8 +72,8 @@ namespace INTERP_TEST
     bool checkVectorsEqual(std::vector< double > vect1,  
                            std::vector< double > vect2, double epsilon)
     {
-      std::size_t const size1 = vect1.size();
-      std::size_t const size2 = vect2.size();
+      std::size_t size1 = vect1.size();
+      std::size_t size2 = vect2.size();
       bool are_equal = size1 == size2;
       
       if(are_equal)
@@ -86,17 +84,17 @@ namespace INTERP_TEST
     }
     void dequePrintOut(std::deque< double > deque1)
     {
-      for(double const i : deque1)
+      for(std::size_t i = 0; i< deque1.size(); i++)
         {
-          std::cerr << i << " ";
+          std::cerr << deque1[i] << " ";
         }
       std::cerr<< std::endl;
     }
     void vectPrintOut(std::vector< double > vect)
     {
-      for(double const i : vect)
+      for(std::size_t i = 0; i< vect.size(); i++)
         {
-          std::cerr << i << " ";
+          std::cerr << vect[i] << " ";
         }
       std::cerr<< std::endl;
     }  

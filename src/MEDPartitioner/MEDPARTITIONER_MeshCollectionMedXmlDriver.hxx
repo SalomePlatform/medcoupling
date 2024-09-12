@@ -22,7 +22,6 @@
 
 #include "MEDPARTITIONER.hxx"
 #include "MEDPARTITIONER_MeshCollectionDriver.hxx"
-#include <string>
 
 namespace MEDPARTITIONER
 {
@@ -31,9 +30,9 @@ namespace MEDPARTITIONER
   {
   public:
     MeshCollectionMedXmlDriver(MeshCollection*);
-    ~MeshCollectionMedXmlDriver() override = default;
-    int read(const char*, ParaDomainSelector* sel=nullptr) override;
-    void write(const char*, ParaDomainSelector* sel=nullptr) const override;
+    virtual ~MeshCollectionMedXmlDriver() { }
+    int read(const char*, ParaDomainSelector* sel=0);
+    void write(const char*, ParaDomainSelector* sel=0) const;
   private :
     std::string _master_filename;
   };

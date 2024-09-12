@@ -19,39 +19,28 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingPointSet.hxx"
-#include "InterpKernelGeo2DPrecision.hxx"
 #include "MCAuto.hxx"
-#include "MCIdType.hxx"
-#include "MCType.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
-#include "MEDCouplingMesh.hxx"
-#include "MEDCouplingRefCountObject.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "NormalizedUnstructuredMesh.hxx"
 #include "PlanarIntersector.txx"
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "InterpKernelGeo2DNode.hxx"
 #include "DirectedBoundingBox.hxx"
 #include "InterpKernelAutoPtr.hxx"
 
-#include <algorithm>
 #include <cmath>
-#include <cstddef>
-#include <functional>
-#include <iterator>
 #include <limits>
+#include <numeric>
 #include <sstream>
-#include <vector>
-#include <string>
 
 using namespace MEDCoupling;
 
-MEDCouplingPointSet::MEDCouplingPointSet():_coords(nullptr)
+MEDCouplingPointSet::MEDCouplingPointSet():_coords(0)
 {
 }
 
-MEDCouplingPointSet::MEDCouplingPointSet(const MEDCouplingPointSet& other, bool deepCpy):MEDCouplingMesh(other),_coords(nullptr)
+MEDCouplingPointSet::MEDCouplingPointSet(const MEDCouplingPointSet& other, bool deepCpy):MEDCouplingMesh(other),_coords(0)
 {
   if(other._coords)
     _coords=other._coords->performCopyOrIncrRef(deepCpy);
@@ -136,7 +125,7 @@ DataArrayDouble *MEDCouplingPointSet::getCoordinatesAndOwner() const
 void MEDCouplingPointSet::copyTinyStringsFrom(const MEDCouplingMesh *other)
 {
   MEDCouplingMesh::copyTinyStringsFrom(other);
-  const auto *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
+  const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
   if(!otherC)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::copyTinyStringsFrom : meshes have not same type !");
   if(_coords && otherC->_coords)
@@ -147,7 +136,7 @@ bool MEDCouplingPointSet::isEqualIfNotWhy(const MEDCouplingMesh *other, double p
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::isEqualIfNotWhy : null mesh instance in input !");
-  const auto *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
+  const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
   if(!otherC)
     {
       reason="mesh given in input is not castable in MEDCouplingPointSet !";
@@ -169,7 +158,7 @@ bool MEDCouplingPointSet::isEqualIfNotWhy(const MEDCouplingMesh *other, double p
  */
 bool MEDCouplingPointSet::isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const
 {
-  const auto *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
+  const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
   if(!otherC)
     return false;
   if(!areCoordsEqualWithoutConsideringStr(*otherC,prec))
@@ -179,16 +168,16 @@ bool MEDCouplingPointSet::isEqualWithoutConsideringStr(const MEDCouplingMesh *ot
 
 bool MEDCouplingPointSet::areCoordsEqualIfNotWhy(const MEDCouplingPointSet& other, double prec, std::string& reason) const
 {
-  if(_coords==nullptr && other._coords==nullptr)
+  if(_coords==0 && other._coords==0)
     return true;
-  if(_coords==nullptr || other._coords==nullptr)
+  if(_coords==0 || other._coords==0)
     {
       reason="Only one PointSet between the two this and other has coordinate defined !";
       return false;
     }
   if(_coords==other._coords)
     return true;
-  bool const ret=_coords->isEqualIfNotWhy(*other._coords,prec,reason);
+  bool ret=_coords->isEqualIfNotWhy(*other._coords,prec,reason);
   if(!ret)
     reason.insert(0,"Coordinates DataArray do not match : ");
   return ret;
@@ -216,9 +205,9 @@ bool MEDCouplingPointSet::areCoordsEqual(const MEDCouplingPointSet& other, doubl
  */
 bool MEDCouplingPointSet::areCoordsEqualWithoutConsideringStr(const MEDCouplingPointSet& other, double prec) const
 {
-  if(_coords==nullptr && other._coords==nullptr)
+  if(_coords==0 && other._coords==0)
     return true;
-  if(_coords==nullptr || other._coords==nullptr)
+  if(_coords==0 || other._coords==0)
     return false;
   if(_coords==other._coords)
     return true;
@@ -243,11 +232,11 @@ void MEDCouplingPointSet::getCoordinatesOfNode(mcIdType nodeId, std::vector<doub
 {
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getCoordinatesOfNode : no coordinates array set !");
-  mcIdType const nbNodes=getNumberOfNodes();
+  mcIdType nbNodes=getNumberOfNodes();
   if(nodeId>=0 && nodeId<nbNodes)
     {
       const double *cooPtr=_coords->getConstPointer();
-      std::size_t const spaceDim=getSpaceDimension();
+      std::size_t spaceDim=getSpaceDimension();
       coo.insert(coo.end(),cooPtr+spaceDim*nodeId,cooPtr+spaceDim*(nodeId+1));
     }
   else
@@ -276,7 +265,7 @@ DataArrayIdType *MEDCouplingPointSet::buildPermArrayForMergeNode(double precisio
 {
   DataArrayIdType *comm,*commI;
   findCommonNodes(precision,limitNodeId,comm,commI);
-  mcIdType const oldNbOfNodes=getNumberOfNodes();
+  mcIdType oldNbOfNodes=getNumberOfNodes();
   MCAuto<DataArrayIdType> ret=buildNewNumberingFromCommonNodesFormat(comm,commI,newNbOfNodes);
   areNodesMerged=(oldNbOfNodes!=newNbOfNodes);
   comm->decrRef();
@@ -336,9 +325,9 @@ void MEDCouplingPointSet::findCommonNodes(double prec, mcIdType limitNodeId, Dat
  */
 DataArrayIdType *MEDCouplingPointSet::getNodeIdsNearPoint(const double *pos, double eps) const
 {
-  DataArrayIdType *c=nullptr,*cI=nullptr;
+  DataArrayIdType *c=0,*cI=0;
   getNodeIdsNearPoints(pos,1,eps,c,cI);
-  MCAuto<DataArrayIdType> const cITmp(cI);
+  MCAuto<DataArrayIdType> cITmp(cI);
   return c;
 }
 
@@ -373,7 +362,7 @@ void MEDCouplingPointSet::getNodeIdsNearPoints(const double *pos, mcIdType nbOfP
 {
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getNodeIdsNearPoint : no coordiantes set !");
-  std::size_t const spaceDim=getSpaceDimension();
+  std::size_t spaceDim=getSpaceDimension();
   MCAuto<DataArrayDouble> points=DataArrayDouble::New();
   points->useArray(pos,false,DeallocType::CPP_DEALLOC,nbOfPoints,spaceDim);
   _coords->computeTupleIdsNearTuples(points,eps,c,cI);
@@ -442,11 +431,11 @@ void MEDCouplingPointSet::renumberNodesCenter(const mcIdType *newNodeNumbers, mc
 {
   DataArrayDouble *newCoords=DataArrayDouble::New();
   std::vector<mcIdType> div(newNbOfNodes);
-  std::size_t const spaceDim=getSpaceDimension();
+  std::size_t spaceDim=getSpaceDimension();
   newCoords->alloc(newNbOfNodes,spaceDim);
   newCoords->copyStringInfoFrom(*_coords);
   newCoords->fillWithZero();
-  mcIdType const oldNbOfNodes=getNumberOfNodes();
+  mcIdType oldNbOfNodes=getNumberOfNodes();
   double *ptToFill=newCoords->getPointer();
   const double *oldCoordsPtr=_coords->getConstPointer();
   for(mcIdType i=0;i<oldNbOfNodes;i++)
@@ -513,7 +502,7 @@ double MEDCouplingPointSet::getCaracteristicDimension() const
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::getCaracteristicDimension : Coordinates not set !");
   const double *coords=_coords->getConstPointer();
-  std::size_t const nbOfValues=_coords->getNbOfElems();
+  std::size_t nbOfValues=_coords->getNbOfElems();
   return std::abs(*std::max_element(coords,coords+nbOfValues,MEDCouplingCompAbs()));
 }
 
@@ -555,7 +544,7 @@ void MEDCouplingPointSet::recenterForMaxPrecision(double eps)
  */
 void MEDCouplingPointSet::rotate(const double *center, const double *vector, double angle)
 {
-  std::size_t const spaceDim=getSpaceDimension();
+  std::size_t spaceDim=getSpaceDimension();
   if(spaceDim==3)
     rotate3D(center,vector,angle);
   else if(spaceDim==2)
@@ -585,8 +574,8 @@ void MEDCouplingPointSet::translate(const double *vector)
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::translate : no coordinates set !");
   double *coords=_coords->getPointer();
-  mcIdType const nbNodes=getNumberOfNodes();
-  std::size_t const dim=getSpaceDimension();
+  mcIdType nbNodes=getNumberOfNodes();
+  std::size_t dim=getSpaceDimension();
   for(mcIdType i=0; i<nbNodes; i++)
     for(std::size_t idim=0; idim<dim;idim++)
       coords[i*dim+idim]+=vector[idim];
@@ -615,8 +604,8 @@ void MEDCouplingPointSet::scale(const double *point, double factor)
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::scale : no coordinates set !");
   double *coords=_coords->getPointer();
-  mcIdType const nbNodes=getNumberOfNodes();
-  std::size_t const dim=getSpaceDimension();
+  mcIdType nbNodes=getNumberOfNodes();
+  std::size_t dim=getSpaceDimension();
   for(mcIdType i=0;i<nbNodes;i++)
     {
       std::transform(coords+i*dim,coords+(i+1)*dim,point,coords+i*dim,std::minus<double>());
@@ -640,11 +629,11 @@ void MEDCouplingPointSet::scale(const double *point, double factor)
  */
 void MEDCouplingPointSet::changeSpaceDimension(int newSpaceDim, double dftValue)
 {
-  if(getCoords()==nullptr)
+  if(getCoords()==0)
     throw INTERP_KERNEL::Exception("changeSpaceDimension must be called on an MEDCouplingPointSet instance with coordinates set !");
   if(newSpaceDim<1)
     throw INTERP_KERNEL::Exception("changeSpaceDimension must be called a newSpaceDim >=1 !");
-  int const oldSpaceDim=getSpaceDimension();
+  int oldSpaceDim=getSpaceDimension();
   if(newSpaceDim==oldSpaceDim)
     return ;
   DataArrayDouble *newCoords=getCoords()->changeNbOfComponents(newSpaceDim,dftValue);
@@ -715,9 +704,9 @@ void MEDCouplingPointSet::findNodesOnPlane(const double *pt, const double *vec, 
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findNodesOnPlane : NULL point pointer specified !");
   if(!vec)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findNodesOnPlane : NULL vector pointer specified !");
-  mcIdType const nbOfNodes=getNumberOfNodes();
+  mcIdType nbOfNodes=getNumberOfNodes();
   double a=vec[0],b=vec[1],c=vec[2],d=-pt[0]*vec[0]-pt[1]*vec[1]-pt[2]*vec[2];
-  double const deno=sqrt(a*a+b*b+c*c);
+  double deno=sqrt(a*a+b*b+c*c);
   if(deno<std::numeric_limits<double>::min())
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findNodesOnPlane : vector pointer specified has norm equal to 0. !");
   const double *work=_coords->getConstPointer();
@@ -748,18 +737,18 @@ void MEDCouplingPointSet::findNodesOnPlane(const double *pt, const double *vec, 
  */
 void MEDCouplingPointSet::findNodesOnLine(const double *pt, const double *vec, double eps, std::vector<mcIdType>& nodes) const
 {
-  std::size_t const spaceDim=getSpaceDimension();
+  std::size_t spaceDim=getSpaceDimension();
   if(spaceDim!=2 && spaceDim!=3)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findNodesOnLine : Invalid spacedim to be applied on this ! Must be equal to 2 or 3 !");
   if(!pt)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findNodesOnLine : NULL point pointer specified !");
   if(!vec)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findNodesOnLine : NULL vector pointer specified !");
-  mcIdType const nbOfNodes=getNumberOfNodes();
+  mcIdType nbOfNodes=getNumberOfNodes();
   double den=0.;
   for(std::size_t i=0;i<spaceDim;i++)
     den+=vec[i]*vec[i];
-  double const deno=sqrt(den);
+  double deno=sqrt(den);
   if(deno<10.*eps)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::findNodesOnLine : Invalid given direction vector ! Norm is too small !");
   INTERP_KERNEL::AutoPtr<double> vecn=new double[spaceDim];
@@ -779,9 +768,9 @@ void MEDCouplingPointSet::findNodesOnLine(const double *pt, const double *vec, d
     {
       for(mcIdType i=0;i<nbOfNodes;i++)
         {
-          double const a=vecn[0]*(work[1]-pt[1])-vecn[1]*(work[0]-pt[0]);
-          double const b=vecn[1]*(work[2]-pt[2])-vecn[2]*(work[1]-pt[1]);
-          double const c=vecn[2]*(work[0]-pt[0])-vecn[0]*(work[2]-pt[2]);
+          double a=vecn[0]*(work[1]-pt[1])-vecn[1]*(work[0]-pt[0]);
+          double b=vecn[1]*(work[2]-pt[2])-vecn[2]*(work[1]-pt[1]);
+          double c=vecn[2]*(work[0]-pt[0])-vecn[0]*(work[2]-pt[2]);
           if(std::sqrt(a*a+b*b+c*c)<eps)
             nodes.push_back(i);
           work+=3;
@@ -806,7 +795,7 @@ void MEDCouplingPointSet::findNodesOnLine(const double *pt, const double *vec, d
  */
 DataArrayDouble *MEDCouplingPointSet::MergeNodesArray(const MEDCouplingPointSet *m1, const MEDCouplingPointSet *m2)
 {
-  int const spaceDim=m1->getSpaceDimension();
+  int spaceDim=m1->getSpaceDimension();
   if(spaceDim!=m2->getSpaceDimension())
     throw INTERP_KERNEL::Exception("Mismatch in SpaceDim during call of MergeNodesArray !");
   return DataArrayDouble::Aggregate(m1->getCoords(),m2->getCoords());
@@ -816,9 +805,9 @@ DataArrayDouble *MEDCouplingPointSet::MergeNodesArray(const std::vector<const ME
 {
   if(ms.empty())
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::MergeNodesArray : input array must be NON EMPTY !");
-  auto it=ms.begin();
+  std::vector<const MEDCouplingPointSet *>::const_iterator it=ms.begin();
   std::vector<const DataArrayDouble *> coo(ms.size());
-  int const spaceDim=(*it)->getSpaceDimension();
+  int spaceDim=(*it)->getSpaceDimension();
   coo[0]=(*it++)->getCoords();
   if(!coo[0]->isAllocated())
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::MergeNodesArray : first element in coordinates is not allocated !");
@@ -868,7 +857,7 @@ MEDCouplingPointSet *MEDCouplingPointSet::BuildInstanceFromMeshType(MEDCouplingM
 void MEDCouplingPointSet::getTinySerializationInformation(std::vector<double>& tinyInfoD, std::vector<mcIdType>& tinyInfo, std::vector<std::string>& littleStrings) const
 {
   int it,order;
-  double const time=getTime(it,order);
+  double time=getTime(it,order);
   if(_coords)
     {
       int spaceDim=getSpaceDimension();
@@ -906,7 +895,7 @@ void MEDCouplingPointSet::getTinySerializationInformation(std::vector<double>& t
 /*!
  * Third and final step of serialization process.
  */
-void MEDCouplingPointSet::serialize(DataArrayIdType *& /*a1*/, DataArrayDouble *&a2) const
+void MEDCouplingPointSet::serialize(DataArrayIdType *&a1, DataArrayDouble *&a2) const
 {
   if(_coords)
     {
@@ -914,14 +903,14 @@ void MEDCouplingPointSet::serialize(DataArrayIdType *& /*a1*/, DataArrayDouble *
       a2->incrRef();
     }
   else
-    a2=nullptr;
+    a2=0;
 }
 
 /*!
  * Second step of serialization process.
  * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
  */
-void MEDCouplingPointSet::resizeForUnserialization(const std::vector<mcIdType>& tinyInfo, DataArrayIdType * /*a1*/, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
+void MEDCouplingPointSet::resizeForUnserialization(const std::vector<mcIdType>& tinyInfo, DataArrayIdType *a1, DataArrayDouble *a2, std::vector<std::string>& littleStrings) const
 {
   if(tinyInfo[2]>=0 && tinyInfo[1]>=1)
     {
@@ -938,7 +927,7 @@ void MEDCouplingPointSet::resizeForUnserialization(const std::vector<mcIdType>& 
  * Second and final unserialization process.
  * @param tinyInfo must be equal to the result given by getTinySerializationInformation method.
  */
-void MEDCouplingPointSet::unserialization(const std::vector<double>& tinyInfoD, const std::vector<mcIdType>& tinyInfo, const DataArrayIdType * /*a1*/, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
+void MEDCouplingPointSet::unserialization(const std::vector<double>& tinyInfoD, const std::vector<mcIdType>& tinyInfo, const DataArrayIdType *a1, DataArrayDouble *a2, const std::vector<std::string>& littleStrings)
 {
   if(tinyInfo[2]>=0 && tinyInfo[1]>=1)
     {
@@ -971,12 +960,12 @@ void MEDCouplingPointSet::checkConsistencyLight() const
  */
 bool MEDCouplingPointSet::intersectsBoundingBox(const double* bb1, const double* bb2, int dim, double eps)
 {
-  auto* bbtemp = new double[2*dim];
+  double* bbtemp = new double[2*dim];
   double deltamax=0.0;
 
   for (int i=0; i< dim; i++)
     {
-      double const delta = bb1[2*i+1]-bb1[2*i];
+      double delta = bb1[2*i+1]-bb1[2*i];
       if ( delta > deltamax )
         {
           deltamax = delta ;
@@ -990,7 +979,7 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const double* bb1, const double*
   
   for (int idim=0; idim < dim; idim++)
     {
-      bool const intersects = (bbtemp[idim*2]<bb2[idim*2+1])
+      bool intersects = (bbtemp[idim*2]<bb2[idim*2+1])
         && (bb2[idim*2]<bbtemp[idim*2+1]) ;
       if (!intersects)
         {
@@ -1007,12 +996,12 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const double* bb1, const double*
  */
 bool MEDCouplingPointSet::intersectsBoundingBox(const INTERP_KERNEL::DirectedBoundingBox& bb1, const double* bb2, int dim, double eps)
 {
-  auto* bbtemp(new double[2*dim]);
+  double* bbtemp(new double[2*dim]);
   double deltamax(0.0);
 
   for (int i=0; i< dim; i++)
     {
-      double const delta = bb2[2*i+1]-bb2[2*i];
+      double delta = bb2[2*i+1]-bb2[2*i];
       if ( delta > deltamax )
         {
           deltamax = delta ;
@@ -1024,7 +1013,7 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const INTERP_KERNEL::DirectedBou
       bbtemp[i*2+1]=bb2[i*2+1]+deltamax*eps;
     }
   
-  bool const intersects(!bb1.isDisjointWith(bbtemp));
+  bool intersects(!bb1.isDisjointWith(bbtemp));
   delete [] bbtemp;
   return intersects;
 }
@@ -1035,7 +1024,7 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const INTERP_KERNEL::DirectedBou
 void MEDCouplingPointSet::rotate3D(const double *center, const double *vect, double angle)
 {
   double *coords(_coords->getPointer());
-  mcIdType const nbNodes(getNumberOfNodes());
+  mcIdType nbNodes(getNumberOfNodes());
   DataArrayDouble::Rotate3DAlg(center,vect,angle,nbNodes,coords,coords);
 }
 
@@ -1128,7 +1117,7 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPartRange(mcIdType beginCellIds, mcId
  * 
  * \sa MEDCouplingUMesh::buildPartOfMySelfSlice
  */
-MEDCouplingMesh *MEDCouplingPointSet::buildPartRangeAndReduceNodes(mcIdType beginCellIds, mcIdType endCellIds, mcIdType stepCellIds, mcIdType&  /*beginOut*/, mcIdType&  /*endOut*/, mcIdType&  /*stepOut*/, DataArrayIdType*& arr) const
+MEDCouplingMesh *MEDCouplingPointSet::buildPartRangeAndReduceNodes(mcIdType beginCellIds, mcIdType endCellIds, mcIdType stepCellIds, mcIdType& beginOut, mcIdType& endOut, mcIdType& stepOut, DataArrayIdType*& arr) const
 {
   MCAuto<MEDCouplingPointSet> ret(buildPartOfMySelfSlice(beginCellIds,endCellIds,stepCellIds,true));
   arr=ret->zipCoordsTraducer();
@@ -1141,7 +1130,7 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPartRangeAndReduceNodes(mcIdType begi
 void MEDCouplingPointSet::rotate2D(const double *center, double angle)
 {
   double *coords(_coords->getPointer());
-  mcIdType const nbNodes(getNumberOfNodes());
+  mcIdType nbNodes(getNumberOfNodes());
   DataArrayDouble::Rotate2DAlg(center,angle,nbNodes,coords,coords);
 }
 
@@ -1152,7 +1141,7 @@ class DummyClsMCPS
 public:
   static const int MY_SPACEDIM=3;
   static const int MY_MESHDIM=2;
-  using MyConnType = mcIdType;
+  typedef mcIdType MyConnType;
   static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
 };
 
@@ -1167,7 +1156,7 @@ public:
 void MEDCouplingPointSet::project2DCellOnXY(const mcIdType *startConn, const mcIdType *endConn, std::vector<double>& res) const
 {
   const double *coords(_coords->getConstPointer());
-  std::size_t const spaceDim(getSpaceDimension());
+  std::size_t spaceDim(getSpaceDimension());
   for(const mcIdType *it=startConn;it!=endConn;it++)
     res.insert(res.end(),coords+spaceDim*(*it),coords+spaceDim*(*it+1));
   if(spaceDim==2)
@@ -1175,7 +1164,7 @@ void MEDCouplingPointSet::project2DCellOnXY(const mcIdType *startConn, const mcI
   if(spaceDim==3)
     {
       std::vector<double> cpy(res);
-      mcIdType const nbNodes=ToIdType(std::distance(startConn,endConn));
+      mcIdType nbNodes=ToIdType(std::distance(startConn,endConn));
       INTERP_KERNEL::PlanarIntersector<DummyClsMCPS,mcIdType>::Projection(&res[0],&cpy[0],nbNodes,nbNodes,1.e-12,0./*max distance*/,-1./*min dot*/,0.,true);
       res.resize(2*nbNodes);
       for(mcIdType i=0;i<nbNodes;i++)
@@ -1193,21 +1182,21 @@ void MEDCouplingPointSet::project2DCellOnXY(const mcIdType *startConn, const mcI
  */
 bool MEDCouplingPointSet::isButterfly2DCell(const std::vector<double>& res, bool isQuad, double eps)
 {
-  INTERP_KERNEL::QuadraticPlanarPrecision const prec(eps);
+  INTERP_KERNEL::QuadraticPlanarPrecision prec(eps);
 
-  std::size_t const nbOfNodes(res.size()/2);
+  std::size_t nbOfNodes(res.size()/2);
   std::vector<INTERP_KERNEL::Node *> nodes(nbOfNodes);
   for(std::size_t i=0;i<nbOfNodes;i++)
     {
-      auto *tmp=new INTERP_KERNEL::Node(res[2*i],res[2*i+1]);
+      INTERP_KERNEL::Node *tmp=new INTERP_KERNEL::Node(res[2*i],res[2*i+1]);
       nodes[i]=tmp;
     }
-  INTERP_KERNEL::QuadraticPolygon *pol=nullptr;
+  INTERP_KERNEL::QuadraticPolygon *pol=0;
   if(isQuad)
     pol=INTERP_KERNEL::QuadraticPolygon::BuildArcCirclePolygon(nodes);
   else
     pol=INTERP_KERNEL::QuadraticPolygon::BuildLinearPolygon(nodes);
-  bool const ret(pol->isButterflyAbs());
+  bool ret(pol->isButterflyAbs());
   delete pol;
   return ret;
 }
@@ -1223,7 +1212,7 @@ bool MEDCouplingPointSet::areCellsFrom2MeshEqual(const MEDCouplingPointSet *othe
   std::vector<mcIdType> c1,c2;
   getNodeIdsOfCell(cellId,c1);
   other->getNodeIdsOfCell(cellId,c2);
-  std::size_t const sz(c1.size());
+  std::size_t sz(c1.size());
   if(sz!=c2.size())
     return false;
   for(std::size_t i=0;i<sz;i++)
@@ -1261,7 +1250,7 @@ void MEDCouplingPointSet::tryToShareSameCoordsPermute(const MEDCouplingPointSet&
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::tryToShareSameCoordsPermute : No coords specified in other !");
   if(!_coords)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::tryToShareSameCoordsPermute : No coords specified in this whereas there is any in other !");
-  mcIdType const otherNbOfNodes=other.getNumberOfNodes();
+  mcIdType otherNbOfNodes=other.getNumberOfNodes();
   MCAuto<DataArrayDouble> newCoords=MergeNodesArray(&other,this);
   _coords->incrRef();
   MCAuto<DataArrayDouble> oldCoords=_coords;
@@ -1274,7 +1263,7 @@ void MEDCouplingPointSet::tryToShareSameCoordsPermute(const MEDCouplingPointSet&
       setCoords(oldCoords);
       throw INTERP_KERNEL::Exception("MEDCouplingPointSet::tryToShareSameCoordsPermute fails : no nodes are mergeable with specified given epsilon !");
     }
-  mcIdType const maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+otherNbOfNodes);
+  mcIdType maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+otherNbOfNodes);
   const mcIdType *pt=std::find_if(da->getConstPointer()+otherNbOfNodes,da->getConstPointer()+da->getNbOfElems(),std::bind(std::greater<mcIdType>(),std::placeholders::_1,maxId));
   if(pt!=da->getConstPointer()+da->getNbOfElems())
     {
@@ -1327,9 +1316,9 @@ MEDCouplingPointSet *MEDCouplingPointSet::buildPartOfMySelfSlice(mcIdType start,
  */
 MEDCouplingPointSet *MEDCouplingPointSet::buildPartOfMySelfNode(const mcIdType *begin, const mcIdType *end, bool fullyIn) const
 {
-  DataArrayIdType *cellIdsKept=nullptr;
+  DataArrayIdType *cellIdsKept=0;
   fillCellIdsToKeepFromNodeIds(begin,end,fullyIn,cellIdsKept);
-  MCAuto<DataArrayIdType> const cellIdsKept2(cellIdsKept);
+  MCAuto<DataArrayIdType> cellIdsKept2(cellIdsKept);
   return buildPartOfMySelf(cellIdsKept->begin(),cellIdsKept->end(),true);
 }
 
@@ -1385,7 +1374,7 @@ DataArrayIdType *MEDCouplingPointSet::zipConnectivityTraducer(int compType, mcId
 bool MEDCouplingPointSet::areAllNodesFetched() const
 {
   checkFullyDefined();
-  mcIdType const nbNodes(getNumberOfNodes());
+  mcIdType nbNodes(getNumberOfNodes());
   std::vector<bool> fetchedNodes(nbNodes,false);
   computeNodeIdsAlg(fetchedNodes);
   return std::find(fetchedNodes.begin(),fetchedNodes.end(),false)==fetchedNodes.end();
@@ -1426,13 +1415,13 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::checkDeepEquivalWith : input is null !");
-  const auto *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
+  const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
   if(!otherC)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::checkDeepEquivalWith : other is not a PointSet mesh !");
   MCAuto<MEDCouplingPointSet> m=dynamic_cast<MEDCouplingPointSet *>(mergeMyselfWith(otherC));
   bool areNodesMerged;
   mcIdType newNbOfNodes;
-  mcIdType const oldNbOfNodes=getNumberOfNodes();
+  mcIdType oldNbOfNodes=getNumberOfNodes();
   MCAuto<DataArrayIdType> da=m->buildPermArrayForMergeNode(prec,oldNbOfNodes,areNodesMerged,newNbOfNodes);
   //mergeNodes
   if(!areNodesMerged && oldNbOfNodes != 0)
@@ -1446,10 +1435,10 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
   da=m->mergeNodes(prec,areNodesMerged,newNbOfNodes);
   //
   da=m->zipConnectivityTraducer(cellCompPol);
-  mcIdType const nbCells=ToIdType(getNumberOfCells());
+  mcIdType nbCells=ToIdType(getNumberOfCells());
   if (nbCells != ToIdType(other->getNumberOfCells()))
     throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some cells in other are not in this !");
-  mcIdType const dan(da->getNumberOfTuples());
+  mcIdType dan(da->getNumberOfTuples());
   if (dan)
     {
       MCAuto<DataArrayIdType> da1(DataArrayIdType::New()),da2(DataArrayIdType::New());
@@ -1461,8 +1450,8 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
         throw INTERP_KERNEL::Exception("checkDeepEquivalWith : some cells in other are not in this !");
     }
   MCAuto<DataArrayIdType> cellCor2=da->selectByTupleIdSafeSlice(nbCells,ToIdType(da->getNbOfElems()),1);
-  nodeCor=nodeCor2->isIota(nodeCor2->getNumberOfTuples())?nullptr:nodeCor2.retn();
-  cellCor=cellCor2->isIota(cellCor2->getNumberOfTuples())?nullptr:cellCor2.retn();
+  nodeCor=nodeCor2->isIota(nodeCor2->getNumberOfTuples())?0:nodeCor2.retn();
+  cellCor=cellCor2->isIota(cellCor2->getNumberOfTuples())?0:cellCor2.retn();
 }
 
 /*!
@@ -1487,36 +1476,36 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
  * \ref  py_mcumesh_checkDeepEquivalWith "Here is a Python example".
  * \endif
  */
-void MEDCouplingPointSet::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double  /*prec*/,
+void MEDCouplingPointSet::checkDeepEquivalOnSameNodesWith(const MEDCouplingMesh *other, int cellCompPol, double prec,
                                                        DataArrayIdType *&cellCor) const
 {
   if(!other)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::checkDeepEquivalOnSameNodesWith : input is null !");
-  const auto *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
+  const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
   if(!otherC)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::checkDeepEquivalOnSameNodesWith : other is not a PointSet mesh !");
   if(_coords!=otherC->_coords)
     throw INTERP_KERNEL::Exception("checkDeepEquivalOnSameNodesWith : meshes do not share the same coordinates ! Use tryToShareSameCoordinates or call checkDeepEquivalWith !");
   MCAuto<MEDCouplingPointSet> m=mergeMyselfWithOnSameCoords(otherC);
   MCAuto<DataArrayIdType> da=m->zipConnectivityTraducer(cellCompPol);
-  mcIdType const maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+getNumberOfCells());
+  mcIdType maxId=*std::max_element(da->getConstPointer(),da->getConstPointer()+getNumberOfCells());
   const mcIdType *pt=std::find_if(da->getConstPointer()+getNumberOfCells(),da->getConstPointer()+da->getNbOfElems(),std::bind(std::greater<mcIdType>(),std::placeholders::_1,maxId));
   if(pt!=da->getConstPointer()+da->getNbOfElems())
     {
       throw INTERP_KERNEL::Exception("checkDeepEquivalOnSameNodesWith : some cells in other are not in this !");
     }
   MCAuto<DataArrayIdType> cellCor2=da->selectByTupleIdSafeSlice(ToIdType(getNumberOfCells()),ToIdType(da->getNbOfElems()),1);
-  cellCor=cellCor2->isIota(cellCor2->getNumberOfTuples())?nullptr:cellCor2.retn();
+  cellCor=cellCor2->isIota(cellCor2->getNumberOfTuples())?0:cellCor2.retn();
 }
 
 void MEDCouplingPointSet::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const
 {
   MEDCouplingMesh::checkFastEquivalWith(other,prec);
   //other not null checked by the line before
-  const auto *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
+  const MEDCouplingPointSet *otherC=dynamic_cast<const MEDCouplingPointSet *>(other);
   if(!otherC)
     throw INTERP_KERNEL::Exception("MEDCouplingPointSet::checkFastEquivalWith : fails because other is not a pointset mesh !");
-  mcIdType const nbOfCells=ToIdType(getNumberOfCells());
+  mcIdType nbOfCells=ToIdType(getNumberOfCells());
   if(nbOfCells<1)
     return ;
   bool status=true;
@@ -1550,7 +1539,7 @@ void MEDCouplingPointSet::checkFastEquivalWith(const MEDCouplingMesh *other, dou
  */
 DataArrayIdType *MEDCouplingPointSet::getCellIdsLyingOnNodes(const mcIdType *begin, const mcIdType *end, bool fullyIn) const
 {
-  DataArrayIdType *cellIdsKept=nullptr;
+  DataArrayIdType *cellIdsKept=0;
   fillCellIdsToKeepFromNodeIds(begin,end,fullyIn,cellIdsKept);
   cellIdsKept->setName(getName());
   return cellIdsKept;

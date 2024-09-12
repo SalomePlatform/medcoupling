@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "MEDFileUtilities.hxx"
-#include "MCType.hxx"
 #include "MEDLoaderDefines.hxx"
 
 #include "MEDFileFieldInternal.hxx"
@@ -30,21 +28,23 @@
 #include "MEDFileFieldMultiTS.hxx"
 
 #include "MEDFileFieldOverView.hxx"
+#include "MEDFileUtilities.txx"
 #include "MEDFileEntities.hxx"
 
 #include "MCAuto.hxx"
+#include "MEDLoaderTraits.hxx"
 #include "MEDCouplingTraits.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingPartDefinition.hxx"
 
-#include "NormalizedGeometricTypes"
+#include "NormalizedUnstructuredMesh.hxx"
+#include "InterpKernelException.hxx"
 
-#include <utility>
-#include <cstddef>
-#include <ostream>
-#include <map>
 #include <vector>
 #include <string>
+#include <list>
+#include <set>
 
 #include "med.h"
 
@@ -76,13 +76,13 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileFields *NewWithDynGT(med_idt fid, const MEDFileStructureElements *se, bool loadAll=true);
     MEDLOADER_EXPORT static MEDFileFields *New(DataArrayByte *db) { return BuildFromMemoryChunk<MEDFileFields>(db); }
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileFields"); }
-    MEDLOADER_EXPORT static MEDFileFields *LoadPartOf(const std::string& fileName, bool loadAll=true, const MEDFileMeshes *ms=nullptr);
+    MEDLOADER_EXPORT static MEDFileFields *LoadPartOf(const std::string& fileName, bool loadAll=true, const MEDFileMeshes *ms=0);
     MEDLOADER_EXPORT static MEDFileFields *LoadSpecificEntities(const std::string& fileName, const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& entities, bool loadAll=true);
-    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileFields *deepCopy() const;
     MEDLOADER_EXPORT MEDFileFields *shallowCpy() const;
-    MEDLOADER_EXPORT void writeLL(med_idt fid) const override;
+    MEDLOADER_EXPORT void writeLL(med_idt fid) const;
     MEDLOADER_EXPORT void loadArrays();
     MEDLOADER_EXPORT void loadArraysIfNecessary();
     MEDLOADER_EXPORT void unloadArrays();
@@ -127,14 +127,14 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT MEDFileFields *extractPart(const std::map<int, MCAuto<DataArrayIdType> >& extractDef, MEDFileMesh *mm) const;
   public:
-    MEDLOADER_EXPORT std::vector<std::string> getPflsReallyUsed() const override;
-    MEDLOADER_EXPORT std::vector<std::string> getLocsReallyUsed() const override;
-    MEDLOADER_EXPORT std::vector<std::string> getPflsReallyUsedMulti() const override;
-    MEDLOADER_EXPORT std::vector<std::string> getLocsReallyUsedMulti() const override;
-    MEDLOADER_EXPORT void changePflsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) override;
-    MEDLOADER_EXPORT void changeLocsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) override;
+    MEDLOADER_EXPORT std::vector<std::string> getPflsReallyUsed() const;
+    MEDLOADER_EXPORT std::vector<std::string> getLocsReallyUsed() const;
+    MEDLOADER_EXPORT std::vector<std::string> getPflsReallyUsedMulti() const;
+    MEDLOADER_EXPORT std::vector<std::string> getLocsReallyUsedMulti() const;
+    MEDLOADER_EXPORT void changePflsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif);
+    MEDLOADER_EXPORT void changeLocsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif);
   private:
-    ~MEDFileFields() override = default;
+    ~MEDFileFields() { }
     MEDFileFields();
     MEDFileFields(med_idt fid, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities);
   private:

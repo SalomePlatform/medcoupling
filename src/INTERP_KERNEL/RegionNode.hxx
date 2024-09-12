@@ -35,9 +35,9 @@ namespace INTERP_KERNEL
   {
   public:
     
-    RegionNode() = default;
+    RegionNode() { }
     
-    ~RegionNode() = default;
+    ~RegionNode() { }
     
     /**
      *  Accessor to source region

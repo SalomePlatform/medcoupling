@@ -20,10 +20,8 @@
 #ifndef __TU_INTERPOLATION_3D_TEST_HXX__
 #define __TU_INTERPOLATION_3D_TEST_HXX__
 
-#include "MeshTestToolkit.hxx"
+#include <cppunit/extensions/HelperMacros.h>
 #include "Interpolation3D.hxx"
-
-#include <cppunit/TestFixture.h>
 
 #define ERR_TOL 1.0e-8
 

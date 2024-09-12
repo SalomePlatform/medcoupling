@@ -21,12 +21,10 @@
 #ifndef __OVERLAPINTERPOLATIONMATRIX_HXX__
 #define __OVERLAPINTERPOLATIONMATRIX_HXX__
 
-#include "MCType.hxx"
-#include "OverlapElementLocator.hxx"
+#include "MPIAccessDEC.hxx"
 #include "OverlapMapping.hxx"
 #include "InterpolationOptions.hxx"
 #include "DECOptions.hxx"
-#include <string>
 
 namespace MEDCoupling
 {

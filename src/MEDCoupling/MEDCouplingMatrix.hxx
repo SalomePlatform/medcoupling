@@ -21,16 +21,13 @@
 #ifndef __PARAMEDMEM_MEDCOUPLINGMATRIX_HXX__
 #define __PARAMEDMEM_MEDCOUPLINGMATRIX_HXX__
 
-#include "MCType.hxx"
 #include "MEDCoupling.hxx"
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MCAuto.hxx"
 
-#include <string>
-#include <cstddef>
-#include <vector>
+#include "InterpKernelException.hxx"
 
 namespace MEDCoupling
 {
@@ -46,9 +43,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("DenseMatrix"); }
     MEDCOUPLING_EXPORT DenseMatrix *deepCopy() const;
     MEDCOUPLING_EXPORT DenseMatrix *shallowCpy() const;
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
-    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
-    MEDCOUPLING_EXPORT void updateTime() const override;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    MEDCOUPLING_EXPORT void updateTime() const;
     //
     MEDCOUPLING_EXPORT mcIdType getNumberOfRows() const { return _nb_rows; }
     MEDCOUPLING_EXPORT mcIdType getNumberOfCols() const { return _nb_cols; }
@@ -71,7 +68,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT const DataArrayDouble *getData() const { return _data; }
     MEDCOUPLING_EXPORT DataArrayDouble *getData() { return _data; }
   private:
-    ~DenseMatrix() override;
+    ~DenseMatrix();
     DenseMatrix(mcIdType nbRows, mcIdType nbCols);
     DenseMatrix(DataArrayDouble *array, mcIdType nbRows, mcIdType nbCols);
     mcIdType getNumberOfRowsExt(mcIdType nbRows) const;

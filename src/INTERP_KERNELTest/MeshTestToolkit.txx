@@ -16,34 +16,26 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __MESHTESTTOOLKI_TXX__
-#define __MESHTESTTOOLKI_TXX__
+#include "TestInterpKernelUtils.hxx"
 
 #include "MeshTestToolkit.hxx"
 
-#include "MCAuto.hxx"
-#include "MCIdType.hxx"
-#include "Interpolation2D.hxx"
-
 #include "MEDFileMesh.hxx"
 
+#include "MEDCouplingNormalizedUnstructuredMesh.hxx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "MEDCouplingFieldDouble.hxx"
 
 #include "Interpolation3DSurf.hxx"
 #include "Interpolation2D.txx"
 #include "Interpolation3D.txx"
-#include "TestInterpKernelUtils.hxx"
 
-#include <cppunit/TestAssert.h>
-#include <cmath>
 #include <map>
-#include <string>
+#include <cmath>
+#include <vector>
 #include <cstring>
 #include <iostream>
 #include <algorithm>
-#include <vector>
-#include <numeric>
 
 
 // levels :
@@ -53,8 +45,8 @@
 // 4 - empty
 // 5 - misc
 #include "Log.hxx"
-#include "VectorUtils.hxx"
 
+#include <cppunit/extensions/HelperMacros.h>
 
 //#define VOL_PREC 1.0e-6
 using namespace MEDCoupling;
@@ -74,11 +66,11 @@ namespace INTERP_TEST
   double MeshTestToolkit<SPACEDIM,MESHDIM>::sumRow(const IntersectionMatrix& m, int i) const
   {
     double vol = 0.0;
-    for(const auto & iter : m)
+    for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
       {
-        if(iter.count(i) != 0.0)
+        if(iter->count(i) != 0.0)
           {
-            auto iter2 = iter.find(i);
+            std::map<mcIdType, double>::const_iterator iter2 = iter->find(i);
             vol += fabs(iter2->second);
           }
       }
@@ -98,9 +90,9 @@ namespace INTERP_TEST
   {
     double vol = 0.0;
     const std::map<mcIdType, double>& col = m[i];
-    for(auto iter : col)
+    for(std::map<mcIdType, double>::const_iterator iter = col.begin() ; iter != col.end() ; ++iter)
       {
-        vol += fabs(iter.second);
+        vol += fabs(iter->second);
       }
     return vol;
   }
@@ -129,17 +121,17 @@ namespace INTERP_TEST
   double MeshTestToolkit<SPACEDIM,MESHDIM>::sumVolume(const IntersectionMatrix& m) const
   {
     std::vector<double> volumes;
-    for(const auto & iter : m)
+    for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
       {
-        for(const auto & iter2 : iter)
+        for(std::map<mcIdType, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
           {
-            volumes.push_back(fabs(iter2.second));
+            volumes.push_back(fabs(iter2->second));
           }
       }
 
     // sum in ascending order to avoid rounding errors
 
-    std::sort(volumes.begin(), volumes.end());
+    sort(volumes.begin(), volumes.end());
     const double vol = accumulate(volumes.begin(), volumes.end(), 0.0);
 
     return vol;
@@ -163,7 +155,7 @@ namespace INTERP_TEST
     bool ok = true;
 
     // source elements
-    auto* sVol = new double[sMesh.getNumberOfCells()];
+    double* sVol = new double[sMesh.getNumberOfCells()];
     getVolumes(sMesh, sVol);
 
     for(int i = 0; i < sMesh.getNumberOfCells(); ++i)
@@ -178,7 +170,7 @@ namespace INTERP_TEST
       }
 
     // target elements
-    auto* tVol = new double[tMesh.getNumberOfCells()];
+    double* tVol = new double[tMesh.getNumberOfCells()];
     getVolumes(tMesh, tVol);
     for(int i = 0; i < tMesh.getNumberOfCells(); ++i)
       {
@@ -211,7 +203,7 @@ namespace INTERP_TEST
     int i = 0;
     for(IntersectionMatrix::const_iterator iter = m1.begin() ; iter != m1.end() ; ++iter)
       {
-        for(auto iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+        for(std::map<mcIdType, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
           {
             mcIdType j = iter2->first;
             if(m2.at(j).count(i) == 0)
@@ -253,7 +245,7 @@ namespace INTERP_TEST
 
     for(IntersectionMatrix::const_iterator iter = m1.begin() ; iter != m1.end() ; ++iter)
       {
-        for(auto iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+        for(std::map<mcIdType, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
           {
             mcIdType j = iter2->first;
             const double v1 = fabs(iter2->second);
@@ -295,9 +287,9 @@ namespace INTERP_TEST
     bool isDiagonal = true;
     for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
       {
-        for(auto iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+        for(std::map<mcIdType, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
           {
-            mcIdType const j = iter2->first;
+            mcIdType j = iter2->first;
             const double vol = iter2->second;
             if(vol != 0.0 && (i != j))
               {
@@ -488,5 +480,3 @@ namespace INTERP_TEST
     intersectMeshes(path1.c_str(), mesh1, path2.c_str(), mesh2, correctVol, prec, doubleTest);
   }
 }
-
-#endif

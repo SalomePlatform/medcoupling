@@ -20,19 +20,16 @@
 #ifndef __MEDPARTITIONER_MESHCOLLECTION_HXX__
 #define __MEDPARTITIONER_MESHCOLLECTION_HXX__
 
-#include "MCType.hxx"
-#include "MCIdType.hxx"
-#include "MEDCouplingMemArray.hxx"
 #include "MEDPARTITIONER.hxx"
 #include "MEDPARTITIONER_Graph.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 #include "MEDCouplingSkyLineArray.hxx"
 
 #include <map>
-#include <utility>
 #include <vector>
 #include <string>
 
+#include "BBTree.txx"
 
 namespace MEDCoupling
 {
@@ -83,7 +80,7 @@ namespace MEDPARTITIONER
 
     //creation and partition of the associated graph
     Topology* createPartition(int nbdomain, Graph::splitter_type type = Graph::METIS,
-                              const std::string& ="", int* edgeweights=nullptr, int* verticesweights=nullptr);
+                              const std::string& ="", int* edgeweights=0, int* verticesweights=0);
 
     //creation of a user specified partition
     Topology* createPartition(const int* partition);

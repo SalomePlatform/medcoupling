@@ -21,19 +21,8 @@
 #include "MEDCouplingMatrix.hxx"
 
 #include "InterpKernelMatrixTools.hxx"
-#include "MCType.hxx"
-#include "MEDCouplingMemArray.hxx"
-#include "MCAuto.hxx"
-#include "MEDCouplingRefCountObject.hxx"
-#include "MCIdType.hxx"
 
-#include <cstddef>
-#include <algorithm>
-#include <cstdlib>
 #include <sstream>
-#include <vector>
-#include <utility>
-#include <string>
 
 using namespace MEDCoupling;
 
@@ -254,13 +243,14 @@ DenseMatrix *DenseMatrix::Multiply(const DenseMatrix *a1, const DataArrayDouble 
 }
 
 DenseMatrix::~DenseMatrix()
-= default;
+{
+}
 
 DenseMatrix::DenseMatrix(mcIdType nbRows, mcIdType nbCols):_nb_rows(nbRows),_nb_cols(nbCols),_data(DataArrayDouble::New())
 {
   if(_nb_rows<0 || _nb_cols<0)
     throw INTERP_KERNEL::Exception("constructor of DenseMatrix : number of rows and number of cols must be > 0 both !");
-  mcIdType const nbOfTuples(_nb_rows*_nb_cols);
+  mcIdType nbOfTuples(_nb_rows*_nb_cols);
   _data->alloc(nbOfTuples,1);
 }
 

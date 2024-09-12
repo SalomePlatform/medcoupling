@@ -18,9 +18,8 @@
 //
 
 #include "TransformedTriangleTest.hxx"
-#include "TransformedTriangle.hxx"
 
-#include <cppunit/TestAssert.h>
+#include <iostream>
 
 using namespace INTERP_KERNEL;
 
@@ -87,14 +86,14 @@ namespace INTERP_TEST
   void TransformedTriangleTest::test_constructor() {
     // test that _coords has correct values after constructor is called
 
-    double const good_values1[15] = 
+    double good_values1[15] = 
       {
         p1[0], p1[1], p1[2], hp1, Hp1,
         q1[0], q1[1], q1[2], hq1, Hq1,
         r1[0], r1[1], r1[2], hr1, Hr1
       };
 
-    double const good_values2[15] = 
+    double good_values2[15] = 
       {
         p2[0], p2[1], p2[2], hp2, Hp2,
         q2[0], q2[1], q2[2], hq2, Hq2,
@@ -119,7 +118,7 @@ namespace INTERP_TEST
 
     // test that the correct c-values are calculated
   
-    double const correct_c_vals[24] = 
+    double correct_c_vals[24] = 
       { 
         p1[0] * q1[1] - p1[1] * q1[0], 
         p1[1] * q1[2] - p1[2] * q1[1], 
@@ -316,7 +315,7 @@ namespace INTERP_TEST
 
             for(int i = 0; i < 3 ; ++i) 
               {
-                DoubleProduct const dp = DOUBLE_PRODUCTS[3*min_corner + i];
+                DoubleProduct dp = DOUBLE_PRODUCTS[3*min_corner + i];
                 //        std::cout << std::endl << "in test inconsistent (seg,dp) :(" << seg <<", " << dp << ")" << std::endl;
                 CPPUNIT_ASSERT_EQUAL(0.0, tri2->calcStableC(seg, dp));
                 correct_c_vals[8*seg + dp] = 0.0;

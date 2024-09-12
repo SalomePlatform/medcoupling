@@ -17,7 +17,6 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "INTERPKERNELDefines.hxx"
 #include "InterpKernelDenseMatrix.txx"
 
 template class INTERPKERNEL_EXPORT INTERP_KERNEL::DenseMatrixT<double>;

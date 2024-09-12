@@ -27,8 +27,6 @@
 #include "BBTree.txx"
 
 #include <functional>
-#include <string>
-#include <vector>
 
 namespace INTERP_KERNEL
 {

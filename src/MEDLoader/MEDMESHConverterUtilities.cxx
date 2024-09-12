@@ -19,8 +19,7 @@
 
 #include "MEDMESHConverterUtilities.hxx"
 
-#include <string>
-#include <clocale>
+#include "libmesh5.hxx"
 
 namespace MeshFormat
 {
@@ -46,7 +45,7 @@ namespace MeshFormat
 
     Localizer::Localizer()
     {
-        _locale = setlocale(LC_NUMERIC, nullptr);
+        _locale = setlocale(LC_NUMERIC, NULL);
         setlocale(LC_NUMERIC, "C");
     }
 

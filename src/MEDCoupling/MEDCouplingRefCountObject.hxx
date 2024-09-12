@@ -108,7 +108,7 @@ namespace MEDCoupling
   protected:
     RefCountObject();
     RefCountObject(const RefCountObject& other);
-    ~RefCountObject() override;
+    virtual ~RefCountObject();
   };
 
   class MEDCOUPLING_EXPORT GlobalDict

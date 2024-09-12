@@ -19,8 +19,6 @@
 
 #include "MEDPARTITIONER_Graph.hxx"
 
-#include "MCIdType.hxx"
-#include "MCType.hxx"
 #include "MEDCouplingSkyLineArray.hxx"
 
 #include <set>
@@ -28,19 +26,20 @@
 namespace MEDPARTITIONER
 {
   Graph::Graph():
-    _graph(nullptr),_partition(nullptr),
-    _edge_weight(nullptr),_cell_weight(nullptr)
+    _graph(0),_partition(0),
+    _edge_weight(0),_cell_weight(0)
   {
   }
 
   Graph::Graph(MEDCoupling::MEDCouplingSkyLineArray *array, int *edgeweight):
-    _graph(array),_partition(nullptr),
-    _edge_weight(edgeweight),_cell_weight(nullptr)
+    _graph(array),_partition(0),
+    _edge_weight(edgeweight),_cell_weight(0)
   {
   }
 
   Graph::~Graph()
-  = default;
+  {
+  }
 
   int Graph::nbDomains() const
   {
@@ -48,8 +47,8 @@ namespace MEDPARTITIONER
     if ( _partition.isNotNull() )
       if ( MEDCoupling::DataArrayIdType* array = _partition->getValuesArray() )
       {
-        for (long const dom : *array)
-          domains.insert( dom );
+        for ( const mcIdType * dom = array->begin(); dom != array->end(); ++dom )
+          domains.insert( *dom );
       }
     return (int)domains.size();
   }

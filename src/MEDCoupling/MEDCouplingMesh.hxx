@@ -25,14 +25,12 @@
 #include "MCType.hxx"
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
 #include "MCAuto.hxx"
-#include "NormalizedGeometricTypes"
 
+#include "InterpKernelException.hxx"
 
-#include <cstddef>
-#include <ostream>
 #include <set>
-#include <string>
 #include <vector>
 
 namespace MEDCoupling
@@ -58,7 +56,7 @@ namespace MEDCoupling
   class MEDCouplingMesh : public RefCountObject, public TimeLabel
   {
   public:
-    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
+    MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT void setName(const std::string& name) { _name=name; }
     MEDCOUPLING_EXPORT std::string getName() const { return _name; }
     MEDCOUPLING_EXPORT void setDescription(const std::string& descr) { _description=descr; }
@@ -165,7 +163,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingMesh();
     MEDCOUPLING_EXPORT MEDCouplingMesh(const MEDCouplingMesh& other);
     MEDCOUPLING_EXPORT virtual std::string getVTKDataSetType() const = 0;
-    MEDCOUPLING_EXPORT ~MEDCouplingMesh() override = default;
+    MEDCOUPLING_EXPORT virtual ~MEDCouplingMesh() { }
   private:
     std::string _name;
     std::string _description;

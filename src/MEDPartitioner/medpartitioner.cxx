@@ -33,22 +33,16 @@
 #include "MEDPARTITIONER_Utils.hxx"
 */
 
-#include "InterpKernelException.hxx"
 #include "MEDPARTITIONER_MeshCollection.hxx"
 #include "MEDPARTITIONER_ParallelTopology.hxx"
 #include "MEDPARTITIONER_ParaDomainSelector.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 
-#include <stdio.h>
-#include <memory>
-#include <cstdio>
-#include <exception>
 #include <string>
 #include <fstream>
 #include <cstring>
 #include <cstdlib>
 #include <iostream>
-#include <vector>
 
 using namespace std;
 using namespace MEDPARTITIONER;
@@ -63,14 +57,14 @@ int main(int argc, char** argv)
   // Defining options
   // by parsing the command line
   
-  bool const split_family=false;
-  bool const empty_groups=false;
+  bool split_family=false;
+  bool empty_groups=false;
   bool mesure_memory=false;
-  bool const filter_face=true;
+  bool filter_face=true;
 
   string input;
   string output;
-  string const meshname;
+  string meshname;
   string library="metis";  //default
   int ndomains;
   int help=0;
@@ -82,7 +76,7 @@ int main(int argc, char** argv)
   MyGlobals::_Create_Joints=0;
 
   // Primitive parsing of command-line options
-  string const desc ("Available options of medpartitioner V1.0:\n"
+  string desc ("Available options of medpartitioner V1.0:\n"
                "\t--help                   : produces this help message\n"
                "\t--verbose                : echoes arguments\n"
                "\t--input-file=<string>    : name of the input .med file or .xml master file\n"
@@ -167,8 +161,8 @@ int main(int argc, char** argv)
   //testing whether it is possible to write a file at the specified location
   if (MyGlobals::_Rank==0)
     {
-      string const outputtest = output + ".testioms.";
-      ofstream const testfile (outputtest.c_str());
+      string outputtest = output + ".testioms.";
+      ofstream testfile (outputtest.c_str());
       if (testfile.fail())
         { 
           cerr << "output-file directory does not exist or is in read-only access" << endl;
@@ -208,7 +202,7 @@ int main(int argc, char** argv)
         }*/
       MEDPARTITIONER::ParaDomainSelector parallelizer(mesure_memory);
       MEDPARTITIONER::MeshCollection collection(input,parallelizer);
-      auto* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
+      MEDPARTITIONER::ParallelTopology* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
       aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
       //to have unique valid fields names/pointers/descriptions for partitionning
       collection.prepareFieldDescriptions();
@@ -243,12 +237,12 @@ int main(int argc, char** argv)
       r2=SelectTagsInVectorOfString(r2,"meshName=");
       if (r2.size()==(collection.getMesh()).size())
         {
-          for (auto & i : r2)
-            i=EraseTagSerialized(i,"ioldDomain=");
+          for (std::size_t i=0; i<r2.size(); i++)
+            r2[i]=EraseTagSerialized(r2[i],"ioldDomain=");
           r2=DeleteDuplicatesInVectorOfString(r2);
           if (r2.size()==1)
             {
-              string const finalMesh="finalMeshName="+ExtractFromDescription(r2[0], "meshName=");
+              string finalMesh="finalMeshName="+ExtractFromDescription(r2[0], "meshName=");
               finalInformations.push_back(SerializeFromString(finalMesh));
             }
         }
@@ -263,11 +257,11 @@ int main(int argc, char** argv)
       r2=SelectTagsInVectorOfString(r1,"fieldName=");
       r2=SelectTagsInVectorOfString(r2,"nbComponents=");
       //may be yes? or not?
-      for (auto & i : r2)
-        i=EraseTagSerialized(i,"ioldFieldDouble=");
+      for (std::size_t i=0; i<r2.size(); i++)
+        r2[i]=EraseTagSerialized(r2[i],"ioldFieldDouble=");
       r2=DeleteDuplicatesInVectorOfString(r2);
-      for (const auto & i : r2)
-        finalInformations.push_back(i);
+      for (std::size_t i=0; i<r2.size(); i++)
+        finalInformations.push_back(r2[i]);
     
       MyGlobals::_General_Informations=finalInformations;
       if (MyGlobals::_Is0verbose) 

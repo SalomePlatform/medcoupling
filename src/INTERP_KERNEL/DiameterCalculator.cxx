@@ -21,11 +21,8 @@
 #include "DiameterCalculator.hxx"
 #include "InterpKernelException.hxx"
 #include "CellModel.hxx"
-#include "NormalizedGeometricTypes"
-#include "MCIdType.hxx"
 
 #include <algorithm>
-#include <iterator>
 #include <sstream>
 #include <cmath>
 
@@ -100,11 +97,11 @@ template<class Evaluator>
 void ComputeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr)
 {
   Evaluator evtor;
-  NormalizedCellType const ct(Evaluator::TYPE);
-  int const cti((int) ct);
+  NormalizedCellType ct(Evaluator::TYPE);
+  int cti((int) ct);
   for(const mcIdType *it=bgIds;it!=endIds;it++)
     {
-      mcIdType const offset(indPtr[*it]);
+      mcIdType offset(indPtr[*it]);
       if(connPtr[offset]==cti)
         resPtr[*it]=evtor.ComputeForOneCellInternal(connPtr+offset+1,connPtr+indPtr[(*it)+1],coordsPtr);
       else
@@ -119,11 +116,11 @@ template<class Evaluator>
 void ComputeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr)
 {
   Evaluator evtor;
-  NormalizedCellType const ct(Evaluator::TYPE);
-  int const cti((int) ct);
+  NormalizedCellType ct(Evaluator::TYPE);
+  int cti((int) ct);
   for(mcIdType it=bgId;it<endId;it++)
     {
-      mcIdType const offset(indPtr[it]);
+      mcIdType offset(indPtr[it]);
       if(connPtr[offset]==cti)
         resPtr[it]=evtor.ComputeForOneCellInternal(connPtr+offset+1,connPtr+indPtr[it+1],coordsPtr);
       else
@@ -138,9 +135,9 @@ template<class Evaluator>
 void ComputeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr)
 {
   Evaluator evtor;
-  NormalizedCellType const ct(Evaluator::TYPE);
+  NormalizedCellType ct(Evaluator::TYPE);
   const CellModel& cm(CellModel::GetCellModel(ct));
-  unsigned const nbNodes(cm.getNumberOfNodes());
+  unsigned nbNodes(cm.getNumberOfNodes());
   const mcIdType *ptr(connPtr);
   for(mcIdType i=0;i<nbOfCells;i++,ptr+=nbNodes,resPtr++)
     *resPtr=evtor.ComputeForOneCellInternal(ptr,ptr+nbNodes,coordsPtr);

@@ -18,18 +18,15 @@
 //
 
 #include "MEDPARTITIONER_PTScotchGraph.hxx"
-#include "MEDPARTITIONER_Graph.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
-#include "MCIdType.hxx"
 
 #include "MEDCouplingSkyLineArray.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "MCType.hxx"
-#include "scotch.h"
 
 #include <cstdio>
+#include <memory>
 #include <mpi.h>
-#include <string>
 
 #ifdef MED_ENABLE_PTSCOTCH
 extern "C"
@@ -47,9 +44,10 @@ PTSCOTCHGraph::PTSCOTCHGraph(MEDCoupling::MEDCouplingSkyLineArray *graph, int *e
 }
 
 PTSCOTCHGraph::~PTSCOTCHGraph()
-= default;
+{
+}
 
-void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, ParaDomainSelector*  /*sel*/)
+void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, ParaDomainSelector* sel)
 {
   if (MyGlobals::_Verbose>10)
     std::cout << "proc " << MyGlobals::_Rank << " : PTSCOTCHGraph::partGraph" << std::endl;
@@ -57,10 +55,10 @@ void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Pa
   //number of graph vertices
   int n = FromIdType<int>(_graph->getNumberOf());
   //graph
-  auto * xadj=const_cast<mcIdType*>(_graph->getIndex());
-  auto * adjncy=const_cast<mcIdType*>(_graph->getValues());
+  mcIdType * xadj=const_cast<mcIdType*>(_graph->getIndex());
+  mcIdType * adjncy=const_cast<mcIdType*>(_graph->getValues());
   //ndomain
-  int const nparts=ndomain;
+  int nparts=ndomain;
 
 #if !defined(MED_ENABLE_PTSCOTCH)
   throw INTERP_KERNEL::Exception("PTSCOTCHGraph::partGraph : PTSCOTCH is not available. Check your products, please.");
@@ -97,13 +95,13 @@ void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Pa
                      n,             // vertlocnbr            , nb of local graph nodes
                      n,             // vertlocmax            , should be set to vertlocnbr for graphs without holes
                      xadj,          // vertloctab[vertnbr+1] , index vertex table
-                     nullptr,             // vendloctab            , index end vertex table if disjoint, set to zero
+                     0,             // vendloctab            , index end vertex table if disjoint, set to zero
                      cellWeightPtr,  // veloloctab            , graph vertices loads, set to zero
                      vlbloctab,     // vlblocltab            , vertex label array : global vertex index
                      xadj[n],       // edgelocnbr            , number of edges
                      xadj[n],       // edgelocsiz            , same as edgelocnbr if edgeloctab is compact
                      adjncy,        // edgeloctab[edgelocnbr], global indexes of edges
-                     nullptr,             // edgegsttab            , optional, should be computed internally, set to zero
+                     0,             // edgegsttab            , optional, should be computed internally, set to zero
                      edgeWeightPtr); // edloloctab            , graph edges loads, set to zero
   
   SCOTCH_Strat scotch_strategy;

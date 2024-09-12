@@ -18,7 +18,7 @@
 //
 
 #include "ProcessorGroup.hxx"
-#include "CommInterface.hxx"
+#include "InterpolationUtils.hxx"
 
 namespace MEDCoupling
 {

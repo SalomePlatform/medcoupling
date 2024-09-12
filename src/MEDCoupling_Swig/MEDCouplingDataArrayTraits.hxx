@@ -21,8 +21,7 @@
 #ifndef __MEDCOUPLINGDATAARRAYTRAITS_HXX__
 #define __MEDCOUPLINGDATAARRAYTRAITS_HXX__
 
-#include "MCType.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingMemArray.hxx"
 
 #include <Python.h>
 
@@ -71,11 +70,11 @@ struct PyCallBackDataArraySt {
     MCData *_pt_mc;
 };
 
-using PyCallBackDataArrayChar = struct PyCallBackDataArraySt<MEDCoupling::DataArrayByte>;
-using PyCallBackDataArrayInt32 = struct PyCallBackDataArraySt<MEDCoupling::DataArrayInt32>;
-using PyCallBackDataArrayInt64 = struct PyCallBackDataArraySt<MEDCoupling::DataArrayInt64>;
-using PyCallBackDataArrayFloat = struct PyCallBackDataArraySt<MEDCoupling::DataArrayFloat>;
-using PyCallBackDataArrayDouble = struct PyCallBackDataArraySt<MEDCoupling::DataArrayDouble>;
+typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayByte> PyCallBackDataArrayChar;
+typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayInt32> PyCallBackDataArrayInt32;
+typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayInt64> PyCallBackDataArrayInt64;
+typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayFloat> PyCallBackDataArrayFloat;
+typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayDouble> PyCallBackDataArrayDouble;
 
 extern "C"
 {
@@ -83,31 +82,31 @@ extern "C"
   
   static PyObject *callbackmcdataarraychar___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
   {
-    auto *self = (PyCallBackDataArrayChar *) ( type->tp_alloc(type, 0) );
+    PyCallBackDataArrayChar *self = (PyCallBackDataArrayChar *) ( type->tp_alloc(type, 0) );
     return (PyObject *)self;
   }
 
   static PyObject *callbackmcdataarrayint32___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
   {
-    auto *self = (PyCallBackDataArrayInt32 *) ( type->tp_alloc(type, 0) );
+    PyCallBackDataArrayInt32 *self = (PyCallBackDataArrayInt32 *) ( type->tp_alloc(type, 0) );
     return (PyObject *)self;
   }
   
   static PyObject *callbackmcdataarrayint64___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
   {
-    auto *self = (PyCallBackDataArrayInt64 *) ( type->tp_alloc(type, 0) );
+    PyCallBackDataArrayInt64 *self = (PyCallBackDataArrayInt64 *) ( type->tp_alloc(type, 0) );
     return (PyObject *)self;
   }
   
   static PyObject *callbackmcdataarrayfloat___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
   {
-    auto *self = (PyCallBackDataArrayFloat *) ( type->tp_alloc(type, 0) );
+    PyCallBackDataArrayFloat *self = (PyCallBackDataArrayFloat *) ( type->tp_alloc(type, 0) );
     return (PyObject *)self;
   }
   
   static PyObject *callbackmcdataarraydouble___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
   {
-    auto *self = (PyCallBackDataArrayDouble *) ( type->tp_alloc(type, 0) );
+    PyCallBackDataArrayDouble *self = (PyCallBackDataArrayDouble *) ( type->tp_alloc(type, 0) );
     return (PyObject *)self;
   }
   

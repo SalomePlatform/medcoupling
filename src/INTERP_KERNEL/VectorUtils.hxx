@@ -21,11 +21,12 @@
 #define __VECTORUTILS_HXX__
 
 #include <algorithm>
-#include <ios>
 #include <sstream>
 #include <iomanip>
+#include <numeric>
 #include <string>
 #include <cmath>
+#include <map>
 
 
 namespace INTERP_KERNEL
@@ -224,7 +225,7 @@ namespace INTERP_KERNEL
    */
   inline double normInf(const double mat[9])
   {
-    double const ret(std::max(sumOfAbsoluteValues(mat),sumOfAbsoluteValues(mat+3)));
+    double ret(std::max(sumOfAbsoluteValues(mat),sumOfAbsoluteValues(mat+3)));
     return std::max(ret,sumOfAbsoluteValues(mat+6));
   }
 

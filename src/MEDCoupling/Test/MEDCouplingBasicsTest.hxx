@@ -21,7 +21,7 @@
 #ifndef __MEDCOUPLINGBASICSTEST_HXX__
 #define __MEDCOUPLINGBASICSTEST_HXX__
 
-#include <cppunit/TestFixture.h>
+#include <cppunit/extensions/HelperMacros.h>
 #include "MCType.hxx"
 
 #include <map>

@@ -19,18 +19,11 @@
 #ifndef __POLYHEDRON3D2DINTERSECTORP0P0_TXX__
 #define __POLYHEDRON3D2DINTERSECTORP0P0_TXX__
 
-#include "NormalizedGeometricTypes"
-#include "Intersector3DP0P0.txx"
-#include "Intersector3D.hxx"
-#include "InterpolationUtils.hxx"
-#include "CellModel.hxx"
-#include "MCIdType.hxx"
 #include "Polyhedron3D2DIntersectorP0P0.hxx"
+#include "Intersector3DP0P0.txx"
 #include "MeshUtils.hxx"
-#include <vector>
-#include "SplitterTetra.txx"
-#include <set>
 
+#include "SplitterTetra.txx"
 
 namespace INTERP_KERNEL
 {
@@ -111,8 +104,8 @@ namespace INTERP_KERNEL
         const CellModel& cellModelCell=CellModel::GetCellModel(normCellType);
         const MyMeshType& src_mesh = Intersector3D<MyMeshType,MyMatrixType>::_src_mesh;
         ConnType nbOfNodes4Type=cellModelCell.isDynamic() ? src_mesh.getNumberOfNodesOfElement(cellSrcIdx) : cellModelCell.getNumberOfNodes();
-        auto *polyNodes=new mcIdType[nbOfNodes4Type];
-        auto **polyCoords = new double*[nbOfNodes4Type];
+        mcIdType *polyNodes=new mcIdType[nbOfNodes4Type];
+        double **polyCoords = new double*[nbOfNodes4Type];
         for(int i = 0;i<(int)nbOfNodes4Type;++i)
           {
             // we could store mapping local -> global numbers too, but not sure it is worth it
@@ -153,7 +146,7 @@ namespace INTERP_KERNEL
             
             if (isSrcFaceColinearWithFaceOfTetraTargetCell)
               {
-                auto intersectFacesIter = _intersect_faces.find(cellSrcIdx);
+                DuplicateFacesType::iterator intersectFacesIter = _intersect_faces.find(cellSrcIdx);
                 if (intersectFacesIter != _intersect_faces.end())
                   {
                     intersectFacesIter->second.insert(targetCell);

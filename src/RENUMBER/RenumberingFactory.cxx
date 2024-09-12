@@ -19,9 +19,6 @@
 
 #include "RenumberingFactory.hxx"
 #include "RENUMBER_Renumbering.hxx"
-#include <string>
-#include <cctype>
-#include <vector>
 #ifdef MED_ENABLE_METIS
 #include "RENUMBER_METISRenumbering.hxx"
 #endif
@@ -57,7 +54,7 @@ namespace MED_RENUMBER
     else 
       {
         std::cerr << "The method has to be METIS or BOOST" << std::endl;
-        return nullptr;
+        return 0;
       }
 #endif
 #ifndef ENABLE_BOOST

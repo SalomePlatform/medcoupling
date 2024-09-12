@@ -21,15 +21,14 @@
 #ifndef __MEDCOUPLING_MEDCOUPLINGMAP_HXX__
 #define __MEDCOUPLING_MEDCOUPLINGMAP_HXX__
 
+#include "MEDCoupling.hxx"
 #include "MCAuto.hxx"
 #include "MCType.hxx"
 #include "MEDCouplingTimeLabel.hxx"
 #include "MEDCouplingRefCountObject.hxx"
+#include "InterpKernelException.hxx"
 
-#include <cstddef>
 #include <map>
-#include <string>
-#include <vector>
 
 namespace MEDCoupling
 {  
@@ -41,12 +40,12 @@ namespace MEDCoupling
     std::string getClassName() const override { return std::string("MapKeyVal"); }
     std::map<ID,T>& data() { return _m; }
     const std::map<ID,T>& data() const { return _m; }
-    std::size_t getHeapMemorySizeWithoutChildren() const override;
-    std::vector<const BigMemoryObject*> getDirectChildrenWithNull() const override;
-    void updateTime() const override { }
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const BigMemoryObject*> getDirectChildrenWithNull() const;
+    void updateTime() const { }
   private:
     MapKeyVal() { }
-    ~MapKeyVal() override = default;
+    ~MapKeyVal() { }
   private:
     std::map<ID,T> _m;
   };

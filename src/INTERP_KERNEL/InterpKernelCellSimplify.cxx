@@ -20,16 +20,16 @@
 
 #include "InterpKernelCellSimplify.hxx"
 #include "CellModel.hxx"
-#include "NormalizedGeometricTypes"
-#include "MCIdType.hxx"
-#include "InterpKernelException.hxx"
 
 #include <functional>
 #include <algorithm>
 #include <iterator>
+#include <sstream>
+#include <numeric>
 #include <cstring>
-#include <utility>
+#include <limits>
 #include <vector>
+#include <list>
 #include <set>
 
 using namespace INTERP_KERNEL;
@@ -44,11 +44,11 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::simplifyDegeneratedCell(INTERP_K
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
   std::set<mcIdType> c(conn,conn+lgth);
   c.erase(-1);
-  bool const isObviousNonDegeneratedCell=(ToIdType(c.size())==lgth);
+  bool isObviousNonDegeneratedCell=(ToIdType(c.size())==lgth);
   if((cm.getDimension()==3 && cm.isQuadratic()) || isObviousNonDegeneratedCell)
     {//quadratic 3D, do nothing for the moment.
       retLgth=lgth;
-      auto *tmp=new mcIdType[lgth];//no direct std::copy ! overlapping of conn and retConn !
+      mcIdType *tmp=new mcIdType[lgth];//no direct std::copy ! overlapping of conn and retConn !
       std::copy(conn,conn+lgth,tmp);
       std::copy(tmp,tmp+lgth,retConn);
       delete [] tmp;
@@ -56,7 +56,7 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::simplifyDegeneratedCell(INTERP_K
     }
   if(cm.getDimension()==2)
     {
-      auto *tmp=new mcIdType[lgth];
+      mcIdType *tmp=new mcIdType[lgth];
       int newPos=0;
       if(!cm.isQuadratic())
         {
@@ -66,8 +66,8 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::simplifyDegeneratedCell(INTERP_K
         }
       else
         {
-          mcIdType const quadOff = lgth/2;
-          auto *tmpQuad = new mcIdType[quadOff];
+          mcIdType quadOff = lgth/2;
+          mcIdType *tmpQuad = new mcIdType[quadOff];
           for(int i = 0; i < quadOff; i++)
             if(conn[i] != conn[(i+1)%quadOff] || conn[i] != conn[i+quadOff])  // zip nul segments/arcs (quad point must match too)
               {
@@ -79,7 +79,7 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::simplifyDegeneratedCell(INTERP_K
           delete [] tmpQuad;
           newPos *= 2; // take in quad points in the final length
         }
-      INTERP_KERNEL::NormalizedCellType const ret=tryToUnPoly2D(cm.isQuadratic(),tmp,newPos,retConn,retLgth);
+      INTERP_KERNEL::NormalizedCellType ret=tryToUnPoly2D(cm.isQuadratic(),tmp,newPos,retConn,retLgth);
       delete [] tmp;
       return ret;
     }
@@ -87,7 +87,7 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::simplifyDegeneratedCell(INTERP_K
     {
       mcIdType nbOfFaces,lgthOfPolyhConn;
       mcIdType *zipFullReprOfPolyh=getFullPolyh3DCell(type,conn,lgth,nbOfFaces,lgthOfPolyhConn);
-      INTERP_KERNEL::NormalizedCellType const ret=tryToUnPoly3D(zipFullReprOfPolyh,nbOfFaces,lgthOfPolyhConn,retConn,retLgth);
+      INTERP_KERNEL::NormalizedCellType ret=tryToUnPoly3D(zipFullReprOfPolyh,nbOfFaces,lgthOfPolyhConn,retConn,retLgth);
       delete [] zipFullReprOfPolyh;
       return ret;
     }
@@ -139,16 +139,16 @@ mcIdType *CellSimplify::getFullPolyh3DCell(INTERP_KERNEL::NormalizedCellType typ
                                       mcIdType& retNbOfFaces, mcIdType& retLgth)
 {
   const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
-  unsigned const nbOfFaces=cm.getNumberOfSons2(conn,lgth);
-  auto *tmp=new mcIdType[nbOfFaces*(lgth+1)];
+  unsigned nbOfFaces=cm.getNumberOfSons2(conn,lgth);
+  mcIdType *tmp=new mcIdType[nbOfFaces*(lgth+1)];
   mcIdType *work=tmp;
   std::vector<mcIdType> faces;
   for(unsigned j=0;j<nbOfFaces;j++)
     {
       INTERP_KERNEL::NormalizedCellType type2;
-      unsigned const offset=cm.fillSonCellNodalConnectivity2(j,conn,lgth,work,type2);
+      unsigned offset=cm.fillSonCellNodalConnectivity2(j,conn,lgth,work,type2);
       //
-      auto *tmp2=new mcIdType[offset];
+      mcIdType *tmp2=new mcIdType[offset];
       tmp2[0]=work[0];
       mcIdType newPos=1;
       for(unsigned k=1;k<offset;k++)
@@ -181,8 +181,8 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPoly3D(const mcIdType *co
 {
   std::set<mcIdType> nodes(conn,conn+lgth);
   nodes.erase(-1);
-  std::size_t const nbOfNodes=nodes.size();
-  std::size_t const magicNumber=100*nbOfNodes+nbOfFaces;
+  std::size_t nbOfNodes=nodes.size();
+  std::size_t magicNumber=100*nbOfNodes+nbOfFaces;
   switch(magicNumber)
     {
     case 806:
@@ -205,8 +205,8 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPoly3D(const mcIdType *co
 bool CellSimplify::orientOppositeFace(const mcIdType *baseFace, mcIdType *retConn, const mcIdType *sideFace, mcIdType lgthBaseFace)
 {
   std::vector<mcIdType> tmp2;
-  std::set<mcIdType> const bases(baseFace,baseFace+lgthBaseFace);
-  std::set<mcIdType> const sides(sideFace,sideFace+4);
+  std::set<mcIdType> bases(baseFace,baseFace+lgthBaseFace);
+  std::set<mcIdType> sides(sideFace,sideFace+4);
   std::set_intersection(bases.begin(),bases.end(),sides.begin(),sides.end(),std::back_insert_iterator< std::vector<mcIdType> >(tmp2));
   if(tmp2.size()!=2)
     return false;
@@ -221,21 +221,21 @@ bool CellSimplify::orientOppositeFace(const mcIdType *baseFace, mcIdType *retCon
   for(int i=0;i<4;i++)
     sideEdges[i]=std::pair<mcIdType,mcIdType>(sideFace[i],sideFace[(i+1)%4]);
   std::vector< std::pair<mcIdType,mcIdType> > tmp;
-  std::set< std::pair<mcIdType,mcIdType> > const baseEdgesS(baseEdges.begin(),baseEdges.end());
-  std::set< std::pair<mcIdType,mcIdType> > const sideEdgesS(sideEdges.begin(),sideEdges.end());
+  std::set< std::pair<mcIdType,mcIdType> > baseEdgesS(baseEdges.begin(),baseEdges.end());
+  std::set< std::pair<mcIdType,mcIdType> > sideEdgesS(sideEdges.begin(),sideEdges.end());
   std::set_intersection(baseEdgesS.begin(),baseEdgesS.end(),sideEdgesS.begin(),sideEdgesS.end(),std::back_insert_iterator< std::vector< std::pair<mcIdType,mcIdType> > >(tmp));
   if(tmp.empty())
     {
       //reverse sideFace
       for(int i=0;i<4;i++)
         {
-          std::pair<mcIdType,mcIdType> const p=sideEdges[i];
-          std::pair<mcIdType,mcIdType> const r(p.second,p.first);
+          std::pair<mcIdType,mcIdType> p=sideEdges[i];
+          std::pair<mcIdType,mcIdType> r(p.second,p.first);
           sideEdges[i]=r;
         }
       //end reverse sideFace
-      std::set< std::pair<mcIdType,mcIdType> > const baseEdgesS2(baseEdges.begin(),baseEdges.end());
-      std::set< std::pair<mcIdType,mcIdType> > const sideEdgesS2(sideEdges.begin(),sideEdges.end());
+      std::set< std::pair<mcIdType,mcIdType> > baseEdgesS2(baseEdges.begin(),baseEdges.end());
+      std::set< std::pair<mcIdType,mcIdType> > sideEdgesS2(sideEdges.begin(),sideEdges.end());
       std::set_intersection(baseEdgesS2.begin(),baseEdgesS2.end(),sideEdgesS2.begin(),sideEdgesS2.end(),std::back_insert_iterator< std::vector< std::pair<mcIdType,mcIdType> > >(tmp));
       if(tmp.empty())
         return false;
@@ -256,16 +256,16 @@ bool CellSimplify::orientOppositeFace(const mcIdType *baseFace, mcIdType *retCon
     }
   if(!found)
     return false;
-  int const pos=(int)std::distance(baseEdges.begin(),std::find(baseEdges.begin(),baseEdges.end(),tmp[0]));
-  auto const it=std::find(oppEdges.begin(),oppEdges.end(),pInOpp);
+  int pos=(int)std::distance(baseEdges.begin(),std::find(baseEdges.begin(),baseEdges.end(),tmp[0]));
+  std::vector< std::pair<mcIdType,mcIdType> >::iterator it=std::find(oppEdges.begin(),oppEdges.end(),pInOpp);
   if(it==oppEdges.end())//the opposite edge of side face is not found opposite face ... maybe problem of orientation of polyhedron
     return false;
-  mcIdType const pos2=ToIdType(std::distance(oppEdges.begin(),it));
+  mcIdType pos2=ToIdType(std::distance(oppEdges.begin(),it));
   mcIdType offset=pos-pos2;
   if(offset<0)
     offset+=lgthBaseFace;
   //this is the end copy the result
-  auto *tmp3=new mcIdType[lgthBaseFace];
+  mcIdType *tmp3=new mcIdType[lgthBaseFace];
   for(int i=0;i<lgthBaseFace;i++)
     tmp3[(offset+i)%lgthBaseFace]=oppEdges[i].first;
   std::copy(tmp3,tmp3+lgthBaseFace,retConn);
@@ -273,7 +273,7 @@ bool CellSimplify::orientOppositeFace(const mcIdType *baseFace, mcIdType *retCon
   return true;
 }
 
-bool CellSimplify::isWellOriented(const mcIdType * /*baseFace*/, mcIdType * /*retConn*/, const mcIdType * /*sideFace*/, mcIdType  /*lgthBaseFace*/)
+bool CellSimplify::isWellOriented(const mcIdType *baseFace, mcIdType *retConn, const mcIdType *sideFace, mcIdType lgthBaseFace)
 {
   return true;
 }
@@ -317,11 +317,11 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyHex8(const mcIdType *
   if(std::find_if(conn+lgth,conn+lgth+nbOfFaces,std::bind(std::not_equal_to<mcIdType>(),std::placeholders::_1,ToIdType(INTERP_KERNEL::NORM_QUAD4)))==conn+lgth+nbOfFaces)
     {//6 faces are QUAD4.
       int oppositeFace=-1;
-      std::set<mcIdType> const conn1(conn,conn+4);
+      std::set<mcIdType> conn1(conn,conn+4);
       for(int i=1;i<6 && oppositeFace<0;i++)
         {
           std::vector<mcIdType> tmp;
-          std::set<mcIdType> const conn2(conn+5*i,conn+5*i+4);
+          std::set<mcIdType> conn2(conn+5*i,conn+5*i+4);
           std::set_intersection(conn1.begin(),conn1.end(),conn2.begin(),conn2.end(),std::back_insert_iterator< std::vector<mcIdType> >(tmp));
           if(tmp.empty())
             oppositeFace=i;
@@ -345,25 +345,25 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyHex8(const mcIdType *
 
 INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyHexp12(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth)
 {
-  std::size_t const nbOfHexagon=std::count(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_POLYGON));
-  std::size_t const nbOfQuad=std::count(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_QUAD4));
+  std::size_t nbOfHexagon=std::count(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_POLYGON));
+  std::size_t nbOfQuad=std::count(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_QUAD4));
   if(nbOfQuad==6 && nbOfHexagon==2)
     {
       const mcIdType *hexag0=std::find(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_POLYGON));
-      std::size_t const hexg0Id=std::distance(conn+lgth,hexag0);
+      std::size_t hexg0Id=std::distance(conn+lgth,hexag0);
       const mcIdType *hexag1=std::find(hexag0+1,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_POLYGON));
-      std::size_t const hexg1Id=std::distance(conn+lgth,hexag1);
+      std::size_t hexg1Id=std::distance(conn+lgth,hexag1);
       const mcIdType *connHexag0=conn+5*hexg0Id;
-      std::size_t const lgthH0=std::distance(connHexag0,std::find(connHexag0,conn+lgth,-1));
+      std::size_t lgthH0=std::distance(connHexag0,std::find(connHexag0,conn+lgth,-1));
       if(lgthH0==6)
         {
           const mcIdType *connHexag1=conn+5*hexg0Id+7+(hexg1Id-hexg0Id-1)*5;
-          std::size_t const lgthH1=std::distance(connHexag1,std::find(connHexag1,conn+lgth,-1));
+          std::size_t lgthH1=std::distance(connHexag1,std::find(connHexag1,conn+lgth,-1));
           if(lgthH1==6)
             {
               std::vector<mcIdType> tmp;
-              std::set<mcIdType> const conn1(connHexag0,connHexag0+6);
-              std::set<mcIdType> const conn2(connHexag1,connHexag1+6);
+              std::set<mcIdType> conn1(connHexag0,connHexag0+6);
+              std::set<mcIdType> conn2(connHexag1,connHexag1+6);
               std::set_intersection(conn1.begin(),conn1.end(),conn2.begin(),conn2.end(),std::back_insert_iterator< std::vector<mcIdType> >(tmp));
               if(tmp.empty())
                 {
@@ -390,13 +390,13 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyHexp12(const mcIdType
  */
 INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyPenta6(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth)
 {
-  std::size_t const nbOfTriFace=std::count(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_TRI3));
-  std::size_t const nbOfQuadFace=std::count(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_QUAD4));
+  std::size_t nbOfTriFace=std::count(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_TRI3));
+  std::size_t nbOfQuadFace=std::count(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_QUAD4));
   if(nbOfTriFace==2 && nbOfQuadFace==3)
     {
-      std::size_t const tri3_0=std::distance(conn+lgth,std::find(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_TRI3)));
-      std::size_t const tri3_1=std::distance(conn+lgth,std::find(conn+lgth+tri3_0+1,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_TRI3)));
-      const mcIdType *tri_0=nullptr,*tri_1=nullptr;
+      std::size_t tri3_0=std::distance(conn+lgth,std::find(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_TRI3)));
+      std::size_t tri3_1=std::distance(conn+lgth,std::find(conn+lgth+tri3_0+1,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_TRI3)));
+      const mcIdType *tri_0=0,*tri_1=0;
       const mcIdType *w=conn;
       for(std::size_t i=0;i<5;i++)
         {
@@ -408,8 +408,8 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyPenta6(const mcIdType
           w++;
         }
       std::vector<mcIdType> tmp;
-      std::set<mcIdType> const conn1(tri_0,tri_0+3);
-      std::set<mcIdType> const conn2(tri_1,tri_1+3);
+      std::set<mcIdType> conn1(tri_0,tri_0+3);
+      std::set<mcIdType> conn2(tri_1,tri_1+3);
       std::set_intersection(conn1.begin(),conn1.end(),conn2.begin(),conn2.end(),std::back_insert_iterator< std::vector<mcIdType> >(tmp));
       if(tmp.empty())
         {
@@ -434,21 +434,21 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyPenta6(const mcIdType
  */
 INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyPyra5(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth)
 {
-  std::size_t const nbOfTriFace=std::count(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_TRI3));
-  std::size_t const nbOfQuadFace=std::count(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_QUAD4));
+  std::size_t nbOfTriFace=std::count(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_TRI3));
+  std::size_t nbOfQuadFace=std::count(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_QUAD4));
   if(nbOfTriFace==4 && nbOfQuadFace==1)
     {
-      std::size_t const quad4_pos=std::distance(conn+lgth,std::find(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_QUAD4)));
-      const mcIdType *quad4=nullptr;
+      std::size_t quad4_pos=std::distance(conn+lgth,std::find(conn+lgth,conn+lgth+nbOfFaces,ToIdType(INTERP_KERNEL::NORM_QUAD4)));
+      const mcIdType *quad4=0;
       const mcIdType *w=conn;
-      for(std::size_t i=0;i<5 && quad4==nullptr;i++)
+      for(std::size_t i=0;i<5 && quad4==0;i++)
         {
           if(i==quad4_pos)
             quad4=w;
           w=std::find(w,conn+lgth,-1);
           w++;
         }
-      std::set<mcIdType> const quad4S(quad4,quad4+4);
+      std::set<mcIdType> quad4S(quad4,quad4+4);
       w=conn;
       bool ok=true;
       mcIdType point=-1;
@@ -457,7 +457,7 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyPyra5(const mcIdType 
           if(i!=quad4_pos)
             {
               std::vector<mcIdType> tmp;
-              std::set<mcIdType> const conn2(w,w+3);
+              std::set<mcIdType> conn2(w,w+3);
               std::set_intersection(conn2.begin(),conn2.end(),quad4S.begin(),quad4S.end(),std::back_insert_iterator< std::vector<mcIdType> >(tmp));
               ok=tmp.size()==2;
               tmp.clear();
@@ -495,13 +495,13 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyTetra4(const mcIdType
 {
   if(std::find_if(conn+lgth,conn+lgth+nbOfFaces,std::bind(std::not_equal_to<mcIdType>(),std::placeholders::_1,ToIdType(INTERP_KERNEL::NORM_TRI3)))==conn+lgth+nbOfFaces)
     {
-      std::set<mcIdType> const tribase(conn,conn+3);
+      std::set<mcIdType> tribase(conn,conn+3);
       mcIdType point=-1;
       bool ok=true;
       for(int i=1;i<4 && ok;i++)
         {
           std::vector<mcIdType> tmp;
-          std::set<mcIdType> const conn2(conn+i*4,conn+4*i+3);
+          std::set<mcIdType> conn2(conn+i*4,conn+4*i+3);
           std::set_intersection(conn2.begin(),conn2.end(),tribase.begin(),tribase.end(),std::back_insert_iterator< std::vector<mcIdType> >(tmp));
           ok=tmp.size()==2;
           tmp.clear();

@@ -20,7 +20,6 @@
 #ifndef __UNITTETRA3D2DINTERSECTIONTEST_HXX__
 #define __UNITTETRA3D2DINTERSECTIONTEST_HXX__
 
-#include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "InterpKernelTestExport.hxx"

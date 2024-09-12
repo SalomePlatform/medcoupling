@@ -19,18 +19,9 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "MEDCouplingPartDefinition.hxx"
-#include "MCType.hxx"
-#include "MCAuto.hxx"
-#include "MCIdType.hxx"
-#include "MEDCouplingRefCountObject.hxx"
-#include "MEDCouplingMemArray.hxx"
 
-#include <algorithm>
-#include <cstddef>
 #include <functional>
 #include <sstream>
-#include <vector>
-#include <string>
 
 using namespace MEDCoupling;
 
@@ -63,7 +54,8 @@ PartDefinition *PartDefinition::Unserialize(std::vector<mcIdType>& tinyInt, std:
 }
 
 PartDefinition::~PartDefinition()
-= default;
+{
+}
 
 DataArrayPartDefinition *DataArrayPartDefinition::New(DataArrayIdType *listOfIds)
 {
@@ -77,7 +69,7 @@ bool DataArrayPartDefinition::isEqual(const PartDefinition *other, std::string& 
       what="DataArrayPartDefinition::isEqual : other is null, this is not null !";
       return false;
     }
-  const auto *otherC(dynamic_cast<const DataArrayPartDefinition *>(other));
+  const DataArrayPartDefinition *otherC(dynamic_cast<const DataArrayPartDefinition *>(other));
   if(!otherC)
     {
       what="DataArrayPartDefinition::isEqual : other is not DataArrayPartDefinition !";
@@ -92,7 +84,7 @@ bool DataArrayPartDefinition::isEqual(const PartDefinition *other, std::string& 
       return false;
     }
   std::string what1;
-  bool const ret(arr0->isEqualIfNotWhy(*arr1,what1));
+  bool ret(arr0->isEqualIfNotWhy(*arr1,what1));
   if(!ret)
     {
       what=std::string("DataArrayPartDefinition::isEqual : arrays are not equal :\n")+what1;
@@ -120,10 +112,10 @@ PartDefinition *DataArrayPartDefinition::operator+(const PartDefinition& other) 
   const PartDefinition *otherPt(&other);
   if(!otherPt)
     throw INTERP_KERNEL::Exception("DataArrayPartDefinition::operator+ : NULL input !");
-  const auto *other1(dynamic_cast<const DataArrayPartDefinition *>(otherPt));
+  const DataArrayPartDefinition *other1(dynamic_cast<const DataArrayPartDefinition *>(otherPt));
   if(other1)
     return add1(other1);
-  const auto *other2(dynamic_cast<const SlicePartDefinition *>(otherPt));
+  const SlicePartDefinition *other2(dynamic_cast<const SlicePartDefinition *>(otherPt));
   if(other2)
     return add2(other2);
   throw INTERP_KERNEL::Exception("DataArrayPartDefinition::operator+ : unrecognized type in input !");
@@ -150,7 +142,7 @@ PartDefinition *DataArrayPartDefinition::composeWith(const PartDefinition *other
     throw INTERP_KERNEL::Exception("DataArrayPartDefinition::composeWith : input PartDef must be not NULL !");
   checkConsistencyLight();
   other->checkConsistencyLight();
-  const auto *spd(dynamic_cast<const SlicePartDefinition *>(other));
+  const SlicePartDefinition *spd(dynamic_cast<const SlicePartDefinition *>(other));
   if(spd)
     {//special case for optim
       mcIdType a(0),b(0),c(0);
@@ -195,7 +187,7 @@ PartDefinition *DataArrayPartDefinition::tryToSimplify() const
     }
 }
 
-void DataArrayPartDefinition::serialize(std::vector<mcIdType>&  /*tinyInt*/, std::vector< MCAuto<DataArrayIdType> >& bigArraysI) const
+void DataArrayPartDefinition::serialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI) const
 {
   bigArraysI.push_back(_arr);
 }
@@ -204,7 +196,7 @@ DataArrayIdType *DataArrayPartDefinition::toDAI() const
 {
   checkInternalArrayOK();
   const DataArrayIdType *arr(_arr);
-  auto *arr2(const_cast<DataArrayIdType *>(arr));
+  DataArrayIdType *arr2(const_cast<DataArrayIdType *>(arr));
   arr2->incrRef();
   return arr2;
 }
@@ -261,7 +253,8 @@ DataArrayPartDefinition *DataArrayPartDefinition::add2(const SlicePartDefinition
 }
 
 DataArrayPartDefinition::~DataArrayPartDefinition()
-= default;
+{
+}
 
 SlicePartDefinition *SlicePartDefinition::New(mcIdType start, mcIdType stop, mcIdType step)
 {
@@ -275,13 +268,13 @@ bool SlicePartDefinition::isEqual(const PartDefinition *other, std::string& what
       what="SlicePartDefinition::isEqual : other is null, this is not null !";
       return false;
     }
-  const auto *otherC(dynamic_cast<const SlicePartDefinition *>(other));
+  const SlicePartDefinition *otherC(dynamic_cast<const SlicePartDefinition *>(other));
   if(!otherC)
     {
       what="SlicePartDefinition::isEqual : other is not SlicePartDefinition !";
       return false;
     }
-  bool const ret((_start==otherC->_start) && (_stop==otherC->_stop) && (_step==otherC->_step));
+  bool ret((_start==otherC->_start) && (_stop==otherC->_stop) && (_step==otherC->_step));
   if(!ret)
     {
       what="SlicePartDefinition::isEqual : values are not the same !";
@@ -310,10 +303,10 @@ PartDefinition *SlicePartDefinition::operator+(const PartDefinition& other) cons
   const PartDefinition *otherPt(&other);
   if(!otherPt)
     throw INTERP_KERNEL::Exception("DataArrayPartDefinition::operator+ : NULL input !");
-  const auto *other1(dynamic_cast<const DataArrayPartDefinition *>(otherPt));
+  const DataArrayPartDefinition *other1(dynamic_cast<const DataArrayPartDefinition *>(otherPt));
   if(other1)
     return add1(other1);
-  const auto *other2(dynamic_cast<const SlicePartDefinition *>(otherPt));
+  const SlicePartDefinition *other2(dynamic_cast<const SlicePartDefinition *>(otherPt));
   if(other2)
     return add2(other2);
   throw INTERP_KERNEL::Exception("SlicePartDefinition::operator+ : unrecognized type in input !");
@@ -353,7 +346,7 @@ PartDefinition *SlicePartDefinition::tryToSimplify() const
   return ret;
 }
 
-void SlicePartDefinition::serialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >&  /*bigArraysI*/) const
+void SlicePartDefinition::serialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI) const
 {
   tinyInt.push_back(_start);
   tinyInt.push_back(_stop);
@@ -369,7 +362,7 @@ std::string SlicePartDefinition::getRepr() const
 
 mcIdType SlicePartDefinition::getEffectiveStop() const
 {
-  mcIdType const nbElems(DataArray::GetNumberOfItemGivenBES(_start,_stop,_step,"SlicePartDefinition::getEffectiveStop"));
+  mcIdType nbElems(DataArray::GetNumberOfItemGivenBES(_start,_stop,_step,"SlicePartDefinition::getEffectiveStop"));
   return _start+nbElems*_step;
 }
 
@@ -425,4 +418,5 @@ PartDefinition *SlicePartDefinition::add2(const SlicePartDefinition *other) cons
 }
 
 SlicePartDefinition::~SlicePartDefinition()
-= default;
+{
+}

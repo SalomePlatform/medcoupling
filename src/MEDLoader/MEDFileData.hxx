@@ -22,20 +22,11 @@
 #define __MEDFILEDATA_HXX__
 
 #include "MCAuto.hxx"
-#include "MEDCouplingRefCountObject.hxx"
-#include "MEDCouplingMemArray.hxx"
 #include "MEDFileParameter.hxx"
 #include "MEDFileField.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDFileMeshSupport.hxx"
 #include "MEDFileStructureElement.hxx"
-#include "MEDFileUtilities.txx"
-#include "MEDLoaderDefines.hxx"
-#include <string>
-#include "med.h"
-#include <cstddef>
-#include <vector>
-#include <utility>
 
 namespace MEDCoupling
 {
@@ -51,8 +42,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT static MEDFileData *New(DataArrayByte *db) { return BuildFromMemoryChunk<MEDFileData>(db); }
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileData"); }
     MEDLOADER_EXPORT MEDFileData *deepCopy() const;
-    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const override;
-    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+    MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
+    MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT MEDFileFields *getFields() const;
     MEDLOADER_EXPORT MEDFileMeshes *getMeshes() const;
     MEDLOADER_EXPORT MEDFileParameters *getParams() const;
@@ -73,7 +64,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void dealWithStructureElements();
     MEDLOADER_EXPORT static MCAuto<MEDFileData> Aggregate(const std::vector<const MEDFileData *>& mfds);
     //
-    MEDLOADER_EXPORT void writeLL(med_idt fid) const override;
+    MEDLOADER_EXPORT void writeLL(med_idt fid) const;
   private:
     MEDFileData();
     MEDFileData(med_idt fid);

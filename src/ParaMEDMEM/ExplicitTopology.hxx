@@ -20,17 +20,17 @@
 #ifndef __EXPLICITTOPOLOGY_HXX__
 #define __EXPLICITTOPOLOGY_HXX__
 
-#include "MCType.hxx"
-#include "CommInterface.hxx"
 #include "ProcessorGroup.hxx"
 #include "InterpKernelHashMap.hxx"
-#include "Topology.hxx"
 
+#include <vector>
 #include <utility>
+#include <iostream>
 
 namespace MEDCoupling
 {
   class ParaMESH;
+  class Topology;
   class ComponentTopology;
 
   /*!

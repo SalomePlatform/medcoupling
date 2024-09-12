@@ -17,8 +17,9 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include "CppUnitTest.hxx"
 #include "SauvLoaderTest.hxx"
-#include <cppunit/extensions/HelperMacros.h>
 
 CPPUNIT_TEST_SUITE_REGISTRATION( MEDCoupling::SauvLoaderTest );
 
+#include "BasicMainTest.hxx"

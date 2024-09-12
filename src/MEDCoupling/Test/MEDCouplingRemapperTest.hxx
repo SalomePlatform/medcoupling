@@ -21,9 +21,10 @@
 #ifndef __MEDCOUPLINGREMAPPERTEST_HXX__
 #define __MEDCOUPLINGREMAPPERTEST_HXX__
 
-#include <cppunit/TestFixture.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <map>
+#include <vector>
 
 namespace MEDCoupling
 {

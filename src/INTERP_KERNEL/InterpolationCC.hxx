@@ -24,7 +24,6 @@
 #ifndef __InterpolationCC_HXX__
 #define __InterpolationCC_HXX__
 
-#include "InterpolationOptions.hxx"
 #include "Interpolation.hxx"
 
 namespace INTERP_KERNEL

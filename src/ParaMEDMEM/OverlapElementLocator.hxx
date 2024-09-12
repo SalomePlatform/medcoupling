@@ -22,14 +22,15 @@
 #define __OVERLAPELEMENTLOCATOR_HXX__
 
 #include "InterpolationOptions.hxx"
-#include "MCType.hxx"
+#include "MEDCouplingNatureOfField.hxx"
 #include "MEDCouplingPointSet.hxx"
+#include "MEDCouplingMemArray.hxx"
 #include "MCAuto.hxx"
 
 #include <mpi.h>
-#include <utility>
-#include <string>
-#include <ostream>
+#include <vector>
+#include <map>
+#include <set>
 
 //#define DEC_DEBUG
 
@@ -39,7 +40,7 @@ namespace MEDCoupling
   class ProcessorGroup;
   class OverlapInterpolationMatrix;
   
-  using ProcCouple = std::pair<int, int>;     // a couple of proc IDs, typically used to define a exchange betw 2 procs
+  typedef std::pair<int,int>   ProcCouple;     // a couple of proc IDs, typically used to define a exchange betw 2 procs
 
   class OverlapElementLocator : public INTERP_KERNEL::InterpolationOptions
   {
@@ -70,9 +71,9 @@ namespace MEDCoupling
     void sendMesh(int procId, const MEDCouplingPointSet *mesh, const DataArrayIdType *idsToSend) const;
     void receiveMesh(int procId, MEDCouplingPointSet* &mesh, DataArrayIdType *&ids) const;
   private:
-    using AutoMCPointSet = MCAuto<MEDCouplingPointSet>;
-    using AutoDAInt = MCAuto<DataArrayInt64>;
-    using Proc_SrcOrTgt = std::pair<int, bool>;  ///< a key indicating a proc ID and whether the data is for source mesh/field or target mesh/field
+    typedef MCAuto< MEDCouplingPointSet >  AutoMCPointSet;
+    typedef MCAuto< DataArrayIdType >      AutoDAInt;
+    typedef std::pair<int,bool>  Proc_SrcOrTgt;  ///< a key indicating a proc ID and whether the data is for source mesh/field or target mesh/field
 
     static const int START_TAG_MESH_XCH;
 

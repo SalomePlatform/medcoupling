@@ -24,10 +24,10 @@
 #define __SAUVREADER_HXX__
 
 #include "MEDLoaderDefines.hxx"
+#include "InterpKernelException.hxx"
 #include "SauvUtilities.hxx"
 #include "MEDCouplingRefCountObject.hxx"
 
-#include <cstddef>
 #include <vector>
 #include <string>
 #include <set>
@@ -48,12 +48,12 @@ class SauvReader : public MEDCoupling::RefCountObject
  public:
   MEDLOADER_EXPORT static SauvReader* New(const std::string& fileName);
   MEDLOADER_EXPORT MEDCoupling::MEDFileData * loadInMEDFileDS();
-  MEDLOADER_EXPORT ~SauvReader() override;
+  MEDLOADER_EXPORT ~SauvReader();
   MEDLOADER_EXPORT std::string getClassName() const override { return std::string("SauvReader"); }
 
  private:
-  std::size_t getHeapMemorySizeWithoutChildren() const override;
-  std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
+  std::size_t getHeapMemorySizeWithoutChildren() const;
+  std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
   void readRecord2();
   void readRecord4();
   void readRecord7();
@@ -90,7 +90,7 @@ class SauvReader : public MEDCoupling::RefCountObject
   void next()                                            { _fileReader->next(); }
   int  index() const                                     { return _fileReader->index(); }
   int    getInt() const                                  { return _fileReader->getInt(); }
-  int    getIntNext()                                    { int const i = getInt(); next(); return i; }
+  int    getIntNext()                                    { int i = getInt(); next(); return i; }
   float  getFloat() const                                { return _fileReader->getFloat(); }
   double getDouble() const                               { return _fileReader->getDouble(); }
   std::string getName() const                            { return _fileReader->getName(); }

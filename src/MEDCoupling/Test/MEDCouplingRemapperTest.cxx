@@ -19,10 +19,6 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "MEDCouplingRemapperTest.hxx"
-#include "InterpolationOptions.hxx"
-#include "MEDCouplingRefCountObject.hxx"
-#include "MEDCouplingNatureOfFieldEnum"
-#include "MCType.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
@@ -31,14 +27,9 @@
 #include "MEDCouplingRemapper.hxx"
 
 #include "MEDCouplingBasicsTest.hxx"
-#include "NormalizedGeometricTypes"
 
-#include <algorithm>
 #include <cmath>
-#include <cppunit/TestAssert.h>
-#include <map>
 #include <numeric>
-#include <vector>
 
 using namespace MEDCoupling;
 
@@ -902,12 +893,12 @@ void MEDCouplingRemapperTest::testNatureOfField()
 
 void MEDCouplingRemapperTest::testExtruded()
 {
-  MEDCouplingUMesh *mesh2DS=nullptr;
+  MEDCouplingUMesh *mesh2DS=0;
   MEDCouplingUMesh *mesh3DS=build3DExtrudedUMesh_1(mesh2DS);
   MEDCouplingMappedExtrudedMesh *extS=MEDCouplingMappedExtrudedMesh::New(mesh3DS,mesh2DS,1);
   mesh3DS->decrRef();
   mesh2DS->decrRef();
-  MEDCouplingUMesh *mesh2DT=nullptr;
+  MEDCouplingUMesh *mesh2DT=0;
   MEDCouplingUMesh *mesh3DT=build3DExtrudedUMesh_1(mesh2DT);
   MEDCouplingMappedExtrudedMesh *extT=MEDCouplingMappedExtrudedMesh::New(mesh3DT,mesh2DT,1);
   //
@@ -924,10 +915,10 @@ void MEDCouplingRemapperTest::testExtruded2()
   MEDCouplingUMesh *meshN,*meshTT,*meshTF;
   MEDCouplingBasicsTest::build3DExtrudedUMesh_2(meshN,meshTT,meshTF);
   std::vector<mcIdType> n;
-  double const pt[3]={300.,300.,0.};
-  double const v[3]={0.,0.,2.};
+  double pt[3]={300.,300.,0.};
+  double v[3]={0.,0.,2.};
   meshN->findNodesOnPlane(pt,v,1e-12,n);
-  auto *meshN2D=(MEDCouplingUMesh *)meshN->buildFacePartOfMySelfNode(&n[0],&n[0]+n.size(),true);
+  MEDCouplingUMesh *meshN2D=(MEDCouplingUMesh *)meshN->buildFacePartOfMySelfNode(&n[0],&n[0]+n.size(),true);
   n.clear();
   bool b=false;
   mcIdType newNbOfNodes;
@@ -935,10 +926,10 @@ void MEDCouplingRemapperTest::testExtruded2()
   CPPUNIT_ASSERT(b);
   da->decrRef();
   meshTT->findNodesOnPlane(pt,v,1e-12,n);
-  auto *meshTT2D=(MEDCouplingUMesh *)meshTT->buildFacePartOfMySelfNode(&n[0],&n[0]+n.size(),true);
+  MEDCouplingUMesh *meshTT2D=(MEDCouplingUMesh *)meshTT->buildFacePartOfMySelfNode(&n[0],&n[0]+n.size(),true);
   n.clear();
   meshTF->findNodesOnPlane(pt,v,1e-12,n);
-  auto *meshTF2D=(MEDCouplingUMesh *)meshTF->buildFacePartOfMySelfNode(&n[0],&n[0]+n.size(),true);
+  MEDCouplingUMesh *meshTF2D=(MEDCouplingUMesh *)meshTF->buildFacePartOfMySelfNode(&n[0],&n[0]+n.size(),true);
   n.clear();
   //
   MEDCouplingMappedExtrudedMesh *meshNE=MEDCouplingMappedExtrudedMesh::New(meshN,meshN2D,0);
@@ -1028,7 +1019,7 @@ void MEDCouplingRemapperTest::testExtruded2()
   std::copy(vals2,vals2+meshTTE->getNumberOfCells(),array->getPointer());
   array->decrRef();
   srcField=remapper.reverseTransferField(trgField,4.220173);
-  double const expected3[40]={
+  double expected3[40]={
     550.,550.,551.,552.,553.,550.,550.,554.,555.,556.,550.,550.,554.,555.,556.,550.,550.,557.,558.,559.,
     1550.,1550.,1551.,1552.,1553.,1550.,1550.,1554.,1555.,1556.,1550.,1550.,1554.,1555.,1556.,1550.,1550.,1557.,1558.,1559.
   };
@@ -1070,7 +1061,7 @@ void MEDCouplingRemapperTest::testExtruded2()
   std::copy(vals3,vals3+meshTFE->getNumberOfCells(),array->getPointer());
   array->decrRef();
   srcField=remapper.reverseTransferField(trgField,4.220173);
-  double const expected4[40]={
+  double expected4[40]={
     566.,566.,552.5,553.5,554.5,566.,566.,554.5,555.5,556.5,566.,566.,558.5,559.5,560.5,566.,566.,560.5,561.5,562.5,
     1566.,1566.,1552.5,1553.5,1554.5,1566.,1566.,1554.5,1555.5,1556.5,1566.,1566.,1558.5,1559.5,1560.5,1566.,1566.,1560.5,1561.5,1562.5
   };

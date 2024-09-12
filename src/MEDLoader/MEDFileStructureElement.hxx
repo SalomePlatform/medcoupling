@@ -21,19 +21,11 @@
 #ifndef __MEDFILESTRUCTUREELEMENT_HXX__
 #define __MEDFILESTRUCTUREELEMENT_HXX__
 
-#include "MEDFileUtilities.hxx"
-#include "MCAuto.hxx"
-#include "MEDCouplingMemArray.hxx"
-#include "MCType.hxx"
 #include "MEDLoaderDefines.hxx"
+#include "MEDFileUtilities.txx"
 #include "MEDFileMesh.hxx"
 
 #include "MEDCouplingRefCountObject.hxx"
-#include <string>
-#include <cstddef>
-#include <vector>
-#include "med.h"
-#include "NormalizedGeometricTypes"
 
 namespace MEDCoupling
 {
@@ -61,9 +53,9 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     static MEDFileSEConstAtt *New(med_idt fid, MEDFileStructureElement *father, int idCstAtt, const MEDFileUMesh *mesh);
   public:
     std::string getClassName() const override { return std::string("MEDFileSEConstAtt"); }
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
-    std::size_t getHeapMemorySizeWithoutChildren() const override;
-    void writeLL(med_idt fid) const override;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    void writeLL(med_idt fid) const;
     void setProfile(const std::string& name);
     std::string getProfile() const;
   private:
@@ -80,9 +72,9 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     static MEDFileSEVarAtt *New(med_idt fid, MEDFileStructureElement *father, int idVarAtt);
   public:
     std::string getClassName() const override { return std::string("MEDFileSEVarAtt"); }
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
-    std::size_t getHeapMemorySizeWithoutChildren() const override;
-    void writeLL(med_idt fid) const override;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    void writeLL(med_idt fid) const;
     int getNbOfComponents() const { return _nb_compo; }
     MCAuto<DataArray> getGenerator() const { return _gen; }
   private:
@@ -105,9 +97,9 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileStructureElement"); }
     MEDLOADER_EXPORT INTERP_KERNEL::NormalizedCellType getGeoType() const { return _geo_type; }
   public:
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
-    std::size_t getHeapMemorySizeWithoutChildren() const override;
-    void writeLL(med_idt fid) const override;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    void writeLL(med_idt fid) const;
   public:
     static MCAuto<DataArray> BuildFrom(med_attribute_type mat);
     static int EffectiveNbCompo(med_attribute_type mat, int nbCompo);
@@ -140,13 +132,13 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     MEDLOADER_EXPORT const MEDFileSEVarAtt *getVarAttOf(const std::string &seName, const std::string& varName) const;
     MEDLOADER_EXPORT const MEDFileUMesh *getSupMeshWithName(const std::string& name) const;
   public:
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
-    std::size_t getHeapMemorySizeWithoutChildren() const override;
-    void writeLL(med_idt fid) const override;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    void writeLL(med_idt fid) const;
   private:
     MEDFileStructureElements(med_idt fid, const MEDFileMeshSupports *ms);
     MEDFileStructureElements();
-    ~MEDFileStructureElements() override;
+    ~MEDFileStructureElements();
   private:
     std::vector< MCAuto<MEDFileStructureElement> > _elems;
     MCConstAuto<MEDFileMeshSupports> _sup;

@@ -20,13 +20,11 @@
 #ifndef __MXN_MAPPING_HXX__
 #define __MXN_MAPPING_HXX__
 
-#include "MCType.hxx"
-#include "MCAuto.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MPIAccessDEC.hxx"
 #include "DECOptions.hxx"
 
-#include <ostream>
+#include <vector>
 
 namespace MEDCoupling
 {

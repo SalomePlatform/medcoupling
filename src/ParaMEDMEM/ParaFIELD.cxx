@@ -17,10 +17,6 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "MEDCouplingRefCountObject.hxx"
-#include "MEDCouplingMemArray.hxx"
-#include "DisjointDEC.hxx"
-#include "MCType.hxx"
 #include "Topology.hxx"
 #include "BlockTopology.hxx"
 #include "ComponentTopology.hxx"
@@ -32,7 +28,9 @@
 #include "ParaFIELD.hxx"
 #include "ParaMESH.hxx"
 #include "InterpKernelUtilities.hxx"
+#include "InterpolationMatrix.hxx"
 
+#include <numeric>
 
 namespace MEDCoupling
 {
@@ -70,13 +68,13 @@ namespace MEDCoupling
 
   */
   ParaFIELD::ParaFIELD(TypeOfField type, TypeOfTimeDiscretization td, ParaMESH* para_support, const ComponentTopology& component_topology)
-    :_field(nullptr),
-     _component_topology(component_topology),_topology(nullptr),_own_support(false),
+    :_field(0),
+     _component_topology(component_topology),_topology(0),_own_support(false),
      _support(para_support)
   {
     if (para_support->isStructured() || (para_support->getTopology()->getProcGroup()->size()==1 && component_topology.nbBlocks()!=1))
       {
-        const auto* source_topo = dynamic_cast<const BlockTopology*>(para_support->getTopology());
+        const BlockTopology* source_topo = dynamic_cast<const BlockTopology*>(para_support->getTopology());
         _topology=new BlockTopology(*source_topo,component_topology);
       }
     else
@@ -85,12 +83,12 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception(LOCALIZED("ParaFIELD constructor : Unstructured Support not taken into account with component topology yet"));
         else 
           {
-            const auto* source_topo=dynamic_cast<const BlockTopology*> (para_support->getTopology());
-            int const nb_local_comp=component_topology.nbLocalComponents();
+            const BlockTopology* source_topo=dynamic_cast<const BlockTopology*> (para_support->getTopology());
+            int nb_local_comp=component_topology.nbLocalComponents();
             _topology=new BlockTopology(*source_topo,nb_local_comp);
           }
       }
-    int const nb_components = component_topology.nbLocalComponents();
+    int nb_components = component_topology.nbLocalComponents();
     if (nb_components!=0)
       {
         _field=MEDCouplingFieldDouble::New(type,td);
@@ -112,14 +110,14 @@ namespace MEDCoupling
     This constructor supposes that support underlying \a subdomain_field has no ParaMESH
     attached and it therefore recreates one. It therefore takes ownership over _support. The component topology associated with the field is a basic one (all components on the same processor). 
   */
-  ParaFIELD::ParaFIELD(MEDCouplingFieldDouble* subdomain_field, ParaMESH *sup, const ProcessorGroup&  /*proc_group*/):
+  ParaFIELD::ParaFIELD(MEDCouplingFieldDouble* subdomain_field, ParaMESH *sup, const ProcessorGroup& proc_group):
     _field(subdomain_field),
-    _component_topology(ComponentTopology((int)_field->getNumberOfComponents())),_topology(nullptr),_own_support(false),
+    _component_topology(ComponentTopology((int)_field->getNumberOfComponents())),_topology(0),_own_support(false),
     _support(sup)
   {
     if(_field)
       _field->incrRef();
-    const auto* source_topo=dynamic_cast<const BlockTopology*> (_support->getTopology());
+    const BlockTopology* source_topo=dynamic_cast<const BlockTopology*> (_support->getTopology());
     _topology=new BlockTopology(*source_topo,_component_topology.nbLocalComponents());
   }
 
@@ -148,10 +146,10 @@ namespace MEDCoupling
     _topology = nullptr;
   }
 
-  void ParaFIELD::synchronizeTarget(ParaFIELD*  /*source_field*/)
+  void ParaFIELD::synchronizeTarget(ParaFIELD* source_field)
   {
     DisjointDEC* data_channel;
-    if (dynamic_cast<BlockTopology*>(_topology)!=nullptr)
+    if (dynamic_cast<BlockTopology*>(_topology)!=0)
       {
         data_channel=new StructuredCoincidentDEC;
       }
@@ -167,10 +165,10 @@ namespace MEDCoupling
     delete data_channel;
   }
 
-  void ParaFIELD::synchronizeSource(ParaFIELD*  /*target_field*/)
+  void ParaFIELD::synchronizeSource(ParaFIELD* target_field)
   {
     DisjointDEC* data_channel;
-    if (dynamic_cast<BlockTopology*>(_topology)!=nullptr)
+    if (dynamic_cast<BlockTopology*>(_topology)!=0)
       {
         data_channel=new StructuredCoincidentDEC;
       }
@@ -195,24 +193,24 @@ namespace MEDCoupling
   DataArrayIdType* ParaFIELD::returnCumulativeGlobalNumbering() const
   {
     if(!_field)
-      return nullptr;
-    TypeOfField const type=_field->getTypeOfField();
+      return 0;
+    TypeOfField type=_field->getTypeOfField();
     switch(type)
       {
       case ON_CELLS:
-        return nullptr;
+        return 0;
       case ON_NODES:
         return _support->getGlobalNumberingNodeDA();
       default:
-        return nullptr;
+        return 0;
       }
   }
 
   DataArrayIdType* ParaFIELD::returnGlobalNumbering() const
   {
     if(!_field)
-      return nullptr;
-    TypeOfField const type=_field->getTypeOfField();
+      return 0;
+    TypeOfField type=_field->getTypeOfField();
     switch(type)
       {
       case ON_CELLS:
@@ -220,7 +218,7 @@ namespace MEDCoupling
       case ON_NODES:
         return _support->getGlobalNumberingNodeDA();
       default:
-        return nullptr;
+        return 0;
       }
   }
   
@@ -234,7 +232,7 @@ namespace MEDCoupling
     over the all domain. */
   double ParaFIELD::getVolumeIntegral(int icomp, bool isWAbs) const
   {
-    CommInterface const comm_interface = _topology->getProcGroup()->getCommInterface();
+    CommInterface comm_interface = _topology->getProcGroup()->getCommInterface();
     double integral=_field->integral(icomp,isWAbs);
     double total=0.;
     const MPI_Comm* comm = (dynamic_cast<const MPIProcessorGroup*>(_topology->getProcGroup()))->getComm();

@@ -21,7 +21,9 @@
 #ifndef __INTERPKERNELASSERT_HXX__
 #define __INTERPKERNELASSERT_HXX__
 
+#include "InterpKernelException.hxx"
 
+#include <sstream>
 
 #define IKAssert(a) { bool verdict(a);           \
     if(!verdict) { std::ostringstream osszz; osszz << "Assertion \"" << #a << "\" failed into " << __FILE__ << " at line " << __LINE__ << " !"; throw INTERP_KERNEL::Exception(osszz.str()); } }

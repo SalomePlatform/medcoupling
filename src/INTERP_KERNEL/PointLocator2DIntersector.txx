@@ -21,14 +21,15 @@
 #define __POINTLOCATORINTERSECTOR_TXX__
 
 #include "PointLocator2DIntersector.hxx"
-#include "PlanarIntersector.hxx"
+#include "PlanarIntersectorP0P0.txx"
+#include "PlanarIntersectorP0P1.txx"
+#include "PlanarIntersectorP1P0.txx"
+#include "PlanarIntersectorP1P1.txx"
+#include "PlanarIntersectorP1P0Bary.txx"
 #include "CellModel.hxx"
+
+#include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "PointLocatorAlgos.txx"
-#include "NormalizedGeometricTypes"
-
-#include <vector>
-#include <numeric>
-
 
 #define PTLOC2D_INTERSECTOR PointLocator2DIntersector<MyMeshType,MyMatrix,InterpType>
 #define INTERSECTOR_TEMPLATE template<class MyMeshType, class MyMatrix, template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType>

@@ -22,10 +22,9 @@
 #define __VOLSURFUSER_HXX__
 
 #include "INTERPKERNELDefines.hxx"
+#include "InterpKernelException.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
-#include "NormalizedGeometricTypes"
 #include "MCIdType.hxx"
-#include <cstddef>
 
 namespace INTERP_KERNEL
 {

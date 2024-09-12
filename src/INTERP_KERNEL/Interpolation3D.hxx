@@ -22,9 +22,9 @@
 #define __INTERPOLATION3D_HXX__
 
 #include "INTERPKERNELDefines.hxx"
-#include "InterpolationOptions.hxx"
 #include "Interpolation.hxx"
-#include <string>
+#include "NormalizedUnstructuredMesh.hxx"
+#include "InterpolationOptions.hxx"
 
 namespace INTERP_KERNEL
 {

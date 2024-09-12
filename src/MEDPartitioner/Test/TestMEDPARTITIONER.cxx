@@ -19,7 +19,6 @@
 
 //include all MEDPARTITIONER Test
 #include "MEDPARTITIONERTest.hxx"
-#include <cppunit/extensions/HelperMacros.h>
 
 //Registers the fixture into the 'registry'
 CPPUNIT_TEST_SUITE_REGISTRATION( MEDPARTITIONERTest );

@@ -19,20 +19,13 @@
 // Author : Anthony Geay (CEA/DEN)
 
 #include "InterpKernelExprParser.hxx"
-#include "InterpKernelFunction.hxx"
-#include "InterpKernelUnit.hxx"
 #include "InterpKernelValue.hxx"
 #include "InterpKernelAsmX86.hxx"
 #include "InterpKernelAutoPtr.hxx"
-#include "InterpKernelException.hxx"
 
 #include <cctype>
-#include <cstddef>
-#include <set>
 #include <sstream>
 #include <limits>
-#include <string>
-#include <utility>
 #include <vector>
 #include <iterator>
 #include <iostream>
@@ -67,14 +60,16 @@ LeafExpr *LeafExpr::buildInstanceFrom(const std::string& expr)
 }
 
 LeafExpr::~LeafExpr()
-= default;
+{
+}
 
 LeafExprVal::LeafExprVal(double value):_value(value)
 {
 }
 
 LeafExprVal::~LeafExprVal()
-= default;
+{
+}
 
 void LeafExprVal::fillValue(Value *val) const
 {
@@ -83,8 +78,8 @@ void LeafExprVal::fillValue(Value *val) const
 
 void LeafExprVal::replaceValues(const std::vector<double>& valuesInExpr)
 {
-  int const pos=(int)_value;
-  int const lgth=(int)valuesInExpr.size();
+  int pos=(int)_value;
+  int lgth=(int)valuesInExpr.size();
   if(pos>=lgth || pos<0)
     throw INTERP_KERNEL::Exception("LeafExprVal::replaceValues : Big Problem detected! Send a mail to Salome support with expression.");
   _value=valuesInExpr[pos];
@@ -95,7 +90,7 @@ LeafExprVal *LeafExprVal::deepCopy() const
   return new LeafExprVal(*this);
 }
 
-LeafExprVar::LeafExprVar(const std::string& var):_fast_pos(-1),_var_name(var),_val(nullptr)
+LeafExprVar::LeafExprVar(const std::string& var):_fast_pos(-1),_var_name(var),_val(0)
 {
 }
 
@@ -110,7 +105,7 @@ void LeafExprVar::fillValue(Value *val) const
 
 void LeafExprVar::prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const
 {
-  auto const iter=std::find(vars.begin(),vars.end(),_var_name);
+  std::vector<std::string>::const_iterator iter=std::find(vars.begin(),vars.end(),_var_name);
   if(iter==vars.end())
     {
       if(!isRecognizedKeyVar(_var_name,_fast_pos))
@@ -121,7 +116,7 @@ void LeafExprVar::prepareExprEvaluation(const std::vector<std::string>& vars, in
         }
       else
         {
-          int const relPos=-7-_fast_pos;
+          int relPos=-7-_fast_pos;
           if(relPos>=targetNbOfCompo)
             {
               std::ostringstream oss; oss << "LeafExprVar::prepareExprEvaluation : Found recognized unitary vector \"" << _var_name << "\" which implies that component #" << relPos;
@@ -166,10 +161,10 @@ bool LeafExprVar::isRecognizedKeyVar(const std::string& var, int& pos)
 {
   if(var.length()!=sizeof(END_OF_RECOGNIZED_VAR))
     return false;
-  std::string const end=var.substr(1);
+  std::string end=var.substr(1);
   if(end!=END_OF_RECOGNIZED_VAR)
     return false;
-  char const first=var[0];
+  char first=var[0];
   if(first<'I' || first>'Z')
     return false;
   pos=-7-(first-'I');
@@ -189,35 +184,36 @@ void LeafExprVar::replaceValues(const std::vector<double>& valuesInExpr)
 }
 
 LeafExprVar::~LeafExprVar()
-= default;
+{
+}
 
 void ExprParserOfEval::clearSortedMemory()
 {
   delete _leaf;
-  for(auto & _sub_part : _sub_parts)
-    _sub_part.clearSortedMemory();
-  for(auto & _func : _funcs)
-    delete _func;
+  for(std::vector<ExprParserOfEval>::iterator it=_sub_parts.begin();it!=_sub_parts.end();it++)
+    (*it).clearSortedMemory();
+  for(std::vector<Function *>::iterator it=_funcs.begin();it!=_funcs.end();it++)
+    delete *it;
 }
 
 void ExprParserOfEval::sortMemory()
 {
-  for(auto & _sub_part : _sub_parts)
-    _sub_part.sortMemory();
+  for(std::vector<ExprParserOfEval>::iterator it=_sub_parts.begin();it!=_sub_parts.end();it++)
+    (*it).sortMemory();
   if(_leaf)
     _leaf=_leaf->deepCopy();
-  for(auto & _func : _funcs)
-    if(_func)
-      _func=_func->deepCopy();
+  for(std::vector<Function *>::iterator it=_funcs.begin();it!=_funcs.end();it++)
+    if(*it)
+      *it=(*it)->deepCopy();
 }
 
-ExprParser::ExprParser(const std::string& expr, ExprParser *father):_father(father),_is_parsed(false),_leaf(nullptr),_is_parsing_ok(false),_expr(expr)
+ExprParser::ExprParser(const std::string& expr, ExprParser *father):_father(father),_is_parsed(false),_leaf(0),_is_parsing_ok(false),_expr(expr)
 {
   _expr=deleteWhiteSpaces(_expr);
 }
 
 //! For \b NOT null terminated strings coming from FORTRAN.
-ExprParser::ExprParser(const char *expr, int lgth, ExprParser *father):_father(father),_is_parsed(false),_leaf(nullptr),_is_parsing_ok(false)
+ExprParser::ExprParser(const char *expr, int lgth, ExprParser *father):_father(father),_is_parsed(false),_leaf(0),_is_parsing_ok(false)
 {
   _expr=buildStringFromFortran(expr,lgth);
   _expr=deleteWhiteSpaces(_expr);
@@ -235,7 +231,7 @@ std::size_t ExprParser::FindCorrespondingOpenBracket(const std::string& expr, st
   int level=0;
   for(std::size_t iter=0;iter<posOfCloseBracket;iter++)
     {
-      std::size_t const iter2=posOfCloseBracket-1-iter;
+      std::size_t iter2=posOfCloseBracket-1-iter;
       if(expr[iter2]==')')
         level++;
       else if(expr[iter2]=='(')
@@ -252,8 +248,8 @@ std::size_t ExprParser::FindCorrespondingOpenBracket(const std::string& expr, st
 std::string ExprParser::buildStringFromFortran(const char *expr, int lgth)
 {
   std::string ret(expr,lgth);
-  std::string const whiteSpaces(WHITE_SPACES);
-  std::size_t const found=ret.find_last_not_of(whiteSpaces);
+  std::string whiteSpaces(WHITE_SPACES);
+  std::size_t found=ret.find_last_not_of(whiteSpaces);
   if (found!=std::string::npos)
     ret.erase(found+1);
   else
@@ -264,7 +260,7 @@ std::string ExprParser::buildStringFromFortran(const char *expr, int lgth)
 std::string ExprParser::deleteWhiteSpaces(const std::string& expr)
 {
   std::string ret(expr);
-  std::string const whiteSpaces(WHITE_SPACES);
+  std::string whiteSpaces(WHITE_SPACES);
   std::size_t where1=0,where2=0;
   while(where2!=std::string::npos && where1!=std::string::npos)
     {
@@ -289,7 +285,7 @@ void ExprParser::parse()
   releaseFunctions();
   if(!_expr.empty())
     {
-      std::string const tmp(_expr);
+      std::string tmp(_expr);
       std::vector<double> valuesInExpr;
       fillValuesInExpr(valuesInExpr);
       checkBracketsParity();
@@ -312,7 +308,7 @@ double ExprParser::evaluate() const
 DecompositionInUnitBase ExprParser::evaluateUnit() const
 {
   Value *gen=new ValueUnit;
-  ValueUnit *res=nullptr;
+  ValueUnit *res=0;
   try
     {
       res=(ValueUnit *)evaluateLowLev(gen);
@@ -339,13 +335,13 @@ void ExprParser::prepareExprEvaluation(const std::vector<std::string>& vars, int
 {
   if(_leaf)
     {
-      auto *leafC=dynamic_cast<LeafExprVar *>(_leaf);
+      LeafExprVar *leafC=dynamic_cast<LeafExprVar *>(_leaf);
       if(leafC)
         leafC->prepareExprEvaluation(vars,nbOfCompo,targetNbOfCompo);
     }
   else
-    for(const auto & iter : _sub_expr)
-      iter.prepareExprEvaluation(vars,nbOfCompo,targetNbOfCompo);
+    for(std::vector<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+      (*iter).prepareExprEvaluation(vars,nbOfCompo,targetNbOfCompo);
 }
 
 /*!
@@ -361,13 +357,13 @@ void ExprParser::prepareExprEvaluationDouble(const std::vector<std::string>& var
     throw INTERP_KERNEL::Exception("ExprParser::prepareExprEvaluationDouble : size of input vector must be equal to the input vector !");
   if(_leaf)
     {
-      auto *leafC=dynamic_cast<LeafExprVar *>(_leaf);
+      LeafExprVar *leafC=dynamic_cast<LeafExprVar *>(_leaf);
       if(leafC)
         leafC->prepareExprEvaluationDouble(vars,nbOfCompo,targetNbOfCompo,refPos,ptOfInputStart,ptOfInputEnd);
     }
   else
-    for(const auto & iter : _sub_expr)
-      iter.prepareExprEvaluationDouble(vars,nbOfCompo,targetNbOfCompo,refPos,ptOfInputStart,ptOfInputEnd);
+    for(std::vector<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+      (*iter).prepareExprEvaluationDouble(vars,nbOfCompo,targetNbOfCompo,refPos,ptOfInputStart,ptOfInputEnd);
 }
 
 void ExprParser::prepareFastEvaluator() const
@@ -414,13 +410,13 @@ void ExprParser::prepareExprEvaluationVecLowLev() const
 {
   if(_leaf)
     {
-      auto *leafC=dynamic_cast<LeafExprVar *>(_leaf);
+      LeafExprVar *leafC=dynamic_cast<LeafExprVar *>(_leaf);
       if(leafC)
         leafC->prepareExprEvaluationVec();
     }
   else
-    for(const auto & iter : _sub_expr)
-      iter.prepareExprEvaluationVecLowLev();
+    for(std::vector<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+      (*iter).prepareExprEvaluationVecLowLev();
 }
 
 Value *ExprParser::evaluateLowLev(Value *valGen) const
@@ -447,17 +443,17 @@ Value *ExprParser::evaluateLowLev(Value *valGen) const
       else
         {
           stackOfVal.resize(_sub_expr.size());
-          auto iter2=stackOfVal.begin();
-          for(auto iter=_sub_expr.begin();iter!=_sub_expr.end();iter++,iter2++)
+          std::vector<Value *>::iterator iter2=stackOfVal.begin();
+          for(std::vector<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++,iter2++)
             *iter2=(*iter).evaluateLowLev(valGen);
         }
-      for(auto iter3 : _func_btw_sub_expr)
-        iter3->operate(stackOfVal);
+      for(std::vector<Function *>::const_iterator iter3=_func_btw_sub_expr.begin();iter3!=_func_btw_sub_expr.end();iter3++)
+        (*iter3)->operate(stackOfVal);
     }
   catch(INTERP_KERNEL::Exception& e)
     {
-      for(auto & iter4 : stackOfVal)
-        delete iter4;
+      for(std::vector<Value *>::iterator iter4=stackOfVal.begin();iter4!=stackOfVal.end();iter4++)
+        delete *iter4;
       throw e;
     }
   return stackOfVal.back();
@@ -465,7 +461,7 @@ Value *ExprParser::evaluateLowLev(Value *valGen) const
 
 ExprParser::ExprParser(ExprParser&& other):_father(other._father),_leaf(other._leaf),_is_parsing_ok(std::move(other._is_parsing_ok)),_expr(std::move(other._expr)),_sub_expr(std::move(other._sub_expr)),_func_btw_sub_expr(std::move(other._func_btw_sub_expr))
 {
-  other._leaf=nullptr;
+  other._leaf=0;
 }
 
 ExprParser& ExprParser::operator=(ExprParser&& other)
@@ -477,7 +473,7 @@ ExprParser& ExprParser::operator=(ExprParser&& other)
   _sub_expr=std::move(other._sub_expr);
   _func_btw_sub_expr=std::move(other._func_btw_sub_expr);
   other._leaf=other._leaf;
-  other._leaf=nullptr;
+  other._leaf=0;
   return *this;
 }
 
@@ -485,17 +481,17 @@ void ExprParser::reverseThis()
 {
   if(_leaf)
     return ;
-  for(auto & iter : _sub_expr)
-    iter.reverseThis();
-  std::size_t const sz(_sub_expr.size());
-  std::size_t const nbOfTurn(sz/2);
+  for(std::vector<ExprParser>::iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+    (*iter).reverseThis();
+  std::size_t sz(_sub_expr.size());
+  std::size_t nbOfTurn(sz/2);
   for(std::size_t i=0;i<nbOfTurn;i++)
     std::swap(_sub_expr[i],_sub_expr[sz-i-1]);
 }
 
 ExprParserOfEval ExprParser::convertMeTo() const
 {
-  std::size_t const sz(_sub_expr.size());
+  std::size_t sz(_sub_expr.size());
   std::vector<ExprParserOfEval> subExpr(sz);
   for(std::size_t i=0;i<sz;i++)
     subExpr[i]=_sub_expr[i].convertMeTo();
@@ -506,13 +502,13 @@ void ExprParser::getSetOfVars(std::set<std::string>& vars) const
 {
   if(_leaf)
     {
-      auto *leafC=dynamic_cast<LeafExprVar *>(_leaf);
+      LeafExprVar *leafC=dynamic_cast<LeafExprVar *>(_leaf);
       if(leafC)
         vars.insert(leafC->getVar());
     }
   else
-    for(const auto & iter : _sub_expr)
-      iter.getSetOfVars(vars);
+    for(std::vector<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+      (*iter).getSetOfVars(vars);
 }
 
 void ExprParser::getTrueSetOfVars(std::set<std::string>& trueVars) const
@@ -520,19 +516,19 @@ void ExprParser::getTrueSetOfVars(std::set<std::string>& trueVars) const
   std::set<std::string> vars;
   getSetOfVars(vars);
   trueVars.clear();
-  for(const auto & var : vars)
+  for(std::set<std::string>::const_iterator iter=vars.begin();iter!=vars.end();iter++)
     {
       int tmp;
-      if(!LeafExprVar::isRecognizedKeyVar(var,tmp))
-        trueVars.insert(var);
+      if(!LeafExprVar::isRecognizedKeyVar(*iter,tmp))
+        trueVars.insert(*iter);
     }
 }
 
 void ExprParser::parseDeeper()
 {
-  for(auto & iter : _sub_expr)
-    if(!iter.simplify())
-      iter.parseDeeper();
+  for(std::vector<ExprParser>::iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+    if(!(*iter).simplify())
+      (*iter).parseDeeper();
 }
 
 /*!
@@ -545,22 +541,22 @@ void ExprParser::parseUnaryFunc()
   if(_expr[_expr.length()-1]!=')')
     return ;
   //at this level of code _expr
-  std::size_t const pos1=_expr.find_first_of('(');
-  std::size_t const pos4=FindCorrespondingOpenBracket(_expr,_expr.length()-1);
+  std::size_t pos1=_expr.find_first_of('(');
+  std::size_t pos4=FindCorrespondingOpenBracket(_expr,_expr.length()-1);
   if(pos4!=pos1)
     return ;
   std::string funcName=_expr.substr(0,pos1);
-  std::size_t const pos2=funcName.find_first_of("+-*/^><",0,7);
-  std::size_t const pos3=funcName.find_first_not_of("+-*/^><",0,7);
+  std::size_t pos2=funcName.find_first_of("+-*/^><",0,7);
+  std::size_t pos3=funcName.find_first_not_of("+-*/^><",0,7);
   if(pos2!=std::string::npos && pos3!=std::string::npos)
     return ;//Bracket group is not alone, can't conclude not recursively.
   std::string newExp2=_expr.substr(pos1+1,_expr.length()-pos1-2);
-  std::size_t const nbOfParamsInFunc=std::count(newExp2.begin(),newExp2.end(),',')+1;
+  std::size_t nbOfParamsInFunc=std::count(newExp2.begin(),newExp2.end(),',')+1;
   if(pos3!=std::string::npos)
     _func_btw_sub_expr.push_back(FunctionsFactory::buildFuncFromString(funcName.c_str(),(int)nbOfParamsInFunc));
   else
     {
-      std::size_t const lgth=funcName.length();
+      std::size_t lgth=funcName.length();
       char tmp[2]; tmp[1]='\0';
       for(std::size_t i=0;i<lgth;i++)
         {
@@ -571,11 +567,11 @@ void ExprParser::parseUnaryFunc()
   std::size_t pos6=0;
   for(std::size_t i=0;i<nbOfParamsInFunc;i++)
     {
-      std::size_t const pos5=newExp2.find_first_of(',',pos6);
+      std::size_t pos5=newExp2.find_first_of(',',pos6);
       std::size_t len=std::string::npos;
       if(pos5!=std::string::npos)
         len=pos5-pos6;
-      std::string const newExp3=newExp2.substr(pos6,len);
+      std::string newExp3=newExp2.substr(pos6,len);
       _sub_expr.push_back(ExprParser(newExp3.c_str(),this));
       pos6=pos5+1;
     }
@@ -589,9 +585,9 @@ void ExprParser::parseUnaryFunc()
  */
 bool ExprParser::tryToInterpALeaf()
 {
-  std::size_t const pos=_expr.find_first_not_of("+-",0,2);
-  std::string const minimizedExpr=_expr.substr(pos);
-  std::size_t const pos2=minimizedExpr.find_first_of("+-*/^()<>",0,9);
+  std::size_t pos=_expr.find_first_not_of("+-",0,2);
+  std::string minimizedExpr=_expr.substr(pos);
+  std::size_t pos2=minimizedExpr.find_first_of("+-*/^()<>",0,9);
   if(pos2!=std::string::npos)
     return false;
   delete _leaf;
@@ -631,7 +627,7 @@ void ExprParser::parseForCmp()
                 std::ostringstream errMsg;
                 char MSGTYP1[]="Error non unary function for '";
                 errMsg << EXPR_PARSE_ERR_MSG << MSGTYP1 << *iter << "'";
-                std::string const tmp=_expr.substr(iter-_expr.begin());
+                std::string tmp=_expr.substr(iter-_expr.begin());
                 LocateError(errMsg,tmp,0);
                 throw INTERP_KERNEL::Exception(errMsg.str().c_str());
               }
@@ -684,7 +680,7 @@ void ExprParser::parseForAddMin()
             {
               if(!curPart.empty())
                 {
-                  std::string::reverse_iterator const accessor=curPart.rbegin();
+                  std::string::reverse_iterator accessor=curPart.rbegin();
                   if(*accessor!='*' && *accessor!='/' && *accessor!='^')
                     {
                       isParsingSucceed=true;
@@ -756,7 +752,7 @@ void ExprParser::parseForMulDiv()
                   std::ostringstream errMsg;
                   char MSGTYP1[]="Error non unary function for '";
                   errMsg << EXPR_PARSE_ERR_MSG << MSGTYP1 << *iter << "'";
-                  std::string const tmp=_expr.substr(iter-_expr.begin());
+                  std::string tmp=_expr.substr(iter-_expr.begin());
                   LocateError(errMsg,tmp,0);
                   throw INTERP_KERNEL::Exception(errMsg.str().c_str());
                 }
@@ -817,7 +813,7 @@ void ExprParser::parseForPow()
                 std::ostringstream errMsg;
                 char MSGTYP1[]="Error non unary function for '";
                 errMsg << EXPR_PARSE_ERR_MSG << MSGTYP1 << *iter << "'";
-                std::string const tmp=_expr.substr(iter-_expr.begin());
+                std::string tmp=_expr.substr(iter-_expr.begin());
                 LocateError(errMsg,tmp,0);curPart+=*iter;
                 throw INTERP_KERNEL::Exception(errMsg.str().c_str());
               }
@@ -853,8 +849,8 @@ void ExprParser::parseForPow()
 
 void ExprParser::releaseFunctions()
 {
-  for(auto & iter : _func_btw_sub_expr)
-    delete iter;
+  for(std::vector<Function *>::iterator iter=_func_btw_sub_expr.begin();iter!=_func_btw_sub_expr.end();iter++)
+    delete *iter;
   _func_btw_sub_expr.clear();
 }
 
@@ -933,8 +929,8 @@ double ExprParser::ReplaceAndTraduce(std::string& expr, int id, std::size_t bg, 
   static const char MSG[]="Internal error : A string expected to be a float is not one ! Bug to signal !";
   std::istringstream stream;
   std::ostringstream oss;
-  std::size_t const end2=end!=std::string::npos?end-bg:end;
-  std::string const tmp=expr.substr(bg,end2);
+  std::size_t end2=end!=std::string::npos?end-bg:end;
+  std::string tmp=expr.substr(bg,end2);
   stream.str(tmp);
   double ret=std::numeric_limits<double>::max();
   stream >> ret;
@@ -943,8 +939,8 @@ double ExprParser::ReplaceAndTraduce(std::string& expr, int id, std::size_t bg, 
   if(!stream.eof())
     throw INTERP_KERNEL::Exception(MSG);
   oss << id;
-  std::string const tmp2(oss.str());
-  std::size_t const l1=tmp.length();
+  std::string tmp2(oss.str());
+  std::size_t l1=tmp.length();
   delta=(int)tmp2.length()-(int)l1;
   expr.replace(bg,l1,tmp2);
   return ret;
@@ -959,11 +955,11 @@ void ExprParser::fillValuesInExpr(std::vector<double>& valuesInExpr)
 {
   const char FIGURES[]="0123456789";
   const std::string other("+-*^/(<>,");
-  std::size_t const lgth=_expr.length();
+  std::size_t lgth=_expr.length();
   int id=0,delta;
   for(std::size_t pos=0;pos!=std::string::npos;id++)
     {
-      std::size_t const pos2=_expr.find_first_of(FIGURES,pos,10);
+      std::size_t pos2=_expr.find_first_of(FIGURES,pos,10);
       if(pos2==std::string::npos)
         break;
       if(pos2>0)
@@ -1017,7 +1013,7 @@ void ExprParser::fillValuesInExpr(std::vector<double>& valuesInExpr)
                           std::ostringstream oss; oss << "Invalid expr : float number at the end of expr is invalid lacking number after exponential and sign ! -> \"" << _expr.substr(pos2) << "\"";
                           throw INTERP_KERNEL::Exception(oss.str().c_str());
                         }
-                      std::size_t const pos5=_expr.find_first_not_of(FIGURES,pos4,10);
+                      std::size_t pos5=_expr.find_first_not_of(FIGURES,pos4,10);
                       if(pos4==pos5)
                         {//"x+1223334.223e+x" or "1223334.223E-y"
                           std::ostringstream oss; oss << "Invalid expr : float number in expr is invalid lacking number after exponential ! -> \"" << _expr.substr(pos2,pos4-pos2) << "\"";
@@ -1050,8 +1046,8 @@ void ExprParser::replaceValues(const std::vector<double>& valuesInExpr)
     _leaf->replaceValues(valuesInExpr);
   else
     {
-      for(auto & iter : _sub_expr)
-        iter.replaceValues(valuesInExpr);
+      for(std::vector<ExprParser>::iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+        (*iter).replaceValues(valuesInExpr);
     }
 }
 
@@ -1070,12 +1066,12 @@ char *ExprParser::compileX86() const
   ass.push_back("pop ebp");
   ass.push_back("ret");
   std::cout << std::endl;
-  for(const auto & as : ass)
-    std::cout << "        " << as << std::endl;
-  AsmX86 const asmb;
-  std::vector<char> const output=asmb.convertIntoMachineLangage(ass);
-  for(char const iter : output)
-    std::cout << std::hex << (int)((unsigned char)iter) << " ";
+  for(std::vector<std::string>::const_iterator iter=ass.begin();iter!=ass.end();iter++)
+    std::cout << "        " << *iter << std::endl;
+  AsmX86 asmb;
+  std::vector<char> output=asmb.convertIntoMachineLangage(ass);
+  for(std::vector<char>::const_iterator iter=output.begin();iter!=output.end();iter++)
+    std::cout << std::hex << (int)((unsigned char)(*iter)) << " ";
   std::cout << std::endl;
   unsigned offset;
   return asmb.copyToExecMemZone(output,offset);
@@ -1095,12 +1091,12 @@ char *ExprParser::compileX86_64() const
   ass.push_back("leave");
   ass.push_back("ret");
   std::cout << std::endl;
-  for(const auto & as : ass)
-    std::cout << "        " << as << std::endl;
-  AsmX86 const asmb;
-  std::vector<char> const output=asmb.convertIntoMachineLangage(ass);
-  for(char const iter : output)
-    std::cout << std::hex << (int)((unsigned char)iter) << " ";
+  for(std::vector<std::string>::const_iterator iter=ass.begin();iter!=ass.end();iter++)
+    std::cout << "        " << *iter << std::endl;
+  AsmX86 asmb;
+  std::vector<char> output=asmb.convertIntoMachineLangage(ass);
+  for(std::vector<char>::const_iterator iter=output.begin();iter!=output.end();iter++)
+    std::cout << std::hex << (int)((unsigned char)(*iter)) << " ";
   std::cout << std::endl;
   unsigned offset;
   return asmb.copyToExecMemZone(output,offset);
@@ -1112,11 +1108,11 @@ void ExprParser::compileX86LowLev(std::vector<std::string>& ass) const
     _leaf->compileX86(ass);
   else
     {
-      for(const auto & iter : _sub_expr)
-        iter.compileX86LowLev(ass);
+      for(std::vector<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+        (*iter).compileX86LowLev(ass);
     }
-  for(auto iter2 : _func_btw_sub_expr)
-    iter2->operateX86(ass);
+  for(std::vector<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
+    (*iter2)->operateX86(ass);
 }
 
 void ExprParser::compileX86_64LowLev(std::vector<std::string>& ass) const
@@ -1125,11 +1121,11 @@ void ExprParser::compileX86_64LowLev(std::vector<std::string>& ass) const
     _leaf->compileX86_64(ass);
   else
     {
-      for(const auto & iter : _sub_expr)
-        iter.compileX86_64LowLev(ass);
+      for(std::vector<ExprParser>::const_iterator iter=_sub_expr.begin();iter!=_sub_expr.end();iter++)
+        (*iter).compileX86_64LowLev(ass);
     }
-  for(auto iter2 : _func_btw_sub_expr)
-    iter2->operateX86(ass);
+  for(std::vector<Function *>::const_iterator iter2=_func_btw_sub_expr.begin();iter2!=_func_btw_sub_expr.end();iter2++)
+    (*iter2)->operateX86(ass);
 }
 
 double LeafExprVal::getDoubleValue() const
@@ -1175,7 +1171,7 @@ double LeafExprVar::getDoubleValue() const
     return _val[_fast_pos];
   else
     {
-      int const pos(-7-_fast_pos);
+      int pos(-7-_fast_pos);
       return pos==_ref_pos?1.:0.;
     }
 }
@@ -1197,9 +1193,9 @@ int ExprParser::getStackSizeToPlayX86(const ExprParser *asker) const
 {
   if(asker)
     {
-      int const sz=_father->getStackSizeToPlayX86(this);
+      int sz=_father->getStackSizeToPlayX86(this);
       int i=0;
-      for(auto iter=_sub_expr.rbegin();iter!=_sub_expr.rend();iter++,i++)
+      for(std::vector<ExprParser>::const_reverse_iterator iter=_sub_expr.rbegin();iter!=_sub_expr.rend();iter++,i++)
         {
           const ExprParser& obj=(*iter);
           const ExprParser *pt=&obj;

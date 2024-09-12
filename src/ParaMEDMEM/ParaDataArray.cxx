@@ -19,8 +19,6 @@
 // Author : Anthony Geay (EDF R&D)
 
 #include "ParaDataArray.txx"
-#include "MCType.hxx"
-#include "MEDCouplingMemArray.hxx"
 
 using namespace MEDCoupling;
 

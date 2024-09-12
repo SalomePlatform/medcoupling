@@ -17,25 +17,18 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "MCAuto.hxx"
-#include "MCType.hxx"
-#include "MCIdType.hxx"
-#include "MEDCouplingMemArray.hxx"
 #include "MEDFileData.hxx"
-#include "MEDFileFieldMultiTS.hxx"
-#include "MEDFileField1TS.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDFileField.hxx"
 
 #include "MEDCouplingUMesh.hxx"
 
-#include "RENUMBER_Renumbering.hxx"
 #include "RenumberingFactory.hxx"
 
-#include <sstream>
 #include <time.h>
 #include <string>
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
 
 using namespace std;
@@ -52,10 +45,10 @@ int main(int argc, char** argv)
            << " filename_in meshname method[BOOST/METIS] filename_out" << endl << endl;
       return -1;
     }
-  string const filename_in = argv[1];
-  string const meshname = argv[2];
-  string const type_renum = argv[3];
-  string const filename_out = argv[4];
+  string filename_in = argv[1];
+  string meshname = argv[2];
+  string type_renum = argv[3];
+  string filename_out = argv[4];
 
   if(type_renum!="METIS" && type_renum!="BOOST")
     {
@@ -66,7 +59,7 @@ int main(int argc, char** argv)
   cout << "Reading : " << flush;
   MCAuto<MEDFileData> fd(MEDFileData::New(filename_in));
   MEDFileMesh *m=fd->getMeshes()->getMeshWithName(meshname);
-  auto *mc=dynamic_cast<MEDFileUMesh *>(m);
+  MEDFileUMesh *mc=dynamic_cast<MEDFileUMesh *>(m);
   if(!mc)
     {
       std::ostringstream oss; oss << "In file \"" << filename_in << "\" the mesh name \"" << meshname<< "\" exists but is not unstructured !";
@@ -78,18 +71,18 @@ int main(int argc, char** argv)
   MCAuto<MEDCouplingUMesh> workMesh=mc->getMeshAtLevel(0);
   //std::vector<mcIdType> code=workMesh->getDistributionOfTypes();
   cout << "Building the graph : " << flush;
-  DataArrayIdType *neighb=nullptr,*neighbI=nullptr;
+  DataArrayIdType *neighb=0,*neighbI=0;
   workMesh->computeNeighborsOfCells(neighb,neighbI);
   MCAuto<DataArrayIdType> neighbSafe(neighb),neighbISafe(neighbI),ipermSafe,permSafe;
   const mcIdType *graph=neighbSafe->begin();
   const mcIdType *graph_index=neighbISafe->begin();
   // Compute permutation iperm->new2old perm->old2new
-  DataArrayIdType *iperm(nullptr),*perm(nullptr);
+  DataArrayIdType *iperm(0),*perm(0);
   Renumbering *renumb=RenumberingFactory(type_renum);
   renumb->renumber(graph,graph_index,workMesh->getNumberOfCells(),iperm,perm);
   ipermSafe=iperm; permSafe=perm;
   delete renumb;
-  ipermSafe=nullptr;//erase new2old, we are using only old 2 new
+  ipermSafe=0;//erase new2old, we are using only old 2 new
   t_compute_graph=(double)clock();
   cout << " : " << (t_compute_graph-t_read_st)/(double) CLOCKS_PER_SEC << "s" << endl;
   cout.flush();
@@ -113,13 +106,13 @@ int main(int argc, char** argv)
     {
       for(int i=0;i<fs->getNumberOfFields();i++)
         {
-          auto *fmts=dynamic_cast<MEDFileFieldMultiTS *>(fs->getFieldAtPos(i));
+          MEDFileFieldMultiTS *fmts=dynamic_cast<MEDFileFieldMultiTS *>(fs->getFieldAtPos(i));
           if(!fmts) continue;
           if(fmts->getMeshName()==meshname)
             {
               for(int j=0;j<fmts->getNumberOfTS();j++)
                 {
-                  auto *f1ts=dynamic_cast<MEDFileField1TS*>(fmts->getTimeStepAtPos(j));
+                  MEDFileField1TS *f1ts=dynamic_cast<MEDFileField1TS*>(fmts->getTimeStepAtPos(j));
                   if(!f1ts) continue;
                   DataArrayDouble *arr=f1ts->getUndergroundDataArray();
                   arr->renumberInPlace(perm->begin());

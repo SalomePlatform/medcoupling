@@ -17,10 +17,6 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "MCIdType.hxx"
-#include "MCType.hxx"
-#include <vector>
-#include <algorithm>
 #ifdef MED_ENABLE_PARMETIS
 // include parmetis.h even if it is not needed here
 // to avoid inclusion of c++ definitions within extern "C"
@@ -61,7 +57,7 @@ void METISRenumbering::renumber(const mcIdType *graph, const mcIdType *index_gra
   std::vector<idx_t> indexVec( index_graph, index_graph + indexSize );
   std::vector<idx_t> graphVec( graph, graph + graphSize );
   std::vector<idx_t> out0Vec( nbCell ), out1Vec( nbCell );
-  auto nb = static_cast<idx_t>( nbCell );
+  idx_t nb = static_cast<idx_t>( nbCell );
   METIS_NodeND(&nb,indexVec.data(),graphVec.data(),&num_flag,&options,out0Vec.data(),out1Vec.data());
   std::copy( out0Vec.begin(),out0Vec.end(),out0->getPointer() );
   std::copy( out1Vec.begin(),out1Vec.end(),out1->getPointer() );

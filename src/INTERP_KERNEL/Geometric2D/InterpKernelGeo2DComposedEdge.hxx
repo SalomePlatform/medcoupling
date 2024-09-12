@@ -24,7 +24,6 @@
 #include "INTERPKERNELDefines.hxx"
 #include "InterpKernelGeo2DEdge.hxx"
 
-#include <map>
 #include <set>
 #include <list>
 #include <vector>
@@ -47,7 +46,7 @@ namespace INTERP_KERNEL
   {
     friend class IteratorOnComposedEdge;
   public:
-    INTERPKERNEL_EXPORT ComposedEdge() = default;
+    INTERPKERNEL_EXPORT ComposedEdge() { }
     INTERPKERNEL_EXPORT ComposedEdge(const ComposedEdge& other);
     INTERPKERNEL_EXPORT ComposedEdge(int sz):_sub_edges(sz) { }
     INTERPKERNEL_EXPORT static void Delete(ComposedEdge *pt) { delete pt; }

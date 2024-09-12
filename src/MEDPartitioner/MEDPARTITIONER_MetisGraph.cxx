@@ -18,15 +18,13 @@
 //
 
 #include "MEDPARTITIONER_MetisGraph.hxx"
-#include "MCIdType.hxx"
 #include "MEDPARTITIONER_ParaDomainSelector.hxx"
 #include "MEDPARTITIONER_Utils.hxx"
 
 #include "MEDCouplingSkyLineArray.hxx"
+#include "InterpKernelException.hxx"
 
 #include <iostream>
-#include <string>
-#include <vector>
 
 extern "C"
 {
@@ -45,11 +43,12 @@ METISGraph::METISGraph(MEDCoupling::MEDCouplingSkyLineArray* graph, int* edgewei
 }
 
 METISGraph::~METISGraph()
-= default;
+{
+}
 
 void METISGraph::partGraph(int ndomain,
                            const std::string& options_string,
-                           ParaDomainSelector * /*parallelizer*/)
+                           ParaDomainSelector *parallelizer)
 {
   using std::vector;
   if (MyGlobals::_Verbose>10)
@@ -70,7 +69,7 @@ void METISGraph::partGraph(int ndomain,
   //constraints
   int * vwgt=_cell_weight;
   int * adjwgt=_edge_weight;
-  int wgtflag=(_edge_weight!=nullptr)?1:0+(_cell_weight!=nullptr)?2:0;
+  int wgtflag=(_edge_weight!=0)?1:0+(_cell_weight!=0)?2:0;
   //base 0 or 1
   int base=0;
   //ndomain

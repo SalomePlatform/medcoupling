@@ -20,6 +20,8 @@
 #ifndef __DEC_HXX__
 #define __DEC_HXX__
 
+#include "MEDCouplingFieldDouble.hxx"
+#include "NormalizedUnstructuredMesh.hxx"
 #include "DECOptions.hxx"
 
 namespace MEDCoupling

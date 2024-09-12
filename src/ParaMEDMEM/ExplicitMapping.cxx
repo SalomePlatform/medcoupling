@@ -18,25 +18,21 @@
 //
 
 #include "ExplicitMapping.hxx"
-#include <utility>
-#include "MCIdType.hxx"
-#include <vector>
-#include <map>
 
 namespace MEDCoupling
 {
 
   ExplicitMapping::ExplicitMapping():
         _mapping(), _distant_domains(),
-        _numbers(nullptr), _domains(nullptr), _comm_buffer(nullptr),
-        _buffer_index(nullptr), _send_counts(nullptr)
+        _numbers(0), _domains(0), _comm_buffer(0),
+        _buffer_index(0), _send_counts(0)
   { }
 
   ExplicitMapping::~ExplicitMapping()
   {
-    if (_domains!=nullptr) delete[] _domains;
-    if (_numbers!=nullptr) delete[] _numbers;
-    if (_comm_buffer!=nullptr) delete[] _comm_buffer;
+    if (_domains!=0) delete[] _domains;
+    if (_numbers!=0) delete[] _numbers;
+    if (_comm_buffer!=0) delete[] _comm_buffer;
   }
 
   void ExplicitMapping::pushBackElem(std::pair<int,mcIdType> idistant)
@@ -53,8 +49,10 @@ namespace MEDCoupling
   {
     if (_distant_domains.empty())
       {
-        for (const auto & iter : _mapping)
-          _distant_domains.insert(iter.first);
+        for (std::vector <std::pair<int,mcIdType> >::const_iterator iter= _mapping.begin();
+            iter!=_mapping.end();
+            iter++)
+          _distant_domains.insert(iter->first);
       }
     return (int)_distant_domains.size();
   }
@@ -66,7 +64,7 @@ namespace MEDCoupling
 
   int ExplicitMapping::getDistantDomain(int i)
   {
-    if (_domains==nullptr)
+    if (_domains==0)
       computeNumbers();
 
     return _domains[i];
@@ -74,7 +72,7 @@ namespace MEDCoupling
 
   int ExplicitMapping::getNbDistantElems(int i)
   {
-    if (_numbers==nullptr)
+    if (_numbers==0)
       computeNumbers();
     return _numbers[i];
   }
@@ -87,12 +85,12 @@ namespace MEDCoupling
     for (int i=1; i<(int)_distant_domains.size();i++)
       offsets[i]=offsets[i-1]+_numbers[i-1];
 
-    for (auto & i : _mapping)
+    for (int i=0; i<(int)_mapping.size(); i++)
       {
-        mcIdType const offset= offsets[i.first];
+        mcIdType offset= offsets[_mapping[i].first];
         _comm_buffer[offset*2]=idproc;
-        _comm_buffer[offset*2+1]=i.second;
-        offsets[i.first]++;
+        _comm_buffer[offset*2+1]=_mapping[i].second;
+        offsets[_mapping[i].first]++;
       }
     return _comm_buffer;
   }
@@ -135,16 +133,16 @@ namespace MEDCoupling
   void ExplicitMapping::computeNumbers()
   {
     std::map <int,int> counts;
-    if (_numbers==nullptr)
+    if (_numbers==0)
       {
         _numbers=new int[nbDistantDomains()];
         _domains=new int[nbDistantDomains()];
-        for (auto & i : _mapping)
+        for (int i=0; i<(int)_mapping.size(); i++)
           {
-            if ( counts.find(i.first) == counts.end())
-              counts.insert(std::make_pair(i.first,1));
+            if ( counts.find(_mapping[i].first) == counts.end())
+              counts.insert(std::make_pair(_mapping[i].first,1));
             else
-              (counts[i.first])++;
+              (counts[_mapping[i].first])++;
           }
         int counter=0;
         for (std::map<int,int>::const_iterator iter=counts.begin();
