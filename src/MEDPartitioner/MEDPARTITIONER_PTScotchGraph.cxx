@@ -30,7 +30,6 @@
 #include <cstdio>
 #include <mpi.h>
 #include <string>
-#include <iostream>
 
 #ifdef MED_ENABLE_PTSCOTCH
 extern "C"

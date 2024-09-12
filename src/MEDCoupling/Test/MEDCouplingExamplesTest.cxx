@@ -33,7 +33,6 @@
 #include "MEDCouplingMultiFields.hxx"
 #include <vector>
 #include <stdio.h>
-#include <cppunit/extensions/TypeInfoHelper.h>
 #include <cppunit/TestAssert.h>
 #include <algorithm>
 #include <cmath>
