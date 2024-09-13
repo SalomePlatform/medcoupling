@@ -26,6 +26,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingFieldInt32.hxx"
+#include "MEDCouplingMemArray.txx"
 
 #include <algorithm>
 #include <iterator>
