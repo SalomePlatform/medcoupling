@@ -107,6 +107,7 @@
     INT getMaxAbsValueInArray() const;
     INT getMinValueInArray() const;
     void abs();
+    void sortPerTuple(bool asc);
     ARRAY *computeAbs() const;
     void applyLin(INT a, INT b, INT compoId);
     void applyLin(INT a, INT b);
@@ -2089,6 +2090,16 @@
           default:
             throw INTERP_KERNEL::Exception("MEDCouplingUMesh::RemoveIdsFromIndexedArrays : unrecognized type entered, expected list of int, tuple of int or ARRAY !");
           }
+      }
+
+      PyObject *findCommonTuples(mcIdType limitNodeId=-1) const
+      {
+        MCAuto<DataArrayIdType> comm,commIndex;
+        self->findCommonTuples(limitNodeId,comm,commIndex);
+        PyObject *res = PyList_New(2);
+        PyList_SetItem(res,0,SWIG_NewPointerObj(SWIG_as_voidptr(comm.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        PyList_SetItem(res,1,SWIG_NewPointerObj(SWIG_as_voidptr(commIndex.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        return res;
       }
 
       static PyObject *ExtractFromIndexedArrays(PyObject *li, const ARRAY *arrIn, const DataArrayIdType *arrIndxIn) throw(INTERP_KERNEL::Exception)

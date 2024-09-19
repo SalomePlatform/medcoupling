@@ -287,6 +287,7 @@ namespace MEDCoupling
     void renumberInPlace(const mcIdType *old2New);
     void renumberInPlaceR(const mcIdType *new2Old);
     void sort(bool asc=true);
+    void sortPerTuple(bool asc);
     typename Traits<T>::ArrayType *renumber(const mcIdType *old2New) const;
     typename Traits<T>::ArrayType *renumberR(const mcIdType *new2Old) const;
     typename Traits<T>::ArrayType *renumberAndReduce(const mcIdType *old2New, mcIdType newNbOfTuple) const;
@@ -505,7 +506,6 @@ namespace MEDCoupling
     DataArrayDouble *buildEuclidianDistanceDenseMatrix() const;
     DataArrayDouble *buildEuclidianDistanceDenseMatrixWith(const DataArrayDouble *other) const;
     void asArcOfCircle(double center[2], double& radius, double& ang) const;
-    void sortPerTuple(bool asc);
     void applyInv(double numerator);
     void applyPow(double val);
     void applyRPow(double val);
@@ -585,6 +585,7 @@ namespace MEDCoupling
     void writeVTK(std::ostream& ofs, mcIdType indent, const std::string& type, const std::string& nameInFile, DataArrayByte *byteArr) const;
     void transformWithIndArr(const T *indArrBg, const T *indArrEnd);
     void transformWithIndArr(const MapKeyVal<T, T>& m);
+    void findCommonTuples(mcIdType limitTupleId, MCAuto<DataArrayIdType> &comm, MCAuto<DataArrayIdType>& commIndex) const;
     DataArrayIdType *findIdsEqual(T val) const;
     DataArrayIdType *transformWithIndArrR(const T *indArr2Bg, const T *indArrEnd) const;
     void splitByValueRange(const T *arrBg, const T *arrEnd,
@@ -665,6 +666,9 @@ namespace MEDCoupling
     void modulusEqual(const DataArrayType *other);
     static DataArrayType *Pow(const DataArrayType *a1, const DataArrayType *a2);
     void powEqual(const DataArrayType *other);
+  public:
+    template<int SPACEDIM>
+    void findCommonTuplesAlg(const T *bbox, mcIdType nbNodes, mcIdType limitNodeId, DataArrayIdType *c, DataArrayIdType *cI) const;
   public:
     static DataArrayIdType *FindPermutationFromFirstToSecond(const DataArrayType *ids1, const DataArrayType *ids2);
     static DataArrayIdType *FindPermutationFromFirstToSecondDuplicate(const DataArrayType *ids1, const DataArrayType *ids2);

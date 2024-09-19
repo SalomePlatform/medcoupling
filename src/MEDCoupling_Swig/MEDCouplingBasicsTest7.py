@@ -1528,5 +1528,22 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
       assert( b.isEqual( DataArrayInt([4,2,3,5,1,2]) ) )
       assert( f.isEqual( DataArrayInt([0,3,6]) ) )
 
+    def testDASortPerTuple1(self):
+      """
+      EDF30178 : useful method DataArrayInt.sortPerTuple
+      """
+      arr = DataArrayInt([(1,2,3),(5,4,6),(9,8,7)])
+      arr.sortPerTuple( True )
+      self.assertTrue( arr.isEqual( DataArrayInt([(1,2,3),(4,5,6),(7,8,9)]) ) )
+
+    def testDAIFindCommonTuples(self):
+      """
+      EDF30178 : useful method DataArrayInt.findCommonTuples
+      """
+      arr = DataArrayInt([(1,2,3),(4,5,6),(-1,2,3),(3,2,1),(1,2,3),(6,5,4),(4,5,6),(4,5,6)])
+      c,ci = arr.findCommonTuples(2)
+      self.assertTrue( ci.isEqual( DataArrayInt([0,2,5]) ) )
+      self.assertTrue( c.isEqual( DataArrayInt([0,4, 1,6,7]) ) )
+
 if __name__ == '__main__':
     unittest.main()

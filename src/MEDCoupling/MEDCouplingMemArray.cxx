@@ -2534,27 +2534,6 @@ void DataArrayDouble::asArcOfCircle(double center[2], double& radius, double& an
 }
 
 /*!
- * Sorts value within every tuple of \a this array.
- *  \param [in] asc - if \a true, the values are sorted in ascending order, else,
- *              in descending order.
- *  \throw If \a this is not allocated.
- */
-void DataArrayDouble::sortPerTuple(bool asc)
-{
-  checkAllocated();
-  double *pt=getPointer();
-  mcIdType nbOfTuple(getNumberOfTuples());
-  std::size_t nbOfComp(getNumberOfComponents());
-  if(asc)
-    for(mcIdType i=0;i<nbOfTuple;i++,pt+=nbOfComp)
-      std::sort(pt,pt+nbOfComp);
-  else
-    for(mcIdType i=0;i<nbOfTuple;i++,pt+=nbOfComp)
-      std::sort(pt,pt+nbOfComp,std::greater<double>());
-  declareAsNew();
-}
-
-/*!
  * Modify all elements of \a this array, so that
  * an element _x_ becomes \f$ numerator / x \f$.
  *  \warning If an exception is thrown because of presence of 0.0 element in \a this

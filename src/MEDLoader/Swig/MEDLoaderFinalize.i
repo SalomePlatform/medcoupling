@@ -21,6 +21,7 @@
 %pythoncode %{
 import MEDLoaderFinalize
 MEDFileUMesh.reduceToCells = MEDLoaderFinalize.MEDFileUMeshReduceToCells
+MEDFileUMesh.tetrahedrize = MEDLoaderFinalize.MEDFileUMeshTetrahedrize
 MEDFileUMesh.fuseNodesAndCells = MEDLoaderFinalize.MEDFileUMeshFuseNodesAndCells
 del MEDLoaderFinalize
 MEDFileMeshesIterator.__next__ = MEDFileMeshesIterator.next

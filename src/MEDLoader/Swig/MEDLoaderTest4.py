@@ -5823,7 +5823,61 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue( mmOut.getGroupArr(1,"RedNode").isEqualWithoutConsideringStr( DataArrayInt([6, 7, 10, 11]) ) )
         self.assertTrue( mmOut.getGroupArr(1,"GreenNode").isEqualWithoutConsideringStr( DataArrayInt([7, 11, 19, 22]) ) )
         self.assertEqual( len( mmOut.getFamilyFieldAtLevel(1).findIdsGreaterOrEqualTo(0) ) , 28 )
-        self.assertEqual( len( mmOut.getFamilyFieldAtLevel(-1).findIdsLowerOrEqualTo(0) ) , 45 )  
+        self.assertEqual( len( mmOut.getFamilyFieldAtLevel(-1).findIdsLowerOrEqualTo(0) ) , 45 ) 
+
+    def test50(self):
+        """
+        [EDF30178] : test of MEDFileUMesh.tetrahedrize
+        """ 
+        import logging
+        arr = DataArrayDouble([(0,0),(1,0),(2,0),(0,1),(1,1),(2,1),(0,2),(1,2),(2,2)])
+        m = MEDCouplingUMesh("mesh",2)
+        m.setCoords( arr )
+        m.allocateCells()
+        m.insertNextCell(NORM_TRI3,[1,2,4])
+        m.insertNextCell(NORM_TRI3,[2,4,5])
+        m.insertNextCell(NORM_QUAD4,[0,1,4,3])
+        m.insertNextCell(NORM_QUAD4,[3,4,7,6])
+        m.insertNextCell(NORM_QUAD4,[4,5,8,7])
+        m.changeSpaceDimension(3,0.)
+        arr1D = DataArrayDouble([0,1,2])
+        m1D = MEDCouplingCMesh() ; m1D.setCoords(arr1D) ; m1D = m1D.buildUnstructured()
+        m1D.changeSpaceDimension(3,0.)
+        m1D.setCoords( m1D.getCoords()[:,[1,2,0]] )
+        m3D = m.buildExtrudedMesh(m1D,0)
+        m3D.setName( m.getName() )
+        m3D.sortCellsInMEDFileFrmt()
+        m.setCoords( m3D.getCoords() )
+        mm = MEDFileUMesh()
+        mm[0] = m3D
+        mm[-1] = m
+        grpTri3 = DataArrayInt([0,1]) ; grpTri3.setName("tri3")
+        grpQuad4 = DataArrayInt([2,3,4]) ; grpQuad4.setName("quad4")
+        mm.addGroup(-1,grpTri3)
+        mm.addGroup(-1,grpQuad4)
+        grpPrism = DataArrayInt([0,1,2,3]) ; grpPrism.setName("penta")
+        grpHexa = DataArrayInt([4,5,6,7,8,9]) ; grpHexa.setName("hexa")
+        mm.addGroup(0,grpPrism)
+        mm.addGroup(0,grpHexa)
+        splitType = PLANAR_FACE_6
+        mmOut = mm.tetrahedrize(splitType,logging.WARNING) # <- hot point is here
+        self.assertAlmostEqual( mmOut[0].getMeasureField(True).getArray().accumulate()[0], 8.0, 10 )
+        self.assertAlmostEqual( mmOut[-1].getMeasureField(True).getArray().accumulate()[0], 4.0, 10 )
+        types0 = mmOut[0].splitByType()
+        self.assertEqual( len(types0) , 1 )
+        types0 = MEDCoupling1SGTUMesh(types0[0])
+        self.assertEqual( types0.getCellModelEnum() , NORM_TETRA4 )
+        types1 = mmOut[-1].splitByType()
+        self.assertEqual( len(types1) , 1 )
+        types1 = MEDCoupling1SGTUMesh(types1[0])
+        self.assertEqual( types1.getCellModelEnum() , NORM_TRI3 )
+        self.assertAlmostEqual( mmOut.getGroup(-1,"tri3").getMeasureField(True).getArray().accumulate()[0], 1.0, 10 )
+        self.assertAlmostEqual( mmOut.getGroup(-1,"quad4").getMeasureField(True).getArray().accumulate()[0], 3.0, 10 )
+        self.assertAlmostEqual( mmOut.getGroup(0,"penta").getMeasureField(True).getArray().accumulate()[0], 2.0, 10 )
+        self.assertAlmostEqual( mmOut.getGroup(0,"hexa").getMeasureField(True).getArray().accumulate()[0], 6.0, 10 )
+        self.assertEqual( mmOut.getCoords().getHiddenCppPointer() , mm.getCoords().getHiddenCppPointer() )
+        self.assertTrue( mm.getFamilyFieldAtLevel(0).getDifferentValues().isEqual( mmOut.getFamilyFieldAtLevel(0).getDifferentValues() ) )
+        self.assertTrue( mm.getFamilyFieldAtLevel(-1).getDifferentValues().isEqual( mmOut.getFamilyFieldAtLevel(-1).getDifferentValues() ) )
 
     pass
 

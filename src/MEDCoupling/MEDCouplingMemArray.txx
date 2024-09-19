@@ -29,6 +29,7 @@
 #include "InterpKernelAutoPtr.hxx"
 #include "MCAuto.hxx"
 #include "MEDCouplingMap.txx"
+#include "BBTreeDiscrete.txx"
 
 #include <set>
 #include <sstream>
@@ -1092,6 +1093,28 @@ namespace MEDCoupling
     _mem.sort(asc);
     declareAsNew();
   }
+
+    /*!
+    * Sorts value within every tuple of \a this array.
+    *  \param [in] asc - if \a true, the values are sorted in ascending order, else,
+    *              in descending order.
+    *  \throw If \a this is not allocated.
+    */
+    template<class T>
+    void DataArrayTemplate<T>::sortPerTuple(bool asc)
+    {
+      this->checkAllocated();
+      T *pt( this->getPointer() );
+      mcIdType nbOfTuple(this->getNumberOfTuples());
+      std::size_t nbOfComp(this->getNumberOfComponents());
+      if(asc)
+        for(mcIdType i=0;i<nbOfTuple;i++,pt+=nbOfComp)
+          std::sort(pt,pt+nbOfComp);
+      else
+        for(mcIdType i=0;i<nbOfTuple;i++,pt+=nbOfComp)
+          std::sort(pt,pt+nbOfComp,std::greater<double>());
+      this->declareAsNew();
+    }
 
   /*!
    * Sorts values of the array and put the result in a newly allocated returned array.
@@ -4177,6 +4200,70 @@ struct NotInRange
           }
       }
     this->declareAsNew();
+  }
+
+  template<class T>
+  template<int SPACEDIM>
+  void DataArrayDiscrete<T>::findCommonTuplesAlg(const T *bbox, mcIdType nbNodes, mcIdType limitNodeId, DataArrayIdType *c, DataArrayIdType *cI) const
+  {
+    const T *coordsPtr(this->begin());
+    BBTreeDiscrete<SPACEDIM,T,mcIdType> myTree(bbox,nullptr,0,nbNodes);
+    std::vector<bool> isDone(nbNodes);
+    for(mcIdType i=0;i<nbNodes;i++)
+    {
+      if(!isDone[i])
+        {
+          std::vector<mcIdType> intersectingElems;
+          myTree.getIntersectingElems(coordsPtr+i*SPACEDIM,intersectingElems);
+          if(intersectingElems.size()>1)
+            {
+              std::vector<mcIdType> commonNodes;
+              for(std::vector<mcIdType>::const_iterator it=intersectingElems.begin();it!=intersectingElems.end();it++)
+                if(*it!=i)
+                  if(*it>=limitNodeId)
+                    {
+                      commonNodes.push_back(*it);
+                      isDone[*it]=true;
+                    }
+              if(!commonNodes.empty())
+                {
+                  cI->pushBackSilent(cI->back()+ToIdType(commonNodes.size())+1);
+                  c->pushBackSilent(i);
+                  c->insertAtTheEnd(commonNodes.begin(),commonNodes.end());
+                }
+            }
+        }
+    }
+  }
+
+  template<class T>
+  void DataArrayDiscrete<T>::findCommonTuples(mcIdType limitTupleId, MCAuto<DataArrayIdType> &comm, MCAuto<DataArrayIdType>& commIndex) const
+  {
+    this->checkAllocated();
+    std::size_t nbOfCompo( this->getNumberOfComponents() );
+    if ((nbOfCompo<1) || (nbOfCompo>4)) //test before work
+      throw INTERP_KERNEL::Exception("DataArrayDiscrete::findCommonTuples : Unexpected spacedim of coords. Must be 1, 2, 3 or 4.");
+
+    mcIdType nbOfTuples( this->getNumberOfTuples() );
+    //
+    comm = DataArrayIdType::New(); commIndex = DataArrayIdType::New(); comm->alloc(0,1); commIndex->pushBackSilent(0);
+    switch(nbOfCompo)
+    {
+      case 4:
+        findCommonTuplesAlg<4>(this->begin(),nbOfTuples,limitTupleId,comm,commIndex);
+        break;
+      case 3:
+        findCommonTuplesAlg<3>(this->begin(),nbOfTuples,limitTupleId,comm,commIndex);
+        break;
+      case 2:
+        findCommonTuplesAlg<2>(this->begin(),nbOfTuples,limitTupleId,comm,commIndex);
+        break;
+      case 1:
+        findCommonTuplesAlg<1>(this->begin(),nbOfTuples,limitTupleId,comm,commIndex);
+        break;
+      default:
+        throw INTERP_KERNEL::Exception("DataArrayDiscrete::findCommonTuples : nb of components managed are 1,2,3 and 4 ! not implemented for other number of components !");
+    }
   }
 
   /*!
