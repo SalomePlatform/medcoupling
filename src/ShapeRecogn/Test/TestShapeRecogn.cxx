@@ -17,6 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include "CppUnitTest.hxx"
 #include "MathOpsTest.hxx"
 #include "PlaneTest.hxx"
 #include "CylinderTest.hxx"

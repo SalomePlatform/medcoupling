@@ -21,10 +21,10 @@
 
 #include <vector>
 #include <array>
-
+#include "ShapeRecognDefines.hxx"
 namespace MEDCoupling
 {
-    class MathOps
+    class SHAPE_RECOGNITION_EXPORT MathOps
     {
     public:
         static std::vector<double> lstsq(std::vector<double> &a, const std::vector<double> &b);

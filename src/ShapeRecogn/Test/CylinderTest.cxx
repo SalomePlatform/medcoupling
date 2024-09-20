@@ -50,7 +50,7 @@ void CylinderTest::testNumberOfAreas()
 void CylinderTest::testFirstArea()
 {
     // primitive type
-    CPPUNIT_ASSERT_EQUAL(PrimitiveType::Cylinder, areas->getPrimitiveType(0));
+    CPPUNIT_ASSERT_EQUAL((int)PrimitiveType::Cylinder, (int) areas->getPrimitiveType(0));
     // node ids
     std::vector<mcIdType> nodeIdsRef{
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
@@ -108,7 +108,7 @@ void CylinderTest::testFirstArea()
 void CylinderTest::testSecondArea()
 {
     // primitive type
-    CPPUNIT_ASSERT_EQUAL(PrimitiveType::Plane, areas->getPrimitiveType(1));
+    CPPUNIT_ASSERT_EQUAL((int)PrimitiveType::Plane, (int)areas->getPrimitiveType(1));
     // node ids
     std::vector<mcIdType> nodeIdsRef{
         370, 371, 372, 373, 374, 375, 376, 377, 378, 379,
@@ -134,7 +134,7 @@ void CylinderTest::testSecondArea()
 void CylinderTest::testThirdArea()
 {
     // primitive type
-    CPPUNIT_ASSERT_EQUAL(PrimitiveType::Plane, areas->getPrimitiveType(2));
+    CPPUNIT_ASSERT_EQUAL((int)PrimitiveType::Plane, (int)areas->getPrimitiveType(2));
     // node ids
     std::vector<mcIdType> nodeIdsRef{
         443, 444, 445, 446, 447, 448, 449, 450, 451, 452,

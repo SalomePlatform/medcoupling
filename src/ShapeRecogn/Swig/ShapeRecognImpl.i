@@ -18,8 +18,11 @@
 //
 
 %{
+#include <vector>
+#include <string>
 #include "ShapeRecognMesh.hxx"
 #include "ShapeRecognMeshBuilder.hxx"
+#include "PrimitiveType.hxx"
 #include "Areas.hxx"
  
  #include <type_traits>		

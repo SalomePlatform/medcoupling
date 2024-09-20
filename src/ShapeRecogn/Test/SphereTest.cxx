@@ -47,7 +47,7 @@ void SphereTest::testArea()
     CPPUNIT_ASSERT_EQUAL(1, (int)areas->getNumberOfAreas());
     // 8 double nodes so 147 - 6 nodes
     CPPUNIT_ASSERT_EQUAL(141, (int)areas->getNumberOfNodes(0));
-    CPPUNIT_ASSERT_EQUAL(PrimitiveType::Sphere, areas->getPrimitiveType(0));
+    CPPUNIT_ASSERT_EQUAL((int)PrimitiveType::Sphere, (int)areas->getPrimitiveType(0));
     CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, areas->getRadius(0), 1E-2);
     std::array<double, 3> centerRef = {5.3, -6.7, -9.02};
     std::array<double, 3> center = areas->getCenter(0);

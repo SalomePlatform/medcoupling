@@ -26,6 +26,9 @@
 #include "TestInterpKernelUtils.hxx" // getResourceFile()
 
 #include "ShapeRecognTest.hxx"
+#include <vector>
+#include <array>
+#include <string>
 
 using namespace MEDCoupling;
 
@@ -192,7 +195,7 @@ void ConeTest::testComputeConeProperties()
 void ConeTest::testFirstArea()
 {
     // primitive type
-    CPPUNIT_ASSERT_EQUAL(PrimitiveType::Plane, areas->getPrimitiveType(0));
+    CPPUNIT_ASSERT_EQUAL((int)PrimitiveType::Plane, (int)areas->getPrimitiveType(0));
     // node ids
     std::vector<mcIdType> nodeIdsRef{
         549, 550, 551, 552, 553, 554, 555, 556, 557, 558, 559,
@@ -213,7 +216,7 @@ void ConeTest::testFirstArea()
 void ConeTest::testSecondArea()
 {
     // primitive type
-    CPPUNIT_ASSERT_EQUAL(PrimitiveType::Plane, areas->getPrimitiveType(0));
+    CPPUNIT_ASSERT_EQUAL((int)PrimitiveType::Plane, (int)areas->getPrimitiveType(0));
     // node ids
     std::vector<mcIdType> nodeIdsRef = {
         572, 573, 574, 575, 576, 577, 578, 579, 580, 581, 582, 583,
@@ -264,7 +267,7 @@ void ConeTest::testSecondArea()
 void ConeTest::testThirdArea()
 {
     // primitive type
-    CPPUNIT_ASSERT_EQUAL(PrimitiveType::Cone, areas->getPrimitiveType(2));
+    CPPUNIT_ASSERT_EQUAL((int)PrimitiveType::Cone, (int)areas->getPrimitiveType(2));
     // node ids
     std::vector<mcIdType> nodeIdsRef{
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,

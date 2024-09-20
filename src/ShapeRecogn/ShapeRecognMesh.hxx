@@ -25,10 +25,10 @@
 #include "MEDCouplingFieldInt32.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingRefCountObject.hxx"
-
+#include "ShapeRecognDefines.hxx"
 namespace MEDCoupling
 {
-    class ShapeRecognMesh : public RefCountObject
+    class SHAPE_RECOGNITION_EXPORT ShapeRecognMesh : public RefCountObject
     {
         friend class ShapeRecognMeshBuilder;
 
@@ -61,7 +61,6 @@ namespace MEDCoupling
 
     protected:
         ShapeRecognMesh();
-        ~ShapeRecognMesh() = default;
 
     private:
         MCAuto<MEDCouplingFieldDouble> nodeK1;

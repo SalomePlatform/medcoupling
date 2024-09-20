@@ -22,17 +22,18 @@
 #include <vector>
 #include "MEDCouplingUMesh.hxx"
 #include "PrimitiveType.hxx"
+#include <array>
+#include "ShapeRecognDefines.hxx"
 
 namespace MEDCoupling
 {
-    class Nodes
+    class SHAPE_RECOGNITION_EXPORT Nodes
     {
     public:
         friend class NodesBuilder;
         Nodes(const MEDCouplingUMesh *mesh,
               const DataArrayInt64 *neighbors,
               const DataArrayInt64 *neighborsIdx);
-        ~Nodes() = default;
 
         mcIdType getNbNodes() const;
         const std::vector<double> &getK1() const;

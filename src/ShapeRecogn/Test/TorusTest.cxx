@@ -46,7 +46,7 @@ void TorusTest::testArea()
 {
     CPPUNIT_ASSERT_EQUAL(275, (int)srMesh->getNodes()->getNbNodes());
     CPPUNIT_ASSERT_EQUAL(1, (int)areas->getNumberOfAreas());
-    CPPUNIT_ASSERT_EQUAL(PrimitiveType::Torus, areas->getPrimitiveType(0));
+    CPPUNIT_ASSERT_EQUAL((int)PrimitiveType::Torus, (int)areas->getPrimitiveType(0));
     // Some nodes are unknown
     CPPUNIT_ASSERT_EQUAL(272, (int)areas->getNumberOfNodes(0));
     CPPUNIT_ASSERT_DOUBLES_EQUAL(0.843297, areas->getMinorRadius(0), 1E-2);

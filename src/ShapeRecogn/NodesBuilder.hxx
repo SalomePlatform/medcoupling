@@ -24,12 +24,12 @@
 #include <array>
 #include "MEDCouplingUMesh.hxx"
 #include "PrimitiveType.hxx"
-
+#include "ShapeRecognDefines.hxx"
 namespace MEDCoupling
 {
     class Nodes;
 
-    class NodesBuilder
+    class SHAPE_RECOGNITION_EXPORT NodesBuilder
     {
     public:
         NodesBuilder(const MEDCouplingUMesh *);

@@ -21,10 +21,10 @@
 
 #include "Nodes.hxx"
 #include "Areas.hxx"
-
+#include "ShapeRecognDefines.hxx"
 namespace MEDCoupling
 {
-    class AreasBuilder
+    class SHAPE_RECOGNITION_EXPORT AreasBuilder
     {
     public:
         AreasBuilder(const Nodes *nodes);

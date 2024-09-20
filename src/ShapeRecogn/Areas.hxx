@@ -18,7 +18,7 @@
 //
 
 #pragma once
-
+#include "ShapeRecognDefines.hxx"
 #include "PrimitiveType.hxx"
 #include "Nodes.hxx"
 
@@ -46,7 +46,7 @@ namespace MEDCoupling
         std::vector<mcIdType> nodeIds;
     };
 
-    class Areas
+    class SHAPE_RECOGNITION_EXPORT Areas
     {
     public:
         Areas(const Nodes *nodes);

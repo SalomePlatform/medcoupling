@@ -19,7 +19,7 @@
 
 #include "MathOpsTest.hxx"
 #include "MathOps.hxx"
-
+#include <cblas.h>
 using namespace MEDCoupling;
 
 void MathOpsTest::testLstsq()

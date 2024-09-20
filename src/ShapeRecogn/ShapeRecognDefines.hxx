@@ -1,4 +1,4 @@
-// Copyright (C) 2024  CEA, EDF
+// Copyright (C) 2007-2024  CEA, EDF
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,32 +17,17 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#pragma once
+#ifndef __SHAPE_RECOGNITION_DEFINES_HXX__
+#define __SHAPE_RECOGNITION_DEFINES_HXX__
 
-#include <cppunit/TestFixture.h>
-#include <cppunit/extensions/HelperMacros.h>
+#ifdef WIN32
+# if defined shaperecogn_EXPORTS || TestShapeRecogn_EXPORTS
+#  define SHAPE_RECOGNITION_EXPORT __declspec(dllexport)
+# else
+#  define SHAPE_RECOGNITION_EXPORT __declspec(dllimport)
+# endif
+#else
+# define SHAPE_RECOGNITION_EXPORT
+#endif 
 
-namespace MEDCoupling
-{
-    class MathOpsTest : public CppUnit::TestFixture
-    {
-        CPPUNIT_TEST_SUITE(MathOpsTest);
-        CPPUNIT_TEST(testLstsq);
-        CPPUNIT_TEST(testLstsq2);
-        CPPUNIT_TEST(testLstsqBig);
-        CPPUNIT_TEST(testComputeCov);
-        CPPUNIT_TEST(testComputePCAFirstAxis);
-        CPPUNIT_TEST(testComputeAngles);
-        CPPUNIT_TEST(testComputeBaseFromNormal);
-        CPPUNIT_TEST_SUITE_END();
-
-    public:
-        void testLstsq();
-        void testLstsq2();
-        void testLstsqBig();
-        void testComputeCov();
-        void testComputePCAFirstAxis();
-        void testComputeAngles();
-        void testComputeBaseFromNormal();
-    };
-}
+#endif

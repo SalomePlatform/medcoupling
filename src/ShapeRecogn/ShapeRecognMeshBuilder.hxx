@@ -28,7 +28,7 @@
 
 #include <memory>
 #include <functional>
-
+#include "ShapeRecognDefines.hxx"
 namespace MEDCoupling
 {
     class MEDCouplingFieldInt32;
@@ -37,12 +37,11 @@ namespace MEDCoupling
 
     class ShapeRecognMesh;
 
-    class ShapeRecognMeshBuilder
+    class SHAPE_RECOGNITION_EXPORT ShapeRecognMeshBuilder
     {
     public:
         ShapeRecognMeshBuilder(MCAuto< MEDCouplingUMesh > mesh);
         ShapeRecognMeshBuilder(MEDCouplingUMesh *mesh);
-        ~ShapeRecognMeshBuilder() = default;
 
         const Nodes *getNodes() const;
         const Areas *getAreas() const;

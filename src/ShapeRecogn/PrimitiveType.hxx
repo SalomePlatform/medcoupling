@@ -22,10 +22,10 @@
 #include <vector>
 #include <string>
 #include <cstdint>
-
+#include "ShapeRecognDefines.hxx"
 namespace MEDCoupling
 {
-  enum class PrimitiveType : std::uint8_t
+  enum class SHAPE_RECOGNITION_EXPORT PrimitiveType : unsigned char
   {
     Plane = 0,
     Sphere = 1,
@@ -35,13 +35,13 @@ namespace MEDCoupling
     Unknown = 5
   };
 
-  std::vector<PrimitiveType> AllManagedPrimitives();
+  SHAPE_RECOGNITION_EXPORT std::vector<PrimitiveType> AllManagedPrimitives();
 
-  std::vector<std::string> AllManagedPrimitivesStr();
+  SHAPE_RECOGNITION_EXPORT std::vector<std::string> AllManagedPrimitivesStr();
 
-  std::string ConvertPrimitiveToString(PrimitiveType type);
+  SHAPE_RECOGNITION_EXPORT std::string ConvertPrimitiveToString(PrimitiveType type);
   
-  PrimitiveType ConvertStringToPrimitive(const std::string& type);
+  SHAPE_RECOGNITION_EXPORT PrimitiveType ConvertStringToPrimitive(const std::string& type);
 
-  int ConvertPrimitiveToInt(PrimitiveType type);
+  SHAPE_RECOGNITION_EXPORT int ConvertPrimitiveToInt(PrimitiveType type);
 };
