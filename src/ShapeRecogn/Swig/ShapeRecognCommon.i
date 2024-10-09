@@ -56,7 +56,7 @@ using namespace INTERP_KERNEL;
 def AreasListOfPropertiesForPrimitive(cls, primitiveType):
   # Cone
   if primitiveType == 3:
-    return ["Radius","AxisPoint","Axis"]
+    return ["Radius","Angle","Axis","AxisPoint","Apex"]
   # Plan
   elif primitiveType == 0:
     return ["Normal","AffinePoint"]

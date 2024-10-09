@@ -107,6 +107,12 @@ public:
         std::array<double, 3> tmp(self->getCenter(areaId));
         return {tmp.cbegin(),tmp.cend()};
       }
+
+      std::vector<double> getApex(mcIdType areaId) const
+      {
+        std::array<double, 3> tmp(self->getApex(areaId));
+        return {tmp.cbegin(),tmp.cend()};
+      }
     }
 private:
     Areas();
