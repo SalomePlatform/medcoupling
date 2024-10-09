@@ -53,6 +53,37 @@ using namespace INTERP_KERNEL;
 %include "ShapeRecognImpl.i"
 
 %pythoncode %{
+def AreasListOfPropertiesForPrimitive(cls, primitiveType):
+  # Cone
+  if primitiveType == 3:
+    return ["Radius","AxisPoint","Axis"]
+  # Plan
+  elif primitiveType == 0:
+    return ["Normal","AffinePoint"]
+  # Cylinder
+  elif primitiveType == 2:
+    return ["Radius","AxisPoint","Axis"]
+  # Tore
+  elif primitiveType == 4:
+    return ["Center","Radius","MinorRadius"]
+  # Sphere
+  elif primitiveType == 1:
+    return ["Center","Radius"]
+  raise RuntimeError(f"Unrecognized primitive {primitiveType}")
+
+def AreasReprOfArea(self, areaId ):
+  def evaluateProps(self, areaId, listOfProps ):
+    def evaluateProp(self, areaId, prop):
+      return eval(f"self.get{prop}({areaId})")
+    return [ f"{prop} = {evaluateProp(self,areaId,prop)}" for prop in listOfProps]
+  primitiveType = self.getPrimitiveType( areaId )
+  ret = [ ConvertPrimitiveToString( primitiveType ) ]
+  ret += evaluateProps(self,areaId,Areas.ListOfPropertiesForPrimitive(primitiveType))
+  return "\n".join( ret )
+
+Areas.ListOfPropertiesForPrimitive = classmethod( AreasListOfPropertiesForPrimitive )
+Areas.reprOfArea = AreasReprOfArea
+
 import os
 __filename=os.environ.get('PYTHONSTARTUP')
 if __filename and os.path.isfile(__filename):

@@ -77,6 +77,36 @@ public:
         std::copy(res.begin(),res.end(),ret->getPointer());
         return ret.retn();
       }
+      
+      std::vector<double> getAxis(mcIdType areaId) const
+      {
+        std::array<double, 3> tmp(self->getAxis(areaId));
+        return {tmp.cbegin(),tmp.cend()};
+      }
+
+      std::vector<double> getAxisPoint(mcIdType areaId) const
+      {
+        std::array<double, 3> tmp(self->getAxisPoint(areaId));
+        return {tmp.cbegin(),tmp.cend()};
+      }
+
+      std::vector<double> getNormal(mcIdType areaId) const
+      {
+        std::array<double, 3> tmp(self->getNormal(areaId));
+        return {tmp.cbegin(),tmp.cend()};
+      }
+      
+      std::vector<double> getAffinePoint(mcIdType areaId) const
+      {
+        std::array<double, 3> tmp(self->getAffinePoint(areaId));
+        return {tmp.cbegin(),tmp.cend()};
+      }
+      
+      std::vector<double> getCenter(mcIdType areaId) const
+      {
+        std::array<double, 3> tmp(self->getCenter(areaId));
+        return {tmp.cbegin(),tmp.cend()};
+      }
     }
 private:
     Areas();
