@@ -35,25 +35,6 @@ extern med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE];
 
 using namespace MEDCoupling;
 
-void checkDistribution(const MPI_Comm& com, mcIdType totalNumberOfElements, const std::vector<mcIdType>& distrib)
-{
-  mcIdType nbEltsInDistribLoc = distrib.size();
-  mcIdType nbEltsInDistribTot = -1;
-#ifdef HAVE_MPI
-  MPI_Allreduce(&nbEltsInDistribLoc, &nbEltsInDistribTot, 1, MPI_LONG, MPI_SUM, com);
-#else
-      throw INTERP_KERNEL::Exception("not(HAVE_MPI) incompatible with MPI_World_Size>1");
-#endif
-  if(nbEltsInDistribTot != totalNumberOfElements)
-    {
-      if(nbEltsInDistribTot > totalNumberOfElements)
-        throw INTERP_KERNEL::Exception("ParaMEDFileMesh : Some of your partitions overlap each other ! Each element in your distribution vector must appear only once ! ");
-      else
-        throw INTERP_KERNEL::Exception("ParaMEDFileMesh : The distribution does not cover the whole mesh ! Each element of the mesh must appear once in your distribution vector ");
-    }
-}
-
-
 MEDFileMesh *ParaMEDFileMesh::New(int iPart, int nbOfParts, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MEDFileUtilities::CheckFileForRead(fileName);
@@ -169,13 +150,6 @@ MEDFileUMesh *ParaMEDFileUMesh::ParaNew(int iPart, int nbOfParts, const MPI_Comm
 MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, const MPI_Comm& com, const std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>& distrib, const std::string& fileName, const std::string& mName, int dt, int it, MEDFileMeshReadSelector *mrs)
 {
   MCAuto<MEDFileUMesh> ret;
-  for(std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>::const_iterator iter=distrib.begin(); iter!= distrib.end(); iter++)
-    {
-        med_geometry_type geoMedType(typmai3[iter->first /*current geometric type*/]);
-        med_bool changement,transformation;
-        med_int totalNumberOfElements(MEDmeshnEntity(fid,mName.c_str(),dt,it,MED_CELL,geoMedType,MED_CONNECTIVITY,MED_NODAL,&changement,&transformation));
-        checkDistribution(com,totalNumberOfElements,iter->second /*distrib over this geometric type*/);
-    }
   ret=MEDFileUMesh::LoadPartOfFromUserDistrib(fid,mName,distrib,dt,it,mrs);
   return ret.retn();
 }

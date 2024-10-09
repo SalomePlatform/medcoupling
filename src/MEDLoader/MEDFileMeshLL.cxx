@@ -636,14 +636,16 @@ void MEDFileUMeshL2::loadPartFromUserDistrib(med_idt fid, const MeshOrStructMesh
       MCAuto<DataArrayIdType> fni(DataArrayIdType::BuildListOfSwitchedOn(fetchedNodeIds));
       MCAuto< MapKeyVal<mcIdType, mcIdType> > o2n(fni->invertArrayN2O2O2NOptimized());
       for(std::vector< std::vector< MCAuto<MEDFileUMeshPerType> > >::const_iterator it0=_per_type_mesh.begin();it0!=_per_type_mesh.end();it0++)
-        for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
-          (*it1)->getMesh()->renumberNodesInConn(o2n->data());
+          for(std::vector< MCAuto<MEDFileUMeshPerType> >::const_iterator it1=(*it0).begin();it1!=(*it0).end();it1++)
+            (*it1)->getMesh()->renumberNodesInConn(o2n->data());
+
 
       // loading coordinates of fetched nodes
       std::vector<mcIdType> distribNodes;
       for(std::map<mcIdType,mcIdType>::const_iterator mapIter = o2n->data().begin(); mapIter != o2n->data().end(); ++mapIter)
-          distribNodes.push_back(mapIter->first);
-      this->loadPartCoords(fid,infosOnComp,mName,dt,it,distribNodes);
+          distribNodes.push_back(mapIter->first);      
+      if(distribNodes.size() != 0)
+    	  this->loadPartCoords(fid,infosOnComp,mName,dt,it,distribNodes);
     }
   else
     throw INTERP_KERNEL::Exception("MEDFileUMeshL2::loadPartFromUserDistrib: multiple load sessions not handled!");
@@ -692,8 +694,15 @@ void MEDFileUMeshL2::loadPartOfConnectivityFromUserDistrib(med_idt fid, int mdim
   std::map<INTERP_KERNEL::NormalizedCellType,std::vector<mcIdType>>::const_iterator iter;
   for (iter = distrib.begin(); iter != distrib.end(); iter++)
     {
-        MCAuto<MEDFileUMeshPerType> tmp(MEDFileUMeshPerType::NewPart(fid,mName.c_str(),dt,it,mdim,iter->first/*type*/,iter->second/*distrib over the current type*/,mrs));
-        _per_type_mesh[0].push_back(tmp);
+      INTERP_KERNEL::NormalizedCellType MCGeoType = iter->first;
+      med_geometry_type geoElt;
+      med_entity_type whichEntity;
+      MEDFileUMeshPerType::getMedTypes(fid, mName.c_str(), dt, it, MCGeoType, geoElt, whichEntity);
+      if(iter->second.size() !=0)
+	{
+	  MCAuto<MEDFileUMeshPerType> tmp(MEDFileUMeshPerType::NewPart(fid,mName.c_str(),dt,it,mdim,MCGeoType,geoElt,whichEntity,iter->second/*distrib over the current type*/,mrs));
+	  _per_type_mesh[0].push_back(tmp);
+	}	  
     }
   sortTypes();
 }

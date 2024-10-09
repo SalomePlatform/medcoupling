@@ -112,29 +112,20 @@ MEDFileUMeshPerType *MEDFileUMeshPerType::New(med_idt fid, const char *mName, in
 
 MEDFileUMeshPerType *MEDFileUMeshPerType::NewPart(med_idt fid, const char *mName, int dt, int it, int mdim, INTERP_KERNEL::NormalizedCellType geoElt2, mcIdType strt, mcIdType stp, mcIdType step, MEDFileMeshReadSelector *mrs)
 {
-  int geoElt2i((int)geoElt2);
-  if(geoElt2i<0 || geoElt2i>=INTERP_KERNEL::NORM_MAXTYPE)
-    throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::NewPart : Not recognized MEDCoupling/MEDLoader geometric type !");
-  med_geometry_type geoElt(typmai3[geoElt2]);
+  med_geometry_type geoElt;
   med_entity_type whichEntity;
-  if(!isExisting(fid,mName,dt,it,geoElt,whichEntity))
-    throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::NewPart : The specified geo type is not present in the specified mesh !");
+  getMedTypes(fid, mName, dt, it, geoElt2, geoElt, whichEntity);
+  
   MCAuto<MEDFileUMeshPerType> ret(new MEDFileUMeshPerType);
   ret->loadPart(fid,mName,dt,it,mdim,geoElt,geoElt2,whichEntity,strt,stp,step,mrs);
   return ret.retn();
 }
 
-MEDFileUMeshPerType *MEDFileUMeshPerType::NewPart(med_idt fid, const char *mName, int dt, int it, int mdim, INTERP_KERNEL::NormalizedCellType geoElt2, const std::vector<mcIdType>& distrib, MEDFileMeshReadSelector *mrs)
+
+MEDFileUMeshPerType *MEDFileUMeshPerType::NewPart(med_idt fid, const char *mName, int dt, int it, int mdim, INTERP_KERNEL::NormalizedCellType geoElt2, med_geometry_type geoElt, med_entity_type whichEntity, const std::vector<mcIdType>& distrib, MEDFileMeshReadSelector *mrs)
 {
-  int geoElt2i((int)geoElt2);
-  if(geoElt2i<0 || geoElt2i>=INTERP_KERNEL::NORM_MAXTYPE)
-    throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::NewPart : Not recognized MEDCoupling/MEDLoader geometric type !");
-  med_geometry_type geoElt(typmai3[geoElt2]);
-  med_entity_type whichEntity;
-  if(!isExisting(fid,mName,dt,it,geoElt,whichEntity))
-    throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::NewPart : The specified geo type is not present in the specified mesh !");
-  MCAuto<MEDFileUMeshPerType> ret(new MEDFileUMeshPerType);
-  ret->loadPart(fid,mName,dt,it,mdim,geoElt,geoElt2,whichEntity,distrib,mrs);
+   MCAuto<MEDFileUMeshPerType> ret(new MEDFileUMeshPerType);
+  ret->loadPart(fid,mName,dt,it,mdim,geoElt,geoElt2,whichEntity,distrib,mrs);  
   return ret.retn();
 }
 
@@ -148,6 +139,16 @@ std::vector<const BigMemoryObject *> MEDFileUMeshPerType::getDirectChildrenWithN
   std::vector<const BigMemoryObject *> ret(MEDFileUMeshPerTypeCommon::getDirectChildrenWithNull());
   ret.push_back((const MEDCoupling1GTUMesh *)_m);
   return ret;
+}
+
+void MEDFileUMeshPerType::getMedTypes(med_idt fid, const char *mName, int dt, int it, INTERP_KERNEL::NormalizedCellType MCgeoElt, med_geometry_type& geoElt, med_entity_type& whichEntity)
+{
+  int geoElt2i((int)MCgeoElt);
+  if(geoElt2i<0 || geoElt2i>=INTERP_KERNEL::NORM_MAXTYPE)
+    throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::getMedTypes : Not recognized MEDCoupling/MEDLoader geometric type !");
+  geoElt = typmai3[MCgeoElt];
+  if(!isExisting(fid,mName,dt,it,geoElt,whichEntity))
+    throw INTERP_KERNEL::Exception("MEDFileUMeshPerType::getMedTypes : The specified geo type is not present in the specified mesh !");
 }
 
 bool MEDFileUMeshPerType::isExisting(med_idt fid, const char *mName, int dt, int it, med_geometry_type geoElt, med_entity_type& whichEntity)

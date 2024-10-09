@@ -132,6 +132,67 @@ MEDCouplingUMesh* genLocMeshMultipleTypes3()
 }
 
 /*
+ * Generate a 2D mesh that is supposed to match the part that will be loaded by proc0 in testParallelLoad6
+ */
+MEDCouplingUMesh* genPartialLocMeshMultipleTypes1()
+{
+  MCAuto<MEDCouplingUMesh> ret= MEDCouplingUMesh::New("mesh",2);
+  double coords[8] = {0.,2.,  1.,2.,  0.,3.,   1.,3.};
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(4,2);
+  std::copy(coords,coords+8,myCoords->getPointer());
+  ret->setCoords(myCoords);
+  myCoords->decrRef();
+  mcIdType conn[4]={0,1,3,2};
+  ret->allocateCells(1);
+  ret->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
+  ret->finishInsertingCells();
+  return ret.retn();
+}
+
+/*
+ * Generate a 2D mesh that is supposed to match the part that will be loaded by proc1 in testParallelLoad6
+ */
+MEDCouplingUMesh* genPartialLocMeshMultipleTypes2()
+{
+  MCAuto<MEDCouplingUMesh> ret= MEDCouplingUMesh::New("mesh",2);
+  double coords[6] = {0.,1.,  1.,1.,  1.,2.};
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(3,2);
+  std::copy(coords,coords+6,myCoords->getPointer());
+  ret->setCoords(myCoords);
+  myCoords->decrRef();
+  mcIdType conn[3]={0,1,2};
+  ret->allocateCells(1);
+  ret->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn);
+  ret->finishInsertingCells();
+  return ret.retn();
+}
+
+
+/*
+ * Generate a 2D mesh that is supposed to match the part that will be loaded by proc2 in testParallelLoad6
+ */
+MEDCouplingUMesh* genPartialLocMeshMultipleTypes3()
+{
+  MCAuto<MEDCouplingUMesh> ret= MEDCouplingUMesh::New("mesh",2);
+  double coords[12] = {1.,0.,  2.,0.,  1.,1.,  2.,1.,  1.,2.,  2.,2. };
+  DataArrayDouble *myCoords=DataArrayDouble::New();
+  myCoords->alloc(6,2);
+  std::copy(coords,coords+12,myCoords->getPointer());
+  ret->setCoords(myCoords);
+  myCoords->decrRef();
+  mcIdType conn[7]={0,1,3,  2,3,5,4};
+  ret->allocateCells(2);
+  ret->insertNextCell(INTERP_KERNEL::NORM_TRI3,3,conn);
+  ret->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+3);
+  ret->finishInsertingCells();
+  return ret.retn();
+}
+
+
+
+/*
  * Generate a 2D field that is supposed to match the local field loaded by each proc in testParallelLoad4
  */
 MEDCouplingFieldDouble *genLocFieldCells(int rank)
@@ -228,8 +289,10 @@ void ParaMEDMEMTest::testParallelLoad2()
    distrib= { {INTERP_KERNEL::NORM_TRI3,{0,1}} , {INTERP_KERNEL::NORM_QUAD4,{1,3}} };
 
   std::string filename=INTERP_TEST::getResourceFile("Test2DMultiGeoType.med");
+  //partial loading
   MCAuto<MEDFileUMesh> mu = ParaMEDFileUMesh::ParaNew(distrib, MPI_COMM_WORLD, MPI_INFO_NULL, filename, "mesh");
   MCAuto<MEDCouplingUMesh> mesh = mu->getMeshAtLevel(0);
+
   MEDCouplingUMesh *meshRef;
   if(rank==0)
       meshRef=genLocMeshMultipleTypes1();
@@ -242,8 +305,8 @@ void ParaMEDMEMTest::testParallelLoad2()
   int allEqual = -1;
   MPI_Allreduce(&equal, &allEqual, 1, MPI_INT,MPI_SUM,MPI_COMM_WORLD);
   CPPUNIT_ASSERT(allEqual==3);
-
   meshRef->decrRef();
+
   MPI_Barrier(MPI_COMM_WORLD);
 }
 
@@ -380,5 +443,49 @@ void ParaMEDMEMTest::testParallelLoad5()
   MPI_Barrier(MPI_COMM_WORLD);
 }
 
+
+/*!
+ * Test case to load a 2D mesh with multiple geometric types in parallel on 3 procs.
+ * Some procs may have empty partition to load for some types
+ */
+void ParaMEDMEMTest::testParallelLoad6()
+{
+	  int size;
+	  int rank;
+	  MPI_Comm_size(MPI_COMM_WORLD,&size);
+	  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+	  //
+	  if(size!=3)
+	    return ;
+
+	  std::map<INTERP_KERNEL::NormalizedCellType, std::vector<mcIdType>> distrib;
+	  // independant numerotation for each geometric type!
+	  if (rank == 0)
+	   distrib = { {INTERP_KERNEL::NORM_TRI3,{}} , {INTERP_KERNEL::NORM_QUAD4,{2}} };
+	 else if(rank == 1)
+	   distrib = { {INTERP_KERNEL::NORM_TRI3,{2}}  , {INTERP_KERNEL::NORM_QUAD4,{}} };
+	 else
+	   distrib= { {INTERP_KERNEL::NORM_TRI3,{0}} , {INTERP_KERNEL::NORM_QUAD4,{1}} };
+
+	  std::string filename=INTERP_TEST::getResourceFile("Test2DMultiGeoType.med");
+	  MCAuto<MEDFileUMesh> mu = ParaMEDFileUMesh::ParaNew(distrib, MPI_COMM_WORLD, MPI_INFO_NULL, filename, "mesh");
+	  MCAuto<MEDCouplingUMesh> mesh = mu->getMeshAtLevel(0);
+
+	  MEDCouplingUMesh *meshRef;
+	  if(rank==0)
+	      meshRef=genPartialLocMeshMultipleTypes1();
+	  else if(rank==1)
+	      meshRef=genPartialLocMeshMultipleTypes2();
+	  else
+	      meshRef=genPartialLocMeshMultipleTypes3();
+	  //checking that all 3 procs have correctly loaded their part
+	  int equal = (int)mesh->isEqual(meshRef,1e-12);
+	  int allEqual = -1;
+	  MPI_Allreduce(&equal, &allEqual, 1, MPI_INT,MPI_SUM,MPI_COMM_WORLD);
+	  CPPUNIT_ASSERT(allEqual==3);
+	  meshRef->decrRef();
+
+	  MPI_Barrier(MPI_COMM_WORLD);
+}
 
 

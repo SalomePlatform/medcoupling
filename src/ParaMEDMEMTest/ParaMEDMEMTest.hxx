@@ -92,6 +92,7 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST(testParallelLoad3);   // 2 procs
   CPPUNIT_TEST(testParallelLoad4);   // 2 procs
   CPPUNIT_TEST(testParallelLoad5);   // 2 procs
+  CPPUNIT_TEST(testParallelLoad6);   // 3 procs
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -163,6 +164,7 @@ public:
   void testParallelLoad3();
   void testParallelLoad4();
   void testParallelLoad5();
+  void testParallelLoad6();
 
   std::string getTmpDirectory();
   std::string makeTmpFile( const std::string&, const std::string& = "" );
