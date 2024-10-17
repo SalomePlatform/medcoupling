@@ -159,8 +159,9 @@ void numarrdeal2(void *pt, void *obj)
 }
 
 template<class MCData, class T>
-MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype, const char *msg)
+MCData *BuildNewInstance(PyObject *elt0Arr, int npyObjectType, PyTypeObject *pytype, const char *msg)
 {
+  PyArrayObject *elt0 = reinterpret_cast<PyArrayObject *>( elt0Arr );//PyObject_HEAD on top of struct tagPyArrayObject
   int ndim=PyArray_NDIM(elt0);
   if(ndim!=1 && ndim!=2)
     throw INTERP_KERNEL::Exception("Input numpy array should have dimension equal to 1 or 2 !");
@@ -175,7 +176,7 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
   npy_intp sz0=PyArray_DIM(elt0,0);
   npy_intp sz1=ndim==2?PyArray_DIM(elt0,1):1;
   //
-  int itemSize=PyArray_ITEMSIZE(elt0);
+  auto itemSize=PyArray_ITEMSIZE(elt0);
   if(itemSize!=sizeof(T))
     {
       std::ostringstream oss; oss << "Input numpy array has not itemSize set to " << sizeof(T) << " !";
@@ -194,7 +195,7 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
       PyArrayObject *eltOwning=(PyArray_FLAGS(elt0C) & MED_NUMPY_OWNDATA)?elt0C:NULL;
       int mask=MED_NUMPY_OWNDATA; mask=~mask;
       elt0C->flags&=mask;
-      PyObject *deepestObj=elt0;
+      PyObject *deepestObj=elt0Arr;
       PyObject *base=elt0C->base;
       if(base) deepestObj=base;
       bool isSpetialCase(false);
@@ -228,7 +229,7 @@ MCData *BuildNewInstance(PyObject *elt0, int npyObjectType, PyTypeObject *pytype
           PyCallBackDataArraySt<MCData> *cb=PyObject_GC_New(PyCallBackDataArraySt<MCData>,pytype);
           cb->_pt_mc=ret;
           ret->useArray(reinterpret_cast<const T *>(data),true,MEDCoupling::DeallocType::C_DEALLOC,sz0,sz1);
-          PyObject *ref=PyWeakref_NewRef(deepestObj,(PyObject *)cb);
+          PyObject *ref=PyWeakref_NewRef(reinterpret_cast<PyObject *>(deepestObj),(PyObject *)cb);
           void **objs=new void *[2]; objs[0]=cb; objs[1]=ref;
           mma.setParameterForDeallocator(objs);
           mma.setSpecificDeallocator(numarrdeal2<MCData>);
