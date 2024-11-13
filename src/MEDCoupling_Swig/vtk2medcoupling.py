@@ -25,6 +25,22 @@ from vtk.util import numpy_support
 import medcoupling as mc
 import numpy as np
 
+def patchForPolyedra(polyhedCellIds, ug, mesh):
+    """
+    Method in charge to change the connectivity of polyedra contained in mesh using ug vtkUnstructuredGrid.
+
+    :param in polyhedCellIds: mc.DataArrayInt of cells ids in mesh to be patched
+    :param in ug: vtkUnstructuredGrid containing polyhedra
+    :param in-out mesh: mc.MEDCouplingUMesh. 3D Mesh whose polyedra cells connectivity will be modified
+    """
+    facesLoc = mc.DataArrayInt( numpy_support.vtk_to_numpy( ug.GetFaceLocations() ) )
+    faces = mc.DataArrayInt( numpy_support.vtk_to_numpy( ug.GetFaces() ) ) 
+    facesLoc = mc.DataArrayInt.Aggregate( [ facesLoc, mc.DataArrayInt([ len(faces) ]) ] )
+    connForPoly, facesLoc = mc.DataArrayInt.FromVTKInternalReprOfPolyedra(faces,facesLoc)
+    meshPoly = mc.MEDCoupling1DGTUMesh(mesh.getName(),mc.NORM_POLYHED) ; meshPoly.setCoords( mesh.getCoords() ) ; meshPoly.setNodalConnectivity(connForPoly,facesLoc)
+    mesh[polyhedCellIds] = meshPoly.buildUnstructured()
+    pass
+
 def mesh_convertor(fileName):
     #vtk.vtkDataSetReader()
     reader = vtk.vtkXMLUnstructuredGridReader()
@@ -68,5 +84,10 @@ def mesh_convertor_mem(ug):
     m.setCoords(mc.DataArrayDouble(np.array(pts,dtype=np.float64)))
     m.setConnectivity(c,ci,True)
     m.checkConsistencyLight()
+    #
+    if m.getMeshDimension() == 3:
+        polyhedCellIds = ct.findIdsEqual(mc.NORM_POLYHED)
+        if not polyhedCellIds.empty():
+            patchForPolyedra(polyhedCellIds, ug, m)
     #
     return m

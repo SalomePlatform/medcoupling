@@ -7479,6 +7479,52 @@ struct NotInRange
     arrOut=arro.retn();
     arrIndexOut=arrIo.retn();
   }
+  
+  /*!
+   * This method converts from VTK polyhedra nodal connectivity to MED.
+   *
+   * \param [in] arrIn arr origin array from which the extraction will be done.
+   * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
+   * \param [out] arrOut the resulting array
+   * \param [out] arrIndexOut the index array of the resulting array \b arrOut
+   */
+  template <class T>
+  void DataArrayDiscrete<T>::FromVTKInternalReprOfPolyedra(const DataArrayType *arrIn, const DataArrayIdType *arrIndxIn,
+                                                           MCAuto<DataArrayType> &arrOut, MCAuto<DataArrayIdType> &arrIndexOut)
+  {
+    if(!arrIn || !arrIndxIn)
+      throw INTERP_KERNEL::Exception("DataArrayInt::FromVTKInternalReprOfPolyedra : input pointer is NULL !");
+    arrIn->checkAllocated(); arrIndxIn->checkAllocated();
+    arrIn->checkNbOfComps(1,"1st array must have single component");
+    arrIndxIn->checkNbOfComps(1,"2nd array must have single component");
+    if(arrIndxIn->getNumberOfTuples()<1)
+      THROW_IK_EXCEPTION("2nd input array must be of size >= 1");
+    mcIdType nbCells(arrIndxIn->getNumberOfTuples()-1);
+    const T *arrInPt(arrIn->begin());
+    const mcIdType *arrIndxInPt(arrIndxIn->begin());
+    arrIndexOut = DataArrayIdType::New(); arrIndexOut->alloc(arrIndxIn->getNumberOfTuples(),1);
+    arrOut = DataArrayType::New(); arrOut->alloc(arrIn->getNumberOfTuples() - 2*nbCells,1);
+    T *arrOutPt(arrOut->getPointer());
+    mcIdType *arrOutIdxPt(arrIndexOut->getPointer()); *arrOutIdxPt = 0;
+    for(auto i = 0 ; i < nbCells ; ++i)
+    {
+      T nbFaces = arrInPt[ arrIndxInPt[i] ];
+      T *arrOutPtStart(arrOutPt);
+      const T *facePtr = arrInPt + arrIndxInPt[i] + 1;
+      for(T iFace = 0 ; iFace < nbFaces ; ++iFace)
+      {
+        T nbNodesInFace = *facePtr++;
+        if(iFace>0)
+        {
+          *arrOutPt++ = -1;
+        }
+        arrOutPt = std::copy(facePtr,facePtr+nbNodesInFace,arrOutPt);
+        facePtr += nbNodesInFace;
+      }
+      arrOutIdxPt[1] = arrOutIdxPt[0] + std::distance(arrOutPtStart,arrOutPt);
+      ++arrOutIdxPt;
+    }
+  }
 
   /*!
    * This method works on a pair input (\b arrIn, \b arrIndxIn) where \b arrIn indexes is in \b arrIndxIn

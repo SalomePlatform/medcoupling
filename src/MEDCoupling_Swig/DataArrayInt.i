@@ -2210,6 +2210,17 @@
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(arrIndexOut),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
+      
+      static PyObject *FromVTKInternalReprOfPolyedra(const ARRAY *arrIn, const DataArrayIdType *arrIndxIn) throw(INTERP_KERNEL::Exception)
+      {
+        MCAuto<ARRAY> arrOut;
+        MCAuto<DataArrayIdType> arrIndexOut;
+        ARRAY::FromVTKInternalReprOfPolyedra(arrIn,arrIndxIn,arrOut,arrIndexOut);
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(arrOut.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(arrIndexOut.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
 
       static void SetPartOfIndexedArraysSameIdx(PyObject *li, ARRAY *arrIn, const DataArrayIdType *arrIndxIn,
                                                 const ARRAY *srcArr, const DataArrayIdType *srcArrIndex) throw(INTERP_KERNEL::Exception)

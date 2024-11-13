@@ -700,6 +700,8 @@ namespace MEDCoupling
                                                                       const DataArrayType *srcArr, const DataArrayIdType *srcArrIndex);
     static bool RemoveIdsFromIndexedArrays(const T *idsToRemoveBg, const T *idsToRemoveEnd,
                                                               DataArrayType *arr, DataArrayIdType *arrIndx, mcIdType offsetForRemoval=0);
+    static void FromVTKInternalReprOfPolyedra(const DataArrayType *arrIn, const DataArrayIdType *arrIndxIn,
+                                              MCAuto<DataArrayType> &arrOut, MCAuto<DataArrayIdType> &arrIndexOut);                                                        
     static DataArrayType *Range(T begin, T end, T step);
   public:
     void getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const;

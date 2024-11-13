@@ -1544,6 +1544,24 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
       c,ci = arr.findCommonTuples(2)
       self.assertTrue( ci.isEqual( DataArrayInt([0,2,5]) ) )
       self.assertTrue( c.isEqual( DataArrayInt([0,4, 1,6,7]) ) )
+      
+    def testDAIFromVTKInternalReprOfPolyedra(self):
+      """
+      EDF31315 : VTK internal representation of polyedra data structure 
+      """
+      faces = DataArrayInt64( [11, 4, 7199, 6757, 2950, 6758, 5, 6455, 1794, 2400, 6620, 7200, 6, 6620, 2400, 5864, 2950, 6757, 7244, 6, 6758, 2950, 5864, 3223, 6818, 7245, 5, 7246, 6818, 3223, 1794, 6455, 4, 1794, 3223, 5864, 2400, 4, 0, 7246, 6455, 7200, 4, 0, 7200, 6620, 7244, 4, 0, 7244, 6757, 7199, 4, 0, 7199, 6758, 7245, 4, 0, 7245, 6818, 7246,
+         12, 5, 6408, 978, 1721, 6441, 7203, 4, 7204, 7007, 3987, 7008, 6, 6441, 1721, 5813, 3987, 7007, 7247, 5, 7248, 7130, 4480, 978, 6408, 6, 7008, 3987, 5813, 4480, 7130, 7249, 4, 978, 4480, 5813, 1721, 4, 1, 7248, 6408, 7203, 4, 1, 7203, 6441, 7247, 4, 1, 7247, 7007, 7204, 4, 1, 7204, 7008, 7249, 3, 1, 7249, 7130, 5, 1, 7, 6, 5, 4] )
+      facesIndex = DataArrayInt( [0, 62, 129] )
+      facesOut, facesIndexOut = DataArrayInt64.FromVTKInternalReprOfPolyedra(faces,facesIndex)
+      m =MEDCoupling1DGTUMesh("mesh",NORM_POLYHED)
+      m.setCoords(DataArrayDouble(10000,3))
+      m.setNodalConnectivity(facesOut,facesIndexOut)
+      m = m.buildUnstructured()
+      self.assertTrue( m.computeNbOfFacesPerCell().isEqual(DataArrayInt([11,12])) )
+      connExp = DataArrayInt64( [31, 7199, 6757, 2950, 6758, -1, 6455, 1794, 2400, 6620, 7200, -1, 6620, 2400, 5864, 2950, 6757, 7244, -1, 6758, 2950, 5864, 3223, 6818, 7245, -1, 7246, 6818, 3223, 1794, 6455, -1, 1794, 3223, 5864, 2400, -1, 0, 7246, 6455, 7200, -1, 0, 7200, 6620, 7244, -1, 0, 7244, 6757, 7199, -1, 0, 7199, 6758, 7245, -1, 0, 7245, 6818, 7246, 31, 6408, 978, 1721, 6441, 7203, -1, 7204, 7007, 3987, 7008, -1, 6441, 1721, 5813, 3987, 7007, 7247, -1, 7248, 7130, 4480, 978, 6408, -1, 7008, 3987, 5813, 4480, 7130, 7249, -1, 978, 4480, 5813, 1721, -1, 1, 7248, 6408, 7203, -1, 1, 7203, 6441, 7247, -1, 1, 7247, 7007, 7204, -1, 1, 7204, 7008, 7249, -1, 1, 7249, 7130, -1, 1, 7, 6, 5, 4] )
+      connIndexExp = DataArrayInt( [0, 61, 127] )
+      self.assertTrue( m.getNodalConnectivity().isEqual( connExp ) )
+      self.assertTrue( m.getNodalConnectivityIndex().isEqual( connIndexExp ) )
 
 if __name__ == '__main__':
     unittest.main()
