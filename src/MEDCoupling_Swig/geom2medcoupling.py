@@ -34,6 +34,7 @@ def __to_geomshape_3D(mcmesh):
     geompy = geomBuilder.New()
 
     mcmesh2 = mcmesh.deepCopyConnectivityOnly()
+    mcmesh2.zipCoords()
     vertices = [ geompy.MakeVertex(*list(elt)) for elt in mcmesh2.getCoords()]
 
     mcfaces = mcmesh2.buildDescendingConnectivity()[0]
