@@ -34,7 +34,8 @@ def patchForPolyedra(polyhedCellIds, ug, mesh):
     :param in-out mesh: mc.MEDCouplingUMesh. 3D Mesh whose polyedra cells connectivity will be modified
     """
     facesLoc = mc.DataArrayInt( numpy_support.vtk_to_numpy( ug.GetFaceLocations() ) )
-    faces = mc.DataArrayInt( numpy_support.vtk_to_numpy( ug.GetFaces() ) ) 
+    faces = mc.DataArrayInt( numpy_support.vtk_to_numpy( ug.GetFaces() ) )
+    facesLoc = facesLoc[ polyhedCellIds ]
     facesLoc = mc.DataArrayInt.Aggregate( [ facesLoc, mc.DataArrayInt([ len(faces) ]) ] )
     connForPoly, facesLoc = mc.DataArrayInt.FromVTKInternalReprOfPolyedra(faces,facesLoc)
     meshPoly = mc.MEDCoupling1DGTUMesh(mesh.getName(),mc.NORM_POLYHED) ; meshPoly.setCoords( mesh.getCoords() ) ; meshPoly.setNodalConnectivity(connForPoly,facesLoc)
