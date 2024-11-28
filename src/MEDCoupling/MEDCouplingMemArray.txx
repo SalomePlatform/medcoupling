@@ -430,13 +430,13 @@ namespace MEDCoupling
   }
 
   template<class T>
-  void MemArray<T>::CPPDeallocator(void *pt, void *param)
+  void MemArray<T>::CPPDeallocator(void *pt, void */*param*/)
   {
     delete [] reinterpret_cast<T*>(pt);
   }
 
   template<class T>
-  void MemArray<T>::CDeallocator(void *pt, void *param)
+  void MemArray<T>::CDeallocator(void *pt, void */*param*/)
   {
     free(pt);
   }
@@ -598,9 +598,9 @@ namespace MEDCoupling
       }
     mcIdType nbElems=DataArrayTools<T>::GetNumberOfItemGivenBESRelative(start,stop,step,"DataArray::GetSlice");
     mcIdType minNbOfElemsPerSlice=nbElems/nbOfSlices;
-    startSlice=start+minNbOfElemsPerSlice*step*sliceId;
+    startSlice=start+FromIdType<T>(minNbOfElemsPerSlice)*step*FromIdType<T>(sliceId);
     if(sliceId<nbOfSlices-1)
-      stopSlice=start+minNbOfElemsPerSlice*step*(sliceId+1);
+      stopSlice=start+FromIdType<T>(minNbOfElemsPerSlice)*step*(FromIdType<T>(sliceId+1));
     else
       stopSlice=stop;
   }
@@ -3498,7 +3498,7 @@ struct NotInRange
   }
 
   template<class T>
-  struct ImplReprTraits { static void SetPrecision(std::ostream& oss) { } };
+  struct ImplReprTraits { static void SetPrecision(std::ostream& /*oss*/) { } };
 
   template<>
   struct ImplReprTraits<double> {  static void SetPrecision(std::ostream& oss) { oss.precision(17); } };

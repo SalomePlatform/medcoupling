@@ -43,6 +43,8 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <vector>
+#include <memory>
+
 #ifdef WIN32
 #include<direct.h>
 #define getcwd _getcwd
@@ -855,7 +857,7 @@ void MEDPARTITIONERTest::testMeshCollectionSinglePartitionMetis()
   MEDPARTITIONER::ParallelTopology* aPT = (MEDPARTITIONER::ParallelTopology*) collection.getTopology();
   aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
   //Creating the graph and partitioning it
-  auto_ptr< MEDPARTITIONER::Topology > new_topo;
+  unique_ptr< MEDPARTITIONER::Topology > new_topo;
   new_topo.reset( collection.createPartition(ndomains,MEDPARTITIONER::Graph::METIS) );
   //Creating a new mesh collection from the partitioning
   MEDPARTITIONER::MeshCollection new_collection(collection,new_topo.get(),split_family,empty_groups);

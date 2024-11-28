@@ -43,6 +43,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <iostream>
+#include <memory>
 
 using namespace std;
 using namespace MEDPARTITIONER;
@@ -212,7 +213,7 @@ int main(int argc, char** argv)
       //Creating the graph and partitioning it
       if (MyGlobals::_Is0verbose) cout << "Computing partition with " << library << endl;
   
-      auto_ptr< MEDPARTITIONER::Topology > new_topo;
+      unique_ptr< MEDPARTITIONER::Topology > new_topo;
       if (library == "metis")
         new_topo.reset( collection.createPartition(ndomains,MEDPARTITIONER::Graph::METIS));
       else

@@ -181,7 +181,7 @@ namespace MEDCoupling
         nbOfElemsInt = CommInterface::ToIntArray<mcIdType>(nbOfElems,size);
         offsetsIn = CommInterface::ComputeOffset(nbOfElemsInt,size);
       }
-      this->gatherV(array->begin(),nbOfCellsRequested,ParaTraits<T>::MPIDataType,result.get(),nbOfElemsInt.get(),offsetsIn.get(),ParaTraits<T>::MPIDataType,root,comm);
+      this->gatherV(array->begin(),FromIdType<int>(nbOfCellsRequested),ParaTraits<T>::MPIDataType,result.get(),nbOfElemsInt.get(),offsetsIn.get(),ParaTraits<T>::MPIDataType,root,comm);
       if(rank==root)
       {
         resultIndex = ComputeOffsetFull<mcIdType>(nbOfElems,size);
@@ -222,7 +222,7 @@ namespace MEDCoupling
       result.reset(new T[nbOfCellIdsSum]);
       std::unique_ptr<int[]> nbOfElemsInt( CommInterface::ToIntArray<mcIdType>(nbOfElems,size) );
       std::unique_ptr<int[]> offsetsIn( CommInterface::ComputeOffset(nbOfElemsInt,size) );
-      this->allGatherV(array->begin(),nbOfCellsRequested,ParaTraits<T>::MPIDataType,result.get(),nbOfElemsInt.get(),offsetsIn.get(),ParaTraits<T>::MPIDataType,comm);
+      this->allGatherV(array->begin(),FromIdType<int>(nbOfCellsRequested),ParaTraits<T>::MPIDataType,result.get(),nbOfElemsInt.get(),offsetsIn.get(),ParaTraits<T>::MPIDataType,comm);
       resultIndex = ComputeOffsetFull<mcIdType>(nbOfElems,size);
       return size;
     }
