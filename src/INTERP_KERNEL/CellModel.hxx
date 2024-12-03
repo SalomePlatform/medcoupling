@@ -54,32 +54,32 @@ namespace INTERP_KERNEL
   public:
     INTERPKERNEL_EXPORT static const CellModel& GetCellModel(NormalizedCellType type);
     INTERPKERNEL_EXPORT static const std::map<NormalizedCellType,CellModel>& GetMapOfUniqueInstance();
-    INTERPKERNEL_EXPORT NormalizedCellType getEnum() const { return _type; }
+    NormalizedCellType getEnum() const { return _type; }
     INTERPKERNEL_EXPORT const char *getRepr() const;
-    INTERPKERNEL_EXPORT bool isExtruded() const { return _is_extruded; }
-    INTERPKERNEL_EXPORT bool isDynamic() const { return _dyn; }
-    INTERPKERNEL_EXPORT bool isQuadratic() const { return _quadratic; }
-    INTERPKERNEL_EXPORT unsigned getDimension() const { return _dim; }
+    bool isExtruded() const { return _is_extruded; }
+    bool isDynamic() const { return _dyn; }
+    bool isQuadratic() const { return _quadratic; }
+    unsigned getDimension() const { return _dim; }
     INTERPKERNEL_EXPORT bool isCompatibleWith(NormalizedCellType type) const;
-    INTERPKERNEL_EXPORT bool isSimplex() const { return _is_simplex; }
+    bool isSimplex() const { return _is_simplex; }
     //! sonId is in C format.
-    INTERPKERNEL_EXPORT const unsigned *getNodesConstituentTheSon(unsigned sonId) const { return _sons_con[sonId]; }
-    INTERPKERNEL_EXPORT const unsigned *getNodesConstituentTheLittleSon(unsigned littleSonId) const { return _little_sons_con[littleSonId]; }
+    const unsigned *getNodesConstituentTheSon(unsigned sonId) const { return _sons_con[sonId]; }
+    const unsigned *getNodesConstituentTheLittleSon(unsigned littleSonId) const { return _little_sons_con[littleSonId]; }
     INTERPKERNEL_EXPORT bool getOrientationStatus(mcIdType lgth, const mcIdType *conn1, const mcIdType *conn2) const;
-    INTERPKERNEL_EXPORT unsigned getNumberOfNodes() const { return _nb_of_pts; }
-    INTERPKERNEL_EXPORT unsigned getNumberOfSons() const { return _nb_of_sons; }
+    unsigned getNumberOfNodes() const { return _nb_of_pts; }
+    unsigned getNumberOfSons() const { return _nb_of_sons; }
     INTERPKERNEL_EXPORT unsigned getNumberOfSons2(const mcIdType *conn, mcIdType lgth) const;
     INTERPKERNEL_EXPORT unsigned getNumberOfEdgesIn3D(const mcIdType *conn, mcIdType lgth) const;
     INTERPKERNEL_EXPORT unsigned getNumberOfMicroEdges() const;
-    INTERPKERNEL_EXPORT unsigned getNumberOfNodesConstituentTheSon(unsigned sonId) const { return _nb_of_sons_con[sonId]; }
+    unsigned getNumberOfNodesConstituentTheSon(unsigned sonId) const { return _nb_of_sons_con[sonId]; }
     INTERPKERNEL_EXPORT unsigned getNumberOfNodesConstituentTheSon2(unsigned sonId, const mcIdType *nodalConn, mcIdType lgth) const;
-    INTERPKERNEL_EXPORT NormalizedCellType getExtrudedType() const { return _extruded_type; }
+    NormalizedCellType getExtrudedType() const { return _extruded_type; }
     INTERPKERNEL_EXPORT NormalizedCellType getCorrespondingPolyType() const;
-    INTERPKERNEL_EXPORT NormalizedCellType getReverseExtrudedType() const { return _reverse_extruded_type; }
-    INTERPKERNEL_EXPORT NormalizedCellType getLinearType() const { return _linear_type; }
-    INTERPKERNEL_EXPORT NormalizedCellType getQuadraticType() const { return _quadratic_type; }
-    INTERPKERNEL_EXPORT NormalizedCellType getQuadraticType2() const { return _quadratic_type2; }
-    INTERPKERNEL_EXPORT NormalizedCellType getSonType(unsigned sonId) const { return _sons_type[sonId]; }
+    NormalizedCellType getReverseExtrudedType() const { return _reverse_extruded_type; }
+    NormalizedCellType getLinearType() const { return _linear_type; }
+    NormalizedCellType getQuadraticType() const { return _quadratic_type; }
+    NormalizedCellType getQuadraticType2() const { return _quadratic_type2; }
+    NormalizedCellType getSonType(unsigned sonId) const { return _sons_type[sonId]; }
     INTERPKERNEL_EXPORT NormalizedCellType getSonType2(unsigned sonId) const;
     INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity(int sonId, const mcIdType *nodalConn, mcIdType *sonNodalConn) const;
     INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity2(int sonId, const mcIdType *nodalConn, mcIdType lgth, mcIdType *sonNodalConn, NormalizedCellType& typeOfSon) const;

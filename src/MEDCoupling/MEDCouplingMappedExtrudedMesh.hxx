@@ -40,7 +40,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCouplingMappedExtrudedMesh *New(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, mcIdType cell2DId);
     MEDCOUPLING_EXPORT static MEDCouplingMappedExtrudedMesh *New(const MEDCouplingCMesh *mesh3D);
     MEDCOUPLING_EXPORT static MEDCouplingMappedExtrudedMesh *New();
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingMappedExtrudedMesh"); }
+    std::string getClassName() const override { return std::string("MEDCouplingMappedExtrudedMesh"); }
     MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -74,9 +74,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void getBoundingBox(double *bbox) const;
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT void renumberCells(const mcIdType *old2NewBg, bool check=true);
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *getMesh2D() const { return _mesh2D.iAmATrollConstCast(); }
-    MEDCOUPLING_EXPORT MEDCouplingUMesh *getMesh1D() const { return _mesh1D.iAmATrollConstCast(); }
-    MEDCOUPLING_EXPORT DataArrayIdType *getMesh3DIds() const { return _mesh3D_ids.iAmATrollConstCast(); }
+    MEDCouplingUMesh *getMesh2D() const { return _mesh2D.iAmATrollConstCast(); }
+    MEDCouplingUMesh *getMesh1D() const { return _mesh1D.iAmATrollConstCast(); }
+    DataArrayIdType *getMesh3DIds() const { return _mesh3D_ids.iAmATrollConstCast(); }
     MEDCOUPLING_EXPORT MEDCouplingUMesh *build3DUnstructuredMesh() const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *buildUnstructured() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(bool) const;
@@ -110,7 +110,7 @@ namespace MEDCoupling
                                             const std::vector<std::string>& littleStrings);
     MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
     MEDCOUPLING_EXPORT std::string getVTKFileExtension() const;
-    MEDCOUPLING_EXPORT mcIdType get2DCellIdForExtrusion() const { return _cell_2D_id; }
+    mcIdType get2DCellIdForExtrusion() const { return _cell_2D_id; }
   private:
     MEDCouplingMappedExtrudedMesh(const MEDCouplingUMesh *mesh3D, const MEDCouplingUMesh *mesh2D, mcIdType cell2DId);
     MEDCouplingMappedExtrudedMesh(const MEDCouplingCMesh *mesh3D);

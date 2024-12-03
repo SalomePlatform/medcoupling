@@ -32,9 +32,9 @@ namespace MEDCoupling
   class MEDCouplingFieldDiscretizationOnNodesFE : public MEDCouplingFieldDiscretizationOnNodes
   {
     public:
-      MEDCOUPLING_EXPORT TypeOfField getEnum() const override { return TYPE; }
-      MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldDiscretizationOnNodesFE"); }
-      MEDCOUPLING_EXPORT const char *getRepr() const override { return REPR; }
+      TypeOfField getEnum() const override { return TYPE; }
+      std::string getClassName() const override { return std::string("MEDCouplingFieldDiscretizationOnNodesFE"); }
+      MEDCOUPLING_EXPORT  const char *getRepr() const override;
       MEDCOUPLING_EXPORT std::string getStringRepr() const override;
       MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const override;
       MEDCOUPLING_EXPORT MCAuto<MEDCouplingFieldDiscretization> aggregate(std::vector<const MEDCouplingFieldDiscretization *>& fds) const override;
@@ -48,7 +48,7 @@ namespace MEDCoupling
       MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> getCooInRefElement(const MEDCouplingMesh *mesh, const double *loc, mcIdType nbOfPoints) const;
     public:
       MEDCOUPLING_EXPORT static void GetRefCoordOfListOf3DPtsIn3D(const MEDCouplingUMesh *umesh, const double *ptsCoo, mcIdType nbOfPts,
-  std::function<void(const MEDCouplingGaussLocalization&, const std::vector<mcIdType>&)> customFunc);
+      std::function<void(const MEDCouplingGaussLocalization&, const std::vector<mcIdType>&)> customFunc);
     private:
       const MEDCouplingUMesh *checkConfig3D(const MEDCouplingMesh *mesh) const;
     public:

@@ -47,16 +47,16 @@ namespace INTERP_KERNEL
   public:
     INTERPKERNEL_EXPORT IteratorOnComposedEdge();
     INTERPKERNEL_EXPORT IteratorOnComposedEdge(ComposedEdge *compEdges);
-    INTERPKERNEL_EXPORT bool isValid() const { return _list_handle!=0; } 
+    bool isValid() const { return _list_handle!=0; } 
     INTERPKERNEL_EXPORT void operator=(const IteratorOnComposedEdge& other);
-    INTERPKERNEL_EXPORT void first() { _deep_it=_list_handle->begin(); }
-    INTERPKERNEL_EXPORT void next() { _deep_it++; }
+    void first() { _deep_it=_list_handle->begin(); }
+    void next() { _deep_it++; }
     INTERPKERNEL_EXPORT void last();
     INTERPKERNEL_EXPORT void nextLoop();
     INTERPKERNEL_EXPORT void previousLoop();
-    INTERPKERNEL_EXPORT bool finished() const { return _deep_it==_list_handle->end(); }
+    bool finished() const { return _deep_it==_list_handle->end(); }
     INTERPKERNEL_EXPORT bool goToNextInOn(bool direction, int& i, int nbMax);
-    INTERPKERNEL_EXPORT ElementaryEdge *current() { return *_deep_it; }
+    ElementaryEdge *current() { return *_deep_it; }
     INTERPKERNEL_EXPORT void assignMySelfToAllElems(ComposedEdge *elems);
     INTERPKERNEL_EXPORT void insertElemEdges(ComposedEdge *elems, bool changeMySelf);
     INTERPKERNEL_EXPORT void eraseCurrent();

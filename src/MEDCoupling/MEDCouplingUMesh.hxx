@@ -41,7 +41,7 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *New();
     MEDCOUPLING_EXPORT static MEDCouplingUMesh *New(const std::string& meshName, int meshDim);
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingUMesh"); }
+    std::string getClassName() const override { return std::string("MEDCouplingUMesh"); }
     // Copy methods
     MEDCOUPLING_EXPORT MEDCouplingUMesh *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *clone(bool recDeepCpy) const;
@@ -51,7 +51,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return UNSTRUCTURED; }
+    MEDCouplingMeshType getType() const { return UNSTRUCTURED; }
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;
@@ -68,10 +68,10 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::vector<INTERP_KERNEL::NormalizedCellType> getAllGeoTypesSorted() const;
     MEDCOUPLING_EXPORT std::set<INTERP_KERNEL::NormalizedCellType> getTypesOfPart(const mcIdType *begin, const mcIdType *end) const;
     MEDCOUPLING_EXPORT void setConnectivity(DataArrayIdType *conn, DataArrayIdType *connIndex, bool isComputingTypes=true);
-    MEDCOUPLING_EXPORT const DataArrayIdType *getNodalConnectivity() const { return _nodal_connec; }
-    MEDCOUPLING_EXPORT const DataArrayIdType *getNodalConnectivityIndex() const { return _nodal_connec_index; }
-    MEDCOUPLING_EXPORT DataArrayIdType *getNodalConnectivity() { return _nodal_connec; }
-    MEDCOUPLING_EXPORT DataArrayIdType *getNodalConnectivityIndex() { return _nodal_connec_index; }
+    const DataArrayIdType *getNodalConnectivity() const { return _nodal_connec; }
+    const DataArrayIdType *getNodalConnectivityIndex() const { return _nodal_connec_index; }
+    DataArrayIdType *getNodalConnectivity() { return _nodal_connec; }
+    DataArrayIdType *getNodalConnectivityIndex() { return _nodal_connec_index; }
     MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getTypeOfCell(mcIdType cellId) const;
     MEDCOUPLING_EXPORT DataArrayIdType *giveCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;
     MEDCOUPLING_EXPORT mcIdType getNumberOfCellsWithType(INTERP_KERNEL::NormalizedCellType type) const;

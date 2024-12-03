@@ -20,6 +20,14 @@
 
 #include "InterpKernelException.hxx"
 
+INTERP_KERNEL::Exception::Exception() noexcept
+{
+}
+
+INTERP_KERNEL::Exception::Exception(const Exception & other) noexcept: _reason(other._reason)
+{
+}
+
 INTERP_KERNEL::Exception::Exception(const char *reason):_reason(reason)
 {
 }
@@ -32,11 +40,11 @@ INTERP_KERNEL::Exception::Exception(const char *reason, const char *file, int li
 {
 }
 
-INTERP_KERNEL::Exception::~Exception() noexcept(true)
+INTERP_KERNEL::Exception::~Exception()
 {
 }
 
-const char *INTERP_KERNEL::Exception::what() const noexcept(true)
+const char *INTERP_KERNEL::Exception::what() const noexcept
 {
   return _reason.c_str();
 }

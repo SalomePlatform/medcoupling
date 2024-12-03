@@ -46,13 +46,13 @@ namespace INTERP_KERNEL
   {
     friend class IteratorOnComposedEdge;
   public:
-    INTERPKERNEL_EXPORT ComposedEdge() { }
+    ComposedEdge() { }
     INTERPKERNEL_EXPORT ComposedEdge(const ComposedEdge& other);
-    INTERPKERNEL_EXPORT ComposedEdge(int sz):_sub_edges(sz) { }
-    INTERPKERNEL_EXPORT static void Delete(ComposedEdge *pt) { delete pt; }
-    INTERPKERNEL_EXPORT static void SoftDelete(ComposedEdge *pt) { pt->_sub_edges.clear(); delete pt; }
+    ComposedEdge(int sz):_sub_edges(sz) { }
+    static void Delete(ComposedEdge *pt) { delete pt; }
+    static void SoftDelete(ComposedEdge *pt) { pt->_sub_edges.clear(); delete pt; }
     INTERPKERNEL_EXPORT void reverse();
-    INTERPKERNEL_EXPORT int recursiveSize() const { return (int)_sub_edges.size(); }
+    int recursiveSize() const { return (int)_sub_edges.size(); }
     INTERPKERNEL_EXPORT bool presenceOfOn() const;
     INTERPKERNEL_EXPORT bool presenceOfQuadraticEdge() const;
     INTERPKERNEL_EXPORT void initLocations() const;
@@ -87,18 +87,18 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT void applySimilarityOnMyEdgesIfNotAlreadyHit(double xBary, double yBary, double dimChar) const;
     INTERPKERNEL_EXPORT void unApplySimilarityOnMyEdgesIfNotAlreadyHit(double xBary, double yBary, double dimChar) const;
     INTERPKERNEL_EXPORT void getBarycenter(double *bary, double& weigh) const;
-    INTERPKERNEL_EXPORT bool completed() const { return getEndNode()==getStartNode(); }
+    bool completed() const { return getEndNode()==getStartNode(); }
     INTERPKERNEL_EXPORT void setValueAt(int i, Edge *e, bool direction=true);
     INTERPKERNEL_EXPORT double getCommonLengthWith(const ComposedEdge& other) const;
     INTERPKERNEL_EXPORT void clear();
-    INTERPKERNEL_EXPORT bool empty() const { return _sub_edges.empty(); }
-    INTERPKERNEL_EXPORT ElementaryEdge *front() const { return _sub_edges.front(); }
-    INTERPKERNEL_EXPORT ElementaryEdge *back() const { return _sub_edges.back(); }
-    INTERPKERNEL_EXPORT void resize(int i) { _sub_edges.resize(i); }
+    bool empty() const { return _sub_edges.empty(); }
+    ElementaryEdge *front() const { return _sub_edges.front(); }
+    ElementaryEdge *back() const { return _sub_edges.back(); }
+    void resize(int i) { _sub_edges.resize(i); }
     INTERPKERNEL_EXPORT void pushBack(Edge *edge, bool direction=true);
     INTERPKERNEL_EXPORT void pushBack(ElementaryEdge *elem);
     INTERPKERNEL_EXPORT void pushBack(ComposedEdge *elem);
-    INTERPKERNEL_EXPORT int size() const { return (int)_sub_edges.size(); }
+    int size() const { return (int)_sub_edges.size(); }
     INTERPKERNEL_EXPORT ElementaryEdge *operator[](int i) const;
     INTERPKERNEL_EXPORT Node *getEndNode() const;
     INTERPKERNEL_EXPORT Node *getStartNode() const;
@@ -114,7 +114,7 @@ namespace INTERP_KERNEL
     std::list<ElementaryEdge *>* getListBehind() { return &_sub_edges; }
     double isInOrOutAlg(Node *nodeToTest, const std::set<Node*>& nodes, std::set< IntersectElement >& inOutSwitch) const;
   protected:
-    ~ComposedEdge();
+    INTERPKERNEL_EXPORT ~ComposedEdge();
   private:
     void clearAll(std::list<ElementaryEdge *>::iterator startToDel);
   protected:

@@ -38,7 +38,7 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT static MEDCouplingDefinitionTimeSlice *New(const MEDCouplingFieldDouble *f, int meshId, const std::vector<int>& arrId, int fieldId);
     MEDCOUPLING_EXPORT static MEDCouplingDefinitionTimeSlice *New(TypeOfTimeDiscretization type, const std::vector<int>& tiI, const std::vector<double>& tiD);
-    MEDCOUPLING_EXPORT int getArrayId() const { return _array_id; }
+    int getArrayId() const { return _array_id; }
     MEDCOUPLING_EXPORT virtual MEDCouplingDefinitionTimeSlice *copy() const = 0;
     MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const;
     MEDCOUPLING_EXPORT virtual void getHotSpotsTime(std::vector<double>& ret) const = 0;
@@ -58,7 +58,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool isAfterMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const;
     MEDCOUPLING_EXPORT bool isBeforeMe(const MEDCouplingDefinitionTimeSlice *other, double eps) const;
   protected:
-    MEDCOUPLING_EXPORT MEDCouplingDefinitionTimeSlice() { }
+    MEDCouplingDefinitionTimeSlice() { }
     MEDCOUPLING_EXPORT MEDCouplingDefinitionTimeSlice(const MEDCouplingFieldDouble *f, int meshId, int arrId, int fieldId);
   protected:
     int _mesh_id;
@@ -70,7 +70,7 @@ namespace MEDCoupling
   {
   public:
     static MEDCouplingDefinitionTimeSliceInst *New(const std::vector<int>& tiI, const std::vector<double>& tiD);
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingDefinitionTimeSliceInst"); }
+    std::string getClassName() const override { return std::string("MEDCouplingDefinitionTimeSliceInst"); }
     MEDCouplingDefinitionTimeSlice *copy() const;
     bool isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const;
     void getHotSpotsTime(std::vector<double>& ret) const;
@@ -94,7 +94,7 @@ namespace MEDCoupling
   {
   public:
     static MEDCouplingDefinitionTimeSliceCstOnTI *New(const std::vector<int>& tiI, const std::vector<double>& tiD);
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingDefinitionTimeSliceCstOnTI"); }
+    std::string getClassName() const override { return std::string("MEDCouplingDefinitionTimeSliceCstOnTI"); }
     MEDCouplingDefinitionTimeSlice *copy() const;
     bool isEqual(const MEDCouplingDefinitionTimeSlice& other, double eps) const;
     void getHotSpotsTime(std::vector<double>& ret) const;
@@ -151,7 +151,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDCOUPLING_EXPORT void assign(const MEDCouplingDefinitionTime& other);
     MEDCOUPLING_EXPORT bool isEqual(const MEDCouplingDefinitionTime& other) const;
-    MEDCOUPLING_EXPORT double getTimeResolution() const { return _eps; }
+    double getTimeResolution() const { return _eps; }
     MEDCOUPLING_EXPORT void getIdsOnTimeRight(double tm, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const;
     MEDCOUPLING_EXPORT void getIdsOnTimeLeft(double tm, int& meshId, int& arrId, int& arrIdInField, int& fieldId) const;
     MEDCOUPLING_EXPORT void getIdsOnTime(double tm, std::vector<int>& meshIds, std::vector<int>& arrIds, std::vector<int>& arrIdsInField, std::vector<int>& fieldIds) const;

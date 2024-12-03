@@ -33,7 +33,7 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT static MEDCouplingCMesh *New();
     MEDCOUPLING_EXPORT static MEDCouplingCMesh *New(const std::string& meshName);
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingCMesh"); }
+    std::string getClassName() const override { return std::string("MEDCouplingCMesh"); }
     MEDCOUPLING_EXPORT MEDCouplingCMesh *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingCMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT const DataArrayDouble *getDirectAccessOfCoordsArrIfInStructure() const;
@@ -41,7 +41,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return CARTESIAN; }
+    MEDCouplingMeshType getType() const { return CARTESIAN; }
     MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingMesh *other);
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;

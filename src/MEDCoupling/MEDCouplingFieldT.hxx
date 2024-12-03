@@ -48,32 +48,32 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT typename Traits<T>::FieldType *buildSubPart(const DataArrayIdType *part) const;
     MEDCOUPLING_EXPORT typename Traits<T>::FieldType *buildSubPart(const mcIdType *partBg, const mcIdType *partEnd) const;
     MEDCOUPLING_EXPORT typename Traits<T>::FieldType *buildSubPartRange(mcIdType begin, mcIdType end, mcIdType step) const;
-    MEDCOUPLING_EXPORT void setArray(typename Traits<T>::ArrayType *array) { _time_discr->setArray(array,this); }
-    MEDCOUPLING_EXPORT void setEndArray(typename Traits<T>::ArrayType *array) { _time_discr->setEndArray(array,this); }
-    MEDCOUPLING_EXPORT const typename Traits<T>::ArrayType *getArray() const { return _time_discr->getArray(); }
-    MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *getArray() { return _time_discr->getArray(); }
-    MEDCOUPLING_EXPORT const typename Traits<T>::ArrayType *getEndArray() const { return _time_discr->getEndArray(); }
-    MEDCOUPLING_EXPORT typename Traits<T>::ArrayType *getEndArray() { return _time_discr->getEndArray(); }
-    MEDCOUPLING_EXPORT void setArrays(const std::vector<typename Traits<T>::ArrayType *>& arrs) { _time_discr->setArrays(arrs,this); }
-    MEDCOUPLING_EXPORT std::vector<typename Traits<T>::ArrayType *> getArrays() const { std::vector<typename Traits<T>::ArrayType *> ret; _time_discr->getArrays(ret); return ret; }
-    MEDCOUPLING_EXPORT void setTimeUnit(const std::string& unit) { _time_discr->setTimeUnit(unit); }
-    MEDCOUPLING_EXPORT std::string getTimeUnit() const { return _time_discr->getTimeUnit(); }
-    MEDCOUPLING_EXPORT void setTimeTolerance(double val) { _time_discr->setTimeTolerance(val); }
-    MEDCOUPLING_EXPORT double getTimeTolerance() const { return _time_discr->getTimeTolerance(); }
-    MEDCOUPLING_EXPORT void setIteration(int it) { _time_discr->setIteration(it); }
-    MEDCOUPLING_EXPORT void setEndIteration(int it) { _time_discr->setEndIteration(it); }
-    MEDCOUPLING_EXPORT void setOrder(int order) { _time_discr->setOrder(order); }
-    MEDCOUPLING_EXPORT void setEndOrder(int order) { _time_discr->setEndOrder(order); }
-    MEDCOUPLING_EXPORT void setTimeValue(double val) { _time_discr->setTimeValue(val); }
-    MEDCOUPLING_EXPORT void setEndTimeValue(double val) { _time_discr->setEndTimeValue(val); }
-    MEDCOUPLING_EXPORT void setTime(double val, int iteration, int order) { _time_discr->setTime(val,iteration,order); }
+    void setArray(typename Traits<T>::ArrayType *array) { _time_discr->setArray(array,this); }
+    void setEndArray(typename Traits<T>::ArrayType *array) { _time_discr->setEndArray(array,this); }
+    const typename Traits<T>::ArrayType *getArray() const { return _time_discr->getArray(); }
+    typename Traits<T>::ArrayType *getArray() { return _time_discr->getArray(); }
+    const typename Traits<T>::ArrayType *getEndArray() const { return _time_discr->getEndArray(); }
+    typename Traits<T>::ArrayType *getEndArray() { return _time_discr->getEndArray(); }
+    void setArrays(const std::vector<typename Traits<T>::ArrayType *>& arrs) { _time_discr->setArrays(arrs,this); }
+    std::vector<typename Traits<T>::ArrayType *> getArrays() const { std::vector<typename Traits<T>::ArrayType *> ret; _time_discr->getArrays(ret); return ret; }
+    void setTimeUnit(const std::string& unit) { _time_discr->setTimeUnit(unit); }
+    std::string getTimeUnit() const { return _time_discr->getTimeUnit(); }
+    void setTimeTolerance(double val) { _time_discr->setTimeTolerance(val); }
+    double getTimeTolerance() const { return _time_discr->getTimeTolerance(); }
+    void setIteration(int it) { _time_discr->setIteration(it); }
+    void setEndIteration(int it) { _time_discr->setEndIteration(it); }
+    void setOrder(int order) { _time_discr->setOrder(order); }
+    void setEndOrder(int order) { _time_discr->setEndOrder(order); }
+    void setTimeValue(double val) { _time_discr->setTimeValue(val); }
+    void setEndTimeValue(double val) { _time_discr->setEndTimeValue(val); }
+    void setTime(double val, int iteration, int order) { _time_discr->setTime(val,iteration,order); }
     MEDCOUPLING_EXPORT void synchronizeTimeWithMesh();
-    MEDCOUPLING_EXPORT void setStartTime(double val, int iteration, int order) { _time_discr->setStartTime(val,iteration,order); }
-    MEDCOUPLING_EXPORT void setEndTime(double val, int iteration, int order) { _time_discr->setEndTime(val,iteration,order); }
-    MEDCOUPLING_EXPORT double getTime(int& iteration, int& order) const { return _time_discr->getTime(iteration,order); }
-    MEDCOUPLING_EXPORT double getStartTime(int& iteration, int& order) const { return _time_discr->getStartTime(iteration,order); }
-    MEDCOUPLING_EXPORT double getEndTime(int& iteration, int& order) const { return _time_discr->getEndTime(iteration,order); }
-    MEDCOUPLING_EXPORT T getIJ(mcIdType tupleId, std::size_t compoId) const { return getArray()->getIJ(tupleId,compoId); }
+    void setStartTime(double val, int iteration, int order) { _time_discr->setStartTime(val,iteration,order); }
+    void setEndTime(double val, int iteration, int order) { _time_discr->setEndTime(val,iteration,order); }
+    double getTime(int& iteration, int& order) const { return _time_discr->getTime(iteration,order); }
+    double getStartTime(int& iteration, int& order) const { return _time_discr->getStartTime(iteration,order); }
+    double getEndTime(int& iteration, int& order) const { return _time_discr->getEndTime(iteration,order); }
+    T getIJ(mcIdType tupleId, std::size_t compoId) const { return getArray()->getIJ(tupleId,compoId); }
     MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec) const;
     MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec, std::string& reason) const;
     MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec) const;

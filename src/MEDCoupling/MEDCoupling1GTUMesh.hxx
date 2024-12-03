@@ -94,7 +94,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *New(const MEDCouplingUMesh *m);
     //! useless constructor only for CORBA -> not swigged
     MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *New();
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCoupling1SGTUMesh"); }
+    std::string getClassName() const override { return std::string("MEDCoupling1SGTUMesh"); }
     // Copy methods
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *deepCopy() const;
@@ -104,7 +104,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     // overload of MEDCouplingMesh
-    MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED; }
+    MEDCouplingMeshType getType() const { return SINGLE_STATIC_GEO_TYPE_UNSTRUCTURED; }
 
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
@@ -195,7 +195,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New(const MEDCouplingUMesh *m);
     //! useless constructor only for CORBA -> not swigged
     MEDCOUPLING_EXPORT static MEDCoupling1DGTUMesh *New();
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCoupling1DGTUMesh"); }
+    std::string getClassName() const override { return std::string("MEDCoupling1DGTUMesh"); }
     // Copy methods
     MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *deepCopy() const;
@@ -206,7 +206,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     // overload of MEDCouplingMesh
-    MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED; }
+    MEDCouplingMeshType getType() const { return SINGLE_DYNAMIC_GEO_TYPE_UNSTRUCTURED; }
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;
     MEDCOUPLING_EXPORT void checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const;

@@ -34,7 +34,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCouplingIMesh *New();
     MEDCOUPLING_EXPORT static MEDCouplingIMesh *New(const std::string& meshName, int spaceDim, const mcIdType *nodeStrctStart, const mcIdType *nodeStrctStop,
                                                     const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingIMesh"); }
+    std::string getClassName() const override { return std::string("MEDCouplingIMesh"); }
     //
     MEDCOUPLING_EXPORT void setSpaceDimension(int spaceDim);
     MEDCOUPLING_EXPORT void setNodeStruct(const mcIdType *nodeStrctStart, const mcIdType *nodeStrctStop);
@@ -62,7 +62,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return IMAGE_GRID; }
+    MEDCouplingMeshType getType() const { return IMAGE_GRID; }
     MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingMesh *other);
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;

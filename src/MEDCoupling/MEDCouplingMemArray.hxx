@@ -228,7 +228,7 @@ namespace MEDCoupling
 namespace MEDCoupling
 {
   template<class T>
-  class DataArrayTemplate : public DataArray
+  class MEDCOUPLING_EXPORT_TEMPLATE  DataArrayTemplate : public DataArray
   {
   public:
     typedef T Type;
@@ -336,7 +336,7 @@ namespace MEDCoupling
   };
 
   template<class T>
-  class DataArrayTemplateClassic : public DataArrayTemplate<T>
+  class MEDCOUPLING_EXPORT_TEMPLATE  DataArrayTemplateClassic : public DataArrayTemplate<T>
   {
   public:
     MCAuto<DataArrayDouble> convertToDblArr() const;
@@ -558,7 +558,7 @@ namespace MEDCoupling
 namespace MEDCoupling
 {
   template<class T>
-  class DataArrayDiscrete : public DataArrayTemplateClassic<T>
+  class MEDCOUPLING_EXPORT_TEMPLATE  DataArrayDiscrete : public DataArrayTemplateClassic<T>
   {
   public:
     using DataArrayType = typename Traits<T>::ArrayType;

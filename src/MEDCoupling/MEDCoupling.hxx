@@ -31,6 +31,12 @@
 #  define MEDCOUPLING_EXPORT
 #endif
 
+#ifdef __GNUC__
+  # define MEDCOUPLING_EXPORT_TEMPLATE MEDCOUPLING_EXPORT
+#else
+  # define MEDCOUPLING_EXPORT_TEMPLATE
+#endif
+
 #ifdef WIN32
 #  if defined medcouplingremapper_EXPORTS
 #    define MEDCOUPLINGREMAPPER_EXPORT __declspec( dllexport )

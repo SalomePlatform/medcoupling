@@ -44,8 +44,8 @@ namespace MEDCoupling
   {
   public:
     MEDCOUPLING_EXPORT static MEDCouplingFieldDiscretization *New(TypeOfField type);
-    MEDCOUPLING_EXPORT double getPrecision() const { return _precision; }
-    MEDCOUPLING_EXPORT void setPrecision(double val) { _precision=val; }
+    double getPrecision() const { return _precision; }
+    void setPrecision(double val) { _precision=val; }
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -123,7 +123,7 @@ namespace MEDCoupling
   {
   public:
     MEDCOUPLING_EXPORT TypeOfField getEnum() const;
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldDiscretizationP0"); }
+    std::string getClassName() const override { return std::string("MEDCouplingFieldDiscretizationP0"); }
     MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *clone() const override;
     MEDCOUPLING_EXPORT std::string getStringRepr() const;
     MEDCOUPLING_EXPORT const char *getRepr() const;
@@ -183,7 +183,7 @@ namespace MEDCoupling
   {
   public:
     MEDCOUPLING_EXPORT TypeOfField getEnum() const;
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldDiscretizationP1"); }
+    std::string getClassName() const override { return std::string("MEDCouplingFieldDiscretizationP1"); }
     MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *clone() const override;
     MEDCOUPLING_EXPORT std::string getStringRepr() const;
     MEDCOUPLING_EXPORT const char *getRepr() const;
@@ -237,7 +237,7 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationGauss();
     MEDCOUPLING_EXPORT TypeOfField getEnum() const;
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldDiscretizationGauss"); }
+    std::string getClassName() const override { return std::string("MEDCouplingFieldDiscretizationGauss"); }
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const override;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingFieldDiscretization *other, double eps) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *clone() const override;
@@ -314,7 +314,7 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT MEDCouplingFieldDiscretizationGaussNE();
     MEDCOUPLING_EXPORT TypeOfField getEnum() const;
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldDiscretizationGaussNE"); }
+    std::string getClassName() const override { return std::string("MEDCouplingFieldDiscretizationGaussNE"); }
     MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *clone() const override;
     MEDCOUPLING_EXPORT std::string getStringRepr() const;
     MEDCOUPLING_EXPORT const char *getRepr() const;
@@ -416,7 +416,7 @@ namespace MEDCoupling
   {
   public:
     MEDCOUPLING_EXPORT TypeOfField getEnum() const;
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldDiscretizationKriging"); }
+    std::string getClassName() const override { return std::string("MEDCouplingFieldDiscretizationKriging"); }
     MEDCOUPLING_EXPORT const char *getRepr() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *clone() const override;
     MEDCOUPLING_EXPORT std::string getStringRepr() const;

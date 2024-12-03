@@ -66,14 +66,14 @@ namespace INTERP_KERNEL
   class LeafExprVar : public LeafExpr
   {
   public:
-    INTERPKERNEL_EXPORT LeafExprVar(const LeafExprVar& other):_fast_pos(other._fast_pos),_ref_pos(other._ref_pos),_var_name(other._var_name),_val(other._val) { }
+    LeafExprVar(const LeafExprVar& other):_fast_pos(other._fast_pos),_ref_pos(other._ref_pos),_var_name(other._var_name),_val(other._val) { }
     INTERPKERNEL_EXPORT LeafExprVar(const std::string& var);
     INTERPKERNEL_EXPORT ~LeafExprVar();
     INTERPKERNEL_EXPORT double getDoubleValue() const;
     INTERPKERNEL_EXPORT void compileX86(std::vector<std::string>& ass) const;
     INTERPKERNEL_EXPORT void compileX86_64(std::vector<std::string>& ass) const;
     INTERPKERNEL_EXPORT void fillValue(Value *val) const;
-    INTERPKERNEL_EXPORT std::string getVar() const { return _var_name; }
+    std::string getVar() const { return _var_name; }
     INTERPKERNEL_EXPORT void prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const;
     INTERPKERNEL_EXPORT void prepareExprEvaluationDouble(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo, int refPos, const double *ptOfInputStart, const double *ptOfInputEnd) const;
     INTERPKERNEL_EXPORT void prepareExprEvaluationVec() const;
@@ -131,7 +131,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT ExprParser(const char *expr, int lgth, ExprParser *father=0);
     INTERPKERNEL_EXPORT ~ExprParser();
     INTERPKERNEL_EXPORT void parse();
-    INTERPKERNEL_EXPORT bool isParsingSuccessfull() const { return _is_parsing_ok; }
+    bool isParsingSuccessfull() const { return _is_parsing_ok; }
     INTERPKERNEL_EXPORT double evaluate() const;
     INTERPKERNEL_EXPORT DecompositionInUnitBase evaluateUnit() const;
     INTERPKERNEL_EXPORT void prepareExprEvaluation(const std::vector<std::string>& vars, int nbOfCompo, int targetNbOfCompo) const;
@@ -139,8 +139,8 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT void prepareFastEvaluator() const;
     INTERPKERNEL_EXPORT void prepareExprEvaluationVec() const;
     INTERPKERNEL_EXPORT double evaluateDouble() const;
-    INTERPKERNEL_EXPORT void evaluateDoubleInternal(std::vector<double>& stck) const { _for_eval.evaluateDoubleInternal(stck); }
-    INTERPKERNEL_EXPORT void evaluateDoubleInternalSafe(std::vector<double>& stck) const { _for_eval.evaluateDoubleInternalSafe(stck); }
+    void evaluateDoubleInternal(std::vector<double>& stck) const { _for_eval.evaluateDoubleInternal(stck); }
+    void evaluateDoubleInternalSafe(std::vector<double>& stck) const { _for_eval.evaluateDoubleInternalSafe(stck); }
     INTERPKERNEL_EXPORT void checkForEvaluation() const;
     INTERPKERNEL_EXPORT void evaluateExpr(int szOfOutParam, const double *inParam, double *outParam) const;
     INTERPKERNEL_EXPORT void getSetOfVars(std::set<std::string>& vars) const;

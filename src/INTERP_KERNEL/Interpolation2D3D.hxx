@@ -54,7 +54,7 @@ namespace INTERP_KERNEL
                           const MyMeshType& targetMesh,
                           MyMatrixType& matrix,
                           const std::string& method);
-    INTERPKERNEL_EXPORT DuplicateFacesType retrieveDuplicateFaces() const { return _duplicate_faces; }
+    DuplicateFacesType retrieveDuplicateFaces() const { return _duplicate_faces; }
 
   protected:
     template<class MyMeshType, class MyMatrixType>

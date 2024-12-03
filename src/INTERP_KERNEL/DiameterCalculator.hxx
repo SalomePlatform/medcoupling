@@ -31,7 +31,7 @@ namespace INTERP_KERNEL
   class DiameterCalculator
   {
   public:
-    INTERPKERNEL_EXPORT virtual ~DiameterCalculator() { }
+    virtual ~DiameterCalculator() { }
     INTERPKERNEL_EXPORT virtual NormalizedCellType getType() const = 0;
     INTERPKERNEL_EXPORT virtual double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const = 0;
     INTERPKERNEL_EXPORT virtual void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const = 0;

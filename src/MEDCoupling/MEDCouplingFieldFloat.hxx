@@ -42,7 +42,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *convertToDblField() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldInt32 *convertToIntField() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldInt64 *convertToInt64Field() const;
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldFloat"); }
+    std::string getClassName() const override { return std::string("MEDCouplingFieldFloat"); }
   protected:
     MEDCouplingFieldFloat(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldFloat(const MEDCouplingFieldFloat& other, bool deepCpy);

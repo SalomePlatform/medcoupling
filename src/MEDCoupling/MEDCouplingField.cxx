@@ -21,7 +21,7 @@
 #include "MEDCouplingField.hxx"
 #include "MEDCouplingMesh.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
-
+#include "InterpKernelException.hxx"
 #include <sstream>
 
 using namespace MEDCoupling;

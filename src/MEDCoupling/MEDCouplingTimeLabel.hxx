@@ -35,13 +35,13 @@ namespace MEDCoupling
   class TimeLabel
   {
   public:
-    MEDCOUPLING_EXPORT TimeLabel(const TimeLabel& other) = default;
+    TimeLabel(const TimeLabel& other) = default;
     MEDCOUPLING_EXPORT TimeLabel& operator=(const TimeLabel& other);
     //! This method should be called when write access has been done on this.
     MEDCOUPLING_EXPORT void declareAsNew() const;
     //! This method should be called on high level classes as Field or Mesh to take into account modifications done in aggregates objects.
     MEDCOUPLING_EXPORT virtual void updateTime() const = 0;
-    MEDCOUPLING_EXPORT std::size_t getTimeOfThis() const { return _time; }
+    std::size_t getTimeOfThis() const { return _time; }
   protected:
     MEDCOUPLING_EXPORT TimeLabel();
     MEDCOUPLING_EXPORT virtual ~TimeLabel();

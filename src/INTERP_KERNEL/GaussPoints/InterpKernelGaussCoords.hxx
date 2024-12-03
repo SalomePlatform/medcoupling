@@ -48,9 +48,9 @@ namespace INTERP_KERNEL
 
     INTERPKERNEL_EXPORT int getGaussCoordDim() const;
     INTERPKERNEL_EXPORT int getReferenceCoordDim() const;
-    INTERPKERNEL_EXPORT DataVector getGaussCoords() const { return _my_gauss_coord; }
-    INTERPKERNEL_EXPORT DataVector getRefCoords() const { return _my_reference_coord; }
-    INTERPKERNEL_EXPORT NormalizedCellType getGeoType() const { return _my_geometry; }
+    DataVector getGaussCoords() const { return _my_gauss_coord; }
+    DataVector getRefCoords() const { return _my_reference_coord; }
+    NormalizedCellType getGeoType() const { return _my_geometry; }
 
     INTERPKERNEL_EXPORT int getNbGauss() const;
     INTERPKERNEL_EXPORT int getNbRef() const;

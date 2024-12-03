@@ -50,12 +50,12 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual bool areStrictlyCompatibleForMulDiv(const MEDCouplingField *other) const;
     MEDCOUPLING_EXPORT virtual void copyTinyStringsFrom(const MEDCouplingField *other);
     MEDCOUPLING_EXPORT void setMesh(const MEDCoupling::MEDCouplingMesh *mesh);
-    MEDCOUPLING_EXPORT const MEDCoupling::MEDCouplingMesh *getMesh() const { return _mesh; }
-    MEDCOUPLING_EXPORT MEDCoupling::MEDCouplingMesh *getMesh() { return const_cast<MEDCoupling::MEDCouplingMesh *>(_mesh); }
-    MEDCOUPLING_EXPORT void setName(const std::string& name) { _name=name; }
-    MEDCOUPLING_EXPORT std::string getDescription() const { return _desc; }
-    MEDCOUPLING_EXPORT void setDescription(const std::string& desc) { _desc=desc; }
-    MEDCOUPLING_EXPORT std::string getName() const { return _name; }
+    const MEDCoupling::MEDCouplingMesh *getMesh() const { return _mesh; }
+    MEDCoupling::MEDCouplingMesh *getMesh() { return const_cast<MEDCoupling::MEDCouplingMesh *>(_mesh); }
+    void setName(const std::string& name) { _name=name; }
+    std::string getDescription() const { return _desc; }
+    void setDescription(const std::string& desc) { _desc=desc; }
+    std::string getName() const { return _name; }
     MEDCOUPLING_EXPORT TypeOfField getTypeOfField() const;
     MEDCOUPLING_EXPORT NatureOfField getNature() const;
     MEDCOUPLING_EXPORT virtual void setNature(NatureOfField nat);
@@ -64,8 +64,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshData(const mcIdType *start, const mcIdType *end, DataArrayIdType *&di) const;
     MEDCOUPLING_EXPORT MEDCouplingMesh *buildSubMeshDataRange(mcIdType begin, mcIdType end, mcIdType step, mcIdType& beginOut, mcIdType& endOut, mcIdType& stepOut, DataArrayIdType *&di) const;
     MEDCOUPLING_EXPORT DataArrayIdType *computeTupleIdsToSelectFromCellIds(const mcIdType *startCellIds, const mcIdType *endCellIds) const;
-    MEDCOUPLING_EXPORT const MEDCouplingFieldDiscretization *getDiscretization() const { return _type; }
-    MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *getDiscretization() { return _type; }
+    const MEDCouplingFieldDiscretization *getDiscretization() const { return _type; }
+    MEDCouplingFieldDiscretization *getDiscretization() { return _type; }
     MEDCOUPLING_EXPORT void setDiscretization(MEDCouplingFieldDiscretization *newDisc);
     MEDCOUPLING_EXPORT mcIdType getNumberOfTuplesExpected() const;
     MEDCOUPLING_EXPORT mcIdType getNumberOfMeshPlacesExpected() const;

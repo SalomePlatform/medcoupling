@@ -32,13 +32,13 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT static MEDCouplingCurveLinearMesh *New();
     MEDCOUPLING_EXPORT static MEDCouplingCurveLinearMesh *New(const std::string& meshName);
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingCurveLinearMesh"); }
+    std::string getClassName() const override { return std::string("MEDCouplingCurveLinearMesh"); }
     MEDCOUPLING_EXPORT MEDCouplingCurveLinearMesh *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingCurveLinearMesh *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    MEDCOUPLING_EXPORT MEDCouplingMeshType getType() const { return CURVE_LINEAR; }
+    MEDCouplingMeshType getType() const { return CURVE_LINEAR; }
     MEDCOUPLING_EXPORT void copyTinyStringsFrom(const MEDCouplingMesh *other);
     MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const;

@@ -31,24 +31,24 @@ namespace INTERP_KERNEL
   class ElementaryEdge
   {
   public:
-    INTERPKERNEL_EXPORT ElementaryEdge(Edge *ptr, bool direction):_direction(direction),_ptr(ptr) { }
+    ElementaryEdge(Edge *ptr, bool direction):_direction(direction),_ptr(ptr) { }
     INTERPKERNEL_EXPORT ElementaryEdge(const ElementaryEdge& other);
     INTERPKERNEL_EXPORT ~ElementaryEdge();
-    INTERPKERNEL_EXPORT bool isThereStartPoint() const { return _iterator.isValid(); }
-    INTERPKERNEL_EXPORT IteratorOnComposedEdge& getIterator() { return _iterator; }
-    INTERPKERNEL_EXPORT bool completed() const { return false; }
-    INTERPKERNEL_EXPORT void declareOn() const { _ptr->declareOn(); }
-    INTERPKERNEL_EXPORT void declareIn() const { _ptr->declareIn(); }
-    INTERPKERNEL_EXPORT void declareOut() const { _ptr->declareOut(); }
-    INTERPKERNEL_EXPORT TypeOfEdgeLocInPolygon getLoc() const { return _ptr->getLoc(); }
-    INTERPKERNEL_EXPORT Edge *getPtr() const { return _ptr; }
-    INTERPKERNEL_EXPORT void reverse() { _direction=(!_direction); }
+    bool isThereStartPoint() const { return _iterator.isValid(); }
+    IteratorOnComposedEdge& getIterator() { return _iterator; }
+    bool completed() const { return false; }
+    void declareOn() const { _ptr->declareOn(); }
+    void declareIn() const { _ptr->declareIn(); }
+    void declareOut() const { _ptr->declareOut(); }
+    TypeOfEdgeLocInPolygon getLoc() const { return _ptr->getLoc(); }
+    Edge *getPtr() const { return _ptr; }
+    void reverse() { _direction=(!_direction); }
     INTERPKERNEL_EXPORT bool isNodeIn(Node *n) const;
-    INTERPKERNEL_EXPORT double getAreaOfZone() const { double ret=_ptr->getAreaOfZone(); return _direction?ret:-ret; }
+    double getAreaOfZone() const { double ret=_ptr->getAreaOfZone(); return _direction?ret:-ret; }
     INTERPKERNEL_EXPORT void getBarycenterOfZone(double *bary) const;
     INTERPKERNEL_EXPORT void fillBounds(Bounds& output) const;
-    INTERPKERNEL_EXPORT void applySimilarity(double xBary, double yBary, double dimChar) { _ptr->applySimilarity(xBary,yBary,dimChar); }
-    INTERPKERNEL_EXPORT void unApplySimilarity(double xBary, double yBary, double dimChar) { _ptr->unApplySimilarity(xBary,yBary,dimChar); }
+    void applySimilarity(double xBary, double yBary, double dimChar) { _ptr->applySimilarity(xBary,yBary,dimChar); }
+    void unApplySimilarity(double xBary, double yBary, double dimChar) { _ptr->unApplySimilarity(xBary,yBary,dimChar); }
     INTERPKERNEL_EXPORT void getAllNodes(std::set<Node *>& output) const;
     INTERPKERNEL_EXPORT bool hasSameExtremities(const ElementaryEdge& other) const;
     INTERPKERNEL_EXPORT void getBarycenter(double *bary, double& weigh) const;
@@ -59,14 +59,14 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT TypeOfEdgeLocInPolygon locateFullyMySelf(const ComposedEdge& pol, TypeOfEdgeLocInPolygon precEdgeLoc) const;
     INTERPKERNEL_EXPORT Node *getEndNode() const;
     INTERPKERNEL_EXPORT Node *getStartNode() const;
-    INTERPKERNEL_EXPORT double getCurveLength() const { return _ptr->getCurveLength(); }
+    double getCurveLength() const { return _ptr->getCurveLength(); }
     INTERPKERNEL_EXPORT bool changeEndNodeWith(Node *node) const;
     INTERPKERNEL_EXPORT bool changeStartNodeWith(Node *node) const;
     INTERPKERNEL_EXPORT bool intresicEqual(const ElementaryEdge *other) const;
     INTERPKERNEL_EXPORT bool intresicEqualDirSensitive(const ElementaryEdge *other) const;
     INTERPKERNEL_EXPORT void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;
     INTERPKERNEL_EXPORT void dumpToCout(const std::map<INTERP_KERNEL::Node *,int>& mapp, int index) const;
-    INTERPKERNEL_EXPORT bool getDirection() const { return _direction; }
+    bool getDirection() const { return _direction; }
     INTERPKERNEL_EXPORT bool intresincEqCoarse(const Edge *other) const;
     INTERPKERNEL_EXPORT bool isEqual(const ElementaryEdge& other) const;
   public:

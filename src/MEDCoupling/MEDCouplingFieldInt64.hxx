@@ -39,7 +39,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingFieldInt64 *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldInt64 *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *convertToDblField() const;
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldInt64"); }
+    std::string getClassName() const override { return std::string("MEDCouplingFieldInt64"); }
   protected:
     MEDCouplingFieldInt64(TypeOfField type, TypeOfTimeDiscretization td);
     MEDCouplingFieldInt64(const MEDCouplingFieldInt64& other, bool deepCopy);

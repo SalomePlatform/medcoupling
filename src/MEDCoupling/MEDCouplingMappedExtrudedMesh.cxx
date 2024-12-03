@@ -27,7 +27,6 @@
 #include "CellModel.hxx"
 
 #include "InterpolationUtils.hxx"
-
 #include <limits>
 #include <algorithm>
 #include <functional>

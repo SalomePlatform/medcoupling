@@ -42,7 +42,7 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT static MEDCouplingMultiFields *New(const std::vector<MEDCouplingFieldDouble *>& fs);
     MEDCOUPLING_EXPORT static MEDCouplingMultiFields *New();
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingMultiFields"); }
+    std::string getClassName() const override { return std::string("MEDCouplingMultiFields"); }
     MEDCOUPLING_EXPORT MEDCouplingMultiFields *deepCopy() const;
     MEDCOUPLING_EXPORT std::string getName() const;
     MEDCOUPLING_EXPORT std::string getDescription() const;

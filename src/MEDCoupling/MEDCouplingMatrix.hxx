@@ -40,16 +40,16 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT static DenseMatrix *New(mcIdType nbRows, mcIdType nbCols);
     MEDCOUPLING_EXPORT static DenseMatrix *New(DataArrayDouble *array, mcIdType nbRows, mcIdType nbCols);
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("DenseMatrix"); }
+    std::string getClassName() const override { return std::string("DenseMatrix"); }
     MEDCOUPLING_EXPORT DenseMatrix *deepCopy() const;
     MEDCOUPLING_EXPORT DenseMatrix *shallowCpy() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDCOUPLING_EXPORT void updateTime() const;
     //
-    MEDCOUPLING_EXPORT mcIdType getNumberOfRows() const { return _nb_rows; }
-    MEDCOUPLING_EXPORT mcIdType getNumberOfCols() const { return _nb_cols; }
-    MEDCOUPLING_EXPORT mcIdType getNbOfElems() const { return _nb_rows*_nb_cols; }
+    mcIdType getNumberOfRows() const { return _nb_rows; }
+    mcIdType getNumberOfCols() const { return _nb_cols; }
+    mcIdType getNbOfElems() const { return _nb_rows*_nb_cols; }
     MEDCOUPLING_EXPORT void reBuild(DataArrayDouble *array, mcIdType nbRows=-1, mcIdType nbCols=-1);
     MEDCOUPLING_EXPORT void reShape(mcIdType nbRows, mcIdType nbCols);
     MEDCOUPLING_EXPORT void transpose();
@@ -65,8 +65,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static DenseMatrix *Multiply(const DenseMatrix *a1, const DenseMatrix *a2);
     MEDCOUPLING_EXPORT static DenseMatrix *Multiply(const DenseMatrix *a1, const DataArrayDouble *a2);
     //
-    MEDCOUPLING_EXPORT const DataArrayDouble *getData() const { return _data; }
-    MEDCOUPLING_EXPORT DataArrayDouble *getData() { return _data; }
+    const DataArrayDouble *getData() const { return _data; }
+    DataArrayDouble *getData() { return _data; }
   private:
     ~DenseMatrix();
     DenseMatrix(mcIdType nbRows, mcIdType nbCols);

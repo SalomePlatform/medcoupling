@@ -57,7 +57,7 @@ namespace INTERP_KERNEL
   public:
     INTERPKERNEL_EXPORT DecompositionInUnitBase();
     INTERPKERNEL_EXPORT void setInfo(const short *vals, double addFact, double mFact);
-    INTERPKERNEL_EXPORT short operator[](int i) const { return _value[i]; }
+    short operator[](int i) const { return _value[i]; }
     INTERPKERNEL_EXPORT bool operator==(const DecompositionInUnitBase& other) const;
     INTERPKERNEL_EXPORT void getTranslationParams(const DecompositionInUnitBase& other, double& mul, double& add) const;
     INTERPKERNEL_EXPORT bool isEqual(short mass, short lgth, short time, short intensity, short temp,

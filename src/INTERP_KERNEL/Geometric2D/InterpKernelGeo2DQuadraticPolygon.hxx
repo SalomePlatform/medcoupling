@@ -46,8 +46,8 @@ namespace INTERP_KERNEL
   class QuadraticPolygon : public ComposedEdge
   {
   public:
-    INTERPKERNEL_EXPORT QuadraticPolygon() { }
-    INTERPKERNEL_EXPORT QuadraticPolygon(const QuadraticPolygon& other):ComposedEdge(other) { }
+    QuadraticPolygon() { }
+    QuadraticPolygon(const QuadraticPolygon& other):ComposedEdge(other) { }
     INTERPKERNEL_EXPORT QuadraticPolygon(const char *fileName);
     INTERPKERNEL_EXPORT static QuadraticPolygon *BuildLinearPolygon(std::vector<Node *>& nodes);
     INTERPKERNEL_EXPORT static QuadraticPolygon *BuildArcCirclePolygon(std::vector<Node *>& nodes);

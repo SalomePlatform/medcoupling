@@ -125,34 +125,34 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *MergeFields(const std::vector<const MEDCouplingFieldDouble *>& a);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *MeldFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *DotFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *dot(const MEDCouplingFieldDouble& other) const { return DotFields(this,&other); }
+    MEDCouplingFieldDouble *dot(const MEDCouplingFieldDouble& other) const { return DotFields(this,&other); }
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *CrossProductFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *crossProduct(const MEDCouplingFieldDouble& other) const { return CrossProductFields(this,&other); }
+    MEDCouplingFieldDouble *crossProduct(const MEDCouplingFieldDouble& other) const { return CrossProductFields(this,&other); }
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *MaxFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *max(const MEDCouplingFieldDouble& other) const { return MaxFields(this,&other); }
+    MEDCouplingFieldDouble *max(const MEDCouplingFieldDouble& other) const { return MaxFields(this,&other); }
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *MinFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *min(const MEDCouplingFieldDouble& other) const { return MinFields(this,&other); }
+    MEDCouplingFieldDouble *min(const MEDCouplingFieldDouble& other) const { return MinFields(this,&other); }
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *negate() const;
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const { return AddFields(this,&other); }
+    MEDCouplingFieldDouble *operator+(const MEDCouplingFieldDouble& other) const { return AddFields(this,&other); }
     MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator+=(const MEDCouplingFieldDouble& other);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *AddFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *operator-(const MEDCouplingFieldDouble& other) const { return SubstractFields(this,&other); }
+    MEDCouplingFieldDouble *operator-(const MEDCouplingFieldDouble& other) const { return SubstractFields(this,&other); }
     MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator-=(const MEDCouplingFieldDouble& other);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *SubstractFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCouplingFieldDouble *operator*(const MEDCouplingFieldDouble& other) const { return MultiplyFields(this,&other); }
     MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator*=(const MEDCouplingFieldDouble& other);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *MultiplyFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
-    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *operator/(const MEDCouplingFieldDouble& other) const { return DivideFields(this,&other); }
+    MEDCouplingFieldDouble *operator/(const MEDCouplingFieldDouble& other) const { return DivideFields(this,&other); }
     MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator/=(const MEDCouplingFieldDouble& other);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *DivideFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *operator^(const MEDCouplingFieldDouble& other) const;
     MEDCOUPLING_EXPORT const MEDCouplingFieldDouble &operator^=(const MEDCouplingFieldDouble& other);
     MEDCOUPLING_EXPORT static MEDCouplingFieldDouble *PowFields(const MEDCouplingFieldDouble *f1, const MEDCouplingFieldDouble *f2);
     MEDCOUPLING_EXPORT static std::string WriteVTK(const std::string& fileName, const std::vector<const MEDCouplingFieldDouble *>& fs, bool isBinary=true);
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingFieldDouble"); }
+    std::string getClassName() const override { return std::string("MEDCouplingFieldDouble"); }
   public:
-    MEDCOUPLING_EXPORT const MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() const { return timeDiscr(); }
-    MEDCOUPLING_EXPORT MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() { return timeDiscr(); }
+    const MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() const { return timeDiscr(); }
+    MEDCouplingTimeDiscretization *getTimeDiscretizationUnderGround() { return timeDiscr(); }
   protected:
     ~MEDCouplingFieldDouble() { }
   private:

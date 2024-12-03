@@ -57,14 +57,14 @@ namespace MEDCoupling
   {
   public:
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
-    MEDCOUPLING_EXPORT void setName(const std::string& name) { _name=name; }
-    MEDCOUPLING_EXPORT std::string getName() const { return _name; }
-    MEDCOUPLING_EXPORT void setDescription(const std::string& descr) { _description=descr; }
-    MEDCOUPLING_EXPORT std::string getDescription() const { return _description; }
-    MEDCOUPLING_EXPORT double getTime(int& iteration, int& order) const { iteration=_iteration; order=_order; return _time; }
-    MEDCOUPLING_EXPORT void setTime(double val, int iteration, int order) { _time=val; _iteration=iteration; _order=order; }
-    MEDCOUPLING_EXPORT void setTimeUnit(const std::string& unit) { _time_unit=unit; }
-    MEDCOUPLING_EXPORT std::string getTimeUnit() const { return _time_unit; }
+    void setName(const std::string& name) { _name=name; }
+    std::string getName() const { return _name; }
+    void setDescription(const std::string& descr) { _description=descr; }
+    std::string getDescription() const { return _description; }
+    double getTime(int& iteration, int& order) const { iteration=_iteration; order=_order; return _time; }
+    void setTime(double val, int iteration, int order) { _time=val; _iteration=iteration; _order=order; }
+    void setTimeUnit(const std::string& unit) { _time_unit=unit; }
+    std::string getTimeUnit() const { return _time_unit; }
     MEDCOUPLING_EXPORT virtual MEDCouplingMeshType getType() const = 0;
     MEDCOUPLING_EXPORT bool isStructured() const;
     // Copy methods
@@ -163,7 +163,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingMesh();
     MEDCOUPLING_EXPORT MEDCouplingMesh(const MEDCouplingMesh& other);
     MEDCOUPLING_EXPORT virtual std::string getVTKDataSetType() const = 0;
-    MEDCOUPLING_EXPORT virtual ~MEDCouplingMesh() { }
+    virtual ~MEDCouplingMesh() { }
   private:
     std::string _name;
     std::string _description;

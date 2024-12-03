@@ -52,7 +52,7 @@ namespace MEDCoupling
   {
   public:
     MEDCOUPLING_EXPORT static DataArrayPartDefinition *New(DataArrayIdType *listOfIds);
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("DataArrayPartDefinition"); }
+    std::string getClassName() const override { return std::string("DataArrayPartDefinition"); }
     MEDCOUPLING_EXPORT bool isEqual(const PartDefinition *other, std::string& what) const;
     MEDCOUPLING_EXPORT DataArrayPartDefinition *deepCopy() const;
     MEDCOUPLING_EXPORT DataArrayIdType *toDAI() const;
@@ -81,7 +81,7 @@ namespace MEDCoupling
   {
   public:
     MEDCOUPLING_EXPORT static SlicePartDefinition *New(mcIdType start, mcIdType stop, mcIdType step);
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("SlicePartDefinition"); }
+    std::string getClassName() const override { return std::string("SlicePartDefinition"); }
     MEDCOUPLING_EXPORT bool isEqual(const PartDefinition *other, std::string& what) const;
     MEDCOUPLING_EXPORT SlicePartDefinition *deepCopy() const;
     MEDCOUPLING_EXPORT DataArrayIdType *toDAI() const;

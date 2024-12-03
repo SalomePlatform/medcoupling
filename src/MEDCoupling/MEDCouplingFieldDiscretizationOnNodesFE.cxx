@@ -37,6 +37,8 @@ std::string MEDCouplingFieldDiscretizationOnNodesFE::getStringRepr() const
   return std::string(REPR);
 }
 
+const char *MEDCouplingFieldDiscretizationOnNodesFE::getRepr() const { return MEDCouplingFieldDiscretizationOnNodesFE::REPR; }
+
 void MEDCouplingFieldDiscretizationOnNodesFE::reprQuickOverview(std::ostream& stream) const
 {
   stream << "NodeFE spatial discretization.";

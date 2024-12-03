@@ -32,11 +32,13 @@ namespace INTERP_KERNEL
   class Exception : public std::exception
   {
   public:
+    INTERPKERNEL_EXPORT Exception() noexcept;
+	INTERPKERNEL_EXPORT Exception(const Exception & other) noexcept;
     INTERPKERNEL_EXPORT Exception(const char *reason);
     INTERPKERNEL_EXPORT Exception(const std::string& reason);
     INTERPKERNEL_EXPORT Exception(const char *reason, const char *file, int line);
-    INTERPKERNEL_EXPORT ~Exception() noexcept(true);
-    INTERPKERNEL_EXPORT const char *what() const noexcept(true);
+    INTERPKERNEL_EXPORT ~Exception();
+	INTERPKERNEL_EXPORT const char *what() const noexcept override;
   protected:
     std::string _reason;
   };

@@ -54,7 +54,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT mcIdType getNumberOfCellsRecursiveWithOverlap() const;
     MEDCOUPLING_EXPORT mcIdType getNumberOfCellsRecursiveWithoutOverlap() const;
     MEDCOUPLING_EXPORT mcIdType getMaxNumberOfLevelsRelativeToThis() const;
-    MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getMesh() const { return _mesh; }
+    const MEDCouplingCartesianAMRMeshGen *getMesh() const { return _mesh; }
   protected:
     MEDCouplingCartesianAMRPatchGen(const MEDCouplingCartesianAMRPatchGen& other, MEDCouplingCartesianAMRMeshGen *father);
     MEDCouplingCartesianAMRPatchGen(MEDCouplingCartesianAMRMeshGen *mesh);
@@ -83,7 +83,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT bool isInMyNeighborhoodExt(const MEDCouplingCartesianAMRPatch *other, mcIdType ghostLev) const;
     MEDCOUPLING_EXPORT bool isInMyNeighborhoodDiffLev(const MEDCouplingCartesianAMRPatch *other, mcIdType ghostLev) const;
     // basic set/get
-    MEDCOUPLING_EXPORT const std::vector< std::pair<mcIdType,mcIdType> >& getBLTRRange() const { return _bl_tr; }
+    const std::vector< std::pair<mcIdType,mcIdType> >& getBLTRRange() const { return _bl_tr; }
     MEDCOUPLING_EXPORT std::vector< std::pair<mcIdType,mcIdType> > getBLTRRangeRelativeToGF() const;
     MEDCOUPLING_EXPORT std::vector<mcIdType> computeCellGridSt() const;
     MEDCOUPLING_EXPORT static bool IsInMyNeighborhood(mcIdType ghostLev, const std::vector< std::pair<mcIdType,mcIdType> >& p1, const std::vector< std::pair<mcIdType,mcIdType> >& p2);
@@ -137,14 +137,14 @@ namespace MEDCoupling
   public:
     MEDCOUPLING_EXPORT virtual MEDCouplingCartesianAMRMeshGen *deepCopy(MEDCouplingCartesianAMRMeshGen *father) const = 0;
     MEDCOUPLING_EXPORT int getSpaceDimension() const;
-    MEDCOUPLING_EXPORT const std::vector<mcIdType>& getFactors() const { return _factors; }
+    const std::vector<mcIdType>& getFactors() const { return _factors; }
     MEDCOUPLING_EXPORT void setFactors(const std::vector<mcIdType>& newFactors);
     MEDCOUPLING_EXPORT mcIdType getMaxNumberOfLevelsRelativeToThis() const;
     MEDCOUPLING_EXPORT mcIdType getNumberOfCellsAtCurrentLevel() const;
     MEDCOUPLING_EXPORT mcIdType getNumberOfCellsAtCurrentLevelGhost(mcIdType ghostLev) const;
     MEDCOUPLING_EXPORT mcIdType getNumberOfCellsRecursiveWithOverlap() const;
     MEDCOUPLING_EXPORT mcIdType getNumberOfCellsRecursiveWithoutOverlap() const;
-    MEDCOUPLING_EXPORT const MEDCouplingIMesh *getImageMesh() const { return _mesh; }
+    const MEDCouplingIMesh *getImageMesh() const { return _mesh; }
     //
     MEDCOUPLING_EXPORT virtual const MEDCouplingCartesianAMRMeshGen *getFather() const = 0;
     MEDCOUPLING_EXPORT virtual const MEDCouplingCartesianAMRMeshGen *getGodFather() const = 0;
@@ -217,7 +217,7 @@ namespace MEDCoupling
   {
   public:
     MEDCouplingCartesianAMRMeshSub(MEDCouplingCartesianAMRMeshGen *father, MEDCouplingIMesh *mesh);
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingCartesianAMRMeshSub"); }
+    std::string getClassName() const override { return std::string("MEDCouplingCartesianAMRMeshSub"); }
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getFather() const;
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getGodFather() const;
     MEDCOUPLING_EXPORT mcIdType getAbsoluteLevel() const;
@@ -238,7 +238,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT static MEDCouplingCartesianAMRMesh *New(const std::string& meshName, int spaceDim, const mcIdType *nodeStrctStart, const mcIdType *nodeStrctStop,
                                                                const double *originStart, const double *originStop, const double *dxyzStart, const double *dxyzStop);
     MEDCOUPLING_EXPORT static MEDCouplingCartesianAMRMesh *New(MEDCouplingIMesh *mesh);
-    MEDCOUPLING_EXPORT std::string getClassName() const override { return std::string("MEDCouplingCartesianAMRMesh"); }
+    std::string getClassName() const override { return std::string("MEDCouplingCartesianAMRMesh"); }
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getFather() const;
     MEDCOUPLING_EXPORT const MEDCouplingCartesianAMRMeshGen *getGodFather() const;
     MEDCOUPLING_EXPORT mcIdType getAbsoluteLevel() const;

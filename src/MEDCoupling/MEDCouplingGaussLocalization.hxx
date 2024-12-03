@@ -39,9 +39,9 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType type, const std::vector<double>& refCoo,
                                                     const std::vector<double>& gsCoo, const std::vector<double>& w);
     MEDCOUPLING_EXPORT MEDCouplingGaussLocalization(INTERP_KERNEL::NormalizedCellType typ);
-    MEDCOUPLING_EXPORT INTERP_KERNEL::NormalizedCellType getType() const { return _type; }
+    INTERP_KERNEL::NormalizedCellType getType() const { return _type; }
     MEDCOUPLING_EXPORT void setType(INTERP_KERNEL::NormalizedCellType typ);
-    MEDCOUPLING_EXPORT int getNumberOfGaussPt() const { return (int)_weight.size(); }
+    int getNumberOfGaussPt() const { return (int)_weight.size(); }
     MEDCOUPLING_EXPORT int getDimension() const;
     MEDCOUPLING_EXPORT int getNumberOfPtsInRefCell() const;
     MEDCOUPLING_EXPORT std::string getStringRepr() const;
@@ -57,11 +57,11 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> getShapeFunctionValues() const;
     MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> getDerivativeOfShapeFunctionValues() const;
     //
-    MEDCOUPLING_EXPORT const std::vector<double>& getRefCoords() const { return _ref_coord; }
+    const std::vector<double>& getRefCoords() const { return _ref_coord; }
     MEDCOUPLING_EXPORT double getRefCoord(int ptIdInCell, int comp) const;
-    MEDCOUPLING_EXPORT const std::vector<double>& getGaussCoords() const { return _gauss_coord; }
+    const std::vector<double>& getGaussCoords() const { return _gauss_coord; }
     MEDCOUPLING_EXPORT double getGaussCoord(int gaussPtIdInCell, int comp) const;
-    MEDCOUPLING_EXPORT const std::vector<double>& getWeights() const { return _weight; }
+    const std::vector<double>& getWeights() const { return _weight; }
     MEDCOUPLING_EXPORT double getWeight(int gaussPtIdInCell) const;
     MEDCOUPLING_EXPORT void setRefCoord(int ptIdInCell, int comp, double newVal);
     MEDCOUPLING_EXPORT void setGaussCoord(int gaussPtIdInCell, int comp, double newVal);
