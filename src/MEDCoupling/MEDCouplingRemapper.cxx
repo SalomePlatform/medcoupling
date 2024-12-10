@@ -452,6 +452,13 @@ int MEDCouplingRemapper::prepareInterpKernelOnlyUU()
       INTERP_KERNEL::Interpolation2DCurve interpolation(*this);
       nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
     }
+  else if(srcMeshDim==1 && trgMeshDim==1 && srcSpaceDim==3)
+    {
+      MEDCouplingNormalizedUnstructuredMesh<3,1> source_mesh_wrapper(src_mesh);
+      MEDCouplingNormalizedUnstructuredMesh<3,1> target_mesh_wrapper(target_mesh);
+      INTERP_KERNEL::Interpolation2DCurve interpolation(*this);
+      nbCols=interpolation.interpolateMeshes(source_mesh_wrapper,target_mesh_wrapper,_matrix,method);
+    }
   else if(srcMeshDim==2 && trgMeshDim==2 && srcSpaceDim==2)
     {
       MEDCouplingNormalizedUnstructuredMesh<2,2> source_mesh_wrapper(src_mesh);

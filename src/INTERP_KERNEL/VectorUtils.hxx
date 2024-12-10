@@ -95,6 +95,13 @@ namespace INTERP_KERNEL
     res[1] += v[1];
     res[2] += v[2];
   }
+  
+  inline void scaleVector(double v[3], double factor)
+  {
+    v[0] *= factor;
+    v[1] *= factor;
+    v[2] *= factor;
+  }
 
   /**
    * Calculates the cross product of two double[3] - vectors.

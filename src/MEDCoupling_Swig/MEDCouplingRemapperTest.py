@@ -1680,6 +1680,25 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             mat = remap.getCrudeMatrix()
             self.checkMatrix(expectedMatrix,mat,18,1.0)
 
+    def testP0P0OnMeshDim1SpaceDim3_0(self):
+        """
+        See EDF31137 : Management of P0P0 on meshes with meshdim == 1 and spacedim == 3
+        """
+        mS = MEDCouplingUMesh("",1)
+        mS.setCoords(DataArrayDouble([[0.5,0.5,0.5],[1.7,1.7,1.7]]))
+        mS.allocateCells()
+        mS.insertNextCell(NORM_SEG2,[0,1])
+        mT = MEDCouplingUMesh("",1)
+        mT.setCoords(DataArrayDouble([[1,1,1],[2,2,2+2e-13]]))
+        mT.allocateCells()
+        mT.insertNextCell(NORM_SEG2,[0,1])
+        rem = MEDCouplingRemapper()
+        rem.prepare(mS,mT,"P0P0")
+        mat = rem.getCrudeMatrix()
+        expectedMatrix = [{0:1.212435565298214}]
+        self.checkMatrix(mat,expectedMatrix,1,1e-13)
+        pass
+
     def checkMatrix(self,mat1,mat2,nbCols,eps):
         self.assertEqual(len(mat1),len(mat2))
         for i in range(len(mat1)):

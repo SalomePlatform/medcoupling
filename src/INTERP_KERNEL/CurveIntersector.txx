@@ -23,6 +23,7 @@
 #include "CurveIntersector.hxx"
 #include "InterpolationUtils.hxx"
 #include "PointLocatorAlgos.txx"
+#include "CurveIntersectorInternal.hxx"
 
 #include <limits>
 
@@ -39,8 +40,8 @@ namespace INTERP_KERNEL
     _median_line(medianLine),
     _print_level(printLevel)
   {
-    if ( SPACEDIM != 1 && SPACEDIM != 2 )
-      throw Exception("CurveIntersector(): space dimension of mesh must be 1 or 2");
+    if ( SPACEDIM != 1 && SPACEDIM != 2 && SPACEDIM != 3 )
+      throw Exception("CurveIntersector(): space dimension of mesh must be 1 or 2 or 3");
     if ( MESHDIM != 1 )
       throw Exception("CurveIntersector(): mesh dimension must be 1");
 
@@ -336,78 +337,17 @@ namespace INTERP_KERNEL
     xs0 = coordsS[0]; xs1 = coordsS[1];
     if ( SPACEDIM == 2 )
       {
-        // Pass 2D->1D
-
-        enum { X=0, Y };
-
-        // check if two segments overlap in 2D within tolerance
-
-        const double* t0 = coordsT;
-        const double* t1 = coordsT + 2;
-        double t01[2] = { t1[X]-t0[X], t1[Y]-t0[Y] }; // tgt segment direction
-        double tSize = sqrt( t01[X]*t01[X] + t01[Y]*t01[Y] ); // tgt segment size
-        if ( tSize < _precision )
-          return false; // degenerated segment
-        t01[X] /= tSize, t01[Y] /= tSize; // normalize t01
-
-        const double* s0 = coordsS;
-        const double* s1 = coordsS + 2;
-        double t0s0[2] = { s0[X]-t0[X], s0[Y]-t0[Y] };
-        double t0s1[2] = { s1[X]-t0[X], s1[Y]-t0[Y] };
-        double nt01_x_t0s0 = t0s0[X] * t01[Y] - t0s0[Y] * t01[X]; // t0s0 dot norm of t01
-        double nt01_x_t0s1 = t0s1[X] * t01[Y] - t0s1[Y] * t01[X]; // t0s1 dot norm of t01
-        double dist_ts0 = fabs( nt01_x_t0s0 ); // dist from tgt seg to s0
-        double dist_ts1 = fabs( nt01_x_t0s1 ); // dist from tgt seg to s1
-        bool s0_out_of_tol = ( dist_ts0 > _tolerance );
-        bool s1_out_of_tol = ( dist_ts1 > _tolerance );
-        if ( nt01_x_t0s0 * nt01_x_t0s1 > 0 && ( s0_out_of_tol || s1_out_of_tol ))
-          return false; // tgt segment is to far from src segment
-
-        double S0[2] = { s0[X], s0[Y] };
-        double S1[2] = { s1[X], s1[Y] };
-        if ( s0_out_of_tol ) // put s0 within tolerance
-          {
-            double t = _tolerance * nt01_x_t0s0 / dist_ts0; // signed tolerance
-            double r = ( nt01_x_t0s0 - t ) / ( nt01_x_t0s0 - nt01_x_t0s1 );
-            S0[X] = s0[X] * ( 1.-r ) + s1[X] * r;
-            S0[Y] = s0[Y] * ( 1.-r ) + s1[Y] * r;
-          }
-        if ( s1_out_of_tol ) // put s1 within tolerance
-          {
-            double t = _tolerance * nt01_x_t0s1 / dist_ts1; // signed tolerance
-            double r = ( nt01_x_t0s1 - t ) / ( nt01_x_t0s1 - nt01_x_t0s0 );
-            S1[X] = s1[X] * ( 1.-r ) + s0[X] * r;
-            S1[Y] = s1[Y] * ( 1.-r ) + s0[Y] * r;
-          }
-
-        // project tgt and src segments to median line
-
-        double s01[2] = { S1[X]-S0[X], S1[Y]-S0[Y] }; // src segment direction
-        double sSize = sqrt( s01[X]*s01[X] + s01[Y]*s01[Y] ); // src segment size
-        if ( sSize < _precision )
-          return false; // degenerated segment
-        s01[X] /= sSize, s01[Y] /= sSize; // normalize s01
-
-        // make t01 and s01 codirected
-        double t01_x_s01 = t01[X] * s01[X] + t01[Y] * s01[Y]; // t01 dot s01
-        if ( t01_x_s01 < 0 )
-          s01[X] = -s01[X], s01[Y] = -s01[Y];
-
-        double medianDir[2] = {
-          t01[X] * ( 1.-_median_line) + s01[X] * _median_line, 
-          t01[Y] * ( 1.-_median_line) + s01[Y] * _median_line
-        };
-        double medianSize = sqrt( medianDir[X]*medianDir[X] + medianDir[Y]*medianDir[Y] );
-        if ( medianSize < std::numeric_limits<double>::min() )
-          return false; // strange...
-        medianDir[X] /= medianSize, medianDir[Y] /= medianSize;
-
-        xt0 = t0[X] * medianDir[X] + t0[Y] * medianDir[Y];
-        xt1 = t1[X] * medianDir[X] + t1[Y] * medianDir[Y];
-        xs0 = S0[X] * medianDir[X] + S0[Y] * medianDir[Y];
-        xs1 = S1[X] * medianDir[X] + S1[Y] * medianDir[Y];
-
-      } // if ( SPACEDIM == 2 )
+        return CurveIntersectorInternalProjectionThis2D(coordsT,coordsS, _tolerance, _precision, _median_line,
+        xs0,xs1,xt0,xt1);
+      }
+    if ( SPACEDIM == 3 )
+    {
+      double coordsT2D[4], coordsS2D[4];
+      double dist = InternalProjectionFrom3DTo2D(coordsT,coordsS,_tolerance,coordsT2D,coordsS2D);
+      if( dist >= this->_precision )
+        return false;
+      return CurveIntersectorInternalProjectionThis2D(coordsT2D,coordsS2D,_tolerance,_precision,_median_line,xs0,xs1,xt0,xt1);
+    }
     return true;
   }
   
