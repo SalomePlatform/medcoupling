@@ -430,13 +430,13 @@ namespace MEDCoupling
   }
 
   template<class T>
-  void MemArray<T>::CPPDeallocator(void *pt, void */*param*/)
+  void MemArray<T>::CPPDeallocator(void *pt, void * /*param*/)
   {
     delete [] reinterpret_cast<T*>(pt);
   }
 
   template<class T>
-  void MemArray<T>::CDeallocator(void *pt, void */*param*/)
+  void MemArray<T>::CDeallocator(void *pt, void * /*param*/)
   {
     free(pt);
   }

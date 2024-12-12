@@ -337,16 +337,16 @@ namespace INTERP_KERNEL
     xs0 = coordsS[0]; xs1 = coordsS[1];
     if ( SPACEDIM == 2 )
       {
-        return CurveIntersectorInternalProjectionThis2D(coordsT,coordsS, _tolerance, _precision, _median_line,
+        return INTERP_KERNEL::CurveIntersectorInternal::CurveIntersectorInternalProjectionThis2D(coordsT,coordsS, _tolerance, _precision, _median_line,
         xs0,xs1,xt0,xt1);
       }
     if ( SPACEDIM == 3 )
     {
       double coordsT2D[4], coordsS2D[4];
-      double dist = InternalProjectionFrom3DTo2D(coordsT,coordsS,_tolerance,coordsT2D,coordsS2D);
+      double dist = INTERP_KERNEL::CurveIntersectorInternal::InternalProjectionFrom3DTo2D(coordsT,coordsS,_tolerance,coordsT2D,coordsS2D);
       if( dist >= this->_precision )
         return false;
-      return CurveIntersectorInternalProjectionThis2D(coordsT2D,coordsS2D,_tolerance,_precision,_median_line,xs0,xs1,xt0,xt1);
+      return INTERP_KERNEL::CurveIntersectorInternal::CurveIntersectorInternalProjectionThis2D(coordsT2D,coordsS2D,_tolerance,_precision,_median_line,xs0,xs1,xt0,xt1);
     }
     return true;
   }

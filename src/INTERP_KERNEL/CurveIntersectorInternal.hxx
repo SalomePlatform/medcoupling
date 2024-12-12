@@ -17,11 +17,29 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#pragma once
+#ifndef __CurveIntersectorInternal_HXX__
+#define __CurveIntersectorInternal_HXX__
 
 #include "INTERPKERNELDefines.hxx"
 
-INTERPKERNEL_EXPORT double InternalProjectionFrom3DTo2D(const double coordsT[6], const double coordsS[6], double tolerance, double coordsTOut[4], double coordsSOut[4]);
+#include <array>
 
-INTERPKERNEL_EXPORT bool CurveIntersectorInternalProjectionThis2D(const double *coordsT, const double *coordsS, double tolerance, double precision, double medianLine,
+namespace INTERP_KERNEL
+{
+  /*!
+   * \class CurveIntersectorInternal
+   * Class defining some functions fir internal projections
+   */
+  class CurveIntersectorInternal
+  {
+    public:
+      CurveIntersectorInternal(){};
+      ~CurveIntersectorInternal(){};
+      INTERPKERNEL_EXPORT static double InternalProjectionFrom3DTo2D(const double coordsT[6], const double coordsS[6], double tolerance, double coordsTOut[4], double coordsSOut[4]);
+      INTERPKERNEL_EXPORT static bool CurveIntersectorInternalProjectionThis2D(const double *coordsT, const double *coordsS, double tolerance, double precision, double medianLine,
                                                                   double& xs0, double& xs1, double& xt0, double& xt1);
+      static double InternalProjectionFrom3DTo2DHelper(const std::array<double,3>& t01, double norm_t01, const std::array<double,3>& t0s0, double s0x);
+  };
+}
+
+#endif

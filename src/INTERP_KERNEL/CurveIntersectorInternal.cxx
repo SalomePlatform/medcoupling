@@ -17,13 +17,14 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
+#include "CurveIntersectorInternal.hxx"
 #include <cmath>
 #include <limits>
 #include <array>
 
 #include "VectorUtils.hxx"
 
-double InternalProjectionFrom3DTo2DHelper(const std::array<double,3>& t01, double norm_t01, const std::array<double,3>& t0s0, double s0x)
+double INTERP_KERNEL::CurveIntersectorInternal::InternalProjectionFrom3DTo2DHelper(const std::array<double,3>& t01, double norm_t01, const std::array<double,3>& t0s0, double s0x)
 {
   std::array<double,3> t0s0_ortho(t01);
   INTERP_KERNEL::scaleVector(t0s0_ortho.data(),- s0x / norm_t01);
@@ -34,7 +35,7 @@ double InternalProjectionFrom3DTo2DHelper(const std::array<double,3>& t01, doubl
   return s0y;
 }
 
-double InternalProjectionFrom3DTo2D(const double coordsT[6], const double coordsS[6], double tolerance,
+double INTERP_KERNEL::CurveIntersectorInternal::InternalProjectionFrom3DTo2D(const double coordsT[6], const double coordsS[6], double tolerance,
   double coordsTOut[4], double coordsSOut[4])
 {// EDF31137
   std::array<double,3> s01= { coordsS[3]-coordsS[0], coordsS[4]-coordsS[1], coordsS[5]-coordsS[2] };
@@ -84,8 +85,8 @@ double InternalProjectionFrom3DTo2D(const double coordsT[6], const double coords
   return fabs( distW );
 }
 
-bool CurveIntersectorInternalProjectionThis2D(const double *coordsT, const double *coordsS, double tolerance, double precision, double medianLine,
-                                              double& xs0, double& xs1, double& xt0, double& xt1)
+bool INTERP_KERNEL::CurveIntersectorInternal::CurveIntersectorInternalProjectionThis2D(const double *coordsT, const double *coordsS, double tolerance, double precision, double medianLine,
+                                                                                       double& xs0, double& xs1, double& xt0, double& xt1)
 {
     // Pass 2D->1D
 
