@@ -146,16 +146,24 @@ namespace MEDCoupling
   };
 
   template<typename T>
-  class SkyLineArrayGenIterator : public std::iterator< std::input_iterator_tag, const mcIdType *, mcIdType, const mcIdType **, const mcIdType *>
+  class SkyLineArrayGenIterator
   {
-    std::size_t _num = 0;
-    std::vector<const MEDCouplingSkyLineArray *> *_data = nullptr;
   public:
+    using iterator_category =  std::input_iterator_tag;
+    using value_type = const mcIdType *;
+    using difference_type = mcIdType;
+    using pointer = const mcIdType **;
+    using reference = const mcIdType *;
+
     explicit SkyLineArrayGenIterator(std::size_t num , std::vector<const MEDCouplingSkyLineArray *> *data) : _num(num),_data(data) {}
     SkyLineArrayGenIterator<T>& operator++() { ++_num; return *this; }
     bool operator==(const SkyLineArrayGenIterator& other) const { return _num == other._num; }
     bool operator!=(const SkyLineArrayGenIterator& other) const { return !(*this == other); }
     reference operator*() const { T tt; return tt((*_data)[_num]); }
+
+  private:
+    std::size_t _num = 0;
+    std::vector<const MEDCouplingSkyLineArray *> *_data = nullptr;
   };
 
   struct SkyLineArrayIndexPtrFunctor { const mcIdType *operator()(const MEDCouplingSkyLineArray *ska) { return ska->getIndex(); } };

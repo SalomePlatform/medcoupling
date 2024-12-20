@@ -627,10 +627,11 @@ namespace MEDCoupling
     if(policyPartial.empty())
       return ElementLocator::NO_POST_TREATMENT_POLICY;
     int ref=policyPartial[0];
-     std::vector<int>::const_iterator iter1=std::find_if(policyPartial.begin(),policyPartial.end(),std::bind2nd(std::not_equal_to<int>(),ref));
-    if(iter1!=policyPartial.end())
+    auto iter1 = std::find_if(policyPartial.begin(),policyPartial.end(), [=](int p) { return p != ref; } );
+
+    if(iter1 != policyPartial.end())
       {
-        std::ostringstream msg; msg << "Incompatible policies between lazy procs each other : proc # " << iter1-policyPartial.begin();
+        std::ostringstream msg; msg << "Incompatible policies between lazy procs each other : proc # " << std::distance(policyPartial.begin(), iter1);
         throw INTERP_KERNEL::Exception(msg.str().c_str());
       }
     return ref;

@@ -504,16 +504,24 @@ std::vector< std::pair<std::string,std::string> > MEDCoupling::GetComponentsName
 }
 
 // see reference : https://en.cppreference.com/w/cpp/iterator/iterator
-class MEDVectorStringIterator : public std::iterator< std::input_iterator_tag, long, long, const std::string*, std::string >
+class MEDVectorStringIterator
 {
-  long _num = 0;
-  char *_data = nullptr;
 public:
+  using iterator_category = std::input_iterator_tag;
+  using value_type = long;
+  using difference_type = long;
+  using pointer = const std::string*;
+  using reference = std::string;
+
   explicit MEDVectorStringIterator(long num , char *data) : _num(num),_data(data) {}
   MEDVectorStringIterator& operator++() { ++_num; return *this;}
   bool operator==(const MEDVectorStringIterator& other) const {return _num == other._num;}
   bool operator!=(const MEDVectorStringIterator& other) const {return !(*this == other);}
   reference operator*() const {return MEDLoaderBase::buildStringFromFortran(_data+_num*MED_LNAME_SIZE,MED_LNAME_SIZE);}
+
+private:
+  long _num = 0;
+  char *_data = nullptr;
 };
 
 void MEDCoupling::GetFamiliesGroupsInfo(const std::string& fileName, const std::string& meshName, std::map<std::string,mcIdType>& families, std::map<std::string,std::vector<std::string>>& groupsOnFam)

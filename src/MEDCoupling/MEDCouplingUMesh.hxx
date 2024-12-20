@@ -449,17 +449,24 @@ namespace MEDCoupling
   };
 
   template<typename T, typename TOUT>
-  class UMeshGenIterator : public std::iterator< std::input_iterator_tag, const TOUT *, mcIdType, const TOUT **, const TOUT *>
+  class UMeshGenIterator
   {
-    std::size_t _num = 0;
-    std::vector<const MEDCouplingUMesh *> *_data = nullptr;
-    using my_reference = typename std::iterator< std::input_iterator_tag, const TOUT *, mcIdType, const TOUT **, const TOUT *>::reference;
   public:
+    using iterator_category = std::input_iterator_tag;
+    using value_type = const TOUT *;
+    using difference_type = mcIdType;
+    using pointer = const TOUT **;
+    using reference = const TOUT *;
+
     explicit UMeshGenIterator(std::size_t num , std::vector<const MEDCouplingUMesh *> *data) : _num(num),_data(data) {}
     UMeshGenIterator<T,TOUT>& operator++() { ++_num; return *this; }
     bool operator==(const UMeshGenIterator& other) const { return _num == other._num; }
     bool operator!=(const UMeshGenIterator& other) const { return !(*this == other); }
-    my_reference operator*() const { T tt; return tt((*_data)[_num]); }
+    reference operator*() const { T tt; return tt((*_data)[_num]); }
+
+  private:
+    std::size_t _num = 0;
+    std::vector<const MEDCouplingUMesh *> *_data = nullptr;
   };
 
   struct UMeshIndexConnectivityFunctor { const DataArrayIdType *operator()(const MEDCouplingUMesh *um) { return um->getNodalConnectivityIndex(); } };
