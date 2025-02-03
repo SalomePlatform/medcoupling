@@ -1248,6 +1248,16 @@ void MEDFileFieldNameScope::setName(const std::string& fieldName)
   _name=fieldName;
 }
 
+std::string MEDFileFieldNameScope::getDescription() const
+{
+  return _description;
+}
+
+void MEDFileFieldNameScope::setDescription(const std::string& description)
+{
+  _description = description;
+}
+
 std::string MEDFileFieldNameScope::getDtUnit() const
 {
   return _dt_unit;

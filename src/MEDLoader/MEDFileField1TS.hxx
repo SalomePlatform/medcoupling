@@ -303,6 +303,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void setTime(int iteration, int order, double val);
     MEDLOADER_EXPORT std::string getName() const;
     MEDLOADER_EXPORT void setName(const std::string& name);
+    MEDLOADER_EXPORT std::string getDescription() const;
+    MEDLOADER_EXPORT void setDescription(const std::string& description);
     MEDLOADER_EXPORT std::string simpleRepr() const;
     MEDLOADER_EXPORT void simpleRepr(int bkOffset, std::ostream& oss, int f1tsId) const;
     MEDLOADER_EXPORT std::string getDtUnit() const;

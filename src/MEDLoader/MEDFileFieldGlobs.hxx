@@ -178,6 +178,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT MEDFileFieldNameScope(const std::string& fieldName, const std::string& meshName);
     MEDLOADER_EXPORT std::string getName() const;
     MEDLOADER_EXPORT void setName(const std::string& fieldName);
+    MEDLOADER_EXPORT std::string getDescription() const;
+    MEDLOADER_EXPORT void setDescription(const std::string& description);
     MEDLOADER_EXPORT std::string getDtUnit() const;
     MEDLOADER_EXPORT void setDtUnit(const std::string& dtUnit);
     MEDLOADER_EXPORT void copyNameScope(const MEDFileFieldNameScope& other);
@@ -187,6 +189,7 @@ namespace MEDCoupling
     std::string _name;
     std::string _dt_unit;
     std::string _mesh_name;
+    std::string _description;
   };
 }
 

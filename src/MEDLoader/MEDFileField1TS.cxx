@@ -985,6 +985,7 @@ mcIdType MEDFileAnyTypeField1TSWithoutSDA::copyTinyInfoFrom(const TimeHolder *th
     throw INTERP_KERNEL::Exception("MEDFileAnyTypeField1TSWithoutSDA::copyTinyInfoFrom : input field is NULL !");
   std::string name(field->getName());
   setName(name.c_str());
+  setDescription(field->getDescription());
   if(field->getMesh())
     setMeshName(field->getMesh()->getName());
   setDtUnit(th->getTimeUnit());
@@ -2427,6 +2428,16 @@ std::string MEDFileAnyTypeField1TS::getName() const
 void MEDFileAnyTypeField1TS::setName(const std::string& name)
 {
   contentNotNullBase()->setName(name);
+}
+
+std::string MEDFileAnyTypeField1TS::getDescription() const
+{
+  return contentNotNullBase()->getDescription();
+}
+
+void MEDFileAnyTypeField1TS::setDescription(const std::string& description)
+{
+  contentNotNullBase()->setDescription(description);
 }
 
 void MEDFileAnyTypeField1TS::simpleRepr(int bkOffset, std::ostream& oss, int f1tsId) const

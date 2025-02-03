@@ -2229,6 +2229,8 @@ namespace MEDCoupling
     void setName(const std::string& name);
     std::string getMeshName();
     void setMeshName(const std::string& newMeshName);
+    std::string getDescription();
+    void setDescription(const std::string& description);
     int getMeshIteration() const;
     int getMeshOrder() const;
     int getNumberOfComponents() const;

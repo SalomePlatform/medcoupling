@@ -5879,6 +5879,50 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue( mm.getFamilyFieldAtLevel(0).getDifferentValues().isEqual( mmOut.getFamilyFieldAtLevel(0).getDifferentValues() ) )
         self.assertTrue( mm.getFamilyFieldAtLevel(-1).getDifferentValues().isEqual( mmOut.getFamilyFieldAtLevel(-1).getDifferentValues() ) )
 
+    #@WriteInTmpDir
+    def test51(self):
+        """
+        [EDF31786] : non propagated field description
+        """
+        fname = "test51.med"
+        vx = DataArrayDouble([0, 1, 2])
+
+        meshC = MEDCouplingCMesh()
+        meshC.setCoords(vx, vx, vx)
+        field_mesh = meshC.buildUnstructured()
+        field_mesh.sortCellsInMEDFileFrmt()
+        field_mesh.setName("TEST")
+
+        mm = MEDFileUMesh()
+        mm[0] = field_mesh
+        mm.write(fname,2)
+
+        field_values = DataArrayDouble(field_mesh.getNumberOfNodes())
+        field_values[:] = 20.0
+        field_values.setInfoOnComponents(["TEMP"])
+        field_values.setName("TEMP")
+        zeDescription = "DESC"
+        field_name = "TEMP_R"
+        medc_node_field = MEDCouplingFieldDouble(ON_NODES, ONE_TIME)
+        medc_node_field.setName(field_name)
+        medc_node_field.setArray(field_values)
+        medc_node_field.setNature(IntensiveMaximum)
+        medc_node_field.setMesh(field_mesh)
+        medc_node_field.checkConsistencyLight()
+        medc_node_field.setDescription(zeDescription)
+
+        medfield = MEDFileField1TS()
+        medfield.setFieldNoProfileSBT(medc_node_field)
+
+        rel = medfield.field(mm)
+        self.assertEqual( medfield.getDescription(), zeDescription )
+        self.assertEqual( rel.getDescription(), zeDescription )
+        #
+        medfield.write(fname,0)
+        #
+        medfieldFromFile = MEDFileField1TS(fname,field_name)
+        # self.assertEqual( medfieldFromFile.getDescription(), zeDescription ) # waiting decision
+
     pass
 
 if __name__ == "__main__":
