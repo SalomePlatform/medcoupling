@@ -117,6 +117,7 @@ bool IsInside3D(const MEDCouplingGaussLocalization& gl, const std::vector<double
   constexpr double EPS_IN_OUT = 1e-12;
   std::size_t nbPtsInCell(ptsInCell.size()/3);
   bool ret(false);
+  std::vector<double> vini;
   const double *refCoo(gl.getRefCoords().data());
   INTERP_KERNEL::NormalizedCellType ct(gl.getType());
   Functor func(gl,nbPtsInCell,ptsInCell.data(),locInReal);
@@ -136,20 +137,25 @@ bool IsInside3D(const MEDCouplingGaussLocalization& gl, const std::vector<double
   };
 
   // loop on refcoords as initialization point for Newton algo. vini is the initialization vector of Newton.
-  for(std::size_t attemptId = 0 ; attemptId < nbPtsInCell ; ++attemptId)
+  for(std::size_t attemptId = 0 ; attemptId < nbPtsInCell + 1 ; ++attemptId)
   {
-    std::vector<double> vini(refCoo + attemptId*3, refCoo + (attemptId+1)*3);
+    if (attemptId == 0) {
+      vini = INTERP_KERNEL::GaussInfo::GetReferenceCoordinatesOfBarycenterOf(ct);
+    } else {
+      vini = std::vector<double>(refCoo + (attemptId - 1) * 3, refCoo + (attemptId) * 3);
+    }
+
     try
     {
       bool check(true);
-      //INTERP_KERNEL::SolveWithNewton(vini,check,func);
-      INTERP_KERNEL::SolveWithNewtonWithJacobian(vini,check,func,myJacobian);
+      // if not converge with Newton after 50 iterations, go to the next pt
+      INTERP_KERNEL::SolveWithNewtonWithJacobian(vini, check, func, myJacobian, EPS_IN_OUT, 50);
       ret = (check==false);//looks strange but OK regarding newt (SolveWithNewton) at page 387 of numerical recipes for semantic of check parameter
     }
     catch( INTERP_KERNEL::Exception& ex )
       { ret = false; }// Something get wrong during Newton process
     if(ret)
-    {//Newton has converged. Now check if it converged to a point inside cell
+    { //Newton has converged. Now check if it converged to a point inside cell
       if( ! INTERP_KERNEL::GaussInfo::IsInOrOutForReference(ct,vini.data(),EPS_IN_OUT) )
       {// converged but locInReal has been detected outside of cell
         ret = false;
@@ -189,7 +195,7 @@ void MEDCouplingFieldDiscretizationOnNodesFE::GetRefCoordOfListOf3DPtsIn3D(const
       umesh->getNodeIdsOfCell(*cellId,conn);
       MCAuto<DataArrayDouble> refCoo( MEDCouplingGaussLocalization::GetDefaultReferenceCoordinatesOf(gt) );
       std::vector<double> refCooCpp(refCoo->begin(),refCoo->end());
-      std::vector<double> gsCoo(ptsCoo + iPt*3,ptsCoo + (iPt+1)*3); 
+      std::vector<double> gsCoo(ptsCoo + iPt * 3, ptsCoo + (iPt + 1) * 3);
       MEDCouplingGaussLocalization gl(gt,refCooCpp,{0,0,0},{1.});
       std::vector<double> ptsInCell; ptsInCell.reserve(conn.size()*gl.getDimension());
       std::for_each( conn.cbegin(), conn.cend(), [coordsOfMesh,&ptsInCell](mcIdType c) { ptsInCell.insert(ptsInCell.end(),coordsOfMesh+c*3,coordsOfMesh+(c+1)*3); } );
@@ -201,8 +207,12 @@ void MEDCouplingFieldDiscretizationOnNodesFE::GetRefCoordOfListOf3DPtsIn3D(const
         found = true;
       }
     }
-    if(!found)
-      THROW_IK_EXCEPTION("getValueOnMulti on MEDCouplingFieldDiscretizationOnNodesFE : fail to locate point #" << iPt << " X=" << ptsCoo[0] << " Y=" << ptsCoo[1] << " Z=" << ptsCoo[2] << " !");
+    if (!found) {
+      THROW_IK_EXCEPTION(
+          "getValueOnMulti on MEDCouplingFieldDiscretizationOnNodesFE : fail to locate point #"
+          << iPt << " X=" << ptsCoo[3 * iPt + 0] << " Y=" << ptsCoo[3 * iPt + 1]
+          << " Z=" << ptsCoo[3 * iPt + 2] << " !");
+    }
   }
 }
 
@@ -221,11 +231,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationOnNodesFE::getValueOnMulti(const 
 {
   if(!arr || !arr->isAllocated())
     throw INTERP_KERNEL::Exception("getValueOnMulti : input array is null or not allocated !");
-  mcIdType nbOfRows=getNumberOfMeshPlaces(mesh);
-  if(arr->getNumberOfTuples()!=nbOfRows)
-  {
-    THROW_IK_EXCEPTION( "getValueOnMulti : input array does not have correct number of tuples ! Excepted " << nbOfRows << " having " << arr->getNumberOfTuples() << " !")
-  }
+  mcIdType nbOfRows = getNumberOfMeshPlaces(mesh);
   const MEDCouplingUMesh *umesh = checkConfig3D(mesh);
   std::size_t nbCompo( arr->getNumberOfComponents() );
   MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
@@ -261,7 +267,7 @@ MCAuto<DataArrayDouble> MEDCouplingFieldDiscretizationOnNodesFE::getCooInRefElem
   MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
   ret->alloc(nbOfPoints,3);
   double *retPtr(ret->getPointer() );
-  
+
   auto arrayFeeder = [&retPtr](const MEDCouplingGaussLocalization& gl, const std::vector<mcIdType>& conn)
   {
     std::vector<double> resVector( gl.getGaussCoords() );

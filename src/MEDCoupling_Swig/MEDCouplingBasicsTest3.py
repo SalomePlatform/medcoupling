@@ -1210,7 +1210,7 @@ class MEDCouplingBasicsTest3(unittest.TestCase):
         resToTest=f.getLocalizationOfDiscr();
         self.assertEqual(3,resToTest.getNumberOfComponents());
         self.assertEqual(8,resToTest.getNumberOfTuples());#2+3+4+4 gauss points for resp TRI3,TRI6,QUAD4,QUAD8
-        expected3=[1.312,3.15,1.02, 0.56,3.3,0.6, 2.20,1.0,0.2, 2.44, 2.52,1.4, 1.56,0.3,3.6, 1.613,0.801,4.374, 2.6,2.4,2.3, 2.31232,2.3933985,1.553255]
+        expected3=[1.312,3.15,1.02, 0.56,3.3,0.6, 2.20,1.0,0.2, 2.76, 2.52,1.4, 1.56,0.3,3.6, 1.613,0.801,4.374, 2.6,2.4,2.3, 2.31232,2.3933985,1.553255]
         for i in range(24):
             self.assertAlmostEqual(expected3[i],resToTest.getIJ(0,i),14);
             pass

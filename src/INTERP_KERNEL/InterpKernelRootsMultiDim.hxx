@@ -35,95 +35,176 @@ inline T sqr(const T a) { return a*a; }
 
 namespace INTERP_KERNEL
 {
-  template <class T>
-  void LineSearches(const std::vector<double>& xold, const double fold, const std::vector<double>& g, std::vector<double> &p,
-  std::vector<double> &x, double &f, const double stpmax, bool &check, T &func)
-  {
-    const double ALF=1.0e-4, TOLX=std::numeric_limits<double>::epsilon();
-    double a,alam,alam2=0.0,alamin,b,disc,f2=0.0;
-    double rhs1,rhs2,slope=0.0,sum=0.0,temp,test,tmplam;
-    mcIdType i,n=xold.size();
-    check=false;
-    for (i=0;i<n;i++) sum += p[i]*p[i];
-    sum=std::sqrt(sum);
-    if (sum > stpmax)
-      for (i=0;i<n;i++)
-        p[i] *= stpmax/sum;
-    for (i=0;i<n;i++)
-      slope += g[i]*p[i];
-    if (slope >= 0.0) THROW_IK_EXCEPTION("Roundoff problem in LineSearches.");
-    test=0.0;
-    for (i=0;i<n;i++)
-    {
-      temp=std::abs(p[i])/std::fmax(std::abs(xold[i]),1.0);
-      if (temp > test) test=temp;
+template <class T>
+void LineSearches(const std::vector<double> &xold, std::vector<double> &dx, std::vector<double> &x,
+                  T &func, const double ALF = 0.1, const mcIdType MAXIT = 10) {
+  const double TOLX = std::numeric_limits<double>::epsilon();
+  const mcIdType n = xold.size();
+  std::vector<double> &fvec = func.getVector();
+  double p0, p1, f1, f0, rho_0, rho_1;
+  double rho, rho_neg, rho_pos, rho_opt, rho_new, rho_cur;
+  double f, f_opt, f_cur;
+  bool b_pos;
+
+  // fixed paramters - from code_aster
+  const double rho_min = 1e-2, rho_max = 10., rho_excl = 0.9e-2;
+  const double parmul = 3.0;
+
+  // Doc:
+  // https://codeaster.pages.pleiade.edf.fr/doc/docaster/manuals/man_r/r5/r5.03.01/Recherche_lin_aire.html
+  // METHODE="MIXTE"
+
+  // Compute residual.dot(increment) (and update solution)
+  auto _f = [&fvec, &func, &dx, &xold, &n, &x](const double &rho) {
+    for (mcIdType j = 0; j < n; j++)
+      x[j] = xold[j] + rho * dx[j];
+    const auto norm = func(x);
+
+    double f = 0.0;
+    for (mcIdType j = 0; j < n; j++)
+      f += fvec[j] * dx[j];
+    return f;
+  };
+
+  // project bound on admissible interval
+  auto _proj = [rho_min, rho_max, rho_excl](double &rho) {
+    const double rho_tmp = rho;
+    if (rho_tmp < rho_min) {
+      rho = rho_min;
     }
-    alamin=TOLX/test;
-    alam=1.0;
-    for (;;)
-    {
-      for (i=0;i<n;i++) x[i]=xold[i]+alam*p[i];
-      f=func(x);
-      if (alam < alamin)
-      {
-        for (i=0;i<n;i++) x[i]=xold[i];
-        check=true;
-        return;
-      } else if (f <= fold+ALF*alam*slope) return;
-      else
-      {
-        if (alam == 1.0)
-          tmplam = -slope/(2.0*(f-fold-slope));
-        else
-        {
-          rhs1=f-fold-alam*slope;
-          rhs2=f2-fold-alam2*slope;
-          a=(rhs1/(alam*alam)-rhs2/(alam2*alam2))/(alam-alam2);
-          b=(-alam2*rhs1/(alam*alam)+alam*rhs2/(alam2*alam2))/(alam-alam2);
-          if (a == 0.0) tmplam = -slope/(2.0*b);
-          else {
-              disc=b*b-3.0*a*slope;
-              if (disc < 0.0) tmplam=0.5*alam;
-              else if (b <= 0.0) tmplam=(-b+std::sqrt(disc))/(3.0*a);
-              else tmplam=-slope/(b+std::sqrt(disc));
-          }
-          if (tmplam>0.5*alam)
-              tmplam=0.5*alam;
-        }
-      }
-      alam2=alam;
-      f2 = f;
-      alam=std::fmax(tmplam,0.1*alam);
+    if (rho_tmp > rho_max) {
+      rho = rho_max;
     }
-  }
-  template <class T>
-  class JacobianCalculator
-  {
-  private:
-    const double EPS;
-    T &func;
-  public:
-    JacobianCalculator(T &funcc) : EPS(1.0e-8),func(funcc) {}
-    INTERP_KERNEL::DenseMatrix operator() (const std::vector<double>& x, const std::vector<double>& fvec)
-    {
-      mcIdType n=x.size();
-      INTERP_KERNEL::DenseMatrix df(n,n);
-      std::vector<double> xh=x;
-      for (mcIdType j=0;j<n;j++)
-      {
-        double temp=xh[j];
-        double h=EPS*std::abs(temp);
-        if (h == 0.0) h=EPS;
-        xh[j]=temp+h;
-        h=xh[j]-temp;
-        std::vector<double> f=func(xh);
-        xh[j]=temp;
-        for (mcIdType i=0;i<n;i++)
-          df[i][j]=(f[i]-fvec[i])/h;
-      }
-      return df;
+    if (rho_tmp < 0.0 && rho_tmp >= -rho_excl) {
+      rho = -rho_excl;
+    }
+    if (rho_tmp >= 0 && rho_tmp <= rho_excl) {
+      rho = rho_excl;
     }
   };
+
+  // initial values
+  const double f_old = _f(0.0);
+  const double f_cvg = ALF * std::abs(f_old);
+  const double sens = (f_old <= 0.0) ? 1.0 : -1.0;
+
+  rho_opt = 1.0, rho = sens * 1.0;
+  rho_neg = 0.0, rho_pos = std::numeric_limits<double>::signaling_NaN();
+  f_opt = 10e100;
+
+  rho_0 = 0.0, rho_1 = rho_0;
+  f0 = sens * f_old, f1 = f0;
+
+  b_pos = false;
+
+  for (mcIdType its = 0; its < MAXIT; its++) {
+    // Compute new residual
+    f = _f(rho);
+
+    rho_cur = sens * rho;
+    f_cur = sens * f;
+
+    // Store value
+    rho_0 = rho_1, f0 = f1;
+    rho_1 = rho_cur, f1 = f_cur;
+
+    // Update bounds
+    if (f_cur < 0.0) {
+      rho_neg = rho_cur;
+    } else {
+      b_pos = true;
+      rho_pos = rho_cur;
+    }
+
+    // Optimal solution until now ?
+    if (std::abs(f_cur) < std::abs(f_opt)) {
+      rho_opt = rho_cur;
+      f_opt = f_cur;
+      _proj(rho_opt);
+    }
+
+    // Search maximal bound
+    if (b_pos) {
+      if (std::abs(f1) >= std::abs(f0)) {
+        // f is not decreased - use dichotomie
+        rho_new = 0.5 * (rho_neg + rho_pos);
+      } else {
+        // linear interpolation
+        if (std::abs(rho_1 - rho_0) > TOLX) {
+          p1 = (f1 - f0) / (rho_1 - rho_0);
+          p0 = f0 - p1 * rho_0;
+
+          if (std::abs(p1) <= std::abs(f0) / (rho_pos + rho_0)) {
+            rho_new = 0.5 * (rho_neg + rho_pos);
+          } else {
+            rho_new = -p0 / p1;
+          }
+        } else {
+          // failed
+          break;
+        }
+      }
+    } else {
+      rho_new = parmul * rho_cur;
+    }
+
+    // minimal bound
+    if (rho_new < rho_neg) {
+      if (b_pos) {
+        rho_new = 0.5 * (rho_neg + rho_pos);
+      } else {
+        // failed
+        break;
+      }
+    }
+
+    // maximal bound
+    if (b_pos && rho_new > rho_pos) {
+      rho_new = 0.5 * (rho_neg + rho_pos);
+    }
+
+    // project bound
+    _proj(rho_new);
+
+    // update
+    rho = sens * rho_new;
+
+    // Test convergence ?
+    if (std::abs(f_opt) <= f_cvg) {
+      break;
+    }
+  }
+
+  /* Return optimal value */
+  f = _f(rho_opt);
+}
+template <class T> class JacobianCalculator {
+private:
+  const double EPS;
+  T &func;
+
+public:
+  JacobianCalculator(T &funcc) : EPS(1.0e-8), func(funcc) {}
+  INTERP_KERNEL::DenseMatrix operator()(const std::vector<double> &x,
+                                        const std::vector<double> &fvec) {
+    mcIdType n = x.size();
+    INTERP_KERNEL::DenseMatrix df(n, n);
+    std::vector<double> xh = x;
+    for (mcIdType j = 0; j < n; j++) {
+      double temp = xh[j];
+      double h = EPS * std::abs(temp);
+      if (h == 0.0)
+        h = EPS;
+      xh[j] = temp + h;
+      h = xh[j] - temp;
+      std::vector<double> f = func(xh);
+      xh[j] = temp;
+      for (mcIdType i = 0; i < n; i++)
+        df[i][j] = (f[i] - fvec[i]) / h;
+    }
+    return df;
+  }
+};
 
   template <class T>
   class FMin
@@ -150,20 +231,20 @@ namespace INTERP_KERNEL
    * check is true if the routine has converged to a local minimum.
    */
   template <class T>
-  void SolveWithNewtonWithJacobian(std::vector<double> &x, bool &check, T &vecfunc,
-    std::function<void(const std::vector<double>&, const std::vector<double>&, INTERP_KERNEL::DenseMatrix&)> jacobian)
-  {
-    const mcIdType MAXITS=200;
-    const double TOLF=1.0e-8,TOLMIN=1.0e-12,STPMX=100.0;
+  void SolveWithNewtonWithJacobian(
+      std::vector<double> &x, bool &check, T &vecfunc,
+      std::function<void(const std::vector<double> &, const std::vector<double> &, INTERP_KERNEL::DenseMatrix &)> jacobian,
+      const double TOLF = 1.0e-8,
+      const mcIdType MAXITS = 200) {
     const double TOLX=std::numeric_limits<double>::epsilon();
     mcIdType i,j,its,n=x.size();
-    double den,f,fold,stpmax,sum,temp,test;
-    std::vector<double> g(n),p(n),xold(n);
+    double f, temp, test;
+    std::vector<double> p(n), xold(n);
     INTERP_KERNEL::DenseMatrix fjac(n,n);
     FMin<T> fmin(vecfunc);
     std::vector<double> &fvec=fmin.getVector();
     f=fmin(x);
-    test=0.0;
+    test = 0.0;
     for (i=0;i<n;i++)
       if (std::abs(fvec[i]) > test) test=std::abs(fvec[i]);
     if (test < 0.01*TOLF)
@@ -171,45 +252,22 @@ namespace INTERP_KERNEL
       check=false;
       return;
     }
-    sum=0.0;
-    for (i=0;i<n;i++) sum += sqr(x[i]);
-    stpmax=STPMX*std::fmax(std::sqrt(sum),double(n));
     for (its=0;its<MAXITS;its++)
     {
-      jacobian(x,fvec,fjac);//fjac=fdjac(x,fvec);
-      for (i=0;i<n;i++)
-      {
-        sum=0.0;
-        for (j=0;j<n;j++) sum += fjac[j][i]*fvec[j];
-        g[i]=sum;
-      }
-      for (i=0;i<n;i++) xold[i]=x[i];
-      fold=f;
+      jacobian(x, fvec, fjac);
+      for (i = 0; i < n; i++) xold[i] = x[i];
       for (i=0;i<n;i++) p[i] = -fvec[i];
       INTERP_KERNEL::LUDecomp alu(fjac);
       alu.solve(p,p);
-      LineSearches(xold,fold,g,p,x,f,stpmax,check,fmin);
-      test=0.0;
-      for (i=0;i<n;i++)
-          if (std::abs(fvec[i]) > test) test=std::abs(fvec[i]);
-      if (test < TOLF)
-      {
+      LineSearches(xold, p, x, fmin);
+      test = 0.0;
+      for (i = 0; i < n; i++) {
+        if (std::abs(fvec[i]) > test)
+          test = std::abs(fvec[i]);
+      }
+      if (test < TOLF) {
         check=false;
         return;
-      }
-      if (check)
-      {
-        test=0.0;
-        den=std::fmax(f,0.5*double(n));
-        for (i=0;i<n;i++) {
-            temp=std::abs(g[i])*std::fmax(std::abs(x[i]),1.0)/den;
-            if (temp > test) test=temp;
-        }
-        check=(test < TOLMIN);
-        if( check )
-          return;
-        else
-          continue;
       }
       test=0.0;
       for (i=0;i<n;i++)
@@ -217,8 +275,10 @@ namespace INTERP_KERNEL
         temp=(std::abs(x[i]-xold[i]))/std::fmax(std::abs(x[i]),1.0);
         if (temp > test) test=temp;
       }
-      if (test < TOLX)
-          return;
+      if (test < TOLX) {
+        check = false;
+        return;
+      }
     }
     THROW_IK_EXCEPTION("MAXITS exceeded in SolveWithNewtonWithJacobian");
   }

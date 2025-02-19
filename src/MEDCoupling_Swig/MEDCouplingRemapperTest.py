@@ -20,11 +20,12 @@
 
 from MEDCouplingDataForTest import MEDCouplingDataForTest
 from MEDCouplingRemapper import *
+
 from math import *
 import unittest
 
 class MEDCouplingBasicsTest(unittest.TestCase):
-    def tessRemapper1(self):
+    def testRemapper1(self):
         sourceMesh=self.build2DSourceMesh_1();
         targetMesh=self.build2DTargetMesh_1();
         remapper=MEDCouplingRemapper()
@@ -58,7 +59,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(1==trgfield.getArray().getNumberOfComponents());
         pass
 
-    def tessPrepareEx1(self):
+    def testPrepareEx1(self):
         sourceMesh=self.build2DSourceMesh_1();
         targetMesh=self.build2DTargetMesh_3();
         #
@@ -90,7 +91,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         pass
 
-    def tessPartialTransfer1(self):
+    def testPartialTransfer1(self):
         sourceMesh=self.build2DSourceMesh_1();
         targetMesh=self.build2DTargetMesh_3();
         #
@@ -132,7 +133,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         pass
 
-    def tessPrepareUC(self):
+    def testPrepareUC(self):
         # 1D
         coords=DataArrayDouble([0.,0.5,0.7])
         src=MEDCouplingUMesh("",1) ; src.setCoords(coords)
@@ -188,7 +189,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         pass
 
-    def tessPrepareCU(self):
+    def testPrepareCU(self):
         # 1D
         coords=DataArrayDouble([0.,0.5,0.7])
         trg=MEDCouplingUMesh("",1) ; trg.setCoords(coords)
@@ -244,7 +245,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         pass
 
-    def tessPrepareCC(self):
+    def testPrepareCC(self):
         # 1D
         src=MEDCouplingCMesh() ; arr=DataArrayDouble([-0.7,-0.1,0.2,0.7,2.,2.3])
         src.setCoordsAt(0,arr)
@@ -296,7 +297,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
 
     # Bug when source mesh is not homogeneously oriented in source mesh
-    def tessNonRegressionNonHomegenousOrriented3DCells(self):
+    def testNonRegressionNonHomegenousOrriented3DCells(self):
         csrc=DataArrayDouble([-0.15240000188350677,0,0,-0.1086929515004158,0,0,-0.15240000188350677,0.018142856657505035,0,-0.13054648041725159,0.0090714283287525177,0.019050000235438347,-0.13054648041725159,0.0090714283287525177,0],5,3)
         src1=MEDCouplingUMesh("src",3) ; src1.allocateCells(0) ; src1.insertNextCell(NORM_TETRA4,[0,1,4,3]) ; src1.insertNextCell(NORM_TETRA4,[2,0,4,3])
         src2=MEDCouplingUMesh("src",3) ; src2.allocateCells(0) ; src2.insertNextCell(NORM_TETRA4,[0,4,1,3]) ; src2.insertNextCell(NORM_TETRA4,[2,0,4,3])
@@ -328,7 +329,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(f22.getArray().isEqual(expected2,1e-13))
         pass
 
-    def tessCellToNodeReverse3D(self):
+    def testCellToNodeReverse3D(self):
         c=DataArrayDouble([0.,1.,2.5])
         cc=MEDCouplingCMesh()
         cc.setCoords(c,c,c)
@@ -356,13 +357,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(f.integral(False)[0],integExpected,14)
         pass
 
-    def tessGauss2Gauss2DValidated(self):
+    def testGauss2Gauss2DValidated(self):
         srcFt=MEDCouplingDataForTest.buildFieldOnGauss_1()
         trgFt=MEDCouplingDataForTest.buildFieldOnGauss_2()
         src=MEDCouplingFieldDouble(srcFt)
         self.assertEqual(srcFt.getMesh().getHiddenCppPointer(),src.getMesh().getHiddenCppPointer())
         self.assertEqual(srcFt.getDiscretization().getHiddenCppPointer(),src.getDiscretization().getHiddenCppPointer())
-        #values given by ASTER usecase
+        # values given by ASTER usecase
         src.setArray(DataArrayDouble([1.,1.,0.,0.,1.,1.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.]))
         src.getArray().setInfoOnComponents(["DOMA"])
         rem=MEDCouplingRemapper()
@@ -371,7 +372,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         trg=rem.transferField(src,1e300)
         self.assertEqual(trg.getMesh().getHiddenCppPointer(),trgFt.getMesh().getHiddenCppPointer())
         self.assertEqual(trg.getDiscretization().getHiddenCppPointer(),trgFt.getDiscretization().getHiddenCppPointer())
-        #values given after interpolation in ASTER
+        # values given after interpolation in ASTER
         arrExpected=DataArrayDouble([1.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.]) ; arrExpected.setInfoOnComponents(["DOMA"])
         self.assertTrue(trg.getArray().isEqual(arrExpected,1e-12))
         #
@@ -379,11 +380,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         rem.prepareEx(trgFt,srcFt)# sorry trgFt is in the place of source and srcFt in the place of target it is not a bug
         trg=MEDCouplingFieldDouble(trgFt)
-        #values given after interpolation in ASTER
+        # values given after interpolation in ASTER
         trg.setArray(DataArrayDouble([1.,1.,0.,0.,1.,0.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,1.,1.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,0.,1.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,0.,0.,0.,1.,0.,0.,1.,1.,0.,0.,1.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.]))
         trg.getArray().setInfoOnComponents(["DOMA"])
         src=rem.transferField(trg,1e300)
-        #values given after interpolation in ASTER
+        # values given after interpolation in ASTER
         arrExpected2=DataArrayDouble([1.,1.,0.,0.,1.,1.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,1.,1.,1., 1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,1.,0.,1.,1.,1.,1.,0.,0.,0.,0.,1.,0.,0.,0.,1.,1.,1.,0.,1.,1.,1.,1.,1.,1.,0.,0.,1.,1.,0.,1.,1.,1.,0.,1.,0.,0.,0.,1.,0.,0.,0.,1.,1.,1.,0.,1.,1.,1.,1.,1.]) ; arrExpected2.setInfoOnComponents(["DOMA"])
         # modification of values in ASTER due to modification of algorithm
         # target PG 82 in target cell 32(C)/36 PG 1(C)/9 is in source cell 58(C)/120 source Gauss point 113 (1(C)/4). Values must be 1. and not 0.
@@ -391,13 +392,13 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(src.getArray().isEqual(arrExpected2,1e-12))
         pass
 
-    def tessGauss2Gauss3DValidated(self):
+    def testGauss2Gauss3DValidated(self):
         srcFt=MEDCouplingDataForTest.buildFieldOnGauss_3()
         trgFt=MEDCouplingDataForTest.buildFieldOnGauss_4()
         src=MEDCouplingFieldDouble(srcFt)
         self.assertEqual(srcFt.getMesh().getHiddenCppPointer(),src.getMesh().getHiddenCppPointer())
         self.assertEqual(srcFt.getDiscretization().getHiddenCppPointer(),src.getDiscretization().getHiddenCppPointer())
-        #values given by ASTER usecase
+        # values given by ASTER usecase
         src.setArray(DataArrayDouble([0.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,1.,1.,0.,0.,1.,1.,1.,1.,0.,0.,1.,1.,0.,0.]))
         src.getArray().setInfoOnComponents(["DOMA"])
         rem=MEDCouplingRemapper()
@@ -406,7 +407,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         trg=rem.transferField(src,1e300)
         self.assertEqual(trg.getMesh().getHiddenCppPointer(),trgFt.getMesh().getHiddenCppPointer())
         self.assertEqual(trg.getDiscretization().getHiddenCppPointer(),trgFt.getDiscretization().getHiddenCppPointer())
-        #values given after interpolation in ASTER
+        # values given after interpolation in ASTER
         arrExpected=DataArrayDouble([0.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,0.,0.,1.,1.,0.,0.,1.,1.,1.,1.,0.,1.,1.,1.,0.,1.]) ; arrExpected.setInfoOnComponents(["DOMA"])
         self.assertTrue(trg.getArray().isEqual(arrExpected,1e-12))
         #
@@ -414,16 +415,16 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         #
         rem.prepareEx(trgFt,srcFt)# sorry trgFt is in the place of source and srcFt in the place of target it is not a bug
         trg=MEDCouplingFieldDouble(trgFt)
-        #values given after interpolation in ASTER
+        # values given after interpolation in ASTER
         trg.setArray(DataArrayDouble([0.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,0.,1.,1.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.]))
         trg.getArray().setInfoOnComponents(["DOMA"])
         src=rem.transferField(trg,1e300)
-        #values given after interpolation in ASTER
+        # values given after interpolation in ASTER
         arrExpected2=DataArrayDouble([0.,1.,1.,1.,1.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,0.,1.,0.,1.,0.,1.,1.,1.,0.,1.,1.,1.,1.,0.,1.,1.,1.,0.,1.]) ; arrExpected2.setInfoOnComponents(["DOMA"])
         self.assertTrue(src.getArray().isEqual(arrExpected2,1e-12))
         pass
 
-    def tessSwig2MixOfUMesh(self):
+    def testSwig2MixOfUMesh(self):
         arr0=DataArrayDouble([0,1,1.5]) ; arr1=DataArrayDouble([0,1])
         sc=MEDCouplingCMesh() ; sc.setCoords(arr0,arr1,arr1)
         tc=sc.deepCopy() ; tc.translate([0.4,0.3,0.3])
@@ -520,15 +521,15 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
         del s,t
         # 183 (1dgtumesh-cmesh)
-        #rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
-        #s=sc.buildUnstructured() ; s.convertAllToPoly() ; s=MEDCoupling1DGTUMesh(s) ; t=tc.deepCopy()
-        #self.assertTrue(isinstance(s,MEDCoupling1DGTUMesh))
-        #self.assertTrue(isinstance(t,MEDCouplingCMesh))
-        #rem.prepare(s,t,"P0P0")
-        #mat=rem.getCrudeMatrix()
-        #self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
-        #self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
-        #del s,t
+        # rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
+        # s=sc.buildUnstructured() ; s.convertAllToPoly() ; s=MEDCoupling1DGTUMesh(s) ; t=tc.deepCopy()
+        # self.assertTrue(isinstance(s,MEDCoupling1DGTUMesh))
+        # self.assertTrue(isinstance(t,MEDCouplingCMesh))
+        # rem.prepare(s,t,"P0P0")
+        # mat=rem.getCrudeMatrix()
+        # self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
+        # self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
+        # del s,t
         # (cmesh-umesh)
         # 122 (cmesh-1sgtumesh)
         rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
@@ -541,18 +542,18 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
         del s,t
         # 123 (cmesh-1dgtumesh)
-        #rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
-        #s=sc.deepCopy() ; t=tc.buildUnstructured() ; t.convertAllToPoly() ; t=MEDCoupling1DGTUMesh(t)
-        #self.assertTrue(isinstance(s,MEDCouplingCMesh))
-        #self.assertTrue(isinstance(t,MEDCoupling1DGTUMesh))
-        #rem.prepare(s,t,"P0P0")
-        #mat=rem.getCrudeMatrix()
-        #self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
-        #self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
-        #del s,t
+        # rem=MEDCouplingRemapper() ; rem.setIntersectionType(Triangulation)
+        # s=sc.deepCopy() ; t=tc.buildUnstructured() ; t.convertAllToPoly() ; t=MEDCoupling1DGTUMesh(t)
+        # self.assertTrue(isinstance(s,MEDCouplingCMesh))
+        # self.assertTrue(isinstance(t,MEDCoupling1DGTUMesh))
+        # rem.prepare(s,t,"P0P0")
+        # mat=rem.getCrudeMatrix()
+        # self.assertEqual(2,len(mat)) ; self.assertEqual(2,len(mat[0])) ; self.assertEqual(1,len(mat[1]))
+        # self.assertAlmostEqual(0.294,mat[0][0],14) ; self.assertAlmostEqual(0.196,mat[0][1],14) ; self.assertAlmostEqual(0.049,mat[1][1],14)
+        # del s,t
         pass
 
-    def tessSwig2BarycentricP1P13D_1(self):
+    def testSwig2BarycentricP1P13D_1(self):
         sCoo=DataArrayDouble([0.313,0.00218,6.90489,0.313,0.10692667,6.90489,0.313,0.10692667,6.96790167,0.313,0.00218,6.9773125,0.313,0.21167333,6.90489,0.313,0.21167333,6.95849083,0.313,0.31642,6.90489,0.313,0.31642,6.94908,0.313,0.09383333,7.04891667,0.313,0.00218,7.049735,0.313,0.18548667,7.04809833,0.313,0.27714,7.04728,0.313,0.05782667,7.133205,0.313,0.00218,7.1221575,0.313,0.11347333,7.1442525,0.313,0.16912,7.1553,0.313,0.02509333,7.19458,0.313,0.00218,7.19458,0.313,0.04800667,7.19458,0.313,0.07092,7.19458,0.31005609,0.00218,6.90460005,0.31005609,0.10692667,6.90460005,0.29776312,0.10692667,6.96640097,0.29592716,0.00218,6.97563097,0.31005609,0.21167333,6.90460005,0.29959908,0.21167333,6.95717096,0.31005609,0.31642,6.90460005,0.30143505,0.31642,6.94794095,0.28195788,0.09383333,7.04585928,0.28179823,0.00218,7.04666189,0.28211753,0.18548667,7.04505668,0.28227718,0.27714,7.04425407,0.26551404,0.05782667,7.12852804,0.2676693,0.00218,7.11769282,0.26335878,0.11347333,7.13936327,0.26120352,0.16912,7.15019849,0.25354037,0.02509333,7.18872374,0.25354037,0.00218,7.18872374,0.25354037,0.04800667,7.18872374,0.25354037,0.07092,7.18872374,0.30722531,0.00218,6.90374134,0.30722531,0.10692667,6.90374134,0.28311179,0.10692667,6.96195653,0.27951042,0.00218,6.97065101,0.30722531,0.21167333,6.90374134,0.28671316,0.21167333,6.95326205,0.30722531,0.31642,6.90374134,0.29031453,0.31642,6.94456758,0.25210869,0.09383333,7.03680463,0.25179553,0.00218,7.03756067,0.25242185,0.18548667,7.03604859,0.25273501,0.27714,7.03529255,0.21985294,0.05782667,7.1146769,0.22408063,0.00218,7.10447034,0.21562524,0.11347333,7.12488346,0.21139755,0.16912,7.13509002,0.19636574,0.02509333,7.17138,0.19636574,0.00218,7.17138,0.19636574,0.04800667,7.17138,0.19636574,0.07092,7.17138,0.30461645,0.00218,6.90234688,0.30461645,0.10692667,6.90234688,0.26960904,0.10692667,6.95473916,0.26438066,0.00218,6.96256398,0.30461645,0.21167333,6.90234688,0.27483742,0.21167333,6.94691434,0.30461645,0.31642,6.90234688,0.2800658,0.31642,6.93908952,0.22459952,0.09383333,7.02210067,0.22414487,0.00218,7.02278109,0.22505416,0.18548667,7.02142025,0.2255088,0.27714,7.02073983,0.17777143,0.05782667,7.09218386,0.18390909,0.00218,7.0829982,0.17163377,0.11347333,7.10136952,0.1654961,0.16912,7.11055518,0.1436733,0.02509333,7.14321531,0.1436733,0.00218,7.14321531,0.1436733,0.04800667,7.14321531,0.1436733,0.07092,7.14321531,0.30232976,0.00218,6.90047024,0.30232976,0.10692667,6.90047024,0.25777378,0.10692667,6.94502622,0.25111932,0.00218,6.95168068,0.30232976,0.21167333,6.90047024,0.26442825,0.21167333,6.93837175,0.30232976,0.31642,6.90047024,0.27108271,0.31642,6.93171729,0.20048753,0.09383333,7.00231247,0.19990888,0.00218,7.00289112,0.20106618,0.18548667,7.00173382,0.20164482,0.27714,7.00115518,0.14088667,0.05782667,7.06191333,0.14869844,0.00218,7.05410156,0.13307491,0.11347333,7.06972509,0.12526315,0.16912,7.07753685,0.097488,0.02509333,7.105312,0.097488,0.00218,7.105312,0.097488,0.04800667,7.105312,0.097488,0.07092,7.105312,0.30045312,0.00218,6.89818355,0.30045312,0.10692667,6.89818355,0.24806084,0.10692667,6.93319096,0.24023602,0.00218,6.93841934,0.30045312,0.21167333,6.89818355,0.25588566,0.21167333,6.92796258,0.30045312,0.31642,6.89818355,0.26371048,0.31642,6.9227342,0.18069933,0.09383333,6.97820048,0.18001891,0.00218,6.97865513,0.18137975,0.18548667,6.97774584,0.18206017,0.27714,6.9772912,0.11061614,0.05782667,7.02502857,0.1198018,0.00218,7.01889091,0.10143048,0.11347333,7.03116623,0.09224482,0.16912,7.0373039,0.05958469,0.02509333,7.0591267,0.05958469,0.00218,7.0591267,0.05958469,0.04800667,7.0591267,0.05958469,0.07092,7.0591267,0.29905866,0.00218,6.89557469,0.29905866,0.10692667,6.89557469,0.24084347,0.10692667,6.91968821,0.23214899,0.00218,6.92328958,0.29905866,0.21167333,6.89557469,0.24953795,0.21167333,6.91608684,0.29905866,0.31642,6.89557469,0.25823242,0.31642,6.91248547,0.16599537,0.09383333,6.95069131,0.16523933,0.00218,6.95100447,0.16675141,0.18548667,6.95037815,0.16750745,0.27714,6.95006499,0.0881231,0.05782667,6.98294706,0.09832966,0.00218,6.97871937,0.07791654,0.11347333,6.98717476,0.06770998,0.16912,6.99140245,0.03142,0.02509333,7.00643426,0.03142,0.00218,7.00643426,0.03142,0.04800667,7.00643426,0.03142,0.07092,7.00643426,0.29819995,0.00218,6.89274391,0.29819995,0.10692667,6.89274391,0.23639903,0.10692667,6.90503688,0.22716903,0.00218,6.90687284,0.29819995,0.21167333,6.89274391,0.24562904,0.21167333,6.90320092,0.29819995,0.31642,6.89274391,0.25485905,0.31642,6.90136495,0.15694072,0.09383333,6.92084212,0.15613811,0.00218,6.92100177,0.15774332,0.18548667,6.92068247,0.15854593,0.27714,6.92052282,0.07427196,0.05782667,6.93728596,0.08510718,0.00218,6.9351307,0.06343673,0.11347333,6.93944122,0.05260151,0.16912,6.94159648,0.01407626,0.02509333,6.94925963,0.01407626,0.00218,6.94925963,0.01407626,0.04800667,6.94925963,0.01407626,0.07092,6.94925963,0.29792818,0.00218,6.89054043,0.29792818,0.10692667,6.89054043,0.23499241,0.10692667,6.89363227,0.22559291,0.00218,6.89409403,0.29792818,0.21167333,6.89054043,0.24439191,0.21167333,6.8931705,0.29792818,0.31642,6.89054043,0.25379141,0.31642,6.89270873,0.154075,0.09383333,6.89760748,0.15325765,0.00218,6.89764764,0.15489234,0.18548667,6.89756733,0.15570969,0.27714,6.89752718,0.06988819,0.05782667,6.90174332,0.08092238,0.00218,6.90120124,0.058854,0.11347333,6.90228539,0.04781981,0.16912,6.90282747,0.00858712,0.02509333,6.90475485,0.00858712,0.00218,6.90475485,0.00858712,0.04800667,6.90475485,0.00858712,0.07092,6.90475485,0.29791,0.00218,6.820902,0.29791,0.10692667,6.820902,0.23489833,0.10692667,6.820902,0.2254875,0.00218,6.820902,0.29791,0.21167333,6.820902,0.24430917,0.21167333,6.820902,0.29791,0.31642,6.820902,0.25372,0.31642,6.820902,0.15388333,0.09383333,6.820902,0.153065,0.00218,6.820902,0.15470167,0.18548667,6.820902,0.15552,0.27714,6.820902,0.069595,0.05782667,6.820902,0.0806425,0.00218,6.820902,0.0585475,0.11347333,6.820902,0.0475,0.16912,6.820902,0.00822,0.02509333,6.820902,0.00822,0.00218,6.820902,0.00822,0.04800667,6.820902,0.00822,0.07092,6.820902],200,3)
         sConn=DataArrayInt([0,1,2,3,20,21,22,23,1,4,5,2,21,24,25,22,4,6,7,5,24,26,27,25,3,2,8,9,23,22,28,29,2,5,10,8,22,25,30,28,5,7,11,10,25,27,31,30,9,8,12,13,29,28,32,33,8,10,14,12,28,30,34,32,10,11,15,14,30,31,35,34,13,12,16,17,33,32,36,37,12,14,18,16,32,34,38,36,14,15,19,18,34,35,39,38,20,21,22,23,40,41,42,43,21,24,25,22,41,44,45,42,24,26,27,25,44,46,47,45,23,22,28,29,43,42,48,49,22,25,30,28,42,45,50,48,25,27,31,30,45,47,51,50,29,28,32,33,49,48,52,53,28,30,34,32,48,50,54,52,30,31,35,34,50,51,55,54,33,32,36,37,53,52,56,57,32,34,38,36,52,54,58,56,34,35,39,38,54,55,59,58,40,41,42,43,60,61,62,63,41,44,45,42,61,64,65,62,44,46,47,45,64,66,67,65,43,42,48,49,63,62,68,69,42,45,50,48,62,65,70,68,45,47,51,50,65,67,71,70,49,48,52,53,69,68,72,73,48,50,54,52,68,70,74,72,50,51,55,54,70,71,75,74,53,52,56,57,73,72,76,77,52,54,58,56,72,74,78,76,54,55,59,58,74,75,79,78,60,61,62,63,80,81,82,83,61,64,65,62,81,84,85,82,64,66,67,65,84,86,87,85,63,62,68,69,83,82,88,89,62,65,70,68,82,85,90,88,65,67,71,70,85,87,91,90,69,68,72,73,89,88,92,93,68,70,74,72,88,90,94,92,70,71,75,74,90,91,95,94,73,72,76,77,93,92,96,97,72,74,78,76,92,94,98,96,74,75,79,78,94,95,99,98,80,81,82,83,100,101,102,103,81,84,85,82,101,104,105,102,84,86,87,85,104,106,107,105,83,82,88,89,103,102,108,109,82,85,90,88,102,105,110,108,85,87,91,90,105,107,111,110,89,88,92,93,109,108,112,113,88,90,94,92,108,110,114,112,90,91,95,94,110,111,115,114,93,92,96,97,113,112,116,117,92,94,98,96,112,114,118,116,94,95,99,98,114,115,119,118,100,101,102,103,120,121,122,123,101,104,105,102,121,124,125,122,104,106,107,105,124,126,127,125,103,102,108,109,123,122,128,129,102,105,110,108,122,125,130,128,105,107,111,110,125,127,131,130,109,108,112,113,129,128,132,133,108,110,114,112,128,130,134,132,110,111,115,114,130,131,135,134,113,112,116,117,133,132,136,137,112,114,118,116,132,134,138,136,114,115,119,118,134,135,139,138,120,121,122,123,140,141,142,143,121,124,125,122,141,144,145,142,124,126,127,125,144,146,147,145,123,122,128,129,143,142,148,149,122,125,130,128,142,145,150,148,125,127,131,130,145,147,151,150,129,128,132,133,149,148,152,153,128,130,134,132,148,150,154,152,130,131,135,134,150,151,155,154,133,132,136,137,153,152,156,157,132,134,138,136,152,154,158,156,134,135,139,138,154,155,159,158,140,141,142,143,160,161,162,163,141,144,145,142,161,164,165,162,144,146,147,145,164,166,167,165,143,142,148,149,163,162,168,169,142,145,150,148,162,165,170,168,145,147,151,150,165,167,171,170,149,148,152,153,169,168,172,173,148,150,154,152,168,170,174,172,150,151,155,154,170,171,175,174,153,152,156,157,173,172,176,177,152,154,158,156,172,174,178,176,154,155,159,158,174,175,179,178,160,161,162,163,180,181,182,183,161,164,165,162,181,184,185,182,164,166,167,165,184,186,187,185,163,162,168,169,183,182,188,189,162,165,170,168,182,185,190,188,165,167,171,170,185,187,191,190,169,168,172,173,189,188,192,193,168,170,174,172,188,190,194,192,170,171,175,174,190,191,195,194,173,172,176,177,193,192,196,197,172,174,178,176,192,194,198,196,174,175,179,178,194,195,199,198])
         s=MEDCoupling1SGTUMesh("source",NORM_HEXA8) ; s.setCoords(sCoo)
@@ -587,7 +588,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(0.3521445110626687 ,m[6][170],12)
         pass
 
-    def tessSwig2MappedBarycentricP1P12D_1(self):
+    def testSwig2MappedBarycentricP1P12D_1(self):
         """ Testing mapped barycentric P1P1 projection
         (uses analytical mapping from square to arbitrary convex quadrangle)
         """
@@ -630,7 +631,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             self.assertAlmostEqual(ref_v, val[i])
         pass
 
-    def tessSwig2MappedBarycentricP1P13_1(self):
+    def testSwig2MappedBarycentricP1P13_1(self):
         """ Testing mapped barycentric P1P1 projection in 3D (uses orthogonal distances to 
         HEXA8 faces).
         Convention:
@@ -686,7 +687,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         srcField.setMesh(s); srcField.setName("field")
         srcField.setArray(DataArrayDouble([1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0]))
         tgtF = aRemapper.transferField(srcField, 1e+300)
-#        print tgtF.getArray().getValues()
+        #        print tgtF.getArray().getValues()
         ref = [6.0, 6.251802698104413, 6.502397834044702, 6.7517940736426665, 7.0, 5.740554726834594,
                6.1761835575796935, 6.6052985689637564, 7.009392769824465, 7.383488834310164,
                5.487562931129931, 6.140664596972973, 6.720290674177548, 7.220534970454015, 7.651092836860121,
@@ -712,7 +713,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
 
     @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy")
-    def tessGetCrudeCSRMatrix1(self):
+    def testGetCrudeCSRMatrix1(self):
         """ testing CSR matrix output using numpy/scipy.
         """
         from scipy.sparse import spdiags #diags
@@ -732,7 +733,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             pass
         m2=rem.getCrudeCSRMatrix()
         diff=m-m2
-        self.assertTrue(isinstance(m,scipy.sparse.csr.csr_matrix))
+        self.assertTrue(isinstance(m, scipy.sparse.csr_matrix))
         self.assertEqual(m.getnnz(),7)
         self.assertAlmostEqual(m[0,0],0.25,12)
         self.assertAlmostEqual(m[1,0],0.1,12)
@@ -771,7 +772,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
 
     @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy")
-    def tessP0P1Bary_1(self):
+    def testP0P1Bary_1(self):
         a=MEDCouplingUMesh("a",2)
         a.allocateCells()
         conna=[0,1,3,2,1,4,5,3,4,6,7,5,6,8,9,7,8,10,11,9,10,12,13,11,12,14,15,13,14,16,17,15,16,18,19,17,18,20,21,19,20,22,23,21,22,24,25,23,24,26,27,25]
@@ -821,7 +822,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
 
     @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy")
-    def tessNonConformWithRemapper_1(self):
+    def testNonConformWithRemapper_1(self):
         coo=DataArrayDouble([-0.396700000780411,-0.134843245350081,-0.0361311386958691,-0.407550009429364,-0.13484324535008,-0.0361311386958923,-0.396700000780411,-0.132191446077668,-0.0448729493559049,-0.407550009429364,-0.132191446077666,-0.0448729493559254,-0.396700000780411,-0.128973582738749,-0.0534226071577727,-0.407550009429364,-0.128973582738747,-0.0534226071577904,-0.396700000780411,-0.128348829636458,-0.0346583696473619,-0.407550009429364,-0.128348829636457,-0.0346583696473822,-0.396700000780411,-0.125874740261886,-0.0430683597970123,-0.407550009429364,-0.125874740261885,-0.0430683597970302,-0.396700000780411,-0.122905344829122,-0.051310216195766,-0.407550009429364,-0.12290534482912,-0.0513102161957814],12,3)
         conn=DataArrayInt([2,9,3,11,2,3,5,11,2,8,9,11,2,10,8,11,2,5,4,11,2,4,10,11,3,0,1,6,3,1,7,6,3,2,0,6,3,8,2,6,3,7,9,6,3,9,8,6])
         m=MEDCoupling1SGTUMesh("mesh",NORM_TETRA4)
@@ -847,7 +848,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(cellIdsOfNonConformCells.isEqual(DataArrayInt([0,4,18,22])))
         pass
 
-    def tess3D1DOnP1P0_1(self):
+    def test3D1DOnP1P0_1(self):
         """ This test focused on P1P0 interpolation with a source with meshDim=1 spaceDim=3 and a target with meshDim=3.
         This test has revealed a bug in remapper. A reverse matrix is computed so a reverse method should be given in input.
         """
@@ -885,7 +886,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(f2Test.getArray().isEqual(expArr2,1e-12))
         pass
 
-    def tessRemapperAMR1(self):
+    def testRemapperAMR1(self):
         """ This test is the origin of the ref values for MEDCouplingBasicsTest.testAMR2"""
         coarse=DataArrayDouble(35) ; coarse.iota(0) #X=5,Y=7
         fine=DataArrayDouble(3*2*4*4) ; fine.iota(0) #X=3,Y=2 refined by 4
@@ -911,7 +912,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
 
     @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy")
-    def tess1DPointLocator1(self):
+    def test1DPointLocator1(self):
         """This test focuses on PointLocator for P1P1 in 1D and 2DCurve."""
         from numpy import array
         from scipy.sparse import diags,csr_matrix,identity
@@ -978,7 +979,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(diff.sum(),0.,14)
         pass
 
-    def tess3D2Dand2D3DPointLocator1(self):
+    def test3D2Dand2D3DPointLocator1(self):
         """ Non regression test solving SIGSEGV when using 3D<->3Dsurf pointlocator."""
         arrX=DataArrayDouble([0,1,2])
         arrY=DataArrayDouble([0,1])
@@ -1004,7 +1005,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertRaises(InterpKernelException, rem2.prepare,mt,ms,"P0P0")
         pass
 
-    def tess2D1Dand1D2DPointLocator1(self):
+    def test2D1Dand1D2DPointLocator1(self):
         arrX=DataArrayDouble([0,1,2])
         arrY=DataArrayDouble([0,1])
         ms=MEDCouplingCMesh() ; ms.setCoords(arrX,arrY) ; ms=ms.buildUnstructured()
@@ -1021,7 +1022,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(rem.getCrudeMatrix(),[{0:1.},{1:1.}])
         pass
 
-    def tess3D1DPointLocatorBBoxAdjusted(self):
+    def test3D1DPointLocatorBBoxAdjusted(self):
         """ In case a 1D segment lies exactly on the interface between two 2D (or 3D) faces, the default
         bounding box logic will make it non-intersecting with the surrounding 2D (or 3D) faces.
         Test bounding box adjustment allowing to widen the BB to capture this.
@@ -1051,7 +1052,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(rem.getCrudeMatrix(), [{}, {}])
         pass
 
-    def tessPointLocator3DTo2D(self):
+    def testPointLocator3DTo2D(self):
         """Target mesh has spaceDim==3 and meshDim==2. Source has spaceDim==3 and meshDim==3. Here we are on pointlocator alg.
         The test evaluates on each nodes of target mesh the bary coor into source mesh."""
         src=MEDCouplingCMesh()
@@ -1084,7 +1085,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(ftrg.isEqual(ftrg2,1e-12,1e-12))
         pass
 
-    def tessPointLocator2D2DNonConvexPolygons(self):
+    def testPointLocator2D2DNonConvexPolygons(self):
         """ PointLocator remapper now correclty support non-convex polygons
         """
         src = MEDCouplingUMesh('src', 2)
@@ -1130,7 +1131,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(a[ids3].isUniform(0.0, 1e-12))
         pass
 
-    def tessExtrudedOnDiffZLev1(self):
+    def testExtrudedOnDiffZLev1(self):
         """Non regression bug : This test is base on P0P0 ExtrudedExtruded. This test checks that if the input meshes are not based on a same plane // OXY the interpolation works"""
         arrX=DataArrayDouble([0,1]) ; arrY=DataArrayDouble([0,1]) ; arrZ=DataArrayDouble([0,1,2])
         src=MEDCouplingCMesh() ; src.setCoords(arrX,arrY,arrZ)
@@ -1155,7 +1156,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.checkMatrix(rem2.getCrudeMatrix(),[{0:0.125,1:0.25}],src.getNumberOfCells(),1e-12)
         pass
 
-    def tessP0P0WithHEXGP12(self):
+    def testP0P0WithHEXGP12(self):
         """ Test that HEXGP12 are correctly remapped (elements with polygonal faces were not properly handled) """
         # From Astrid, two disjoint hexagonal prisms:
         coo1 = [-4.991193077144312, 8.644999999999998, 0.0, -9.982386154288623, 6.112246755425186e-16, 0.0, -4.991193077144315, -8.644999999999998, 0.0, 4.991193077144309, -8.645000000000005, 0.0, 9.982386154288626, 1.1651321638577316e-15, 0.0, 4.991193077144314, 8.645, 0.0, -4.991193077144312, 8.644999999999998, 7.561799999999991, -9.982386154288623, 6.112246755425186e-16, 7.561799999999991, -4.991193077144315, -8.644999999999998, 7.561799999999991, 4.991193077144309, -8.645000000000005, 7.561799999999991, 9.982386154288626, 1.1651321638577316e-15, 7.561799999999991, 4.991193077144314, 8.645, 7.561799999999991]
@@ -1183,11 +1184,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(len(mat), 1)
         pass
 
-    def tessP0P0KillerTet(self):
+    def testP0P0KillerTet(self):
         """ The killer tetrahedron detected by LMEC!"""
         mesh = MEDCouplingUMesh('SupportOf_ECHIA1_Tin', 3)
-#         # was OK:
-#         coo = DataArrayDouble([(-4.50135,1.95352,4.59608),(-4.50409,1.86642,4.54551), (-4.55175,1.92167,4.64844),(-4.58813,1.94795,4.5283)])
+        #         # was OK:
+        #         coo = DataArrayDouble([(-4.50135,1.95352,4.59608),(-4.50409,1.86642,4.54551), (-4.55175,1.92167,4.64844),(-4.58813,1.94795,4.5283)])
         # was KO:
         coo = DataArrayDouble([(-4.501352938826142847,1.953517433537110159,4.596082552008083688),(-4.504092113061189728,1.866415526007169978,4.545507396150389567),(-4.551750368181751050,1.921669328035479962,4.648439577911889664),(-4.588131417812300050,1.947948377683889953,4.528298931319220344)])
         mesh.setCoords(coo)
@@ -1204,7 +1205,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
 
     @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy AND C++11")
-    def tessP1P1PL3DSpaceFrom1DTo0D(self):
+    def testP1P1PL3DSpaceFrom1DTo0D(self):
         from scipy.sparse import csr_matrix
         from numpy import array
 
@@ -1248,7 +1249,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(delta2.sum(),0.,14)
         pass
 
-    def tessSetMatrix1(self):
+    def testSetMatrix1(self):
         """ Remapper has now setCrudeMatrix method to reload matrix to skip prepare phase """
         cooS=DataArrayDouble([1,1, 7,1, 7,2, 1,2],4,2)
         cooT=DataArrayDouble([0,0, 3,0, 3,3, 0,3, 6,0, 12,0, 12,3, 6,3],8,2)
@@ -1298,7 +1299,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
 
     @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy")
-    def tessSetMatrix2(self):
+    def testSetMatrix2(self):
         """ Remapper has now setCrudeMatrix method to reload matrix to skip prepare phase. Same as testSetMatrix1 but with CSR scipy matrix """
         arrx_s=DataArrayDouble(6) ; arrx_s.iota()
         arry_s=DataArrayDouble(6) ; arry_s.iota()
@@ -1327,7 +1328,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(rem2.transferField(fs,1e300).getArray().isEqual(DataArrayDouble([54.25,11.75,79.25,16.75]),1e-12))
         pass
 
-    def tessSmallTetraCell(self):
+    def testSmallTetraCell(self):
         """This test is a non regression test. When using tetra/tetra P0P0 interpolation on very small cells the
         3x3 matrix in the TetraAffine contains very small values and so the determinant is small (cubic).
         So the tetra was detected as flat. Now the infinite norm of matrix is considered to establish if matrix is inversible or not."""
@@ -1348,7 +1349,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertTrue(abs(res-ref)/ref<1e-12)
         pass
 
-    def tess3D0DPointLocator(self):
+    def test3D0DPointLocator(self):
         """
         For pointlocator fans, Remapper support following intersection
         IntersectionType == PointLocator
@@ -1382,7 +1383,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.checkMatrix(rem.getCrudeMatrix(),[{0:1.0}],src.getNumberOfCells(),1e-12)
         pass
 
-    def tess2D0DPointLocator(self):
+    def test2D0DPointLocator(self):
         """
         For pointlocator fans, Remapper support following intersection
         IntersectionType == PointLocator
@@ -1416,7 +1417,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.checkMatrix(rem.getCrudeMatrix(),[{0:1.0}],src.getNumberOfNodes(),1e-12)
         pass
 
-    def tess1D0DPointLocator(self):
+    def test1D0DPointLocator(self):
         """
         For pointlocator fans, Remapper support following intersection
         IntersectionType == PointLocator
@@ -1493,11 +1494,11 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
 
     @unittest.skipUnless(MEDCouplingHasNumPyBindings() and MEDCouplingHasSciPyBindings(),"requires numpy AND scipy")
-    def tessRemToCSRMatrix(self):
+    def testRemToCSRMatrix(self):
         import scipy
         mPy = [{0:1.0,1:3.0,3:7.0,6:10.},{1:12.0,2:23.0}]
         m = MEDCouplingRemapper.ToCSRMatrix(mPy,8)
-        self.assertTrue(isinstance(m,scipy.sparse.csr.csr_matrix))
+        self.assertTrue(isinstance(m, scipy.sparse.csr_matrix))
         self.assertEqual(m.getnnz(),6)
         self.assertAlmostEqual(m[0,0],1.0,12)
         self.assertAlmostEqual(m[0,1],3.0,12)
@@ -1507,7 +1508,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertAlmostEqual(m[1,2],23.0,12)
         self.assertEqual(m.shape,(2,8))
 
-    def tess_Interpolation2D3D_bbox_adjustment_1(self):
+    def test_Interpolation2D3D_bbox_adjustment_1(self):
         """ Interpolation 2D <-> 3D was not using bounding box adjustment.
         In case of a 2D mesh perfectly aligned with the axis, the bounding box intersection was not working properly (flat bounding box).
         """
@@ -1548,7 +1549,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         fldTgt = remap.transferField(fldSrc, -1.0)
         self.assertTrue(fldTgt.getArray().isUniform(50.0, 1e-12))
 
-    def tessGrandyBug1(self):
+    def testGrandyBug1(self):
         """
         Non regression test relative to test tuleap26461
         """
@@ -1586,74 +1587,1112 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             delta = abs(csr_new[0,0]-ref_value)/ref_value
             self.assertTrue(delta < 1e-3)
 
-    def testFEFE_0(self):
+    def testFEFE_HEXA(self):
         """
-        Test to stress localisation of target points into a source mesh using standard reference FE elements.
+        [EDF31887] : Test to stress localisation of target points into a source mesh using standard reference FE elements.
+
+        Test for HEXA8, HEXA20 and HEXA27 with non-planar faces
         """
-        gt = NORM_HEXA27
-        nbPtsInCell = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType( gt )
-        coo = DataArrayDouble([(9.0, 18.0, 27.0), (9.0, 22.0, 27.0), (11.0, 22.0, 27.0), (11.0, 18.0, 27.0), (9.0, 18.0, 33.0), (9.0, 22.0, 33.0), (11.0, 22.0, 33.0), (11.0, 18.0, 33.0), (8.8, 20.0, 26.4), (10.0, 21.6, 27.6), (11.2, 20.0, 26.4), (10.0, 18.4, 27.6), (8.8, 20.0, 33.6), (10.0, 21.6, 32.4), (11.2, 20.0, 33.6), (10.0, 18.4, 32.4), (8.8, 17.6, 30.0), (9.2, 21.6, 30.0), (11.2, 22.4, 30.0), (10.8, 18.4, 30.0), (10.0, 20.0, 26.4), (9.2, 20.0, 30.0), (10.0, 22.4, 30.0), (10.8, 20.0, 30.0), (10.0, 17.6, 30.0), (10.0, 20.0, 32.4), (10.0, 20.0, 30.0)])
-        m = MEDCouplingUMesh("mesh",3)
-        m.setCoords(coo)
-        m.allocateCells()
-        m.insertNextCell(gt,list(range(nbPtsInCell)))
 
-        inPts = DataArrayDouble( [(9.1, 18.2, 27.3), (9.1, 21.8, 27.3), (10.9, 21.8, 27.3), (10.9, 18.2, 27.3), (9.1, 18.2, 32.7), (9.1, 21.8, 32.7), (10.9, 21.8, 32.7), (10.9, 18.2, 32.7), (8.9, 20.0, 26.7), (10.0, 21.4, 27.9), (11.1, 20.0, 26.7), (10.0, 18.6, 27.9), (8.9, 20.0, 33.3), (10.0, 21.4, 32.1), (11.1, 20.0, 33.3), (10.0, 18.6, 32.1), (8.9, 17.8, 30.0), (9.3, 21.4, 30.0), (11.1, 22.2, 30.0), (10.7, 18.6, 30.0), (10.0, 20.0, 26.7), (9.3, 20.0, 30.0), (10.0, 22.2, 30.0), (10.7, 20.0, 30.0), (10.0, 17.8, 30.0), (10.0, 20.0, 32.1), (10.0, 20.0, 30.0)] )
-
-        outPts = DataArrayDouble( [(8.9, 17.8, 26.7), (8.9, 22.2, 26.7), (11.1, 22.2, 26.7), (11.1, 17.8, 26.7), (8.9, 17.8, 33.3), (8.9, 22.2, 33.3), (11.1, 22.2, 33.3), (11.1, 17.8, 33.3), (8.7, 20.0, 26.1), (10.0, 21.8, 27.3), (11.3, 20.0, 26.1), (10.0, 18.2, 27.3), (8.7, 20.0, 33.9), (10.0, 21.8, 32.7), (11.3, 20.0, 33.9), (10.0, 18.2, 32.7), (8.7, 17.4, 30.0), (9.1, 21.8, 30.0), (11.3, 22.6, 30.0), (10.9, 18.2, 30.0), (10.0, 20.0, 26.1), (9.1, 20.0, 30.0), (10.0, 22.6, 30.0), (10.9, 20.0, 30.0), (10.0, 17.4, 30.0), (10.0, 20.0, 32.7), (14.0, 20.0, 30.0)] )
-
-        srcField = MEDCouplingFieldDouble(ON_NODES_FE)
-        srcField.setMesh(m)
-        arr = DataArrayDouble(nbPtsInCell)
-        arr.iota()
-        srcField.setArray(arr)
-
-        ref_val0 = DataArrayDouble( [6.5782430384766535, 5.505760346014328, 7.80996256527073, 7.643290943690746, 9.758765408487054, 9.06408508454036, 11.003779543627997, 11.205026363340515, 10.56416007071563, 18.44359561721225, 12.499588353132655, 19.85351355074463, 14.186041573114885, 19.339743214851023, 16.084629460041207, 20.892007336402663, 17.269258227200577, 19.549962126638338, 19.039562190136063, 21.648928068870756, 20.667409503475078, 22.062499999998867, 22.562500000009678, 23.812499999505995, 24.395833333387696, 25.62468592706991, 26.] )
+        coo = DataArrayDouble(
+            [
+                (9.0, 18.0, 27.0),
+                (9.0, 22.0, 27.0),
+                (11.0, 22.0, 27.0),
+                (11.0, 18.0, 27.0),
+                (9.0, 18.0, 33.0),
+                (9.0, 22.0, 33.0),
+                (11.0, 22.0, 33.0),
+                (11.0, 18.0, 33.0),
+                (8.8, 20.0, 26.4),
+                (10.0, 21.6, 27.6),
+                (11.2, 20.0, 26.4),
+                (10.0, 18.4, 27.6),
+                (8.8, 20.0, 33.6),
+                (10.0, 21.6, 32.4),
+                (11.2, 20.0, 33.6),
+                (10.0, 18.4, 32.4),
+                (8.8, 17.6, 30.0),
+                (9.2, 21.6, 30.0),
+                (11.2, 22.4, 30.0),
+                (10.8, 18.4, 30.0),
+                (10.0, 20.0, 26.4),
+                (9.2, 20.0, 30.0),
+                (10.0, 22.4, 30.0),
+                (10.8, 20.0, 30.0),
+                (10.0, 17.6, 30.0),
+                (10.0, 20.0, 32.4),
+                (10.0, 20.0, 30.0),
+            ]
+        )
 
         eps = 1e-8
 
-        for i in range(nbPtsInCell):
-            self.assertTrue( abs( srcField.getValueOn( inPts[i] )[0]-ref_val0[i] ) < eps )
+        ref_val0_all = {
+            NORM_HEXA8: DataArrayDouble(
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    6.0,
+                    7.0,
+                    0.39499999999999968,
+                    1.2050000000000001,
+                    2.1950000000000003,
+                    3.0050000000000008,
+                    3.9950000000000019,
+                    4.8050000000000015,
+                    5.7950000000000026,
+                    6.6050000000000022,
+                    2.0999999999999992,
+                    2.0999999999999992,
+                    4.9000000000000004,
+                    4.9000000000000012,
+                    3.0449999999999999,
+                    4.4449999999999985,
+                    2.8000000000000007,
+                    4.1999999999999993,
+                    4.9000000000000004,
+                    3.5,
+                ]
+            ),
+            NORM_HEXA20: DataArrayDouble(
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    6.0,
+                    7.0,
+                    8.0,
+                    9.0, 
+                    10.0,
+                    11.0,
+                    12.0,
+                    13.0,
+                    14.0,
+                    15.0,
+                    16.0,
+                    17.0,
+                    18.0,
+                    19.0,
+                    2.9837271818496278,
+                    3.5626912044542562,
+                    4.3303322656262804,
+                    5.6397881200484505,
+                    7.723465224770071,
+                    7.9394713811744184,
+                    11.719570381471632,
+                    9.3911004685421293,
+                    10.049844847063252,
+                    9.8511656389488813,
+                    11.064826449849123,
+                    11.719570381471632,
+                    13.032378656477301,
+                    18.051315791314238,
+                    18.906074591293937,
+                    19.95383395247174,
+                    20.856771727594506,
+                    21.928765459430675,
+                    25.417967079131408,
+                    33.5,
+                ]
+            ),
+            NORM_HEXA27: DataArrayDouble(
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    6.0,
+                    7.0,
+                    8.0,
+                    9.0, 
+                    10.0,
+                    11.0,
+                    12.0,
+                    13.0,
+                    14.0,
+                    15.0,
+                    16.0,
+                    17.0,
+                    18.0,
+                    19.0,
+                    20.0,
+                    21.0,
+                    22.0,
+                    23.0,
+                    24.0,
+                    25.0,
+                    26.0,
+                    6.5782430384766535,
+                    5.5057603626436311,
+                    7.8099625624768398,
+                    7.643290943690746,
+                    9.758765408487054,
+                    9.06408508454036,
+                    11.003779543627997,
+                    11.205026363340515,
+                    10.56416007071563,
+                    18.44359561721225,
+                    12.499588353132655,
+                    19.85351355074463,
+                    14.186041573114885,
+                    19.339743214851023,
+                    16.084629460041207,
+                    20.892007336402663,
+                    17.269258227200577,
+                    19.549962126638338,
+                    19.039562190136063,
+                    21.648928068870756,
+                    20.667409503475078,
+                    22.062499999998867,
+                    22.562500000009678,
+                    23.812499999505995,
+                    24.395833333387696,
+                    25.62468592706991,
+                    26.0,
+                ]
+            ),
+        }
 
-        self.assertTrue( srcField.getValueOnMulti( inPts ).isEqual(ref_val0,eps) )
+        inPts_all = {
+            NORM_HEXA8: DataArrayDouble(
+                [
+                    (9.0, 18.0, 27.0),
+                    (9.0, 22.0, 27.0),
+                    (11.0, 22.0, 27.0),
+                    (11.0, 18.0, 27.0),
+                    (9.0, 18.0, 33.0),
+                    (9.0, 22.0, 33.0),
+                    (11.0, 22.0, 33.0),
+                    (11.0, 18.0, 33.0),
+                    (9.1, 18.2, 27.3),
+                    (9.1, 21.8, 27.3),
+                    (10.9, 21.8, 27.3),
+                    (10.9, 18.2, 27.3),
+                    (9.1, 18.2, 32.7),
+                    (9.1, 21.8, 32.7),
+                    (10.9, 21.8, 32.7),
+                    (10.9, 18.2, 32.7),
+                    (10.0, 21.4, 27.9),
+                    (10.0, 18.6, 27.9),
+                    (10.0, 21.4, 32.1),
+                    (10.0, 18.6, 32.1),
+                    (9.3, 21.4, 30.0),
+                    (10.7, 18.6, 30.0),
+                    (9.3, 20.0, 30.0),
+                    (10.7, 20.0, 30.0),
+                    (10.0, 20.0, 32.1),
+                    (10.0, 20.0, 30.0),
+                ]
+            ),
+            NORM_HEXA20: DataArrayDouble(
+                [
+                    (9.0, 18.0, 27.0),
+                    (9.0, 22.0, 27.0),
+                    (11.0, 22.0, 27.0),
+                    (11.0, 18.0, 27.0),
+                    (9.0, 18.0, 33.0),
+                    (9.0, 22.0, 33.0),
+                    (11.0, 22.0, 33.0),
+                    (11.0, 18.0, 33.0),
+                    (8.8, 20.0, 26.4),
+                    (10.0, 21.6, 27.6),
+                    (11.2, 20.0, 26.4),
+                    (10.0, 18.4, 27.6),
+                    (8.8, 20.0, 33.6),
+                    (10.0, 21.6, 32.4),
+                    (11.2, 20.0, 33.6),
+                    (10.0, 18.4, 32.4),
+                    (8.8, 17.6, 30.0),
+                    (9.2, 21.6, 30.0),
+                    (11.2, 22.4, 30.0),
+                    (10.8, 18.4, 30.0),
+                    (9.1, 18.2, 27.3),
+                    (9.1, 21.8, 27.3),
+                    (10.9, 21.8, 27.3),
+                    (10.9, 18.2, 27.3),
+                    (9.1, 18.2, 32.7),
+                    (9.1, 21.8, 32.7),
+                    (11.1, 20.0, 26.7),
+                    (10.9, 21.8, 32.7),
+                    (10.9, 18.2, 32.7),
+                    (8.9, 20.0, 26.7),
+                    (10.0, 21.4, 27.9),
+                    (11.1, 20.0, 26.7),
+                    (10.0, 18.6, 27.9),
+                    (8.9, 17.8, 30.0),
+                    (9.3, 21.4, 30.0),
+                    (11.1, 22.2, 30.0),
+                    (10.7, 18.6, 30.0),
+                    (9.3, 20.0, 30.0),
+                    (10.7, 20.0, 30.0),
+                    (10.0, 20.0, 30.0),
+                ]
+            ),
+            NORM_HEXA27: DataArrayDouble(
+                [
+                    (9.0, 18.0, 27.0),
+                    (9.0, 22.0, 27.0),
+                    (11.0, 22.0, 27.0),
+                    (11.0, 18.0, 27.0),
+                    (9.0, 18.0, 33.0),
+                    (9.0, 22.0, 33.0),
+                    (11.0, 22.0, 33.0),
+                    (11.0, 18.0, 33.0),
+                    (8.8, 20.0, 26.4),
+                    (10.0, 21.6, 27.6),
+                    (11.2, 20.0, 26.4),
+                    (10.0, 18.4, 27.6),
+                    (8.8, 20.0, 33.6),
+                    (10.0, 21.6, 32.4),
+                    (11.2, 20.0, 33.6),
+                    (10.0, 18.4, 32.4),
+                    (8.8, 17.6, 30.0),
+                    (9.2, 21.6, 30.0),
+                    (11.2, 22.4, 30.0),
+                    (10.8, 18.4, 30.0),
+                    (10.0, 20.0, 26.4),
+                    (9.2, 20.0, 30.0),
+                    (10.0, 22.4, 30.0),
+                    (10.8, 20.0, 30.0),
+                    (10.0, 17.6, 30.0),
+                    (10.0, 20.0, 32.4),
+                    (10.0, 20.0, 30.0),
+                    (9.1, 18.2, 27.3),
+                    (9.1, 21.8, 27.3),
+                    (10.9, 21.8, 27.3),
+                    (10.9, 18.2, 27.3),
+                    (9.1, 18.2, 32.7),
+                    (9.1, 21.8, 32.7),
+                    (10.9, 21.8, 32.7),
+                    (10.9, 18.2, 32.7),
+                    (8.9, 20.0, 26.7),
+                    (10.0, 21.4, 27.9),
+                    (11.1, 20.0, 26.7),
+                    (10.0, 18.6, 27.9),
+                    (8.9, 20.0, 33.3),
+                    (10.0, 21.4, 32.1),
+                    (11.1, 20.0, 33.3),
+                    (10.0, 18.6, 32.1),
+                    (8.9, 17.8, 30.0),
+                    (9.3, 21.4, 30.0),
+                    (11.1, 22.2, 30.0),
+                    (10.7, 18.6, 30.0),
+                    (10.0, 20.0, 26.7),
+                    (9.3, 20.0, 30.0),
+                    (10.0, 22.2, 30.0),
+                    (10.7, 20.0, 30.0),
+                    (10.0, 17.8, 30.0),
+                    (10.0, 20.0, 32.1),
+                    (10.0, 20.0, 30.0),
+                ]
+            ),
+        }
 
-        srcFt=MEDCouplingFieldTemplate(srcField)
-        trgFt=MEDCouplingFieldTemplate(ON_NODES_FE)
-        trgMesh = MEDCouplingUMesh.Build0DMeshFromCoords( inPts )
-        trgFt.setMesh(trgMesh)
-        rem = MEDCouplingRemapper()
-        rem.setIntersectionType( PointLocator )
-        rem.prepareEx(srcFt,trgFt)
-        # scan content of matrix computed by remapper
-        mat = rem.getCrudeMatrix()
-        self.assertEqual( len(mat) , nbPtsInCell )
-        for irow,row in enumerate(mat):
-            self.assertTrue( abs( sum([y for x,y in row.items()]) - 1.0) < eps )
-            self.assertEqual( irow , [x for x,y in row.items() if y == max([y for x,y in row.items()])][0] ) # check that max coeff is for irow elt (due to construction of inPts )
+        outPts_all = {
+            NORM_HEXA8: DataArrayDouble(
+                [
+                    (8.9, 20.0, 26.7),
+                    (8.9, 20.0, 33.3),
+                    (8.9, 17.8, 30.0),
+                    (11.1, 22.2, 30.0),
+                    (11.1, 20.0, 33.3),
+                    (10.0, 22.2, 30.0),
+                    (8.9, 17.8, 26.7),
+                    (8.9, 22.2, 26.7),
+                    (11.1, 22.2, 26.7),
+                    (11.1, 17.8, 26.7),
+                    (10.0, 17.8, 30.0),
+                    (8.9, 17.8, 33.3),
+                    (8.9, 22.2, 33.3),
+                    (11.1, 22.2, 33.3),
+                    (11.1, 17.8, 33.3),
+                    (8.7, 20.0, 26.1),
+                    (11.3, 20.0, 26.1),
+                    (8.7, 20.0, 33.9),
+                    (11.3, 20.0, 33.9),
+                    (8.7, 17.4, 30.0),
+                    (11.3, 22.6, 30.0),
+                    (10.0, 20.0, 26.1),
+                    (10.0, 22.6, 30.0),
+                    (10.0, 17.4, 30.0),
+                    (14.0, 20.0, 30.0),
+                ]
+            ),
+            NORM_HEXA20: DataArrayDouble(
+                [
+                    (8.9, 20.0, 33.3),
+                    (10.0, 21.4, 32.1),
+                    (11.1, 20.0, 33.3),
+                    (10.0, 22.2, 30.0),
+                    (10.0, 20.0, 32.1),
+                    (10.0, 20.0, 26.7),
+                    (10.0, 17.8, 30.0),
+                    (10.0, 18.6, 32.1),
+                    (8.9, 17.8, 26.7),
+                    (8.9, 22.2, 26.7),
+                    (11.1, 22.2, 26.7),
+                    (11.1, 17.8, 26.7),
+                    (8.9, 17.8, 33.3),
+                    (8.9, 22.2, 33.3),
+                    (11.1, 22.2, 33.3),
+                    (11.1, 17.8, 33.3),
+                    (8.7, 20.0, 26.1),
+                    (10.0, 21.8, 27.3),
+                    (11.3, 20.0, 26.1),
+                    (10.0, 18.2, 27.3),
+                    (8.7, 20.0, 33.9),
+                    (10.0, 21.8, 32.7),
+                    (11.3, 20.0, 33.9),
+                    (10.0, 18.2, 32.7),
+                    (8.7, 17.4, 30.0),
+                    (9.1, 21.8, 30.0),
+                    (11.3, 22.6, 30.0),
+                    (10.9, 18.2, 30.0),
+                    (10.0, 20.0, 26.1),
+                    (10.0, 22.6, 30.0),
+                    (10.0, 17.4, 30.0),
+                    (10.0, 20.0, 32.7),
+                    (14.0, 20.0, 30.0),
+                ]
+            ),
+            NORM_HEXA27: DataArrayDouble(
+                [
+                    (8.9, 17.8, 26.7),
+                    (8.9, 22.2, 26.7),
+                    (11.1, 22.2, 26.7),
+                    (11.1, 17.8, 26.7),
+                    (8.9, 17.8, 33.3),
+                    (8.9, 22.2, 33.3),
+                    (11.1, 22.2, 33.3),
+                    (11.1, 17.8, 33.3),
+                    (8.7, 20.0, 26.1),
+                    (10.0, 21.8, 27.3),
+                    (11.3, 20.0, 26.1),
+                    (10.0, 18.2, 27.3),
+                    (8.7, 20.0, 33.9),
+                    (10.0, 21.8, 32.7),
+                    (11.3, 20.0, 33.9),
+                    (10.0, 18.2, 32.7),
+                    (8.7, 17.4, 30.0),
+                    (9.1, 21.8, 30.0),
+                    (11.3, 22.6, 30.0),
+                    (10.9, 18.2, 30.0),
+                    (10.0, 20.0, 26.1),
+                    (9.1, 20.0, 30.0),
+                    (10.0, 22.6, 30.0),
+                    (10.9, 20.0, 30.0),
+                    (10.0, 17.4, 30.0),
+                    (10.0, 20.0, 32.7),
+                    (14.0, 20.0, 30.0),
+                ]
+            ),
+        }
 
-        # ask for MEDCouplingFieldDiscretizationOnNodesFE instance to compute coordination into ref element
-        sd = srcField.getDiscretization()
-        coosInRefElemFoundByNewton = sd.getCooInRefElement(srcField.getMesh(),inPts)
+        for gt in [NORM_HEXA8, NORM_HEXA20, NORM_HEXA27]:
+            nbPtsInCell = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(gt)
+            m = MEDCouplingUMesh("mesh", 3)
+            m.setCoords(coo)
+            m.allocateCells()
+            m.insertNextCell(gt, list(range(nbPtsInCell)))
+            m.finishInsertingCells()
 
-        for zePt,cooInRefElemFoundByNewton in zip(inPts,coosInRefElemFoundByNewton):
-            # now check by performing refCoo -> realCoo
-            ftest = MEDCouplingFieldDouble(ON_GAUSS_PT)
-            ftest.setMesh(srcField.getMesh())
-            ftest.setGaussLocalizationOnType(gt,sum([list(elt) for elt in MEDCouplingGaussLocalization.GetDefaultReferenceCoordinatesOf(gt).getValuesAsTuple()],[]),list(cooInRefElemFoundByNewton),[1])
-            self.assertTrue ( float( (ftest.getLocalizationOfDiscr()-zePt).magnitude() ) < 1e-4 )
+            srcField = MEDCouplingFieldDouble(ON_NODES_FE)
+            srcField.setMesh(m)
+            arr = DataArrayDouble(nbPtsInCell)
+            arr.iota()
+            srcField.setArray(arr)
 
-        # testing with outside point
-        for zePt in outPts:
-            #safer than
-            #self.assertRaises(InterpKernelException,sd.getCooInRefElement,srcField.getMesh(),zePt.buildDADouble())
-            try:
-                sd.getCooInRefElement(srcField.getMesh(),zePt.buildDADouble())
-            except InterpKernelException as e:
-                self.assertTrue("fail to locate point" in e.what())
-            else:
-                self.assertTrue(false,"")
+            inPts = inPts_all[gt]
+            outPts = outPts_all[gt]
+            ref_val0 = ref_val0_all[gt]
+            nbInPts = len(inPts)
 
-    def tessP1P0OnHexa_1(self):
+            for i in range(nbInPts):
+                self.assertTrue(
+                    abs(srcField.getValueOn(inPts[i])[0] - ref_val0[i]) < eps
+                )
+
+            self.assertTrue(srcField.getValueOnMulti(inPts).isEqual(ref_val0, eps))
+
+            srcFt = MEDCouplingFieldTemplate(srcField)
+            trgFt = MEDCouplingFieldTemplate(ON_NODES_FE)
+            trgMesh = MEDCouplingUMesh.Build0DMeshFromCoords(inPts)
+            trgFt.setMesh(trgMesh)
+            rem = MEDCouplingRemapper()
+            rem.setIntersectionType(PointLocator)
+            rem.prepareEx(srcFt, trgFt)
+            # scan content of matrix computed by remapper
+            mat = rem.getCrudeMatrix()
+            self.assertEqual(len(mat), nbInPts)
+            for irow, row in enumerate(mat):
+                self.assertTrue(abs(sum([y for x, y in row.items()]) - 1.0) < eps)
+
+            # ask for MEDCouplingFieldDiscretizationOnNodesFE instance to compute coordination into ref element
+            sd = srcField.getDiscretization()
+            coosInRefElemFoundByNewton = sd.getCooInRefElement(
+                srcField.getMesh(), inPts
+            )
+
+            for zePt, cooInRefElemFoundByNewton in zip(
+                inPts, coosInRefElemFoundByNewton
+            ):
+                # now check by performing refCoo -> realCoo
+                ftest = MEDCouplingFieldDouble(ON_GAUSS_PT)
+                ftest.setMesh(srcField.getMesh())
+                ftest.setGaussLocalizationOnType(
+                    gt,
+                    sum(
+                        [
+                            list(elt)
+                            for elt in MEDCouplingGaussLocalization.GetDefaultReferenceCoordinatesOf(
+                                gt
+                            ).getValuesAsTuple()
+                        ],
+                        [],
+                    ),
+                    list(cooInRefElemFoundByNewton),
+                    [1],
+                )
+                self.assertTrue(
+                    float((ftest.getLocalizationOfDiscr() - zePt).magnitude()) < 1e-4
+                )
+
+            # testing with outside point
+            for zePt in outPts:
+                # safer than
+                # self.assertRaises(InterpKernelException,sd.getCooInRefElement,srcField.getMesh(),zePt.buildDADouble())
+                try:
+                    sd.getCooInRefElement(srcField.getMesh(), zePt.buildDADouble())
+                except InterpKernelException as e:
+                    self.assertTrue("fail to locate point" in e.what())
+                else:
+                    self.assertTrue(False, "")
+
+    def testFEFE_TETRA(self):
+        """
+        [EDF31187] : Test to stress localisation of target points into a source mesh using standard reference FE elements.
+
+        Test for TETRA4 and TETRAb10 with non-planar faces
+        """
+
+        coo = DataArrayDouble(
+            [
+                (1.0, 5.0, 8.0),
+                (1.0, 3.0, 11.0),
+                (1.1, 4.0, 8.0),
+                (7.0, 3.0, 7.0),
+                (1.0, 4.0, 9.5),
+                (1.0, 3.5, 9.0),
+                (1.1, 4.5, 8),
+                (3.0, 4.5, 8.0),
+                (3.5, 3.5, 9.0),
+                (3.5, 3.0, 7.8),
+            ]
+        )
+
+        eps = 1e-8
+
+        ref_val0_all = {
+            NORM_TETRA4: DataArrayDouble(
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    1.4069767441860472,
+                ]
+            ),
+            NORM_TETRA10: DataArrayDouble(
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    6.0,
+                    7.0,
+                    8.0,
+                    9.0,
+                    9.3606435183767083,
+                ]
+            ),
+        }
+
+        inPts_all = {
+            NORM_TETRA4: DataArrayDouble(
+                [
+                    (1.0, 5.0, 8.0),
+                    (1.0, 3.0, 11.0),
+                    (1.1, 4.0, 8.0),
+                    (7.0, 3.0, 7.0),
+                    (2.5, 3.8, 8.5),
+                ]
+            ),
+            NORM_TETRA10: DataArrayDouble(
+                [
+                    (1.0, 5.0, 8.0),
+                    (1.0, 3.0, 11.0),
+                    (1.1, 4.0, 8.0),
+                    (7.0, 3.0, 7.0),
+                    (1.0, 4.0, 9.5),
+                    (1.0, 3.5, 9.0),
+                    (1.1, 4.5, 8),
+                    (3.0, 4.5, 8.0),
+                    (3.5, 3.5, 9.0),
+                    (3.5, 3.0, 7.8),
+                    (2.5, 3.8, 8.5),
+                ]
+            ),
+        }
+
+        outPts_all = {
+            NORM_TETRA4: DataArrayDouble(
+                [
+                    (0.0, 0.0, 0.0),
+                    (1.0, 3.5, 9.00001),
+                    (7.00001, 3.0, 7.0),
+                    (6.99, 3.0, 7.0),
+                ]
+            ),
+            NORM_TETRA10: DataArrayDouble(
+                [
+                    (0.0, 0.0, 0.0),
+                    (1.0, 3.48, 9.0),
+                    (7.00001, 3.0, 7.0),
+                    (6.99, 3.0, 7.0),
+                ]
+            ),
+        }
+
+        for gt in [NORM_TETRA4, NORM_TETRA10]:
+            nbPtsInCell = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(gt)
+            m = MEDCouplingUMesh("mesh", 3)
+            m.setCoords(coo)
+            m.allocateCells()
+            m.insertNextCell(gt, list(range(nbPtsInCell)))
+            m.finishInsertingCells()
+
+            srcField = MEDCouplingFieldDouble(ON_NODES_FE)
+            srcField.setMesh(m)
+            arr = DataArrayDouble(nbPtsInCell)
+            arr.iota()
+            srcField.setArray(arr)
+
+            inPts = inPts_all[gt]
+            outPts = outPts_all[gt]
+            ref_val0 = ref_val0_all[gt]
+            nbInPts = len(inPts)
+
+            for i in range(nbInPts):
+                self.assertTrue(
+                    abs(srcField.getValueOn(inPts[i])[0] - ref_val0[i]) < eps
+                )
+
+            self.assertTrue(srcField.getValueOnMulti(inPts).isEqual(ref_val0, eps))
+
+            srcFt = MEDCouplingFieldTemplate(srcField)
+            trgFt = MEDCouplingFieldTemplate(ON_NODES_FE)
+            trgMesh = MEDCouplingUMesh.Build0DMeshFromCoords(inPts)
+            trgFt.setMesh(trgMesh)
+            rem = MEDCouplingRemapper()
+            rem.setIntersectionType(PointLocator)
+            rem.prepareEx(srcFt, trgFt)
+            # scan content of matrix computed by remapper
+            mat = rem.getCrudeMatrix()
+            self.assertEqual(len(mat), nbInPts)
+            for irow, row in enumerate(mat):
+                self.assertTrue(abs(sum([y for x, y in row.items()]) - 1.0) < eps)
+
+            # ask for MEDCouplingFieldDiscretizationOnNodesFE instance to compute coordination into ref element
+            sd = srcField.getDiscretization()
+            coosInRefElemFoundByNewton = sd.getCooInRefElement(
+                srcField.getMesh(), inPts
+            )
+
+            for zePt, cooInRefElemFoundByNewton in zip(
+                inPts, coosInRefElemFoundByNewton
+            ):
+                # now check by performing refCoo -> realCoo
+                ftest = MEDCouplingFieldDouble(ON_GAUSS_PT)
+                ftest.setMesh(srcField.getMesh())
+                ftest.setGaussLocalizationOnType(
+                    gt,
+                    sum(
+                        [
+                            list(elt)
+                            for elt in MEDCouplingGaussLocalization.GetDefaultReferenceCoordinatesOf(
+                                gt
+                            ).getValuesAsTuple()
+                        ],
+                        [],
+                    ),
+                    list(cooInRefElemFoundByNewton),
+                    [1],
+                )
+                self.assertTrue(
+                    float((ftest.getLocalizationOfDiscr() - zePt).magnitude()) < 1e-4
+                )
+
+            # testing with outside point
+            for zePt in outPts:
+                # safer than
+                # self.assertRaises(InterpKernelException,sd.getCooInRefElement,srcField.getMesh(),zePt.buildDADouble())
+                try:
+                    sd.getCooInRefElement(srcField.getMesh(), zePt.buildDADouble())
+                except InterpKernelException as e:
+                    self.assertTrue("fail to locate point" in e.what())
+                else:
+                    self.assertTrue(False, "")
+
+    def testFEFE_PENTA(self):
+        """
+        [EDF31187] : Test to stress localisation of target points into a source mesh using standard reference FE elements.
+
+        Test for NORM_PENTA6, NORM_PENTA15 and NORM_PENTA18 with non-planar faces
+        """
+
+        coo = DataArrayDouble(
+            [
+                (-3.0, 1.0, 8.0),
+                (-3.0, -2.0, 11.0),
+                (-2.0, -2.0, 8.0),
+                (2.5, 1.3, 7.0),
+                (2.8, -0.1, 9.5),
+                (2.8, -0.2, 9.0),
+                (-3.1, -0.5, 9.5),
+                (-3.1, -2.0, 9.5),
+                (-2.7, -0.5, 8.0),
+                (0.0, 1.15, 8.0),
+                (0.0, -1.0, 10.5),
+                (0.0, -1.1, 7.80),
+                (2.8, 0.7, 8.0),
+                (2.8, -0.2, 9.5),
+                (2.6, 0.8, 8.0),
+                (0.0, 0.0, 9.0),
+                (0.0, -1.0, 9.2),
+                (0.1, 0.0, 7.9),
+            ]
+        )
+
+        eps = 1e-8
+
+        ref_val0_all = {
+            NORM_PENTA6: DataArrayDouble(
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    2.6065933924123641,
+                ]
+            ),
+            NORM_PENTA15: DataArrayDouble(
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    6.0,
+                    7.0,
+                    8.0,
+                    9.0,
+                    10.0,
+                    11.0,
+                    12.0,
+                    13.0,
+                    14.0,
+                    19.917147597384314,
+                ]
+            ),
+            NORM_PENTA18: DataArrayDouble(
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    6.0,
+                    7.0,
+                    8.0,
+                    9.0,
+                    10.0,
+                    11.0,
+                    12.0,
+                    13.0,
+                    14.0,
+                    15.0,
+                    16.0,
+                    17.0,
+                    17.868885100760988,
+                ]
+            ),
+        }
+
+        inPts_all = {
+            NORM_PENTA6: DataArrayDouble(
+                [
+                    (-3.0, 1.0, 8.0),
+                    (-3.0, -2.0, 11.0),
+                    (-2.0, -2.0, 8.0),
+                    (2.5, 1.3, 7.0),
+                    (2.8, -0.1, 9.5),
+                    (2.8, -0.2, 9.0),
+                    (0.0, -0.5, 8.8),
+                ]
+            ),
+            NORM_PENTA15: DataArrayDouble(
+                [
+                    (-3.0, 1.0, 8.0),
+                    (-3.0, -2.0, 11.0),
+                    (-2.0, -2.0, 8.0),
+                    (2.5, 1.3, 7.0),
+                    (2.8, -0.1, 9.5),
+                    (2.8, -0.2, 9.0),
+                    (-3.1, -0.5, 9.5),
+                    (-3.1, -2.0, 9.5),
+                    (-2.7, -0.5, 8.0),
+                    (0.0, 1.15, 8.0),
+                    (0.0, -1.0, 10.5),
+                    (0.0, -1.1, 7.80),
+                    (2.8, 0.7, 8.0),
+                    (2.8, -0.2, 9.5),
+                    (2.6, 0.8, 8.0),
+                    (0.0, -0.5, 8.8),
+                ]
+            ),
+            NORM_PENTA18: DataArrayDouble(
+                [
+                    (-3.0, 1.0, 8.0),
+                    (-3.0, -2.0, 11.0),
+                    (-2.0, -2.0, 8.0),
+                    (2.5, 1.3, 7.0),
+                    (2.8, -0.1, 9.5),
+                    (2.8, -0.2, 9.0),
+                    (-3.1, -0.5, 9.5),
+                    (-3.1, -2.0, 9.5),
+                    (-2.7, -0.5, 8.0),
+                    (0.0, 1.15, 8.0),
+                    (0.0, -1.0, 10.5),
+                    (0.0, -1.1, 7.80),
+                    (2.8, 0.7, 8.0),
+                    (2.8, -0.2, 9.5),
+                    (2.6, 0.8, 8.0),
+                    (0.0, 0.0, 9.0),
+                    (0.0, -1.0, 9.2),
+                    (0.1, 0.0, 7.9),
+                    (0.0, -0.5, 8.8),
+                ]
+            ),
+        }
+
+        outPts_all = {
+            NORM_PENTA6: DataArrayDouble(
+                [
+                    (-7.0, 10e50, 0.0),
+                    (-3.00001, 1.0, 8.0),
+                    (-3.0, -2.0, 11.00001),
+                ]
+            ),
+            NORM_PENTA15: DataArrayDouble(
+                [
+                    (-7.0, 10e50, 0.0),
+                    (-3.00001, 1.0, 8.0),
+                    (-3.0, -2.0, 11.00001),
+                ]
+            ),
+            NORM_PENTA18: DataArrayDouble(
+                [
+                    (-7.0, 10e50, 0.0),
+                    (-3.00001, 1.0, 8.0),
+                    (-3.0, -2.0, 11.00001),
+                ]
+            ),
+        }
+
+        for gt in [NORM_PENTA6, NORM_PENTA15, NORM_PENTA18]:
+            nbPtsInCell = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(gt)
+            m = MEDCouplingUMesh("mesh", 3)
+            m.setCoords(coo)
+            m.allocateCells(1)
+            m.insertNextCell(gt, list(range(nbPtsInCell)))
+            m.finishInsertingCells()
+
+            srcField = MEDCouplingFieldDouble(ON_NODES_FE)
+            srcField.setMesh(m)
+            arr = DataArrayDouble(nbPtsInCell)
+            arr.iota()
+            srcField.setArray(arr)
+
+            inPts = inPts_all[gt]
+            outPts = outPts_all[gt]
+            ref_val0 = ref_val0_all[gt]
+            nbInPts = len(inPts)
+
+            for i in range(nbInPts):
+                self.assertTrue(
+                    abs(srcField.getValueOn(inPts[i])[0] - ref_val0[i]) < eps
+                )
+
+            self.assertTrue(srcField.getValueOnMulti(inPts).isEqual(ref_val0, eps))
+
+            srcFt = MEDCouplingFieldTemplate(srcField)
+            trgFt = MEDCouplingFieldTemplate(ON_NODES_FE)
+            trgMesh = MEDCouplingUMesh.Build0DMeshFromCoords(inPts)
+            trgFt.setMesh(trgMesh)
+            rem = MEDCouplingRemapper()
+            rem.setIntersectionType(PointLocator)
+            rem.prepareEx(srcFt, trgFt)
+            # scan content of matrix computed by remapper
+            mat = rem.getCrudeMatrix()
+            self.assertEqual(len(mat), nbInPts)
+            for irow, row in enumerate(mat):
+                self.assertTrue(abs(sum([y for x, y in row.items()]) - 1.0) < eps)
+
+            # ask for MEDCouplingFieldDiscretizationOnNodesFE instance to compute coordination into ref element
+            sd = srcField.getDiscretization()
+            coosInRefElemFoundByNewton = sd.getCooInRefElement(
+                srcField.getMesh(), inPts
+            )
+
+            for zePt, cooInRefElemFoundByNewton in zip(
+                inPts, coosInRefElemFoundByNewton
+            ):
+                # now check by performing refCoo -> realCoo
+                ftest = MEDCouplingFieldDouble(ON_GAUSS_PT)
+                ftest.setMesh(srcField.getMesh())
+                ftest.setGaussLocalizationOnType(
+                    gt,
+                    sum(
+                        [
+                            list(elt)
+                            for elt in MEDCouplingGaussLocalization.GetDefaultReferenceCoordinatesOf(
+                                gt
+                            ).getValuesAsTuple()
+                        ],
+                        [],
+                    ),
+                    list(cooInRefElemFoundByNewton),
+                    [1],
+                )
+                self.assertTrue(
+                    float((ftest.getLocalizationOfDiscr() - zePt).magnitude()) < 1e-4
+                )
+
+            # testing with outside point
+            for zePt in outPts:
+                # safer than
+                # self.assertRaises(InterpKernelException,sd.getCooInRefElement,srcField.getMesh(),zePt.buildDADouble())
+                try:
+                    sd.getCooInRefElement(srcField.getMesh(), zePt.buildDADouble())
+                except InterpKernelException as e:
+                    self.assertTrue("fail to locate point" in e.what())
+                else:
+                    self.assertTrue(False, "")
+
+    def testFEFE_PYRAM(self):
+        """
+        [EDF31187] : Test to stress localisation of target points into a source mesh using standard reference FE elements.
+
+        Test for NORM_PYRA5 and NORM_PYRA13 with non-planar faces
+        """
+
+        coo = DataArrayDouble(
+            [
+                (-3.0, 3.0, 4.0),
+                (-3.0, -2.0, 4.1),
+                (2.5, -2.1, 4.0),
+                (2.6, 3.0, 4.1),
+                (-0.3, -0.1, 9.5),
+                (-3.0, 0.5, 4.05),
+                (-0.25, -2.05, 4.05),
+                (2.55, 0.45, 4.05),
+                (-0.2, 3.0, 4.05),
+                (-1.5, 1.55, 6.78),
+                (-1.65, -1.05, 6.8),
+                (1.1, -1.3, 6.72),
+                (1.3, 1.45, 6.8),
+            ]
+        )
+
+        eps = 1e-8
+
+        ref_val0_all = {
+            NORM_PYRA5: DataArrayDouble(
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    2.8248558088942426,
+                ]
+            ),
+            NORM_PYRA13: DataArrayDouble(
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    6.0,
+                    7.0,
+                    8.0,
+                    9.0,
+                    10.0,
+                    11.0,
+                    12.0,
+                    12.928985087457612,
+                ]
+            ),
+        }
+
+        inPts_all = {
+            NORM_PYRA5: DataArrayDouble(
+                [
+                    (-3.0, 3.0, 4.0),
+                    (-3.0, -2.0, 4.1),
+                    (2.5, -2.1, 4.0),
+                    (2.6, 3.0, 4.1),
+                    (-0.3, -0.1, 9.5),
+                    (0.5, 1.1, 6.2),
+                ]
+            ),
+            NORM_PYRA13: DataArrayDouble(
+                [
+                    (-3.0, 3.0, 4.0),
+                    (-3.0, -2.0, 4.1),
+                    (2.5, -2.1, 4.0),
+                    (2.6, 3.0, 4.1),
+                    (-0.3, -0.1, 9.5),
+                    (-3.0, 0.5, 4.05),
+                    (-0.25, -2.05, 4.05),
+                    (2.55, 0.45, 4.05),
+                    (-0.2, 3.0, 4.05),
+                    (-1.5, 1.55, 6.78),
+                    (-1.65, -1.05, 6.8),
+                    (1.1, -1.3, 6.72),
+                    (1.3, 1.45, 6.8),
+                    (0.5, 1.1, 6.76),
+                ]
+            ),
+        }
+
+        outPts_all = {
+            NORM_PYRA5: DataArrayDouble(
+                [
+                    (-7.0, 10e50, 0.0),
+                    (-3.00001, 3.0, 4.0),
+                    (-0.3, -0.1, 9.500001),
+                ]
+            ),
+            NORM_PYRA13: DataArrayDouble(
+                [
+                    (-7.0, 10e50, 0.0),
+                    (-3.00001, 1.0, 8.0),
+                    (-0.3, -0.1, 9.500001),
+                    (1.10001, -1.3, 6.72)
+                ]
+            ),
+        }
+
+        for gt in [NORM_PYRA5, NORM_PYRA13]:
+            nbPtsInCell = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(gt)
+            m = MEDCouplingUMesh("mesh", 3)
+            m.setCoords(coo)
+            m.allocateCells(1)
+            m.insertNextCell(gt, list(range(nbPtsInCell)))
+            m.finishInsertingCells()
+
+            srcField = MEDCouplingFieldDouble(ON_NODES_FE)
+            srcField.setMesh(m)
+            arr = DataArrayDouble(nbPtsInCell)
+            arr.iota()
+            srcField.setArray(arr)
+
+            inPts = inPts_all[gt]
+            outPts = outPts_all[gt]
+            ref_val0 = ref_val0_all[gt]
+            nbInPts = len(inPts)
+
+            for i in range(nbInPts):
+                self.assertTrue(
+                    abs(srcField.getValueOn(inPts[i])[0] - ref_val0[i]) < eps
+                )
+
+            self.assertTrue(srcField.getValueOnMulti(inPts).isEqual(ref_val0, eps))
+
+            srcFt = MEDCouplingFieldTemplate(srcField)
+            trgFt = MEDCouplingFieldTemplate(ON_NODES_FE)
+            trgMesh = MEDCouplingUMesh.Build0DMeshFromCoords(inPts)
+            trgFt.setMesh(trgMesh)
+            rem = MEDCouplingRemapper()
+            rem.setIntersectionType(PointLocator)
+            rem.prepareEx(srcFt, trgFt)
+            # scan content of matrix computed by remapper
+            mat = rem.getCrudeMatrix()
+            self.assertEqual(len(mat), nbInPts)
+            for irow, row in enumerate(mat):
+                self.assertTrue(abs(sum([y for x, y in row.items()]) - 1.0) < eps)
+
+            # ask for MEDCouplingFieldDiscretizationOnNodesFE instance to compute coordination into ref element
+            sd = srcField.getDiscretization()
+            coosInRefElemFoundByNewton = sd.getCooInRefElement(
+                srcField.getMesh(), inPts
+            )
+
+            for zePt, cooInRefElemFoundByNewton in zip(
+                inPts, coosInRefElemFoundByNewton
+            ):
+                # now check by performing refCoo -> realCoo
+                ftest = MEDCouplingFieldDouble(ON_GAUSS_PT)
+                ftest.setMesh(srcField.getMesh())
+                ftest.setGaussLocalizationOnType(
+                    gt,
+                    sum(
+                        [
+                            list(elt)
+                            for elt in MEDCouplingGaussLocalization.GetDefaultReferenceCoordinatesOf(
+                                gt
+                            ).getValuesAsTuple()
+                        ],
+                        [],
+                    ),
+                    list(cooInRefElemFoundByNewton),
+                    [1],
+                )
+                self.assertTrue(
+                    float((ftest.getLocalizationOfDiscr() - zePt).magnitude()) < 1e-4
+                )
+
+            # testing with outside point
+            for zePt in outPts:
+                # safer than
+                # self.assertRaises(InterpKernelException,sd.getCooInRefElement,srcField.getMesh(),zePt.buildDADouble())
+                try:
+                    sd.getCooInRefElement(srcField.getMesh(), zePt.buildDADouble())
+                except InterpKernelException as e:
+                    self.assertTrue("fail to locate point" in e.what())
+                else:
+                    self.assertTrue(False, "")
+
+    def testP1P0OnHexa_1(self):
         """
         See EDF27859 : This test focuses on P1P0 interpolation with source containing HEXA. So P1P0 intersector is going to split into tetras
         the source cell.
@@ -1680,7 +2719,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             mat = remap.getCrudeMatrix()
             self.checkMatrix(expectedMatrix,mat,18,1.0)
 
-    def tessP0P0OnMeshDim1SpaceDim3_0(self):
+    def testP0P0OnMeshDim1SpaceDim3_0(self):
         """
         See EDF31137 : Management of P0P0 on meshes with meshdim == 1 and spacedim == 3
         """
