@@ -1582,8 +1582,6 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
       m2= m.buildUnstructured()
       self.assertTrue( m2.computeNbOfFacesPerCell().isEqual( facesOffset.deltaShiftIndex() ) )
       self.assertTrue( aa[ aa.findIdsNotEqual(-1) ].isEqual( facesOut  ) )
-      # b /home/H87074/salome/990_CEA/SALOME-master-native-DB11-SRC/SOURCES/medcoupling/src/MEDCoupling/MEDCouplingMemArray.txx:7555
-      # r src/MEDCoupling_Swig/MEDCouplingBasicsTest7.py
 
 if __name__ == '__main__':
     unittest.main()
