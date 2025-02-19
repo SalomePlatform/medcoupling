@@ -7481,12 +7481,13 @@ struct NotInRange
   }
   
   /*!
-   * This method converts from VTK polyhedra nodal connectivity to MED.
+   * This method converts from VTK <= 9.3 polyhedra nodal connectivity to MED.
    *
    * \param [in] arrIn arr origin array from which the extraction will be done.
    * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
    * \param [out] arrOut the resulting array
    * \param [out] arrIndexOut the index array of the resulting array \b arrOut
+   * \sa DataArrayDiscrete<T>::FromVTK93To94FacesInternaReprOfPolyedra
    */
   template <class T>
   void DataArrayDiscrete<T>::FromVTKInternalReprOfPolyedra(const DataArrayType *arrIn, const DataArrayIdType *arrIndxIn,
@@ -7524,6 +7525,104 @@ struct NotInRange
       arrOutIdxPt[1] = arrOutIdxPt[0] + std::distance(arrOutPtStart,arrOutPt);
       ++arrOutIdxPt;
     }
+  }
+
+  /*!
+   * This method converts from VTK >= 9.4 polyhedra nodal connectivity to MED.
+   *
+   * \param [in] arrIn arr origin array from which the extraction will be done.
+   * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
+   * \param [in] arrIndxIn2 is the input index array telling which is the faces id range in arrIndxIn of poly
+   * \param [out] arrOut the resulting array
+   * \param [out] arrIndexOut the index array of the resulting array \b arrOut
+   * \sa DataArrayDiscrete<T>::FromVTK93To94FacesInternaReprOfPolyedra
+   */
+  template <class T>
+  void DataArrayDiscrete<T>::FromVTK94InternalReprOfPolyedra(const DataArrayType *arrIn, const DataArrayIdType *arrIndxIn, const DataArrayIdType *arrIndxIn2,
+                                                             MCAuto<DataArrayType> &arrOut, MCAuto<DataArrayIdType> &arrIndexOut)
+  {
+    if(!arrIn || !arrIndxIn)
+      throw INTERP_KERNEL::Exception("DataArrayInt::FromVTK94InternalReprOfPolyedra : input pointer is NULL !");
+    arrIn->checkAllocated(); arrIndxIn->checkAllocated();
+    arrIn->checkNbOfComps(1,"1st array must have single component");
+    arrIndxIn->checkNbOfComps(1,"2nd array must have single component");
+    arrIndxIn2->checkNbOfComps(1,"3nd array must have single component");
+    if(arrIndxIn->getNumberOfTuples()<1 || arrIndxIn2->getNumberOfTuples()<1)
+      THROW_IK_EXCEPTION("2nd and 3rd input array must be of size >= 1");
+    mcIdType nbCells(arrIndxIn2->getNumberOfTuples()-1);
+    const T *arrInPt(arrIn->begin());
+    const mcIdType *arrIndxInPt(arrIndxIn->begin()), *arrIndx2InPt(arrIndxIn2->begin());
+    arrIndexOut = DataArrayIdType::New(); arrIndexOut->alloc(arrIndxIn2->getNumberOfTuples(),1);
+    arrOut = DataArrayType::New(); arrOut->alloc(arrIn->getNumberOfTuples() + ( arrIndxIn->getNumberOfTuples() - 1 ) - nbCells,1);
+    T *arrOutPt(arrOut->getPointer());
+    mcIdType *arrOutIdxPt(arrIndexOut->getPointer()); *arrOutIdxPt = 0;
+    for(auto i = 0 ; i < nbCells ; ++i)
+    {
+      mcIdType nbFaces = arrIndx2InPt[i+1] - arrIndx2InPt[i];
+      T *arrOutPtStart(arrOutPt);
+      for(mcIdType iFace = 0 ; iFace < nbFaces ; ++iFace)
+      {
+        const T *facePtr = arrInPt + arrIndxInPt[ arrIndx2InPt[i] +  iFace ];
+        mcIdType nbNodesInFace = arrIndxInPt[ arrIndx2InPt[i] +  iFace + 1 ] - arrIndxInPt[ arrIndx2InPt[i] +  iFace ];
+        if(iFace>0)
+        {
+          *arrOutPt++ = -1;
+        }
+        arrOutPt = std::copy(facePtr,facePtr+nbNodesInFace,arrOutPt);
+        facePtr += nbNodesInFace;
+      }
+      arrOutIdxPt[1] = arrOutIdxPt[0] + std::distance(arrOutPtStart,arrOutPt);
+      ++arrOutIdxPt;
+    }
+  }
+
+  /*!
+   * This method converts from VTK 9.3 polyhedra nodal connectivity to faces connectivity compatible with MEDCoupling1DGTUMesh(NORM_POLYGON).
+   *
+   * \param [in] arrIn arr origin array from which the extraction will be done.
+   * \param [in] arrIndxIn is the input index array allowing to walk into \b arrIn
+   * \param [out] arrOut the resulting array
+   * \param [out] arrIndexOut the index array of the resulting array \b arrOut
+   * \sa DataArrayDiscrete<T>::FromVTKInternalReprOfPolyedra
+   */
+  template <class T>
+  void DataArrayDiscrete<T>::FromVTK93To94FacesInternaReprOfPolyedra(const DataArrayType *arrIn, const DataArrayIdType *arrIndxIn,
+                                                                     MCAuto<DataArrayType> &arrOut, MCAuto<DataArrayIdType> &arrIndexOut)
+  {
+    if(!arrIn || !arrIndxIn)
+      throw INTERP_KERNEL::Exception("DataArrayInt::FromVTK93FacesInternaReprOfPolyedra : input pointer is NULL !");
+    arrIn->checkAllocated(); arrIndxIn->checkAllocated();
+    arrIn->checkNbOfComps(1,"1st array must have single component");
+    arrIndxIn->checkNbOfComps(1,"2nd array must have single component");
+    if(arrIndxIn->getNumberOfTuples()<1)
+      THROW_IK_EXCEPTION("2nd input array must be of size >= 1");
+    mcIdType nbCells(arrIndxIn->getNumberOfTuples()-1);
+    const T *arrInPt(arrIn->begin());
+    const mcIdType *arrIndxInPt(arrIndxIn->begin());
+    arrOut = DataArrayType::New(); arrOut->alloc(0,1);
+    mcIdType curIndex(0);
+    arrIndexOut = DataArrayIdType::New(); arrIndexOut->alloc(1,1); arrIndexOut->setIJSilent(0,0,curIndex);
+    for( mcIdType i = 0 ; i <  nbCells ; ++i )
+    {
+      const T *ptOfCurPolyh = arrInPt + arrIndxInPt[i];
+      const T *endOfCurPolyh = arrInPt + arrIndxInPt[ i+1 ];
+      T nbOfFaces = *ptOfCurPolyh++;
+      //
+      for( T j = 0 ; j < nbOfFaces && ptOfCurPolyh <= endOfCurPolyh ; ++j )
+      {
+        T nbOfPtsInFace = *ptOfCurPolyh++;
+        mcIdType newIndex = curIndex + ToIdType( nbOfPtsInFace );
+        arrIndexOut->pushBackSilent( newIndex );
+        curIndex = newIndex;
+        const T *endOfFaceConn = ptOfCurPolyh + nbOfPtsInFace;
+        arrOut->pushBackValsSilent( ptOfCurPolyh, endOfFaceConn);
+        ptOfCurPolyh = endOfFaceConn;
+      }
+      if( ptOfCurPolyh != endOfCurPolyh )
+        THROW_IK_EXCEPTION("For cell #" << i << " problem in input connectivity");
+    }
+    arrIndexOut->pack();
+    arrOut->pack();
   }
 
   /*!
