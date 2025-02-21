@@ -323,6 +323,8 @@ namespace MEDCoupling
   public:
     MemArray<T>& accessToMemArray() { return _mem; }
     const MemArray<T>& accessToMemArray() const { return _mem; }
+    void writeForDbg(const std::string& fileName) const;
+    static MCAuto<typename Traits<T>::ArrayTypeCh> LoadForDbg(const std::string& fileName);
   protected:
     typename Traits<T>::ArrayTypeCh *copySortedImpl(bool asc) const;
     typename Traits<T>::ArrayType *mySelectByTupleId(const mcIdType *new2OldBg, const mcIdType *new2OldEnd) const;

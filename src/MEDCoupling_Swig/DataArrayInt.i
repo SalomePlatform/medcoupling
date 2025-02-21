@@ -159,6 +159,8 @@
     void modulusEqual(const ARRAY *other);
     static ARRAY *Pow(const ARRAY *a1, const ARRAY *a2);
     void powEqual(const ARRAY *other);
+    static MCAuto<ARRAY> LoadForDbg(const std::string& fileName);
+    void writeForDbg(const std::string& fileName) const;
     MCAuto<ARRAY> fromLinkedListOfPairToList() const;
     MCAuto<DataArrayIdType> findIdsGreaterOrEqualTo(INT val) const;
     MCAuto<DataArrayIdType> findIdsGreaterThan(INT val) const;

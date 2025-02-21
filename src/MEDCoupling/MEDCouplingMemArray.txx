@@ -37,6 +37,7 @@
 #include <numeric>
 #include <algorithm>
 #include <iterator>
+#include <fstream>
 
 namespace MEDCoupling
 {
@@ -2557,6 +2558,54 @@ namespace MEDCoupling
   void DataArrayTemplate<T>::fillWithZero()
   {
     fillWithValue((T)0);
+  }
+
+  /*!
+  * Write an array in a file for debugging purpose. Do not use it for long term storage. Use it with care.
+  */
+  template<class T>
+  void DataArrayTemplate<T>::writeForDbg(const std::string& fileName) const
+  {
+    checkAllocated();
+    mcIdType nbTuples( getNumberOfTuples() );
+    std::size_t nbCompo( getNumberOfComponents() );
+    std::ofstream outFile(fileName, std::ios::binary);
+    char szOfData( sizeof(Type) );
+    outFile.exceptions(std::ios::failbit | std::ios::badbit);
+    {
+      outFile.write(&szOfData,1);
+      outFile.write(reinterpret_cast<const char*>(&nbTuples),sizeof(mcIdType));
+      outFile.write(reinterpret_cast<const char*>(&nbCompo),sizeof(std::size_t));
+      outFile.write(reinterpret_cast<const char*>(begin()),nbCompo*nbTuples*sizeof(Type));
+    }
+  }
+
+  template<class T>
+  MCAuto<typename Traits<T>::ArrayTypeCh> DataArrayTemplate<T>::LoadForDbg(const std::string& fileName)
+  {
+    MCAuto< typename Traits<T>::ArrayTypeCh > ret(Traits<T>::ArrayTypeCh::New());
+    std::ifstream inFile(fileName, std::ios::binary);
+    inFile.exceptions(std::ios::failbit | std::ios::badbit);
+    inFile.seekg(0, std::ios::end);
+    mcIdType fileSize( ToIdType( inFile.tellg() ) );
+    if( fileSize < 1 + ToIdType( sizeof(std::size_t) ) + ToIdType( sizeof(mcIdType) ) )
+      THROW_IK_EXCEPTION( "Input file \"" << fileName << "\" is invalid !" );
+    inFile.seekg(0, std::ios::beg);
+    char szOfData(0);
+    inFile.read(&szOfData,1);
+    if( szOfData != sizeof(Type) )
+      THROW_IK_EXCEPTION( "Input file \"" << fileName << "\" contain atomic data of size " << (int) szOfData << " this atomic data size is " << sizeof(Type) );
+    mcIdType nbTuples(0);
+    inFile.read(reinterpret_cast<char *>(&nbTuples),sizeof(mcIdType));
+    std::size_t nbCompo(0);
+    inFile.read(reinterpret_cast<char *>(&nbCompo),sizeof(std::size_t));
+    ret->alloc(nbTuples,nbCompo);
+    mcIdType sizeOfDataToRead( ToIdType(nbCompo)*nbTuples*szOfData );
+    mcIdType sizeExpected( 1 + ToIdType( sizeof(std::size_t) ) + ToIdType( sizeof(mcIdType) ) + sizeOfDataToRead );
+    if( fileSize != sizeExpected )
+      THROW_IK_EXCEPTION( "Input file \"" << fileName << "\" length is invalid : Size expected " << sizeExpected << " actual : " << fileSize );
+    inFile.read(reinterpret_cast<char *>(ret->getPointer()),sizeOfDataToRead);
+    return ret;
   }
 
   //////////////////////////////

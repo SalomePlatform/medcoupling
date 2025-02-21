@@ -798,6 +798,8 @@ typedef DataArrayInt64 DataArrayIdType;
     DataArrayFloatIterator *iterator();
     MCAuto<DataArrayDouble> convertToDblArr() const;
     static DataArrayFloat *Meld(const DataArrayFloat *a1, const DataArrayFloat *a2);
+    static MCAuto<DataArrayFloat> LoadForDbg(const std::string& fileName);
+    void writeForDbg(const std::string& fileName) const;
     %extend
     {
       DataArrayFloat()
@@ -1100,6 +1102,8 @@ typedef DataArrayInt64 DataArrayIdType;
     MCAuto<DataArrayDouble> selectPartDef(const PartDefinition* pd) const;
     MCAuto<DataArrayDouble> cumSum() const;
     MCAuto<DataArrayFloat> convertToFloatArr() const;
+    static MCAuto<DataArrayDouble> LoadForDbg(const std::string& fileName);
+    void writeForDbg(const std::string& fileName) const;
     %extend
     {
       DataArrayDouble()

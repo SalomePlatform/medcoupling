@@ -1583,5 +1583,39 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
       self.assertTrue( m2.computeNbOfFacesPerCell().isEqual( facesOffset.deltaShiftIndex() ) )
       self.assertTrue( aa[ aa.findIdsNotEqual(-1) ].isEqual( facesOut  ) )
 
+    def testDAWriteLoadForDbg0(self):
+      """
+      EDF31746: To help debugging in C++
+      """
+      import tempfile
+      from pathlib import Path
+      arr = DataArrayDouble(5) ; arr.iota()
+      arr = DataArrayDouble.Meld([arr,2*arr,3*arr])
+      arrFloat = arr.convertToFloatArr()
+      arrI32 = arr.convertToIntArr()
+      arrI64 = arr.convertToInt64Arr()
+      with tempfile.TemporaryDirectory() as dir:
+          p = Path( dir ) / "toto.bin"
+          arr.writeForDbg( f"{p}" )
+          arr2 = DataArrayDouble.LoadForDbg( f"{p}" )
+          assert( arr.isEqual(arr2, 1e-15) )
+          self.assertRaises(InterpKernelException, DataArrayInt32.LoadForDbg, f"{p}" )
+          p = Path( dir ) / "toto2.bin"
+          arrI32.writeForDbg( f"{p}" )
+          arrI32_2 = DataArrayInt32.LoadForDbg( f"{p}" )
+          assert( arrI32.isEqual(arrI32_2) )
+          self.assertRaises(InterpKernelException, DataArrayInt64.LoadForDbg, f"{p}" )
+          p = Path( dir ) / "toto3.bin"
+          arrI64.writeForDbg( f"{p}" )
+          arrI64_2 = DataArrayInt64.LoadForDbg( f"{p}" )
+          assert( arrI64.isEqual(arrI64_2) )
+          self.assertRaises(InterpKernelException, DataArrayInt32.LoadForDbg, f"{p}" )
+          p = Path( dir ) / "toto4.bin"
+          arrFloat.writeForDbg( f"{p}" )
+          arrFloat_2 = DataArrayFloat.LoadForDbg( f"{p}" )
+          assert( arrFloat.isEqual(arrFloat_2, 1e-8) )
+          self.assertRaises(InterpKernelException, DataArrayDouble.LoadForDbg, f"{p}" )
+          pass
+
 if __name__ == '__main__':
     unittest.main()
