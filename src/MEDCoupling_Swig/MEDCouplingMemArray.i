@@ -66,6 +66,11 @@
   $result=SWIG_NewPointerObj(SWIG_as_voidptr($1.retn()),SWIGTYPE_p_MEDCoupling__DataArrayFloat,SWIG_POINTER_OWN|0);
 }
 
+%typemap(out) MCAuto<DataArrayByte>
+{
+  $result=SWIG_NewPointerObj(SWIG_as_voidptr($1.retn()),SWIGTYPE_p_MEDCoupling__DataArrayByte,SWIG_POINTER_OWN|0);
+}
+
 %typemap(out) MCAuto<MEDCoupling::MapII>
 {
   $result=SWIG_NewPointerObj(SWIG_as_voidptr($1.retn()),SWIGTYPE_p_MEDCoupling__MapII,SWIG_POINTER_OWN|0);
@@ -2575,6 +2580,7 @@ typedef DataArrayInt64 DataArrayIdType;
     DataArrayByteIterator *iterator();
     DataArrayByte *performCopyOrIncrRef(bool deepCopy) const;
     char byteValue() const;
+    static MCAuto<DataArrayByte> LoadForDbg(const std::string& fileName);
     %extend
     {
       DataArrayByte()
