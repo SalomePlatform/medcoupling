@@ -76,7 +76,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual void insertNextCell(const mcIdType *nodalConnOfCellBg, const mcIdType *nodalConnOfCellEnd) = 0;
     MEDCOUPLING_EXPORT virtual DataArrayIdType *getNodalConnectivity() const = 0;
     MEDCOUPLING_EXPORT virtual void checkConsistencyOfConnectivity() const = 0;
-    MEDCOUPLING_EXPORT virtual void accumulateVTK94Arrays(mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&fPtr, mcIdType *&gPtr, mcIdType *&hPtr) const = 0;
+    MEDCOUPLING_EXPORT virtual void accumulateVTK93Arrays(mcIdType& k, mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&fPtr) const = 0;
+    MEDCOUPLING_EXPORT virtual void accumulateVTK94Arrays(mcIdType& k, mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&fPtr, mcIdType *&gPtr, mcIdType *&hPtr) const = 0;
   protected:
     MEDCoupling1GTUMesh(const std::string& name, const INTERP_KERNEL::CellModel& cm);
     MEDCoupling1GTUMesh(const MEDCoupling1GTUMesh& other, bool recDeepCpy);
@@ -151,7 +152,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void checkConsistencyOfConnectivity() const;
     MEDCOUPLING_EXPORT void allocateCells(mcIdType nbOfCells=0);
     MEDCOUPLING_EXPORT void insertNextCell(const mcIdType *nodalConnOfCellBg, const mcIdType *nodalConnOfCellEnd);
-    MEDCOUPLING_EXPORT void accumulateVTK94Arrays(mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&fPtr, mcIdType *&gPtr, mcIdType *&hPtr) const override;
+    MEDCOUPLING_EXPORT void accumulateVTK93Arrays(mcIdType& k, mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&fPtr) const override;
+    MEDCOUPLING_EXPORT void accumulateVTK94Arrays(mcIdType& k, mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&fPtr, mcIdType *&gPtr, mcIdType *&hPtr) const override;
   public://specific
     MEDCOUPLING_EXPORT void setNodalConnectivity(DataArrayIdType *nodalConn);
     MEDCOUPLING_EXPORT DataArrayIdType *getNodalConnectivity() const;
@@ -253,7 +255,8 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void checkConsistencyOfConnectivity() const;
     MEDCOUPLING_EXPORT void allocateCells(mcIdType nbOfCells=0);
     MEDCOUPLING_EXPORT void insertNextCell(const mcIdType *nodalConnOfCellBg, const mcIdType *nodalConnOfCellEnd);
-    MEDCOUPLING_EXPORT void accumulateVTK94Arrays(mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&fPtr, mcIdType *&gPtr, mcIdType *&hPtr) const override;
+    MEDCOUPLING_EXPORT void accumulateVTK93Arrays(mcIdType& k, mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&fPtr) const override;
+    MEDCOUPLING_EXPORT void accumulateVTK94Arrays(mcIdType& k, mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&fPtr, mcIdType *&gPtr, mcIdType *&hPtr) const override;
   public://specific
     MEDCOUPLING_EXPORT void setNodalConnectivity(DataArrayIdType *nodalConn, DataArrayIdType *nodalConnIndex);
     MEDCOUPLING_EXPORT DataArrayIdType *getNodalConnectivity() const;

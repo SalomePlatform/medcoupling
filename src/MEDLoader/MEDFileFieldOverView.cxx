@@ -1000,83 +1000,7 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
       if(gtvtk==255)
         throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : no VTK type for the requested INTERP_KERNEL geometric type !");
       std::fill(bPtr,bPtr+curNbCells,gtvtk); bPtr+=curNbCells;
-      const MEDCoupling1SGTUMesh *scur(dynamic_cast<const MEDCoupling1SGTUMesh *>(cur));
-      const MEDCoupling1DGTUMesh *dcur(dynamic_cast<const MEDCoupling1DGTUMesh *>(cur));
-      const mcIdType *connPtr(cur->getNodalConnectivity()->begin());
-      if(!scur && !dcur)
-        throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : internal error !");
-      if(scur)
-        {
-          if(cur->getCellModelEnum()!=INTERP_KERNEL::NORM_HEXA27)
-            {
-              mcIdType nnpc(scur->getNumberOfNodesPerCell());
-              for(mcIdType i=0;i<curNbCells;i++,connPtr+=nnpc)
-                {
-                  *dPtr++=nnpc;
-                  dPtr=std::copy(connPtr,connPtr+nnpc,dPtr);
-                  *cPtr++=k; k+=nnpc+1;
-                }
-            }
-          else
-            {
-              for(mcIdType i=0;i<curNbCells;i++,connPtr+=27)
-                {
-                  *dPtr++=27;
-                  for(int j=0;j<27;j++,dPtr++)
-                    *dPtr=connPtr[MEDCoupling1GTUMesh::HEXA27_PERM_ARRAY[j]];
-                  *cPtr++=k; k+=28;
-                }
-            }
-          if(isPolyh)
-            { std::fill(ePtr,ePtr+curNbCells,-1); ePtr+=curNbCells; }
-        }
-      else
-        {
-          const mcIdType *connIPtr(dcur->getNodalConnectivityIndex()->begin());
-          if(cur->getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
-            {
-              for(int i=0;i<curNbCells;i++,connIPtr++)
-                {
-                  *dPtr++=connIPtr[1]-connIPtr[0];
-                  dPtr=std::copy(connPtr+connIPtr[0],connPtr+connIPtr[1],dPtr);
-                  *cPtr++=k; k+=connIPtr[1]-connIPtr[0]+1;
-                }
-            }
-          else
-            {
-              for(mcIdType i=0;i<curNbCells;i++,connIPtr++)
-                {
-                  std::set<mcIdType> s(connPtr+connIPtr[0],connPtr+connIPtr[1]); s.erase(-1);
-                  *dPtr++=(mcIdType)s.size();
-                  dPtr=std::copy(s.begin(),s.end(),dPtr);
-                  *cPtr++=k; k+=(mcIdType)s.size()+1;
-                }
-            }
-          if(isPolyh)
-            {
-              connIPtr=dcur->getNodalConnectivityIndex()->begin();
-              if(cur->getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
-                { std::fill(ePtr,ePtr+curNbCells,-1); ePtr+=curNbCells; }
-              else
-                {
-                  mcIdType kk(0);
-                  for(int i=0;i<curNbCells;i++,connIPtr++)
-                    {
-                      mcIdType nbFace(ToIdType(std::count(connPtr+connIPtr[0],connPtr+connIPtr[1],-1)+1));
-                      *fPtr++=nbFace;
-                      const mcIdType *work(connPtr+connIPtr[0]);
-                      for(int j=0;j<nbFace;j++)
-                        {
-                          const mcIdType *work2=std::find(work,connPtr+connIPtr[1],-1);
-                          *fPtr++=ToIdType(std::distance(work,work2));
-                          fPtr=std::copy(work,work2,fPtr);
-                          work=work2+1;
-                        }
-                      *ePtr++=kk; kk+=connIPtr[1]-connIPtr[0]+2;
-                    }
-                }
-            }
-        }
+      cur->accumulateVTK93Arrays(k,cPtr,dPtr,ePtr,fPtr);
     }
   if(!isPolyh)
     reorderNodesIfNecessary(a,d,nullptr);
@@ -1167,7 +1091,7 @@ bool MEDUMeshMultiLev::buildVTUArrays94(MCAuto<DataArrayDouble> & coords, MCAuto
       if(gtvtk==255)
         throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : no VTK type for the requested INTERP_KERNEL geometric type !");
       std::fill(bPtr,bPtr+curNbCells,gtvtk); bPtr+=curNbCells;
-      cur->accumulateVTK94Arrays(cPtr, dPtr, ePtr, fPtr, gPtr, hPtr);
+      cur->accumulateVTK94Arrays(k, cPtr, dPtr, ePtr, fPtr, gPtr, hPtr);
     }
   if(!isPolyh)
     reorderNodesIfNecessary(a,d,nullptr);

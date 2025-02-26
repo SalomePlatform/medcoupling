@@ -1704,14 +1704,42 @@ void MEDCoupling1SGTUMesh::insertNextCell(const mcIdType *nodalConnOfCellBg, con
     }
 }
 
+void MEDCoupling1SGTUMesh::accumulateVTK93Arrays(mcIdType& k, mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&) const
+{
+  mcIdType curNbCells(this->getNumberOfCells());
+  const mcIdType *connPtr(this->getNodalConnectivity()->begin());
+  if(this->getCellModelEnum()!=INTERP_KERNEL::NORM_HEXA27)
+  {
+    mcIdType nnpc(this->getNumberOfNodesPerCell());
+    for(mcIdType i=0;i<curNbCells;i++,connPtr+=nnpc)
+      {
+        *dPtr++=nnpc;
+        dPtr=std::copy(connPtr,connPtr+nnpc,dPtr);
+        *cPtr++=k; k+=nnpc+1;
+      }
+  }
+else
+  {
+    for(mcIdType i=0;i<curNbCells;i++,connPtr+=27)
+      {
+        *dPtr++=27;
+        for(int j=0;j<27;j++,dPtr++)
+          *dPtr=connPtr[MEDCoupling1GTUMesh::HEXA27_PERM_ARRAY[j]];
+        *cPtr++=k; k+=28;
+      }
+  }
+if(ePtr)
+  { std::fill(ePtr,ePtr+curNbCells,-1); ePtr+=curNbCells; }
+}
+
 /*!
  * Internal method called in medcoupling -> VTK conversion in memory context (VTK9.4 format).
  * This method aggregates data into 6 in/out preallocated arrays. 4 last arrays are dedicated for polyhedrons. If ePtr is nullptr it means
  * that no polyhedrons VTK specific data structure are required.
  */
-void MEDCoupling1SGTUMesh::accumulateVTK94Arrays(mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&, mcIdType *&, mcIdType *&) const
+void MEDCoupling1SGTUMesh::accumulateVTK94Arrays(mcIdType& k, mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&, mcIdType *&, mcIdType *&) const
 {
-  mcIdType curNbCells(this->getNumberOfCells()),k(0);
+  mcIdType curNbCells(this->getNumberOfCells());
   const mcIdType *connPtr(this->getNodalConnectivity()->begin());
   if(this->getCellModelEnum()!=INTERP_KERNEL::NORM_HEXA27)
     {
@@ -3413,14 +3441,64 @@ void MEDCoupling1DGTUMesh::insertNextCell(const mcIdType *nodalConnOfCellBg, con
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::insertNextCell : nodal connectivity array is null ! Call MEDCoupling1DGTUMesh::allocateCells before !");
 }
 
+void MEDCoupling1DGTUMesh::accumulateVTK93Arrays(mcIdType& k, mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&fPtr) const
+{
+  mcIdType curNbCells(this->getNumberOfCells());
+  const mcIdType *connIPtr(this->getNodalConnectivityIndex()->begin());
+  const mcIdType *connPtr(this->getNodalConnectivity()->begin());
+  if(this->getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
+    {
+      for(int i=0;i<curNbCells;i++,connIPtr++)
+        {
+          *dPtr++=connIPtr[1]-connIPtr[0];
+          dPtr=std::copy(connPtr+connIPtr[0],connPtr+connIPtr[1],dPtr);
+          *cPtr++=k; k+=connIPtr[1]-connIPtr[0]+1;
+        }
+    }
+  else
+    {
+      for(mcIdType i=0;i<curNbCells;i++,connIPtr++)
+        {
+          std::set<mcIdType> s(connPtr+connIPtr[0],connPtr+connIPtr[1]); s.erase(-1);
+          *dPtr++=(mcIdType)s.size();
+          dPtr=std::copy(s.begin(),s.end(),dPtr);
+          *cPtr++=k; k+=(mcIdType)s.size()+1;
+        }
+    }
+  if(ePtr)
+    {
+      connIPtr=this->getNodalConnectivityIndex()->begin();
+      if(this->getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
+        { std::fill(ePtr,ePtr+curNbCells,-1); ePtr+=curNbCells; }
+      else
+        {
+          mcIdType kk(0);
+          for(int i=0;i<curNbCells;i++,connIPtr++)
+            {
+              mcIdType nbFace(ToIdType(std::count(connPtr+connIPtr[0],connPtr+connIPtr[1],-1)+1));
+              *fPtr++=nbFace;
+              const mcIdType *work(connPtr+connIPtr[0]);
+              for(int j=0;j<nbFace;j++)
+                {
+                  const mcIdType *work2=std::find(work,connPtr+connIPtr[1],-1);
+                  *fPtr++=ToIdType(std::distance(work,work2));
+                  fPtr=std::copy(work,work2,fPtr);
+                  work=work2+1;
+                }
+              *ePtr++=kk; kk+=connIPtr[1]-connIPtr[0]+2;
+            }
+        }
+    }
+}
+
 /*!
  * Internal method called in medcoupling -> VTK conversion in memory context (VTK9.4 format).
  * This method aggregates data into 6 in/out preallocated arrays. 4 last arrays are dedicated for polyhedrons. If ePtr is nullptr it means
  * that no polyhedrons VTK specific data structure are required.
  */
-void MEDCoupling1DGTUMesh::accumulateVTK94Arrays(mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&fPtr, mcIdType *&gPtr, mcIdType *&hPtr) const
+void MEDCoupling1DGTUMesh::accumulateVTK94Arrays(mcIdType& k, mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&fPtr, mcIdType *&gPtr, mcIdType *&hPtr) const
 {
-  mcIdType curNbCells(this->getNumberOfCells()),k(0);
+  mcIdType curNbCells(this->getNumberOfCells());
   const mcIdType *connPtr(this->getNodalConnectivity()->begin()), *connIPtr(this->getNodalConnectivityIndex()->begin());
   if(this->getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
     {
