@@ -33,6 +33,8 @@ using namespace MEDCoupling;
 
 const int MEDCoupling1SGTUMesh::HEXA8_FACE_PAIRS[6]={0,1,2,4,3,5};
 
+const unsigned char MEDCoupling1GTUMesh::HEXA27_PERM_ARRAY[27]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,24,22,21,23,20,25,26};
+
 MEDCoupling1GTUMesh::MEDCoupling1GTUMesh():_cm(0)
 {
 }
@@ -1699,6 +1701,43 @@ void MEDCoupling1SGTUMesh::insertNextCell(const mcIdType *nodalConnOfCellBg, con
       std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::insertNextCell : input nodal size (" << sz << ") does not match number of nodes per cell of this (";
       oss << ref << ") !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+}
+
+/*!
+ * Internal method called in medcoupling -> VTK conversion in memory context (VTK9.4 format).
+ * This method aggregates data into 6 in/out preallocated arrays. 4 last arrays are dedicated for polyhedrons. If ePtr is nullptr it means
+ * that no polyhedrons VTK specific data structure are required.
+ */
+void MEDCoupling1SGTUMesh::accumulateVTK94Arrays(mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&, mcIdType *&, mcIdType *&) const
+{
+  mcIdType curNbCells(this->getNumberOfCells()),k(0);
+  const mcIdType *connPtr(this->getNodalConnectivity()->begin());
+  if(this->getCellModelEnum()!=INTERP_KERNEL::NORM_HEXA27)
+    {
+      mcIdType nnpc(this->getNumberOfNodesPerCell());
+      for(mcIdType i=0;i<curNbCells;i++,connPtr+=nnpc)
+        {
+          *dPtr++=nnpc;
+          dPtr=std::copy(connPtr,connPtr+nnpc,dPtr);
+          *cPtr++=k; k+=nnpc+1;
+        }
+    }
+  else
+    {
+      for(mcIdType i=0;i<curNbCells;i++,connPtr+=27)
+        {
+          *dPtr++=27;
+          for(int j=0;j<27;j++,dPtr++)
+            *dPtr=connPtr[HEXA27_PERM_ARRAY[j]];
+          *cPtr++=k; k+=28;
+        }
+    }
+  if(ePtr)
+    {
+      mcIdType curFaceId = *ePtr;
+      std::fill(ePtr+1,ePtr+1+curNbCells,curFaceId);
+      ePtr += curNbCells;
     }
 }
 
@@ -3372,6 +3411,63 @@ void MEDCoupling1DGTUMesh::insertNextCell(const mcIdType *nodalConnOfCellBg, con
     }
   else
     throw INTERP_KERNEL::Exception("MEDCoupling1DGTUMesh::insertNextCell : nodal connectivity array is null ! Call MEDCoupling1DGTUMesh::allocateCells before !");
+}
+
+/*!
+ * Internal method called in medcoupling -> VTK conversion in memory context (VTK9.4 format).
+ * This method aggregates data into 6 in/out preallocated arrays. 4 last arrays are dedicated for polyhedrons. If ePtr is nullptr it means
+ * that no polyhedrons VTK specific data structure are required.
+ */
+void MEDCoupling1DGTUMesh::accumulateVTK94Arrays(mcIdType *&cPtr, mcIdType *&dPtr, mcIdType *&ePtr, mcIdType *&fPtr, mcIdType *&gPtr, mcIdType *&hPtr) const
+{
+  mcIdType curNbCells(this->getNumberOfCells()),k(0);
+  const mcIdType *connPtr(this->getNodalConnectivity()->begin()), *connIPtr(this->getNodalConnectivityIndex()->begin());
+  if(this->getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
+    {
+      for(int i=0;i<curNbCells;i++,connIPtr++)
+        {
+          *dPtr++=connIPtr[1]-connIPtr[0];
+          dPtr=std::copy(connPtr+connIPtr[0],connPtr+connIPtr[1],dPtr);
+          *cPtr++=k; k+=connIPtr[1]-connIPtr[0]+1;
+        }
+    }
+  else
+    {
+      for(mcIdType i=0;i<curNbCells;i++,connIPtr++)
+        {
+          std::set<mcIdType> s(connPtr+connIPtr[0],connPtr+connIPtr[1]); s.erase(-1);
+          *dPtr++=(mcIdType)s.size();
+          dPtr=std::copy(s.begin(),s.end(),dPtr);
+          *cPtr++=k; k+=(mcIdType)s.size()+1;
+        }
+    }
+  if(ePtr)
+    {
+      connIPtr=this->getNodalConnectivityIndex()->begin();
+      mcIdType curFaceId = *ePtr;
+      if(this->getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
+        { std::fill(ePtr+1,ePtr+1+curNbCells,curFaceId); ePtr += curNbCells; }
+      else
+        {
+          mcIdType curPtOfFaceId = fPtr[0];
+          for(mcIdType i=0;i<curNbCells;i++,connIPtr++)
+            {
+              mcIdType nbFace(ToIdType(std::count(connPtr+connIPtr[0],connPtr+connIPtr[1],-1)+1));
+              ePtr[1] = ePtr[0] + nbFace; ePtr++;
+              const mcIdType *work(connPtr+connIPtr[0]);
+              for(int j=0;j<nbFace;j++)
+                {
+                  *fPtr++ = curFaceId++;
+                  const mcIdType *work2 = std::find(work,connPtr+connIPtr[1],-1);
+                  mcIdType nbOfPtsInFace = ToIdType(std::distance(work,work2));
+                  //
+                  gPtr[1] = gPtr[0] + nbOfPtsInFace; gPtr++;
+                  hPtr=std::copy(work,work2,hPtr);
+                  work=work2+1;
+                }
+            }
+        }
+    }
 }
 
 void MEDCoupling1DGTUMesh::setNodalConnectivity(DataArrayIdType *nodalConn, DataArrayIdType *nodalConnIndex)

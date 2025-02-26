@@ -124,7 +124,6 @@ namespace MEDCoupling
   public:
     MEDLOADER_EXPORT static const int PARAMEDMEM_2_VTKTYPE_LGTH=MEDCOUPLING2VTKTYPETRADUCER_LGTH;
     MEDLOADER_EXPORT static const unsigned char *PARAMEDMEM_2_VTKTYPE;
-    MEDLOADER_EXPORT static const unsigned char HEXA27_PERM_ARRAY[27];
   };
 
   class MEDStructuredMeshMultiLev;
@@ -139,6 +138,9 @@ namespace MEDCoupling
     MEDMeshMultiLev *prepare() const;
     MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const MCAuto<MEDCoupling1GTUMesh>& part);
     MEDLOADER_EXPORT bool buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayIdType *&cellLocations, DataArrayIdType *& cells, DataArrayIdType *&faceLocations, DataArrayIdType *&faces) const;
+    MEDLOADER_EXPORT bool buildVTUArrays94(MCAuto<DataArrayDouble> & coords, MCAuto<DataArrayByte>& types, MCAuto<DataArrayIdType>& cellLocations, MCAuto<DataArrayIdType>& cells,
+      MCAuto<DataArrayIdType>& faceLocationsOffset, MCAuto<DataArrayIdType>& faceLocationsConn,
+      MCAuto<DataArrayIdType>& facesOffset, MCAuto<DataArrayIdType>& facesConn) const;
   protected:
     void appendVertices(const DataArrayIdType *verticesToAdd, DataArrayIdType *nr);
   private:

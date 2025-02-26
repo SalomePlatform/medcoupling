@@ -29,8 +29,6 @@ using namespace MEDCoupling;
 
 const unsigned char *MEDMeshMultiLev::PARAMEDMEM_2_VTKTYPE=MEDCOUPLING2VTKTYPETRADUCER;
 
-const unsigned char MEDMeshMultiLev::HEXA27_PERM_ARRAY[27]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,24,22,21,23,20,25,26};
-
 const char MEDFileField1TSStructItem2::NEWLY_CREATED_PFL_NAME[]="???";
 
 MEDFileMeshStruct *MEDFileMeshStruct::New(const MEDFileMesh *mesh)
@@ -939,7 +937,7 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const
  */
 bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *&types, DataArrayIdType *&cellLocations, DataArrayIdType *& cells, DataArrayIdType *&faceLocations, DataArrayIdType *&faces) const
 {
-  const DataArrayDouble *tmp(0);
+  const DataArrayDouble *tmp(nullptr);
   if(_parts.empty())
     tmp=_coords;
   else
@@ -978,7 +976,7 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
   MCAuto<DataArrayByte> b(DataArrayByte::New()); b->alloc(szBCE,1); char *bPtr(b->getPointer());
   MCAuto<DataArrayIdType> c(DataArrayIdType::New()); c->alloc(szBCE,1); mcIdType *cPtr(c->getPointer());
   MCAuto<DataArrayIdType> d(DataArrayIdType::New()); d->alloc(szD,1); mcIdType *dPtr(d->getPointer());
-  MCAuto<DataArrayIdType> e(DataArrayIdType::New()),f(DataArrayIdType::New()); mcIdType *ePtr(0),*fPtr(0);
+  MCAuto<DataArrayIdType> e(DataArrayIdType::New()),f(DataArrayIdType::New()); mcIdType *ePtr(nullptr),*fPtr(nullptr);
   if(isPolyh)
     { e->alloc(szBCE,1); ePtr=e->getPointer(); f->alloc(szF,1); fPtr=f->getPointer(); }
   mcIdType k(0);
@@ -1025,7 +1023,7 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
                 {
                   *dPtr++=27;
                   for(int j=0;j<27;j++,dPtr++)
-                    *dPtr=connPtr[HEXA27_PERM_ARRAY[j]];
+                    *dPtr=connPtr[MEDCoupling1GTUMesh::HEXA27_PERM_ARRAY[j]];
                   *cPtr++=k; k+=28;
                 }
             }
@@ -1081,16 +1079,105 @@ bool MEDUMeshMultiLev::buildVTUArrays(DataArrayDouble *& coords, DataArrayByte *
         }
     }
   if(!isPolyh)
-    reorderNodesIfNecessary(a,d,0);
+    reorderNodesIfNecessary(a,d,nullptr);
   else
     reorderNodesIfNecessary(a,d,f);
   if(a->getNumberOfComponents()!=3)
     a=a->changeNbOfComponents(3,0.);
   coords=a.retn(); types=b.retn(); cellLocations=c.retn(); cells=d.retn();
   if(!isPolyh)
-    { faceLocations=0; faces=0; }
+    { faceLocations=nullptr; faces=nullptr; }
   else
     { faceLocations=e.retn(); faces=f.retn(); }
+  return _mesh->isObjectInTheProgeny(coords);
+}
+
+bool MEDUMeshMultiLev::buildVTUArrays94(MCAuto<DataArrayDouble> & coords, MCAuto<DataArrayByte>& types, MCAuto<DataArrayIdType>& cellLocations, MCAuto<DataArrayIdType>& cells,
+  MCAuto<DataArrayIdType>& faceLocationsOffset, MCAuto<DataArrayIdType>& faceLocationsConn,
+  MCAuto<DataArrayIdType>& facesOffset, MCAuto<DataArrayIdType>& facesConn) const
+{
+  const DataArrayDouble *tmp(nullptr);
+  if(_parts.empty())
+    tmp=_coords;
+  else
+    tmp=_parts[0]->getCoords();
+  if(!tmp)
+    throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : the coordinates are null !");
+  MCAuto<DataArrayDouble> a(const_cast<DataArrayDouble *>(tmp)); tmp->incrRef();
+  mcIdType szBCE(0),szD(0),szFLC(0),szFO(0),szFC(0);
+  bool isPolyh(false);
+  int iii(0);
+  for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_parts.begin();it!=_parts.end();it++,iii++)
+    {
+      const MEDCoupling1GTUMesh *cur(*it);
+      if(!cur)
+        throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : a part is null !");
+      //
+      const DataArrayIdType *pfl(_pfls[iii]);
+      MCAuto<MEDCoupling1GTUMesh> cur2;
+      if(!pfl)
+        { cur2=const_cast<MEDCoupling1GTUMesh *>(cur); cur2->incrRef(); }
+      else
+        { cur2=dynamic_cast<MEDCoupling1GTUMesh *>(cur->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end())); cur=cur2; }
+      //
+      mcIdType curNbCells(cur->getNumberOfCells());
+      szBCE+=curNbCells;
+      if((*it)->getCellModelEnum()!=INTERP_KERNEL::NORM_POLYHED)
+        szD+=cur->getNodalConnectivity()->getNumberOfTuples()+curNbCells;
+      else
+        {
+          isPolyh=true;
+          MCAuto<DataArrayIdType> tmp2(cur->computeEffectiveNbOfNodesPerCell());
+          MCAuto<DataArrayIdType> tmp3(cur->computeNbOfFacesPerCell());
+          szD += tmp2->accumulate((std::size_t)0)+curNbCells;
+          mcIdType tmp3a = tmp3->accumulate((std::size_t)0);
+          szFLC += tmp3a;
+          szFO += tmp3a;
+          szFC += curNbCells+cur->getNodalConnectivity()->getNumberOfTuples() - tmp3a;
+        }
+    }
+  MCAuto<DataArrayByte> b(DataArrayByte::New()); b->alloc(szBCE,1); char *bPtr(b->getPointer());
+  MCAuto<DataArrayIdType> c(DataArrayIdType::New()); c->alloc(szBCE,1); mcIdType *cPtr(c->getPointer());
+  MCAuto<DataArrayIdType> d(DataArrayIdType::New()); d->alloc(szD,1); mcIdType *dPtr(d->getPointer());
+  MCAuto<DataArrayIdType> e(DataArrayIdType::New()),f(DataArrayIdType::New()),g(DataArrayIdType::New()),h(DataArrayIdType::New());
+  mcIdType *ePtr(nullptr),*fPtr(nullptr),*gPtr(nullptr),*hPtr(nullptr);
+  if(isPolyh)
+    { 
+      e->alloc(szBCE+1,1); ePtr=e->getPointer(); *ePtr=0; f->alloc(szFLC,1); fPtr=f->getPointer();
+      g->alloc(szFO+1,1); gPtr=g->getPointer(); *gPtr=0; h->alloc(szFC,1); hPtr=h->getPointer();
+    }
+  mcIdType k(0);
+  iii=0;
+  for(std::vector< MCAuto<MEDCoupling1GTUMesh> >::const_iterator it=_parts.begin();it!=_parts.end();it++,iii++)
+    {
+      const MEDCoupling1GTUMesh *cur(*it);
+      //
+      const DataArrayIdType *pfl(_pfls[iii]);
+      MCAuto<MEDCoupling1GTUMesh> cur2;
+      if(!pfl)
+        { cur2=const_cast<MEDCoupling1GTUMesh *>(cur); cur2->incrRef(); }
+      else
+        { cur2=dynamic_cast<MEDCoupling1GTUMesh *>(cur->buildPartOfMySelfKeepCoords(pfl->begin(),pfl->end())); cur=cur2; }
+      //
+      mcIdType curNbCells(cur->getNumberOfCells());
+      int gt((int)cur->getCellModelEnum());
+      if(gt<0 || gt>=PARAMEDMEM_2_VTKTYPE_LGTH)
+        throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : invalid geometric type !");
+      unsigned char gtvtk(PARAMEDMEM_2_VTKTYPE[gt]);
+      if(gtvtk==255)
+        throw INTERP_KERNEL::Exception("MEDUMeshMultiLev::getVTUArrays : no VTK type for the requested INTERP_KERNEL geometric type !");
+      std::fill(bPtr,bPtr+curNbCells,gtvtk); bPtr+=curNbCells;
+      cur->accumulateVTK94Arrays(cPtr, dPtr, ePtr, fPtr, gPtr, hPtr);
+    }
+  if(!isPolyh)
+    reorderNodesIfNecessary(a,d,nullptr);
+  else
+    reorderNodesIfNecessary(a,d,f);
+  if(a->getNumberOfComponents()!=3)
+    a = a->changeNbOfComponents(3,0.);
+  coords=a; types=b; cellLocations=c; cells=d;
+  if(isPolyh)
+    { faceLocationsOffset=e; faceLocationsConn=f; facesOffset=g; facesConn=h; }
   return _mesh->isObjectInTheProgeny(coords);
 }
 
