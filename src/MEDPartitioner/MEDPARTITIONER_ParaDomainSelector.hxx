@@ -59,14 +59,14 @@ namespace MEDPARTITIONER
     void setNbDomains(int nb) { _nb_result_domains = nb; }
     //identifier for a joint
     int jointId( int local_domain, int distant_domain ) const;
-  
+
     mcIdType getNbTotalCells() { return _cell_shift_by_domain.back(); }
     mcIdType getNbTotalNodes() { return _node_shift_by_domain.back(); };
     mcIdType getNbTotalFaces() { return _face_shift_by_domain.back(); };
 
     //Collect nb of entities on procs
     void gatherNbOf(const std::vector<MEDCoupling::MEDCouplingUMesh*>& domain_meshes);
-  
+
     //distribution of the graph vertices among the processors
     mcIdType* getProcVtxdist() const;
 

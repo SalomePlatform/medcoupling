@@ -29,14 +29,14 @@ namespace INTERP_KERNEL
 {
 
 
-  /** 
-   * \brief Class responsible for calculating intersection between a hexahedron target element and  
+  /**
+   * \brief Class responsible for calculating intersection between a hexahedron target element and
    * the source elements.
    *
    */
   template<class MyMeshType, class MyMatrix>
   class PolyhedronIntersectorP0P0 : public Intersector3DP0P0<MyMeshType,MyMatrix>
-  { 
+  {
   public:
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
     static const int MESHDIM=MyMeshType::MY_MESHDIM;
@@ -53,12 +53,12 @@ namespace INTERP_KERNEL
   private:
     void releaseArrays();
   private:
-    /// pointers to the SplitterTetra objects representing the tetrahedra 
+    /// pointers to the SplitterTetra objects representing the tetrahedra
     /// that result from the splitting of the hexahedron target cell
     std::vector< SplitterTetra<MyMeshType>* > _tetra;
-    
+
     SplitterTetra2<MyMeshType> _split;
-    
+
   };
 }
 

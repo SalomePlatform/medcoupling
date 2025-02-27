@@ -51,8 +51,8 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         decAC = InterpKernelDEC(group,"A<->C")
         eval("Easy_comm_creation_{}".format(rank))(decBC,decAC)
         #
-        MPI.COMM_WORLD.Barrier() 
-    
+        MPI.COMM_WORLD.Barrier()
+
     def test_InterpKernelDEC_easy_comm_creation_2(self):
         """
         [EDF26706] :
@@ -69,7 +69,7 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         decAC = InterpKernelDEC(group,"A","C")
         eval("Easy_comm_creation_{}".format(rank))(decBC,decAC)
         #
-        MPI.COMM_WORLD.Barrier()    
+        MPI.COMM_WORLD.Barrier()
 
 def Easy_comm_creation_0(decBC,decAC):
     """ Proc 0 of A"""

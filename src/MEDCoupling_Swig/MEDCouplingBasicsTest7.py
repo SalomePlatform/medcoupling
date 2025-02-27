@@ -30,113 +30,113 @@ import rlcompleter,readline # this line has to be here,to ensure a usability of 
 class MEDCouplingBasicsTest7(unittest.TestCase):
 
     def testDAIGetIdsEqual1(self):
-        tab1=[5,-2,-4,-2,3,2,-2];
-        da=DataArrayInt64.New();
-        da.setValues(tab1,7,1);
-        da2=da.findIdsEqual(-2);
-        self.assertEqual(3,da2.getNumberOfTuples());
-        self.assertEqual(1,da2.getNumberOfComponents());
-        expected1=[1,3,6];
-        self.assertEqual(expected1,da2.getValues());
+        tab1=[5,-2,-4,-2,3,2,-2]
+        da=DataArrayInt64.New()
+        da.setValues(tab1,7,1)
+        da2=da.findIdsEqual(-2)
+        self.assertEqual(3,da2.getNumberOfTuples())
+        self.assertEqual(1,da2.getNumberOfComponents())
+        expected1=[1,3,6]
+        self.assertEqual(expected1,da2.getValues())
         pass
 
     def testDAIGetIdsEqualList1(self):
-        tab1=[5,-2,-4,-2,3,2,-2];
-        da=DataArrayInt64.New();
-        da.setValues(tab1,7,1);
-        da2=da.findIdsEqualList([3,-2,0]);
-        self.assertEqual(4,da2.getNumberOfTuples());
-        self.assertEqual(1,da2.getNumberOfComponents());
-        expected1=[1,3,4,6];
-        self.assertEqual(expected1,da2.getValues());
+        tab1=[5,-2,-4,-2,3,2,-2]
+        da=DataArrayInt64.New()
+        da.setValues(tab1,7,1)
+        da2=da.findIdsEqualList([3,-2,0])
+        self.assertEqual(4,da2.getNumberOfTuples())
+        self.assertEqual(1,da2.getNumberOfComponents())
+        expected1=[1,3,4,6]
+        self.assertEqual(expected1,da2.getValues())
         pass
 
     def testDAIsUniform1(self):
         tab1=[1,1,1,1,1]
-        da=DataArrayInt64.New();
-        da.setValues(tab1,5,1);
-        self.assertTrue(da.isUniform(1));
-        da.setIJ(2,0,2);
-        self.assertTrue(not da.isUniform(1));
-        da.setIJ(2,0,1);
-        self.assertTrue(da.isUniform(1));
-        da2=da.convertToDblArr();
-        self.assertTrue(da2.isUniform(1.,1.e-12));
-        da2.setIJ(1,0,1.+1.e-13);
-        self.assertTrue(da2.isUniform(1.,1.e-12));
-        da2.setIJ(1,0,1.+1.e-11);
-        self.assertTrue(not da2.isUniform(1.,1.e-12));
+        da=DataArrayInt64.New()
+        da.setValues(tab1,5,1)
+        self.assertTrue(da.isUniform(1))
+        da.setIJ(2,0,2)
+        self.assertTrue(not da.isUniform(1))
+        da.setIJ(2,0,1)
+        self.assertTrue(da.isUniform(1))
+        da2=da.convertToDblArr()
+        self.assertTrue(da2.isUniform(1.,1.e-12))
+        da2.setIJ(1,0,1.+1.e-13)
+        self.assertTrue(da2.isUniform(1.,1.e-12))
+        da2.setIJ(1,0,1.+1.e-11)
+        self.assertTrue(not da2.isUniform(1.,1.e-12))
         pass
 
     def testDAIBuildComplement1(self):
-        a=DataArrayInt64.New();
+        a=DataArrayInt64.New()
         tab=[3,1,7,8]
-        a.setValues(tab,4,1);
-        b=a.buildComplement(12);
-        self.assertEqual(8,b.getNumberOfTuples());
-        self.assertEqual(1,b.getNumberOfComponents());
+        a.setValues(tab,4,1)
+        b=a.buildComplement(12)
+        self.assertEqual(8,b.getNumberOfTuples())
+        self.assertEqual(1,b.getNumberOfComponents())
         expected1=[0,2,4,5,6,9,10,11]
         for i in range(8):
-            self.assertEqual(expected1[i],b.getIJ(0,i));
+            self.assertEqual(expected1[i],b.getIJ(0,i))
             pass
         pass
 
     def testDAIBuildUnion1(self):
-        a=DataArrayInt64.New();
+        a=DataArrayInt64.New()
         tab1=[3,1,7,8]
-        a.setValues(tab1,4,1);
-        c=DataArrayInt64.New();
+        a.setValues(tab1,4,1)
+        c=DataArrayInt64.New()
         tab2=[5,3,0,18,8]
-        c.setValues(tab2,5,1);
-        b=a.buildUnion(c);
-        self.assertEqual(7,b.getNumberOfTuples());
-        self.assertEqual(1,b.getNumberOfComponents());
+        c.setValues(tab2,5,1)
+        b=a.buildUnion(c)
+        self.assertEqual(7,b.getNumberOfTuples())
+        self.assertEqual(1,b.getNumberOfComponents())
         expected1=[0,1,3,5,7,8,18]
         for i in range(7):
-            self.assertEqual(expected1[i],b.getIJ(0,i));
+            self.assertEqual(expected1[i],b.getIJ(0,i))
             pass
-        b=DataArrayInt64.BuildUnion([a,c]);
-        self.assertEqual(7,b.getNumberOfTuples());
-        self.assertEqual(1,b.getNumberOfComponents());
+        b=DataArrayInt64.BuildUnion([a,c])
+        self.assertEqual(7,b.getNumberOfTuples())
+        self.assertEqual(1,b.getNumberOfComponents())
         expected1=[0,1,3,5,7,8,18]
         for i in range(7):
-            self.assertEqual(expected1[i],b.getIJ(0,i));
+            self.assertEqual(expected1[i],b.getIJ(0,i))
             pass
         pass
 
     def testDAIBuildIntersection1(self):
-        a=DataArrayInt64.New();
+        a=DataArrayInt64.New()
         tab1=[3,1,7,8]
-        a.setValues(tab1,4,1);
-        c=DataArrayInt64.New();
+        a.setValues(tab1,4,1)
+        c=DataArrayInt64.New()
         tab2=[5,3,0,18,8]
-        c.setValues(tab2,5,1);
-        b=a.buildIntersection(c);
-        self.assertEqual(2,b.getNumberOfTuples());
-        self.assertEqual(1,b.getNumberOfComponents());
+        c.setValues(tab2,5,1)
+        b=a.buildIntersection(c)
+        self.assertEqual(2,b.getNumberOfTuples())
+        self.assertEqual(1,b.getNumberOfComponents())
         expected1=[3,8]
         for i in range(2):
-            self.assertEqual(expected1[i],b.getIJ(0,i));
+            self.assertEqual(expected1[i],b.getIJ(0,i))
             pass
-        b=DataArrayInt64.BuildIntersection([a,c]);
-        self.assertEqual(2,b.getNumberOfTuples());
-        self.assertEqual(1,b.getNumberOfComponents());
+        b=DataArrayInt64.BuildIntersection([a,c])
+        self.assertEqual(2,b.getNumberOfTuples())
+        self.assertEqual(1,b.getNumberOfComponents())
         expected1=[3,8]
         for i in range(2):
-            self.assertEqual(expected1[i],b.getIJ(0,i));
+            self.assertEqual(expected1[i],b.getIJ(0,i))
             pass
         pass
 
     def testDAIDeltaShiftIndex1(self):
-        a=DataArrayInt64.New();
+        a=DataArrayInt64.New()
         tab=[1,3,6,7,7,9,15]
-        a.setValues(tab,7,1);
-        b=a.deltaShiftIndex();
-        self.assertEqual(6,b.getNumberOfTuples());
-        self.assertEqual(1,b.getNumberOfComponents());
+        a.setValues(tab,7,1)
+        b=a.deltaShiftIndex()
+        self.assertEqual(6,b.getNumberOfTuples())
+        self.assertEqual(1,b.getNumberOfComponents())
         expected1=[2,3,1,0,2,6]
         for i in range(6):
-            self.assertEqual(expected1[i],b.getIJ(0,i));
+            self.assertEqual(expected1[i],b.getIJ(0,i))
             pass
         pass
 
@@ -172,10 +172,10 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         b.sort()
         self.assertEqual(expect3,b.getValues())
         d.sort()
-        self.assertEqual(5,d.getNumberOfTuples());
-        self.assertEqual(1,d.getNumberOfComponents());
+        self.assertEqual(5,d.getNumberOfTuples())
+        self.assertEqual(1,d.getNumberOfComponents())
         for i in range(5):
-            self.assertAlmostEqual(float(expect3[i]),d.getIJ(i,0),14);
+            self.assertAlmostEqual(float(expect3[i]),d.getIJ(i,0),14)
             pass
         pass
 
@@ -193,83 +193,83 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         pass
 
     def testDAICheckAndPreparePermutation1(self):
-        vals1=[9,10,0,6,4,11,3,7];
-        expect1=[5,6,0,3,2,7,1,4];
-        vals2=[9,10,0,6,10,11,3,7];
-        da=DataArrayInt64.New();
-        da.setValues(vals1,8,1);
-        da2=da.checkAndPreparePermutation();
-        self.assertEqual(8,da2.getNumberOfTuples());
-        self.assertEqual(1,da2.getNumberOfComponents());
+        vals1=[9,10,0,6,4,11,3,7]
+        expect1=[5,6,0,3,2,7,1,4]
+        vals2=[9,10,0,6,10,11,3,7]
+        da=DataArrayInt64.New()
+        da.setValues(vals1,8,1)
+        da2=da.checkAndPreparePermutation()
+        self.assertEqual(8,da2.getNumberOfTuples())
+        self.assertEqual(1,da2.getNumberOfComponents())
         for i in range(8):
-            self.assertEqual(expect1[i],da2.getIJ(i,0));
+            self.assertEqual(expect1[i],da2.getIJ(i,0))
             pass
         #
-        da=DataArrayInt64.New();
-        da.alloc(8,1);
-        da.iota(0);
-        da2=da.checkAndPreparePermutation();
-        self.assertEqual(1,da2.getNumberOfComponents());
-        self.assertTrue(da2.isIota(8));
+        da=DataArrayInt64.New()
+        da.alloc(8,1)
+        da.iota(0)
+        da2=da.checkAndPreparePermutation()
+        self.assertEqual(1,da2.getNumberOfComponents())
+        self.assertTrue(da2.isIota(8))
         #
-        da=DataArrayInt64.New();
-        da.alloc(8,1);
-        da.setValues(vals2,8,1);
-        self.assertRaises(InterpKernelException,da.checkAndPreparePermutation);
+        da=DataArrayInt64.New()
+        da.alloc(8,1)
+        da.setValues(vals2,8,1)
+        self.assertRaises(InterpKernelException,da.checkAndPreparePermutation)
         pass
 
     def testDAIChangeSurjectiveFormat1(self):
         vals1=[0,3,2,3,2,2,1,2]
         expected1=[0,1,2,6,8]
         expected2=[0,  6,  2,4,5,7,  1,3]
-        da=DataArrayInt64.New();
-        da.setValues(vals1,8,1);
+        da=DataArrayInt64.New()
+        da.setValues(vals1,8,1)
         #
-        da2,da2I=da.changeSurjectiveFormat(4);
-        self.assertEqual(5,da2I.getNumberOfTuples());
-        self.assertEqual(8,da2.getNumberOfTuples());
-        self.assertEqual(expected1,da2I.getValues());
-        self.assertEqual(expected2,da2.getValues());
+        da2,da2I=da.changeSurjectiveFormat(4)
+        self.assertEqual(5,da2I.getNumberOfTuples())
+        self.assertEqual(8,da2.getNumberOfTuples())
+        self.assertEqual(expected1,da2I.getValues())
+        self.assertEqual(expected2,da2.getValues())
         #
-        self.assertRaises(InterpKernelException,da.changeSurjectiveFormat,3);
+        self.assertRaises(InterpKernelException,da.changeSurjectiveFormat,3)
         #
         pass
 
     def testDAIGetIdsNotEqual1(self):
-        d=DataArrayInt64.New();
+        d=DataArrayInt64.New()
         vals1=[2,3,5,6,8,5,5,6,1,-5]
-        d.setValues(vals1,10,1);
-        d2=d.findIdsNotEqual(5);
-        self.assertEqual(7,d2.getNumberOfTuples());
-        self.assertEqual(1,d2.getNumberOfComponents());
+        d.setValues(vals1,10,1)
+        d2=d.findIdsNotEqual(5)
+        self.assertEqual(7,d2.getNumberOfTuples())
+        self.assertEqual(1,d2.getNumberOfComponents())
         expected1=[0,1,3,4,7,8,9]
         for i in range(7):
-            self.assertEqual(expected1[i],d2.getIJ(0,i));
+            self.assertEqual(expected1[i],d2.getIJ(0,i))
             pass
-        d.rearrange(2);
-        self.assertRaises(InterpKernelException,d.findIdsNotEqual,5);
+        d.rearrange(2)
+        self.assertRaises(InterpKernelException,d.findIdsNotEqual,5)
         vals2=[-4,5,6]
-        vals3=vals2;
-        d.rearrange(1);
-        d3=d.findIdsNotEqualList(vals3);
-        self.assertEqual(5,d3.getNumberOfTuples());
-        self.assertEqual(1,d3.getNumberOfComponents());
+        vals3=vals2
+        d.rearrange(1)
+        d3=d.findIdsNotEqualList(vals3)
+        self.assertEqual(5,d3.getNumberOfTuples())
+        self.assertEqual(1,d3.getNumberOfComponents())
         expected2=[0,1,4,8,9]
         for i in range(5):
-            self.assertEqual(expected2[i],d3.getIJ(0,i));
+            self.assertEqual(expected2[i],d3.getIJ(0,i))
             pass
         pass
 
     def testDAIComputeOffsets1(self):
-        d=DataArrayInt64.New();
+        d=DataArrayInt64.New()
         vals1=[3,5,1,2,0,8]
         expected1=[0,3,8,9,11,11]
-        d.setValues(vals1,6,1);
-        d.computeOffsets();
-        self.assertEqual(6,d.getNumberOfTuples());
-        self.assertEqual(1,d.getNumberOfComponents());
+        d.setValues(vals1,6,1)
+        d.computeOffsets()
+        self.assertEqual(6,d.getNumberOfTuples())
+        self.assertEqual(1,d.getNumberOfComponents())
         for i in range(6):
-            self.assertEqual(expected1[i],d.getIJ(0,i));
+            self.assertEqual(expected1[i],d.getIJ(0,i))
             pass
         pass
 
@@ -279,120 +279,120 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         tab1=[17,18,22,19]
         tab2=[0,1,1,3,3,0,1,3,2,2,3,0]
         expected=[17,18,18,19,19,17,18,19,22,22,19,17]
-        d=DataArrayInt64.New();
-        d.setValues(tab1,4,1);
-        d1=DataArrayInt64.New();
-        d1.setValues(tab2,12,1);
+        d=DataArrayInt64.New()
+        d.setValues(tab1,4,1)
+        d1=DataArrayInt64.New()
+        d1.setValues(tab2,12,1)
         d2=d1[:]
         #
-        d1.transformWithIndArr(d);
-        self.assertEqual(12,d1.getNumberOfTuples());
-        self.assertEqual(1,d1.getNumberOfComponents());
+        d1.transformWithIndArr(d)
+        self.assertEqual(12,d1.getNumberOfTuples())
+        self.assertEqual(1,d1.getNumberOfComponents())
         for i in range(12):
-            self.assertEqual(expected[i],d1.getIJ(i,0));
+            self.assertEqual(expected[i],d1.getIJ(i,0))
             pass
         #
         d1=d2
         d1.transformWithIndArr(tab1)
-        self.assertEqual(12,d1.getNumberOfTuples());
-        self.assertEqual(1,d1.getNumberOfComponents());
+        self.assertEqual(12,d1.getNumberOfTuples())
+        self.assertEqual(1,d1.getNumberOfComponents())
         for i in range(12):
-            self.assertEqual(expected[i],d1.getIJ(i,0));
+            self.assertEqual(expected[i],d1.getIJ(i,0))
             pass
         pass
 
     def testDAIBuildPermArrPerLevel1(self):
         arr=[2,0,1,1,0,1,2,0,1,1,0,0]
         expected1=[10,0,5,6,1,7,11,2,8,9,3,4]
-        da=DataArrayInt64.New();
-        da.setValues(arr,12,1);
-        da2=da.buildPermArrPerLevel();
-        self.assertEqual(12,da2.getNumberOfTuples());
-        self.assertEqual(1,da2.getNumberOfComponents());
+        da=DataArrayInt64.New()
+        da.setValues(arr,12,1)
+        da2=da.buildPermArrPerLevel()
+        self.assertEqual(12,da2.getNumberOfTuples())
+        self.assertEqual(1,da2.getNumberOfComponents())
         for i in range(12):
-            self.assertEqual(expected1[i],da2.getIJ(i,0));
+            self.assertEqual(expected1[i],da2.getIJ(i,0))
             pass
         pass
 
     def testDAIOperations1(self):
         arr1=[-1,-2,4,7,3,2,6,6,4,3,0,1]
-        da=DataArrayInt64.New();
-        da.setValues(arr1,4,3);
-        da1=DataArrayInt64.New();
-        da1.alloc(12,1);
-        da1.iota(2);
+        da=DataArrayInt64.New()
+        da.setValues(arr1,4,3)
+        da1=DataArrayInt64.New()
+        da1.alloc(12,1)
+        da1.iota(2)
         self.assertRaises(InterpKernelException,DataArrayInt64.Add,da,da1);#not same number of tuples/Components
-        da1.rearrange(3);
-        da2=DataArrayInt64.Add(da,da1);
-        self.assertEqual(4,da2.getNumberOfTuples());
-        self.assertEqual(3,da2.getNumberOfComponents());
+        da1.rearrange(3)
+        da2=DataArrayInt64.Add(da,da1)
+        self.assertEqual(4,da2.getNumberOfTuples())
+        self.assertEqual(3,da2.getNumberOfComponents())
         expected1=[1,1,8,12,9,9,14,15,14,14,12,14]
         for i in range(12):
-            self.assertEqual(expected1[i],da2.getIJ(0,i));
+            self.assertEqual(expected1[i],da2.getIJ(0,i))
             pass
-        da1.substractEqual(da);
+        da1.substractEqual(da)
         expected2=[3,5,0,-2,3,5,2,3,6,8,12,12]
         for i in range(12):
-            self.assertEqual(expected2[i],da1.getIJ(0,i));
+            self.assertEqual(expected2[i],da1.getIJ(0,i))
             pass
-        da1.rearrange(1); da1.iota(2); da1.rearrange(3);
-        da1.addEqual(da);
+        da1.rearrange(1); da1.iota(2); da1.rearrange(3)
+        da1.addEqual(da)
         for i in range(12):
-            self.assertEqual(expected1[i],da1.getIJ(0,i));
+            self.assertEqual(expected1[i],da1.getIJ(0,i))
             pass
-        da1.rearrange(1); da1.iota(2); da1.rearrange(3);
-        da2=DataArrayInt64.Multiply(da,da1);
-        self.assertEqual(4,da2.getNumberOfTuples());
-        self.assertEqual(3,da2.getNumberOfComponents());
+        da1.rearrange(1); da1.iota(2); da1.rearrange(3)
+        da2=DataArrayInt64.Multiply(da,da1)
+        self.assertEqual(4,da2.getNumberOfTuples())
+        self.assertEqual(3,da2.getNumberOfComponents())
         expected3=[-2,-6,16,35,18,14,48,54,40,33,0,13]
         for i in range(12):
-            self.assertEqual(expected3[i],da2.getIJ(0,i));
+            self.assertEqual(expected3[i],da2.getIJ(0,i))
             pass
-        da.divideEqual(da1);
-        self.assertEqual(4,da.getNumberOfTuples());
-        self.assertEqual(3,da.getNumberOfComponents());
+        da.divideEqual(da1)
+        self.assertEqual(4,da.getNumberOfTuples())
+        self.assertEqual(3,da.getNumberOfComponents())
         expected4=[0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
         for i in range(12):
-            self.assertEqual(expected4[i],da.getIJ(0,i));
+            self.assertEqual(expected4[i],da.getIJ(0,i))
             pass
-        da.setValues(arr1,4,3);
-        da1.multiplyEqual(da);
-        self.assertEqual(4,da1.getNumberOfTuples());
-        self.assertEqual(3,da1.getNumberOfComponents());
+        da.setValues(arr1,4,3)
+        da1.multiplyEqual(da)
+        self.assertEqual(4,da1.getNumberOfTuples())
+        self.assertEqual(3,da1.getNumberOfComponents())
         for i in range(12):
-            self.assertEqual(expected3[i],da1.getIJ(0,i));
+            self.assertEqual(expected3[i],da1.getIJ(0,i))
             pass
-        da1.rearrange(1); da1.iota(2); da1.rearrange(3);
-        da2=DataArrayInt64.Divide(da,da1);
-        self.assertEqual(4,da2.getNumberOfTuples());
-        self.assertEqual(3,da2.getNumberOfComponents());
+        da1.rearrange(1); da1.iota(2); da1.rearrange(3)
+        da2=DataArrayInt64.Divide(da,da1)
+        self.assertEqual(4,da2.getNumberOfTuples())
+        self.assertEqual(3,da2.getNumberOfComponents())
         for i in range(12):
-            self.assertEqual(expected4[i],da2.getIJ(0,i));
+            self.assertEqual(expected4[i],da2.getIJ(0,i))
             pass
-        da1.applyInv(321);
-        self.assertEqual(4,da1.getNumberOfTuples());
-        self.assertEqual(3,da1.getNumberOfComponents());
+        da1.applyInv(321)
+        self.assertEqual(4,da1.getNumberOfTuples())
+        self.assertEqual(3,da1.getNumberOfComponents())
         expected5=[160,107,80,64,53,45,40,35,32,29,26,24]
         for i in range(12):
-            self.assertEqual(expected5[i],da1.getIJ(0,i));
+            self.assertEqual(expected5[i],da1.getIJ(0,i))
             pass
-        da1.applyDivideBy(2);
-        self.assertEqual(4,da1.getNumberOfTuples());
-        self.assertEqual(3,da1.getNumberOfComponents());
+        da1.applyDivideBy(2)
+        self.assertEqual(4,da1.getNumberOfTuples())
+        self.assertEqual(3,da1.getNumberOfComponents())
         expected6=[80,53,40,32,26,22,20,17,16,14,13,12]
         for i in range(12):
-            self.assertEqual(expected6[i],da1.getIJ(0,i));
+            self.assertEqual(expected6[i],da1.getIJ(0,i))
             pass
         expected7=[3,4,5,4,5,1,6,3,2,0,6,5]
-        da1.applyModulus(7);
+        da1.applyModulus(7)
         for i in range(12):
-            self.assertEqual(expected7[i],da1.getIJ(0,i));
+            self.assertEqual(expected7[i],da1.getIJ(0,i))
             pass
-        da1.applyLin(1,1);
+        da1.applyLin(1,1)
         expected8=[3,3,3,3,3,1,3,3,0,0,3,3]
-        da1.applyRModulus(3);
+        da1.applyRModulus(3)
         for i in range(12):
-            self.assertEqual(expected8[i],da1.getIJ(0,i));
+            self.assertEqual(expected8[i],da1.getIJ(0,i))
             pass
         pass
 
@@ -400,52 +400,52 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         tab1=[2,4,5,3,6,7]
         tab2=[-1,-1,0,1,2,3,4,5,-1,-1,-1,-1]
         expected=[0,3,1,2,4,5]
-        d=DataArrayInt64.New();
-        d.setValues(tab1,6,1);
-        d1=DataArrayInt64.New();
-        d1.setValues(tab2,12,1);
+        d=DataArrayInt64.New()
+        d.setValues(tab1,6,1)
+        d1=DataArrayInt64.New()
+        d1.setValues(tab2,12,1)
         d2=d1[:]
         #
-        d3=d.transformWithIndArrR(d1);
-        self.assertEqual(6,d3.getNumberOfTuples());
-        self.assertEqual(1,d3.getNumberOfComponents());
+        d3=d.transformWithIndArrR(d1)
+        self.assertEqual(6,d3.getNumberOfTuples())
+        self.assertEqual(1,d3.getNumberOfComponents())
         for i in range(6):
-            self.assertEqual(expected[i],d3.getIJ(i,0));
+            self.assertEqual(expected[i],d3.getIJ(i,0))
             pass
         #
         d1=d2
         d3=d.transformWithIndArrR(tab2)
-        self.assertEqual(6,d3.getNumberOfTuples());
-        self.assertEqual(1,d3.getNumberOfComponents());
+        self.assertEqual(6,d3.getNumberOfTuples())
+        self.assertEqual(1,d3.getNumberOfComponents())
         for i in range(6):
-            self.assertEqual(expected[i],d3.getIJ(i,0));
+            self.assertEqual(expected[i],d3.getIJ(i,0))
             pass
         pass
 
     def testDAISplitByValueRange1(self):
         val1=[6,5,0,3,2,7,8,1,4]
         val2=[0,4,9]
-        d=DataArrayInt64.New();
-        d.setValues(val1,9,1);
-        e,f,g=d.splitByValueRange(val2);
-        self.assertEqual(9,e.getNumberOfTuples());
-        self.assertEqual(1,e.getNumberOfComponents());
-        self.assertEqual(9,f.getNumberOfTuples());
-        self.assertEqual(1,f.getNumberOfComponents());
-        self.assertEqual(2,g.getNumberOfTuples());
-        self.assertEqual(1,g.getNumberOfComponents());
+        d=DataArrayInt64.New()
+        d.setValues(val1,9,1)
+        e,f,g=d.splitByValueRange(val2)
+        self.assertEqual(9,e.getNumberOfTuples())
+        self.assertEqual(1,e.getNumberOfComponents())
+        self.assertEqual(9,f.getNumberOfTuples())
+        self.assertEqual(1,f.getNumberOfComponents())
+        self.assertEqual(2,g.getNumberOfTuples())
+        self.assertEqual(1,g.getNumberOfComponents())
         #
         expected1=[1,1,0,0,0,1,1,0,1]
         expected2=[2,1,0,3,2,3,4,1,0]
         for i in range(9):
-            self.assertEqual(expected1[i],e.getIJ(i,0));
-            self.assertEqual(expected2[i],f.getIJ(i,0));
+            self.assertEqual(expected1[i],e.getIJ(i,0))
+            self.assertEqual(expected2[i],f.getIJ(i,0))
             pass
-        self.assertEqual(0,g.getIJ(0,0));
-        self.assertEqual(1,g.getIJ(1,0));
+        self.assertEqual(0,g.getIJ(0,0))
+        self.assertEqual(1,g.getIJ(1,0))
         #
-        d.setIJ(6,0,9);
-        self.assertRaises(InterpKernelException,d.splitByValueRange,val2);
+        d.setIJ(6,0,9)
+        self.assertRaises(InterpKernelException,d.splitByValueRange,val2)
         # non regression test in python wrapping
         rg=DataArrayInt64([0,10,29,56,75,102,121,148,167,194,213,240,259,286,305,332,351,378,397,424,443,470,489,516])
         a,b,c=DataArrayInt64([75]).splitByValueRange(rg)
@@ -455,49 +455,49 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         pass
 
     def testDAIBuildExplicitArrByRanges1(self):
-        d=DataArrayInt64.New();
+        d=DataArrayInt64.New()
         vals1=[0,2,3]
-        d.setValues(vals1,3,1);
-        e=DataArrayInt64.New();
+        d.setValues(vals1,3,1)
+        e=DataArrayInt64.New()
         vals2=[0,3,6,10,14,20]
-        e.setValues(vals2,6,1);
+        e.setValues(vals2,6,1)
         #
-        f=d.buildExplicitArrByRanges(e);
-        self.assertEqual(11,f.getNumberOfTuples());
-        self.assertEqual(1,f.getNumberOfComponents());
+        f=d.buildExplicitArrByRanges(e)
+        self.assertEqual(11,f.getNumberOfTuples())
+        self.assertEqual(1,f.getNumberOfComponents())
         expected1=[0,1,2,6,7,8,9,10,11,12,13]
         for i in range(11):
-            self.assertEqual(expected1[i],f.getIJ(i,0));
+            self.assertEqual(expected1[i],f.getIJ(i,0))
             pass
         pass
 
     def testDAIComputeOffsets2(self):
-        d=DataArrayInt64.New();
+        d=DataArrayInt64.New()
         vals1=[3,5,1,2,0,8]
         expected1=[0,3,8,9,11,11,19]
-        d.setValues(vals1,6,1);
-        d.computeOffsetsFull();
-        self.assertEqual(7,d.getNumberOfTuples());
-        self.assertEqual(1,d.getNumberOfComponents());
+        d.setValues(vals1,6,1)
+        d.computeOffsetsFull()
+        self.assertEqual(7,d.getNumberOfTuples())
+        self.assertEqual(1,d.getNumberOfComponents())
         for i in range(7):
-            self.assertEqual(expected1[i],d.getIJ(0,i));
+            self.assertEqual(expected1[i],d.getIJ(0,i))
             pass
         pass
 
     def testDAIBuildOld2NewArrayFromSurjectiveFormat2(self):
         arr=[0,3, 5,7,9]
         arrI=[0,2,5]
-        a=DataArrayInt.New();
-        a.setValues(arr,5,1);
-        b=DataArrayInt.New();
-        b.setValues(arrI,3,1);
-        ret,newNbTuple=DataArrayInt64.ConvertIndexArrayToO2N(10,a,b);
+        a=DataArrayInt.New()
+        a.setValues(arr,5,1)
+        b=DataArrayInt.New()
+        b.setValues(arrI,3,1)
+        ret,newNbTuple=DataArrayInt64.ConvertIndexArrayToO2N(10,a,b)
         expected=[0,1,2,0,3,4,5,4,6,4]
-        self.assertEqual(10,ret.getNbOfElems());
-        self.assertEqual(7,newNbTuple);
-        self.assertEqual(1,ret.getNumberOfComponents());
-        self.assertEqual(expected,ret.getValues());
-        self.assertRaises(InterpKernelException,DataArrayInt64.ConvertIndexArrayToO2N,9,a,b);
+        self.assertEqual(10,ret.getNbOfElems())
+        self.assertEqual(7,newNbTuple)
+        self.assertEqual(1,ret.getNumberOfComponents())
+        self.assertEqual(expected,ret.getValues())
+        self.assertRaises(InterpKernelException,DataArrayInt64.ConvertIndexArrayToO2N,9,a,b)
         pass
 
     def testDAIBuildUnique1(self):
@@ -520,31 +520,31 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         data2=[6,2,0,-8,-9,-56]
         data3=[-1,0,3,2,4,6]
         data4=[7,5,2,3,0,-6]
-        d=DataArrayInt64.New(data1);
-        self.assertTrue(d.isMonotonic(True));
-        self.assertTrue(not d.isMonotonic(False));
-        d.checkMonotonic(True);
+        d=DataArrayInt64.New(data1)
+        self.assertTrue(d.isMonotonic(True))
+        self.assertTrue(not d.isMonotonic(False))
+        d.checkMonotonic(True)
         self.assertRaises(InterpKernelException,d.checkMonotonic,False)
-        d=DataArrayInt64.New(data2);
-        self.assertTrue(d.isMonotonic(False));
-        self.assertTrue(not d.isMonotonic(True));
-        d.checkMonotonic(False);
+        d=DataArrayInt64.New(data2)
+        self.assertTrue(d.isMonotonic(False))
+        self.assertTrue(not d.isMonotonic(True))
+        d.checkMonotonic(False)
         self.assertRaises(InterpKernelException,d.checkMonotonic,True)
-        d=DataArrayInt64.New(data3);
-        self.assertTrue(not d.isMonotonic(False));
-        self.assertTrue(not d.isMonotonic(True));
+        d=DataArrayInt64.New(data3)
+        self.assertTrue(not d.isMonotonic(False))
+        self.assertTrue(not d.isMonotonic(True))
         self.assertRaises(InterpKernelException,d.checkMonotonic,True)
         self.assertRaises(InterpKernelException,d.checkMonotonic,False)
-        d=DataArrayInt64.New(data4);
-        self.assertTrue(not d.isMonotonic(False));
-        self.assertTrue(not d.isMonotonic(True));
+        d=DataArrayInt64.New(data4)
+        self.assertTrue(not d.isMonotonic(False))
+        self.assertTrue(not d.isMonotonic(True))
         self.assertRaises(InterpKernelException,d.checkMonotonic,True)
         self.assertRaises(InterpKernelException,d.checkMonotonic,False)
         d=DataArrayInt64.New(0,1)
-        self.assertTrue(d.isMonotonic(True));
-        self.assertTrue(d.isMonotonic(False));
-        d.checkMonotonic(True);
-        d.checkMonotonic(False);
+        self.assertTrue(d.isMonotonic(True))
+        self.assertTrue(d.isMonotonic(False))
+        d.checkMonotonic(True)
+        d.checkMonotonic(False)
         d=DataArrayInt64.New(data4,3,2);#throw because nbComp!=1
         self.assertRaises(InterpKernelException,d.isMonotonic,True)
         self.assertRaises(InterpKernelException,d.isMonotonic,False)
@@ -558,96 +558,96 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         da3=DataArrayInt64.New([1,3,5])
         da4=DataArrayInt64.New([1,3,5,6,7,9,13])
         #
-        a=da1.buildSubstractionOptimized(da2);
-        self.assertTrue(a.isEqual(DataArrayInt64([1,6,7,13])));
+        a=da1.buildSubstractionOptimized(da2)
+        self.assertTrue(a.isEqual(DataArrayInt64([1,6,7,13])))
         #
-        a=da1.buildSubstractionOptimized(da3);
-        self.assertTrue(a.isEqual(DataArrayInt64([6,7,9,13])));
+        a=da1.buildSubstractionOptimized(da3)
+        self.assertTrue(a.isEqual(DataArrayInt64([6,7,9,13])))
         #
-        a=da1.buildSubstractionOptimized(da4);
-        self.assertTrue(a.isEqual(DataArrayInt64([])));
+        a=da1.buildSubstractionOptimized(da4)
+        self.assertTrue(a.isEqual(DataArrayInt64([])))
         pass
 
     def testDAIIsStrictlyMonotonic1(self):
         da1=DataArrayInt64.New([1,3,5,6,7,9,13])
-        self.assertTrue(da1.isStrictlyMonotonic(True));
-        da1.checkStrictlyMonotonic(True);
-        self.assertTrue(da1.isMonotonic(True));
-        da1.checkMonotonic(True);
-        self.assertTrue(not da1.isStrictlyMonotonic(False));
+        self.assertTrue(da1.isStrictlyMonotonic(True))
+        da1.checkStrictlyMonotonic(True)
+        self.assertTrue(da1.isMonotonic(True))
+        da1.checkMonotonic(True)
+        self.assertTrue(not da1.isStrictlyMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,False)
-        self.assertTrue(not da1.isMonotonic(False));
+        self.assertTrue(not da1.isMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,False)
         #
         da1=DataArrayInt64.New([1,3,5,6,6,9,13])
-        self.assertTrue(not da1.isStrictlyMonotonic(True));
+        self.assertTrue(not da1.isStrictlyMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,True)
-        self.assertTrue(da1.isMonotonic(True));
-        da1.checkMonotonic(True);
-        self.assertTrue(not da1.isStrictlyMonotonic(False));
+        self.assertTrue(da1.isMonotonic(True))
+        da1.checkMonotonic(True)
+        self.assertTrue(not da1.isStrictlyMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,False)
-        self.assertTrue(not da1.isMonotonic(False));
+        self.assertTrue(not da1.isMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,False)
         #
         da1=DataArrayInt64.New([1,3,5,6,5,9,13])
-        self.assertTrue(not da1.isStrictlyMonotonic(True));
+        self.assertTrue(not da1.isStrictlyMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,True)
-        self.assertTrue(not da1.isMonotonic(True));
+        self.assertTrue(not da1.isMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,True)
-        self.assertTrue(not da1.isStrictlyMonotonic(False));
+        self.assertTrue(not da1.isStrictlyMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,False)
-        self.assertTrue(not da1.isMonotonic(False));
+        self.assertTrue(not da1.isMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,False)
         #
         da1=DataArrayInt64.New([13,9,7,6,5,3,1])
-        self.assertTrue(not da1.isStrictlyMonotonic(True));
+        self.assertTrue(not da1.isStrictlyMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,True)
-        self.assertTrue(not da1.isMonotonic(True));
+        self.assertTrue(not da1.isMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,True)
-        self.assertTrue(da1.isStrictlyMonotonic(False));
-        da1.checkStrictlyMonotonic(False);
-        self.assertTrue(da1.isMonotonic(False));
-        da1.checkMonotonic(False);
+        self.assertTrue(da1.isStrictlyMonotonic(False))
+        da1.checkStrictlyMonotonic(False)
+        self.assertTrue(da1.isMonotonic(False))
+        da1.checkMonotonic(False)
         #
         da1=DataArrayInt64.New([13,9,6,6,5,3,1])
-        self.assertTrue(not da1.isStrictlyMonotonic(True));
+        self.assertTrue(not da1.isStrictlyMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,True)
-        self.assertTrue(not da1.isMonotonic(True));
+        self.assertTrue(not da1.isMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,True)
-        self.assertTrue(not da1.isStrictlyMonotonic(False));
+        self.assertTrue(not da1.isStrictlyMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,False)
-        self.assertTrue(da1.isMonotonic(False));
-        da1.checkMonotonic(False);
+        self.assertTrue(da1.isMonotonic(False))
+        da1.checkMonotonic(False)
         #
         da1=DataArrayInt64.New([13,9,5,6,5,3,1])
-        self.assertTrue(not da1.isStrictlyMonotonic(True));
+        self.assertTrue(not da1.isStrictlyMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,True)
-        self.assertTrue(not da1.isMonotonic(True));
+        self.assertTrue(not da1.isMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,True)
-        self.assertTrue(not da1.isStrictlyMonotonic(False));
+        self.assertTrue(not da1.isStrictlyMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,False)
-        self.assertTrue(not da1.isMonotonic(False));
+        self.assertTrue(not da1.isMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,False)
         #
         da1=DataArrayInt64.New([])
-        self.assertTrue(da1.isStrictlyMonotonic(True));
-        da1.checkStrictlyMonotonic(True);
-        self.assertTrue(da1.isMonotonic(True));
-        da1.checkMonotonic(True);
-        self.assertTrue(da1.isStrictlyMonotonic(False));
-        da1.checkStrictlyMonotonic(False);
-        self.assertTrue(da1.isMonotonic(False));
-        da1.checkMonotonic(False);
+        self.assertTrue(da1.isStrictlyMonotonic(True))
+        da1.checkStrictlyMonotonic(True)
+        self.assertTrue(da1.isMonotonic(True))
+        da1.checkMonotonic(True)
+        self.assertTrue(da1.isStrictlyMonotonic(False))
+        da1.checkStrictlyMonotonic(False)
+        self.assertTrue(da1.isMonotonic(False))
+        da1.checkMonotonic(False)
         #
         da1=DataArrayInt64.New([13])
-        self.assertTrue(da1.isStrictlyMonotonic(True));
-        da1.checkStrictlyMonotonic(True);
-        self.assertTrue(da1.isMonotonic(True));
-        da1.checkMonotonic(True);
-        self.assertTrue(da1.isStrictlyMonotonic(False));
-        da1.checkStrictlyMonotonic(False);
-        self.assertTrue(da1.isMonotonic(False));
-        da1.checkMonotonic(False);
+        self.assertTrue(da1.isStrictlyMonotonic(True))
+        da1.checkStrictlyMonotonic(True)
+        self.assertTrue(da1.isMonotonic(True))
+        da1.checkMonotonic(True)
+        self.assertTrue(da1.isStrictlyMonotonic(False))
+        da1.checkStrictlyMonotonic(False)
+        self.assertTrue(da1.isMonotonic(False))
+        da1.checkMonotonic(False)
         pass
 
     def testDAIIndicesOfSubPart(self):
@@ -1388,7 +1388,7 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
       # even if point is not inside bounding box
       center=coo[0]
       vector=[1.,0.,0.]
-      m.rotate(center,vector,-pi/4.);
+      m.rotate(center,vector,-pi/4.)
 
       # test 3 points: above, below and inside
       pt_above = (0.19, 0.09, 1.04)
@@ -1501,26 +1501,26 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
       a,b,f = d.forThisAsPartitionBuildReduction(c,ci)
       assert( a.isEqual( d ) )
       assert( b.empty() )
-      assert( f.isEqual(DataArrayInt([0])) )  
+      assert( f.isEqual(DataArrayInt([0])) )
       #### Case 1 : single fusion
       c = DataArrayInt([3,6]) ; ci = DataArrayInt([0,2])
       a,b,f = d.forThisAsPartitionBuildReduction(c,ci)
       assert( a.isEqual( DataArrayInt([2,2,2,4,2,3,3,3,1,1,1,1,1,1]) ) )
       assert( b.isEqual( DataArrayInt([4,2,3]) ) )
-      assert( f.isEqual( DataArrayInt([0,3]) ) )  
+      assert( f.isEqual( DataArrayInt([0,3]) ) )
       #### Case 2 : single fusion - same partition id
       c = DataArrayInt([6,7]) ; ci = DataArrayInt([0,2])
       a,b,f = d.forThisAsPartitionBuildReduction(c,ci)
       assert( a.isEqual( DataArrayInt([2,2,2,2,2,3,4,3,1,1,1,1,1,1]) ) )
       assert( b.isEqual( DataArrayInt([4,3]) ) )
-      assert( f.isEqual( DataArrayInt([0,2]) ) )  
+      assert( f.isEqual( DataArrayInt([0,2]) ) )
       #### Case 3 : multi fusion single tuple
       c = DataArrayInt([2,7,3,6]) ; ci = DataArrayInt([0,2,4]) # elts (2,7) and (3,6) to merge. These 2 couples refers to partitionIDs (2,3)
       a,b,f = d.forThisAsPartitionBuildReduction(c,ci)
       assert( a.isEqual( DataArrayInt([2,2,4,4,2,3,3,1,1,1,1,1,1]) ) )
       assert( b.isEqual( DataArrayInt([4,2,3]) ) ) # Fuse element can be located with ID 4
       assert( f.isEqual( DataArrayInt([0,3]) ) )
-      
+
       #### Case 4 : multi fusion
       c = DataArrayInt([2,7,3,10]) ; ci = DataArrayInt([0,2,4])
       a,b,f = d.forThisAsPartitionBuildReduction(c,ci)
@@ -1544,10 +1544,10 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
       c,ci = arr.findCommonTuples(2)
       self.assertTrue( ci.isEqual( DataArrayInt([0,2,5]) ) )
       self.assertTrue( c.isEqual( DataArrayInt([0,4, 1,6,7]) ) )
-      
+
     def testDAIFromVTKInternalReprOfPolyedra(self):
       """
-      EDF31315 : VTK internal representation of polyedra data structure 
+      EDF31315 : VTK internal representation of polyedra data structure
       """
       faces = DataArrayInt64( [11, 4, 7199, 6757, 2950, 6758, 5, 6455, 1794, 2400, 6620, 7200, 6, 6620, 2400, 5864, 2950, 6757, 7244, 6, 6758, 2950, 5864, 3223, 6818, 7245, 5, 7246, 6818, 3223, 1794, 6455, 4, 1794, 3223, 5864, 2400, 4, 0, 7246, 6455, 7200, 4, 0, 7200, 6620, 7244, 4, 0, 7244, 6757, 7199, 4, 0, 7199, 6758, 7245, 4, 0, 7245, 6818, 7246,
          12, 5, 6408, 978, 1721, 6441, 7203, 4, 7204, 7007, 3987, 7008, 6, 6441, 1721, 5813, 3987, 7007, 7247, 5, 7248, 7130, 4480, 978, 6408, 6, 7008, 3987, 5813, 4480, 7130, 7249, 4, 978, 4480, 5813, 1721, 4, 1, 7248, 6408, 7203, 4, 1, 7203, 6441, 7247, 4, 1, 7247, 7007, 7204, 4, 1, 7204, 7008, 7249, 3, 1, 7249, 7130, 5, 1, 7, 6, 5, 4] )

@@ -27,4 +27,4 @@
 
 void MEDPARTITIONER_METIS_PartGraphRecursive(int *, int  *, int  *, int  *, int  *, int *, int *, int *, int *, int *, int  *);
 
-void MEDPARTITIONER_METIS_PartGraphKway(int *, int  *, int  *, int  *, int  *, int *, int *, int *, int *, int *, int  *); 
+void MEDPARTITIONER_METIS_PartGraphKway(int *, int  *, int  *, int  *, int  *, int *, int *, int *, int *, int *, int  *);

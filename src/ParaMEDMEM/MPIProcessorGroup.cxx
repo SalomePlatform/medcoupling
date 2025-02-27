@@ -58,7 +58,7 @@ namespace MEDCoupling
   */
 
 
-  /*! 
+  /*!
    * Creates a processor group that is based on all the
    processors of MPI_COMM_WORLD .This routine must be called by all processors in MPI_COMM_WORLD.
    \param interface CommInterface object giving access to the MPI
@@ -81,7 +81,7 @@ namespace MEDCoupling
 
     \param interface CommInterface object giving access to the MPI
     communication layer
-    \param proc_ids set of ids that are to be integrated in the group. The ids number are 
+    \param proc_ids set of ids that are to be integrated in the group. The ids number are
     to be understood in terms of MPI_COMM_WORLD ranks.
   */
 
@@ -97,7 +97,7 @@ namespace MEDCoupling
 
     \param interface CommInterface object giving access to the MPI
     communication layer
-    \param proc_ids_by_name a map defining a relation between a name and a set of ids that are to be integrated in the group. 
+    \param proc_ids_by_name a map defining a relation between a name and a set of ids that are to be integrated in the group.
     The ids number are to be understood in terms of MPI_COMM_WORLD ranks.
     \param simCodeTag identifier of the group
   */
@@ -111,9 +111,9 @@ namespace MEDCoupling
 
   void MPIProcessorGroup::updateMPISpecificAttributes()
   {
-    //Creation of a communicator 
+    //Creation of a communicator
     MPI_Group group_world;
-  
+
     int size_world;
     _comm_interface.commSize(_world_comm,&size_world);
     int rank_world;
@@ -121,7 +121,7 @@ namespace MEDCoupling
     _comm_interface.commGroup(_world_comm, &group_world);
 
     int* ranks=new int[_proc_ids.size()];
-   
+
     // copying proc_ids in ranks
     copy<set<int>::const_iterator,int*> (_proc_ids.begin(), _proc_ids.end(), ranks);
     for (int i=0; i< (int)_proc_ids.size();i++)
@@ -131,9 +131,9 @@ namespace MEDCoupling
           _comm_interface.groupFree(&group_world);  // MPI_Group is a C structure and won't get de-allocated automatically?
           throw INTERP_KERNEL::Exception("invalid rank in set<int> argument of MPIProcessorGroup constructor");
         }
-      
+
     _comm_interface.groupIncl(group_world, (int)_proc_ids.size(), ranks, &_group);
-  
+
     _comm_interface.commCreate(_world_comm, _group, &_comm);
 
     // clean-up
@@ -151,9 +151,9 @@ namespace MEDCoupling
   */
   MPIProcessorGroup::MPIProcessorGroup (const CommInterface& comm_interface, int pstart, int pend, const MPI_Comm& world_comm): ProcessorGroup(comm_interface,pstart,pend),_world_comm(world_comm)
   {
-    //Creation of a communicator 
+    //Creation of a communicator
     MPI_Group group_world;
-  
+
     int size_world;
     _comm_interface.commSize(_world_comm,&size_world);
     int rank_world;
@@ -173,7 +173,7 @@ namespace MEDCoupling
       }
 
     _comm_interface.groupIncl(group_world, nprocs, ranks, &_group);
-  
+
     _comm_interface.commCreate(_world_comm, _group, &_comm);
 
     // clean-up
@@ -227,8 +227,8 @@ namespace MEDCoupling
     MPI_Group_translate_ranks(targetgroup->_group, 1, &rank, _group, &local_rank);
     return local_rank;
   }
-  
-  /*!Creates a processor group that is the complement of the current group 
+
+  /*!Creates a processor group that is the complement of the current group
     inside MPI_COMM_WORLD
     \return pointer to the new ProcessorGroup structure.
   */
@@ -240,9 +240,9 @@ namespace MEDCoupling
       procs.insert(i);
     for (set<int>::const_iterator iter=_proc_ids.begin(); iter!= _proc_ids.end(); iter++)
       procs.erase(*iter);
-    
+
     return new MPIProcessorGroup(_comm_interface, procs, _world_comm);
-    
+
   }
 
   MPIProcessorGroup *MPIProcessorGroup::deepCopy() const
@@ -266,18 +266,18 @@ namespace MEDCoupling
   }
 
   int MPIProcessorGroup::myRank() const
-  { 
+  {
     int rank;
     MPI_Comm_rank(_comm,&rank);
     return rank;
   }
-  
+
   ProcessorGroup* MPIProcessorGroup::createProcGroup() const
   {
     set <int> procs;
     for (set<int>::const_iterator iter=_proc_ids.begin(); iter!= _proc_ids.end(); iter++)
       procs.insert(*iter);
-  
+
     return new MPIProcessorGroup(_comm_interface, procs, _world_comm);
 
   }

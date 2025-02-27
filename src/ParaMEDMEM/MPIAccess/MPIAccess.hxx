@@ -37,7 +37,7 @@ namespace MEDCoupling
     double deltatime ;
     int tag ;
   } TimeMessage;
-  
+
   static MPI_Request mpirequestnull = MPI_REQUEST_NULL ;
   enum _MessageIdent { _message_unknown, _message_time, _message_int, _message_double } ;
 
@@ -108,7 +108,7 @@ namespace MEDCoupling
               int &outcount) ;
     int IProbe(int FromSource, int &source, int &MPITag, MPI_Datatype &datatype,
                int &outcount, int &flag) ;
-    int cancel( int RecvRequestId, int &flag ) ; 
+    int cancel( int RecvRequestId, int &flag ) ;
     int cancel( int source, int MPITag, MPI_Datatype datatype, int outcount,
                 int &flag ) ;
     int cancelAll() ;
@@ -253,7 +253,7 @@ namespace MEDCoupling
   {
     return _MPI_TIME ;
   }
-  
+
   // Returns true if the tag MPITag corresponds to a TimeMessage
   inline bool MPIAccess::isTimeMessage( int aMPITag ) const
   {
@@ -273,7 +273,7 @@ namespace MEDCoupling
       return doubleExtent() ;
     return 0 ;
   }
-  
+
   // Returns the MPITag of the request corresponding to RequestId identifier
   inline int MPIAccess::MPITag( int RequestId )
   {
@@ -282,7 +282,7 @@ namespace MEDCoupling
       return aRequestStruct->MPITag ;
     return -1 ;
   }
-  
+
   // Returns the MPITarget of the request corresponding to RequestId identifier
   inline int MPIAccess::MPITarget( int RequestId )
   {
@@ -309,7 +309,7 @@ namespace MEDCoupling
       return aRequestStruct->MPIAsynchronous ;
     return false ;
   }
-  
+
   // Returns true if the request corresponding to RequestId identifier was completed
   inline bool MPIAccess::MPICompleted( int RequestId )
   {
@@ -358,7 +358,7 @@ namespace MEDCoupling
   {
     return ((tag/MODULO_TAG)*MODULO_TAG) + method;
   }
-  
+
   // Remove a Request identifier from the list _RecvRequests/_SendRequests for
   // the corresponding target.
   inline void MPIAccess::deleteSendRecvRequest( int RequestId )
@@ -390,7 +390,7 @@ namespace MEDCoupling
       return &aRequestStruct->MPIRequest;
     return &mpirequestnull ;
   }
-  
+
   // Returns the MPI structure MPI_status * of a RequestId
   inline MPI_Status * MPIAccess::MPIStatus( int RequestId )
   {
@@ -442,7 +442,7 @@ namespace MEDCoupling
       aMethodIdent = _message_unknown ;
     return aMethodIdent ;
   }
-  
+
   // Returns the MPI_Datatype corresponding to the _MessageIdent enum aMethodIdent
   inline MPI_Datatype MPIAccess::datatype( _MessageIdent aMethodIdent ) const
   {

@@ -78,7 +78,7 @@ mm.setMeshAtLevel(0,mesh3D,True)
 pass
 
 from MEDLoaderDataForTest import MEDLoaderDataForTest
-f=MEDLoaderDataForTest.buildVecFieldOnGauss_1();
+f=MEDLoaderDataForTest.buildVecFieldOnGauss_1()
 f.setName("Field1")
 #! [UG_ReadField_0]
 from MEDLoader import WriteField

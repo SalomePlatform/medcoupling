@@ -9,7 +9,7 @@ The objective of these exercises is to learn to manipulate MEDCoupling objects i
  * the second shows how to manipulate MEDCouplingUMesh objects,
  * and the third shows how to manipulate MEDCouplingFieldDouble objects.
 
- 
+
 .. toctree::
    :maxdepth: 2
 

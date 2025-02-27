@@ -458,7 +458,7 @@ DataArrayDouble *MEDCouplingCMesh::getCoordsAt(int i)
 }
 
 /*!
- * Sets node coordinates along a given axis. For more info on Cartesian meshes, see 
+ * Sets node coordinates along a given axis. For more info on Cartesian meshes, see
  * \ref MEDCouplingCMeshPage.
  *  \param [in] i - an index of axis, a value in range [0,1,2].
  *  \param [in] arr - DataArrayDouble holding positions of nodes along the i-th
@@ -491,7 +491,7 @@ void MEDCouplingCMesh::setCoordsAt(int i, const DataArrayDouble *arr)
 
 /*!
  * Sets node coordinates along some of the tree axes. This method updates all the
- * three node coordinates arrays at once. For more info on Cartesian meshes, see 
+ * three node coordinates arrays at once. For more info on Cartesian meshes, see
  * \ref MEDCouplingCMeshPage.
  *  \param [in] coordsX - DataArrayDouble holding positions of nodes along the X
  *         axis. It must be an array of one component or \c NULL.
@@ -898,7 +898,7 @@ void MEDCouplingCMesh::reprQuickOverview(std::ostream& stream) const
     {
       isDef[i]=thisArr[i]!=0;
       if(isDef[i])
-        {    
+        {
           char tmp=(char)((int)('X')+i);
           stream2[i] << tmp << " positions array ";
           if(!thisArr[i]->isAllocated())

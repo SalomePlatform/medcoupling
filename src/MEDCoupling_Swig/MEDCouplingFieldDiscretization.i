@@ -72,7 +72,7 @@ namespace MEDCoupling
         const mcIdType *inp=convertIntStarLikePyObjToCppIntStar(li,sw,sz,val1,val2);
         return self->clonePart(inp,inp+sz);
       }
-      
+
       virtual PyObject *buildSubMeshDataRange(const MEDCouplingMesh *mesh, mcIdType beginCellIds, mcIdType endCellIds, mcIdType stepCellIds, mcIdType& beginOut, mcIdType& endOut, mcIdType& stepOut, DataArrayIdType *&di) const
       {
         DataArrayIdType *ret1=0;
@@ -208,7 +208,7 @@ namespace MEDCoupling
         self->getValueOnPos(arr,mesh,i,j,k,res);
         return convertDblArrToPyList<double>(res,sz);
       }
-      
+
       virtual DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, PyObject *loc) const
       {
         if(!mesh)
@@ -241,7 +241,7 @@ namespace MEDCoupling
         //
         self->renumberArraysForCell(mesh,input1,old2NewBg,check);
       }
-      
+
       virtual DataArrayIdType *computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, PyObject *cellIds) const
       {
         mcIdType sw,sz(-1);
@@ -300,7 +300,7 @@ namespace MEDCoupling
   class MEDCouplingFieldDiscretizationP1 : public MEDCouplingFieldDiscretizationOnNodes
   {
   };
-  
+
   class MEDCouplingFieldDiscretizationPerCell : public MEDCouplingFieldDiscretization
   {
   public:
@@ -355,14 +355,14 @@ namespace MEDCoupling
         const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetWeightArrayFromGeometricType(geoType,sz));
         return convertDblArrToPyList<double>(ret,ToIdType(sz));
       }
-      
+
       static PyObject *GetRefCoordsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType)
       {
         std::size_t sz(0);
         const double *ret(MEDCouplingFieldDiscretizationGaussNE::GetRefCoordsFromGeometricType(geoType,sz));
         return convertDblArrToPyList<double>(ret,ToIdType(sz));
       }
-      
+
       static PyObject *GetLocsFromGeometricType(INTERP_KERNEL::NormalizedCellType geoType)
       {
         std::size_t sz(0);
@@ -387,7 +387,7 @@ namespace MEDCoupling
         PyTuple_SetItem(ret,1,PyInt_FromLong(ret1));
         return ret;
       }
-      
+
       PyObject *computeInverseMatrix(const MEDCouplingMesh *mesh) const
       {
         mcIdType ret1(-1),ret2(-1);
@@ -409,7 +409,7 @@ namespace MEDCoupling
         PyTuple_SetItem(ret,2,PyInt_FromLong(ret2));
         return ret;
       }
-      
+
       PyObject *computeEvaluationMatrixOnGivenPts(const MEDCouplingMesh *mesh, PyObject *locs) const
       {
         if(!mesh)
@@ -460,7 +460,7 @@ namespace MEDCoupling
           throw INTERP_KERNEL::Exception("Wrap of MEDCouplingFieldDiscretizationKriging::OperateOnDenseMatrixH3 : invalid input matrix as DataArrayDouble ! Must be allocated with one component !");
         MEDCouplingFieldDiscretizationKriging::OperateOnDenseMatrixH3(myMatrix->getNumberOfTuples(),myMatrix->getPointer());
       }
-      
+
       static void OperateOnDenseMatrixH2Ln(DataArrayDouble *myMatrix) //throw(INTERP_KERNEL::Exception)
       {
         if(!myMatrix || !myMatrix->isAllocated() || myMatrix->getNumberOfComponents()!=1)

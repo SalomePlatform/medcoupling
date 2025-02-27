@@ -5,7 +5,7 @@ Meshing a 3D cube
 Objective
 ~~~~~~~~~
 
-The meshing class of the SALOME MED module allows user to create a mesh from scratch. 
+The meshing class of the SALOME MED module allows user to create a mesh from scratch.
 In this example we propose to build a mesh on a 3D cube by three methods (classical method, method by extrusion and grid method). Each cell of the mesh must be a hexaedron.
 We see also how creating a group.
 Then we create a field on all the 3D cube.
@@ -226,7 +226,7 @@ Moreover, we need to define:
 	fmeshU.setCoords(myCoords)
 	fmeshU.setMeshAtLevel(0,meshU)
 
-Then, you can 
+Then, you can
 Therefore, you need to define the level (ie. the dimension) of the group.
 This information is given by a number : 0,-1 or -2.
 
@@ -246,7 +246,7 @@ First you need to create a CouplingField and initialize some data:
  * its nature
  * its values
 
- 
+
 The field will be a sin function dependent of distance of the barycenter of each cell from origin. So we need to create a barycenter field on the 3D mesh::
 
 	# Creation of field : with following definition
@@ -284,7 +284,7 @@ General Case
 	medFileName = "MEDCoupling_Extrudedcube3D.med"
 	mc.WriteUMesh(medFileName,meshU,True)
 
-.. note:: True / False in Write* functions : True for overwriting existing file and False for adding in existing file 
+.. note:: True / False in Write* functions : True for overwriting existing file and False for adding in existing file
 
 Multi mesh Case
 ````````````````

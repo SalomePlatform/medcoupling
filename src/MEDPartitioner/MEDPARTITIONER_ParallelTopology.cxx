@@ -52,7 +52,7 @@ ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMe
   _nb_cells.resize(_nb_domain);
   _nb_nodes.resize(_nb_domain);
   //  _nb_faces.resize(_nb_domain);
-  
+
   if (MyGlobals::_Is0verbose>100)
     std::cout << "new ParallelTopology\n";
   _loc_to_glob.resize(0);      //precaution, need gatherNbOf() setGlobalNumerotation()
@@ -91,7 +91,7 @@ void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSe
   if (_loc_to_glob.size()!=0) throw INTERP_KERNEL::Exception("a global numerotation is done yet");
   _loc_to_glob.resize(_nb_domain);
   _node_loc_to_glob.resize(_nb_domain);
-  
+
   //warning because _nb_cells[idomain] is 0 if not my domain(s)
   //we set loc_to_glob etc.. only for my domain(s)
   if (MyGlobals::_Is0verbose>500)
@@ -113,7 +113,7 @@ void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSe
   if (MyGlobals::_Verbose>500 && MyGlobals::_World_Size>1) MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose trace
 #endif
   if (MyGlobals::_Is0verbose>500) std::cout << std::endl;
-  
+
   if (MyGlobals::_Is0verbose>500) std::cout << "(n)idomain|ilocalNode|iglobalNode" << std::endl;
   for (int idomain=0; idomain<_nb_domain; idomain++)
     {
@@ -132,7 +132,7 @@ void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSe
   if (MyGlobals::_Verbose>500 && MyGlobals::_World_Size>1) MPI_Barrier(MPI_COMM_WORLD); //synchronize verbose trace
 #endif
   if (MyGlobals::_Is0verbose>500) std::cout << std::endl;
-  
+
   _nb_total_cells=domainSelector->getNbTotalCells();
   _nb_total_nodes=domainSelector->getNbTotalNodes();
   _nb_total_faces=domainSelector->getNbTotalFaces();
@@ -141,7 +141,7 @@ void ParallelTopology::setGlobalNumerotationDefault(ParaDomainSelector* domainSe
 }
 
 //constructing topology according to mesh collection
-ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMesh*>& meshes, 
+ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMesh*>& meshes,
                                    const std::vector<MEDPARTITIONER::ConnectZone*>& cz,
                                    std::vector<mcIdType*>& cellglobal,
                                    std::vector<mcIdType*>& nodeglobal,
@@ -155,7 +155,7 @@ ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMe
   _nb_cells.resize(_nb_domain);
   _nb_nodes.resize(_nb_domain);
   //  _nb_faces.resize(_nb_domain);
-  
+
   _loc_to_glob.resize(_nb_domain);
   _node_loc_to_glob.resize(_nb_domain);
   //  _face_loc_to_glob.resize(_nb_domain);
@@ -168,7 +168,7 @@ ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMe
     {
       if ( !meshes[idomain] ) continue;
       _mesh_dimension = meshes[idomain]->getMeshDimension();
-    
+
       //creating cell maps
       _nb_cells[idomain]=meshes[idomain]->getNumberOfCells();
       //    cout << "Nb cells (domain "<<idomain<<") = "<<_nb_cells[idomain];
@@ -210,8 +210,8 @@ ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMe
               _node_glob_to_loc.insert(std::make_pair(i,std::make_pair(0,i)));
               _node_loc_to_glob[0][i]=i;
             }
-          _nb_total_nodes=meshes[idomain]->getNumberOfNodes();   
-          _nb_nodes[0]=_nb_total_nodes; 
+          _nb_total_nodes=meshes[idomain]->getNumberOfNodes();
+          _nb_nodes[0]=_nb_total_nodes;
           return;
         }
 
@@ -221,7 +221,7 @@ ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMe
       _node_loc_to_glob[idomain].resize(_nb_nodes[idomain]);
       for (std::size_t icz=0; icz<cz.size(); icz++)
         {
-          if (cz[icz]->getLocalDomainNumber() == idomain && 
+          if (cz[icz]->getLocalDomainNumber() == idomain &&
               cz[icz]->getLocalDomainNumber()>cz[icz]->getDistantDomainNumber())
             {
               mcIdType nb_node= cz[icz]->getNodeNumber();
@@ -231,7 +231,7 @@ ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMe
                 {
                   mcIdType local= node_corresp[i*2];
                   mcIdType distant = node_corresp[i*2+1];
-                  local2distant.insert(std::make_pair(local, std::make_pair(distant_ip,distant)));    
+                  local2distant.insert(std::make_pair(local, std::make_pair(distant_ip,distant)));
                 }
             }
         }
@@ -246,7 +246,7 @@ ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMe
                   _node_glob_to_loc.insert(std::make_pair(index_node_global,std::make_pair(idomain,inode)));
                   //_node_loc_to_glob[make_pair(idomain,inode+1)]=index_node_global;
                   _node_loc_to_glob[idomain][inode]=index_node_global;
-                }   
+                }
               else
                 {
                   int ip = (local2distant.find(inode)->second).first;
@@ -254,7 +254,7 @@ ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMe
                   mcIdType global_number=_loc_to_glob[ip][distant];
                   _node_glob_to_loc.insert(std::make_pair(global_number,std::make_pair(idomain,inode)));
                   _node_loc_to_glob[idomain][inode]=global_number;
-                } 
+                }
             }
         }
       //using former node numbering
@@ -270,7 +270,7 @@ ParallelTopology::ParallelTopology(const std::vector<MEDCoupling::MEDCouplingUMe
     }
 
   _nb_total_cells=index_global;
-  _nb_total_nodes=index_node_global;   
+  _nb_total_nodes=index_node_global;
   _nb_total_faces=index_face_global;
 }
 
@@ -292,12 +292,12 @@ ParallelTopology::ParallelTopology(Graph* graph, Topology* oldTopology, int nb_d
   _loc_to_glob.resize(_nb_domain);
   _node_loc_to_glob.resize(_nb_domain);
   _face_loc_to_glob.resize(_nb_domain);
-  
+
   const mcIdType* part=graph->getPart(); //all cells for this proc (may be more domains)
   _nb_total_cells=graph->nbVertices(); //all cells for this proc (may be more domains)
   if (MyGlobals::_Verbose>300)
     std::cout << "proc " << MyGlobals::_Rank << " : topology from partition, nbTotalCells " << _nb_total_cells << std::endl;
-  
+
   int icellProc=0; //all cells of my domains are concatenated in part
   for (int iold=0; iold<oldTopology->nbDomain(); iold++)
     {
@@ -403,14 +403,14 @@ void ParallelTopology::convertGlobalNodeList(const mcIdType* node_list, mcIdType
 
 /*!Converts a list of global node numbers on domain ip
  * to a distributed array with local cell numbers.
- * 
+ *
  * If a node in the list is represented on several domains,
  * only the value with domain ip is returned
- * 
+ *
  * */
 void ParallelTopology::convertGlobalNodeList(const mcIdType* node_list, mcIdType nbnode, mcIdType* local, int ip)
 {
-  if (_node_glob_to_loc.empty()) 
+  if (_node_glob_to_loc.empty())
     throw INTERP_KERNEL::Exception("Node mapping has not yet been built");
 
   for (mcIdType i=0; i< nbnode; i++)
@@ -418,23 +418,23 @@ void ParallelTopology::convertGlobalNodeList(const mcIdType* node_list, mcIdType
       typedef INTERP_KERNEL::HashMultiMap<mcIdType,std::pair<int,mcIdType> >::iterator mmiter;
       std::pair<mmiter,mmiter> range=_node_glob_to_loc.equal_range(node_list[i]);
       for (mmiter it=range.first; it !=range.second; it++)
-        { 
+        {
           int ipfound=(it->second).first;
           if (ipfound==ip)
             local[i]=(it->second).second;
         }
     }
-} 
+}
 
 /*!Converts a list of global node numbers
  * to a distributed array with local cell numbers.
- * 
+ *
  * If a node in the list is represented on several domains,
  * all the values are put in the array
  * */
 void ParallelTopology::convertGlobalNodeListWithTwins(const mcIdType* node_list, mcIdType nbnode, mcIdType*& local, int*& ip,mcIdType*& full_array, mcIdType& size)
 {
-  if (_node_glob_to_loc.empty()) 
+  if (_node_glob_to_loc.empty())
     throw INTERP_KERNEL::Exception("Node mapping has not yet been built");
 
   size=0;
@@ -452,7 +452,7 @@ void ParallelTopology::convertGlobalNodeListWithTwins(const mcIdType* node_list,
       typedef INTERP_KERNEL::HashMultiMap<mcIdType,std::pair<int,mcIdType> >::iterator mmiter;
       std::pair<mmiter,mmiter> range=_node_glob_to_loc.equal_range(node_list[i]);
       for (mmiter it=range.first; it !=range.second; it++)
-        { 
+        {
           ip[index]=(it->second).first;
           local[index]=(it->second).second;
           full_array [index]=node_list[i];
@@ -464,7 +464,7 @@ void ParallelTopology::convertGlobalNodeListWithTwins(const mcIdType* node_list,
 
 /*!Converts a list of global face numbers
  * to a distributed array with local face numbers.
- * 
+ *
  * If a face in the list is represented on several domains,
  * all the values are put in the array
  * */
@@ -486,7 +486,7 @@ void ParallelTopology::convertGlobalFaceListWithTwins(const mcIdType* face_list,
       typedef INTERP_KERNEL::HashMultiMap<mcIdType,std::pair<int,mcIdType> >::iterator mmiter;
       std::pair<mmiter,mmiter> range=_face_glob_to_loc.equal_range(face_list[i]);
       for (mmiter it=range.first; it !=range.second; it++)
-        { 
+        {
           ip[index]=(it->second).first;
           local[index]=(it->second).second;
           full_array[index]=face_list[i];
@@ -497,7 +497,7 @@ void ParallelTopology::convertGlobalFaceListWithTwins(const mcIdType* face_list,
 }
 
 //!converts a list of global cell numbers
-//!to a distributed array with local cell numbers 
+//!to a distributed array with local cell numbers
 void ParallelTopology::convertGlobalCellList(const mcIdType* cell_list, mcIdType nbcell, mcIdType* local, int* ip)
 {
   for (mcIdType i=0; i<nbcell; i++)
@@ -518,7 +518,7 @@ void ParallelTopology::convertGlobalCellList(const mcIdType* cell_list, mcIdType
 
 /*!Converts a list of global face numbers
  * to a distributed array with local face numbers
- */ 
+ */
 void ParallelTopology::convertGlobalFaceList(const mcIdType* face_list, mcIdType nbface, mcIdType* local, int* ip)
 {
   for (mcIdType i=0; i< nbface; i++)
@@ -535,10 +535,10 @@ void ParallelTopology::convertGlobalFaceList(const mcIdType* face_list, mcIdType
 
 /*!Converts a list of global node numbers on domain ip
  * to a distributed array with local cell numbers.
- * 
+ *
  * If a node in the list is represented on several domains,
  * only the value with domain ip is returned
- * 
+ *
  */
 void ParallelTopology::convertGlobalFaceList(const mcIdType* face_list, mcIdType nbface, mcIdType* local, int ip)
 {
@@ -547,14 +547,14 @@ void ParallelTopology::convertGlobalFaceList(const mcIdType* face_list, mcIdType
       typedef INTERP_KERNEL::HashMultiMap<mcIdType,std::pair<int,mcIdType> >::iterator mmiter;
       std::pair<mmiter,mmiter> range=_face_glob_to_loc.equal_range(face_list[i]);
       for (mmiter it=range.first; it !=range.second; it++)
-        { 
+        {
           int ipfound=(it->second).first;
           if (ipfound==ip)
-            local[i]=(it->second).second; 
+            local[i]=(it->second).second;
 
         }
     }
-} 
+}
 
 //replacing a table of global numbering with a table with local numberings
 // type_connectivity contains global connectivity for each type in input
@@ -604,7 +604,7 @@ mcIdType ParallelTopology::getNodeNumber() const
  */
 void ParallelTopology::getNodeList(int idomain, mcIdType *list) const
 {
-  for (mcIdType i=0; i<_nb_nodes[idomain]; i++) 
+  for (mcIdType i=0; i<_nb_nodes[idomain]; i++)
     list[i]=_node_loc_to_glob[idomain][i];
 }
 
@@ -634,7 +634,7 @@ mcIdType ParallelTopology::getFaceNumber() const
  */
 void ParallelTopology::getFaceList(int idomain, mcIdType *list) const
 {
-  for (mcIdType i=0; i<_nb_faces[idomain];i++)   
+  for (mcIdType i=0; i<_nb_faces[idomain];i++)
     list[i]=_face_loc_to_glob[idomain][i];
 }
 
@@ -642,9 +642,9 @@ mcIdType ParallelTopology::convertGlobalFace(mcIdType iglobal, int idomain)
 {
   typedef INTERP_KERNEL::HashMultiMap<mcIdType, std::pair<int,mcIdType> >::const_iterator MMiter;
   std::pair<MMiter,MMiter> eq = _face_glob_to_loc.equal_range(iglobal);
-  for (MMiter it=eq.first; it != eq.second; it++) 
+  for (MMiter it=eq.first; it != eq.second; it++)
     if (it->second.first == idomain)
-      return it->second.second;   
+      return it->second.second;
   return -1;
 }
 

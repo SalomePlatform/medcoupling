@@ -49,7 +49,7 @@ MeshCollectionMedAsciiDriver::MeshCollectionMedAsciiDriver(MeshCollection* colle
 /*!reads a MED File v>=2.3
  * and mounts the corresponding meshes in memory
  * the connect zones are created from the joints
- * 
+ *
  *\param filename ascii file containing the list of MED v2.3 files
  * */
 

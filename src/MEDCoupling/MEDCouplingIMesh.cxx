@@ -841,7 +841,7 @@ std::vector<const BigMemoryObject *> MEDCouplingIMesh::getDirectChildrenWithNull
  * @throw if other and this have not same mesh type.
  */
 void MEDCouplingIMesh::copyTinyStringsFrom(const MEDCouplingMesh *other)
-{ 
+{
   const MEDCouplingIMesh *otherC=dynamic_cast<const MEDCouplingIMesh *>(other);
   if(!otherC)
     throw INTERP_KERNEL::Exception("MEDCouplingIMesh::copyTinyStringsFrom : meshes have not same type !");

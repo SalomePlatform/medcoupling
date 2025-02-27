@@ -39,7 +39,7 @@ namespace MEDCoupling
   {
     _comm_interface=other._comm_interface;
   }
-  
+
   DEC::~DEC()
   {
   }

@@ -53,7 +53,7 @@ class StdOutRedirect(object):
                 return self.f.isatty()
             def close(self):
                 os.fsync(self.f)
-                self.f.close();
+                self.f.close()
         sys.stderr=FlushFile(os.fdopen(self.fdOfSinkFile,"w"))
     def __del__(self):
         import os,sys
@@ -74,10 +74,10 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual((0,-1),medmesh.getNonEmptyLevels())
         m1_0=medmesh.getLevel0Mesh(True)
         m1_1=ReadUMeshFromFile(fileName,mname,0)
-        self.assertTrue(m1_0.isEqual(m1_1,1e-12));
+        self.assertTrue(m1_0.isEqual(m1_1,1e-12))
         m2_0=medmesh.getLevelM1Mesh(True)
         m2_1=ReadUMeshFromFile(fileName,mname,-1)
-        self.assertTrue(m2_0.isEqual(m2_1,1e-12));
+        self.assertTrue(m2_0.isEqual(m2_1,1e-12))
         pass
 
     @WriteInTmpDir
@@ -90,38 +90,38 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual((0,),medmesh.getNonEmptyLevels())
         m1_0=medmesh.getLevel0Mesh(True)
         m1_1=ReadUMeshFromFile(fileName,mname,0)
-        self.assertTrue(m1_0.isEqual(m1_1,1e-12));
+        self.assertTrue(m1_0.isEqual(m1_1,1e-12))
         g1_0=medmesh.getGroup(0,"mesh2",True)
-        g1_1=ReadUMeshFromGroups(fileName,mname,0,["mesh2"]);
-        self.assertTrue(g1_0.isEqual(g1_1,1e-12));
+        g1_1=ReadUMeshFromGroups(fileName,mname,0,["mesh2"])
+        self.assertTrue(g1_0.isEqual(g1_1,1e-12))
         g1_0=medmesh.getGroup(0,"mesh3",True)
-        g1_1=ReadUMeshFromGroups(fileName,mname,0,["mesh3"]);
-        self.assertTrue(g1_0.isEqual(g1_1,1e-12));
+        g1_1=ReadUMeshFromGroups(fileName,mname,0,["mesh3"])
+        self.assertTrue(g1_0.isEqual(g1_1,1e-12))
         g1_0=medmesh.getGroups(0,["mesh3","mesh2"])
-        g1_1=ReadUMeshFromGroups(fileName,mname,0,["mesh3","mesh2"]);
+        g1_1=ReadUMeshFromGroups(fileName,mname,0,["mesh3","mesh2"])
         g1_1.setName(g1_0.getName())
-        self.assertTrue(g1_0.isEqual(g1_1,1e-12));
+        self.assertTrue(g1_0.isEqual(g1_1,1e-12))
         g1_0=medmesh.getFamily(0,"Family_-3",True)
-        g1_1=ReadUMeshFromFamilies(fileName,mname,0,["Family_-3"]);
-        self.assertTrue(g1_0.isEqual(g1_1,1e-12));
+        g1_1=ReadUMeshFromFamilies(fileName,mname,0,["Family_-3"])
+        self.assertTrue(g1_0.isEqual(g1_1,1e-12))
         g1_0=medmesh.getFamilies(0,["Family_-3","Family_-5"],True)
-        g1_1=ReadUMeshFromFamilies(fileName,mname,0,["Family_-3","Family_-5"]);
+        g1_1=ReadUMeshFromFamilies(fileName,mname,0,["Family_-3","Family_-5"])
         g1_1.setName(g1_0.getName())
-        self.assertTrue(g1_0.isEqual(g1_1,1e-12));
-        self.assertTrue(g1_0.isEqual(g1_1,1e-12));
-        medmesh.write(outFileName,2);
-        self.assertEqual([1,2,4,13,15],medmesh.getGroupArr(0,"mesh2",True).getValues());
-        self.assertEqual([1,2,15],medmesh.getFamilyArr(0,"Family_-3",True).getValues());
-        self.assertEqual([1,2,4,13,15],medmesh.getFamiliesArr(0,["Family_-5","Family_-3"],True).getValues());
-        self.assertEqual([18,1,2,3,4,13,14,15],medmesh.getGroupsArr(0,["mesh2","mesh4","mesh3"],True).getValues());
+        self.assertTrue(g1_0.isEqual(g1_1,1e-12))
+        self.assertTrue(g1_0.isEqual(g1_1,1e-12))
+        medmesh.write(outFileName,2)
+        self.assertEqual([1,2,4,13,15],medmesh.getGroupArr(0,"mesh2",True).getValues())
+        self.assertEqual([1,2,15],medmesh.getFamilyArr(0,"Family_-3",True).getValues())
+        self.assertEqual([1,2,4,13,15],medmesh.getFamiliesArr(0,["Family_-5","Family_-3"],True).getValues())
+        self.assertEqual([18,1,2,3,4,13,14,15],medmesh.getGroupsArr(0,["mesh2","mesh4","mesh3"],True).getValues())
         famn=medmesh.getFamilyNameGivenId(0)
         #self.assertRaises(InterpKernelException,medmesh.getNodeFamilyArr,famn,True) # EDF26299
         self.assertTrue(medmesh.getNodeFamilyArr(famn,True).isEqualWithoutConsideringStr(DataArrayInt([])))
         #without renum
-        self.assertEqual([2,3,5,14,16],medmesh.getGroupArr(0,"mesh2").getValues());
-        self.assertEqual([2,3,16],medmesh.getFamilyArr(0,"Family_-3").getValues());
-        self.assertEqual([2,3,5,14,16],medmesh.getFamiliesArr(0,["Family_-5","Family_-3"]).getValues());
-        self.assertEqual([0,2,3,4,5,14,15,16],medmesh.getGroupsArr(0,["mesh2","mesh3","mesh4"],False).getValues());
+        self.assertEqual([2,3,5,14,16],medmesh.getGroupArr(0,"mesh2").getValues())
+        self.assertEqual([2,3,16],medmesh.getFamilyArr(0,"Family_-3").getValues())
+        self.assertEqual([2,3,5,14,16],medmesh.getFamiliesArr(0,["Family_-5","Family_-3"]).getValues())
+        self.assertEqual([0,2,3,4,5,14,15,16],medmesh.getGroupsArr(0,["mesh2","mesh3","mesh4"],False).getValues())
         #self.assertRaises(InterpKernelException,medmesh.getNodeFamilyArr,famn,False) # EDF26299
         self.assertTrue(medmesh.getNodeFamilyArr(famn,False).isEqualWithoutConsideringStr(DataArrayInt([])))
         pass
@@ -131,37 +131,37 @@ class MEDLoaderTest3(unittest.TestCase):
     def testMEDMesh3(self):
         outFileName="MEDFileMesh3.med"
         c=DataArrayDouble.New()
-        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ]
         targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
         c.setValues(coords,9,2)
-        m=MEDCouplingUMesh.New();
-        m.setMeshDimension(2);
-        m.allocateCells(5);
+        m=MEDCouplingUMesh.New()
+        m.setMeshDimension(2)
+        m.allocateCells(5)
         m.insertNextCell(NORM_TRI3,3,targetConn[4:7])
         m.insertNextCell(NORM_TRI3,3,targetConn[7:10])
         m.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
         m.insertNextCell(NORM_POLYGON,4,targetConn[10:14])
         m.insertNextCell(NORM_POLYGON,4,targetConn[14:18])
-        m.finishInsertingCells();
+        m.finishInsertingCells()
         m.setCoords(c)
         m.checkConsistencyLight()
-        m1=MEDCouplingUMesh.New();
-        m1.setMeshDimension(1);
-        m1.allocateCells(3);
+        m1=MEDCouplingUMesh.New()
+        m1.setMeshDimension(1)
+        m1.allocateCells(3)
         m1.insertNextCell(NORM_SEG2,2,[1,4])
         m1.insertNextCell(NORM_SEG2,2,[3,6])
         m1.insertNextCell(NORM_SEG3,3,[2,8,5])
-        m1.finishInsertingCells();
+        m1.finishInsertingCells()
         m1.setCoords(c)
         m1.checkConsistencyLight()
-        m2=MEDCouplingUMesh.New();
-        m2.setMeshDimension(0);
-        m2.allocateCells(4);
+        m2=MEDCouplingUMesh.New()
+        m2.setMeshDimension(0)
+        m2.allocateCells(4)
         m2.insertNextCell(NORM_POINT1,1,[1])
         m2.insertNextCell(NORM_POINT1,1,[3])
         m2.insertNextCell(NORM_POINT1,1,[2])
         m2.insertNextCell(NORM_POINT1,1,[6])
-        m2.finishInsertingCells();
+        m2.finishInsertingCells()
         m2.setCoords(c)
         m2.checkConsistencyLight()
         #
@@ -170,9 +170,9 @@ class MEDLoaderTest3(unittest.TestCase):
         mm.setName("MyFirstMEDCouplingMEDmesh")
         mm.setDescription("IHopeToConvinceLastMEDMEMUsers")
         mm.setCoords(c)
-        mm.setMeshAtLevel(-1,m1);
-        mm.setMeshAtLevel(0,m);
-        mm.setMeshAtLevel(-2,m2);
+        mm.setMeshAtLevel(-1,m1)
+        mm.setMeshAtLevel(0,m)
+        mm.setMeshAtLevel(-2,m2)
         # playing with groups
         g1_2=DataArrayInt.New()
         g1_2.setValues([1,3],2,1)
@@ -198,24 +198,24 @@ class MEDLoaderTest3(unittest.TestCase):
         mm.createGroupOnAll(0,"GrpOnAllCell")
         # check content of mm
         t=mm.getGroupArr(0,"G1",False)
-        self.assertTrue(g1_2.isEqual(t));
+        self.assertTrue(g1_2.isEqual(t))
         t=mm.getGroupArr(0,"G2",False)
-        self.assertTrue(g2_2.isEqual(t));
+        self.assertTrue(g2_2.isEqual(t))
         t=mm.getGroupArr(-1,"G1",False)
-        self.assertTrue(g1_1.isEqual(t));
+        self.assertTrue(g1_1.isEqual(t))
         t=mm.getGroupArr(-1,"G2",False)
-        self.assertTrue(g2_1.isEqual(t));
+        self.assertTrue(g2_1.isEqual(t))
         t=mm.getGroupArr(1,"G1",False)
-        self.assertTrue(g1_N.isEqual(t));
+        self.assertTrue(g1_N.isEqual(t))
         t=mm.getGroupArr(1,"G2",False)
-        self.assertTrue(g2_N.isEqual(t));
-        self.assertTrue(mm.existsGroup("GrpOnAllCell"));
+        self.assertTrue(g2_N.isEqual(t))
+        self.assertTrue(mm.existsGroup("GrpOnAllCell"))
         t=mm.getGroupArr(0,"GrpOnAllCell")
         self.assertTrue(t.getValues()==list(range(5)))
         #
         mmCpy=mm.deepCopy()
         self.assertTrue(mm.isEqual(mmCpy,1e-12)[0]) ; del mm
-        mmCpy.write(outFileName,2);
+        mmCpy.write(outFileName,2)
         #
         mm=MEDFileMesh.New(outFileName)
         #
@@ -237,7 +237,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(len(mm.getUnivName())!=0)
         mbis=mm.getMeshAtLevel(0)
         m.setName(mm.getName()) ; m.setDescription(mm.getDescription())
-        self.assertTrue(m.isEqual(mbis,1e-12));
+        self.assertTrue(m.isEqual(mbis,1e-12))
         #
         self.assertEqual(([[(3, 2), (4, 1), (5, 8)], [(1, 2), (2, 1)], [(0, 4)]], 2, 2, 9),GetUMeshGlobalInfo(outFileName,"MyFirstMEDCouplingMEDmesh"))
         pass
@@ -247,39 +247,39 @@ class MEDLoaderTest3(unittest.TestCase):
     def testMEDMesh4(self):
         outFileName="MEDFileMesh4.med"
         c=DataArrayDouble.New()
-        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
+        coords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ]
         targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
         c.setValues(coords,9,2)
         c.setInfoOnComponent(0,"abcdef [km]")
         c.setInfoOnComponent(1,"ghij [MW]")
-        m=MEDCouplingUMesh.New();
-        m.setMeshDimension(2);
-        m.allocateCells(5);
+        m=MEDCouplingUMesh.New()
+        m.setMeshDimension(2)
+        m.allocateCells(5)
         m.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
         m.insertNextCell(NORM_TRI3,3,targetConn[4:7])
         m.insertNextCell(NORM_TRI3,3,targetConn[7:10])
         m.insertNextCell(NORM_QUAD4,4,targetConn[10:14])
         m.insertNextCell(NORM_QUAD4,4,targetConn[14:18])
-        m.finishInsertingCells();
+        m.finishInsertingCells()
         m.setCoords(c)
         m.checkConsistencyLight()
-        m1=MEDCouplingUMesh.New();
-        m1.setMeshDimension(1);
-        m1.allocateCells(3);
+        m1=MEDCouplingUMesh.New()
+        m1.setMeshDimension(1)
+        m1.allocateCells(3)
         m1.insertNextCell(NORM_SEG2,2,[1,4])
         m1.insertNextCell(NORM_SEG3,3,[2,8,5])
         m1.insertNextCell(NORM_SEG2,2,[3,6])
-        m1.finishInsertingCells();
+        m1.finishInsertingCells()
         m1.setCoords(c)
         m1.checkConsistencyLight()
-        m2=MEDCouplingUMesh.New();
-        m2.setMeshDimension(0);
-        m2.allocateCells(4);
+        m2=MEDCouplingUMesh.New()
+        m2.setMeshDimension(0)
+        m2.allocateCells(4)
         m2.insertNextCell(NORM_POINT1,1,[1])
         m2.insertNextCell(NORM_POINT1,1,[3])
         m2.insertNextCell(NORM_POINT1,1,[2])
         m2.insertNextCell(NORM_POINT1,1,[6])
-        m2.finishInsertingCells();
+        m2.finishInsertingCells()
         m2.setCoords(c)
         m2.checkConsistencyLight()
         #
@@ -291,11 +291,11 @@ class MEDLoaderTest3(unittest.TestCase):
         renumNode.setValues([10,11,12,13,14,15,16,17,18],9,1)
         mm.setRenumFieldArr(1,renumNode)
         mm.computeRevNum()
-        mm.setMeshAtLevel(-1,m1,True);
-        mm.setMeshAtLevel(0,m,True);
-        mm.setMeshAtLevel(-2,m2,True);
+        mm.setMeshAtLevel(-1,m1,True)
+        mm.setMeshAtLevel(0,m,True)
+        mm.setMeshAtLevel(-2,m2,True)
         mm.removeMeshAtLevel(-2)
-        mm.setMeshAtLevel(-2,m2,True);
+        mm.setMeshAtLevel(-2,m2,True)
         # playing with groups
         g1_2=DataArrayInt.New()
         g1_2.setValues([2,3],2,1)
@@ -320,16 +320,16 @@ class MEDLoaderTest3(unittest.TestCase):
         mm.setGroupsAtLevel(1,[g1_N,g2_N],True)
         # check content of mm
         t=mm.getGroupArr(0,"G1",True)
-        self.assertTrue(g1_2.isEqual(t));
+        self.assertTrue(g1_2.isEqual(t))
         t=mm.getGroupArr(0,"G2",True)
-        self.assertTrue(g2_2.isEqual(t));
+        self.assertTrue(g2_2.isEqual(t))
         t=mm.getGroupArr(-1,"G1",True)
-        self.assertTrue(g1_1.isEqual(t));
+        self.assertTrue(g1_1.isEqual(t))
         t=mm.getGroupArr(-1,"G2",True)
-        self.assertTrue(g2_1.isEqual(t));
-        self.assertTrue(not mm.existsGroup("GrpOnAllCell"));
+        self.assertTrue(g2_1.isEqual(t))
+        self.assertTrue(not mm.existsGroup("GrpOnAllCell"))
         #
-        mm.write(outFileName,2);
+        mm.write(outFileName,2)
         mm2=MEDFileMesh.New(outFileName)
         res=mm.isEqual(mm2,1e-12)
         self.assertTrue(res[0])
@@ -369,7 +369,7 @@ class MEDLoaderTest3(unittest.TestCase):
         outFileName="MEDFileMesh5.med"
         m=MEDFileCMesh.New()
         m.setTime(-1,-1,2.3)
-        m1=MEDCouplingCMesh.New();
+        m1=MEDCouplingCMesh.New()
         da=DataArrayDouble.New()
         da.setValues([0.,1.,2.],3,1)
         da.setInfoOnComponent(0,"XX [mm]")
@@ -397,7 +397,7 @@ class MEDLoaderTest3(unittest.TestCase):
         expected1=[2,4,9]
         self.assertEqual(expected1,da.getValues())
         self.assertTrue(m.getUnivNameWrStatus())
-        m.write(outFileName,2);
+        m.write(outFileName,2)
         mm=MEDFileMesh.New(outFileName)
         self.assertEqual([NORM_HEXA8],mm.getGeoTypesAtLevel(0))
         self.assertTrue(isinstance(mm,MEDFileCMesh))
@@ -411,7 +411,7 @@ class MEDLoaderTest3(unittest.TestCase):
         m1.setName(m.getName())
         m1.setTimeUnit(m.getTimeUnit())
         m1.setDescription(m.getDescription())
-        self.assertTrue(m2.isEqual(m1,1e-12));
+        self.assertTrue(m2.isEqual(m1,1e-12))
 
     @WriteInTmpDir
     def testMEDMesh6(self):
@@ -592,7 +592,7 @@ class MEDLoaderTest3(unittest.TestCase):
     @WriteInTmpDir
     def testMEDField8(self):
         fname="Pyfile25.med"
-        f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
+        f1=MEDLoaderDataForTest.buildVecFieldOnCells_1()
         m1=f1.getMesh()
         mm1=MEDFileUMesh.New()
         mm1.setCoords(m1.getCoords())
@@ -602,24 +602,24 @@ class MEDLoaderTest3(unittest.TestCase):
         ff1=MEDFileField1TS.New()
         ff1.setFieldNoProfileSBT(f1)
         ff1.write(fname,0)
-        f2=ReadFieldCell(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2]);
+        f2=ReadFieldCell(fname,f1.getMesh().getName(),0,f1.getName(),f1.getTime()[1],f1.getTime()[2])
         itt,orr,ti=ff1.getTime()
-        self.assertEqual(0,itt); self.assertEqual(1,orr); self.assertAlmostEqual(2.,ti,14);
+        self.assertEqual(0,itt); self.assertEqual(1,orr); self.assertAlmostEqual(2.,ti,14)
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
         ff1.setTime(3,4,2.3)
         itt,orr,ti=ff1.getTime()
-        self.assertEqual(3,itt); self.assertEqual(4,orr); self.assertAlmostEqual(2.3,ti,14);
+        self.assertEqual(3,itt); self.assertEqual(4,orr); self.assertAlmostEqual(2.3,ti,14)
         f1.setTime(5.5,7,8)
         ff1.copyTimeInfoFrom(f1)
         itt,orr,ti=ff1.getTime()
-        self.assertEqual(7,itt); self.assertEqual(8,orr); self.assertAlmostEqual(5.5,ti,14);
+        self.assertEqual(7,itt); self.assertEqual(8,orr); self.assertAlmostEqual(5.5,ti,14)
         da,infos=ff1.getUndergroundDataArrayExt()
         f2.getArray().setName(da.getName())#da has the same name than f2
         self.assertTrue(da.isEqual(f2.getArray(),1e-12))
         self.assertEqual([((3, 0), (0, 2)), ((4, 0), (2, 4)), ((6, 0), (4, 5)), ((5, 0), (5, 6))],infos)
         #
         fname="Pyfile26.med"
-        f1=MEDLoaderDataForTest.buildVecFieldOnNodes_1();
+        f1=MEDLoaderDataForTest.buildVecFieldOnNodes_1()
         m1=f1.getMesh()
         mm1=MEDFileUMesh.New()
         mm1.setCoords(m1.getCoords())
@@ -637,7 +637,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(f1.isEqual(f2,1e-12,1e-12))
         #
         fname="Pyfile27.med"
-        f1=MEDLoaderDataForTest.buildVecFieldOnGaussNE_1();
+        f1=MEDLoaderDataForTest.buildVecFieldOnGaussNE_1()
         m1=f1.getMesh()
         mm1=MEDFileUMesh.New()
         mm1.setCoords(m1.getCoords())
@@ -655,7 +655,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual([((3, 0), (0, 6)), ((4, 0), (6, 14)), ((6, 0), (14, 20))],infos)
         #
         fname="Pyfile28.med"
-        f1=MEDLoaderDataForTest.buildVecFieldOnGauss_2_Simpler();
+        f1=MEDLoaderDataForTest.buildVecFieldOnGauss_2_Simpler()
         f1InvalidCpy=f1.deepCopy()
         f1InvalidCpy.setDiscretization(MEDCouplingFieldDiscretizationGauss())
         f1InvalidCpy2=f1.deepCopy()
@@ -697,7 +697,7 @@ class MEDLoaderTest3(unittest.TestCase):
         #
         m1=MEDLoaderDataForTest.build1DMesh_1()
         mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1) ; mm1.setName(m1.getName())
-        mmm1=MEDFileMeshMultiTS.New() ;
+        mmm1=MEDFileMeshMultiTS.New()
         mmm1.setOneTimeStep(mm1)
         m2=MEDLoaderDataForTest.build2DCurveMesh_1()
         mm2=MEDFileUMesh.New() ; mm2.setCoords(m2.getCoords()) ; mm2.setMeshAtLevel(0,m2) ; mm2.setName(m2.getName())
@@ -717,9 +717,9 @@ class MEDLoaderTest3(unittest.TestCase):
         f1.getArray().setInfoOnComponent(0,"power [kW]")
         ff1.appendFieldNoProfileSBT(f1)
         f21=m2.getMeasureField(True) ; f21.setName("f21") ; f21=f21.buildNewTimeReprFromThis(ONE_TIME,False)
-        f21.getArray().setInfoOnComponent(0,"sta [mm]") ;
+        f21.getArray().setInfoOnComponent(0,"sta [mm]")
         ff21.appendFieldNoProfileSBT(f21)
-        f22=f21.deepCopy() ; f22.setName("f22") ; f22=f22.buildNewTimeReprFromThis(ONE_TIME,False) ;
+        f22=f21.deepCopy() ; f22.setName("f22") ; f22=f22.buildNewTimeReprFromThis(ONE_TIME,False)
         f22.applyFunc(2,"3*x*IVec+2*x*JVec")
         f22.getArray().setInfoOnComponent(0,"distance [km]") ; f22.getArray().setInfoOnComponent(1,"displacement [cm]")
         ff22.appendFieldNoProfileSBT(f22)
@@ -753,7 +753,7 @@ class MEDLoaderTest3(unittest.TestCase):
         # first test field profile WR. Full type but with some type missing
         fname="Pyfile30.med"
         m1=MEDLoaderDataForTest.build2DMesh_3()
-        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1) ;
+        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1)
         mm1.write(fname,2)
         ff1=MEDFileField1TS.New()
         f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME) ; f1.setName("F1")
@@ -802,7 +802,7 @@ class MEDLoaderTest3(unittest.TestCase):
         da=DataArrayInt.New(); da.setValues([0,1,2,4],4,1) ; da.setName("sup2")
         #
         ff1.appendFieldProfile(f1,mm1,0,da)
-        f1.setTime(1.2,1,2) ; e=d.applyFunc("2*x") ; e.copyStringInfoFrom(d) ; f1.setArray(e) ;
+        f1.setTime(1.2,1,2) ; e=d.applyFunc("2*x") ; e.copyStringInfoFrom(d) ; f1.setArray(e)
         ff1.appendFieldProfile(f1,mm1,0,da)
         ff1=ff1.deepCopy()
         ff1.write(fname,0)
@@ -830,7 +830,7 @@ class MEDLoaderTest3(unittest.TestCase):
         fname="Pyfile32.med"
         m1=MEDLoaderDataForTest.build2DMesh_1()
         m1.renumberCells([0,1,4,2,3,5],False)
-        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1) ;
+        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1)
         mm1.write(fname,2)
         ff1=MEDFileField1TS.New()
         f1=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME) ; f1.setName("F1Node")
@@ -857,7 +857,7 @@ class MEDLoaderTest3(unittest.TestCase):
         fname="Pyfile33.med"
         m1=MEDLoaderDataForTest.build2DMesh_1()
         m1.renumberCells([0,1,4,2,3,5],False)
-        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1) ;
+        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1)
         mm1.write(fname,2)
         ff1=MEDFileFieldMultiTS.New()
         f1=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME) ; f1.setName("F1Node")
@@ -866,7 +866,7 @@ class MEDLoaderTest3(unittest.TestCase):
         da=DataArrayInt.New(); da.setValues([1,2,4,5,7,8],6,1) ; da.setName("sup1Node")
         #
         ff1.appendFieldProfile(f1,mm1,0,da)
-        f1.setTime(1.2,1,2) ; e=d.applyFunc("2*x") ; e.copyStringInfoFrom(d) ; f1.setArray(e) ;
+        f1.setTime(1.2,1,2) ; e=d.applyFunc("2*x") ; e.copyStringInfoFrom(d) ; f1.setArray(e)
         ff1.appendFieldProfile(f1,mm1,0,da)
         ff1.write(fname,0)
         #
@@ -891,9 +891,9 @@ class MEDLoaderTest3(unittest.TestCase):
         fname="Pyfile34.med"
         m1=MEDLoaderDataForTest.build2DMesh_1()
         m1.renumberCells([0,1,4,2,3,5],False)
-        tmp=m1.getName();
+        tmp=m1.getName()
         m1=m1.buildPartOfMySelf(list(range(5)),True) ; m1.setName(tmp) # suppression of last cell that is a polygon
-        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1) ;
+        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1)
         mm1.write(fname,2)
         ff1=MEDFileField1TS.New()
         f1=MEDCouplingFieldDouble.New(ON_GAUSS_NE,ONE_TIME) ; f1.setName("F3Node")
@@ -919,9 +919,9 @@ class MEDLoaderTest3(unittest.TestCase):
         fname="Pyfile35.med"
         m1=MEDLoaderDataForTest.build2DMesh_1()
         m1.renumberCells([0,1,4,2,3,5],False)
-        tmp=m1.getName();
+        tmp=m1.getName()
         m1=m1.buildPartOfMySelf(list(range(5)),True) ; m1.setName(tmp) # suppression of last cell that is a polygon
-        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1) ;
+        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1)
         mm1.write(fname,2)
         ff1=MEDFileFieldMultiTS.New()
         f1=MEDCouplingFieldDouble.New(ON_GAUSS_NE,ONE_TIME) ; f1.setName("F4Node")
@@ -930,7 +930,7 @@ class MEDLoaderTest3(unittest.TestCase):
         da=DataArrayInt.New(); da.setValues([0,2,3],3,1) ; da.setName("sup1NodeElt")
         #
         ff1.appendFieldProfile(f1,mm1,0,da)
-        f1.setTime(1.2,1,2) ; e=d.applyFunc("2*x") ; e.copyStringInfoFrom(d) ; f1.setArray(e) ;
+        f1.setTime(1.2,1,2) ; e=d.applyFunc("2*x") ; e.copyStringInfoFrom(d) ; f1.setArray(e)
         ff1.appendFieldProfile(f1,mm1,0,da)
         ff1.write(fname,0)
         #
@@ -958,9 +958,9 @@ class MEDLoaderTest3(unittest.TestCase):
         fname="Pyfile36.med"
         m0=MEDLoaderDataForTest.build2DMesh_1()
         m0.renumberCells([0,1,4,2,3,5],False)
-        tmp=m0.getName();
+        tmp=m0.getName()
         m1=m0.buildPartOfMySelf([0,1,1,2,3,3,4,4],True) ; m1.setName(tmp) # suppression of last cell that is a polygon and creation of one more cell per type
-        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1) ;
+        mm1=MEDFileUMesh.New() ; mm1.setCoords(m1.getCoords()) ; mm1.setMeshAtLevel(0,m1)
         ff1=MEDFileField1TS.New()
         f1=MEDCouplingFieldDouble.New(ON_GAUSS_NE,ONE_TIME) ; f1.setName("F4Node")
         d=DataArrayDouble.New() ; d.alloc(2*20,1) ; d.iota(7.); d.rearrange(2); d.setInfoOnComponent(0,"sigX [MPa]") ; d.setInfoOnComponent(1,"sigY [GPa]")
@@ -968,7 +968,7 @@ class MEDLoaderTest3(unittest.TestCase):
         da=DataArrayInt.New(); da.setValues([0,1,3,4,6],5,1) ; da.setName("sup1NodeElt")
         #
         ff1.setFieldProfile(f1,mm1,0,da)
-        m1=m0.buildPartOfMySelf(list(range(5)),True) ; m1.setName(tmp) ; mm1.setMeshAtLevel(0,m1) ;
+        m1=m0.buildPartOfMySelf(list(range(5)),True) ; m1.setName(tmp) ; mm1.setMeshAtLevel(0,m1)
         mm1.write(fname,2)
         ff1.write(fname,0)
         f1=ff1.getFieldOnMeshAtLevel(ON_GAUSS_NE,m1,0)
@@ -980,7 +980,7 @@ class MEDLoaderTest3(unittest.TestCase):
     @WriteInTmpDir
     def testMEDField16(self):
         fname="Pyfile37.med"
-        f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
+        f1=MEDLoaderDataForTest.buildVecFieldOnCells_1()
         m1=f1.getMesh()
         mm1=MEDFileUMesh.New()
         mm1.setCoords(m1.getCoords())
@@ -1040,7 +1040,7 @@ class MEDLoaderTest3(unittest.TestCase):
         da=DataArrayInt.New(); da.setValues([0,1,2,4],4,1) ; da.setName("sup2")
         #
         ff1.appendFieldProfile(f1,mm1,0,da)
-        f1.setTime(1.2,1,2) ; e=d.applyFunc("2*x") ; e.copyStringInfoFrom(d) ; f1.setArray(e) ;
+        f1.setTime(1.2,1,2) ; e=d.applyFunc("2*x") ; e.copyStringInfoFrom(d) ; f1.setArray(e)
         ff1.appendFieldProfile(f1,mm1,0,da)
         ffs.resize(1)
         ffs.setFieldAtPos(0,ff1)
@@ -1069,7 +1069,7 @@ class MEDLoaderTest3(unittest.TestCase):
         da=DataArrayInt.New(); da.setValues([0,1,2,4],4,1) ; da.setName("sup2")
         #
         ff1.appendFieldProfile(f1,mm1,0,da)
-        f1.setTime(1.2,1,2) ; e=d.applyFunc("2*x") ; e.copyStringInfoFrom(d) ; f1.setArray(e) ;
+        f1.setTime(1.2,1,2) ; e=d.applyFunc("2*x") ; e.copyStringInfoFrom(d) ; f1.setArray(e)
         ff1.appendFieldProfile(f1,mm1,0,da)
         ffs.pushField(ff1)
         ffs.write(fname,0)
@@ -1124,18 +1124,18 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(('Family_-4','Family_-5',),mm.getFamiliesOnGroup('g3'))
         mm.changeFamilyId(5,6)
         g=mm.getGroupArr(0,"g3")
-        self.assertTrue(g.isEqual(g3));
+        self.assertTrue(g.isEqual(g3))
         g=mm.getGroupArr(0,"g2")
-        self.assertTrue(g.isEqual(g2));
+        self.assertTrue(g.isEqual(g2))
         g=mm.getGroupArr(0,"g1")
-        self.assertTrue(g.isEqual(g1));
+        self.assertTrue(g.isEqual(g1))
         pass
 
     # bug detected by gauthier
     @WriteInTmpDir
     def testMEDLoaderMEDLoaderNSReadFieldDoubleDataInMedFile(self):
         fname="Pyfile41.med"
-        f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
+        f1=MEDLoaderDataForTest.buildVecFieldOnCells_1()
         m1=f1.getMesh()
         mm1=MEDFileUMesh.New()
         mm1.setCoords(m1.getCoords())
@@ -1264,11 +1264,11 @@ class MEDLoaderTest3(unittest.TestCase):
         nodeCoordsWithValue1=[10.,2.5,0.]
         nodeCoordsWithValue2=[10.,3.75,0.]
         for i in range(3):
-            self.assertAlmostEqual(nodeCoordsWithValue1[i],tes0.getMesh().getCoordinatesOfNode(0)[i],13);
-            self.assertAlmostEqual(nodeCoordsWithValue2[i],tes0.getMesh().getCoordinatesOfNode(1)[i],13);
+            self.assertAlmostEqual(nodeCoordsWithValue1[i],tes0.getMesh().getCoordinatesOfNode(0)[i],13)
+            self.assertAlmostEqual(nodeCoordsWithValue2[i],tes0.getMesh().getCoordinatesOfNode(1)[i],13)
             pass
         for i in range(6):
-            self.assertAlmostEqual(expected1[i],tes0.getArray().getIJ(0,i),13);
+            self.assertAlmostEqual(expected1[i],tes0.getArray().getIJ(0,i),13)
             pass
         del tes0
         #
@@ -1282,7 +1282,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(2,tes1.getArray().getNumberOfTuples())
         self.assertEqual(3,tes1.getArray().getNumberOfComponents())
         for i in range(6):
-            self.assertAlmostEqual(expected1[i],tes1.getArray().getIJ(0,i),13);
+            self.assertAlmostEqual(expected1[i],tes1.getArray().getIJ(0,i),13)
             pass
         m.write(fname,2)
         f.write(fname,0)
@@ -1301,8 +1301,8 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(3,tes2.getArray().getNumberOfComponents())
         expected2=[2.,20.,200.,1.,10.,100.]
         for i in range(3):
-            self.assertAlmostEqual(nodeCoordsWithValue1[i],tes2.getMesh().getCoordinatesOfNode(0)[i],13);
-            self.assertAlmostEqual(nodeCoordsWithValue2[i],tes2.getMesh().getCoordinatesOfNode(1)[i],13);
+            self.assertAlmostEqual(nodeCoordsWithValue1[i],tes2.getMesh().getCoordinatesOfNode(0)[i],13)
+            self.assertAlmostEqual(nodeCoordsWithValue2[i],tes2.getMesh().getCoordinatesOfNode(1)[i],13)
             pass
         for i in range(6):
             self.assertAlmostEqual(expected2[i],tes2.getArray().getIJ(0,i),13);#compare tes2 and tes3
@@ -1318,7 +1318,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(2,tes3.getArray().getNumberOfTuples())
         self.assertEqual(3,tes3.getArray().getNumberOfComponents())
         for i in range(6):
-            self.assertAlmostEqual(expected1[i],tes3.getArray().getIJ(0,i),13);
+            self.assertAlmostEqual(expected1[i],tes3.getArray().getIJ(0,i),13)
             pass
         pass
 
@@ -1349,9 +1349,9 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(ref1,mm.getMeshAtLevel(0)[[7,8,9]].getNodalConnectivity().getValues())
         #
         nodes,cells,cells2=mm.buildInnerBoundaryAlongM1Group("Grp")
-        self.assertEqual([15,16,17],nodes.getValues());
-        self.assertEqual([7,8,9],cells.getValues());
-        self.assertEqual([12,13,14],cells2.getValues());
+        self.assertEqual([15,16,17],nodes.getValues())
+        self.assertEqual([7,8,9],cells.getValues())
+        self.assertEqual([12,13,14],cells2.getValues())
         self.assertEqual(33,mm.getNumberOfNodes())
         self.assertEqual([4,6,8],mm.getGroupArr(-1,"Grp").getValues())
         self.assertEqual([9,16],mm.getGroupArr(-1,"Grp2").getValues())
@@ -1366,7 +1366,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(delta.getMaxValue()[0]<1e-12)
         #
         mm.getCoords()[-len(nodes):]+=[0.,-0.3]
-        self.assertRaises(InterpKernelException,mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith,mm.getGroup(-1,"Grp"),12,1e-12);
+        self.assertRaises(InterpKernelException,mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith,mm.getGroup(-1,"Grp"),12,1e-12)
         refValues2=refValues[:] ; refValues2[7:10]=[1.365,1.26,1.35]
         valsToTest=mm.getMeshAtLevel(0).getMeasureField(True).getArray() ; delta=(valsToTest-refValues2) ; delta.abs()
         self.assertTrue(delta.getMaxValue()[0]<1e-12)
@@ -1400,9 +1400,9 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(ref1,mm.getMeshAtLevel(0)[[7,8]].getNodalConnectivity().getValues())
         #
         nodes,cells,cells2=mm.buildInnerBoundaryAlongM1Group("Grp")
-        self.assertEqual([15],nodes.getValues());
-        self.assertEqual([7,8],cells.getValues());
-        self.assertEqual([12,13],cells2.getValues());
+        self.assertEqual([15],nodes.getValues())
+        self.assertEqual([7,8],cells.getValues())
+        self.assertEqual([12,13],cells2.getValues())
         self.assertEqual(31,mm.getNumberOfNodes())
         self.assertEqual([4,6],mm.getGroupArr(-1,"Grp").getValues())
         self.assertEqual([9,16],mm.getGroupArr(-1,"Grp2").getValues())
@@ -1417,7 +1417,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(delta.getMaxValue()[0]<1e-12)
         #
         mm.getCoords()[-len(nodes):]+=[0.,-0.3]
-        self.assertRaises(InterpKernelException,mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith,mm.getGroup(-1,"Grp"),12,1e-12);
+        self.assertRaises(InterpKernelException,mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith,mm.getGroup(-1,"Grp"),12,1e-12)
         refValues2=refValues[:] ; refValues2[7:9]=[1.365,1.47]
         valsToTest=mm.getMeshAtLevel(0).getMeasureField(True).getArray() ; delta=(valsToTest-refValues2) ; delta.abs()
         self.assertTrue(delta.getMaxValue()[0]<1e-12)
@@ -1443,9 +1443,9 @@ class MEDLoaderTest3(unittest.TestCase):
         mm.setMeshAtLevel(-1,m2)
         mm.setGroupsAtLevel(-1,[grpSeg])
         nodes, cellsMod, cellsNotMod = mm.buildInnerBoundaryAlongM1Group("Grp")
-        self.assertEqual([1,13],nodes.getValues());
-        self.assertEqual([0,6],cellsMod.getValues());
-        self.assertEqual([1,7],cellsNotMod.getValues());
+        self.assertEqual([1,13],nodes.getValues())
+        self.assertEqual([0,6],cellsMod.getValues())
+        self.assertEqual([1,7],cellsNotMod.getValues())
         self.assertEqual(17,mm.getNumberOfNodes())
         self.assertEqual([3,19],mm.getGroupArr(-1,"Grp").getValues())
         self.assertEqual([22,23],mm.getGroupArr(-1,"Grp_dup").getValues())
@@ -1461,7 +1461,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertTrue(delta.getMaxValue()[0]<1e-10)
         #
         mm.getCoords()[-len(nodes):]+=[0.,-0.3]
-        self.assertRaises(InterpKernelException,mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith,mm.getGroup(-1,"Grp"),12,1e-12);
+        self.assertRaises(InterpKernelException,mm.getGroup(-1,"Grp_dup").checkGeoEquivalWith,mm.getGroup(-1,"Grp"),12,1e-12)
         refValues2=refValues[:] ; refValues2[0] = 1.265; refValues2[6] = 1.105
         valsToTest=mm.getMeshAtLevel(0).getMeasureField(True).getArray() ;     delta=(valsToTest-refValues2) ; delta.abs()
         self.assertTrue(delta.getMaxValue()[0]<1e-12)
@@ -1629,7 +1629,7 @@ class MEDLoaderTest3(unittest.TestCase):
     @WriteInTmpDir
     def testBuildInnerBoundary7(self):
         """ 3D test where the crack has another funny shape with another singular point (i.e. two faces of the M1 group are only connected by one point, not a full segment)
-        Once the crack is inserted, the cells on either side of the crack do not necessarily form a connex spread zone. This was not properly handled either. 
+        Once the crack is inserted, the cells on either side of the crack do not necessarily form a connex spread zone. This was not properly handled either.
         """
         m3 = MEDCouplingUMesh('box', 3)
         coo = DataArrayDouble([(5,17,0),(0,17,0),(0,12,0),(5,12,0),(15,17,0),(15,12,0),(20,12,0),(20,17,0),(20,2,0),(15,2,0),(15,-3,0),(20,-3,0),(5,-3,0),(5,2,0),(0,-3,0),(0,2,0),(5,17,10),(5,17,20),(5,17,30),(5,17,40),(0,17,10),(0,17,20),(0,17,30),(0,17,40),(0,12,10),(0,12,20),(0,12,30),(0,12,40),(5,12,10),(5,12,20),(5,12,30),(5,12,40),(15,17,10),(15,17,20),(15,17,30),(15,17,40),(15,12,10),(15,12,20),(15,12,30),(15,12,40),(20,12,10),(20,12,20),(20,12,30),(20,12,40),(20,17,10),(20,17,20),(20,17,30),(20,17,40),(20,2,10),(20,2,20),(20,2,30),(20,2,40),(15,2,10),(15,2,20),(15,2,30),(15,2,40),(15,-3,10),(15,-3,20),(15,-3,30),(15,-3,40),(20,-3,10),(20,-3,20),(20,-3,30),(20,-3,40),
@@ -1675,7 +1675,7 @@ class MEDLoaderTest3(unittest.TestCase):
         """ 3D test where the crack leaves 'naked' cells. If we call a 'close-to-crack cell' a cell which shares a face with the M1 group,
          a 'naked cell' is a cell that has some node duplicated, but which do not share any face with a 'close-to-crack cell'. In this case
          it is tricky to decide whether this cell should be renumbered or not ...
-         Warning: on the mesh below some points have already been doubled by a previous cut. 
+         Warning: on the mesh below some points have already been doubled by a previous cut.
         """
         m3 = MEDCouplingUMesh('box', 3)
         coo = DataArrayDouble([(0,15,0),(0,5,0),(3,5,0),(5,5,0),(5,15,0),(5,20,0),(0,20,0),(15,20,0),(15,15,0),(20,15,0),(20,20,0),(20,5,0),(15,5,0),(15,0,0),(20,0,0),(5,-1.60551e-25,0),(5,3,0),(3,0,0),
@@ -1732,7 +1732,7 @@ class MEDLoaderTest3(unittest.TestCase):
 
     def testBuildInnerBoundary9(self):
         """ 3D test where the crack is performed so that two non-connex parts are found facing one single connex part on the other side
-        of the crack. 
+        of the crack.
         """
         m3 = MEDCouplingUMesh('box', 3)
         coo = DataArrayDouble([(0,4.6,0),(3,4.6,0),(5,4.6,0),(15,4.6,0),(15,0,0),(5,-1.60551e-25,0),(5,3,0),(3,0,0),(3,3.8,0),(0,0,0),(0,3.8,0),(0,4.6,10),(0,4.6,20),(3,4.6,10),(3,4.6,20),(5,4.6,10),(5,4.6,20),(15,4.6,10),(15,4.6,20),(15,0,10),(15,0,20),(5,-1.60551e-25,10),(5,-1.60551e-25,20),(5,3,10),(5,3,20),(3,0,10),(3,0,20),(3,3.8,10),(3,3.8,20),(0,0,10),(0,0,20),(0,3.8,10),(0,3.8,20),(3,3,0),(0,3,0),(3,3,10),(3,3,20),(0,3,10),(0,3,20)])
@@ -2516,16 +2516,16 @@ class MEDLoaderTest3(unittest.TestCase):
 
     def internalCurveLinearMesh1(self):
         fname="Pyfile55.med"
-        mesh=MEDCouplingCurveLinearMesh();
-        mesh.setTime(2.3,4,5);
-        mesh.setTimeUnit("us");
-        mesh.setName("Example of Cuve linear mesh");
-        mesh.setDescription("buildCLMesh");
-        a1=DataArrayDouble(3*20,1);
-        a1.iota(7.) ; a1.rearrange(3);
-        mesh.setCoords(a1);
-        mesh.setNodeGridStructure([4,5]);
-        mesh.checkConsistencyLight();
+        mesh=MEDCouplingCurveLinearMesh()
+        mesh.setTime(2.3,4,5)
+        mesh.setTimeUnit("us")
+        mesh.setName("Example of Cuve linear mesh")
+        mesh.setDescription("buildCLMesh")
+        a1=DataArrayDouble(3*20,1)
+        a1.iota(7.) ; a1.rearrange(3)
+        mesh.setCoords(a1)
+        mesh.setNodeGridStructure([4,5])
+        mesh.checkConsistencyLight()
         #
         m=MEDFileCurveLinearMesh()
         m.setMesh(mesh)
@@ -2941,7 +2941,7 @@ class MEDLoaderTest3(unittest.TestCase):
 
     def internalInt32InMEDFileFieldStar1(self):
         fname="Pyfile63.med"
-        f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
+        f1=MEDLoaderDataForTest.buildVecFieldOnCells_1()
         f1=f1.convertToIntField()
         m1=f1.getMesh()
         mm1=MEDFileUMesh.New()
@@ -4033,7 +4033,7 @@ class MEDLoaderTest3(unittest.TestCase):
         """
         fname="Pyfile78.med"
         coords=DataArrayDouble([-0.3,-0.3,0., 0.2,-0.3,0., 0.7,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.7,0.2,0., -0.3,0.7,0., 0.2,0.7,0., 0.7,0.7,0. ],9,3)
-        targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
         m0=MEDCouplingUMesh("mesh",3) ; m0.setCoords(coords)
         m0.allocateCells()
         for elt in [[0,1,2,3],[1,2,3,4],[2,3,4,5],[3,4,5,6],[4,5,6,7],[5,6,7,8]]:#6
@@ -4047,14 +4047,14 @@ class MEDLoaderTest3(unittest.TestCase):
             pass
         m0.checkConsistency()
         m1=MEDCouplingUMesh(); m1.setName("mesh")
-        m1.setMeshDimension(2);
-        m1.allocateCells(5);
-        m1.insertNextCell(NORM_TRI3,3,targetConn[4:7]);
-        m1.insertNextCell(NORM_TRI3,3,targetConn[7:10]);
-        m1.insertNextCell(NORM_QUAD4,4,targetConn[0:4]);
-        m1.insertNextCell(NORM_QUAD4,4,targetConn[10:14]);
-        m1.insertNextCell(NORM_QUAD4,4,targetConn[14:18]);
-        m1.setCoords(coords);
+        m1.setMeshDimension(2)
+        m1.allocateCells(5)
+        m1.insertNextCell(NORM_TRI3,3,targetConn[4:7])
+        m1.insertNextCell(NORM_TRI3,3,targetConn[7:10])
+        m1.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
+        m1.insertNextCell(NORM_QUAD4,4,targetConn[10:14])
+        m1.insertNextCell(NORM_QUAD4,4,targetConn[14:18])
+        m1.setCoords(coords)
         m3=MEDCouplingUMesh("mesh",0) ; m3.setCoords(coords)
         m3.allocateCells()
         m3.insertNextCell(NORM_POINT1,[2])
@@ -4104,17 +4104,17 @@ class MEDLoaderTest3(unittest.TestCase):
         This preparation makes access to internal MEDCouplingMesh pointers whose name must be updated.
         """
         fname="Pyfile79.med"
-        targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
+        targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
         mm=MEDFileUMesh()
         m0=MEDCouplingUMesh() ; m0.setMeshDimension(2) # important no name here.
         coords=DataArrayDouble([-0.3,-0.3,0., 0.2,-0.3,0., 0.7,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.7,0.2,0., -0.3,0.7,0., 0.2,0.7,0., 0.7,0.7,0. ],9,3)
-        m0.allocateCells(5);
-        m0.insertNextCell(NORM_TRI3,3,targetConn[4:7]);
-        m0.insertNextCell(NORM_TRI3,3,targetConn[7:10]);
-        m0.insertNextCell(NORM_QUAD4,4,targetConn[0:4]);
-        m0.insertNextCell(NORM_QUAD4,4,targetConn[10:14]);
-        m0.insertNextCell(NORM_QUAD4,4,targetConn[14:18]);
-        m0.setCoords(coords);
+        m0.allocateCells(5)
+        m0.insertNextCell(NORM_TRI3,3,targetConn[4:7])
+        m0.insertNextCell(NORM_TRI3,3,targetConn[7:10])
+        m0.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
+        m0.insertNextCell(NORM_QUAD4,4,targetConn[10:14])
+        m0.insertNextCell(NORM_QUAD4,4,targetConn[14:18])
+        m0.setCoords(coords)
         mm.setMeshAtLevel(0,m0)
         m2=MEDCouplingUMesh() ; m2.setMeshDimension(0) ; m2.setCoords(coords) # important no name here.
         m2.allocateCells()
@@ -4546,34 +4546,34 @@ class MEDLoaderTest3(unittest.TestCase):
         c=DataArrayDouble([-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ],9,2)
         c.setInfoOnComponents(["aa","bbb"])
         targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
-        m=MEDCouplingUMesh();
-        m.setMeshDimension(2);
-        m.allocateCells(5);
+        m=MEDCouplingUMesh()
+        m.setMeshDimension(2)
+        m.allocateCells(5)
         m.insertNextCell(NORM_TRI3,3,targetConn[4:7])
         m.insertNextCell(NORM_TRI3,3,targetConn[7:10])
         m.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
         m.insertNextCell(NORM_POLYGON,4,targetConn[10:14])
         m.insertNextCell(NORM_POLYGON,4,targetConn[14:18])
-        m.finishInsertingCells();
+        m.finishInsertingCells()
         m.setCoords(c)
         m.checkConsistencyLight()
-        m1=MEDCouplingUMesh.New();
-        m1.setMeshDimension(1);
-        m1.allocateCells(3);
+        m1=MEDCouplingUMesh.New()
+        m1.setMeshDimension(1)
+        m1.allocateCells(3)
         m1.insertNextCell(NORM_SEG2,2,[1,4])
         m1.insertNextCell(NORM_SEG2,2,[3,6])
         m1.insertNextCell(NORM_SEG3,3,[2,8,5])
-        m1.finishInsertingCells();
+        m1.finishInsertingCells()
         m1.setCoords(c)
         m1.checkConsistencyLight()
-        m2=MEDCouplingUMesh.New();
-        m2.setMeshDimension(0);
-        m2.allocateCells(4);
+        m2=MEDCouplingUMesh.New()
+        m2.setMeshDimension(0)
+        m2.allocateCells(4)
         m2.insertNextCell(NORM_POINT1,1,[1])
         m2.insertNextCell(NORM_POINT1,1,[3])
         m2.insertNextCell(NORM_POINT1,1,[2])
         m2.insertNextCell(NORM_POINT1,1,[6])
-        m2.finishInsertingCells();
+        m2.finishInsertingCells()
         m2.setCoords(c)
         m2.checkConsistencyLight()
         #
@@ -4582,10 +4582,10 @@ class MEDLoaderTest3(unittest.TestCase):
         mm.setName("MyFirstMEDCouplingMEDmesh")
         mm.setDescription("IHopeToConvinceLastMEDMEMUsers")
         mm.setCoords(c)
-        mm[-1]=m1;
-        mm[0]=m;
+        mm[-1]=m1
+        mm[0]=m
         mm.setRenumFieldArr(0,DataArrayInt([32,41,50,56,7]))
-        mm[-2]=m2;
+        mm[-2]=m2
         mm.setRenumFieldArr(-2,DataArrayInt([102,52,45,63]))
         # playing with groups
         g1_2=DataArrayInt.New()
@@ -4612,18 +4612,18 @@ class MEDLoaderTest3(unittest.TestCase):
         mm.createGroupOnAll(0,"GrpOnAllCell")
         # check content of mm
         t=mm.getGroupArr(0,"G1",False)
-        self.assertTrue(g1_2.isEqual(t));
+        self.assertTrue(g1_2.isEqual(t))
         t=mm.getGroupArr(0,"G2",False)
-        self.assertTrue(g2_2.isEqual(t));
+        self.assertTrue(g2_2.isEqual(t))
         t=mm.getGroupArr(-1,"G1",False)
-        self.assertTrue(g1_1.isEqual(t));
+        self.assertTrue(g1_1.isEqual(t))
         t=mm.getGroupArr(-1,"G2",False)
-        self.assertTrue(g2_1.isEqual(t));
+        self.assertTrue(g2_1.isEqual(t))
         t=mm.getGroupArr(1,"G1",False)
-        self.assertTrue(g1_N.isEqual(t));
+        self.assertTrue(g1_N.isEqual(t))
         t=mm.getGroupArr(1,"G2",False)
-        self.assertTrue(g2_N.isEqual(t));
-        self.assertTrue(mm.existsGroup("GrpOnAllCell"));
+        self.assertTrue(g2_N.isEqual(t))
+        self.assertTrue(mm.existsGroup("GrpOnAllCell"))
         t=mm.getGroupArr(0,"GrpOnAllCell")
         #
         st=pickle.dumps(mm,pickle.HIGHEST_PROTOCOL)
@@ -4997,7 +4997,7 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual( one_joint.getJointName(), "joint_1")
         self.assertEqual( one_joint.getDomainNumber(), 1)
         joints=MEDFileJoints()
-        joints.pushJoint(one_joint);
+        joints.pushJoint(one_joint)
         joints.write(fileName,0)
         # read back
         jointsR=MEDFileJoints(fileName,mm.getName())
@@ -5047,7 +5047,7 @@ class MEDLoaderTest3(unittest.TestCase):
         #
         mm=MEDFileMesh.New(fileNameWr)
         self.assertEqual( mm.getNumberOfJoints(), 2)
-        jointsR = mm.getJoints();
+        jointsR = mm.getJoints()
         self.assertEqual( jointsR.getMeshName(), mm.getName() )
         self.assertEqual( len( jointsR ), 2 )
         jointR1 = jointsR[0]
@@ -5416,52 +5416,52 @@ class MEDLoaderTest3(unittest.TestCase):
 
       # Nodes
       arr = DataArrayInt([2]*4)
-      mum.setFamilyFieldArr(1, arr); arr.reAlloc(35);
+      mum.setFamilyFieldArr(1, arr); arr.reAlloc(35)
       self.assertRaises(InterpKernelException, mum.checkConsistency)
-      mum=mum2; mum2=mum.deepCopy();
+      mum=mum2; mum2=mum.deepCopy()
       arr = DataArrayInt([2]*4)
-      mum.setRenumFieldArr(1, arr); arr.reAlloc(35);
+      mum.setRenumFieldArr(1, arr); arr.reAlloc(35)
       self.assertRaises(InterpKernelException, mum.checkConsistency)
-      mum=mum2; mum2=mum.deepCopy();
+      mum=mum2; mum2=mum.deepCopy()
       mum.setRenumFieldArr(1, DataArrayInt([2]*4))
       self.assertRaises(InterpKernelException, mum.checkConsistency)
-      mum=mum2; mum2=mum.deepCopy();
+      mum=mum2; mum2=mum.deepCopy()
       arr = DataArrayAsciiChar(['tutu           x']*4)
-      mum.setNameFieldAtLevel(1, arr); arr.reAlloc(35);
+      mum.setNameFieldAtLevel(1, arr); arr.reAlloc(35)
       self.assertRaises(InterpKernelException, mum.checkConsistency)
 
       # 2D
-      mum=mum2; mum2=mum.deepCopy();
+      mum=mum2; mum2=mum.deepCopy()
       arr = DataArrayInt([2]*2)
-      mum.setFamilyFieldArr(0, arr); arr.reAlloc(35);
+      mum.setFamilyFieldArr(0, arr); arr.reAlloc(35)
       self.assertRaises(InterpKernelException, mum.checkConsistency)
-      mum=mum2; mum2=mum.deepCopy();
+      mum=mum2; mum2=mum.deepCopy()
       arr = DataArrayInt([2]*2)
-      mum.setRenumFieldArr(0, arr); arr.reAlloc(35);
+      mum.setRenumFieldArr(0, arr); arr.reAlloc(35)
       self.assertRaises(InterpKernelException, mum.checkConsistency)
-      mum=mum2; mum2=mum.deepCopy();
+      mum=mum2; mum2=mum.deepCopy()
       mum.setRenumFieldArr(0, DataArrayInt([2]*2))
       self.assertRaises(InterpKernelException, mum.checkConsistency)
-      mum=mum2; mum2=mum.deepCopy();
+      mum=mum2; mum2=mum.deepCopy()
       arr = DataArrayAsciiChar(['tutu           x']*2)
-      mum.setNameFieldAtLevel(0, arr); arr.reAlloc(35);
+      mum.setNameFieldAtLevel(0, arr); arr.reAlloc(35)
       self.assertRaises(InterpKernelException, mum.checkConsistency)
 
       # 1D
-      mum=mum2; mum2=mum.deepCopy();
+      mum=mum2; mum2=mum.deepCopy()
       arr = DataArrayInt([2]*5)
-      mum.setFamilyFieldArr(-1, arr); arr.reAlloc(35);
+      mum.setFamilyFieldArr(-1, arr); arr.reAlloc(35)
       self.assertRaises(InterpKernelException, mum.checkConsistency)
-      mum=mum2; mum2=mum.deepCopy();
+      mum=mum2; mum2=mum.deepCopy()
       arr = DataArrayInt([2]*5)
-      mum.setRenumFieldArr(-1, arr); arr.reAlloc(35);
+      mum.setRenumFieldArr(-1, arr); arr.reAlloc(35)
       self.assertRaises(InterpKernelException, mum.checkConsistency)
-      mum=mum2; mum2=mum.deepCopy();
+      mum=mum2; mum2=mum.deepCopy()
       mum.setRenumFieldArr(-1, DataArrayInt([2]*5))
       self.assertRaises(InterpKernelException, mum.checkConsistency)
-      mum=mum2; mum2=mum.deepCopy();
+      mum=mum2; mum2=mum.deepCopy()
       arr = DataArrayAsciiChar(['tutu           x']*5)
-      mum.setNameFieldAtLevel(-1, arr); arr.reAlloc(35);
+      mum.setNameFieldAtLevel(-1, arr); arr.reAlloc(35)
       self.assertRaises(InterpKernelException, mum.checkConsistency)
 
     @WriteInTmpDir
@@ -6483,7 +6483,7 @@ class MEDLoaderTest3(unittest.TestCase):
     def testFloat32InMEDFileFieldStar1(self):
         """Like testInt32InMEDFileFieldStar1 but with float32 :)"""
         fname="Pyfile114.med"
-        f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
+        f1=MEDLoaderDataForTest.buildVecFieldOnCells_1()
         f1=f1.convertToFloatField()
         m1=f1.getMesh()
         mm1=MEDFileUMesh.New()
@@ -6636,7 +6636,7 @@ class MEDLoaderTest3(unittest.TestCase):
     def testFieldsLinearToQuadratic(self):
         fname="Pyfile117.med"
         arr=DataArrayDouble([0,1])
-        m=MEDCouplingCMesh();
+        m=MEDCouplingCMesh()
         m.setCoords(arr,arr,arr)
         m=m.buildUnstructured()
         m2=m.deepCopy()
@@ -6701,7 +6701,7 @@ class MEDLoaderTest3(unittest.TestCase):
         GeneratePyfile18(self)
         fname="Pyfile118.med"
         arr=DataArrayDouble([0,1])
-        m=MEDCouplingCMesh();
+        m=MEDCouplingCMesh()
         m.setCoords(arr,arr,arr)
         m=m.buildUnstructured()
         m2=m.deepCopy()

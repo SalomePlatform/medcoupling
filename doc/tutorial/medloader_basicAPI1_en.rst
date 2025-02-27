@@ -39,7 +39,7 @@ First of all, creation of a mesh "targetMesh". ::
         myCoords=mc.DataArrayDouble.New(targetCoords,9,2)
 	myCoords.setInfoOnComponents(["X [km]","YY [mm]"])
         targetMesh.setCoords(myCoords)
-        
+
 .. note:: targetMesh is ordered by geometric type.
 
 We are then ready to write it. ::

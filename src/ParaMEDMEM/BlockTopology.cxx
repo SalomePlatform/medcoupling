@@ -46,10 +46,10 @@ namespace MEDCoupling
   {}
 
   /*!
-   * Constructor of a block topology from a grid. 
+   * Constructor of a block topology from a grid.
    * This preliminary version simply splits along the first axis
-   * instead of making the best choice with respect to the 
-   * values of the different axes. 
+   * instead of making the best choice with respect to the
+   * values of the different axes.
    */
   BlockTopology::BlockTopology(const ProcessorGroup& group, MEDCouplingCMesh *grid):
     _dimension(grid->getSpaceDimension()), _proc_group(&group), _owns_processor_group(false)
@@ -61,15 +61,15 @@ namespace MEDCoupling
         DataArrayDouble *arr=grid->getCoordsAt(idim);
         axis_length[idim]=arr->getNbOfElems();
         _nb_elems*=axis_length[idim];
-      }  
+      }
     //default splitting along 1st dimension
     _local_array_indices.resize(_dimension);
     _nb_procs_per_dim.resize(_dimension);
-  
+
     _local_array_indices[0].resize(_proc_group->size()+1);
     _local_array_indices[0][0]=0;
     _nb_procs_per_dim[0]=_proc_group->size();
-  
+
     for (int i=1; i<=_proc_group->size(); i++)
       {
         _local_array_indices[0][i]=_local_array_indices[0][i-1]+
@@ -86,21 +86,21 @@ namespace MEDCoupling
       }
     _cycle_type.resize(_dimension);
     for (int i=0; i<_dimension; i++)
-      _cycle_type[i]=MEDCoupling::Block;  
+      _cycle_type[i]=MEDCoupling::Block;
   }
 
   /*!
-   * Creation of a block topology by composing 
+   * Creation of a block topology by composing
    * a geometrical topology and a component topology.
-   * This constructor is intended for creating fields 
+   * This constructor is intended for creating fields
    * for which the parallel distribution is made on the
-   * components of the field rather than on the geometrical 
+   * components of the field rather than on the geometrical
    * partitioning of the underlying mesh.
-   * 
-   */ 
+   *
+   */
   BlockTopology::BlockTopology(const BlockTopology& geom_topo, const ComponentTopology& comp_topo):_owns_processor_group(false)
   {
-    // so far, the block topology can only be created if the proc group 
+    // so far, the block topology can only be created if the proc group
     // is either on geom_topo or on comp_topo
     if (geom_topo.getProcGroup()->size()>1 && comp_topo.nbBlocks()>1)
       throw INTERP_KERNEL::Exception(LOCALIZED("BlockTopology cannot yet be constructed with both complex geo and components topology"));
@@ -125,17 +125,17 @@ namespace MEDCoupling
         _cycle_type=geom_topo._cycle_type;
         _cycle_type.push_back(Block);
         _nb_elems=geom_topo.getNbElements()*comp_topo.nbComponents();
-      }  
+      }
   }
 
   /*! Constructor for creating a one-dimensional
-   * topology from a processor group and a local 
+   * topology from a processor group and a local
    * number of elements on each processor
-   * 
+   *
    * The function must be called only by the processors belonging
    * to group \a group. Calling it from a processor not belonging
    * to \a group will cause an MPI error, while calling from a subset
-   * of \a group will result in a deadlock. 
+   * of \a group will result in a deadlock.
    */
   BlockTopology::BlockTopology(const ProcessorGroup& group, mcIdType nb_elem):_dimension(1),_proc_group(&group),_owns_processor_group(false)
   {
@@ -143,19 +143,19 @@ namespace MEDCoupling
     const MPIProcessorGroup* mpi_group=dynamic_cast<const MPIProcessorGroup*>(_proc_group);
     const MPI_Comm* comm=mpi_group->getComm();
     mcIdType nbtemp=nb_elem;
-    mpi_group->getCommInterface().allGather(&nbtemp, 1, MPI_ID_TYPE, 
-                                            nbelems_per_proc, 1, MPI_ID_TYPE, 
+    mpi_group->getCommInterface().allGather(&nbtemp, 1, MPI_ID_TYPE,
+                                            nbelems_per_proc, 1, MPI_ID_TYPE,
                                             *comm);
     _nb_elems=0;
-  
+
     //splitting along only dimension
     _local_array_indices.resize(1);
-    _nb_procs_per_dim.resize(1);  
-          
+    _nb_procs_per_dim.resize(1);
+
     _local_array_indices[0].resize(_proc_group->size()+1);
     _local_array_indices[0][0]=0;
     _nb_procs_per_dim[0]=_proc_group->size();
-  
+
     for (int i=1; i<=_proc_group->size(); i++)
       {
         _local_array_indices[0][i]=_local_array_indices[0][i-1]+
@@ -266,7 +266,7 @@ namespace MEDCoupling
 
   /*! Retrieves the min and max indices of the domain stored locally
    * for each dimension. The output vector has the topology dimension
-   * as a size and each pair <int,int> contains min and max. Indices 
+   * as a size and each pair <int,int> contains min and max. Indices
    * range from min to max-1.
    */
   std::vector<std::pair<int,mcIdType> > BlockTopology::getLocalArrayMinMax() const
@@ -275,7 +275,7 @@ namespace MEDCoupling
     int myrank=_proc_group->myRank();
     int increment=1;
     for (int i=_dimension-1; i>=0; i--)
-      {  
+      {
         increment *=_nb_procs_per_dim[i];
         int idim=myrank%increment;
         local_indices[i].first=(int)_local_array_indices[i][idim];
@@ -287,10 +287,10 @@ namespace MEDCoupling
 
   /*! Serializes the data contained in the Block Topology
    * for communication purposes*/
-  void BlockTopology::serialize(mcIdType* & serializer, mcIdType& size) const 
+  void BlockTopology::serialize(mcIdType* & serializer, mcIdType& size) const
   {
     vector<mcIdType> buffer;
-  
+
     buffer.push_back(_dimension);
     buffer.push_back(_nb_elems);
     for (int i=0; i<_dimension; i++)
@@ -301,7 +301,7 @@ namespace MEDCoupling
         for (std::size_t j=0; j<_local_array_indices[i].size(); j++)
           buffer.push_back(_local_array_indices[i][j]);
       }
-  
+
     //serializing the comm group
     mcIdType size_comm=_proc_group->size();
     buffer.push_back(size_comm);
@@ -311,7 +311,7 @@ namespace MEDCoupling
         int world_rank=world_group.translateRank(_proc_group, i);
         buffer.push_back(world_rank);
       }
-  
+
     serializer=new mcIdType[buffer.size()];
     size=ToIdType(buffer.size());
     copy(buffer.begin(), buffer.end(), serializer);
@@ -320,7 +320,7 @@ namespace MEDCoupling
   /*!
    *
    * Unserializes the data contained in the Block Topology
-   * after communication. Uses the same structure as the one used for serialize() 
+   * after communication. Uses the same structure as the one used for serialize()
    *
    */
   void BlockTopology::unserialize(const mcIdType* serializer,const CommInterface& comm_interface)

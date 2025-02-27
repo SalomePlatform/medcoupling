@@ -124,7 +124,7 @@ namespace MEDCoupling
       ret[i]=(const T *)vec[i];
     return ret;
   }
-  
+
   template<class T>
   class MCConstAuto
   {

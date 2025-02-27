@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 
   // Defining options
   // by parsing the command line
-  
+
   bool split_family=false;
   bool empty_groups=false;
   bool mesure_memory=false;
@@ -69,7 +69,7 @@ int main(int argc, char** argv)
   string library="metis";  //default
   int ndomains;
   int help=0;
-  
+
   //sequential : no MPI
   MyGlobals::_World_Size=1;
   MyGlobals::_Rank=0;
@@ -96,13 +96,13 @@ int main(int argc, char** argv)
   string value;
   for (int i = 1; i < argc; i++)
     {
-      if (strlen(argv[i]) < 3) 
+      if (strlen(argv[i]) < 3)
         {
           cerr << "bad argument : "<< argv[i] << endl;
           return 1;
         }
-    
-      if (TestArg(argv[i],"--verbose",value)) 
+
+      if (TestArg(argv[i],"--verbose",value))
         {
           MyGlobals::_Verbose=1;
           if (value!="") MyGlobals::_Verbose = atoi(value.c_str());
@@ -116,7 +116,7 @@ int main(int argc, char** argv)
       else if (TestArg(argv[i],"--create-boundary-faces",value)) MyGlobals::_Create_Boundary_Faces=1;
       else if (TestArg(argv[i],"--create-joints",value)) MyGlobals::_Create_Joints=1;
       else if (TestArg(argv[i],"--dump-cpu-memory",value)) mesure_memory=true;
-      else 
+      else
         {
           cerr << "unknown argument : "<< argv[i] << endl;
           return 1;
@@ -124,7 +124,7 @@ int main(int argc, char** argv)
     }
 
   MyGlobals::_Is0verbose=MyGlobals::_Verbose;
-  
+
 //no choice
 #if defined(MED_ENABLE_METIS) && !defined(MED_ENABLE_SCOTCH)
   library = "metis";
@@ -140,13 +140,13 @@ int main(int argc, char** argv)
       return 1;
     }
 #endif
- 
+
   if (help==1)
     {
       cout<<desc<<"\n";
       return 0;
     }
-  
+
   if (MyGlobals::_Is0verbose)
     {
       cout << "medpartitioner V1.0 :" << endl;
@@ -165,19 +165,19 @@ int main(int argc, char** argv)
       string outputtest = output + ".testioms.";
       ofstream testfile (outputtest.c_str());
       if (testfile.fail())
-        { 
+        {
           cerr << "output-file directory does not exist or is in read-only access" << endl;
           return 1;
         }
       //deletes test file
       remove(outputtest.c_str());
     }
-  
+
   // Beginning of the computation
 
   // Loading the mesh collection
   if (MyGlobals::_Is0verbose) cout << "Reading input files "<<endl;
-  
+
   try
     {
       /*MEDPARTITIONER::ParaDomainSelector parallelizer(mesure_memory);
@@ -189,7 +189,7 @@ int main(int argc, char** argv)
       collection.prepareFieldDescriptions();
       //int nbfields=collection.getFieldDescriptions().size(); //on all domains
       //cout<<ReprVectorOfString(collection.getFieldDescriptions());
-    
+
       if (MyGlobals::_Is0verbose)
         {
           cout<<"fileNames :"<<endl
@@ -207,27 +207,27 @@ int main(int argc, char** argv)
       aPT->setGlobalNumerotationDefault(collection.getParaDomainSelector());
       //to have unique valid fields names/pointers/descriptions for partitionning
       collection.prepareFieldDescriptions();
-      
+
       //MEDPARTITIONER::MeshCollection collection(input);
 
       //Creating the graph and partitioning it
       if (MyGlobals::_Is0verbose) cout << "Computing partition with " << library << endl;
-  
+
       unique_ptr< MEDPARTITIONER::Topology > new_topo;
       if (library == "metis")
         new_topo.reset( collection.createPartition(ndomains,MEDPARTITIONER::Graph::METIS));
       else
         new_topo.reset( collection.createPartition(ndomains,MEDPARTITIONER::Graph::SCOTCH));
       parallelizer.evaluateMemory();
-  
+
       //Creating a new mesh collection from the partitioning
       if (MyGlobals::_Is0verbose)  cout << "Creating new meshes"<< endl;
       MEDPARTITIONER::MeshCollection new_collection(collection,new_topo.get(),split_family,empty_groups);
-  
+
       if (filter_face) new_collection.filterFaceOnCell();
-    
+
       //to get infos on all procs
-    
+
       //see meshName
       vector<string> finalInformations;
       vector<string> r1,r2;
@@ -253,7 +253,7 @@ int main(int argc, char** argv)
             cerr<<"Problem on final meshName : set at 'Merge'"<<endl;
           finalInformations.push_back(SerializeFromString("finalMeshName=Merge"));
         }
-    
+
       //see field info nbComponents & componentInfo (if fields present)
       r2=SelectTagsInVectorOfString(r1,"fieldName=");
       r2=SelectTagsInVectorOfString(r2,"nbComponents=");
@@ -263,15 +263,15 @@ int main(int argc, char** argv)
       r2=DeleteDuplicatesInVectorOfString(r2);
       for (std::size_t i=0; i<r2.size(); i++)
         finalInformations.push_back(r2[i]);
-    
+
       MyGlobals::_General_Informations=finalInformations;
-      if (MyGlobals::_Is0verbose) 
+      if (MyGlobals::_Is0verbose)
         cout << "generalInformations : \n"<<ReprVectorOfString(finalInformations);
-    
+
       //new_collection.setSubdomainBoundaryCreates(create_boundary_faces);
       if (MyGlobals::_Is0verbose) cout << "Writing "<<ndomains<<" output files "<<output<<"xx.med"<<" and "<<output<<".xml"<<endl;
       new_collection.write(output);
-  
+
       /*if ( mesure_memory )
         if ( parallelizer.isOnDifferentHosts() || MyGlobals::_Rank==0 )
           {
@@ -279,7 +279,7 @@ int main(int argc, char** argv)
                  << ", max memory usage = " << parallelizer.evaluateMemory() << " KB"
                  << endl;
           }*/
-      
+
       if (MyGlobals::_Is0verbose>0) cout<<"OK END"<< endl;
       return 0;
     }

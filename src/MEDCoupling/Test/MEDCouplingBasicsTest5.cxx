@@ -664,7 +664,7 @@ void MEDCouplingBasicsTest5::testGetNodeIdsOfCell2()
   coordsY->useArray(arrY,false, DeallocType::CPP_DEALLOC,4,1);
   DataArrayDouble *coordsZ=DataArrayDouble::New();
   double arrZ[3] = { -2., 2., 4. };
-  coordsZ->useArray(arrZ,false, DeallocType::CPP_DEALLOC,3,1);  
+  coordsZ->useArray(arrZ,false, DeallocType::CPP_DEALLOC,3,1);
   // test in 1D
   m1c->setCoordsAt(0,coordsX);
   CPPUNIT_ASSERT_EQUAL(4,(int)m1c->getNumberOfCells());
@@ -810,8 +810,8 @@ void MEDCouplingBasicsTest5::testRenumberNodesInConn1()
   const mcIdType expected6[9]={18,0,1,2,3,4,5,6,7};
   const mcIdType expected7[23]={3,3,2,8, 3,2,9,8, 4,0,1,2,3, 4,10,11,2,1, 4,11,12,9,2};
   const mcIdType expected8[23]={3,13,15,14, 3,15,16,14, 4,8,9,15,13, 4,12,17,15,9, 4,17,18,16,15};
-  const double expected9[57]={-0.3, -0.3, 0., -0.3, 0.2, 0., 0.2, 0.2, 0., 0.2, -0.3, 0., -0.3, -0.3, 1., -0.3, 0.2, 1., 
-                              0.2, 0.2, 1., 0.2, -0.3, 1., 0.7, -0.3, 0., 0.7, 0.2, 0., -0.3, 0.7, 0., 0.2, 0.7, 0., 
+  const double expected9[57]={-0.3, -0.3, 0., -0.3, 0.2, 0., 0.2, 0.2, 0., 0.2, -0.3, 0., -0.3, -0.3, 1., -0.3, 0.2, 1.,
+                              0.2, 0.2, 1., 0.2, -0.3, 1., 0.7, -0.3, 0., 0.7, 0.2, 0., -0.3, 0.7, 0., 0.2, 0.7, 0.,
                               0.7, 0.7, 0., 1.2, -0.3, 0., 1.7, -0.3, 0., 1.2, 0.2, 0., 1.7, 0.2, 0., 1.2, 0.7, 0., 1.7, 0.7, 0.};
   CPPUNIT_ASSERT(std::equal(expected6,expected6+9,mesh3D_4->getNodalConnectivity()->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected7,expected7+23,mesh2D_4->getNodalConnectivity()->getConstPointer()));

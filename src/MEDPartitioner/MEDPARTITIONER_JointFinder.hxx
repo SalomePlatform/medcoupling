@@ -31,7 +31,7 @@ namespace MEDPARTITIONER
   class Topology;
   class MeshCollection;
   class ParaDomainSelector;
-  
+
   class MEDPARTITIONER_EXPORT JointFinder
   {
   public:
@@ -47,7 +47,7 @@ namespace MEDPARTITIONER
     const Topology *_topology;
     std::vector<std::vector<std::multimap<mcIdType,mcIdType> > > _distant_node_cell;
     std::vector<std::vector<std::vector<std::pair<mcIdType,mcIdType> > > > _node_node;
-   
+
   };
 }
 #endif

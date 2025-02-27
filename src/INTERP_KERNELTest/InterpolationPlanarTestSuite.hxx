@@ -30,7 +30,7 @@ namespace INTERP_TEST
 
   /**
    * \brief Base class for planar mesh intersection test suites.
-   * 
+   *
    */
   class InterpolationPlanarTestSuite : public CppUnit::TestFixture
   {
@@ -56,31 +56,31 @@ namespace INTERP_TEST
     //     void vectPrintOut(std::vector< double > vect);
     //     void tabPrintOut( const double * tab, int size);
 
-    bool checkDequesEqual(std::deque< double > deque1,  
+    bool checkDequesEqual(std::deque< double > deque1,
                           std::deque< double > deque2, double epsilon)
     {
       std::size_t size1 = deque1.size();
       std::size_t size2 = deque2.size();
       bool are_equal = size1 == size2;
-    
+
       if(are_equal)
         for(std::size_t i = 0; i < size1 && are_equal; i++)
           are_equal = fabs(deque1[i] - deque2[i]) < epsilon;
-      
-      return are_equal; 
+
+      return are_equal;
     }
-    bool checkVectorsEqual(std::vector< double > vect1,  
+    bool checkVectorsEqual(std::vector< double > vect1,
                            std::vector< double > vect2, double epsilon)
     {
       std::size_t size1 = vect1.size();
       std::size_t size2 = vect2.size();
       bool are_equal = size1 == size2;
-      
+
       if(are_equal)
         for(std::size_t i = 0; i < size1 && are_equal; i++)
           are_equal = fabs(vect1[i] - vect2[i]) < epsilon;
-      
-      return are_equal; 
+
+      return are_equal;
     }
     void dequePrintOut(std::deque< double > deque1)
     {
@@ -97,7 +97,7 @@ namespace INTERP_TEST
           std::cerr << vect[i] << " ";
         }
       std::cerr<< std::endl;
-    }  
+    }
     void tabPrintOut( const double * tab,int size)
     {
       for(int i = 0; i< size; i++)
@@ -105,7 +105,7 @@ namespace INTERP_TEST
           std::cerr << tab[i] << " ";
         }
       std::cerr<< std::endl;
-    }  
+    }
 
     /**
      * Cleans up after the test suite.
@@ -116,11 +116,11 @@ namespace INTERP_TEST
     //       delete _testTools;
     //     }
 
-    
+
 
     //   protected:
     //     /// MeshTestToolkit object to which the tests are delegated
-    //     MeshTestToolkit* _testTools; 
+    //     MeshTestToolkit* _testTools;
 
   };
 }

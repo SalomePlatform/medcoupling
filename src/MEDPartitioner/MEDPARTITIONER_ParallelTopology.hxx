@@ -48,7 +48,7 @@ namespace MEDPARTITIONER
                      std::vector<mcIdType*>&);
     ParallelTopology(Graph* graph, Topology* oldTopology, int nbdomain, int mesh_dimension);
     ~ParallelTopology();
-    
+
     void setGlobalNumerotationDefault(ParaDomainSelector* domainSelector);
 
     /*! converts a list of global cell numbers
@@ -66,8 +66,8 @@ namespace MEDPARTITIONER
     /*! converts a list of global face numbers
      *  to a distributed array with local face numbers
      */
-    void convertGlobalFaceList(const mcIdType*, mcIdType , mcIdType*, int *);  
-    void convertGlobalFaceList(const mcIdType*, mcIdType , mcIdType*, int);  
+    void convertGlobalFaceList(const mcIdType*, mcIdType , mcIdType*, int *);
+    void convertGlobalFaceList(const mcIdType*, mcIdType , mcIdType*, int);
     void convertGlobalFaceListWithTwins(const mcIdType* face_list, mcIdType nbface, mcIdType*& local, int*& ip, mcIdType*& full_array,mcIdType& size);
 
     /*! converting node global numberings to local numberings */
@@ -91,19 +91,19 @@ namespace MEDPARTITIONER
     void convertCellToGlobal(int ip, const mcIdType* local, mcIdType n, mcIdType *global) const
     {
       for (mcIdType i=0; i<n; i++)
-        global[i]=_loc_to_glob[ip][local[i]];  
+        global[i]=_loc_to_glob[ip][local[i]];
     }
 
     void convertFaceToGlobal(int ip, const mcIdType* local, mcIdType n, mcIdType *global) const
     {
-      for (mcIdType i=0; i<n; i++) 
+      for (mcIdType i=0; i<n; i++)
         global[i]=_face_loc_to_glob[ip][local[i]];
     }
 
     int nbDomain() const { return _nb_domain; }
 
     mcIdType nbCells() const { return _nb_total_cells; }
-    
+
     mcIdType nbNodes() const { return _nb_total_nodes; }
 
     mcIdType nbCells( int idomain) const { return _nb_cells[idomain]; }
@@ -117,7 +117,7 @@ namespace MEDPARTITIONER
 
     /*! retrieving cell numbers after merging in parallel mode */
     std::vector<mcIdType> & getFusedCellNumbers(int idomain) { return _cell_loc_to_glob_fuse[idomain]; }
-    
+
     const std::vector<mcIdType>& getFusedCellNumbers(int idomain) const { return _cell_loc_to_glob_fuse[idomain]; }
 
     /*! retrieving face numbers after merging in parallel mode */
@@ -144,7 +144,7 @@ namespace MEDPARTITIONER
     mcIdType convertGlobalFace(mcIdType iglobal, int idomain);
 
     mcIdType convertGlobalNode(mcIdType iglobal, int idomain);
-    
+
     std::vector<MEDPARTITIONER::ConnectZone*>& getCZ();
 
     //adding a face to the topology

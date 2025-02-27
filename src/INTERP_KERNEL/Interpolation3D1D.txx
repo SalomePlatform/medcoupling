@@ -75,7 +75,7 @@ namespace INTERP_KERNEL
     for(ConnType i = 0; i < numTargetElems; ++i)
       {
         MeshElement<ConnType> trgMeshElem(i, targetMesh);
-        
+
         const BoundingBox* box = trgMeshElem.getBoundingBox();
         // get target bbox in right order
         double targetBox[6];

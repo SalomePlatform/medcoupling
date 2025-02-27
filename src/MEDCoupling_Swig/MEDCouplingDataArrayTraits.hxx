@@ -79,7 +79,7 @@ typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayDouble> PyCallBackDat
 extern "C"
 {
   static int callbackmcdataarray___init__(PyObject *self, PyObject *args, PyObject *kwargs) { return 0; }
-  
+
   static PyObject *callbackmcdataarraychar___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
   {
     PyCallBackDataArrayChar *self = (PyCallBackDataArrayChar *) ( type->tp_alloc(type, 0) );
@@ -91,31 +91,31 @@ extern "C"
     PyCallBackDataArrayInt32 *self = (PyCallBackDataArrayInt32 *) ( type->tp_alloc(type, 0) );
     return (PyObject *)self;
   }
-  
+
   static PyObject *callbackmcdataarrayint64___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
   {
     PyCallBackDataArrayInt64 *self = (PyCallBackDataArrayInt64 *) ( type->tp_alloc(type, 0) );
     return (PyObject *)self;
   }
-  
+
   static PyObject *callbackmcdataarrayfloat___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
   {
     PyCallBackDataArrayFloat *self = (PyCallBackDataArrayFloat *) ( type->tp_alloc(type, 0) );
     return (PyObject *)self;
   }
-  
+
   static PyObject *callbackmcdataarraydouble___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
   {
     PyCallBackDataArrayDouble *self = (PyCallBackDataArrayDouble *) ( type->tp_alloc(type, 0) );
     return (PyObject *)self;
   }
-  
+
   static void callbackmcdataarray_dealloc(PyObject *self)
   {
     Py_TYPE(self)->tp_free(self);
   }
 
-  
+
   // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
   // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
   static PyObject *callbackmcdataarraychar_call(PyCallBackDataArrayChar *self, PyObject *args, PyObject *kw)
@@ -167,7 +167,7 @@ extern "C"
     Py_XINCREF(Py_None);
     return Py_None;
   }
-  
+
   // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
   // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
   static PyObject *callbackmcdataarraydouble_call(PyCallBackDataArrayDouble *self, PyObject *args, PyObject *kw)

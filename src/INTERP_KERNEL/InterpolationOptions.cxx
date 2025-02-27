@@ -112,27 +112,27 @@ std::string INTERP_KERNEL::InterpolationOptions::getIntersectionTypeRepr() const
 
 bool INTERP_KERNEL::InterpolationOptions::setOptionDouble(const std::string& key, double value)
 {
-  if(key==PRECISION_STR) 
+  if(key==PRECISION_STR)
     {
       setPrecision(value);
       return true;
     }
-  else if(key==MEDIANE_PLANE_STR) 
+  else if(key==MEDIANE_PLANE_STR)
     {
       setMedianPlane(value);
       return true;
     }
-  else if(key==BOUNDING_BOX_ADJ_STR) 
+  else if(key==BOUNDING_BOX_ADJ_STR)
     {
       setBoundingBoxAdjustment(value);
       return true;
     }
-  else if(key==BOUNDING_BOX_ADJ_ABS_STR) 
+  else if(key==BOUNDING_BOX_ADJ_ABS_STR)
     {
       setBoundingBoxAdjustmentAbs(value);
       return true;
     }
-  else if(key==MAX_DISTANCE_3DSURF_INSECT_STR) 
+  else if(key==MAX_DISTANCE_3DSURF_INSECT_STR)
     {
       setMaxDistance3DSurfIntersect(value);
       return true;
@@ -148,17 +148,17 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionDouble(const std::string& key
 
 bool INTERP_KERNEL::InterpolationOptions::setOptionInt(const std::string& key, int value)
 {
-  if(key==PRINT_LEV_STR) 
+  if(key==PRINT_LEV_STR)
     {
       setPrintLevel(value);
       return true;
     }
-    else if(key==DO_ROTATE_STR) 
+    else if(key==DO_ROTATE_STR)
       {
         setDoRotate(value != 0);
         return true;
       }
-    else if(key==ORIENTATION_STR) 
+    else if(key==ORIENTATION_STR)
       {
         setOrientation(value);
         return true;
@@ -175,7 +175,7 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionInt(const std::string& key, i
 
 bool INTERP_KERNEL::InterpolationOptions::setOptionString(const std::string& key, const std::string& value)
 {
-  if(key==INTERSEC_TYPE_STR) 
+  if(key==INTERSEC_TYPE_STR)
     {
       if(value==TRIANGULATION_INTERSECT2D_STR)
         {
@@ -208,7 +208,7 @@ bool INTERP_KERNEL::InterpolationOptions::setOptionString(const std::string& key
           return true;
         }
     }
-  else if(key==SPLITTING_POLICY_STR) 
+  else if(key==SPLITTING_POLICY_STR)
     {
       if(value==PLANAR_SPLIT_FACE_5_STR)
         {

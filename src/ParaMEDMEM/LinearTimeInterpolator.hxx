@@ -28,7 +28,7 @@
 namespace MEDCoupling
 {
   class DEC;
-  
+
   /*!
    * Internal class, not part of the public API.
    *
@@ -36,7 +36,7 @@ namespace MEDCoupling
    */
   class LinearTimeInterpolator : public TimeInterpolator
   {
-    public:  
+    public:
       LinearTimeInterpolator( double InterpPrecision=0, int nStepBefore=1,
                               int nStepAfter=1 ) ;
       virtual ~LinearTimeInterpolator();

@@ -67,7 +67,7 @@ std::vector<std::string> MEDPARTITIONER::SendAndReceiveVectorOfString(const std:
       MPI_Send( &size, 1, MPI_INT, target, tag, MPI_COMM_WORLD );
       MPI_Send( (void*)str.data(), (int)str.length(), MPI_CHAR, target, tag+100, MPI_COMM_WORLD );
     }
-  
+
   int recSize=0;
   if (rank == target)
     {
@@ -90,24 +90,24 @@ std::vector<std::string> MEDPARTITIONER::AllgathervVectorOfString(const std::vec
 
   int world_size=MyGlobals::_World_Size;
   std::string str=SerializeFromVectorOfString(vec);
-  
+
   std::vector<int> indexes(world_size);
   int size=(int)str.length();
-  MPI_Allgather(&size, 1, MPI_INT, 
+  MPI_Allgather(&size, 1, MPI_INT,
                 &indexes[0], 1, MPI_INT, MPI_COMM_WORLD);
-  
+
   //calcul of displacement
   std::vector< int > disp(1,0);
   for (int i=0; i<world_size; i++) disp.push_back( disp.back() + indexes[i] );
-  
+
   std::string recData(disp.back(),'x');
   MPI_Allgatherv((void*)str.data(), (int)str.length(), MPI_CHAR,
                  (void*)recData.data(), &indexes[0], &disp[0], MPI_CHAR,
                  MPI_COMM_WORLD);
-  
+
   //really extraordinary verbose for debug
   std::vector<std::string> deserial=DeserializeToVectorOfString(recData);
-  if (MyGlobals::_Verbose>1000) 
+  if (MyGlobals::_Verbose>1000)
     {
       std::cout << "proc "<<MyGlobals::_Rank<<" : receive '" << recData << "'" << std::endl;
       std::cout << "deserialize is : a vector of size " << deserial.size() << std::endl;
@@ -125,7 +125,7 @@ void MEDPARTITIONER::SendDoubleVec(const std::vector<double>& vec, const int tar
 {
   int tag = 111002;
   int size=(int)vec.size();
-  if (MyGlobals::_Verbose>1000) 
+  if (MyGlobals::_Verbose>1000)
     std::cout << "proc " << MyGlobals::_Rank << " : --> SendDoubleVec " << size << std::endl;
 #ifdef HAVE_MPI
   MPI_Send(&size, 1, MPI_INT, target, tag, MPI_COMM_WORLD);
@@ -144,9 +144,9 @@ std::vector<double>* MEDPARTITIONER::RecvDoubleVec(const int source)
   int tag = 111002;
   int size;
 #ifdef HAVE_MPI
-  MPI_Status status;  
+  MPI_Status status;
   MPI_Recv(&size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
-  if (MyGlobals::_Verbose>1000) 
+  if (MyGlobals::_Verbose>1000)
     std::cout << "proc " << MyGlobals::_Rank << " : <-- RecvDoubleVec " << size << std::endl;
   std::vector<double>* vec=new std::vector<double>;
   vec->resize(size);
@@ -160,7 +160,7 @@ void MEDPARTITIONER::RecvDoubleVec(std::vector<double>& vec, const int source)
   int tag = 111002;
   int size;
 #ifdef HAVE_MPI
-  MPI_Status status;  
+  MPI_Status status;
   MPI_Recv(&size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
   if (MyGlobals::_Verbose>1000)
     std::cout<< "proc " << MyGlobals::_Rank << " : <-- RecvDoubleVec " << size << std::endl;;
@@ -195,7 +195,7 @@ std::vector<int> *MEDPARTITIONER::RecvIntVec(const int source)
   int tag = 111003;
   int size;
 #ifdef HAVE_MPI
-  MPI_Status status;  
+  MPI_Status status;
   MPI_Recv(&size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
   if (MyGlobals::_Verbose>1000)
     std::cout << "proc " << MyGlobals::_Rank << " : <-- RecvIntVec " << size << std::endl;
@@ -211,7 +211,7 @@ void MEDPARTITIONER::RecvIntVec(std::vector<mcIdType>& vec, const int source)
   int tag = 111003;
   int size;
 #ifdef HAVE_MPI
-  MPI_Status status;  
+  MPI_Status status;
   MPI_Recv(&size, 1, MPI_INT, source, tag, MPI_COMM_WORLD, &status);
   if (MyGlobals::_Verbose>1000)
     std::cout << "proc " << MyGlobals::_Rank << " : <-- RecvIntVec " << size << std::endl;
@@ -221,7 +221,7 @@ void MEDPARTITIONER::RecvIntVec(std::vector<mcIdType>& vec, const int source)
 }
 
 /*!
-  Sends content of \a dataArrayInt to processor \a target. 
+  Sends content of \a dataArrayInt to processor \a target.
   To be used with \a RecvDataArrayInt method.
   \param da dataArray to be sent
   \param target processor id of the target
@@ -235,7 +235,7 @@ void MEDPARTITIONER::SendDataArrayInt(const MEDCoupling::DataArrayInt *da, const
   size[0]=(int)da->getNbOfElems();
   size[1]=(int)da->getNumberOfTuples();
   size[2]=(int)da->getNumberOfComponents();
-  if (MyGlobals::_Verbose>1000) 
+  if (MyGlobals::_Verbose>1000)
     std::cout << "proc " << MyGlobals::_Rank << " : --> SendDataArrayInt " << size[0] << std::endl;
 #ifdef HAVE_MPI
   MPI_Send(&size, 3, MPI_INT, target, tag, MPI_COMM_WORLD);
@@ -269,7 +269,7 @@ MEDCoupling::DataArrayInt *MEDPARTITIONER::RecvDataArrayInt(const int source)
 }
 
 /*!
-  Sends content of \a dataArrayInt to processor \a target. 
+  Sends content of \a dataArrayInt to processor \a target.
   To be used with \a RecvDataArrayDouble method.
   \param da dataArray to be sent
   \param target processor id of the target
@@ -283,7 +283,7 @@ void MEDPARTITIONER::SendDataArrayDouble(const MEDCoupling::DataArrayDouble *da,
   size[0]=(int)da->getNbOfElems();
   size[1]=(int)da->getNumberOfTuples();
   size[2]=(int)da->getNumberOfComponents();
-  if (MyGlobals::_Verbose>1000) 
+  if (MyGlobals::_Verbose>1000)
     std::cout << "proc " << MyGlobals::_Rank << " : --> SendDataArrayDouble " << size[0] << std::endl;
 #ifdef HAVE_MPI
   MPI_Send(&size, 3, MPI_INT, target, tag, MPI_COMM_WORLD);
@@ -328,12 +328,12 @@ void MEDPARTITIONER::TestVectorOfStringMpi()
   myVector.push_back("");
   myVector.push_back("next is an singleton");
   myVector.push_back("1");
-  
+
   if (rank==0)
     {
       std::string s0=SerializeFromVectorOfString(myVector);
       std::vector<std::string> res=DeserializeToVectorOfString(s0);
-      if (res.size()!=myVector.size()) 
+      if (res.size()!=myVector.size())
         throw INTERP_KERNEL::Exception("Problem in (de)serialise VectorOfString incoherent sizes");
       for (std::size_t i=0; i<myVector.size(); i++)
         if (res[i]!=myVector[i])
@@ -349,15 +349,15 @@ void MEDPARTITIONER::TestVectorOfStringMpi()
             std::cout << "proc " << rank << " : receive \n" << ReprVectorOfString(res) << std::endl;
           if (rank==j)
             {
-              if (res.size()!=myVector.size()) 
+              if (res.size()!=myVector.size())
                 throw INTERP_KERNEL::Exception("Problem in SendAndReceiveVectorOfString incoherent sizes");
               for (std::size_t ii=1; ii<myVector.size(); ii++) //first is different
                 if (res[i]!=myVector[ii])
                   throw INTERP_KERNEL::Exception("Problem in SendAndReceiveVectorOfString incoherent elements");
             }
-          else 
+          else
             {
-              if (res.size()!=0) 
+              if (res.size()!=0)
                 throw INTERP_KERNEL::Exception("Problem in SendAndReceiveVectorOfString size have to be 0");
             }
         }
@@ -368,7 +368,7 @@ void MEDPARTITIONER::TestVectorOfStringMpi()
   res=AllgathervVectorOfString(myVector);
   if (rank==0 && MyGlobals::_Verbose>20)
     std::cout << "proc " << rank << " : receive \n" << ReprVectorOfString(res) << std::endl;
-  if (res.size()!=myVector.size()*world_size) 
+  if (res.size()!=myVector.size()*world_size)
     throw INTERP_KERNEL::Exception("Problem in AllgathervVectorOfString incoherent sizes");
   int jj=-1;
   for (int j=0; j<world_size; j++)
@@ -394,7 +394,7 @@ void MEDPARTITIONER::TestMapOfStringIntMpi()
   myMap["two"]=22;  //a bug
   myMap["three"]=3;
   myMap["two"]=2; //last speaking override
-  
+
   if (rank==0)
     {
       std::vector<std::string> v2=VectorizeFromMapOfStringInt(myMap);
@@ -402,7 +402,7 @@ void MEDPARTITIONER::TestMapOfStringIntMpi()
       if (ReprMapOfStringInt(m3)!=ReprMapOfStringInt(myMap))
         throw INTERP_KERNEL::Exception("Problem in (de)vectorize MapOfStringInt");
     }
-    
+
   std::vector<std::string> v2=AllgathervVectorOfString(VectorizeFromMapOfStringInt(myMap));
   if (rank==0 && MyGlobals::_Verbose>20)
     {
@@ -426,7 +426,7 @@ void MEDPARTITIONER::TestMapOfStringVectorOfStringMpi()
   myVector.push_back("");
   myVector.push_back("next is an singleton");
   myVector.push_back("1");
-  
+
   if (rank==0)
     {
       std::map< std::string,std::vector<std::string> > m2;
@@ -444,7 +444,7 @@ void MEDPARTITIONER::TestMapOfStringVectorOfStringMpi()
       if (ReprMapOfStringVectorOfString(m3)!=ReprMapOfStringVectorOfString(m2))
         throw INTERP_KERNEL::Exception("Problem in (de)vectorize MapOfStringVectorOfString");
     }
-    
+
   std::map< std::string,std::vector<std::string> > m4;
   m4["1rst key"]=myVector;
   m4["2snd key"]=myVector;
@@ -520,7 +520,7 @@ void MEDPARTITIONER::TestDataArrayMpi()
     send->decrRef();
     if (rank==1) recv->decrRef();
   }
-  
+
   if (MyGlobals::_Verbose)
     std::cout << "proc " << rank << " : OK TestDataArrayMpi END" << std::endl;
 }
@@ -585,7 +585,7 @@ void MEDPARTITIONER::TestPersistantMpi0To1(int taille, int nb)
       res="0K";
       if (ok!=nb)
         res="BAD";
-      if (MyGlobals::_Verbose>1) 
+      if (MyGlobals::_Verbose>1)
         std::cout << "result " << res << " time(sec) " << MPI_Wtime()-temps_debut << std::endl;
       MPI_Request_free(&requete1);
     }
@@ -651,7 +651,7 @@ void MEDPARTITIONER::TestPersistantMpiRing(int taille, int nb)
     MPI_Request_free(&requete0);
   }
   //end_time=(MPI_WTIME()-start_time);
-  if (MyGlobals::_Verbose>1) 
+  if (MyGlobals::_Verbose>1)
     std::cout << "result on proc " << rank << " " << res << " time(sec) " << temps_debut << std::endl;
 }
 
@@ -666,7 +666,7 @@ void MEDPARTITIONER::TestPersistantMpiRingOnCommSplit(int size, int nb)
     color=MPI_UNDEFINED;
   //MPI_Comm_dup (MPI_COMM_WORLD, &newcomm) ;
   MPI_Comm_split(MPI_COMM_WORLD, color, rank, &newcomm);
-  
+
   int befo, next, wsize, tagbefo, tagnext;
   wsize=rankMax;
   if (wsize>MyGlobals::_World_Size)
@@ -684,7 +684,7 @@ void MEDPARTITIONER::TestPersistantMpiRingOnCommSplit(int size, int nb)
   MPI_Status statut1, statut2;
   int ok=0;
   std::string res;
-  
+
   if (color==1)
     {
       x.resize(size);
@@ -736,6 +736,6 @@ void MEDPARTITIONER::TestPersistantMpiRingOnCommSplit(int size, int nb)
   //MPI_Barrier(MPI_COMM_WORLD);
   if (color==1)
     MPI_Comm_free(&newcomm);
-  if (MyGlobals::_Verbose>1) 
+  if (MyGlobals::_Verbose>1)
     std::cout << "resultat proc " << rank <<" " << res << " time(sec) " << temps_debut << std::endl;
 }

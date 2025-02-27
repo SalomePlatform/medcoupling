@@ -26,110 +26,110 @@ import unittest
 
 class MEDCouplingBasicsTest(unittest.TestCase):
     def testRemapper1(self):
-        sourceMesh=self.build2DSourceMesh_1();
-        targetMesh=self.build2DTargetMesh_1();
+        sourceMesh=self.build2DSourceMesh_1()
+        targetMesh=self.build2DTargetMesh_1()
         remapper=MEDCouplingRemapper()
-        remapper.setPrecision(1e-12);
-        remapper.setIntersectionType(Triangulation);
-        self.assertTrue(remapper.prepare(sourceMesh,targetMesh,"P0P0")==1);
-        srcField=MEDCouplingFieldDouble.New(ON_CELLS);
-        srcField.setNature(IntensiveMaximum);
-        srcField.setMesh(sourceMesh);
-        array=DataArrayDouble.New();
+        remapper.setPrecision(1e-12)
+        remapper.setIntersectionType(Triangulation)
+        self.assertTrue(remapper.prepare(sourceMesh,targetMesh,"P0P0")==1)
+        srcField=MEDCouplingFieldDouble.New(ON_CELLS)
+        srcField.setNature(IntensiveMaximum)
+        srcField.setMesh(sourceMesh)
+        array=DataArrayDouble.New()
         ptr=sourceMesh.getNumberOfCells()*[None]
         for i in range(sourceMesh.getNumberOfCells()):
             ptr[i]=float(i+7)
             pass
-        array.setValues(ptr,sourceMesh.getNumberOfCells(),1);
-        srcField.setArray(array);
+        array.setValues(ptr,sourceMesh.getNumberOfCells(),1)
+        srcField.setArray(array)
         srcField.setName("abc") ; srcField.setDescription("def")
         srcField.setTime(7.7,9,10)
-        trgfield=remapper.transferField(srcField,4.57);
+        trgfield=remapper.transferField(srcField,4.57)
         self.assertEqual("abc",trgfield.getName())
         self.assertEqual("def",trgfield.getDescription())
         a,b,c=trgfield.getTime()
         self.assertAlmostEqual(7.7,a,14)
         self.assertEqual(b,9)
         self.assertEqual(c,10)
-        values=trgfield.getArray().getValues();
-        valuesExpected=[7.5 ,7. ,7.,8.,7.5];
+        values=trgfield.getArray().getValues()
+        valuesExpected=[7.5 ,7. ,7.,8.,7.5]
         for i in range(targetMesh.getNumberOfCells()):
-            self.assertTrue(abs(values[i]-valuesExpected[i])<1e-12);
+            self.assertTrue(abs(values[i]-valuesExpected[i])<1e-12)
             pass
-        self.assertTrue(1==trgfield.getArray().getNumberOfComponents());
+        self.assertTrue(1==trgfield.getArray().getNumberOfComponents())
         pass
 
     def testPrepareEx1(self):
-        sourceMesh=self.build2DSourceMesh_1();
-        targetMesh=self.build2DTargetMesh_3();
+        sourceMesh=self.build2DSourceMesh_1()
+        targetMesh=self.build2DTargetMesh_3()
         #
-        remapper=MEDCouplingRemapper();
-        remapper.setPrecision(1e-12);
-        remapper.setIntersectionType(Triangulation);
-        srcFt=MEDCouplingFieldTemplate.New(ON_CELLS);
-        trgFt=MEDCouplingFieldTemplate.New(ON_CELLS);
-        srcFt.setMesh(sourceMesh);
-        trgFt.setMesh(targetMesh);
-        self.assertEqual(1,remapper.prepareEx(srcFt,trgFt));
-        srcField=MEDCouplingFieldDouble.New(ON_CELLS);
-        srcField.setNature(IntensiveMaximum);
-        srcField.setMesh(sourceMesh);
-        array=DataArrayDouble.New();
+        remapper=MEDCouplingRemapper()
+        remapper.setPrecision(1e-12)
+        remapper.setIntersectionType(Triangulation)
+        srcFt=MEDCouplingFieldTemplate.New(ON_CELLS)
+        trgFt=MEDCouplingFieldTemplate.New(ON_CELLS)
+        srcFt.setMesh(sourceMesh)
+        trgFt.setMesh(targetMesh)
+        self.assertEqual(1,remapper.prepareEx(srcFt,trgFt))
+        srcField=MEDCouplingFieldDouble.New(ON_CELLS)
+        srcField.setNature(IntensiveMaximum)
+        srcField.setMesh(sourceMesh)
+        array=DataArrayDouble.New()
         ptr=sourceMesh.getNumberOfCells()*[None]
         for i in range(sourceMesh.getNumberOfCells()):
-            ptr[i]=float(i+7);
+            ptr[i]=float(i+7)
             pass
-        array.setValues(ptr,sourceMesh.getNumberOfCells(),1);
-        srcField.setArray(array);
-        trgfield=remapper.transferField(srcField,4.220173);
-        values=trgfield.getArray().getValues();
+        array.setValues(ptr,sourceMesh.getNumberOfCells(),1)
+        srcField.setArray(array)
+        trgfield=remapper.transferField(srcField,4.220173)
+        values=trgfield.getArray().getValues()
         valuesExpected=[7.75, 7.0625, 4.220173,8.0]
-        self.assertEqual(4,trgfield.getArray().getNumberOfTuples());
-        self.assertEqual(1,trgfield.getArray().getNumberOfComponents());
+        self.assertEqual(4,trgfield.getArray().getNumberOfTuples())
+        self.assertEqual(1,trgfield.getArray().getNumberOfComponents())
         for i0 in range(4):
-            self.assertAlmostEqual(valuesExpected[i0],values[i0],12);
+            self.assertAlmostEqual(valuesExpected[i0],values[i0],12)
             pass
         pass
 
     def testPartialTransfer1(self):
-        sourceMesh=self.build2DSourceMesh_1();
-        targetMesh=self.build2DTargetMesh_3();
+        sourceMesh=self.build2DSourceMesh_1()
+        targetMesh=self.build2DTargetMesh_3()
         #
-        remapper=MEDCouplingRemapper();
-        remapper.setPrecision(1e-12);
-        remapper.setIntersectionType(Triangulation);
-        srcFt=MEDCouplingFieldTemplate.New(ON_CELLS);
-        trgFt=MEDCouplingFieldTemplate.New(ON_CELLS);
-        srcFt.setMesh(sourceMesh);
-        trgFt.setMesh(targetMesh);
-        self.assertEqual(1,remapper.prepareEx(srcFt,trgFt));
-        srcField=MEDCouplingFieldDouble.New(ON_CELLS);
-        srcField.setNature(IntensiveMaximum);
-        srcField.setMesh(sourceMesh);
-        array=DataArrayDouble.New();
+        remapper=MEDCouplingRemapper()
+        remapper.setPrecision(1e-12)
+        remapper.setIntersectionType(Triangulation)
+        srcFt=MEDCouplingFieldTemplate.New(ON_CELLS)
+        trgFt=MEDCouplingFieldTemplate.New(ON_CELLS)
+        srcFt.setMesh(sourceMesh)
+        trgFt.setMesh(targetMesh)
+        self.assertEqual(1,remapper.prepareEx(srcFt,trgFt))
+        srcField=MEDCouplingFieldDouble.New(ON_CELLS)
+        srcField.setNature(IntensiveMaximum)
+        srcField.setMesh(sourceMesh)
+        array=DataArrayDouble.New()
         ptr=sourceMesh.getNumberOfCells()*[None]
         for i in range(sourceMesh.getNumberOfCells()):
-            ptr[i]=float(i+7);
+            ptr[i]=float(i+7)
             pass
-        array.setValues(ptr,sourceMesh.getNumberOfCells(),1);
-        srcField.setArray(array);
-        trgfield=MEDCouplingFieldDouble.New(ON_CELLS);
-        trgfield.setNature(IntensiveMaximum);
-        trgfield.setMesh(targetMesh);
-        array=DataArrayDouble.New();
+        array.setValues(ptr,sourceMesh.getNumberOfCells(),1)
+        srcField.setArray(array)
+        trgfield=MEDCouplingFieldDouble.New(ON_CELLS)
+        trgfield.setNature(IntensiveMaximum)
+        trgfield.setMesh(targetMesh)
+        array=DataArrayDouble.New()
         ptr=targetMesh.getNumberOfCells()*[None]
         for i in range(targetMesh.getNumberOfCells()):
-            ptr[i]=4.220173;
+            ptr[i]=4.220173
             pass
-        array.setValues(ptr,targetMesh.getNumberOfCells(),1);
-        trgfield.setArray(array);
-        remapper.partialTransfer(srcField,trgfield);
-        values=trgfield.getArray().getValues();
+        array.setValues(ptr,targetMesh.getNumberOfCells(),1)
+        trgfield.setArray(array)
+        remapper.partialTransfer(srcField,trgfield)
+        values=trgfield.getArray().getValues()
         valuesExpected=[7.75, 7.0625, 4.220173,8.0]
-        self.assertEqual(4,trgfield.getArray().getNumberOfTuples());
-        self.assertEqual(1,trgfield.getArray().getNumberOfComponents());
+        self.assertEqual(4,trgfield.getArray().getNumberOfTuples())
+        self.assertEqual(1,trgfield.getArray().getNumberOfComponents())
         for i0 in range(4):
-            self.assertAlmostEqual(valuesExpected[i0],values[i0],12);
+            self.assertAlmostEqual(valuesExpected[i0],values[i0],12)
             pass
         pass
 
@@ -149,7 +149,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(5,trgField.getArray().getNumberOfTuples())
         self.assertEqual(5,len(expected1))
         for i,val in enumerate(expected1):
-            self.assertAlmostEqual(expected1[i],trgField.getArray().getIJ(i,0),12);
+            self.assertAlmostEqual(expected1[i],trgField.getArray().getIJ(i,0),12)
             pass
         # 2D
         coords=DataArrayDouble([0.,0.,0.,1.,1.,1.,1.,0.,0.5,-0.2],5,2)
@@ -166,7 +166,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(25,trgField.getArray().getNumberOfTuples())
         self.assertEqual(25,len(expected2))
         for i,val in enumerate(expected2):
-            self.assertAlmostEqual(expected2[i],trgField.getArray().getIJ(i,0),12);
+            self.assertAlmostEqual(expected2[i],trgField.getArray().getIJ(i,0),12)
             pass
         # 3D
         coords=DataArrayDouble([0.,0.,0.,0.,1.,0.,1.,1.,0.,1.,0.,0.,0.5,-0.2,0.,0.1,0.8,1.,0.5,0.,1.],7,3)
@@ -185,7 +185,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(100,trgField.getArray().getNumberOfTuples())
         self.assertEqual(100,len(expected3))
         for i,val in enumerate(expected3):
-            self.assertAlmostEqual(expected3[i],trgField.getArray().getIJ(i,0),12);
+            self.assertAlmostEqual(expected3[i],trgField.getArray().getIJ(i,0),12)
             pass
         pass
 
@@ -205,7 +205,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(2.,trgField.getArray().getNumberOfTuples())
         self.assertEqual(2,len(expected1))
         for i,val in enumerate(expected1):
-            self.assertAlmostEqual(expected1[i],trgField.getArray().getIJ(i,0),12);
+            self.assertAlmostEqual(expected1[i],trgField.getArray().getIJ(i,0),12)
             pass
         # 2D
         coords=DataArrayDouble([0.,0.,0.,1.,1.,1.,1.,0.,0.5,-0.2],5,2)
@@ -222,7 +222,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(2,trgField.getArray().getNumberOfTuples())
         self.assertEqual(2,len(expected2))
         for i,val in enumerate(expected2):
-            self.assertAlmostEqual(expected2[i],trgField.getArray().getIJ(i,0),12);
+            self.assertAlmostEqual(expected2[i],trgField.getArray().getIJ(i,0),12)
             pass
         # 3D
         coords=DataArrayDouble([0.,0.,0.,0.,1.,0.,1.,1.,0.,1.,0.,0.,0.5,-0.2,0.,0.1,0.8,1.,0.5,0.,1.],7,3)
@@ -241,7 +241,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(2,trgField.getArray().getNumberOfTuples())
         self.assertEqual(2,len(expected3))
         for i,val in enumerate(expected3):
-            self.assertAlmostEqual(expected3[i],trgField.getArray().getIJ(i,0),12);
+            self.assertAlmostEqual(expected3[i],trgField.getArray().getIJ(i,0),12)
             pass
         pass
 
@@ -260,7 +260,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(2.,trgField.getArray().getNumberOfTuples())
         self.assertEqual(2,len(expected1))
         for i,val in enumerate(expected1):
-            self.assertAlmostEqual(expected1[i],trgField.getArray().getIJ(i,0),12);
+            self.assertAlmostEqual(expected1[i],trgField.getArray().getIJ(i,0),12)
             pass
         # 2D
         src=MEDCouplingCMesh() ; arr=DataArrayDouble([-0.7,-0.1,0.2,0.7,2.,2.3])
@@ -276,7 +276,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(4,trgField.getArray().getNumberOfTuples())
         self.assertEqual(4,len(expected2))
         for i,val in enumerate(expected2):
-            self.assertAlmostEqual(expected2[i],trgField.getArray().getIJ(i,0),12);
+            self.assertAlmostEqual(expected2[i],trgField.getArray().getIJ(i,0),12)
             pass
         # 3D
         src=MEDCouplingCMesh() ; arr=DataArrayDouble([-0.7,-0.1,0.2,0.7,2.,2.3])
@@ -292,7 +292,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         self.assertEqual(8,trgField.getArray().getNumberOfTuples())
         self.assertEqual(8,len(expected3))
         for i,val in enumerate(expected3):
-            self.assertAlmostEqual(expected3[i],trgField.getArray().getIJ(i,0),12);
+            self.assertAlmostEqual(expected3[i],trgField.getArray().getIJ(i,0),12)
             pass
         pass
 
@@ -610,7 +610,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         tgt.setCoords(coo2)
 
         sCoo = DataArrayDouble([0.0,0.0,  -0.3,1.0,  2.0,3.0,  1.0,0.0],4,2)
-        sCoo[:,0] += 10.0;  sCoo[:,1] += 15.0;
+        sCoo[:,0] += 10.0;  sCoo[:,1] += 15.0
         sConn = DataArrayInt([0,1,2,3])
         s = MEDCoupling1SGTUMesh("source",NORM_QUAD4) ; s.setCoords(sCoo)
         s.setNodalConnectivity(sConn)
@@ -632,7 +632,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         pass
 
     def testSwig2MappedBarycentricP1P13_1(self):
-        """ Testing mapped barycentric P1P1 projection in 3D (uses orthogonal distances to 
+        """ Testing mapped barycentric P1P1 projection in 3D (uses orthogonal distances to
         HEXA8 faces).
         Convention:
               0 ------ 3
@@ -673,7 +673,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
 
         sCoo = DataArrayDouble([-0.3,1.0,1.0,  0.0,0.0,1.0,  1.0,0.0,1.0,  2.0,3.0,1.0,
                                 -0.3,1.0,0.0,  0.0,0.0,0.0,  1.0,0.0,0.0,  2.0,3.0,0.0,],8,3)
-        sCoo[:, 0] += 10.0; sCoo[:, 1] += 15.0; sCoo[:, 2] += 20.0;
+        sCoo[:, 0] += 10.0; sCoo[:, 1] += 15.0; sCoo[:, 2] += 20.0
         sConn = DataArrayInt([0,1,2,3,4, 5,6,7])
         s = MEDCoupling1SGTUMesh("source",NORM_HEXA8) ; s.setCoords(sCoo)
         s.setNodalConnectivity(sConn)
@@ -1103,7 +1103,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         src.setConnectivity(c, cI)
         src.checkConsistency()
         tgt = MEDCouplingCMesh('tgt')
-        da = DataArrayDouble(18, 1); da.iota();
+        da = DataArrayDouble(18, 1); da.iota()
         tgt.setCoords(da, da)
         tgt = tgt.buildUnstructured()
         srcF = MEDCouplingFieldDouble(ON_CELLS, ONE_TIME)
@@ -1288,10 +1288,10 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         fs.setNature(IntensiveMaximum)
         self.assertTrue(rem2.transferField(fs,1e300).getArray().isEqual(DataArrayDouble([10.,10.]),1e-12))
         #
-        srcFt=MEDCouplingFieldTemplate.New(ON_CELLS);
-        trgFt=MEDCouplingFieldTemplate.New(ON_CELLS);
-        srcFt.setMesh(ms);
-        trgFt.setMesh(mt);
+        srcFt=MEDCouplingFieldTemplate.New(ON_CELLS)
+        trgFt=MEDCouplingFieldTemplate.New(ON_CELLS)
+        srcFt.setMesh(ms)
+        trgFt.setMesh(mt)
         rem3=MEDCouplingRemapper()
         rem3.setCrudeMatrixEx(srcFt,trgFt,rem.getCrudeMatrix())
         fs.setNature(ExtensiveConservation)
@@ -1670,7 +1670,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
                     6.0,
                     7.0,
                     8.0,
-                    9.0, 
+                    9.0,
                     10.0,
                     11.0,
                     12.0,
@@ -1714,7 +1714,7 @@ class MEDCouplingBasicsTest(unittest.TestCase):
                     6.0,
                     7.0,
                     8.0,
-                    9.0, 
+                    9.0,
                     10.0,
                     11.0,
                     12.0,
@@ -2766,46 +2766,46 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         sourceCoords=[-0.3,-0.3, 0.7,-0.3, -0.3,0.7, 0.7,0.7]
         sourceConn=[0,3,1,0,2,3]
         sourceMesh=MEDCouplingUMesh.New("my name of mesh 2D",2)
-        sourceMesh.allocateCells(2);
-        sourceMesh.insertNextCell(NORM_TRI3,3,sourceConn[0:3]);
-        sourceMesh.insertNextCell(NORM_TRI3,3,sourceConn[3:6]);
-        sourceMesh.finishInsertingCells();
-        myCoords=DataArrayDouble.New();
-        myCoords.setValues(sourceCoords,4,2);
-        sourceMesh.setCoords(myCoords);
-        return sourceMesh;
+        sourceMesh.allocateCells(2)
+        sourceMesh.insertNextCell(NORM_TRI3,3,sourceConn[0:3])
+        sourceMesh.insertNextCell(NORM_TRI3,3,sourceConn[3:6])
+        sourceMesh.finishInsertingCells()
+        myCoords=DataArrayDouble.New()
+        myCoords.setValues(sourceCoords,4,2)
+        sourceMesh.setCoords(myCoords)
+        return sourceMesh
 
     def build2DTargetMesh_1(self):
         targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ]
         targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
-        targetMesh=MEDCouplingUMesh.New();
-        targetMesh.setMeshDimension(2);
-        targetMesh.allocateCells(5);
-        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[0:4]);
-        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[4:7]);
-        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[7:10]);
-        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[10:14]);
-        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[14:18]);
-        targetMesh.finishInsertingCells();
-        myCoords=DataArrayDouble.New();
-        myCoords.setValues(targetCoords,9,2);
-        targetMesh.setCoords(myCoords);
-        return targetMesh;
+        targetMesh=MEDCouplingUMesh.New()
+        targetMesh.setMeshDimension(2)
+        targetMesh.allocateCells(5)
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[4:7])
+        targetMesh.insertNextCell(NORM_TRI3,3,targetConn[7:10])
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[10:14])
+        targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[14:18])
+        targetMesh.finishInsertingCells()
+        myCoords=DataArrayDouble.New()
+        myCoords.setValues(targetCoords,9,2)
+        targetMesh.setCoords(myCoords)
+        return targetMesh
 
     def build2DTargetMesh_3(self):
         targetCoords=[-0.6,-0.4, -0.1,-0.4, 1.1,-0.4, 2.1,-0.4, -0.6,0.1,  -0.1,0.1,  1.1,0.1,  2.1,0.1, -0.6,1.1,  -0.1,1.1]
         targetConn=[0,4,5,1, 1,5,6,2, 2,6,7,3, 4,8,9,5]
-        targetMesh=MEDCouplingUMesh.New();
-        targetMesh.setMeshDimension(2);
-        targetMesh.allocateCells(4);
+        targetMesh=MEDCouplingUMesh.New()
+        targetMesh.setMeshDimension(2)
+        targetMesh.allocateCells(4)
         for i in range(4):
             targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[4*i:4*(i+1)])
             pass
-        targetMesh.finishInsertingCells();
-        myCoords=DataArrayDouble.New();
-        myCoords.setValues(targetCoords,10,2);
-        targetMesh.setCoords(myCoords);
-        return targetMesh;
+        targetMesh.finishInsertingCells()
+        myCoords=DataArrayDouble.New()
+        myCoords.setValues(targetCoords,10,2)
+        targetMesh.setCoords(myCoords)
+        return targetMesh
         pass
 
     def setUp(self):

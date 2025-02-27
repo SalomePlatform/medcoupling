@@ -32,7 +32,7 @@ class ParaMEDMEM_SC_DEC_Tests(unittest.TestCase):
     """
 
     def generateFullMeshField(self):
-        """ The complete mesh: 4 squares each divided in 2 diagonaly (so 8 cells in total) 
+        """ The complete mesh: 4 squares each divided in 2 diagonaly (so 8 cells in total)
         Note that in this case, this is the **only** mesh for the whole problem.
         """
         m1 = MEDCouplingCMesh("tgt_msh")
@@ -43,7 +43,7 @@ class ParaMEDMEM_SC_DEC_Tests(unittest.TestCase):
         msh.simplexize(0)
         msh.setName("src_mesh")
         fld = MEDCouplingFieldDouble(ON_CELLS, ONE_TIME)
-        fld.setMesh(msh); fld.setName("source_F");
+        fld.setMesh(msh); fld.setName("source_F")
         da = DataArrayDouble(msh.getNumberOfCells())
         da.iota()
         da *= 2
@@ -78,7 +78,7 @@ class ParaMEDMEM_SC_DEC_Tests(unittest.TestCase):
     def test_StructuredCoincidentDEC_py_1(self):
         """ This test illustrates a basic use of the StructuredCoincidentDEC which allows to
         resdistribute a field/mesh which is already scattered on several processors into a different configuration.
-        Look at the C++ documentation of the class for more informations. 
+        Look at the C++ documentation of the class for more informations.
         Note that in the case of the StructuredCoincidentDEC no interpolation whatsoever is performed. This is only
         really a redistribution of the data among the processors.
         """
@@ -180,7 +180,7 @@ class ParaMEDMEM_SC_DEC_Tests(unittest.TestCase):
             value = []
             for ielem in range(nb_local):
                 for icomp in range(6):
-                    value.append(global_numbering[ielem]*6.0+icomp);
+                    value.append(global_numbering[ielem]*6.0+icomp)
             parafield.getField().setValues(value)
             icocofield = ICoCoMEDDoubleField(parafield.getField())
             dec.setMethod("P0")

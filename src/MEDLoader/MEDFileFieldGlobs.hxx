@@ -35,7 +35,7 @@ namespace MEDCoupling
   class MEDFileEntities;
   class MEDFileWritable;
   class MEDFileFieldLoc;
-  
+
   class MEDFileFieldGlobs : public RefCountObject
   {
   public:

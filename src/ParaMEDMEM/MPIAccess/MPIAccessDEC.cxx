@@ -24,11 +24,11 @@
 using namespace std;
 
 namespace MEDCoupling
-{    
+{
 
   /*!
-    This constructor creates an MPIAccessDEC which has \a source_group as a working side 
-    and  \a target_group as an idle side. 
+    This constructor creates an MPIAccessDEC which has \a source_group as a working side
+    and  \a target_group as an idle side.
     The constructor must be called synchronously on all processors of both processor groups.
 
     \param source_group working side ProcessorGroup
@@ -40,7 +40,7 @@ namespace MEDCoupling
                               bool Asynchronous )
   {
 
-    ProcessorGroup * union_group = source_group.fuse(target_group) ;  
+    ProcessorGroup * union_group = source_group.fuse(target_group) ;
     int i ;
     std::set<int> procs;
     for ( i = 0 ; i < union_group->size() ; i++ )
@@ -93,7 +93,7 @@ namespace MEDCoupling
       delete _data_messages ;
     if ( _map_of_send_buffers )
       delete _map_of_send_buffers ;
-  } 
+  }
 
   void MPIAccessDEC::setTimeInterpolator( TimeInterpolationMethod aTimeInterp ,
                                           double InterpPrecision, int nStepBefore,
@@ -342,7 +342,7 @@ namespace MEDCoupling
     int SendRequestId ;
     int RecvRequestId ;
 
-    //Free of SendBuffers 
+    //Free of SendBuffers
     if ( _asynchronous )
       checkSent() ;
 
@@ -402,7 +402,7 @@ namespace MEDCoupling
     int SendRequestId ;
     int RecvRequestId ;
 
-    //Free of SendBuffers 
+    //Free of SendBuffers
     if ( _asynchronous )
       {
         checkSent() ;
@@ -523,7 +523,7 @@ namespace MEDCoupling
         return MPI_ERR_OTHER ;
       }
 
-    //Free of SendBuffers 
+    //Free of SendBuffers
     if ( _asynchronous )
       {
         checkSent() ;
@@ -642,7 +642,7 @@ namespace MEDCoupling
         return MPI_ERR_OTHER ;
       }
 
-    //Free of SendBuffers 
+    //Free of SendBuffers
     if ( _asynchronous )
       {
         checkSent() ;
@@ -946,7 +946,7 @@ namespace MEDCoupling
             (*_map_of_send_buffers)[ ArrayOfSendRequests[i] ]->Counter -= 1 ;
             if ( SendTrace )
               {
-                if ( (*_map_of_send_buffers)[ ArrayOfSendRequests[i] ]->DataType == 
+                if ( (*_map_of_send_buffers)[ ArrayOfSendRequests[i] ]->DataType ==
                      _MPI_access->timeType() )
                   {
                     cout << "CheckTimeSent" << _my_rank << " Request " ;

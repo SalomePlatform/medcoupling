@@ -2,7 +2,7 @@
 Manipuler des champs de double
 ------------------------------
 
-Les champs dans MEDCoupling ont comme support un unique maillage, de dimension fixée, et bien défini. 
+Les champs dans MEDCoupling ont comme support un unique maillage, de dimension fixée, et bien défini.
 Cela semble trivial mais c'est en fait une différence majeure avec la notion de champ dans MED fichier, qui elle est beaucoup
 plus permissive.
 
@@ -10,19 +10,19 @@ Les champs sont utiles pour :
 
 * stocker des valeurs d'une grandeur physique relative au problème traité, mais aussi
 * des services de haut niveau où l'interaction avec les maillages
-  est requise comme par exemple ``getValueOn()``, ``getValueOnMulti()``, ``integral()``, ``getMeasureField`` 
+  est requise comme par exemple ``getValueOn()``, ``getValueOnMulti()``, ``integral()``, ``getMeasureField``
   ``normL1()``, ``normL2()``, ``fillFromAnalytic()``, ... qui calculent toutes des valeurs en lien avec le maillage
   (par exemple le *volume* des cellules)
 * expliciter précisément les informations échangées entre les différents codes
   lors de couplage.
 
-Pour information, l'implémentation de ``MEDCouplingFieldDouble`` est relativement petite car cette classe 
-délègue la très large majorité de ses traitements à des instances de classes aggrégées 
+Pour information, l'implémentation de ``MEDCouplingFieldDouble`` est relativement petite car cette classe
+délègue la très large majorité de ses traitements à des instances de classes aggrégées
 comme ``MEDCouplingMesh``, ``DataArrayDouble``, et ``MEDCouplingSpatialDiscretization``.
 La classe ``MEDCouplingFieldDouble`` permet d'assurer la cohérence entre tous ces éléments.
 
 
-Il est souvent  possible et même parfois recommandé de manipuler les tableaux (un ``DataArrayDouble``) 
+Il est souvent  possible et même parfois recommandé de manipuler les tableaux (un ``DataArrayDouble``)
 et/ou le maillage d'une instance de ``MEDCouplingFieldDouble`` directement.
 
 Objectifs
@@ -45,7 +45,7 @@ Importer le module Python ``medcoupling``. ::
 
 	import medcoupling as mc
 
-Créer un ``MEDCouplingUMesh`` à partir d'un maillage 3D cartésien. Chaque direction contiendra 10 cells 
+Créer un ``MEDCouplingUMesh`` à partir d'un maillage 3D cartésien. Chaque direction contiendra 10 cells
 et 11 nodes. Le ``MEDCouplingUMesh`` résultant contiendra ainsi 1000 cells. ::
 
 	xarr = mc.DataArrayDouble.New(11,1)
@@ -57,7 +57,7 @@ et 11 nodes. Le ``MEDCouplingUMesh`` résultant contiendra ainsi 1000 cells. ::
 .. note:: La méthode ``MEDCouplingMesh.buildUnstructured()`` est très utile pour construire rapidement un maillage
 	non structuré afin de tester quelque chose.
 
-Afin de mettre en évidence le problème des types géométriques multiples, convertir en polyhèdres 
+Afin de mettre en évidence le problème des types géométriques multiples, convertir en polyhèdres
 les cellules d'identifiant pair ::
 
 	mesh.convertToPolyTypes(mc.DataArrayInt.Range(0,mesh.getNumberOfCells(),2))
@@ -76,7 +76,7 @@ Pour cela, deux possiblités :
 	f = mesh.fillFromAnalytic(mc.ON_CELLS,1,"(x-5.)*(x-5.)+(y-5.)*(y-5.)+(z-5.)*(z-5.)")  # 1 means that the field should have one component
 	f.setName("MyField")
 
-* Ou en créant au préalable un champ non initialisé, et en appliquant ``fillFromAnalytic()`` sur cette 
+* Ou en créant au préalable un champ non initialisé, et en appliquant ``fillFromAnalytic()`` sur cette
   instance de ``MEDCouplingFieldDouble`` ::
 
 	f2 = mc.MEDCouplingFieldDouble(mc.ON_CELLS, mc.ONE_TIME)
@@ -90,9 +90,9 @@ de 1e-13 sur les valeurs. ::
 	print("Are f and f2 equal?", f.isEqualWithoutConsideringStr(f2,1e-12,1e-13))
 
 
-.. note:: Le ``WithoutConsideringStr`` dans le nom de la méthode précédente indique que les noms des champs ne seront 
+.. note:: Le ``WithoutConsideringStr`` dans le nom de la méthode précédente indique que les noms des champs ne seront
 	pas comparés. On retrouve ce suffixe dans d'autres méthodes MEDCoupling.
- 
+
 
 Construire une sous-partie d'un champ
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,7 +101,7 @@ Récupérer dans une variable ``ids1`` la liste des identifiants de cellules pou
 range [0.0,5.0]. Utiliser pour cela la méthode ``DataArrayDouble.findIdsInRange()``. Avec ce résultat, construire la
 sous-partie ``fPart1`` du champ ``f``. ::
 
-	da1 = f.getArray()              # a DataArrayDouble, which is a direct reference (not a copy) of the field's values 
+	da1 = f.getArray()              # a DataArrayDouble, which is a direct reference (not a copy) of the field's values
 	ids1 = da1.findIdsInRange(0., 5.)
 	fPart1 = f.buildSubPart(ids1)
 	fPart1.writeVTK("ExoField_fPart1.vtu")
@@ -119,8 +119,8 @@ Ce genre de technique permet d'extraire facilement les parties d'un champ relati
 Renuméroter les entités d'un champ
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-La partie ``fPart1`` générée est valide d'un point de vue de MEDCoupling. Mais elle 
-n'est pas valide d'un point de vue de MED *fichier*. 
+La partie ``fPart1`` générée est valide d'un point de vue de MEDCoupling. Mais elle
+n'est pas valide d'un point de vue de MED *fichier*.
 Une renumérotation s'impose dans l'hypothèse de stocker ce champs dans un fichier MED afin d'ordonner les cellules
 par type géométrique.
 
@@ -142,7 +142,7 @@ Vérifier que ``fPart1Cpy`` et ``fPart1`` sont les mêmes à une permutation pr�
 .. note:: La renumérotation effectuée ici représente en fait d'un cas très particulier
 	d'interpolation. Effectivement l'hypothèse est faite que les supports
 	de ``fPart1`` et ``fPart1Cpy`` sont égaux à une permutation de cellule
-	et/ou noeuds.  
+	et/ou noeuds.
 
 Agréger des champs
 ~~~~~~~~~~~~~~~~~~
@@ -153,7 +153,7 @@ dans ``fPart12``. ::
 	fPart12 = mc.MEDCouplingFieldDouble.MergeFields([fPart1,fPart2])
 	fPart12.writeVTK("ExoField_fPart12.vtu")
 
-.. note:: La méthode ``MEDCouplingFieldDouble.MergeFields()`` devrait vraiment se 
+.. note:: La méthode ``MEDCouplingFieldDouble.MergeFields()`` devrait vraiment se
 	nommer ``MEDCouplingFieldDouble.AggregateFields()`` ...
 
 .. image:: images/FieldDouble1_2.png
@@ -163,7 +163,7 @@ Evaluation d'un champ en des points donnés de l'espace
 
 Evaluer la valeur du champ ``fPart12`` calculé précédemment sur les barycentres des cellules de son
 maillage (variable ``bary``) et mettre le résultat dans ``arr1``.
-Utiliser pour cela les méthodes ``MEDCouplingFieldDouble.getValueOnMulti()`` et ``MEDCouplingMesh.computeCellCenterOfMass()``.  
+Utiliser pour cela les méthodes ``MEDCouplingFieldDouble.getValueOnMulti()`` et ``MEDCouplingMesh.computeCellCenterOfMass()``.
 
 De manière similaire, évaluer ensuite directement le champ ``f`` en utilisant la même liste de points
 que précédemment (``bary``) et mettre le résultat dans ``arr2``.
@@ -177,7 +177,7 @@ Vérifier ensuite que ``arr1`` et ``arr2`` sont bien égaux: ::
 	delta.abs()
 	print("Is field evaluation matching?", (delta.accumulate()[0]<1e-12))
 
-.. note:: Dans ce contexte, et pour un champ aux cellules (P0) par exemple, "évaluer" en un point signifie retourner la valeur 
+.. note:: Dans ce contexte, et pour un champ aux cellules (P0) par exemple, "évaluer" en un point signifie retourner la valeur
 	de la cellule contenant le point donné.
 	Pour les champs aux noeuds (P1), les cellules doivent être de types simples (triangles, tétraèdres) et une interpolation
 	linéaire est alors utilisée.
@@ -188,8 +188,8 @@ Opérations sur les champs
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Calculer l'intégrale du champ ``fPart12`` sur le maillage, et la retrouver d'une autre manière en utilisant
-la méthode ``DataArrayDouble.accumulate()`` sur le tableau de valeurs de ce champ. 
-On rappelle que, vu le maillage simplifié en jeu, les cellules ont toutes un volume unité. :: 
+la méthode ``DataArrayDouble.accumulate()`` sur le tableau de valeurs de ce champ.
+On rappelle que, vu le maillage simplifié en jeu, les cellules ont toutes un volume unité. ::
 
 	integ1 = fPart12.integral(0,True)
 	integ1_bis = fPart12.getArray().accumulate()[0]
@@ -207,13 +207,13 @@ Exploser un champ - Vecteurs de déplacement
 
 Nous allons maintenant créer un nouveau maillage représentant l'*éclaté* du maillage initial.
 
-Partant du maillage ``mesh`` créer un champ vectoriel aux cellules ``fVec`` ayant 3 composantes représentant 
+Partant du maillage ``mesh`` créer un champ vectoriel aux cellules ``fVec`` ayant 3 composantes représentant
 le vecteur déplacement entre le point [5.,5.,5.] et le barycentre de chaque cellule du maillage.
 Utiliser la méthode ``MEDCouplingMesh.fillFromAnalytic()`` : ::
 
 	fVec = mesh.fillFromAnalytic(mc.ON_CELLS,3,"(x-5.)*IVec+(y-5.)*JVec+(z-5.)*KVec")
 
-.. note:: Les identifiants spéciaux ``IVec``, ``JVec`` et ``KVec`` représentent les vecteurs unitaires du repère. 
+.. note:: Les identifiants spéciaux ``IVec``, ``JVec`` et ``KVec`` représentent les vecteurs unitaires du repère.
 
 Créer ensuite une réduction de ``fVec`` (nommée ``fVecPart1``) sur les cellules ``ids1`` précédemment obtenues : ::
 

@@ -36,7 +36,7 @@ namespace MEDCoupling
    */
   class MPIAccessDEC
   {
-  public:  
+  public:
     MPIAccessDEC( const ProcessorGroup& local_group, const ProcessorGroup& distant_group,
                   bool Asynchronous = true );
     virtual ~MPIAccessDEC();
@@ -78,7 +78,7 @@ namespace MEDCoupling
     int recv( void* recvbuf, int recvcount , int recvoffset , MPI_Datatype recvtype ,
               int target, int &RecvRequestId );
     int sendRecv( void* sendbuf, int sendcount , int sendoffset ,
-                  MPI_Datatype sendtype , 
+                  MPI_Datatype sendtype ,
                   void* recvbuf, int recvcount , int recvoffset ,
                   MPI_Datatype recvtype , int target ,
                   int &SendRequestId ,int &RecvRequestId );
@@ -157,7 +157,7 @@ namespace MEDCoupling
                                RecvRequestId );
     return sts;
   }
-  
+
   inline int MPIAccessDEC::sendRecv( void* sendbuf, int sendcount , MPI_Datatype sendtype ,
                                      void* recvbuf, int recvcount , MPI_Datatype recvtype ,
                                      int target )

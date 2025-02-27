@@ -181,7 +181,7 @@ std::vector<const BigMemoryObject *> MEDCouplingField::getDirectChildrenWithNull
 
 /*!
  * Returns a type of \ref MEDCouplingSpatialDisc "spatial discretization" of \a this
- * field in terms of enum MEDCoupling::TypeOfField. 
+ * field in terms of enum MEDCoupling::TypeOfField.
  * \return MEDCoupling::TypeOfField - the type of \a this field.
  * \throw If the geometric type is empty.
  */
@@ -229,14 +229,14 @@ void MEDCouplingField::setNature(NatureOfField nat)
 }
 
 /*!
- * Returns coordinates of field location points that depend on 
+ * Returns coordinates of field location points that depend on
  * \ref MEDCouplingSpatialDisc "spatial discretization" of \a this field.
  * - For a field on nodes, returns coordinates of nodes.
  * - For a field on cells, returns barycenters of cells.
  * - For a field on gauss points, returns coordinates of gauss points.
- * 
+ *
  *  \return DataArrayDouble * - a new instance of DataArrayDouble. The caller is to
- *          delete this array using decrRef() as it is no more needed. 
+ *          delete this array using decrRef() as it is no more needed.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If the mesh is not set.
  */
@@ -300,7 +300,7 @@ void MEDCouplingField::setMesh(const MEDCouplingMesh *mesh)
  * Sets localization of Gauss points for a given geometric type of cell.
  *  \param [in] type - the geometric type of cell for which the Gauss localization is set.
  *  \param [in] refCoo - coordinates of points of the reference cell. Size of this vector
- *         must be \c nbOfNodesPerCell * \c dimOfType. 
+ *         must be \c nbOfNodesPerCell * \c dimOfType.
  *  \param [in] gsCoo - coordinates of Gauss points on the reference cell. Size of this vector
  *         must be  _wg_.size() * \c dimOfType.
  *  \param [in] wg - the weights of Gauss points.
@@ -324,7 +324,7 @@ void MEDCouplingField::setGaussLocalizationOnType(INTERP_KERNEL::NormalizedCellT
  *  \param [in] begin - an array of cell ids of interest.
  *  \param [in] end - the end of \a begin, i.e. a pointer to its (last+1)-th element.
  *  \param [in] refCoo - coordinates of points of the reference cell. Size of this vector
- *         must be \c nbOfNodesPerCell * \c dimOfType. 
+ *         must be \c nbOfNodesPerCell * \c dimOfType.
  *  \param [in] gsCoo - coordinates of Gauss points on the reference cell. Size of this vector
  *         must be  _wg_.size() * \c dimOfType.
  *  \param [in] wg - the weights of Gauss points.
@@ -408,7 +408,7 @@ std::set<mcIdType> MEDCouplingField::getGaussLocalizationIdsOfOneType(INTERP_KER
 
 /*!
  * Returns number of Gauss localization objects available. Implicitly all ids in
- * [0,getNbOfGaussLocalization()) are valid Gauss localization ids. 
+ * [0,getNbOfGaussLocalization()) are valid Gauss localization ids.
  *  \return mcIdType - the number of available Gauss localization objects.
  *  \throw If \a this field is not on Gauss points.
  *  \throw If the spatial discretization of \a this field is NULL.
@@ -437,7 +437,7 @@ mcIdType MEDCouplingField::getGaussLocalizationIdOfOneCell(mcIdType cellId) cons
 
 /*!
  * Returns ids of cells that share the same Gauss localization given by its id.
- *  \param [in] locId - the id of the Gauss localization object of interest. 
+ *  \param [in] locId - the id of the Gauss localization object of interest.
  *         It must be in range <em> 0 <= locId < getNbOfGaussLocalization() </em>.
  *  \param [in,out] cellIds - a vector returning ids of found cells. It is cleared before
  *         filling in. It remains empty if no cells found.
@@ -502,15 +502,15 @@ MEDCouplingField::MEDCouplingField(const MEDCouplingField& other, bool deepCopy)
  * Returns a new MEDCouplingMesh constituted by some cells of the underlying mesh of \a
  * this field, and returns ids of entities (nodes, cells, Gauss points) lying on the
  * specified cells. The cells to include to the result mesh are specified by an array of
- * cell ids. The new mesh shares the coordinates array with the underlying mesh. 
+ * cell ids. The new mesh shares the coordinates array with the underlying mesh.
  *  \param [in] start - an array of cell ids to include to the result mesh.
  *  \param [in] end - specifies the end of the array \a start, so that
  *              the last value of \a start is \a end[ -1 ].
  *  \param [out] di - a new instance of DataArrayIdType holding the ids of entities (nodes,
  *         cells, Gauss points). The caller is to delete this array using decrRef() as it
- *         is no more needed.  
+ *         is no more needed.
  *  \return MEDCouplingMesh * - a new instance of MEDCouplingMesh. The caller is to
- *         delete this mesh using decrRef() as it is no more needed. 
+ *         delete this mesh using decrRef() as it is no more needed.
  *  \throw If the spatial discretization of \a this field is NULL.
  *  \throw If the mesh is not set.
  * \sa buildSubMeshDataRange()
@@ -524,12 +524,12 @@ MEDCouplingMesh *MEDCouplingField::buildSubMeshData(const mcIdType *start, const
 
 /*!
  * This method returns a submesh of 'mesh' instance constituting cell ids defined by a range given by the 3 following inputs \a begin, \a end and \a step.
- * 
+ *
  * \param [out] beginOut Valid only if \a di is NULL
  * \param [out] endOut Valid only if \a di is NULL
  * \param [out] stepOut Valid only if \a di is NULL
  * \param [out] di is an array returned that specifies entity ids (nodes, cells, Gauss points... ) in array if no output range is foundable.
- * 
+ *
  * \sa MEDCouplingField::buildSubMeshData
  */
 MEDCouplingMesh *MEDCouplingField::buildSubMeshDataRange(mcIdType begin, mcIdType end, mcIdType step, mcIdType& beginOut, mcIdType& endOut, mcIdType& stepOut, DataArrayIdType *&di) const
@@ -602,17 +602,17 @@ void MEDCouplingField::copyTinyStringsFrom(const MEDCouplingField *other)
   if(other)
     {
       setName(other->_name);
-      setDescription(other->_desc);    
+      setDescription(other->_desc);
     }
 }
 
 /*!
- * This method computes the number of tuples a DataArrayDouble instance should have to build a correct MEDCouplingFieldDouble instance starting from a 
+ * This method computes the number of tuples a DataArrayDouble instance should have to build a correct MEDCouplingFieldDouble instance starting from a
  * submesh of a virtual mesh on which a substraction per type had been applied regarding the spatial discretization in \a this.
- * 
+ *
  * For spatial discretization \b not equal to ON_GAUSS_NE this method will make the hypothesis that any positive entity id in \a code \a idsPerType is valid.
  * So in those cases attribute \a _mesh of \a this is ignored.
- * 
+ *
  * For spatial discretization equal to ON_GAUSS_NE \a _mesh attribute will be taken into account.
  *
  * The input code is those implemented in MEDCouplingUMesh::splitProfilePerType.

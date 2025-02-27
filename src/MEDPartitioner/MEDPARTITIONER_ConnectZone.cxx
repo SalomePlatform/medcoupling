@@ -58,22 +58,22 @@ MEDPARTITIONER::ConnectZone::ConnectZone(const ConnectZone & myConnectZone):
 {
 }
 
-std::string MEDPARTITIONER::ConnectZone::getName() const 
+std::string MEDPARTITIONER::ConnectZone::getName() const
 {
   return _name;
 }
 
-std::string MEDPARTITIONER::ConnectZone::getDescription() const     
+std::string MEDPARTITIONER::ConnectZone::getDescription() const
 {
   return _description;
 }
 
-int MEDPARTITIONER::ConnectZone::getDistantDomainNumber() const 
+int MEDPARTITIONER::ConnectZone::getDistantDomainNumber() const
 {
   return _distant_domain_number;
 }
 
-int MEDPARTITIONER::ConnectZone::getLocalDomainNumber() const 
+int MEDPARTITIONER::ConnectZone::getLocalDomainNumber() const
 {
   return _local_domain_number;
 }
@@ -218,7 +218,7 @@ std::vector< std::pair< mcIdType,mcIdType > > MEDPARTITIONER::ConnectZone::getEn
   return types;
 }
 
-void MEDPARTITIONER::ConnectZone::setName(const std::string& name) 
+void MEDPARTITIONER::ConnectZone::setName(const std::string& name)
 {
   _name=name;
 }
@@ -248,7 +248,7 @@ void MEDPARTITIONER::ConnectZone::setDistantMesh(MEDCouplingUMesh * distantMesh)
   _distant_mesh=distantMesh;
 }
 
-/*! transforms an int array containing 
+/*! transforms an int array containing
  * the node-node connections
  * to a MEDCouplingSkyLineArray
  */
@@ -276,7 +276,7 @@ void MEDPARTITIONER::ConnectZone::setNodeCorresp(MEDCouplingSkyLineArray* array)
   _node_corresp = arr;
 }
 
-/*! transforms an int array containing 
+/*! transforms an int array containing
  * the face-face connections
  * to a MEDCouplingSkyLineArray
  */
@@ -304,15 +304,15 @@ void MEDPARTITIONER::ConnectZone::setFaceCorresp(MEDCouplingSkyLineArray* array)
   _face_corresp = arr;
 }
 
-/*! transforms an int array containing 
+/*! transforms an int array containing
  * the entity-entity connections
  * to a MEDCouplingSkyLineArray
- * 
+ *
  * the resulting MEDCouplingSkyLineArray is put in the map
  */
 void MEDPARTITIONER::ConnectZone::setEntityCorresp(mcIdType localEntity, mcIdType distantEntity,
                                                    const mcIdType *entityCorresp, mcIdType nbentity)
-{ 
+{
   MCAuto<DataArrayIdType> indexArr( DataArrayIdType::New() );
   MCAuto<DataArrayIdType> valueArr( DataArrayIdType::New() );
   indexArr->alloc( nbentity+1 );

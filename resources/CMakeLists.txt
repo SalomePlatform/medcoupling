@@ -105,7 +105,7 @@ SET(MED_RESOURCES_FILES ${MED_test_fig_files})
 
 IF(NOT MEDCOUPLING_MICROMED)
     FOREACH(resfile ${MED_other_FILES})
-        LIST(APPEND MED_RESOURCES_FILES ${resfile})    
+        LIST(APPEND MED_RESOURCES_FILES ${resfile})
     ENDFOREACH()
 ENDIF()
 

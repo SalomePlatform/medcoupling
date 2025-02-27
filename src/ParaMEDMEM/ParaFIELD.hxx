@@ -36,7 +36,7 @@ namespace MEDCoupling
   class ParaFIELD
   {
   public:
-    ParaFIELD(TypeOfField type, TypeOfTimeDiscretization td, ParaMESH* mesh, const ComponentTopology& component_topology); 
+    ParaFIELD(TypeOfField type, TypeOfTimeDiscretization td, ParaMESH* mesh, const ComponentTopology& component_topology);
     ParaFIELD(MEDCouplingFieldDouble* field, ParaMESH *sup, const ProcessorGroup& group);
     virtual ~ParaFIELD();
     void release();
@@ -56,7 +56,7 @@ namespace MEDCoupling
   private:
     MEDCouplingFieldDouble* _field;
     MEDCoupling::ComponentTopology _component_topology;
-    Topology* _topology; 
+    Topology* _topology;
     mutable bool _own_support;
     ParaMESH* _support;
   };

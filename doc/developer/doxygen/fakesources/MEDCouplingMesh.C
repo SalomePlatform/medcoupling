@@ -41,7 +41,7 @@ namespace MEDCoupling
    * exception is thrown. The meshes are
    * considered equivalent if (1) \a this mesh contains the same nodes as the \a other
    * mesh (with a specified precision) and (2) \a this mesh contains the same cells as
-   * the \a other mesh (with use of a specified cell comparison technique). The mapping 
+   * the \a other mesh (with use of a specified cell comparison technique). The mapping
    * from \a other to \a this for nodes and cells is returned via out parameters.
    *  \param [in] other - the mesh to compare with.
    *  \param [in] cellCompPol - id [0-2] of cell comparison method. See meaning of
@@ -59,7 +59,7 @@ namespace MEDCoupling
    * Checks if \a this and \a other meshes are geometrically equivalent, else an
    * exception is thrown. The meshes are considered equivalent if (1) they share the same
    * node coordinates array(s) and (2) they contain the same cells (with use of a specified
-   * cell comparison technique). The mapping from cells of the \a other to ones of \a this 
+   * cell comparison technique). The mapping from cells of the \a other to ones of \a this
    * is returned via an out parameter.
    *  \param [in] other - the mesh to compare with.
    *  \param [in] cellCompPol - id [0-2] of cell comparison method. See the meaning of
@@ -92,12 +92,12 @@ namespace MEDCoupling
   MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const;
   MEDCouplingMesh::isEqualWithoutConsideringStr(const MEDCouplingMesh *other, double prec) const = 0;
   MEDCouplingMesh::writeVTK(const char *fileName) const;
-///@} 
+///@}
 
 /*! \name   Advanced API   */
 ///@{
   MEDCouplingMesh::getCellIdsFullyIncludedInNodeIds(const int *partBg, const int *partEnd) const;
-///@} 
+///@}
 
 /*! \name Others... */
 ///@{

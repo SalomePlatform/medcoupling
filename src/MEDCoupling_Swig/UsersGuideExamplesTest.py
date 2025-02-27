@@ -183,36 +183,36 @@ diviatorfield=field.deviator()
 
 
 from MEDCouplingDataForTest import MEDCouplingDataForTest
-mesh=MEDCouplingDataForTest.build2DTargetMesh_1();
+mesh=MEDCouplingDataForTest.build2DTargetMesh_1()
 #! [UG_MEDCouplingGaussPointField_0]
-fieldGauss=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME);
-fieldGauss.setMesh(mesh);
-fieldGauss.setName("MyFirstFieldOnGaussPoint");
+fieldGauss=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME)
+fieldGauss.setMesh(mesh)
+fieldGauss.setName("MyFirstFieldOnGaussPoint")
 fieldGauss.setTimeUnit("ms") # Time unit is ms.
 fieldGauss.setTime(4.22,2,-1) # Time attached is 4.22 ms, iteration id is 2 and order id (or sub iteration id) is -1
 #! [UG_MEDCouplingGaussPointField_0]
 #! [UG_MEDCouplingGaussPointField_1]
 tria3CooRef=[ 0.0, 0.0, 1.0 , 0.0, 0.0, 1.0 ]
 tria3CooGauss=[ 0.1, 0.8, 0.2, 0.7 ]
-wg3=[0.3,0.3];
-fieldGauss.setGaussLocalizationOnType(NORM_TRI3,tria3CooRef,tria3CooGauss,wg3);
+wg3=[0.3,0.3]
+fieldGauss.setGaussLocalizationOnType(NORM_TRI3,tria3CooRef,tria3CooGauss,wg3)
 #
 quad4CooRef=[-1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0]
 quad4CooGauss=[ 0.3, 0.2, 0.2, 0.1, 0.2, 0.4, 0.15, 0.27 ]
-wg4=[0.3,0.3,0.3,0.3];
-fieldGauss.setGaussLocalizationOnType(NORM_QUAD4,quad4CooRef,quad4CooGauss,wg4);
+wg4=[0.3,0.3,0.3,0.3]
+fieldGauss.setGaussLocalizationOnType(NORM_QUAD4,quad4CooRef,quad4CooGauss,wg4)
 #! [UG_MEDCouplingGaussPointField_1]
 #! [UG_MEDCouplingGaussPointField_2]
 nbTuples=mesh.getNumberOfCellsWithType(NORM_TRI3)*len(wg3)+mesh.getNumberOfCellsWithType(NORM_QUAD4)*len(wg4)
-array=DataArrayDouble.New();
+array=DataArrayDouble.New()
 values=[float(i+1) for i in range(nbTuples)]
-array.setValues(values,nbTuples,1);
-fieldGauss.setArray(array);
-fieldGauss.checkConsistencyLight();
+array.setValues(values,nbTuples,1)
+fieldGauss.setArray(array)
+fieldGauss.checkConsistencyLight()
 #! [UG_MEDCouplingGaussPointField_2]
 
 from MEDCouplingDataForTest import MEDCouplingDataForTest
-m=MEDCouplingDataForTest.build2DTargetMesh_1();
+m=MEDCouplingDataForTest.build2DTargetMesh_1()
 Ids=list(range(1,3))
 #! [UG_ExtractForMeshes_0]
 part=m[Ids]
@@ -368,7 +368,7 @@ slice5=field5.extractSlice3D(origin,normvec,1e-10)
 #! [UG_ExtractForFields_1]
 
 from MEDCouplingDataForTest import MEDCouplingDataForTest
-m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+m1=MEDCouplingDataForTest.build2DTargetMesh_1()
 m2=m1
 eps=1e-12
 #! [UG_MeshComparison_0]
@@ -413,15 +413,15 @@ field1.getValueOnMulti(pts)
 #! [UG_CommonHandlingMesh_0]
 
 from MEDCouplingDataForTest import MEDCouplingDataForTest
-m2=MEDCouplingDataForTest.build2DTargetMesh_1();
-m2.changeSpaceDimension(3);
-m1=MEDCouplingDataForTest.buildCU1DMesh_U();
-m1.changeSpaceDimension(3);
+m2=MEDCouplingDataForTest.build2DTargetMesh_1()
+m2.changeSpaceDimension(3)
+m1=MEDCouplingDataForTest.buildCU1DMesh_U()
+m1.changeSpaceDimension(3)
 center=[0.,0.,0.]
 vector=[0.,1.,0.]
-m1.rotate(center,vector,-pi/2.);
+m1.rotate(center,vector,-pi/2.)
 #! [UG_CommonHandlingMesh_1]
-m3=m2.buildExtrudedMesh(m1,0);
+m3=m2.buildExtrudedMesh(m1,0)
 #! [UG_CommonHandlingMesh_1]
 
 #! [UG_CommonHandlingMesh_2]

@@ -180,7 +180,7 @@ bool QuadraticPolygon::isButterflyAbs()
   INTERP_KERNEL::Bounds b;
   double xBary,yBary;
   b.prepareForAggregation();
-  fillBounds(b); 
+  fillBounds(b);
   double dimChar=b.getCaracteristicDim();
   b.getBarycenter(xBary,yBary);
   applyGlobalSimilarity(xBary,yBary,dimChar);
@@ -412,7 +412,7 @@ void QuadraticPolygon::appendEdgeFromCrudeDataArray(std::size_t edgePos, const s
   else
     {
       std::size_t nbOfSeg=std::distance(descBg,descEnd);
-      const double *st=coords+2*(nodalBg[edgePos]); 
+      const double *st=coords+2*(nodalBg[edgePos]);
       INTERP_KERNEL::Node *st0=new INTERP_KERNEL::Node(st[0],st[1]);
       const double *endd=coords+2*(nodalBg[(edgePos+1)%nbOfSeg]);
       INTERP_KERNEL::Node *endd0=new INTERP_KERNEL::Node(endd[0],endd[1]);
@@ -430,7 +430,7 @@ void QuadraticPolygon::appendEdgeFromCrudeDataArray(std::size_t edgePos, const s
       const std::vector<mcIdType>& subEdge=intersectEdges[edgeId];
       std::size_t nbOfSubEdges=subEdge.size()/2;
       if(colinearity)
-        {   
+        {
           for(std::size_t j=0;j<nbOfSubEdges;j++)
             appendSubEdgeFromCrudeDataArray(0,j,direct,edgeId,subEdge,mapp);
         }

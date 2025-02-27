@@ -29,7 +29,7 @@ namespace INTERP_KERNEL
 {
   template<class MyMeshType, class MyMatrix>
   class PointLocator3DIntersectorP0P1 : public Intersector3DP0P1<MyMeshType,MyMatrix>
-  { 
+  {
   public:
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
     static const int MESHDIM=MyMeshType::MY_MESHDIM;

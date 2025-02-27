@@ -393,7 +393,7 @@ MEDCouplingSkyLineArray *MEDCouplingSkyLineArray::uniqueNotSortedByPack() const
 /*!
  * Take as input skylinearrays containing the same number of packs ( \a this->getNumberOf ).
  * For each packs, this method aggregates corresponding pack in \a sks.
- * 
+ *
  * \throw if either a lenght of not nullptr instances in \a sks is zero or if number of packs of not nullptr instances in \a sks is not the same.
  * \return a newly allocated skyline array that is the aggregated packs of inputs
  */
@@ -548,7 +548,7 @@ void MEDCouplingSkyLineArray::deletePack(const mcIdType superIdx, const mcIdType
 void MEDCouplingSkyLineArray::deleteSimplePack(const mcIdType idx)
 {
   validIndex("deleteSimplePack", idx);
-  
+
   mcIdType* iP(_index->getPointer());
   const mcIdType start(iP[idx]), end(iP[idx+1]);
 
@@ -572,16 +572,16 @@ void MEDCouplingSkyLineArray::deleteSimplePack(const mcIdType idx)
 }
 
 void MEDCouplingSkyLineArray::replaceSimplePacks(const DataArrayIdType* idx, const std::vector<const DataArrayIdType*>& packs)
-{    
+{
   if (idx->empty())
     return;
-    
+
   for (const mcIdType * id = idx->begin(); id != idx->end(); id++)
     validIndex("deleteSimplePacks", *id);
-    
+
   if (idx->getNbOfElems() != ToIdType( packs.size()))
     throw INTERP_KERNEL::Exception("MEDCouplingSkyLineArray::deleteSimplePacks: size of list of pack is incorrect");
-    
+
   // copy _index, _values into a deque<set<mcIdType>>
   std::deque< std::set<mcIdType> > valuesByIdx;
   mcIdType* vP(_values->getPointer());
@@ -589,7 +589,7 @@ void MEDCouplingSkyLineArray::replaceSimplePacks(const DataArrayIdType* idx, con
   mcIdType nt = _index->getNbOfElems();
   for (mcIdType ii = 0; ii < nt-1; ii++)
     valuesByIdx.push_back(std::set<mcIdType>(vP+iP[ii], vP+iP[ii+1]));
-    
+
   // modify the deque<set<mcIdType>> according to idx and packs
   mcIdType ii(0);
   for (const mcIdType *id = idx->begin(); id != idx->end(); id++)
@@ -616,12 +616,12 @@ void MEDCouplingSkyLineArray::replaceSimplePacks(const DataArrayIdType* idx, con
 }
 
 void MEDCouplingSkyLineArray::deleteSimplePacks(const DataArrayIdType* idx)
-{    
+{
   for (auto id = idx->begin(); id != idx->end(); id++)
     validIndex("deleteSimplePacks", *id);
-  
+
   std::set<mcIdType> packsToDelete(idx->begin(), idx->end());
-    
+
   // _values
   mcIdType* iP(_index->getPointer());
   mcIdType initValSz = _values->getNbOfElems();
@@ -638,7 +638,7 @@ void MEDCouplingSkyLineArray::deleteSimplePacks(const DataArrayIdType* idx)
   if (end_prec != 0)
     std::copy(vP+end_prec, vP+initValSz, vP+start_prec);
   _values->reAlloc(initValSz-(end_prec-start_prec));
-    
+
   // _index
   mcIdType nt = _index->getNbOfElems();
   mcIdType offset = 0;

@@ -139,7 +139,7 @@ MEDFileFields *MEDFileFields::shallowCpy() const
  *
  * \param [out] areThereSomeForgottenTS - indicates to the caller if there is some time steps in \a this that are not present for all fields in \a this.
  * \return the sorted list of time steps (specified with a pair of integer iteration first and order second) present for all fields in \a this.
- * 
+ *
  * \sa MEDFileFields::partOfThisLyingOnSpecifiedTimeSteps, MEDFileFields::partOfThisNotLyingOnSpecifiedTimeSteps
  */
 std::vector< std::pair<int,int> > MEDFileFields::getCommonIterations(bool& areThereSomeForgottenTS) const
@@ -329,7 +329,7 @@ void MEDFileFields::writeLL(med_idt fid) const
  * This method alloc the arrays and load potentially huge arrays contained in this field.
  * This method should be called when a MEDFileAnyTypeFieldMultiTS::New constructor has been with false as the last parameter.
  * This method can be also called to refresh or reinit values from a file.
- * 
+ *
  * \throw If the fileName is not set or points to a non readable MED file.
  */
 void MEDFileFields::loadArrays()
@@ -348,7 +348,7 @@ void MEDFileFields::loadArrays()
 /*!
  * This method behaves as MEDFileFields::loadArrays does, the first call, if \a this was built using a file without loading big arrays.
  * But once data loaded once, this method does nothing.
- * 
+ *
  * \throw If the fileName is not set or points to a non readable MED file.
  * \sa MEDFileFields::loadArrays, MEDFileFields::unloadArrays
  */
@@ -370,7 +370,7 @@ void MEDFileFields::loadArraysIfNecessary()
  * This method releases potentially big data arrays and so returns to the same heap memory than status loaded with 'loadAll' parameter set to false.
  * \b WARNING, this method does release arrays even if \a this does not come from a load of a MED file.
  * So this method can lead to a loss of data. If you want to unload arrays safely call MEDFileFields::unloadArraysWithoutDataLoss instead.
- * 
+ *
  * \sa MEDFileFields::loadArrays, MEDFileFields::loadArraysIfNecessary, MEDFileFields::unloadArraysWithoutDataLoss
  */
 void MEDFileFields::unloadArrays()
@@ -387,7 +387,7 @@ void MEDFileFields::unloadArrays()
  * This method potentially releases big data arrays if \a this is coming from a file. If \a this has been built from scratch this method will have no effect.
  * This method is the symmetrical method of MEDFileFields::loadArraysIfNecessary.
  * This method is useful to reduce \b safely amount of heap memory necessary for \a this by using MED file as database.
- * 
+ *
  * \sa MEDFileFields::loadArraysIfNecessary
  */
 void MEDFileFields::unloadArraysWithoutDataLoss()
@@ -559,7 +559,7 @@ bool MEDFileFields::changeMeshNames(const std::vector< std::pair<std::string,std
  *             This code corresponds to the distribution of types in the corresponding mesh.
  * \param [in] newCode idem to param \a oldCode except that here the new distribution is given.
  * \param [in] renumO2N the old to new renumber array.
- * \return If true a renumbering has been performed. The structure in \a this has been modified. If false, nothing has been done: it is typically the case if \a meshName is not referred by any 
+ * \return If true a renumbering has been performed. The structure in \a this has been modified. If false, nothing has been done: it is typically the case if \a meshName is not referred by any
  *         field in \a this.
  */
 bool MEDFileFields::renumberEntitiesLyingOnMesh(const std::string& meshName, const std::vector<mcIdType>& oldCode, const std::vector<mcIdType>& newCode, const DataArrayIdType *renumO2N)
@@ -906,7 +906,7 @@ MEDFileAnyTypeFieldMultiTS *MEDFileFields::getFieldWithName(const std::string& f
 /*!
  * This method removes, if any, fields in \a this having no time steps.
  * If there is one or more than one such field in \a this true is returned and those fields will not be referenced anymore in \a this.
- * 
+ *
  * If false is returned \a this does not contain such fields. If false is returned this method can be considered as const.
  */
 bool MEDFileFields::removeFieldsWithoutAnyTimeStep()
@@ -932,7 +932,7 @@ bool MEDFileFields::removeFieldsWithoutAnyTimeStep()
  * This method can be seen as a filter applied on \a this, that returns an object containing
  * reduced the list of fields compared to those in \a this. The returned object is a new object but the object on which it lies are only
  * shallow copied from \a this.
- * 
+ *
  * \param [in] meshName - the name of the mesh on w
  * \return a new object that the caller should deal with.
  */
@@ -961,9 +961,9 @@ MEDFileFields *MEDFileFields::partOfThisLyingOnSpecifiedMeshName(const std::stri
  * This method can be seen as a filter applied on \a this, that returns an object containing the same number of fields than those in \a this,
  * but for each multitimestep only the time steps in \a timeSteps are kept.
  * Typically the input parameter \a timeSteps comes from the call of MEDFileFields::getCommonIterations.
- * 
+ *
  * The returned object points to shallow copy of elements in \a this.
- * 
+ *
  * \param [in] timeSteps - the time steps given by a vector of pair of integers (iteration,order)
  * \throw If there is a field in \a this that is \b not defined on a time step in the input \a timeSteps.
  * \sa MEDFileFields::getCommonIterations, MEDFileFields::partOfThisNotLyingOnSpecifiedTimeSteps
@@ -1083,7 +1083,7 @@ void MEDFileFields::blowUpSE(MEDFileMeshes *ms, const MEDFileStructureElements *
 /*!
  * This method is dedicated to explosed Structured Elements that can lead to exotic situation.
  * Especially when there are several structured elements for a same field.
- * 
+ *
  * This method looks into meshes into \a ms if there is presence of multiple mesh having same name.
  * If so, these meshes are aggregated in the same order than \a ms.
  * The fields in \a this lying on the same meshName are also aggregated in the same order than \a this.
@@ -1265,7 +1265,7 @@ MEDFileFieldsIterator::MEDFileFieldsIterator(MEDFileFields *fs):_fs(fs),_iter_id
     }
 }
 
-MEDFileFieldsIterator::~MEDFileFieldsIterator() 
+MEDFileFieldsIterator::~MEDFileFieldsIterator()
 {
 }
 

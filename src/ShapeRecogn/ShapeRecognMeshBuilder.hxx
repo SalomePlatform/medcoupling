@@ -61,7 +61,7 @@ namespace MEDCoupling
         MEDCoupling::MEDCouplingFieldDouble *buildNodeK2() const;
         MEDCoupling::MEDCouplingFieldInt32  *buildNodePrimitiveType() const;
         MEDCoupling::MEDCouplingFieldDouble *buildNodeNormal() const;
-        
+
         // Area properties
         MEDCoupling::MEDCouplingFieldInt32  *buildAreaId() const;
         MEDCoupling::MEDCouplingFieldInt32  *buildAreaPrimitiveType() const;

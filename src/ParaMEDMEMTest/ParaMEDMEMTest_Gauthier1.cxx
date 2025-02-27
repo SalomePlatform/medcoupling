@@ -104,7 +104,7 @@ void ParaMEDMEMTest::testGauthier1()
   int rank, size;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
   MPI_Comm_size(MPI_COMM_WORLD,&size);
-  
+
   int is_master=0;
 
   CommInterface comm;
@@ -114,13 +114,13 @@ void ParaMEDMEMTest::testGauthier1()
   if(size!=4)
     return;
   recepteur_ids.insert(1);
-  if (size >2) 
+  if (size >2)
     recepteur_ids.insert(2);
-  if (size >2) 
+  if (size >2)
     emetteur_ids.insert(3);
-  if ((rank==0)||(rank==1)) 
+  if ((rank==0)||(rank==1))
     is_master=1;
-  
+
   MPIProcessorGroup recepteur_group(comm,recepteur_ids);
   MPIProcessorGroup emetteur_group(comm,emetteur_ids);
 
@@ -148,7 +148,7 @@ void ParaMEDMEMTest::testGauthier1()
     {20.5,1.,1e200,1e200}
   };
   int expectedLgth[8]={4,4,2,2,4,4,2,2};
-  
+
   for (int send=0;send<2;send++)
     for (int rec=0;rec<2;rec++)
       {
@@ -182,12 +182,12 @@ void ParaMEDMEMTest::testGauthier1()
         champ_recepteur=new MEDCoupling::ParaFIELD(ON_CELLS,ONE_TIME,paramesh,comptopo);
         champ_recepteur->getField()->setNature(IntensiveMaximum);
         champ_recepteur->setOwnSupport(true);
-        if (cas=="emetteur") 
+        if (cas=="emetteur")
           {
             champ_emetteur->getField()->getArray()->fillWithValue(1.);
           }
-  
-  
+
+
         MPI_Barrier(MPI_COMM_WORLD);
 
         //clock_t clock0= clock ();
@@ -197,23 +197,23 @@ void ParaMEDMEMTest::testGauthier1()
         bool stop=false;
         //boucle sur les pas de quads
         while (!stop) {
-  
+
           compti++;
           //clock_t clocki= clock ();
-          //cout << compti << " CLOCK " << (clocki-clock0)*1.e-6 << endl; 
+          //cout << compti << " CLOCK " << (clocki-clock0)*1.e-6 << endl;
           for (int non_unif=0;non_unif<2;non_unif++)
             {
-              if (cas=="emetteur") 
+              if (cas=="emetteur")
                 {
                   if (non_unif)
                     if(rank!=3)
                       champ_emetteur->getField()->getArray()->setIJ(0,0,40);
                 }
               //bool ok=false; // Is the time interval successfully solved ?
-    
+
               // Loop on the time interval tries
               if(1) {
-      
+
 
                 if (cas=="emetteur")
                   dec_emetteur.attachLocalField(champ_emetteur);
@@ -252,7 +252,7 @@ void ParaMEDMEMTest::testGauthier2()
   std::cout << "testGauthier2\n";
   double valuesExpected1[2]={0.,0.};
   double valuesExpected2[2]={0.95,0.970625};
-  
+
   double valuesExpected30[]={0., 0., 0.05, 0., 0., 0.15, 0., 0., 0.25, 0., 0., 0.35, 0., 0., 0.45, 0., 0., 0.55, 0., 0., 0.65, 0., 0., 0.75, 0., 0., 0.85, 0., 0., 0.95};
   double valuesExpected31[]={0.,  0.,  0.029375,  0.,  0.,  0.029375,  0.,  0.,  0.1,  0.,  0.,  0.1,  0.,  0.,  0.2,  0.,  0.,  0.2,  0.,  0.,  0.3,  0.,  0.,  0.3,  0.,  0.,  0.4,  0.,  0.,  0.4,  0.,  0.,  0.5,  0.,  0.,  0.5,  0.,  0.,  0.6,  0.,  0.,  0.6,  0.,  0.,  0.7,  0.,  0.,  0.7,  0.,  0.,  0.8,  0.,  0.,  0.8,  0.,  0.,  0.9,  0.,  0.,  0.9,  0.,  0.,  0.970625,  0.,  0.,  0.970625 };
 
@@ -321,10 +321,10 @@ void ParaMEDMEMTest::testGauthier2()
         }
 
       dec_vit_in_chaude.attachLocalField(vitesse);
-      
+
       dec_vit_in_chaude.synchronize();
-  
-  
+
+
       // Envois - receptions
       if (entree_chaude_group.containsMyRank())
         {
@@ -332,7 +332,7 @@ void ParaMEDMEMTest::testGauthier2()
         }
       else
         {
-          dec_vit_in_chaude.recvData(); 
+          dec_vit_in_chaude.recvData();
         }
       if ( !entree_chaude_group.containsMyRank() )
         {
@@ -386,7 +386,7 @@ void ParaMEDMEMTest::testGauthier3_4()
 
 
 /*!
- * Non regression test testing copy constructor of InterpKernelDEC. 
+ * Non regression test testing copy constructor of InterpKernelDEC.
  */
 void ParaMEDMEMTest::testGauthier3_GEN(bool withIDs, int nprocs)
 {
@@ -573,7 +573,7 @@ void ParaMEDMEMTest::testGauthier4()
   set<int> self_procs;
   set<int> procs_source;
   set<int> procs_target;
-  
+
   for (int i=0; i<nproc_source; i++)
     procs_source.insert(i);
   for (int i=nproc_source; i<size; i++)
@@ -652,7 +652,7 @@ void ParaMEDMEMTest::testGauthier4()
   dec.setIntersectionType(INTERP_KERNEL::PointLocator);
   parafield->getField()->setNature(IntensiveMaximum);//very important
   if (source_group->containsMyRank())
-    { 
+    {
       dec.setMethod("P1");
       dec.attachLocalField(parafield);
       dec.synchronize();

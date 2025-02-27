@@ -42,7 +42,7 @@ namespace INTERP_TEST
     CPPUNIT_TEST( test_DirectedBB_3D );
     CPPUNIT_TEST_SUITE_END();
 
-   
+
   public:
     void setUp();
 

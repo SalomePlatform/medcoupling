@@ -68,7 +68,7 @@ namespace INTERP_KERNEL
     _faces.clear();
     _polyNormals.clear();
   }
-  
+
   //================================================================================
   /*!
    * \brief Stores a part of triangle common with the unit tetrahedron
@@ -604,7 +604,7 @@ namespace INTERP_KERNEL
       if ( !sideFaces[i] ) {
         std::cout << "\t cut by triagle" << std::endl;
       }
-      else 
+      else
       {
         std::vector< double* >& sideFace = *sideFaces[i];
         for ( int i = 0; i < sideFace.size(); ++i )
@@ -617,7 +617,7 @@ namespace INTERP_KERNEL
     std::cout << "Cut off corners: ";
     if ( nbCutOffCorners == 0 )
       std::cout << "NO";
-    else 
+    else
       for ( int ic = 0; ic < NB_TETRA_NODES; ++ic )
         std::cout << cutOffCorners[ ic ];
     std::cout << std::endl;
@@ -696,7 +696,7 @@ namespace INTERP_KERNEL
   {
     if ( iSide >= 3 )
       iSide = 0;
-    for(int i = 0 ; i < 3 ; ++i) 
+    for(int i = 0 ; i < 3 ; ++i)
       {
         _coords[5*i] = _coords[5*i + 1] = _coords[5*i + 2] = 0.;
         if ( i != iSide )
@@ -714,12 +714,12 @@ namespace INTERP_KERNEL
   {
     for(std::vector<double*>::iterator it = _polygonA.begin() ; it != _polygonA.end() ; ++it)
       {  delete[] *it;
-        *it = 0; 
+        *it = 0;
       }
     for(std::vector<double*>::iterator it = _polygonB.begin() ; it != _polygonB.end() ; ++it)
-      { 
-        delete[] *it; 
-        *it = 0; 
+      {
+        delete[] *it;
+        *it = 0;
       }
 
     _polygonA.clear();
@@ -732,7 +732,7 @@ namespace INTERP_KERNEL
           {
             std::vector< double* >& polygon = *f;
             for(std::vector<double*>::iterator it = polygon.begin() ; it != polygon.end() ; ++it)
-              { 
+              {
                 delete[] *it;
                 *it = 0;
               }

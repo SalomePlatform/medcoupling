@@ -29,6 +29,6 @@
 # endif
 #else
 # define RENUMBER_EXPORT
-#endif 
+#endif
 
 #endif // __RENUMBERDEFINES_HXX__

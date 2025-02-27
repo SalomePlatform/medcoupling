@@ -30,7 +30,7 @@ import os
 DEFAULT_EXT = ['.hxx', '.cxx', '.txx', '.py', '.i', '.dox', '.rst', '.h', '.hh', '.hpp', '.c', '.cpp']
 
 ## The API changes:
-REPLACEMENTS = [("RevIntegral",  "IntensiveConservation"), 
+REPLACEMENTS = [("RevIntegral",  "IntensiveConservation"),
                 ("ConservativeVolumic", "IntensiveMaximum"),
                 ("IntegralGlobConstraint", "ExtensiveConservation"),
                 ("Integral", "ExtensiveMaximum"),
@@ -64,7 +64,7 @@ REPLACEMENTS = [("RevIntegral",  "IntensiveConservation"),
                 ("GetAxTypeRepr", "GetAxisTypeRepr"),
                 ("cpyFrom", "deepCopyFrom"),
                 ("selectByTupleId2", "selectByTupleIdSlice"),
-                ("BuildOld2NewArrayFromSurjectiveFormat2", "ConvertIndexArrayToO2N"),  
+                ("BuildOld2NewArrayFromSurjectiveFormat2", "ConvertIndexArrayToO2N"),
                 ("getIdsEqual", "findIdsEqual"),
                 ("getIdsNotEqual", "findIdsNotEqual"),
                 ("getIdsEqualList", "findIdsEqualList"),
@@ -89,19 +89,19 @@ REPLACEMENTS = [("RevIntegral",  "IntensiveConservation"),
                 ("SWIGTYPE_p_MEDCoupling__MEDCouplingExtrudedMesh", "SWIGTYPE_p_MEDCoupling__MEDCouplingMappedExtrudedMesh"),
                 ("MEDCouplingExtrudedMesh____new___", "MEDCouplingMappedExtrudedMesh____new___"),
                 ("locateValue", "findIdFirstEqual"),
-                ("locateTuple", "findIdFirstEqualTuple"),   
+                ("locateTuple", "findIdFirstEqualTuple"),
                 ("MEDCoupling_DataArrayByte_locateTuple", "MEDCoupling_DataArrayByte_findIdFirstEqualTuple"),
                 ("MEDCoupling_DataArrayAsciiChar_locateTuple", "MEDCoupling_DataArrayAsciiChar_findIdFirstEqualTuple"),
                 #("substr", "subArray"),                # conflicts with regular C++ substr, to be handled manually
                 #("search", "findIdSequence"),          # idem
-                ]   
+                ]
 
 __myName = os.path.abspath(__file__)
 
-def convert(root_dir, ext, quiet): 
+def convert(root_dir, ext, quiet):
   if not os.path.isdir(root_dir):
     raise ValueError("%s is not a valid directory!" % root_dir)
-  
+
   for root, _, fNames in os.walk(root_dir, followlinks=False):
     for fName in fNames:
       fileName = os.path.join(root, fName)
@@ -146,7 +146,7 @@ if opts.extension != "":
   ext = [s.strip() for s in opts.extension.split(",")]
 else:
   ext = DEFAULT_EXT
-  
+
 dirName = os.path.abspath(args[0])
 convert(dirName, ext, not opts.verbose)
-  
+

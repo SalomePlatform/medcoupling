@@ -220,7 +220,7 @@ void MEDCouplingBasicsTest3::testFieldDoubleZipConnectivity1()
   CPPUNIT_ASSERT(!f->zipConnectivity(0));
   f->decrRef();
   //
-  const double expected3[18]={-0.3, -0.3, 0.2, 0.2, 0.7, 0.7, -0.3, -0.3, 0.2, 0.2, 0.7, 0.7, 
+  const double expected3[18]={-0.3, -0.3, 0.2, 0.2, 0.7, 0.7, -0.3, -0.3, 0.2, 0.2, 0.7, 0.7,
                               -0.3, -0.3, 0.2, 0.2, 0.7, 0.7};
   CPPUNIT_ASSERT_EQUAL(9,(int)f2->getNumberOfTuples());
   CPPUNIT_ASSERT_EQUAL(2,(int)f2->getNumberOfComponents());
@@ -828,16 +828,16 @@ void MEDCouplingBasicsTest3::testElementaryDAThrowAndSpecialCases()
   da->alloc(7,1);
   da->fillWithValue(11); //11,11,11,11...
   da->iota(10); //10,11,12,13...
-  
+
   DataArrayIdType *db=DataArrayIdType::New();
   db->alloc(7,2);
-  
+
   DataArrayDouble *dbl2=DataArrayDouble::New();
   dbl2->alloc(7,2);
   CPPUNIT_ASSERT_THROW(dbl2->isUniform(10.,1e-15),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(dbl2->sort(),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(dbl2->iota(10.),INTERP_KERNEL::Exception);
-  
+
   DataArrayDouble *dbl=DataArrayDouble::New();
   //DataArrayDouble not allocated yet
   CPPUNIT_ASSERT_THROW(dbl->iota(10.),INTERP_KERNEL::Exception);
@@ -846,7 +846,7 @@ void MEDCouplingBasicsTest3::testElementaryDAThrowAndSpecialCases()
   CPPUNIT_ASSERT_THROW(dbl->reverse(),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(dbl->fromNoInterlace(),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(dbl->toNoInterlace(),INTERP_KERNEL::Exception);
-  
+
   dbl->alloc(7,1);
   dbl->iota(10.);
   CPPUNIT_ASSERT(!dbl->isUniform(10.,1e-15));
@@ -859,16 +859,16 @@ void MEDCouplingBasicsTest3::testElementaryDAThrowAndSpecialCases()
   CPPUNIT_ASSERT(dbl->isMonotonic(false, .99));
   CPPUNIT_ASSERT(!dbl->isMonotonic(false, 1.1));
   CPPUNIT_ASSERT(!dbl->isMonotonic(false, -1.1));
-  
+
   DataArrayIdType *dc=DataArrayIdType::New();
   dc->alloc(14,1);
-  
+
   DataArrayDouble *dd=DataArrayDouble::New();
   CPPUNIT_ASSERT_THROW(dd->checkAllocated(),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(dd->fillWithValue(1.),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(dd->iota(1.),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT(!((dd->repr().find("No data"))==std::string::npos));
-  
+
   dd->alloc(0,1); //Allocated but nbOfElements==0!
   CPPUNIT_ASSERT(!((dd->repr().find("Number of tuples : 0"))==std::string::npos));
   CPPUNIT_ASSERT(!((dd->repr().find("Empty Data"))==std::string::npos));
@@ -876,7 +876,7 @@ void MEDCouplingBasicsTest3::testElementaryDAThrowAndSpecialCases()
   dd->iota(10); //?!...
   CPPUNIT_ASSERT(dd->isMonotonic(true, 1.));
   CPPUNIT_ASSERT(dd->isMonotonic(false, 1.));
- 
+
   CPPUNIT_ASSERT_THROW(db->copyStringInfoFrom(*da),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(db->copyStringInfoFrom(*da),INTERP_KERNEL::Exception);
   std::vector<std::size_t> cIds(2,2);
@@ -884,12 +884,12 @@ void MEDCouplingBasicsTest3::testElementaryDAThrowAndSpecialCases()
   cIds[0]=1;
   cIds[0]=-1;
   CPPUNIT_ASSERT_THROW(da->copyPartOfStringInfoFrom(*db,cIds),INTERP_KERNEL::Exception);
-  
+
   std::vector<std::string> info(2,"infoOfOneComponent");
   CPPUNIT_ASSERT_THROW(da->setInfoOnComponents(info),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(da->setInfoOnComponent(1,info[0].c_str()),INTERP_KERNEL::Exception);
   db->setInfoOnComponents(info);
-  
+
   CPPUNIT_ASSERT_THROW(da->getInfoOnComponent(-1),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(da->getInfoOnComponent(2),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT(db->getInfoOnComponent(1)==db->getInfoOnComponent(0));
@@ -897,57 +897,57 @@ void MEDCouplingBasicsTest3::testElementaryDAThrowAndSpecialCases()
   CPPUNIT_ASSERT_THROW(db->getVarOnComponent(2),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(db->getUnitOnComponent(-1),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(db->getUnitOnComponent(2),INTERP_KERNEL::Exception);
-  
+
   CPPUNIT_ASSERT(da->GetVarNameFromInfo(std::string("varname unit "))==std::string("varname unit "));
   CPPUNIT_ASSERT(da->GetVarNameFromInfo(std::string("varname]unit["))==std::string("varname]unit["));
   CPPUNIT_ASSERT(da->GetVarNameFromInfo(std::string("[unit]"))==std::string());
   CPPUNIT_ASSERT(da->GetVarNameFromInfo(std::string("varname [unit]"))==std::string("varname"));
-  
+
   CPPUNIT_ASSERT(da->GetUnitFromInfo(std::string("varname unit "))==std::string());
   CPPUNIT_ASSERT(da->GetUnitFromInfo(std::string("varname]unit["))==std::string());
   CPPUNIT_ASSERT(da->GetUnitFromInfo(std::string("[unit]"))==std::string("unit"));
   CPPUNIT_ASSERT(da->GetUnitFromInfo(std::string("varname [unit]"))==std::string("unit"));
-  
+
   CPPUNIT_ASSERT_THROW(da->checkNbOfTuplesAndComp(*db,"theMessageInThrow"),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(da->checkNbOfTuplesAndComp(*dc,"theMessageInThrow"),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(db->checkNbOfTuplesAndComp(*dc,"theMessageInThrow"),INTERP_KERNEL::Exception);
 
   CPPUNIT_ASSERT_THROW(da->checkNbOfTuplesAndComp(7,2,"theMessageInThrow"),INTERP_KERNEL::Exception);
   da->checkNbOfTuplesAndComp(7,1,"theMessageInThrow");
-  
+
   CPPUNIT_ASSERT_THROW(db->checkNbOfElems(7*2+1,"theMessageInThrow"),INTERP_KERNEL::Exception);
   db->checkNbOfElems(7*2,"theMessageInThrow");
-  
+
   CPPUNIT_ASSERT_THROW(db->GetNumberOfItemGivenBES(10,9,1,"theMessageInThrow"),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(db->GetNumberOfItemGivenBES(0,1,-1,"theMessageInThrow"),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_EQUAL(ToIdType(10),db->GetNumberOfItemGivenBES(0,10,1,"theMessageInThrow"));
   CPPUNIT_ASSERT_EQUAL(ToIdType(5),db->GetNumberOfItemGivenBES(0,10,2,"theMessageInThrow"));
   CPPUNIT_ASSERT_EQUAL(ToIdType(6),db->GetNumberOfItemGivenBES(0,11,2,"theMessageInThrow"));
-  
+
   //std::cout<<"\n!!!!!!!!!\n"<<dd->repr()<<"\n!!!!!!!!!\n";
   CPPUNIT_ASSERT(!((da->repr().find("Number of components : 1"))==std::string::npos));
   CPPUNIT_ASSERT(!((dd->repr().find("Number of components : 1"))==std::string::npos));
   CPPUNIT_ASSERT(!((dbl->repr().find("Number of components : 1"))==std::string::npos));
-  
+
   CPPUNIT_ASSERT(!((da->reprZip().find("Number of components : 1"))==std::string::npos));
   CPPUNIT_ASSERT(!((dd->reprZip().find("Number of components : 1"))==std::string::npos));
   CPPUNIT_ASSERT(!((dbl->reprZip().find("Number of components : 1"))==std::string::npos));
-  
+
   std::ostringstream ret;
   dbl->writeVTK(ret,2,"file.tmp",0);
   CPPUNIT_ASSERT(!((ret.str().find("<DataArray"))==std::string::npos));
   CPPUNIT_ASSERT(!((ret.str().find("Float32"))==std::string::npos));
   CPPUNIT_ASSERT(!((ret.str().find("16 15 14 13 12 11 10"))==std::string::npos));
-  
+
   CPPUNIT_ASSERT_THROW(dbl->selectByTupleIdSafeSlice(0,1,-1),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(dbl->subArray(-1,1),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(dbl->subArray(8,1),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(dbl->subArray(0,8),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(dbl->meldWith(dd),INTERP_KERNEL::Exception);
-  
+
   CPPUNIT_ASSERT_THROW(dbl->setPartOfValuesAdv(dbl2,da),INTERP_KERNEL::Exception); //dbl dbl2 not have the same number of components
   CPPUNIT_ASSERT_THROW(dbl->setPartOfValuesAdv(dd,da),INTERP_KERNEL::Exception);  //da tuple selector DataArrayIdType instance not have exactly 2 components
-  
+
   DataArrayDouble *dbl3=DataArrayDouble::New();
   dbl3->alloc(6,2);
   dbl3->fillWithValue(11.);
@@ -970,18 +970,18 @@ void MEDCouplingBasicsTest3::testElementaryDAThrowAndSpecialCases()
   CPPUNIT_ASSERT_THROW(dbl3->inverse(),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(dbl3->trace(),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(dbl3->deviator(),INTERP_KERNEL::Exception);
- 
+
   dbl3->setIJ(5,1,12.);
   CPPUNIT_ASSERT(dbl3->getMaxValueInArray()==12.);
   CPPUNIT_ASSERT(dbl3->getMinValueInArray()==11.);
- 
+
   db->fillWithValue(100); //bad Ids
   CPPUNIT_ASSERT_THROW(dbl3->setPartOfValuesAdv(dbl2,db),INTERP_KERNEL::Exception);
   db->fillWithValue(-1); //bad Ids
   CPPUNIT_ASSERT_THROW(dbl3->setPartOfValuesAdv(dbl2,db),INTERP_KERNEL::Exception);
   db->fillWithValue(6); //bad Ids for dbl3
   CPPUNIT_ASSERT_THROW(dbl3->setPartOfValuesAdv(dbl2,db),INTERP_KERNEL::Exception);
-  
+
   DataArrayDouble::SetArrayIn(dbl,dbl3); //dbl->dbl3 memLeaks?
   dbl3->checkNoNullValues();
   dbl3->setIJ(6,0,0.);
@@ -991,26 +991,26 @@ void MEDCouplingBasicsTest3::testElementaryDAThrowAndSpecialCases()
   std::vector<const DataArrayDouble *> a(0); //input list must be NON EMPTY
   CPPUNIT_ASSERT_THROW(DataArrayDouble::Aggregate(a),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(DataArrayDouble::Meld(a),INTERP_KERNEL::Exception);
-  
+
   a.push_back(dbl2);
   a.push_back(dbl); //Nb of components mismatch
   CPPUNIT_ASSERT_THROW(DataArrayDouble::Aggregate(a),INTERP_KERNEL::Exception);
-  
+
   CPPUNIT_ASSERT_THROW(DataArrayDouble::Dot(dbl2,dbl),INTERP_KERNEL::Exception);
-  
+
   CPPUNIT_ASSERT_THROW(DataArrayDouble::CrossProduct(dbl2,dbl),INTERP_KERNEL::Exception); //Nb of components mismatch
-  CPPUNIT_ASSERT_THROW(DataArrayDouble::CrossProduct(dbl2,dbl2),INTERP_KERNEL::Exception); //Nb of components must be equal to 3 
+  CPPUNIT_ASSERT_THROW(DataArrayDouble::CrossProduct(dbl2,dbl2),INTERP_KERNEL::Exception); //Nb of components must be equal to 3
   DataArrayDouble *dbl4=DataArrayDouble::New();
   dbl4->alloc(6,3);
   DataArrayDouble *dbl5=DataArrayDouble::New();
   dbl5->alloc(7,3);
   CPPUNIT_ASSERT_THROW(DataArrayDouble::CrossProduct(dbl4,dbl5),INTERP_KERNEL::Exception); //Nb of tuples mismatch
-  
+
   a[0]=dbl4; //Nb of tuple mismatch
   a[1]=dbl5; //Nb of tuple mismatch
   CPPUNIT_ASSERT_THROW(DataArrayDouble::Meld(a),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(DataArrayDouble::Dot(dbl4,dbl5),INTERP_KERNEL::Exception);
-  
+
   da->decrRef();
   db->decrRef();
   dbl->decrRef();
@@ -1462,7 +1462,7 @@ void MEDCouplingBasicsTest3::testExtrudedMesh6()
   MEDCouplingFieldDouble *f1=g->getMeasureField(true);
   for(int i=0;i<12;i++)
     CPPUNIT_ASSERT_DOUBLES_EQUAL(expected1[i],f1->getIJ(0,i),1e-12);
-  
+
   const double expected2[]={0.625, 0.21650635094610962, 1.625, 0.21650635094610959, 2.8750000000000004, 0.21650635094610965, 1.1250000000000002, 1.0825317547305482, 2.125, 1.0825317547305482, 3.3750000000000004, 1.0825317547305484, 2.125, 2.8145825622994254, 3.125, 2.8145825622994254, 4.375, 2.8145825622994254, 3.6250000000000009, 5.4126587736527414, 4.625, 5.4126587736527414, 5.875, 5.4126587736527414};
   DataArrayDouble *f2=g->computeCellCenterOfMass();
   for(int i=0;i<24;i++)

@@ -63,7 +63,7 @@ namespace MEDCoupling
                  _forcedRenormalization(false)
     {
     }
-    
+
     DECOptions(const DECOptions& deco)
     {
       _method=deco._method;
@@ -72,7 +72,7 @@ namespace MEDCoupling
       _forcedRenormalization=deco._forcedRenormalization;
       _allToAllMethod=deco._allToAllMethod;
     }
-    
+
 
     /*!
      * \sa setMethod()
@@ -114,7 +114,7 @@ namespace MEDCoupling
      * Switch to asynchronous data transfer mode. Default is false.
      */
     void setAsynchronous( bool dr) { DECOptions::_asynchronous = dr; }
-     
+
     /*!
      * \sa setAllToAllMethod()
      */

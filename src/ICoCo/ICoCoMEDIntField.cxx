@@ -26,7 +26,7 @@ namespace ICoCo
   MEDIntField::MEDIntField() : _field(0) {}
 
   /*! Constructor directly attaching a MEDCouplingFieldInt
-    the object does not take the control the objects pointed by 
+    the object does not take the control the objects pointed by
     \a field.
    */
   MEDIntField::MEDIntField(MEDCoupling::MEDCouplingFieldInt32 *field):_field(field)

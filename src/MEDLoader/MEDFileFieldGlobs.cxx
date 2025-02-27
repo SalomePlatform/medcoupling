@@ -879,7 +879,7 @@ std::vector< std::vector<int> > MEDFileFieldGlobsReal::whichAreEqualLocs(double 
 /*!
  * Renames the profiles. References to profiles (a reference is a profile name) are not changed.
  * \param [in] mapOfModif - a sequence describing required renaming. Each element of
- *        this sequence is a pair whose 
+ *        this sequence is a pair whose
  *        - the first item is a vector of profile names to replace by the second item,
  *        - the second item is a profile name to replace every profile name of the first item.
  */
@@ -891,7 +891,7 @@ void MEDFileFieldGlobsReal::changePflsNamesInStruct(const std::vector< std::pair
 /*!
  * Renames the localizations. References to localizations (a reference is a localization name) are not changed.
  * \param [in] mapOfModif - a sequence describing required renaming. Each element of
- *        this sequence is a pair whose 
+ *        this sequence is a pair whose
  *        - the first item is a vector of localization names to replace by the second item,
  *        - the second item is a localization name to replace every localization name of the first item.
  */
@@ -906,7 +906,7 @@ void MEDFileFieldGlobsReal::changeLocsNamesInStruct(const std::vector< std::pair
  * them-selves accordingly. <br>
  * This method is a generalization of changePflName().
  * \param [in] mapOfModif - a sequence describing required replacements. Each element of
- *        this sequence is a pair whose 
+ *        this sequence is a pair whose
  *        - the first item is a vector of profile names to replace by the second item,
  *        - the second item is a profile name to replace every profile of the first item.
  * \sa changePflsRefsNamesGen()
@@ -924,7 +924,7 @@ void MEDFileFieldGlobsReal::changePflsNames(const std::vector< std::pair<std::ve
  * them-selves accordingly. <br>
  * This method is a generalization of changeLocName().
  * \param [in] mapOfModif - a sequence describing required replacements. Each element of
- *        this sequence is a pair whose 
+ *        this sequence is a pair whose
  *        - the first item is a vector of localization names to replace by the second item,
  *        - the second item is a localization name to replace every localization of the first item.
  * \sa changeLocsRefsNamesGen()
@@ -965,10 +965,10 @@ void MEDFileFieldGlobsReal::changeLocName(const std::string& oldName, const std:
 }
 
 /*!
- * Removes duplicated profiles. Returns a map used to update references to removed 
+ * Removes duplicated profiles. Returns a map used to update references to removed
  * profiles via changePflsRefsNamesGen().
  * Equal profiles are found using whichAreEqualProfiles().
- *  \return std::vector< std::pair<std::vector<std::string>, std::string > > - 
+ *  \return std::vector< std::pair<std::vector<std::string>, std::string > > -
  *          a sequence describing the performed replacements of profiles. Each element of
  *          this sequence is a pair whose
  *          - the first item is a vector of profile names replaced by the second item,
@@ -995,11 +995,11 @@ std::vector< std::pair<std::vector<std::string>, std::string > > MEDFileFieldGlo
 }
 
 /*!
- * Removes duplicated localizations. Returns a map used to update references to removed 
+ * Removes duplicated localizations. Returns a map used to update references to removed
  * localizations via changeLocsRefsNamesGen().
  * Equal localizations are found using whichAreEqualLocs().
  *  \param [in] eps - a precision used to compare real values of the localizations.
- *  \return std::vector< std::pair<std::vector<std::string>, std::string > > - 
+ *  \return std::vector< std::pair<std::vector<std::string>, std::string > > -
  *          a sequence describing the performed replacements of localizations. Each element of
  *          this sequence is a pair whose
  *          - the first item is a vector of localization names replaced by the second item,

@@ -44,9 +44,9 @@ namespace MEDCoupling
       _union_comm(MPI_COMM_NULL)
   {
     checkPartitionGroup();
-    _union_group = source_group.fuse(target_group);  
+    _union_group = source_group.fuse(target_group);
   }
-  
+
   DisjointDEC::DisjointDEC(const DisjointDEC& s):
       DEC(s),
       _local_field(0),
@@ -66,7 +66,7 @@ namespace MEDCoupling
     cleanInstance();
     copyInstance(s);
     return *this;
-     
+
   }
 
   void DisjointDEC::copyInstance(const DisjointDEC& other)
@@ -236,7 +236,7 @@ namespace MEDCoupling
   }
 
   /*! Attaches a local field to a DEC. The method will test whether the processor
-    is on the source or the target side and will associate the mesh underlying the 
+    is on the source or the target side and will associate the mesh underlying the
     field to the local side.
 
     If the processor is on the receiving end of the DEC, the field
@@ -263,14 +263,14 @@ namespace MEDCoupling
     //_comm_interface=&(local_group->getCommInterface());
   }
 
-  /*! 
+  /*!
     Attaches a local field to a DEC.
     If the processor is on the receiving end of the DEC, the field
     will be updated by a recvData() call.
     Reversely, if the processor is on the sending end, the field will be read, possibly transformed, and sent appropriately to the other side.
     The field type is a generic ICoCo Field, so that the DEC can couple a number of different fields :
     - a ICoCo::MEDDoubleField, that is created from a MEDCoupling structure
-    
+
   */
   void DisjointDEC::attachLocalField(const ICoCo::MEDDoubleField *field)
   {
@@ -280,9 +280,9 @@ namespace MEDCoupling
       throw INTERP_KERNEL::Exception("DisjointDEC::attachLocalField : ICoCo::MEDDoubleField pointer is NULL !");
     attachLocalField(field->getMCField());
   }
-  
+
   /*!
-    Computes the field norm over its support 
+    Computes the field norm over its support
     on the source side and renormalizes the field on the target side
     so that the norms match.
 
@@ -293,7 +293,7 @@ namespace MEDCoupling
     \f[
     I_{target}=\sum_{i=1}^{n_{target}}V_{i}.|\Phi^{target}_{i}|^2,
     \f]
-    
+
     \f[
     \Phi^{target}:=\Phi^{target}.\sqrt{I_{source}/I_{target}}.
     \f]

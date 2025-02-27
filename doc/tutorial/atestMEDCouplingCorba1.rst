@@ -12,8 +12,8 @@ Visualiser une instance de MEDCoupling dans ParaViS à travers CORBA
 	# Creating a mesh
 	arr = mc.DataArrayDouble(11)
 	arr.iota(0)
-	m = mc.MEDCouplingCMesh() 
-	m.setCoords(arr,arr) 
+	m = mc.MEDCouplingCMesh()
+	m.setCoords(arr,arr)
 	m = m.buildUnstructured()
 	
 	# Making it available on the CORBA bus

@@ -47,7 +47,7 @@ namespace INTERP_KERNEL
   template<class MyMeshType, class MyMatrix>
   void CurveIntersectorP1P1PL<MyMeshType,MyMatrix>::AppendValueInMatrix2(typename MyMatrix::value_type& resRow, ConnType nodeIdS0, double val0)
   {
-    typename MyMatrix::value_type::const_iterator iterRes(resRow.find(OTT<ConnType,numPol>::indFC(nodeIdS0)));    
+    typename MyMatrix::value_type::const_iterator iterRes(resRow.find(OTT<ConnType,numPol>::indFC(nodeIdS0)));
     if(iterRes==resRow.end())
       {
         resRow.insert(std::make_pair(OTT<ConnType,numPol>::indFC(nodeIdS0),val0));

@@ -34,7 +34,7 @@ namespace MEDCoupling
   {
     using EltType = T;
   };
-  
+
   template<>
   struct ParaTraits<double>
   {
@@ -107,7 +107,7 @@ namespace MEDCoupling
     int send(void* buffer, int count, MPI_Datatype datatype, int target, int tag, MPI_Comm comm) const { return MPI_Send(buffer,count, datatype, target, tag, comm); }
     int recv(void* buffer, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status* status) const { return MPI_Recv(buffer,count, datatype, source, tag, comm, status); }
     int sendRecv(const void* sendbuf, int sendcount, MPI_Datatype sendtype,
-                 int dest, int sendtag, void* recvbuf, int recvcount, 
+                 int dest, int sendtag, void* recvbuf, int recvcount,
                  MPI_Datatype recvtype, int source, int recvtag, MPI_Comm comm,
                  MPI_Status* status) { return MPI_Sendrecv(sendbuf, sendcount, sendtype, dest, sendtag, recvbuf, recvcount, recvtype, source, recvtag, comm,status); }
 
@@ -147,7 +147,7 @@ namespace MEDCoupling
                  MPI_Comm comm) const { return MPI_Alltoall(sendbuf, sendcount, sendtype, recvbuf, recvcount, recvtype, comm); }
     int allToAllV(const void* sendbuf, int* sendcounts, int* senddispls,
                   MPI_Datatype sendtype, void* recvbuf, int* recvcounts,
-                  int* recvdispls, MPI_Datatype recvtype, 
+                  int* recvdispls, MPI_Datatype recvtype,
                   MPI_Comm comm) const { return MPI_Alltoallv(const_cast<void*>(sendbuf), sendcounts, senddispls, sendtype, recvbuf, recvcounts, recvdispls, recvtype, comm); }
 
     int reduce(void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype,
@@ -160,7 +160,7 @@ namespace MEDCoupling
     void allToAllArrays(MPI_Comm comm, const std::vector< MCAuto<DataArrayIdType> >& arrays, std::vector< MCAuto<DataArrayIdType> >& arraysOut) const;
     void allToAllArrays(MPI_Comm comm, const std::vector< MCAuto<DataArrayDouble> >& arrays, std::vector< MCAuto<DataArrayDouble> >& arraysOut) const;
     void allToAllArrays(MPI_Comm comm, const std::vector< MCAuto<DataArrayDouble> >& arrays, MCAuto<DataArrayDouble>& arraysOut) const;
-    
+
     template<class T>
     int gatherArraysT(MPI_Comm comm, int root, const typename Traits<T>::ArrayType *array, std::unique_ptr<T[]>& result, std::unique_ptr<mcIdType[]>& resultIndex, int& rank) const
     {
@@ -252,7 +252,7 @@ namespace MEDCoupling
       this->commSize(comm,&size);
       if( arrays.size() != ToSizeT(size) )
         throw INTERP_KERNEL::Exception("AllToAllArrays : internal error ! Invalid size of input array.");
-        
+
       std::vector< const DataArrayT *> arraysBis(FromVecAutoToVecOfConst<DataArrayT>(arrays));
       std::unique_ptr<mcIdType[]> nbOfElems3(new mcIdType[size]);
       nbOfElems2.reset(new mcIdType[size]);
@@ -329,7 +329,7 @@ namespace MEDCoupling
       std::copy(arr.get(),arr.get()+size,ret.get());
       return ret;
     }
-    
+
     /*!
     * Helper of alltoallv and allgatherv
     */

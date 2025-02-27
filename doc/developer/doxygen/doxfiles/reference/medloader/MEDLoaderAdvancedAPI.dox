@@ -9,13 +9,13 @@ MEDLoaderBasicAPIPage "basic MEDLoader API". All MED file
 concepts are exposed to the user. As a consequence, this advanced
 API is meant to evolve with MED file data model enhancement.
 
-In reading mode, the user can scan entirely and directly the contents of 
+In reading mode, the user can scan entirely and directly the contents of
 its MED file directly as it is organized on the disk.
 Inversely, in writing mode, the user can describe its data in the same
 way that MED file does on the disk.
 
 When looking for a specific point in the API, the diagram provided at the
-end of this section might help: 
+end of this section might help:
 
 \section AdvMEDLoaderBasics Some of basics of advanced API
 
@@ -272,16 +272,16 @@ The classes shown on this diagram (all part of the \ref cpp "named MEDCoupling n
 and also:
 - \ref MEDCoupling::MEDFileMeshes "MEDFileMeshes", the set of meshes in the file
 - \ref MEDCoupling::MEDFileMeshMultiTS "MEDFileMeshMultiTS", a single mesh with muliple time steps
-- \ref MEDCoupling::MEDFileMesh "MEDFileMesh", a single mesh on a single timestep 
+- \ref MEDCoupling::MEDFileMesh "MEDFileMesh", a single mesh on a single timestep
 - \ref MEDCoupling::MEDFileUMesh "MEDFileUMesh", a single unstructured mesh
 
 and also:
 - \ref MEDCoupling::MEDFileFields "MEDFileFields", the set of fields in a MED file
-- \ref MEDCoupling::MEDFileAnyTypeFieldMultiTS "MEDFileAnyTypeFieldMultiTS", a single field with multiple 
+- \ref MEDCoupling::MEDFileAnyTypeFieldMultiTS "MEDFileAnyTypeFieldMultiTS", a single field with multiple
 time steps (can be an integer field or a double field)
 - \ref MEDCoupling::MEDFileFieldMultiTS "MEDFileFieldMultiTS", a single field of doubles with multiple time steps
 - \ref MEDCoupling::MEDFileIntFieldMultiTS "MEDFileIntFieldMultiTS", a single field of int with multiple time steps
-- \ref MEDCoupling::MEDFileFieldMultiTS "MEDFileAnyTypeField1TS", a single field with a single time step 
+- \ref MEDCoupling::MEDFileFieldMultiTS "MEDFileAnyTypeField1TS", a single field with a single time step
 (integer or double)
 - \ref MEDCoupling::MEDFileField1TS "MEDFileField1TS", a single field of doubles with a single time step
 - \ref MEDCoupling::MEDFileIntField1TS "MEDFileIntField1TS", a single field of ints with a single time step

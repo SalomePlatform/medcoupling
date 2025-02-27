@@ -81,7 +81,7 @@ namespace MEDCoupling
       {
         if (component_topology.nbBlocks()!=1 &&  para_support->getTopology()->getProcGroup()->size()!=1)
           throw INTERP_KERNEL::Exception(LOCALIZED("ParaFIELD constructor : Unstructured Support not taken into account with component topology yet"));
-        else 
+        else
           {
             const BlockTopology* source_topo=dynamic_cast<const BlockTopology*> (para_support->getTopology());
             int nb_local_comp=component_topology.nbLocalComponents();
@@ -99,16 +99,16 @@ namespace MEDCoupling
         array->decrRef();
       }
     else return;
-  
+
     _field->setName("Default ParaFIELD name");
     _field->setDescription("Default ParaFIELD description");
-  } 
+  }
 
   /*! \brief Constructor creating the ParaFIELD
-    from a given FIELD and a processor group. 
+    from a given FIELD and a processor group.
 
     This constructor supposes that support underlying \a subdomain_field has no ParaMESH
-    attached and it therefore recreates one. It therefore takes ownership over _support. The component topology associated with the field is a basic one (all components on the same processor). 
+    attached and it therefore recreates one. It therefore takes ownership over _support. The component topology associated with the field is a basic one (all components on the same processor).
   */
   ParaFIELD::ParaFIELD(MEDCouplingFieldDouble* subdomain_field, ParaMESH *sup, const ProcessorGroup& proc_group):
     _field(subdomain_field),
@@ -161,7 +161,7 @@ namespace MEDCoupling
     data_channel->synchronize();
     data_channel->prepareTargetDE();
     data_channel->recvData();
-  
+
     delete data_channel;
   }
 
@@ -180,7 +180,7 @@ namespace MEDCoupling
     data_channel->synchronize();
     data_channel->prepareSourceDE();
     data_channel->sendData();
-  
+
     delete data_channel;
   }
 
@@ -221,7 +221,7 @@ namespace MEDCoupling
         return 0;
       }
   }
-  
+
   int ParaFIELD::nbComponents() const
   {
     return _component_topology.nbComponents();
@@ -237,7 +237,7 @@ namespace MEDCoupling
     double total=0.;
     const MPI_Comm* comm = (dynamic_cast<const MPIProcessorGroup*>(_topology->getProcGroup()))->getComm();
     comm_interface.allReduce(&integral, &total, 1, MPI_DOUBLE, MPI_SUM, *comm);
-  
+
     return total;
   }
 }

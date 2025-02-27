@@ -56,10 +56,10 @@ namespace MEDCoupling
     INTERP_KERNEL::NormalizedCellType _geo_type;
   };
 
-  
+
   class MEDFileStructureElement;
   class MEDFileUMesh;
-  
+
   class MEDFileGTKeeperDyn : public MEDFileGTKeeper
   {
   public:
@@ -78,7 +78,7 @@ namespace MEDCoupling
   };
 
   class MEDFileEntities;
-  
+
   class MEDFileFieldLoc : public RefCountObject
   {
   public:
@@ -129,7 +129,7 @@ namespace MEDCoupling
   class MEDFileFieldNameScope;
   class MEDFileFieldGlobsReal;
   class MEDCouplingMesh;
-  
+
   class MEDFileFieldPerMeshPerTypePerDisc : public RefCountObject, public MEDFileWritable
   {
   public:
@@ -219,7 +219,7 @@ namespace MEDCoupling
 
   class MEDFileFieldVisitor;
   class MEDFileFieldPerMesh;
-  
+
   class MEDFileFieldPerMeshPerTypeCommon : public RefCountObject, public MEDFileWritable
   {
   public:
@@ -332,11 +332,11 @@ namespace MEDCoupling
   private:
     MCConstAuto<MEDFileStructureElement> _se;
   };
-  
+
   class MEDFileMesh;
   class MEDFileAnyTypeField1TSWithoutSDA;
   class MEDFileField1TSWithoutSDA;
-  
+
   class MEDFileFieldPerMesh : public RefCountObject, public MEDFileWritable
   {
   public:
@@ -409,7 +409,7 @@ namespace MEDCoupling
                                              const MEDCouplingMesh *mesh, const DataArrayIdType *da, bool& isPfl, MCAuto<DataArray> &arrOut, const MEDFileFieldNameScope& nasc) const;
     DataArray *finishField4(const std::vector< std::pair<mcIdType,mcIdType> >& dads, const DataArrayIdType *pflIn, mcIdType nbOfElems, DataArrayIdType *&pflOut) const;
     void assignNewLeaves(const std::vector< MCAuto< MEDFileFieldPerMeshPerTypePerDisc > >& leaves);
-    static void SortArraysPerType(const MEDFileFieldGlobsReal *glob, TypeOfField type, 
+    static void SortArraysPerType(const MEDFileFieldGlobsReal *glob, TypeOfField type,
                                   const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes, const std::vector< std::pair<mcIdType,mcIdType> >& dads, const std::vector<const DataArrayIdType *>& pfls, const std::vector<int>& locs,
                                   std::vector<mcIdType>& code, std::vector<DataArrayIdType *>& notNullPfls);
     static mcIdType ComputeNbOfElems(const MEDFileFieldGlobsReal *glob, TypeOfField type, const std::vector<INTERP_KERNEL::NormalizedCellType>& geoTypes, const std::vector< std::pair<mcIdType,mcIdType> >& dads, const std::vector<int>& locs);

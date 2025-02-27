@@ -26,7 +26,7 @@
 #include "VectorUtils.hxx"
 
 namespace INTERP_KERNEL
-{ 
+{
   template<class TrueMainInterpolator>
   template<class MyMeshType, class MatrixType>
   typename MyMeshType::MyConnType Interpolation<TrueMainInterpolator>::fromToIntegralUniform(bool fromTo, const MyMeshType& mesh, MatrixType& result, const std::string& method)

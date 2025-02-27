@@ -72,7 +72,7 @@ namespace MEDCoupling
     ParaDataArrayInt64(DataArrayInt64 *seqDa):ParaDataArrayDiscrete<Int64>(seqDa) { }
     std::string getClassName() const override { return "ParaDataArrayInt64"; }
   };
-  
+
   #ifndef MEDCOUPLING_USE_64BIT_IDS
   using ParaDataArrayIdType = ParaDataArrayInt32;
   #else

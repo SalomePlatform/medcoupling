@@ -9,7 +9,7 @@ The aim of this exercise is to create a mesh with mixed geometrical type from sc
 
 * a field on cells "CellField"
 * a field on nodes "NodeField"
- 
+
 
 Implementation start
 ~~~~~~~~~~~~~~~~~~~~
@@ -18,13 +18,13 @@ Create an unstructured mesh "m0" built from a 30x30 structured mesh (meshDim=2, 
 Each of the even cell of "m0" is "simplexized" (cut in triangles - method MEDCouplingUMesh.simplexize(0)) ::
 
     import medcoupling as mc
-    
+
     m0 = mc.MEDCouplingCMesh()
     arr = mc.DataArrayDouble(31,1) ; arr.iota(0.)
     m0.setCoords(arr,arr)
     m0 = m0.buildUnstructured()
     m00 = m0[::2]                # Extract even cells
-    m00.simplexize(0) 
+    m00.simplexize(0)
     m01 = m0[1::2]
     m0 = mc.MEDCouplingUMesh.MergeUMeshes([m00,m01])
     m0.getCoords()[:] *= 1/15.   # Illustrate how to quickly rescale a mesh
@@ -36,14 +36,14 @@ Create the fields "CellField" and "NodeField" at the time-stamp (5,6) correspond
 ::
 
     # Cell field
-    cellField = mc.MEDCouplingFieldDouble(mc.ON_CELLS, mc.ONE_TIME) 
+    cellField = mc.MEDCouplingFieldDouble(mc.ON_CELLS, mc.ONE_TIME)
     cellField.setTime(5.6,5,6)
     cellField.setMesh(m0)
     cellField.setName("CellField")
     cellField.fillFromAnalytic(1,"exp(-((x-1)*(x-1)+(y-1)*(y-1)))")
     cellField.getArray().setInfoOnComponent(0,"powercell [W]")
     # Node field
-    nodeField = mc.MEDCouplingFieldDouble(mc.ON_NODES,mc.ONE_TIME) 
+    nodeField = mc.MEDCouplingFieldDouble(mc.ON_NODES,mc.ONE_TIME)
     nodeField.setTime(5.6,5,6)
     nodeField.setMesh(m0)
     nodeField.setName("NodeField")
@@ -58,7 +58,7 @@ Create the fields "CellField" and "NodeField" at the time-stamp (5,6) correspond
 Mesh partitionning
 ~~~~~~~~~~~~~~~~~~
 
-Cut "m0" into two distinct parts called "proc0" and "proc1". "proc0" will be contained in the bounding box [(0.,0.4),(0.,0.4)] (with a precision of 1e-10). Use the method MEDCouplingUMesh.getCellsInBoundingBox(). "proc1" is simply the complementary part of "proc0" (method DataArrayInt.buildComplement()). 
+Cut "m0" into two distinct parts called "proc0" and "proc1". "proc0" will be contained in the bounding box [(0.,0.4),(0.,0.4)] (with a precision of 1e-10). Use the method MEDCouplingUMesh.getCellsInBoundingBox(). "proc1" is simply the complementary part of "proc0" (method DataArrayInt.buildComplement()).
 ::
 
     proc0 = m0.getCellsInBoundingBox([(0.,0.4),(0.,0.4)],1e-10)
@@ -73,11 +73,11 @@ Starting with the partition above ("proc0" and "proc1") create two MED files cal
 
     nodeField0 = nodeField[proc0] ; cellField0 = cellField[proc0] ; cellField0.setMesh(nodeField0.getMesh())
     nodeField1 = nodeField[proc1] ; cellField1 = cellField[proc1] ; cellField1.setMesh(nodeField1.getMesh())
-    
+
     proc0_fname = "proc0.med"
     mc.WriteField(proc0_fname, nodeField0, True)
     mc.WriteFieldUsingAlreadyWrittenMesh(proc0_fname, cellField0)
-    
+
     proc1_fname = "proc1.med"
     mc.WriteField(proc1_fname,nodeField1,True)
     mc.WriteFieldUsingAlreadyWrittenMesh(proc1_fname,cellField1)
@@ -127,7 +127,7 @@ Compare "NodeFieldCpy" and "NodeField_read" still using MEDCouplingFieldDouble.s
 Read/write of two separated MED files - More complex but more efficient version
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We show a more systematic and more general method to merge files. 
+We show a more systematic and more general method to merge files.
 This is the preferred route when dealing with big files .
 This method adds performance but also allows to add extra information.
 
@@ -149,7 +149,7 @@ MEDFileUMesh.getNonEmptyLevels() on the instance coming from "proc0.med". ::
         o2nML[lev] = m.sortCellsInMEDFileFrmt()
         mergeMLMesh.setMeshAtLevel(lev,m)
         pass
-    
+
     for fieldName in fsML[0].getFieldsNames():
         fmts = [fML[fieldName] for fML in fsML]
         mergeField = mc.MEDFileFieldMultiTS()

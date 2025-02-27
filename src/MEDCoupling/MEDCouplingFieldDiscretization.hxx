@@ -442,7 +442,7 @@ namespace MEDCoupling
     static const char REPR[];
     static constexpr TypeOfField TYPE = ON_NODES_KR;
   };
-  
+
   template<class FIELD_DISC>
   MCAuto<MEDCouplingFieldDiscretization> MEDCouplingFieldDiscretization::EasyAggregate(std::vector<const MEDCouplingFieldDiscretization *>& fds)
   {

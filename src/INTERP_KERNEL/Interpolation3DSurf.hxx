@@ -32,7 +32,7 @@ namespace INTERP_KERNEL
   public:
     Interpolation3DSurf();
     Interpolation3DSurf(const InterpolationOptions& io);
-    void setOptions(double precision, int printLevel, double medianPlane, 
+    void setOptions(double precision, int printLevel, double medianPlane,
                     IntersectionType intersectionType, bool doRotate, int orientation=0);
   public:
     template<class MyMeshType, class MyMatrixRow>

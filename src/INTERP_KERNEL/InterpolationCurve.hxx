@@ -59,7 +59,7 @@ namespace INTERP_KERNEL
         { bbtree.getIntersectingElems(bb, intersecting_elems); };
       return this->interpolateMeshesInternal(meshS,meshT,result,method,bbtreeMethod);
     }
-    
+
     template<class MyMeshType, class MatrixType>
     typename MyMeshType::MyConnType interpolateMeshes0D(const MyMeshType& meshS, const MyMeshType& meshT,
                                                         MatrixType& result, const std::string& method)

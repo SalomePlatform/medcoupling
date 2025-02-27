@@ -184,14 +184,14 @@ class MEDLoaderBasicsTest(unittest.TestCase):
         fileNameMultiTimeStep="file3.med"
         WriteFieldUsingAlreadyWrittenMesh(fileNameMultiTimeStep,f)
         f.setTime(1.3,2,0)
-        f.applyFunc("sqrt(x)");
+        f.applyFunc("sqrt(x)")
         #Writing second time step with iteration==2 and order==0
-        WriteFieldUsingAlreadyWrittenMesh("file3.med",f);
+        WriteFieldUsingAlreadyWrittenMesh("file3.med",f)
 #! [PySnippetMeshAdvAPI1_3]
 #! [PySnippetMeshAdvAPI1_11]
         timeStepsIds=GetCellFieldIterations("file3.med","Example2","myField")
         self.assertEqual([(1, 0),(2, 0)],timeStepsIds)
-        fs=ReadFieldsOnSameMesh(ON_CELLS,"file3.med","Example2",0,"myField",timeStepsIds);
+        fs=ReadFieldsOnSameMesh(ON_CELLS,"file3.med","Example2",0,"myField",timeStepsIds)
 #! [PySnippetMeshAdvAPI1_11]
         ###
         myMesh0=myMesh[:] ; myMesh0.setName("Example2")

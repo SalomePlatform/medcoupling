@@ -36,7 +36,7 @@
 #include "MEDLoader.hxx"
 #include "ICoCoMEDDoubleField.hxx"
 #include "MEDCouplingUMesh.hxx"
- 
+
 #include <string>
 #include <cstring>
 
@@ -47,14 +47,14 @@
 // use this define to enable CPPUNIT asserts and fails, showing bugs
 #define ENABLE_FORCED_FAILURES
 
-#ifndef CLK_TCK 
+#ifndef CLK_TCK
 #include <unistd.h>
 #define CLK_TCK sysconf(_SC_CLK_TCK);
-#endif 
+#endif
 
 using namespace std;
 using namespace MEDCoupling;
- 
+
 void testInterpKernelDEC_2D(const string& filename1, const string& meshname1,
                             const string& filename2, const string& meshname2,
                             int nproc_source, double epsilon, bool tri, bool all);
@@ -123,23 +123,23 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
   int rank;
   MPI_Comm_size(MPI_COMM_WORLD,&size);
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
- 
+
   set<int> self_procs;
   set<int> procs_source;
   set<int> procs_target;
-  
+
   for (int i=0; i<nproc_source; i++)
     procs_source.insert(i);
   for (int i=nproc_source; i<size; i++)
     procs_target.insert(i);
   self_procs.insert(rank);
-  
+
   MEDCoupling::CommInterface interface;
-    
+
   MEDCoupling::ProcessorGroup* self_group = new MEDCoupling::MPIProcessorGroup(interface,self_procs);
   MEDCoupling::ProcessorGroup* target_group = new MEDCoupling::MPIProcessorGroup(interface,procs_target);
   MEDCoupling::ProcessorGroup* source_group = new MEDCoupling::MPIProcessorGroup(interface,procs_source);
-  
+
   //loading the geometry for the source group
 
   MEDCoupling::InterpKernelDEC dec (*source_group,*target_group);
@@ -152,14 +152,14 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
   MEDCoupling::ParaMESH* paramesh = nullptr;
   MEDCoupling::ParaFIELD* parafield = nullptr;
   ICoCo::MEDDoubleField* icocofield = nullptr;
-  
+
   // To remove tmp files from disk
   ParaMEDMEMTest_TmpFilesRemover aRemover;
-  
+
   MPI_Barrier(MPI_COMM_WORLD);
   if (source_group->containsMyRank()){
     string master = filename_xml1;
-      
+
     ostringstream strstream;
     if( nproc_source == 1 )
       strstream <<master<<".med";
@@ -171,16 +171,16 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
       meshname<< meshname1;
     else
       meshname<< meshname1<<"_"<< rank+1;
-      
+
     get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
     mesh=ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
     get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
     if( rank == 0 )
       cout << "IO : Telapse = " << telps << " TuserCPU = " << tcpu_u << " TsysCPU = " << tcpu_s << " TCPU = " << tcpu << endl;
     mesh->incrRef();
-    
+
     paramesh=new ParaMESH (mesh,*source_group,"source mesh");
-    
+
     MEDCoupling::ComponentTopology comptopo;
     parafield = new ParaFIELD(ON_CELLS, NO_TIME, paramesh, comptopo);
 
@@ -188,12 +188,12 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
     double *value=parafield->getField()->getArray()->getPointer();
     for(int ielem=0; ielem<nb_local;ielem++)
       value[ielem]=1.0;
-    
+
     icocofield=new ICoCo::MEDDoubleField(parafield->getField());
-     
+
     dec.attachLocalField(icocofield);
   }
-  
+
   //loading the geometry for the target group
   if (target_group->containsMyRank()){
     string master= filename_xml2;
@@ -207,7 +207,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
       meshname<< meshname2;
     else
       meshname<< meshname2<<"_"<<rank-nproc_source+1;
-      
+
     get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
     mesh = ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
     get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
@@ -222,16 +222,16 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
     for(int ielem=0; ielem<nb_local;ielem++)
       value[ielem]=0.0;
     icocofield=new ICoCo::MEDDoubleField(parafield->getField());
-      
+
     dec.attachLocalField(icocofield);
   }
-    
-  
-  //attaching a DEC to the source group 
+
+
+  //attaching a DEC to the source group
   double field_before_int;
   double field_after_int;
-  
-  if (source_group->containsMyRank()){ 
+
+  if (source_group->containsMyRank()){
     field_before_int = parafield->getVolumeIntegral(0,true);
     get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
     dec.synchronize();
@@ -245,17 +245,17 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
 
     get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
     dec.sendData();
-    
+
     get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
     if( rank == 0 )
       cout << "SEND DATA : Telapse = " << telps << " TuserCPU = " << tcpu_u << " TsysCPU = " << tcpu_s << " TCPU = " << tcpu << endl;
     dec.recvData();
-     
+
     field_after_int = parafield->getVolumeIntegral(0,true);
 //    CPPUNIT_ASSERT_DOUBLES_EQUAL(field_before_int, field_after_int, epsilon);
-      
+
   }
-  
+
   //attaching a DEC to the target group
   if (target_group->containsMyRank()){
     get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
@@ -270,7 +270,7 @@ void testInterpKernelDEC_2D(const string& filename_xml1, const string& meshname1
     get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
     dec.sendData();
   }
-  
+
   get_time( &telps, &tcpu_u, &tcpu_s, &tcpu );
   if( rank == 0 )
     cout << "RECV DATA : Telapse = " << telps << " TuserCPU = " << tcpu_u << " TsysCPU = " << tcpu_s << " TCPU = " << tcpu << endl;
@@ -313,7 +313,7 @@ void get_time( float *telps, float *tuser, float *tsys, float *tcpu )
   nsec = tp.tv_sec;
   nusec = tp.tv_usec;
   *telps = (float)(nsec-zsec) + (float)(nusec-zusec)/(float)CLOCKS_PER_SEC;
-  
+
   zsec = nsec;
   zusec = nusec;
 

@@ -50,11 +50,11 @@ namespace INTERP_KERNEL
 
   /*!
     \brief creates the bounding boxes for all the cells of mesh \a mesh
-  
+
     The method accepts mixed meshes (containing triangles and quadrangles).
-    The vector returned is of dimension 6*nb_elems with bounding boxes stored as xmin1, xmax1, ymin1, ymax1, zmin1, zmax1, xmin2, xmax2, ymin2,... 
+    The vector returned is of dimension 6*nb_elems with bounding boxes stored as xmin1, xmax1, ymin1, ymax1, zmin1, zmax1, xmin2, xmax2, ymin2,...
     The returned pointer must be deleted by the calling code.
-  
+
     \param mesh structure pointing to the mesh
     \param bbox vector containing the bounding boxes
   */
@@ -66,7 +66,7 @@ namespace INTERP_KERNEL
     bbox.resize(2*SPACEDIM* nbelems);
     const double* coords = mesh.getCoordinatesPtr();
     const ConnType* conn = mesh.getConnectivityPtr();
-    const ConnType* conn_index = mesh.getConnectivityIndexPtr();  
+    const ConnType* conn_index = mesh.getConnectivityIndexPtr();
     int ibox=0;
     for(long icell=0; icell<nbelems; icell++)
       {
@@ -82,14 +82,14 @@ namespace INTERP_KERNEL
           {
             const double* coord_node=coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(conn[OTT<ConnType,numPol>::conn2C(conn_index[icell]+j)]);
             for(int idim=0; idim<SPACEDIM; idim++)
-              {            
+              {
                 double x=*(coord_node+idim);
                 bbox[ibox*2*SPACEDIM + 2*idim]   = (bbox[ibox*2*SPACEDIM + 2*idim]  <x)?bbox[ibox*2*SPACEDIM + 2*idim  ]:x;
                 bbox[ibox*2*SPACEDIM + 2*idim+1] = (bbox[ibox*2*SPACEDIM + 2*idim+1]>x)?bbox[ibox*2*SPACEDIM + 2*idim+1]:x;
               }
           }
         ibox++;
-      }                        
+      }
   }
 
   /*!
@@ -107,18 +107,18 @@ namespace INTERP_KERNEL
         bb[2*idim  ] =  std::numeric_limits<double>::max();
         bb[2*idim+1] = -std::numeric_limits<double>::max();
       }
-  
+
     for (ConnType i=0; i<nb_nodes; i++)
       {
         //MN: iP= cell index, not node index, use of connectivity array ?
         const double* coord_node=coords+SPACEDIM*(OTT<ConnType,numPol>::coo2C(conn[OTT<ConnType,numPol>::conn2C(conn_index[OTT<ConnType,numPol>::ind2C(iP)]+i)]));
         for(int idim=0; idim<SPACEDIM; idim++)
-          {            
+          {
             double x = *(coord_node+idim);
             //double y = *(mesh.getCoordinates(MED_FULL_INTERLACE)+3*(iP+i)+1);
             bb[2*idim  ] = (x<bb[2*idim  ])?x:bb[2*idim  ];
             bb[2*idim+1] = (x>bb[2*idim+1])?x:bb[2*idim+1];
-          }            
+          }
       }
   }
 
@@ -185,7 +185,7 @@ namespace INTERP_KERNEL
           coordsS[SPACEDIM*iSTmp+idim]=_coordsS[SPACEDIM*OTT<ConnType,numPol>::coo2C(_connectS[OTT<ConnType,numPol>::conn2C(_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)]+iS)])+idim];
       }
   }
-  
+
   /*!
    * @param icellT id in target mesh in format of MyMeshType.
    * @param icellS id in source mesh in format of MyMeshType.
@@ -207,13 +207,13 @@ namespace INTERP_KERNEL
         for (ConnType iS=0; iS<nbNodesS; iS++)
           coordsS[SPACEDIM*iS+idim] = _coordsS[SPACEDIM*OTT<ConnType,numPol>::coo2C(_connectS[OTT<ConnType,numPol>::conn2C(_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)]+iS)])+idim];
       }
-    
+
     //project cells T and S on the median plane and rotate the median plane
     if(SPACEDIM==3)
       orientation = projectionThis(&coordsT[0], &coordsS[0], nbNodesT, nbNodesS);
-    
+
     //DEBUG PRINTS
-    if(_print_level >= 3) 
+    if(_print_level >= 3)
       {
         std::cout << std::endl << "Cell coordinates (possibly after projection)" << std::endl;
         std::cout << std::endl << "icellT= " << icellT << ", nb nodes T= " <<  nbNodesT << std::endl;
@@ -224,14 +224,14 @@ namespace INTERP_KERNEL
           {for (int idim=0; idim<SPACEDIM; idim++) std::cout << coordsS[SPACEDIM*iS+idim]<< " "; std::cout << std::endl; }
       }
   }
-  
+
   /*!
    * Filtering out zero surfaces and badly oriented surfaces
    * _orientation = -1,0,1,2
    * -1 : the intersection is taken into account if target and cells have different orientation
    * 0 : the intersection is always taken into account
    * 1 : the intersection is taken into account if target and cells have the same orientation
-   * 2 : the absolute value of intersection is always taken into account 
+   * 2 : the absolute value of intersection is always taken into account
    */
   template<class MyMeshType, class MyMatrix>
   double PlanarIntersector<MyMeshType,MyMatrix>::getValueRegardingOption(double val) const
@@ -252,7 +252,7 @@ namespace INTERP_KERNEL
   }
 
   template<class MyMeshType, class MyMatrix>
-  int PlanarIntersector<MyMeshType,MyMatrix>::Projection(double *Coords_A, double *Coords_B, 
+  int PlanarIntersector<MyMeshType,MyMatrix>::Projection(double *Coords_A, double *Coords_B,
                                                          ConnType nb_NodesA, ConnType nb_NodesB, double epsilon, double md3DSurf, double minDot3DSurf, double median_plane, bool do_rotate)
   {
     double normal_A[3]={0,0,0};
@@ -324,13 +324,13 @@ namespace INTERP_KERNEL
           return 0;
 
         same_orientation=(dotProd>=0);
-        
+
         if(!same_orientation)
           for(int idim =0; idim< SPACEDIM; idim++)
             normal_A[idim] *=-1;
-        
+
         double normBB(sqrt(dotprod<SPACEDIM>(normal_B,normal_B)));
-        
+
         for(int idim =0; idim< SPACEDIM; idim++)
           linear_comb[idim] = median_plane*normal_A[idim]/normA + (1-median_plane)*normal_B[idim]/normBB;
         double norm= sqrt(dotprod<SPACEDIM>(linear_comb,linear_comb));
@@ -338,7 +338,7 @@ namespace INTERP_KERNEL
         //Necessarily: norm>epsilon, no need to check
         for(int idim =0; idim< SPACEDIM; idim++)
           linear_comb[idim]/=norm;
-        
+
         //Project the nodes of A and B on the median plane
         for(ConnType i_A=0; i_A<nb_NodesA; i_A++)
           {
@@ -352,8 +352,8 @@ namespace INTERP_KERNEL
             for(int idim =0; idim< SPACEDIM; idim++)
               Coords_B[SPACEDIM*i_B+idim] -=  proj*linear_comb[idim];
           }
-        
-        //Build the matrix sending  A into the Oxy plane and apply it to A and B  
+
+        //Build the matrix sending  A into the Oxy plane and apply it to A and B
         if(do_rotate)
           {
             TranslationRotationMatrix rotation;
@@ -372,32 +372,32 @@ namespace INTERP_KERNEL
         std::cout << " i_A1= " << i_A1 << " i_A2= " << i_A2 << std::endl;
         std::cout << " distance2<SPACEDIM>(Coords_A,&Coords_A[i_A1])= " <<  distance2<SPACEDIM>(Coords_A,&Coords_A[i_A1]) << std::endl;
         std::cout << "abs(normal_A) = " << fabs(normal_A[0]) << " ; " <<fabs( normal_A[1]) << " ; " << fabs(normal_A[2]) << std::endl;
-        std::cout << " i_B1= " << i_B1 << " i_B2= " << i_B2 << std::endl; 
+        std::cout << " i_B1= " << i_B1 << " i_B2= " << i_B2 << std::endl;
         std::cout << " distance2<SPACEDIM>(&Coords_B[0],&Coords_B[i_B1])= " <<  distance2<SPACEDIM>(Coords_B,Coords_B+i_B1) << std::endl;
         std::cout << "normal_B = " << normal_B[0] << " ; " << normal_B[1] << " ; " << normal_B[2] << std::endl;
         return 1;
       }
   }
-  
+
   template<class MyMeshType, class MyMatrix>
   void PlanarIntersector<MyMeshType,MyMatrix>::Rotate3DTriangle(double* PP1, double*PP2, double*PP3,
                                                                 TranslationRotationMatrix& rotation_matrix)
   {
     //initializes
     rotation_matrix.translate(PP1);
-    
+
     double P2w[3];
     double P3w[3];
     P2w[0]=PP2[0]; P2w[1]=PP2[1];P2w[2]=PP2[2];
     P3w[0]=PP3[0]; P3w[1]=PP3[1];P3w[2]=PP3[2];
-    
+
     // translating to set P1 at the origin
     for (int i=0; i<3; i++)
       {
         P2w[i]-=PP1[i];
         P3w[i]-=PP1[i];
       }
-   
+
     // rotating to set P2 on the Oxy plane
     TranslationRotationMatrix A;
     A.rotate_x(P2w);
@@ -409,7 +409,7 @@ namespace INTERP_KERNEL
     B.rotate_z(P2w);
     B.rotate_vector(P3w);
     rotation_matrix.multiply(B);
-  
+
     //rotating to set P3 on the Oxy plane
     TranslationRotationMatrix C;
     C.rotate_x(P3w);

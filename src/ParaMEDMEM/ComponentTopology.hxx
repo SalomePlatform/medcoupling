@@ -54,7 +54,7 @@ namespace MEDCoupling
     int nbBlocks()const {return (int)_component_array.size()-1;}
     //!returns the block structure
     const std::vector<int>* getBlockIndices() const { return &_component_array; }
-    const ProcessorGroup* getProcGroup()const { return _proc_group; } 
+    const ProcessorGroup* getProcGroup()const { return _proc_group; }
   private:
     std::vector<int> _component_array;
     ProcessorGroup* _proc_group;

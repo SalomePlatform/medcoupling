@@ -104,7 +104,7 @@ void ParaMEDMEMTest::testICoco1()
 
   //the test is meant to run on 2 processors
   if (size !=2) return ;
-  
+
   CommInterface comm;
   set<int> emetteur_ids;
   set<int> recepteur_ids;
@@ -124,7 +124,7 @@ void ParaMEDMEMTest::testICoco1()
   dec_emetteur.setOrientation(2);
   MEDCoupling::ParaFIELD *champ_emetteur(0),*champ_recepteur(0);
   MEDCoupling::ParaMESH *paramesh(0);
-  if (cas=="emetteur") 
+  if (cas=="emetteur")
     {
       MCAuto<MEDCoupling::MEDCouplingUMesh> mesh_emetteur(init_triangle());
       paramesh=new MEDCoupling::ParaMESH(mesh_emetteur,emetteur_group,"emetteur mesh");
@@ -143,7 +143,7 @@ void ParaMEDMEMTest::testICoco1()
       champ_recepteur->getField()->setNature(IntensiveMaximum);
       champ_recepteur->setOwnSupport(true);
     }
-  
+
   MPI_Barrier(MPI_COMM_WORLD);
 
   clock_t clock0(clock());
@@ -155,24 +155,24 @@ void ParaMEDMEMTest::testICoco1()
     {
       compti++;
       clock_t clocki= clock ();
-      cout << compti << " CLOCK " << (clocki-clock0)*1.e-6 << endl; 
+      cout << compti << " CLOCK " << (clocki-clock0)*1.e-6 << endl;
       for (int non_unif=0;non_unif<2;non_unif++)
         {
-          if (cas=="emetteur") 
+          if (cas=="emetteur")
             if (non_unif)
               champ_emetteur->getField()->getArray()->setIJ(0,0,40.);
           //bool ok=false; // Is the time interval successfully solved ?
-    
+
           // Loop on the time interval tries
           if (cas=="emetteur")
             dec_emetteur.attachLocalField(champ_emetteur);
           else
             dec_emetteur.attachLocalField(champ_recepteur);
-            
+
           if(init)
             dec_emetteur.synchronize();
           init=false;
-            
+
           if (cas=="emetteur")
             {
               dec_emetteur.sendData();

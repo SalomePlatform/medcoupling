@@ -191,7 +191,7 @@ bool MEDFileData::changeMeshName(const std::string& oldMeshName, const std::stri
 }
 
 /*!
- * This method performs unpolyzation in meshes in \a this and if it leads to a modification to one or more than one meshes in \a this 
+ * This method performs unpolyzation in meshes in \a this and if it leads to a modification to one or more than one meshes in \a this
  * the fields are automatically renumbered (for those impacted, that is to say here fields on cells and fields on gauss points on impacted fields)
  *
  * \return If true is returned it means that some meshes in \a this has been modified and eventually fields have been renumbered.

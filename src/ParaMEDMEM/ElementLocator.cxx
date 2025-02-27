@@ -38,8 +38,8 @@ using namespace std;
 
 //#define USE_DIRECTED_BB
 
-namespace MEDCoupling 
-{ 
+namespace MEDCoupling
+{
   ElementLocator::ElementLocator(const ParaFIELD& sourceField,
                                  const ProcessorGroup& distant_group,
                                  const ProcessorGroup& local_group)
@@ -48,7 +48,7 @@ namespace MEDCoupling
       _local_face_mesh(sourceField.getSupport()->getFaceMesh()),
       _distant_group(distant_group),
       _local_group(local_group)
-  { 
+  {
     _union_group = _local_group.fuse(distant_group);
     _computeBoundingBoxes();
     _comm=getCommunicator();
@@ -87,7 +87,7 @@ namespace MEDCoupling
 
     if (find(_distant_proc_ids.begin(), _distant_proc_ids.end(),rank)==_distant_proc_ids.end())
       return;
-   
+
     MCAuto<DataArrayIdType> elems;
 #ifdef USE_DIRECTED_BB
     INTERP_KERNEL::DirectedBoundingBox dbb;
@@ -98,12 +98,12 @@ namespace MEDCoupling
     double* distant_bb = _domain_bounding_boxes+rank*2*_local_cell_mesh_space_dim;
     elems=_local_cell_mesh->getCellsInBoundingBox(distant_bb,getBoundingBoxAdjustment());
 #endif
-    
+
     DataArrayIdType *distant_ids_send;
     MEDCouplingPointSet *send_mesh = (MEDCouplingPointSet *)_local_para_field.getField()->buildSubMeshData(elems->begin(),elems->end(),distant_ids_send);
     _exchangeMesh(send_mesh, distant_mesh, idistantrank, distant_ids_send, distant_ids);
     distant_ids_send->decrRef();
-    
+
     if(send_mesh)
       send_mesh->decrRef();
   }
@@ -141,7 +141,7 @@ namespace MEDCoupling
       _local_cell_mesh_space_dim=_local_cell_mesh->getSpaceDimension();
     int *spaceDimForAll=new int[_union_group->size()];
     comm_interface.allGather(&_local_cell_mesh_space_dim, 1, MPI_INT,
-                             spaceDimForAll,1, MPI_INT, 
+                             spaceDimForAll,1, MPI_INT,
                              *comm);
     _local_cell_mesh_space_dim=*std::max_element(spaceDimForAll,spaceDimForAll+_union_group->size());
     _is_m1d_corr=((*std::min_element(spaceDimForAll,spaceDimForAll+_union_group->size()))==-1);
@@ -175,9 +175,9 @@ namespace MEDCoupling
 #endif
 
     comm_interface.allGather(minmax, bbSize, MPI_DOUBLE,
-                             _domain_bounding_boxes,bbSize, MPI_DOUBLE, 
+                             _domain_bounding_boxes,bbSize, MPI_DOUBLE,
                              *comm);
-  
+
     for (int i=0; i< _distant_group.size(); i++)
       {
         int rank=_union_group->translateRank(&_distant_group,i);
@@ -214,11 +214,11 @@ namespace MEDCoupling
       {
         bool intersects = (distant_bb[idim*2]<local_bb[idim*2+1]+eps)
           && (local_bb[idim*2]<distant_bb[idim*2+1]+eps);
-        if (!intersects) return false; 
+        if (!intersects) return false;
       }
     return true;
 #endif
-  } 
+  }
 
 
   /*!
@@ -231,7 +231,7 @@ namespace MEDCoupling
                                       mcIdType*& distant_ids_recv)
   {
     CommInterface comm_interface=_union_group->getCommInterface();
-  
+
     // First stage : exchanging sizes
     // ------------------------------
     vector<double> tinyInfoLocalD,tinyInfoDistantD(1);//not used for the moment
@@ -245,13 +245,13 @@ namespace MEDCoupling
     std::fill(tinyInfoDistant.begin(),tinyInfoDistant.end(),0);
     MPIProcessorGroup* group=static_cast<MPIProcessorGroup*> (_union_group);
     const MPI_Comm* comm=group->getComm();
-    MPI_Status status; 
-    
+    MPI_Status status;
+
     // iproc_distant is the number of proc in distant group
     // it must be converted to union numbering before communication
     int iprocdistant_in_union = group->translateRank(&_distant_group,
                                                      iproc_distant);
-    
+
     comm_interface.sendRecv(&tinyInfoLocal[0], (int)tinyInfoLocal.size(), MPI_ID_TYPE, iprocdistant_in_union, 1112,
                             &tinyInfoDistant[0], (int)tinyInfoDistant.size(), MPI_ID_TYPE,iprocdistant_in_union,1112,
                             *comm, &status);
@@ -301,7 +301,7 @@ namespace MEDCoupling
     comm_interface.sendRecv(ptLocal2, (int)nbLocalElems, MPI_DOUBLE,
                             iprocdistant_in_union, 1112,
                             ptDist2, (int)nbDistElem, MPI_DOUBLE,
-                            iprocdistant_in_union, 1112, 
+                            iprocdistant_in_union, 1112,
                             *comm, &status);
     //
     distant_mesh=distant_mesh_tmp;
@@ -323,7 +323,7 @@ namespace MEDCoupling
     if(v2Distant)
       v2Distant->decrRef();
   }
-  
+
   /*!
    * connected with ElementLocator::sendPolicyToWorkingSideL
    */
@@ -407,7 +407,7 @@ namespace MEDCoupling
         comm.recv(&global[0],(int)vec.size(),MPI_ID_TYPE,*iter,1123,*_comm,&status);
       }
   }
-  
+
   /*!
    * connected with ElementLocator::sendCandidatesGlobalIdsToWorkingSideL
    */
@@ -426,7 +426,7 @@ namespace MEDCoupling
         comm.recv(&global[0],lgth,MPI_ID_TYPE,*iter,1133,*_comm,&status);
       }
   }
-  
+
   /*!
    * connected with ElementLocator::recvSumFromWorkingSideL
    */
@@ -457,7 +457,7 @@ namespace MEDCoupling
         comm.send(const_cast<void *>(reinterpret_cast<const void *>(&distantGlobIds[0])),lgth,MPI_ID_TYPE,*iter,1129,*_comm);
       }
   }
-  
+
   /*!
    * connected with ElementLocator::sendAddElementsToWorkingSideL
    */
@@ -691,7 +691,7 @@ namespace MEDCoupling
    * connected with ElementLocator::recvCandidatesGlobalIdsFromLazyProcsW
    */
   void ElementLocator::sendCandidatesGlobalIdsToWorkingSideL()
-  { 
+  {
     int procId=0;
     CommInterface comm;
     DataArrayIdType *globalIds=_local_para_field.returnGlobalNumbering();

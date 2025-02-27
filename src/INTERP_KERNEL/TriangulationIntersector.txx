@@ -38,7 +38,7 @@
 namespace INTERP_KERNEL
 {
   TRI_INTER_TEMPLATE
-  TRI_INTERSECTOR::TriangulationIntersector(const MyMeshType& meshT, const MyMeshType& meshS, 
+  TRI_INTERSECTOR::TriangulationIntersector(const MyMeshType& meshT, const MyMeshType& meshS,
                                             double DimCaracteristic, double Precision, double md3DSurf, double minDot3DSurf,
                                             double MedianPlane, int orientation, int PrintLevel)
     :InterpType<MyMeshType,MyMatrix,TRI_INTERSECTOR >(meshT,meshS,DimCaracteristic, Precision, md3DSurf, minDot3DSurf,
@@ -50,14 +50,14 @@ namespace INTERP_KERNEL
         if(SPACEDIM==3) std::cout << "_do_rotate = true"<< std::endl;
       }
   }
-  
+
   TRI_INTER_TEMPLATE
   double TRI_INTERSECTOR::intersectGeometry(ConnType icellT,   ConnType icellS,
                                             ConnType nbNodesT, ConnType nbNodesS)
   {
     double result = 0.;
     int orientation = 1;
-                    
+
     //Obtain the coordinates of T and S
     std::vector<double> CoordsT;
     std::vector<double> CoordsS;
@@ -89,11 +89,11 @@ namespace INTERP_KERNEL
               }
           }
       }
-    
-    //DEBUG PRINTS    
-    if(PlanarIntersector<MyMeshType,MyMatrix>::_print_level >= 3) 
+
+    //DEBUG PRINTS
+    if(PlanarIntersector<MyMeshType,MyMatrix>::_print_level >= 3)
       std::cout << std::endl <<"Intersection area = " << result << std::endl;
-    
+
     return orientation*result;
   }
 
@@ -131,11 +131,11 @@ namespace INTERP_KERNEL
               }
           }
       }
-    
-    //DEBUG PRINTS    
-    if(PlanarIntersector<MyMeshType,MyMatrix>::_print_level >= 3) 
+
+    //DEBUG PRINTS
+    if(PlanarIntersector<MyMeshType,MyMatrix>::_print_level >= 3)
       std::cout << std::endl <<"Intersection area = " << result << std::endl;
-    
+
     return result;
   }
 

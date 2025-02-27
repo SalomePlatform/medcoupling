@@ -188,7 +188,7 @@ void MEDCoupling::MEDFileWritableStandAlone::write(const std::string& fileName, 
 {
   med_access_mode medmod(MEDFileUtilities::TraduceWriteMode(mode));
   MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),medmod));
-  std::ostringstream oss; oss << "MEDFileWritableStandAlone : error on attempt to write in file : \"" << fileName << "\""; 
+  std::ostringstream oss; oss << "MEDFileWritableStandAlone : error on attempt to write in file : \"" << fileName << "\"";
   MEDFileUtilities::CheckMEDCode((int)fid,fid,oss.str());
   writeLL(fid);
 }

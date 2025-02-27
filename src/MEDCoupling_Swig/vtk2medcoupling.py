@@ -51,7 +51,7 @@ def mesh_convertor_mem( ug, dimRequested = -1):
     Main entry
     """
     from distutils.version import LooseVersion
-    
+
     vtkVersion = vtk.vtkVersion().GetVTKVersion()
     getLogger().debug( f"VTK version : {vtkVersion}" )
     if LooseVersion(vtkVersion) <= LooseVersion("9.3.0"):
@@ -89,7 +89,7 @@ def generate_polyhedrons_mesh_from_VTK_UnstructuredGrid_94( ug ):
     faces = ug.GetPolyhedronFaces()
     faces_o = mc.DataArrayInt( numpy_support.vtk_to_numpy( faces.GetOffsetsArray() ) )
     faces_c = mc.DataArrayInt( numpy_support.vtk_to_numpy( faces.GetConnectivityArray() ) )
-    
+
     nbFacesPerCell = facesLoc_o.deltaShiftIndex()
     polyhedronsCellIds = nbFacesPerCell.findIdsNotEqual( 0 )
 

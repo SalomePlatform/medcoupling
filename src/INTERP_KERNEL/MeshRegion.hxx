@@ -37,7 +37,7 @@ namespace INTERP_KERNEL
   class MeshRegion
   {
   public:
-    
+
     MeshRegion();
 
     ~MeshRegion();
@@ -62,7 +62,7 @@ namespace INTERP_KERNEL
      * @return  constant iterator pointing at the end of the vector or elements
      */
     typename std::vector< MeshElement<ConnType>* >::const_iterator getEndElements() const { return _elements.end(); }
-    
+
     /**
      * Gives information on how many elements are contained in the region.
      *
@@ -78,14 +78,14 @@ namespace INTERP_KERNEL
     /// disallow assignment
     MeshRegion<ConnType>& operator=(const MeshRegion<ConnType>& m);
 
-    /// Vector of pointers to contained MeshElements. 
+    /// Vector of pointers to contained MeshElements.
     /// NB : these pointers are not owned by the region object, and are thus
     /// neither allocated or liberated in this class. The elements must therefore be allocated and liberated outside the class.
     std::vector< MeshElement<ConnType>* > _elements;
 
     /// BoundingBox containing all the nodes of all the elements in the region.
     BoundingBox* _box;
-  
+
   };
 
 }

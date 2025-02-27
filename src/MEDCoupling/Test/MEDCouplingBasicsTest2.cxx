@@ -294,7 +294,7 @@ void MEDCouplingBasicsTest2::testCellOrientation3()
 }
 
 /*!
- * This test check polyhedron true barycenter computation. 
+ * This test check polyhedron true barycenter computation.
  */
 void MEDCouplingBasicsTest2::testPolyhedronBarycenter()
 {
@@ -534,7 +534,7 @@ void MEDCouplingBasicsTest2::testAreaBary2D()
 }
 
 /*!
- * This test check polyhedron true barycenter computation 2. 
+ * This test check polyhedron true barycenter computation 2.
  */
 void MEDCouplingBasicsTest2::testAreaBary3D()
 {
@@ -1365,7 +1365,7 @@ void MEDCouplingBasicsTest2::testBuildSubPart1()
   array=DataArrayDouble::New();
   array->alloc(mesh1->getNumberOfNodes(),2);
   const double arr2[18]={3.,103.,4.,104.,5.,105.,6.,106.,7.,107.,8.,108.,9.,109.,10.,110.,11.,111.};
-  std::copy(arr2,arr2+18,array->getPointer());  
+  std::copy(arr2,arr2+18,array->getPointer());
   f1->setArray(array);
   array->decrRef();
   const mcIdType part2[2]={1,2};
@@ -1387,7 +1387,7 @@ void MEDCouplingBasicsTest2::testBuildSubPart1()
   CPPUNIT_ASSERT(std::equal(expected3+4,expected3+8,m2C->getNodalConnectivity()->getConstPointer()));
   CPPUNIT_ASSERT(std::equal(expected4,expected4+3,m2C->getNodalConnectivityIndex()->getConstPointer()));
   f2->decrRef();
-  //idem previous because nodes of cell#4 are not fully present in part3 
+  //idem previous because nodes of cell#4 are not fully present in part3
   const mcIdType part3[2]={1,2};
   DataArrayIdType *arrr=DataArrayIdType::New();
   arrr->alloc(2,1);
@@ -2217,7 +2217,7 @@ void MEDCouplingBasicsTest2::testAreaBary3D2()
   };
   const double volPenta6=944849.868507338;
   const double baryPenta6[3]={39.631002313543,182.692711783428,106.98540473964};
-  
+
   const double coordsForPyra5[15]={
     132.680430393685,255.37973247196,96.15235602819,
     -27.273893776752,167.567731083961,192.830034145464,

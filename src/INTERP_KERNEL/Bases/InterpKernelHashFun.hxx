@@ -79,13 +79,13 @@ namespace INTERP_KERNEL
 
   template<>
   struct hash<char>
-  { 
+  {
     std::size_t operator()(char __x) const { return __x; }
   };
 
   template<>
   struct hash<unsigned char>
-  { 
+  {
     std::size_t operator()(unsigned char __x) const { return __x; }
   };
 
@@ -109,13 +109,13 @@ namespace INTERP_KERNEL
 
   template<>
   struct hash<int>
-  { 
+  {
     std::size_t operator()(int __x) const { return __x; }
   };
 
   template<>
   struct hash<unsigned int>
-  { 
+  {
     std::size_t operator()(unsigned int __x) const { return __x; }
   };
 

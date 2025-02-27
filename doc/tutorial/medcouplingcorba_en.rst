@@ -2,9 +2,9 @@
 Visualize a MEDCoupling instance in ParaViS through CORBA
 ---------------------------------------------------------
 
-ParaViS can be used to directly visualize a mesh or a field stored in memory in a Python 
+ParaViS can be used to directly visualize a mesh or a field stored in memory in a Python
 process. For information, this technique will become the preferred choice for the MED
-Calculator in a future Salome release. 
+Calculator in a future Salome release.
 The following use cases can also be mentioned:
 
 * YACS, to create visualization nodes
@@ -19,7 +19,7 @@ Import the whole Python module MEDCouplingCorba. ::
 	from MEDCouplingCorba import *
 
 
-Create a 2D MEDCouplingUMesh instance 
+Create a 2D MEDCouplingUMesh instance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Create a trivial unstructured  mesh "m" which will be sent through CORBA to ParaViS.
@@ -41,14 +41,14 @@ Invoke MEDCouplingUMeshServant._this() on "m" to turn it into a CORBA reference 
 
 	ref_m=MEDCouplingUMeshServant._this(m)
 
-.. note:: This command doesn't only create a CORBA servant but also makes the current 
+.. note:: This command doesn't only create a CORBA servant but also makes the current
 	Python process a full CORBA server.
 
 Read the identifiers that are passed to ParaViS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 What follows holds for any omniORBpy code. Display the IOR "ior" of "ref_m".
-This character string is given to the ParaViS  plugin (ParaMEDCorbaPlugin) to create 
+This character string is given to the ParaViS  plugin (ParaMEDCorbaPlugin) to create
 a new ParaViS source.
 ::
 

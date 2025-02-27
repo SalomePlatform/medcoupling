@@ -58,7 +58,7 @@ using namespace MEDCoupling;
 
 void ParaMEDMEMTest::testStructuredCoincidentDEC() {
   string testname="ParaMEDMEM - testStructured CoincidentDEC";
-  //  MPI_Init(&argc, &argv); 
+  //  MPI_Init(&argc, &argv);
   int size;
   int rank;
   MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -99,7 +99,7 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
     meshname<< "Mesh_2_"<< rank+1;
 
     mesh=ReadUMeshFromFile(strstream.str().c_str(),meshname.str().c_str(),0);
-    
+
 
     paramesh=new ParaMESH (mesh,source_group,"source mesh");
 
@@ -108,7 +108,7 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
 
     int nb_local=mesh->getNumberOfCells();
     const mcIdType* global_numbering = paramesh->getGlobalNumberingCell();
-    
+
     double *value=parafield->getField()->getArray()->getPointer();
     for(int ielem=0; ielem<nb_local;ielem++)
       for (int icomp=0; icomp<6; icomp++)
@@ -127,7 +127,7 @@ void ParaMEDMEMTest::testStructuredCoincidentDEC() {
 
     string meshname2("Mesh_2");
     mesh = ReadUMeshFromFile(filename_2.c_str(),meshname2.c_str(),0);
-    
+
     paramesh=new ParaMESH (mesh,self_group,"target mesh");
     MEDCoupling::ComponentTopology comptopo(6, &target_group);
 

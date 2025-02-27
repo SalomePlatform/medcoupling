@@ -287,7 +287,7 @@ std::list< IntersectElement > ArcCArcCIntersector::getIntersectionsCharacteristi
   double angleE2=NormalizeAngle(getE2().getAngle0()+getE2().getAngle());
   if(!(Node::areDoubleEquals(d1_1,radius1) || Node::areDoubleEquals(d1_1,-radius1)) )
   {
-  //2 intersections   
+  //2 intersections
   double deltaAngle1=EdgeArcCircle::SafeAcos(fabs(d1_1)/radius1); //owns to 0;Pi/2 by construction
   double deltaAngle2=EdgeArcCircle::SafeAcos(fabs(d1_2)/radius2); //owns to 0;Pi/2 by construction
   double angle1_1=NormalizeAngle(angle0_1+deltaAngle1);// Intersection 1 seen for _e1
@@ -606,7 +606,7 @@ double EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(double ux, double uy)
   return atan2(uy, ux);
 }
 
-void EdgeArcCircle::GetArcOfCirclePassingThru(const double *start, const double *middle, const double *end, 
+void EdgeArcCircle::GetArcOfCirclePassingThru(const double *start, const double *middle, const double *end,
                                               double *center, double& radius, double& angleInRad, double& angleInRad0)
 {
   double delta=(middle[0]-start[0])*(end[1]-middle[1])-(end[0]-middle[0])*(middle[1]-start[1]);
@@ -839,7 +839,7 @@ bool EdgeArcCircle::isNodeLyingOn(const double *coordOfNode) const
 }
 
 /*!
- * Idem IsAngleNotIn except that here 'start' in ]-Pi;Pi[ and delta in ]-2*Pi;2Pi[. 
+ * Idem IsAngleNotIn except that here 'start' in ]-Pi;Pi[ and delta in ]-2*Pi;2Pi[.
  * @param angleIn in ]-Pi;Pi[.
  */
 bool EdgeArcCircle::IsIn2Pi(double start, double delta, double angleIn)

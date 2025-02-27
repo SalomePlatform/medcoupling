@@ -6,8 +6,8 @@ L'API avancée de MEDLoader est représentée par les classes ``MEDFile*`` de la
 
 * Au plus haut niveau, pour l'ensemble du fichier: ``MEDFileData``,
 * Pour l'ensemble des maillages du fichier : ``MEDFileMeshes``,
-* Pour chacun des maillages : ``MEDFileMeshMultiTS``, ``MEDFileMesh``, ``MEDFileUMesh``, ``MEDFileCMesh``,  
-* Pour l'ensemble des champs du fichier : ``MEDFileFields``, ``MEDFileFieldGlobs``, 
+* Pour chacun des maillages : ``MEDFileMeshMultiTS``, ``MEDFileMesh``, ``MEDFileUMesh``, ``MEDFileCMesh``,
+* Pour l'ensemble des champs du fichier : ``MEDFileFields``, ``MEDFileFieldGlobs``,
 * Et enfin pour chacun des champs : ``MEDFileField1TS``, ``MEDFileFieldMultiTS``
 
 
@@ -18,13 +18,13 @@ Ecrire un maillage et un champ à partir de rien, les relire et comparer les ré
 
 Points abordés : en utilisant l'API avancée de MEDLoader,
 
-* Ecrire un fichier 
+* Ecrire un fichier
 * Lire un fichier
 
 Début d'implémentation
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Cet exercice repose comme tous les autres sur le language de script Python. On charge 
+Cet exercice repose comme tous les autres sur le language de script Python. On charge
 le module Python ``medcoupling``.::
 
     import medcoupling as mc
@@ -45,13 +45,13 @@ Nous créons tout d'abord le même maillage ``targetMesh`` que pour l'API simple
 	targetMesh.insertNextCell(mc.NORM_QUAD4,4,targetConn[14:18])
 	myCoords = mc.DataArrayDouble(targetCoords,9,2)
 	myCoords.setInfoOnComponents(["X [km]","YY [mm]"])
-	targetMesh.setCoords(myCoords)        
+	targetMesh.setCoords(myCoords)
 
 .. note:: Le maillage ``targetMesh`` est ordonné par type géométrique.
 
 Nous construisons ensuite ``targetMesh1`` représentant les sous-constituants (*faces*) du maillage
-``targetMesh``, et nous en extrayons seulement les cellules (donc ici des surfaces) [3,4,7,8]. 
-Pour plus de détails sur la connectivité descendante, 
+``targetMesh``, et nous en extrayons seulement les cellules (donc ici des surfaces) [3,4,7,8].
+Pour plus de détails sur la connectivité descendante,
 consulter la section :ref:`exo-umesh-desc-connec` du deuxième exercise.
 Cet ensemble peut par exemple représenter un ensemble d'intérêt pour un calcul : ::
 
@@ -59,10 +59,10 @@ Cet ensemble peut par exemple représenter un ensemble d'intérêt pour un calcu
 	targetMesh1 = targetMeshConsti[[3,4,7,8]]
 	targetMesh1.setName(targetMesh.getName())
 
-.. note:: En Python, le underscore ``_`` signifie que l'on attend une valeur de retour, mais qu'on n'en aura pas l'usage 
+.. note:: En Python, le underscore ``_`` signifie que l'on attend une valeur de retour, mais qu'on n'en aura pas l'usage
 	(on ne la *bind* pas).
-.. note:: ``targetMesh1`` sera sauvé comme étant une partie du même maillage global dans le fichier MED. 
-	Il doit donc avoir le même nom. C'est là qu'on voit qu'un maillage au sens MED fichier peut mélanger les dimensions. 
+.. note:: ``targetMesh1`` sera sauvé comme étant une partie du même maillage global dans le fichier MED.
+	Il doit donc avoir le même nom. C'est là qu'on voit qu'un maillage au sens MED fichier peut mélanger les dimensions.
 
 On peut alors écrire les deux maillages dans le fichier "TargetMesh2.med". ::
 
@@ -75,19 +75,19 @@ Lecture, écriture de groupes de mailles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Créons deux groupes de cellules sur le maillage 2D, c'est à dire au niveau relatif 0 (ici, le niveau relatif 0 correspond
-à la 2D, le niveau -1 
-correspond à la 1D,  etc ...). Le premier groupe ``grp0_Lev0`` contient les cellules [0,1,3] 
+à la 2D, le niveau -1
+correspond à la 1D,  etc ...). Le premier groupe ``grp0_Lev0`` contient les cellules [0,1,3]
 le second ``grp1_Lev0`` les cellules [1,2,3,4] : ::
 
-	grp0_0 = mc.DataArrayInt([0,1,3]) 
+	grp0_0 = mc.DataArrayInt([0,1,3])
 	grp0_0.setName("grp0_Lev0")
 	grp1_0 = mc.DataArrayInt([1,2,3,4])
 	grp1_0.setName("grp1_Lev0")
 	meshMEDFile.setGroupsAtLevel(0, [grp0_0,grp1_0])
 
-.. note:: On voit évidemment ici l'importance de nommer les tableaux : c'est le nom qui sera utilisé pour le groupe. 
+.. note:: On voit évidemment ici l'importance de nommer les tableaux : c'est le nom qui sera utilisé pour le groupe.
 
-Créons trois groupes de niveau -1, c'est à dire des groupes de faces. Le premier appelé 
+Créons trois groupes de niveau -1, c'est à dire des groupes de faces. Le premier appelé
 ``grp0_LevM1`` aux cellules [0,1], le second appelé ``grp1_LevM1`` aux cellules [0,1,2], et le 3ème ``grp2_LevM1``
 aux cellules [1,2,3] : ::
 
@@ -131,7 +131,7 @@ Créons un champ de vecteurs simple, aux cellules (P0), avec un seul pas de temp
 	f.setMesh(targetMesh)
 	f.setName("AFieldName")
 
-Stocker ``f`` dans un object ``MEDFileField1TS`` (un champ avec un seul pas de temps -- *one time-step, 1TS*) 
+Stocker ``f`` dans un object ``MEDFileField1TS`` (un champ avec un seul pas de temps -- *one time-step, 1TS*)
 pour préparer l'écriture MED ::
 
 	fMEDFile = mc.MEDFileField1TS()
@@ -162,7 +162,7 @@ Le mode de fonctionnement avec les profils reste donc peu courant.
 
 Construisons une réduction aux cellules [1,2,3] de ``f`` et appelons la ``fPart`` : ::
 
-	pfl = mc.DataArrayInt([1,2,3]) 
+	pfl = mc.DataArrayInt([1,2,3])
 	pfl.setName("My1stPfl")
 	fPart = f.buildSubPart(pfl)
 	fPart.setName("fPart")

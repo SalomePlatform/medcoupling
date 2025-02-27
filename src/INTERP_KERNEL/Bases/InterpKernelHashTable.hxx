@@ -66,7 +66,7 @@ namespace INTERP_KERNEL
     _Val _M_val;
   };
 
-  template<class _Val, class _Key, class _HashFcn, class _ExtractKey, 
+  template<class _Val, class _Key, class _HashFcn, class _ExtractKey,
            class _EqualKey, class _Alloc = std::allocator<_Val> >
   class hashtable;
 
@@ -97,7 +97,7 @@ namespace INTERP_KERNEL
     typedef std::size_t size_type;
     typedef _Val& reference;
     typedef _Val* pointer;
-      
+
     _Node* _M_cur;
     _Hashtable* _M_ht;
 
@@ -149,7 +149,7 @@ namespace INTERP_KERNEL
     typedef std::size_t size_type;
     typedef const _Val& reference;
     typedef const _Val* pointer;
-      
+
     const _Node* _M_cur;
     const _Hashtable* _M_ht;
 
@@ -196,7 +196,7 @@ namespace INTERP_KERNEL
     return pos == __last ? *(__last - 1) : *pos;
   }
 
-  // Forward declaration of operator==.  
+  // Forward declaration of operator==.
   template<class _Val, class _Key, class _HF, class _Ex,
            class _Eq, class _All>
   class hashtable;
@@ -213,7 +213,7 @@ namespace INTERP_KERNEL
   // allocator type are identical.  This is because, for hashtables,
   // this extra storage is negligible.  Additionally, a base class
   // wouldn't serve any other purposes; it wouldn't, for example,
-  // simplify the exception-handling code.  
+  // simplify the exception-handling code.
   template<class _Val, class _Key, class _HashFcn,
            class _ExtractKey, class _EqualKey, class _Alloc>
   class hashtable
@@ -259,7 +259,7 @@ namespace INTERP_KERNEL
     _ExtractKey           _M_get_key;
     _Vector_type          _M_buckets;
     size_type             _M_num_elements;
-      
+
   public:
     typedef _Hashtable_iterator<_Val, _Key, _HashFcn, _ExtractKey,
                                 _EqualKey, _Alloc>
@@ -318,7 +318,7 @@ namespace INTERP_KERNEL
 
     bool empty() const { return size() == 0; }
 
-    void swap(hashtable& __ht) 
+    void swap(hashtable& __ht)
     {
       std::swap(_M_hash, __ht._M_hash);
       std::swap(_M_equals, __ht._M_equals);
@@ -337,7 +337,7 @@ namespace INTERP_KERNEL
 
     iterator end() { return iterator(0, this); }
 
-    const_iterator begin() const 
+    const_iterator begin() const
     {
       for (size_type __n = 0; __n < _M_buckets.size(); ++__n)
         if (_M_buckets[__n])
@@ -350,13 +350,13 @@ namespace INTERP_KERNEL
     template<class _Vl, class _Ky, class _HF, class _Ex, class _Eq, class _Al>
     friend bool operator==(const hashtable<_Vl, _Ky, _HF, _Ex, _Eq, _Al>&,
                            const hashtable<_Vl, _Ky, _HF, _Ex, _Eq, _Al>&);
-    
+
   public:
     size_type bucket_count() const { return _M_buckets.size(); }
 
     size_type max_bucket_count() const { return __stl_prime_list[(int)_S_num_primes - 1]; }
 
-    size_type elems_in_bucket(size_type __bucket) const 
+    size_type elems_in_bucket(size_type __bucket) const
     {
       size_type __result = 0;
       for (_Node* __n = _M_buckets[__bucket]; __n; __n = __n->_M_next)
@@ -403,7 +403,7 @@ namespace INTERP_KERNEL
       for ( ; __f != __l; ++__f)
         insert_equal(*__f);
     }
-    
+
     template<class _ForwardIterator>
     void insert_unique(_ForwardIterator __f, _ForwardIterator __l,
                        std::forward_iterator_tag)
@@ -465,7 +465,7 @@ namespace INTERP_KERNEL
     std::pair<const_iterator, const_iterator> equal_range(const key_type& __key) const;
 
     size_type erase(const key_type& __key);
-      
+
     void erase(const iterator& __it);
 
     void erase(iterator __first, iterator __last);
@@ -491,13 +491,13 @@ namespace INTERP_KERNEL
 
     size_type _M_bkt_num_key(const key_type& __key) const
     { return _M_bkt_num_key(__key, _M_buckets.size()); }
-    
+
     size_type _M_bkt_num(const value_type& __obj) const
     { return _M_bkt_num_key(_M_get_key(__obj)); }
-    
+
     size_type _M_bkt_num_key(const key_type& __key, std::size_t __n) const
     { return _M_hash(__key) % __n; }
-    
+
     size_type _M_bkt_num(const value_type& __obj, std::size_t __n) const
     { return _M_bkt_num_key(_M_get_key(__obj), __n); }
 
@@ -522,7 +522,7 @@ namespace INTERP_KERNEL
       this->get_allocator().destroy(&__n->_M_val);
       _M_put_node(__n);
     }
-      
+
     void _M_erase_bucket(const size_type __n, _Node* __first, _Node* __last);
 
     void _M_erase_bucket(const size_type __n, _Node* __last);
@@ -588,10 +588,10 @@ namespace INTERP_KERNEL
                   const hashtable<_Val, _Key, _HF, _Ex, _Eq, _All>& __ht2)
   {
     typedef typename hashtable<_Val, _Key, _HF, _Ex, _Eq, _All>::_Node _Node;
-    
+
     if (__ht1._M_buckets.size() != __ht2._M_buckets.size())
       return false;
-    
+
     for (std::size_t __n = 0; __n < __ht1._M_buckets.size(); ++__n)
       {
         _Node* __cur1 = __ht1._M_buckets[__n];
@@ -599,7 +599,7 @@ namespace INTERP_KERNEL
         // Check same length of lists
         for (; __cur1 && __cur2;
              __cur1 = __cur1->_M_next, __cur2 = __cur2->_M_next)
-          { } 
+          { }
         if (__cur1 || __cur2)
           return false;
         // Now check one's elements are in the other
@@ -640,11 +640,11 @@ namespace INTERP_KERNEL
   {
     const size_type __n = _M_bkt_num(__obj);
     _Node* __first = _M_buckets[__n];
-      
+
     for (_Node* __cur = __first; __cur; __cur = __cur->_M_next)
       if (_M_equals(_M_get_key(__cur->_M_val), _M_get_key(__obj)))
         return std::pair<iterator, bool>(iterator(__cur, this), false);
-      
+
     _Node* __tmp = _M_new_node(__obj);
     __tmp->_M_next = __first;
     _M_buckets[__n] = __tmp;
@@ -659,7 +659,7 @@ namespace INTERP_KERNEL
   {
     const size_type __n = _M_bkt_num(__obj);
     _Node* __first = _M_buckets[__n];
-      
+
     for (_Node* __cur = __first; __cur; __cur = __cur->_M_next)
       if (_M_equals(_M_get_key(__cur->_M_val), _M_get_key(__obj)))
         {
@@ -686,11 +686,11 @@ namespace INTERP_KERNEL
 
     size_type __n = _M_bkt_num(__obj);
     _Node* __first = _M_buckets[__n];
-      
+
     for (_Node* __cur = __first; __cur; __cur = __cur->_M_next)
       if (_M_equals(_M_get_key(__cur->_M_val), _M_get_key(__obj)))
         return __cur->_M_val;
-      
+
     _Node* __tmp = _M_new_node(__obj);
     __tmp->_M_next = __first;
     _M_buckets[__n] = __tmp;
@@ -705,7 +705,7 @@ namespace INTERP_KERNEL
   {
     typedef std::pair<iterator, iterator> _Pii;
     const size_type __n = _M_bkt_num_key(__key);
-    
+
     for (_Node* __first = _M_buckets[__n]; __first;
          __first = __first->_M_next)
       if (_M_equals(_M_get_key(__first->_M_val), __key))
@@ -722,7 +722,7 @@ namespace INTERP_KERNEL
         }
     return _Pii(end(), end());
   }
-  
+
   template<class _Val, class _Key, class _HF, class _Ex, class _Eq, class _All>
   std::pair<typename hashtable<_Val, _Key, _HF, _Ex, _Eq, _All>::const_iterator,
             typename hashtable<_Val, _Key, _HF, _Ex, _Eq, _All>::const_iterator>
@@ -730,7 +730,7 @@ namespace INTERP_KERNEL
   {
     typedef std::pair<const_iterator, const_iterator> _Pii;
     const size_type __n = _M_bkt_num_key(__key);
-    
+
     for (const _Node* __first = _M_buckets[__n]; __first;
          __first = __first->_M_next)
       {
@@ -750,7 +750,7 @@ namespace INTERP_KERNEL
       }
     return _Pii(end(), end());
   }
-  
+
   template<class _Val, class _Key, class _HF, class _Ex, class _Eq, class _All>
   typename hashtable<_Val, _Key, _HF, _Ex, _Eq, _All>::size_type
   hashtable<_Val, _Key, _HF, _Ex, _Eq, _All>::erase(const key_type& __key)
@@ -758,7 +758,7 @@ namespace INTERP_KERNEL
     const size_type __n = _M_bkt_num_key(__key);
     _Node* __first = _M_buckets[__n];
     size_type __erased = 0;
-    
+
     if (__first)
       {
         _Node* __cur = __first;
@@ -789,7 +789,7 @@ namespace INTERP_KERNEL
       }
     return __erased;
   }
-  
+
   template<class _Val, class _Key, class _HF, class _Ex, class _Eq, class _All>
   void hashtable<_Val, _Key, _HF, _Ex, _Eq, _All>::erase(const iterator& __it)
   {
@@ -797,7 +797,7 @@ namespace INTERP_KERNEL
     if (__p)
       {
         const size_type __n = _M_bkt_num(__p->_M_val);
-        _Node* __cur = _M_buckets[__n]; 
+        _Node* __cur = _M_buckets[__n];
         if (__cur == __p)
           {
             _M_buckets[__n] = __cur->_M_next;
@@ -830,9 +830,9 @@ namespace INTERP_KERNEL
   void hashtable<_Val, _Key, _HF, _Ex, _Eq, _All>::erase(iterator __first, iterator __last)
   {
     size_type __f_bucket = __first._M_cur ? _M_bkt_num(__first._M_cur->_M_val) : _M_buckets.size();
-    
+
     size_type __l_bucket = __last._M_cur ? _M_bkt_num(__last._M_cur->_M_val) : _M_buckets.size();
-    
+
     if (__first._M_cur == __last._M_cur)
       return;
     else if (__f_bucket == __l_bucket)
@@ -846,7 +846,7 @@ namespace INTERP_KERNEL
           _M_erase_bucket(__l_bucket, __last._M_cur);
       }
   }
-  
+
   template<class _Val, class _Key, class _HF, class _Ex, class _Eq, class _All>
   inline void
   hashtable<_Val, _Key, _HF, _Ex, _Eq, _All>::
@@ -857,11 +857,11 @@ namespace INTERP_KERNEL
           iterator(const_cast<_Node*>(__last._M_cur),
                    const_cast<hashtable*>(__last._M_ht)));
   }
-  
+
   template<class _Val, class _Key, class _HF, class _Ex, class _Eq, class _All>
   inline void hashtable<_Val, _Key, _HF, _Ex, _Eq, _All>::erase(const const_iterator& __it)
   { erase(iterator(const_cast<_Node*>(__it._M_cur), const_cast<hashtable*>(__it._M_ht))); }
-  
+
   template<class _Val, class _Key, class _HF, class _Ex, class _Eq, class _All>
   void hashtable<_Val, _Key, _HF, _Ex, _Eq, _All>::resize(size_type __num_elements_hint)
   {
@@ -927,7 +927,7 @@ namespace INTERP_KERNEL
           }
       }
   }
-  
+
   template<class _Val, class _Key, class _HF, class _Ex, class _Eq, class _All>
   void hashtable<_Val, _Key, _HF, _Ex, _Eq, _All>::_M_erase_bucket(const size_type __n, _Node* __last)
   {

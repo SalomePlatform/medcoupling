@@ -51,7 +51,7 @@ void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Pa
 {
   if (MyGlobals::_Verbose>10)
     std::cout << "proc " << MyGlobals::_Rank << " : PTSCOTCHGraph::partGraph" << std::endl;
-  
+
   //number of graph vertices
   int n = FromIdType<int>(_graph->getNumberOf());
   //graph
@@ -84,7 +84,7 @@ void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Pa
   mcIdType *cellWeightPtr(_cell_weight);
   mcIdType *edgeWeightPtr(_edge_weight);
 #endif
-  
+
   mcIdType *vlbloctab = _vlbloctab?const_cast<mcIdType*>(_vlbloctab->begin()):nullptr;
 
   SCOTCH_randomReset();
@@ -103,10 +103,10 @@ void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Pa
                      adjncy,        // edgeloctab[edgelocnbr], global indexes of edges
                      0,             // edgegsttab            , optional, should be computed internally, set to zero
                      edgeWeightPtr); // edloloctab            , graph edges loads, set to zero
-  
+
   SCOTCH_Strat scotch_strategy;
   SCOTCH_stratInit(&scotch_strategy);
-  
+
   //!user-defined options for the strategy
   if (options_string!="")
     SCOTCH_stratGraphMap(&scotch_strategy,options_string.c_str());
@@ -121,7 +121,7 @@ void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Pa
     for (int i=0; i<n+1; i++)
       partition[i]=0;
     }
-  
+
   SCOTCH_stratExit(&scotch_strategy);
   SCOTCH_dgraphExit(&scotch_graph);
 
@@ -133,9 +133,9 @@ void PTSCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Pa
       index[i+1]=index[i]+1;
       value[i]=ToIdType(partition[i]);
     }
-  
+
   //creating a skylinearray with no copy of the index and partition array
-  //the fifth argument true specifies that only the pointers are passed 
+  //the fifth argument true specifies that only the pointers are passed
   //to the object
   _partition = MEDCoupling::MEDCouplingSkyLineArray::New(index,value);
 #endif

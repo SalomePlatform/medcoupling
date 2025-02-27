@@ -36,7 +36,7 @@ except ImportError:
 class IterativeFieldMoments:
     """
     Compute statistics over fields.
-    
+
     Parameters
     ----------
     enable_mean : bool, optional
@@ -176,7 +176,7 @@ class IterativeFieldMoments:
 class IterativeFieldSobol:
     """
     Iterative Sobol indices.
-    
+
     Parameters
     ----------
     nb_params : int

@@ -30,17 +30,17 @@ using namespace std;
 
 namespace MEDCoupling
 {
-  
-  ParaGRID::ParaGRID(MEDCouplingCMesh* global_grid, Topology* topology) : 
+
+  ParaGRID::ParaGRID(MEDCouplingCMesh* global_grid, Topology* topology) :
     _global_axis()
   {
     _block_topology = dynamic_cast<BlockTopology*>(topology);
     if(_block_topology==0)
       throw INTERP_KERNEL::Exception(LOCALIZED("ParaGRID::ParaGRID topology must be block topology"));
-    
+
     if (!_block_topology->getProcGroup()->containsMyRank())
       return;
-    
+
     int dimension=_block_topology->getDimension() ;
     if (dimension != global_grid->getSpaceDimension())
       throw INTERP_KERNEL::Exception(LOCALIZED("ParaGrid::ParaGrid incompatible topology"));

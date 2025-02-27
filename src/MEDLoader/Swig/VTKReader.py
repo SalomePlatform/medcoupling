@@ -130,7 +130,7 @@ class VTURawReader:
         def getLineNb(self):
             return self._line_nb
         pass
-    
+
     class NotRawVTUException(Exception):
         pass
 
@@ -175,7 +175,7 @@ class VTURawReader:
         m.setConnectivity(conn2,offsets,True)
         m.checkConsistencyLight() ; mm=MEDFileUMesh() ; mm.setMeshAtLevel(0,m) ; ms.pushMesh(mm)
         # Fields on nodes and on cells
-        for spatialDisc,nbEnt,fields in [(ON_NODES,rd._nb_nodes,rd._node_fields),(ON_CELLS,rd._nb_cells,rd._cell_fields)]: 
+        for spatialDisc,nbEnt,fields in [(ON_NODES,rd._nb_nodes,rd._node_fields),(ON_CELLS,rd._nb_cells,rd._cell_fields)]:
             for name,typ,nbCompo,off in fields:
                 ff=MEDFileFieldMultiTS()
                 f=MEDCouplingFieldDouble(spatialDisc,ONE_TIME)

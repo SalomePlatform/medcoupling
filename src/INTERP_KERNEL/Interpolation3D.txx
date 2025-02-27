@@ -58,22 +58,22 @@ namespace INTERP_KERNEL
   /**
    * Calculates the matrix of volumes of intersection between the elements of srcMesh and the elements of targetMesh.
    * The calculation is done in two steps. First a filtering process reduces the number of pairs of elements for which the
-   * calculation must be carried out by eliminating pairs that do not intersect based on their bounding boxes. Then, the 
+   * calculation must be carried out by eliminating pairs that do not intersect based on their bounding boxes. Then, the
    * volume of intersection is calculated by an object of type Intersector3D for the remaining pairs, and entered into the
-   * intersection matrix. 
-   * 
-   * The matrix is partially sparse : it is a vector of maps of integer - double pairs. 
+   * intersection matrix.
+   *
+   * The matrix is partially sparse : it is a vector of maps of integer - double pairs.
    * It can also be an INTERP_KERNEL::Matrix object.
    * The length of the vector is equal to the number of target elements - for each target element there is a map, regardless
    * of whether the element intersects any source elements or not. But in the maps there are only entries for those source elements
-   * which have a non-zero intersection volume with the target element. The vector has indices running from 
+   * which have a non-zero intersection volume with the target element. The vector has indices running from
    * 0 to (nb target elements - 1), meaning that the map for target element i is stored at index i - 1. In the maps, however,
    * the indexing is more natural : the intersection volume of the target element i with source element j is found at matrix[i-1][j].
-   * 
+   *
 
    * @param srcMesh     3-dimensional source mesh
    * @param targetMesh  3-dimesional target mesh, containing only tetraedra
-   * @param result      matrix in which the result is stored 
+   * @param result      matrix in which the result is stored
    *
    */
   template<class MyMeshType, class MatrixType>
@@ -163,8 +163,8 @@ namespace INTERP_KERNEL
      * Performs a depth-first search over srcMesh, using bounding boxes to recursively eliminate the elements of targetMesh
      * which cannot intersect smaller and smaller regions of srcMesh. At each level, each region is divided in two, forming
      * a binary search tree with leaves consisting of only one element of the source mesh together with the elements of the
-     * target mesh that can intersect it. The recursion is implemented with a stack of RegionNodes, each one containing a 
-     * source region and a target region. Each region has an associated bounding box and a vector of pointers to the elements 
+     * target mesh that can intersect it. The recursion is implemented with a stack of RegionNodes, each one containing a
+     * source region and a target region. Each region has an associated bounding box and a vector of pointers to the elements
      * that belong to it. Each MeshElement contains a bounding box and the global number of the corresponding element in the mesh.
      */
 
@@ -192,7 +192,7 @@ namespace INTERP_KERNEL
       }
 
     // Using a stack, descend recursively, creating at each step two new RegionNodes having as source region the left and
-    // right part of the source region of the current node (created using MeshRegion::split()) and as target region all the 
+    // right part of the source region of the current node (created using MeshRegion::split()) and as target region all the
     // elements of the target mesh whose bounding box intersects the corresponding part
     // Continue until the source region contains only one element, at which point the intersection volumes are
     // calculated with all the remaining target mesh elements and stored in the matrix if they are non-zero.
@@ -217,7 +217,7 @@ namespace INTERP_KERNEL
               intersectElems.push_back((*iter)->getIndex());
             intersector->intersectCells(targetElement->getIndex(),intersectElems,result);
           }
-        else // recursion 
+        else // recursion
           {
 
             LOG(4, " - Recursion");
@@ -232,7 +232,7 @@ namespace INTERP_KERNEL
             currNode->getTargetRegion().split(leftNode->getTargetRegion(), rightNode->getTargetRegion(), axis, targetMesh);
 
             LOG(5, "After split, left target region has " << leftNode->getTargetRegion().getNumberOfElements()
-                << " elements and right target region has " << rightNode->getTargetRegion().getNumberOfElements() 
+                << " elements and right target region has " << rightNode->getTargetRegion().getNumberOfElements()
                 << " elements");
 
             // ugly hack to avoid problem with enum which does not start at 0
@@ -244,7 +244,7 @@ namespace INTERP_KERNEL
             LOG(5, " -- Adding source elements");
             ConnType numLeftElements = 0;
             ConnType numRightElements = 0;
-            for(typename std::vector<MeshElement<ConnType>*>::const_iterator iter = currNode->getSrcRegion().getBeginElements() ; 
+            for(typename std::vector<MeshElement<ConnType>*>::const_iterator iter = currNode->getSrcRegion().getBeginElements() ;
                 iter != currNode->getSrcRegion().getEndElements() ; ++iter)
               {
                 LOG(6, " --- New target node");
@@ -263,7 +263,7 @@ namespace INTERP_KERNEL
 
               }
 
-            LOG(5, "Left src region has " << numLeftElements << " elements and right src region has " 
+            LOG(5, "Left src region has " << numLeftElements << " elements and right src region has "
                 << numRightElements << " elements");
 
             // push new nodes on stack

@@ -65,7 +65,7 @@ namespace INTERP_KERNEL
     std::map<MeshElement<ConnType>*, int> indices;
 
     for(ConnType i = 0 ; i < numSrcElems ; ++i)
-      srcElems[i] = new MeshElement<ConnType>(i, srcMesh);       
+      srcElems[i] = new MeshElement<ConnType>(i, srcMesh);
 
     // create empty maps for all source elements
     result.resize(targetMesh.getNumberOfNodes());

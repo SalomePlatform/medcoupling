@@ -14,11 +14,11 @@ Covariance fixes [DONE]
         buildBoundaryMesh
         buildPartOfMySelfKeepCoords
         buildPartOfMySelfKeepCoords2
-        
+
     + MEDCouplingExtrudedMesh
         deepCpy
     + MEDCouplingIMesh
-        deepCpy  
+        deepCpy
 
 Various simplifications [DONE]
 =======================
@@ -26,10 +26,10 @@ Various simplifications [DONE]
     + remove replaceOneValByInThis (changeValue fait le meme boulot) - Attention repercuter if(oldValue==newValue) return 0
     + tessellate2D et tessellate2DCurve: à merger en un seul tessellate2D
     + remove checkCoherency2
-     
+
 Inheritance fix (OK but at the end of process)
 ===============
-    + move up in all classes deepCpy(), shallowCpy(), clone() 
+    + move up in all classes deepCpy(), shallowCpy(), clone()
 
 Namespace changes [DONE]
 =================
@@ -45,7 +45,7 @@ Renaming
 
 Interpolation
 -------------
-    RevIntegral / IntensiveConservation 
+    RevIntegral / IntensiveConservation
     ConservativeVolumic / IntensiveMaximum
     IntegralGlobConstraint / ExtensiveConservation
     Integral / ExtensiveMaximum
@@ -62,13 +62,13 @@ Auto-pointeur
 MEDCouplingExtrudedMesh
 -----------------------
     MEDCouplingExtrudedMesh / MEDCouplingMappedExtrudedMesh
-    
+
 MEDCouplingMesh
 ---------------
     getBarycenterAndOwner / computeCellCenterOfMass
     checkCoherency / checkConsistencyLight
     checkCoherency1 / checkConsistency
-    
+
 MEDCouplingPointSet
 -------------------
     mergeNodes2 / mergeNodesCenter
@@ -76,7 +76,7 @@ MEDCouplingPointSet
     buildPartOfMySelf2 / buildPartOfMySelfSlice
     buildPartOfMySelfKeepCoords2 / buildPartOfMySelfKeepCoordsSlice
     deepCpyConnectivityOnly / deepCopyConnectivityOnly
-    
+
 MEDCoupling1DGTUMesh
 --------------------
     checkCoherencyOfConnectivity / checkConsistencyOfConnectivity
@@ -102,34 +102,34 @@ DataArray
     selectByTupleId2 / selectByTupleIdSafe
     GetAxTypeRepr / GetAxisTypeRepr
     cpyFrom / deepCopyFrom
-    
+
 DataArrayInt
 ------------
     isIdentity2 / isIota
     selectByTupleId2 / selectByTupleIdSlice
-    BuildOld2NewArrayFromSurjectiveFormat2 / ConvertIndexArrayToO2N 
-  
+    BuildOld2NewArrayFromSurjectiveFormat2 / ConvertIndexArrayToO2N
+
     getIdsEqual / findIdsEqual
     getIdsNotEqual / findIdsNotEqual
     getIdsEqualList / findIdsEqualList
     getIdsNotEqualList / findIdsNotEqualList
     getIdsEqualTuple / findIdsEqualTuple
     locateValue / findIdFirstEqual
-    locateTuple / findIdFirstEqualTuple   
+    locateTuple / findIdFirstEqualTuple
     search / findIdSequence
     getIdsInRange / findIdsInRange
     getIdsNotInRange / findIdsNotInRange
     getIdsStrictlyNegative / findIdsStricltyNegative
     searchRangesInListOfIds / findIdsRangesInListOfIds
-  
+
     computeOffsets2 / computeOffsetsFull
 
 DataArrayDouble
 ---------------
-    substr / subArray 
+    substr / subArray
     applyFunc2 / applyFuncCompo
     applyFunc3 / applyFuncNamedCompo
-  
+
 MEDCouplingFieldDouble
 ----------------------
     getIdsInRange / findIdsInRange
@@ -138,10 +138,10 @@ MEDCouplingFieldDouble
     applyFunc2 / applyFuncCompo
     applyFunc3 / applyFuncNamedCompo
     mergeNodes2 / mergeNodesCenter
-   
+
 MEDFileMesh
 -----------
     setAxType / setAxisType
     getAxType / getAxisType
 
-   
+

@@ -62,7 +62,7 @@ void MPIAccessTest::test_MPI_Access_Time_0() {
 
   debugStream << "test_MPI_Access_Time_0" << endl ;
 
-//  MPI_Init(&argc, &argv) ; 
+//  MPI_Init(&argc, &argv) ;
 
   int size ;
   int myrank ;
@@ -238,7 +238,7 @@ void MPIAccessTest::test_MPI_Access_Time_0() {
               //if ( nexttime < maxtime && t > nexttime ) {
               if ( deltatime != 0 && t > nexttime ) {
 //CheckRecv :
-//=========   
+//=========
                 //while ( nexttime < maxtime && t > nexttime ) {
                 while ( deltatime != 0 && t > nexttime ) {
                      int source, MPITag, outcount ;
@@ -316,7 +316,7 @@ void MPIAccessTest::test_MPI_Access_Time_0() {
                 outtime = false ;
               }
          }
-         
+
          //printf("DEBUG t %.15f Msg[lasttime-1] %.15f Msg[lasttime] %.15f \n",t,
          //       aRecvTimeMsg[lasttime-1].time,aRecvTimeMsg[lasttime].time) ;
          if ( ((t <= aRecvTimeMsg[lasttime-1].time) ||
@@ -339,7 +339,7 @@ void MPIAccessTest::test_MPI_Access_Time_0() {
          }
          else {
            debugStream << "==========================================================="
-                << endl << "test" << myrank 
+                << endl << "test" << myrank
                 << " aRecvTimeMsg[ " << lasttime << "-1 ].time "
                 << aRecvTimeMsg[lasttime-1].time << " < t " << t << " <= "
                 << "aRecvTimeMsg[ " << lasttime << " ].time "

@@ -48,7 +48,7 @@ int DataArray::getNumberOfTuples() const {}
 /*!
  * Returns number of elements of \a this array.
  * See \ref MEDCouplingArrayBasicsName "DataArrays infos" for more information.
- *  \return int - number of elements == <em> this->getNumberOfTuples() * 
+ *  \return int - number of elements == <em> this->getNumberOfTuples() *
  *          this->getNumberOfComponents() </em>
  */
 int DataArray::getNbOfElems() const {}
@@ -96,7 +96,7 @@ const double * DataArrayDouble::getConstPointer() const {}
  *  \param [in] tupleId - index of the tuple to modify.
  *  \param [in] compoId - index of the component to modify.
  *  \param [in] newVal - the value to assign to the value at \a compoId-th component
- *              of \a tupleId-th tuple. 
+ *              of \a tupleId-th tuple.
  */
 void DataArrayDouble::setIJ(int tupleId, int compoId, double newVal) {}
 
@@ -215,7 +215,7 @@ DataArray::getNbOfElems() const;
 DataArray::checkNbOfElems(int nbOfElems, const char *msg) const;
 DataArray::GetVarNameFromInfo(const std::string& info);
 DataArray::GetUnitFromInfo(const std::string& info);
-///@} 
+///@}
 
 /*! \name Others... */
 ///@{
@@ -244,7 +244,7 @@ DataArray::CheckValueInRangeEx(int value, int start, int end, const char *msg);
 DataArray::CheckClosingParInRange(int ref, int value, const char *msg);
 std::string              DataArray::_name;
 std::vector<std::string> DataArray::_info_on_compo;
-///@} 
+///@}
 
 //================================================================================
 /////////////////////// DataArrayDouble GROUPPING ////////////////////////////////
@@ -370,7 +370,7 @@ DataArrayDouble::setPartOfValuesAdv(const DataArrayDouble* a, const DataArrayInt
 DataArrayDouble::setContigPartOfSelectedValues(int tupleIdStart, const DataArrayDouble* a, const DataArrayInt* tuplesSelec);
 DataArrayDouble::setContigPartOfSelectedValues2(int tupleIdStart, const DataArrayDouble* a, int bg, int end2, int step);
 DataArrayDouble::applyFunc(int nbOfComp, FunctionToEvaluate func) const;
-///@} 
+///@}
 
 /*! \name Others... */
 ///@{
@@ -420,7 +420,7 @@ DataArrayDouble::findCommonTuplesAlg(const double* bbox, int nbNodes, int limitN
 DataArrayDouble::FindTupleIdsNearTuplesAlg(const BBTree<SPACEDIM,int>& myTree, const double* pos, int nbOfTuples, double eps, DataArrayInt* c, DataArrayInt* cI);
 DataArrayDouble::DataArrayDouble();
 MemArray<double> DataArrayDouble::_mem;
-///@} 
+///@}
 
 //================================================================================
 /////////////////////// DataArrayInt GROUPPING ///////////////////////////////////
@@ -438,7 +438,7 @@ DataArrayInt::setPartOfValuesAdv(const DataArrayInt* a, const DataArrayInt* tupl
 DataArrayInt::setContigPartOfSelectedValues(int tupleIdStart, const DataArrayInt*a, const DataArrayInt* tuplesSelec);
 DataArrayInt::setContigPartOfSelectedValues2(int tupleIdStart, const DataArrayInt* a, int bg, int end2, int step);
 DataArrayInt::SetArrayIn(DataArrayInt* newArray, DataArrayInt* &arrayToSet);
-///@} 
+///@}
 
 /*! \name Basic API   */
 ///@{
@@ -552,7 +552,7 @@ DataArrayInt::Divide(const DataArrayInt* a1, const DataArrayInt* a2);
 DataArrayInt::Modulus(const DataArrayInt* a1, const DataArrayInt* a2);
 DataArrayInt::CheckAndPreparePermutation(const int* start, const int* end);
 DataArrayInt::Range(int begin, int end, int step);
-///@} 
+///@}
 
 /*! \name Others... */
 ///@{

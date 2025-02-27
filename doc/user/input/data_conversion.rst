@@ -62,7 +62,7 @@ Now perform projection:
 
 Here "P0P0" specifies spatial discretization of both source and target field. "P0" is for cell discretization (ON_CELLS). "P1" is for node discretization (ON_NODES). For example, "P0P1" means from a source cell field (lying on a source mesh) to a target node field (lying on a target mesh).
 
-Remapper *rem* has just performed intersection of *src* and *tgt* meshes. Result of intersection is stored in a matrix which is returned by getCrudeMatrix method. Each element of the matrix is size of intersection of two cells i and j of the source and target meshes correspondingly. 
+Remapper *rem* has just performed intersection of *src* and *tgt* meshes. Result of intersection is stored in a matrix which is returned by getCrudeMatrix method. Each element of the matrix is size of intersection of two cells i and j of the source and target meshes correspondingly.
 
 Generally the matrix is sparse. To reduce memory usage, the space matrix is represented by an array whose i-th element is a map storing indices and intersection sizes of source cells intersecting i-th target cell.
 
@@ -99,7 +99,7 @@ The field is represented by a vector with a discrete value on each cell. This va
 * an average value of the field in the cell (average density, velocity or temperature in the cell) in which case the representation is said to be **intensive**,
 * an integrated value over the cell (total mass, power of the cell) in which case the representation is said to be **extensive**.
 
-In the case where the source and target meshes are not fully overlapping, it is important to make a correct choice between Maximum and Conservation. 
+In the case where the source and target meshes are not fully overlapping, it is important to make a correct choice between Maximum and Conservation.
 
 * **Conservation** means that the interpolation algorithm preserves the integral of the field over a domain.
 * **Maximum** means that the field values resulting from the interpolation remain between the upper and lower bounds of the original field.
@@ -107,7 +107,7 @@ In the case where the source and target meshes are not fully overlapping, it is 
 Projection cells/nodes nodes/cells nodes/nodes with meshes having same mesh dimension/space dimension
 -----------------------------------------------------------------------------------------------------
 
-Suppose we have the same source and target meshes as in the :ref:`previous chapter <projection_P0P0>`. I.e. the source mesh consists of two quadrangles and the target mesh consists of a triangle. 
+Suppose we have the same source and target meshes as in the :ref:`previous chapter <projection_P0P0>`. I.e. the source mesh consists of two quadrangles and the target mesh consists of a triangle.
 
 .. figure:: ../images/projection_P0P1_meshes.png
    :align: center
@@ -149,7 +149,7 @@ In the same way as in "P0P1" case, an auxiliary dual mesh is internally construc
    The source mesh used for projection is a dual one of simplexized actual source mesh
 
 .. |br| raw:: html
- 
+
   <br />
 
 .. note:: in present implementation of Remapper, the projection of fields on nodes lying on quadratic meshes is not available. If you are in this case you have 2 choices :|br|

@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 
   // ---  Add a listener that colllects test result
   CPPUNIT_NS::TestResultCollector result;
-  controller.addListener( &result );        
+  controller.addListener( &result );
 
   // ---  Add a listener that print dots as test run.
 #if !defined WIN32 && !defined __APPLE__
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 #else
   CPPUNIT_NS::BriefTestProgressListener progress;
 #endif
-  controller.addListener( &progress );      
+  controller.addListener( &progress );
 
   // ---  Get the top level suite from the registry
 
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
   testFile.open("UnitTestsResult", std::ios::out |  std::ios::trunc);
   //CPPUNIT_NS::CompilerOutputter outputter( &result, std::cerr );
   CPPUNIT_NS::CompilerOutputter outputter( &result, testFile );
-  outputter.write(); 
+  outputter.write();
 
   // ---  Run the tests.
 

@@ -8,7 +8,7 @@ The MED file :download:`agitateur.med <data/agitateur.med>` is used and has the 
 .. image:: images/agitateur.jpg
 
 This is the result of a simple 2-phase computation.
-The agitator in green (represented by a cell field) turn on itself from one time-step 
+The agitator in green (represented by a cell field) turn on itself from one time-step
 to the other.
 The purpose of the exercise is to compute the torque applied on this piece.agitateur.
 
@@ -49,7 +49,7 @@ only the field part having a value within [0.0, 1.0] (variable "ids"). ::
 	ids=arr.findIdsInRange(0.,1.)
 	f2Mc=fMc[ids]
 
-Using the field "PRESSION_ELEM_DOM" find the 3D pression field applied on the agitator. 
+Using the field "PRESSION_ELEM_DOM" find the 3D pression field applied on the agitator.
 Store the result in pressOnAgitateur. ::
 
 	pressMts=data.getFields()["PRESSION_ELEM_DOM"]
@@ -135,7 +135,7 @@ Compute the power per skin cell and sum it. ::
        print("power = %r W"%(power))
 
 Compute the angular speed: compute the sum of x^2, y^2 and xz of "posSkin" and build
-with NumPy the 2x2 matrix 
+with NumPy the 2x2 matrix
 inertiaSkin=[[x2,xy], [xy,z2]]
 Retrieve the eigen vector associated to the maximal eigen value with linalg.eig(inertiaSkin). ::
 
@@ -148,7 +148,7 @@ Retrieve the eigen vector associated to the maximal eigen value with linalg.eig(
        vect0=inertiaSkinVects[pos].tolist()[0]
        print(vect0)
 
-Thanks to the previous computation we can see that the agitator had a rotation of 
+Thanks to the previous computation we can see that the agitator had a rotation of
 1.1183827931 radian (see solution).
 Compute and compare the torque on the agitator. ::
 

@@ -146,8 +146,8 @@ std::set<INTERP_KERNEL::NormalizedCellType> MEDCoupling1GTUMesh::getAllGeoTypes(
  * This method expects that \a this is sorted by types. If not an exception will be thrown.
  * This method returns in the same format as code (see MEDCouplingUMesh::checkTypeConsistencyAndContig or MEDCouplingUMesh::splitProfilePerType) how
  * \a this is composed in cell types.
- * The returned array is of size 3*n where n is the number of different types present in \a this. 
- * For every k in [0,n] ret[3*k+2]==-1 because it has no sense here. 
+ * The returned array is of size 3*n where n is the number of different types present in \a this.
+ * For every k in [0,n] ret[3*k+2]==-1 because it has no sense here.
  * This parameter is kept only for compatibility with other method listed above.
  */
 std::vector<mcIdType> MEDCoupling1GTUMesh::getDistributionOfTypes() const
@@ -161,13 +161,13 @@ std::vector<mcIdType> MEDCoupling1GTUMesh::getDistributionOfTypes() const
  * This method is the opposite of MEDCouplingUMesh::checkTypeConsistencyAndContig method. Given a list of cells in \a profile it returns a list of sub-profiles sorted by geo type.
  * The result is put in the array \a idsPerType. In the returned parameter \a code, foreach i \a code[3*i+2] refers (if different from -1) to a location into the \a idsPerType.
  * This method has 1 input \a profile and 3 outputs \a code \a idsInPflPerType and \a idsPerType.
- * 
+ *
  * \param [out] code is a vector of size 3*n where n is the number of different geometric type in \a this \b reduced to the profile \a profile. \a code has exactly the same semantic than in MEDCouplingUMesh::checkTypeConsistencyAndContig method.
  * \param [out] idsInPflPerType is a vector of size of different geometric type in the subpart defined by \a profile of \a this ( equal to \a code.size()/3). For each i,
  *              \a idsInPflPerType[i] stores the tuple ids in \a profile that correspond to the geometric type code[3*i+0]
  * \param [out] idsPerType is a vector of size of different sub profiles needed to be defined to represent the profile \a profile for a given geometric type.
  *              This vector can be empty in case of all geometric type cells are fully covered in ascending in the given input \a profile.
- * 
+ *
  * \warning for performance reasons no deep copy will be performed, if \a profile can been used as this in output parameters \a idsInPflPerType and \a idsPerType.
  *
  * \throw if \a profile has not exactly one component. It throws too, if \a profile contains some values not in [0,getNumberOfCells()) or if \a this is not fully defined
@@ -175,7 +175,7 @@ std::vector<mcIdType> MEDCoupling1GTUMesh::getDistributionOfTypes() const
  *  \b Example1: <br>
  *          - Before \a this has 3 cells \a profile contains [0,1,2]
  *          - After \a code contains [NORM_...,nbCells,-1], \a idsInPflPerType [[0,1,2]] and \a idsPerType is empty <br>
- * 
+ *
  *  \b Example2: <br>
  *          - Before \a this has 3 cells \a profile contains [1,2]
  *          - After \a code contains [NORM_...,nbCells,0], \a idsInPflPerType [[0,1]] and \a idsPerType is [[1,2]] <br>
@@ -208,7 +208,7 @@ void MEDCoupling1GTUMesh::splitProfilePerType(const DataArrayIdType *profile, st
 /*!
  * This method tries to minimize at most the number of deep copy.
  * So if \a idsPerType is not empty it can be returned directly (without copy, but with ref count incremented) in return.
- * 
+ *
  * \sa MEDCouplingUMesh::checkTypeConsistencyAndContig
  */
 DataArrayIdType *MEDCoupling1GTUMesh::checkTypeConsistencyAndContig(const std::vector<mcIdType>& code, const std::vector<const DataArrayIdType *>& idsPerType) const
@@ -570,7 +570,7 @@ MEDCoupling1SGTUMesh *MEDCoupling1SGTUMesh::clone(bool recDeepCpy) const
 /*!
  * This method behaves mostly like MEDCoupling1SGTUMesh::deepCopy method, except that only nodal connectivity arrays are deeply copied.
  * The coordinates are shared between \a this and the returned instance.
- * 
+ *
  * \return MEDCoupling1SGTUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
  * \sa MEDCoupling1SGTUMesh::deepCopy
  */
@@ -1054,12 +1054,12 @@ DataArrayIdType *MEDCoupling1SGTUMesh::computeFetchedNodeIds() const
 /*!
  * Finds nodes not used in any cell and returns an array giving a new id to every node
  * by excluding the unused nodes, for which the array holds -1. The result array is
- * a mapping in "Old to New" mode. 
+ * a mapping in "Old to New" mode.
  *  \param [out] nbrOfNodesInUse - number of node ids present in the nodal connectivity.
  *  \return DataArrayIdType * - a new instance of DataArrayIdType. Its length is \a
  *          this->getNumberOfNodes(). It holds for each node of \a this mesh either -1
  *          if the node is unused or a new id else. The caller is to delete this
- *          array using decrRef() as it is no more needed.  
+ *          array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
@@ -1131,7 +1131,7 @@ void MEDCoupling1SGTUMesh::renumberNodesInConn(const std::map<mcIdType,mcIdType>
  * This method is a generalization of shiftNodeNumbersInConn().
  *  \warning This method performs no check of validity of new ids. **Use it with care !**
  *  \param [in] newNodeNumbersO2N - a permutation array, of length \a
- *         this->getNumberOfNodes(), in "Old to New" mode. 
+ *         this->getNumberOfNodes(), in "Old to New" mode.
  *         See \ref numbering for more info on renumbering modes.
  *  \throw If the nodal connectivity of cells is not defined.
  */
@@ -1771,7 +1771,7 @@ void MEDCoupling1SGTUMesh::accumulateVTK94Arrays(mcIdType& k, mcIdType *&cPtr, m
 
 /*!
  * This method builds the dual mesh of \a this and returns it.
- * 
+ *
  * \return MEDCoupling1SGTUMesh * - newly object created to be managed by the caller.
  * \throw If \a this is not a mesh containing only simplex cells.
  * \throw If \a this is not correctly allocated (coordinates and connectivities have to be correctly set !).
@@ -1795,7 +1795,7 @@ MEDCoupling1GTUMesh *MEDCoupling1SGTUMesh::computeDualMesh() const
 
 /*!
  * This method explode each NORM_HEXA8 cells in \a this into 6 NORM_QUAD4 cells and put the result into the MEDCoupling1SGTUMesh returned instance.
- * 
+ *
  * \return MEDCoupling1SGTUMesh * - a newly allocated instances (to be managed by the caller) storing the result of the explosion.
  * \throw If \a this is not a mesh containing only NORM_HEXA8 cells.
  * \throw If \a this is not properly allocated.
@@ -2091,7 +2091,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh3D() const
       mcIdType nbOfCellsSharingNode(revNodI[1]-revNodI[0]);
       if(nbOfCellsSharingNode==0)
         {
-          std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::computeDualMesh3D : Node #" << i << " is orphan !"; 
+          std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::computeDualMesh3D : Node #" << i << " is orphan !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
       for(int j=0;j<nbOfCellsSharingNode;j++)
@@ -2163,7 +2163,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh2D() const
       mcIdType nbOfCellsSharingNode(revNodI[1]-revNodI[0]);
       if(nbOfCellsSharingNode==0)
         {
-          std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::computeDualMesh2D : Node #" << i << " is orphan !"; 
+          std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::computeDualMesh2D : Node #" << i << " is orphan !";
           throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
       std::vector< std::vector<mcIdType> > polyg;
@@ -2204,12 +2204,12 @@ MEDCoupling1DGTUMesh *MEDCoupling1SGTUMesh::computeDualMesh2D() const
 }
 
 /*!
- * This method aggregate the bbox of each cell and put it into bbox 
+ * This method aggregate the bbox of each cell and put it into bbox
  *
  * \param [in] arcDetEps - a parameter specifying in case of 2D quadratic polygon cell the detection limit between linear and arc circle. (By default 1e-12)
  *                         For all other cases this input parameter is ignored.
  * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
- * 
+ *
  * \throw If \a this is not fully set (coordinates and connectivity).
  * \throw If a cell in \a this has no valid nodeId.
  */
@@ -2271,7 +2271,7 @@ MEDCouplingFieldDouble *MEDCoupling1SGTUMesh::computeDiameterField() const
 }
 
 /*!
- * This method invert orientation of all cells in \a this. 
+ * This method invert orientation of all cells in \a this.
  * After calling this method the absolute value of measure of cells in \a this are the same than before calling.
  * This method only operates on the connectivity so coordinates are not touched at all.
  */
@@ -2286,7 +2286,7 @@ void MEDCoupling1SGTUMesh::invertOrientationOfAllCells()
   updateTime();
 }
 
-//== 
+//==
 
 MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::New()
 {
@@ -2335,7 +2335,7 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::clone(bool recDeepCpy) const
 /*!
  * This method behaves mostly like MEDCoupling1DGTUMesh::deepCopy method, except that only nodal connectivity arrays are deeply copied.
  * The coordinates are shared between \a this and the returned instance.
- * 
+ *
  * \return MEDCoupling1DGTUMesh * - A new object instance holding the copy of \a this (deep for connectivity, shallow for coordiantes)
  * \sa MEDCoupling1DGTUMesh::deepCopy
  */
@@ -2575,7 +2575,7 @@ mcIdType MEDCoupling1DGTUMesh::getNumberOfCells() const
  * For each cell in \b this the number of nodes constituting cell is computed.
  * For each polyhedron cell, the sum of the number of nodes of each face constituting polyhedron cell is returned.
  * So for pohyhedrons some nodes can be counted several times in the returned result.
- * 
+ *
  * \return a newly allocated array
  */
 DataArrayIdType *MEDCoupling1DGTUMesh::computeNbOfNodesPerCell() const
@@ -2598,7 +2598,7 @@ DataArrayIdType *MEDCoupling1DGTUMesh::computeNbOfNodesPerCell() const
 /*!
  * This method returns a newly allocated array containing this->getNumberOfCells() tuples and 1 component.
  * For each cell in \b this the number of faces constituting (entity of dimension this->getMeshDimension()-1) cell is computed.
- * 
+ *
  * \return a newly allocated array
  */
 DataArrayIdType *MEDCoupling1DGTUMesh::computeNbOfFacesPerCell() const
@@ -3044,7 +3044,7 @@ void MEDCoupling1DGTUMesh::getReverseNodalConnectivity(DataArrayIdType *revNodal
           for(mcIdType j=0;j<nbOfNodesPerCell;j++)
             {
               mcIdType nodeId=conn[conni[eltId]+j];
-              if(nodeId==-1) continue;            
+              if(nodeId==-1) continue;
               if(nodeId>=0 && nodeId<nbOfNodes)
                 {
                   nbOfEltsInRevNodal++;
@@ -3233,12 +3233,12 @@ DataArrayIdType *MEDCoupling1DGTUMesh::computeFetchedNodeIds() const
 /*!
  * Finds nodes not used in any cell and returns an array giving a new id to every node
  * by excluding the unused nodes, for which the array holds -1. The result array is
- * a mapping in "Old to New" mode. 
+ * a mapping in "Old to New" mode.
  *  \param [out] nbrOfNodesInUse - number of node ids present in the nodal connectivity.
  *  \return DataArrayIdType * - a new instance of DataArrayIdType. Its length is \a
  *          this->getNumberOfNodes(). It holds for each node of \a this mesh either -1
  *          if the node is unused or a new id else. The caller is to delete this
- *          array using decrRef() as it is no more needed.  
+ *          array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
@@ -3324,7 +3324,7 @@ void MEDCoupling1DGTUMesh::renumberNodesInConn(const std::map<mcIdType,mcIdType>
  * This method is a generalization of shiftNodeNumbersInConn().
  *  \warning This method performs no check of validity of new ids. **Use it with care !**
  *  \param [in] newNodeNumbersO2N - a permutation array, of length \a
- *         this->getNumberOfNodes(), in "Old to New" mode. 
+ *         this->getNumberOfNodes(), in "Old to New" mode.
  *         See \ref numbering for more info on renumbering modes.
  *  \throw If the nodal connectivity of cells is not defined.
  */
@@ -3583,11 +3583,11 @@ DataArrayIdType *MEDCoupling1DGTUMesh::getNodalConnectivityIndex() const
  * Geometrically the returned mesh is equal to \a this. So if \a this is already packed, the return value is a shallow copy of \a this.
  *
  * Whatever the status of pack of \a this, the coordinates array of the returned newly created instance is the same than those in \a this.
- * 
+ *
  * \param [out] isShallowCpyOfNodalConnn - tells if the returned instance share the same pair of nodal connectivity arrays (true) or if nodal
  *              connectivity arrays are different (false)
  * \return a new object to be managed by the caller.
- * 
+ *
  * \sa MEDCoupling1DGTUMesh::retrievePackedNodalConnectivity, MEDCoupling1DGTUMesh::isPacked
  */
 MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::copyWithNodalConnectivityPacked(bool& isShallowCpyOfNodalConnn) const
@@ -3605,13 +3605,13 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::copyWithNodalConnectivityPacked(bool
  * This method allows to compute, if needed, the packed nodal connectivity pair.
  * Indeed, it is possible to store in \a this a nodal connectivity array bigger than ranges covered by nodal connectivity index array.
  * It is typically the case when nodalConnIndx starts with an id greater than 0, and finishes with id less than number of tuples in \c this->_conn.
- * 
+ *
  * If \a this looks packed (the front of nodal connectivity index equal to 0 and back of connectivity index equal to number of tuple of nodal connectivity array)
  * true will be returned and respectively \a this->_conn and \a this->_conn_indx (with ref counter incremented). This is the classical case.
  *
  * If nodal connectivity index points to a subpart of nodal connectivity index the packed pair of arrays will be computed (new objects) and returned and false
  * will be returned.
- * 
+ *
  * This method return 3 elements.
  * \param [out] nodalConn - a pointer that can be equal to \a this->_conn if true is returned (general case). Whatever the value of return parameter
  *                          this pointer can be seen as a new object, that is to managed by the caller.
@@ -3806,11 +3806,11 @@ MEDCoupling1DGTUMesh *MEDCoupling1DGTUMesh::buildSetInstanceFromThis(std::size_t
 
 /*!
  * This method aggregate the bbox of each cell and put it into bbox parameter.
- * 
+ *
  * \param [in] arcDetEps - a parameter specifying in case of 2D quadratic polygon cell the detection limit between linear and arc circle. (By default 1e-12)
  *                         For all other cases this input parameter is ignored.
  * \return DataArrayDouble * - newly created object (to be managed by the caller) \a this number of cells tuples and 2*spacedim components.
- * 
+ *
  * \throw If \a this is not fully set (coordinates and connectivity).
  * \throw If a cell in \a this has no valid nodeId.
  */
@@ -3887,7 +3887,7 @@ std::vector<mcIdType> MEDCoupling1DGTUMesh::BuildAPolygonFromParts(const std::ve
 }
 
 /*!
- * This method invert orientation of all cells in \a this. 
+ * This method invert orientation of all cells in \a this.
  * After calling this method the absolute value of measure of cells in \a this are the same than before calling.
  * This method only operates on the connectivity so coordinates are not touched at all.
  */
@@ -3904,7 +3904,7 @@ void MEDCoupling1DGTUMesh::invertOrientationOfAllCells()
 }
 
 /*!
- * This method performs an aggregation of \a nodalConns (as DataArrayIdType::Aggregate does) but in addition of that a shift is applied on the 
+ * This method performs an aggregation of \a nodalConns (as DataArrayIdType::Aggregate does) but in addition of that a shift is applied on the
  * values contained in \a nodalConns using corresponding offset specified in input \a offsetInNodeIdsPerElt.
  * But it also manage the values -1, that have a semantic in MEDCoupling1DGTUMesh class (separator for polyhedron).
  *

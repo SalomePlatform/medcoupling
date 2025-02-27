@@ -52,13 +52,13 @@ namespace INTERP_KERNEL
 {
   template<class RealPlanar>
   InterpolationPlanar<RealPlanar>::InterpolationPlanar():_dim_caracteristic(1)
-                                                         
+
   {
   }
 
   template<class RealPlanar>
   InterpolationPlanar<RealPlanar>::InterpolationPlanar(const InterpolationOptions& io):Interpolation< InterpolationPlanar<RealPlanar> >(io),_dim_caracteristic(1)
-                                                         
+
   {
   }
 
@@ -83,22 +83,22 @@ namespace INTERP_KERNEL
     InterpolationOptions::setIntersectionType(intersectionType);
     InterpolationOptions::setOrientation(orientation);
   }
-  
-  
+
+
   /** \brief Main function to interpolate triangular or quadrangular meshes.
       \details  The algorithm proceeds in two steps: first a filtering process reduces the number of pairs of elements for which the
-      * calculation must be carried out by eliminating pairs that do not intersect based on their bounding boxes. Then, the 
+      * calculation must be carried out by eliminating pairs that do not intersect based on their bounding boxes. Then, the
       * volume of intersection is calculated by an object of type IntersectorPlanar for the remaining pairs, and entered into the
-      * intersection matrix. 
-      * 
-      * The matrix is partially sparse : it is a vector of maps of integer - double pairs. 
+      * intersection matrix.
+      *
+      * The matrix is partially sparse : it is a vector of maps of integer - double pairs.
       * The length of the vector is equal to the number of target elements - for each target element there is a map, regardless
       * of whether the element intersects any source elements or not. But in the maps there are only entries for those source elements
-      * which have a non-zero intersection volume with the target element. The vector has indices running from 
+      * which have a non-zero intersection volume with the target element. The vector has indices running from
       * 0 to (#target elements - 1), meaning that the map for target element i is stored at index i - 1. In the maps, however,
       * the indexing is more natural : the intersection volume of the target element i with source element j is found at matrix[i-1][j].
-      * 
-   
+      *
+
       * @param myMeshS  Planar source mesh
       * @Param myMeshT  Planar target mesh
       * @return            vector containing for each element i of the source mesh, a map giving for each element j
@@ -114,18 +114,18 @@ namespace INTERP_KERNEL
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
 
     long global_start =clock();
-    std::size_t counter=0;   
+    std::size_t counter=0;
     /***********************************************************/
     /* Check both meshes are made of triangles and quadrangles */
     /***********************************************************/
 
     ConnType nbMailleS=myMeshS.getNumberOfElements();
     ConnType nbMailleT=myMeshT.getNumberOfElements();
-    
+
     /**************************************************/
     /* Search the characteristic size of the meshes   */
     /**************************************************/
-    
+
     double BoxS[2*SPACEDIM]; myMeshS.getBoundingBox(BoxS);
     double BoxT[2*SPACEDIM]; myMeshT.getBoundingBox(BoxT);
     double diagonalS,dimCaracteristicS=std::numeric_limits<double>::max();
@@ -140,7 +140,7 @@ namespace INTERP_KERNEL
         diagonalT=getDistanceBtw2Pts<SPACEDIM>(BoxT+SPACEDIM,BoxT);
         dimCaracteristicT=diagonalT/(double)(nbMailleT);
       }
-    
+
     _dim_caracteristic=std::min(dimCaracteristicS, dimCaracteristicT);
     if (InterpolationOptions::getPrintLevel()>=1)
       {
@@ -148,7 +148,7 @@ namespace INTERP_KERNEL
         std::cout << "  - Characteristic size of the target mesh: " << dimCaracteristicT << std::endl;
         std::cout << "InterpolationPlanar::computation of the intersections" << std::endl;
       }
-    
+
     PlanarIntersector<MyMeshType,MatrixType>* intersector=0;
     std::string meth = InterpolationOptions::filterInterpolationMethod(method);
     if(meth=="P0P0")
@@ -371,16 +371,16 @@ namespace INTERP_KERNEL
     /* Create a search tree based on the bounding boxes             */
     /* Instantiate the intersector and initialise the result vector */
     /****************************************************************/
- 
+
     long start_filtering=clock();
- 
+
     std::vector<double> bbox;
     intersector->createBoundingBoxes(myMeshS,bbox); // create the bounding boxes
     performAdjustmentOfBB(intersector,bbox);
     const double *bboxPtr=0;
     if(nbMailleS>0)
       bboxPtr=&bbox[0];
-    BBTree<SPACEDIM,ConnType> my_tree(bboxPtr, 0, 0,nbMailleS);//creating the search structure 
+    BBTree<SPACEDIM,ConnType> my_tree(bboxPtr, 0, 0,nbMailleS);//creating the search structure
 
     long end_filtering=clock();
 
@@ -411,7 +411,7 @@ namespace INTERP_KERNEL
         long end_intersection=clock();
         std::cout << "Filtering time= " << end_filtering-start_filtering << std::endl;
         std::cout << "Intersection time= " << end_intersection-start_intersection << std::endl;
-        long global_end =clock();    
+        long global_end =clock();
         std::cout << "Number of computed intersections = " << counter << std::endl;
         std::cout << "Global time= " << global_end - global_start << std::endl;
       }

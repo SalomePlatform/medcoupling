@@ -2,7 +2,7 @@
 
 # MEDCoupling
 
-MEDCoupling is a powerful library to manipulate meshes and fields. 
+MEDCoupling is a powerful library to manipulate meshes and fields.
 
 <!-- TABLE OF CONTENTS -->
 <details>

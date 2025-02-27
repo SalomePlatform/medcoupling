@@ -30,7 +30,7 @@
 namespace INTERP_KERNEL
 {
   class TranslationRotationMatrix;
-  
+
   template<class MyMeshType, class MyMatrix>
   class PlanarIntersector : public TargetIntersector<MyMeshType,MyMatrix>
   {

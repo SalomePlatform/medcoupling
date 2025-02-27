@@ -44,7 +44,7 @@ void MPIAccessTest::test_MPI_Access_ISendRecv() {
 
   debugStream << "test_MPI_Access_ISendRecv" << endl ;
 
-//  MPI_Init(&argc, &argv) ; 
+//  MPI_Init(&argc, &argv) ;
 
   int size ;
   int myrank ;

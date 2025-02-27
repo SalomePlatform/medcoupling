@@ -258,7 +258,7 @@ namespace MEDCoupling
   };
 
   class MEDCouplingMappedExtrudedMesh;
-  
+
   class MEDFileUMesh : public MEDFileMesh
   {
     friend class MEDFileMesh;

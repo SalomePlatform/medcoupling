@@ -313,7 +313,7 @@ void MEDCouplingFieldDiscretization::integral(const MEDCouplingMesh *mesh, const
 
 /*!
  * This method is strictly equivalent to MEDCouplingFieldDiscretization::buildSubMeshData except that it is optimized for input defined as a range of cell ids.
- * 
+ *
  * \param [out] beginOut Valid only if \a di is NULL
  * \param [out] endOut Valid only if \a di is NULL
  * \param [out] stepOut Valid only if \a di is NULL
@@ -721,7 +721,7 @@ void MEDCouplingFieldDiscretizationP0::renumberValuesOnCellsR(const MEDCouplingM
  * Here for P0 it's very simple !
  *
  * \return a newly allocated array containing ids to select into the DataArrayDouble of the field.
- * 
+ *
  */
 DataArrayIdType *MEDCouplingFieldDiscretizationP0::computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const mcIdType *startCellIds, const mcIdType *endCellIds) const
 {
@@ -752,7 +752,7 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationP0::buildSubMeshData(const MEDCou
 
 /*!
  * This method is strictly equivalent to MEDCouplingFieldDiscretizationP0::buildSubMeshData except that it is optimized for input defined as a range of cell ids.
- * 
+ *
  * \param [out] beginOut Valid only if \a di is NULL
  * \param [out] endOut Valid only if \a di is NULL
  * \param [out] stepOut Valid only if \a di is NULL
@@ -899,7 +899,7 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationOnNodes::buildSubMeshData(const M
 
 /*!
  * This method is strictly equivalent to MEDCouplingFieldDiscretizationNodes::buildSubMeshData except that it is optimized for input defined as a range of cell ids.
- * 
+ *
  * \param [out] beginOut Valid only if \a di is NULL
  * \param [out] endOut Valid only if \a di is NULL
  * \param [out] stepOut Valid only if \a di is NULL
@@ -928,7 +928,7 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationOnNodes::buildSubMeshDataRange(co
  * Here for P1 only nodes fetched by submesh of mesh[startCellIds:endCellIds) is returned !
  *
  * \return a newly allocated array containing ids to select into the DataArrayDouble of the field.
- * 
+ *
  */
 DataArrayIdType *MEDCouplingFieldDiscretizationOnNodes::computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const mcIdType *startCellIds, const mcIdType *endCellIds) const
 {
@@ -1253,7 +1253,7 @@ void MEDCouplingFieldDiscretizationPerCell::checkNoOrphanCells() const
  * For a given i into [0,locIds.size) ret[i] represents the set of cell ids of i_th set an locIds[i] represents the set of discretisation of the set.
  * The return vector contains a set of newly created instance to deal with.
  * The returned vector represents a \b partition of cells ids with a gauss discretization set.
- * 
+ *
  * If no descretization is set in 'this' and exception will be thrown.
  */
 std::vector<DataArrayIdType *> MEDCouplingFieldDiscretizationPerCell::splitIntoSingleGaussDicrPerCellType(std::vector<mcIdType>& locIds) const
@@ -1804,7 +1804,7 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationGauss::buildSubMeshData(const MED
 
 /*!
  * This method is strictly equivalent to MEDCouplingFieldDiscretizationGauss::buildSubMeshData except that it is optimized for input defined as a range of cell ids.
- * 
+ *
  * \param [out] beginOut Valid only if \a di is NULL
  * \param [out] endOut Valid only if \a di is NULL
  * \param [out] stepOut Valid only if \a di is NULL
@@ -1853,7 +1853,7 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationGauss::buildSubMeshDataRange(cons
  * This method is called by MEDCouplingFieldDiscretizationGauss::buildSubMeshData to return parameter \b di.
  *
  * \return a newly allocated array containing ids to select into the DataArrayDouble of the field.
- * 
+ *
  */
 DataArrayIdType *MEDCouplingFieldDiscretizationGauss::computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const mcIdType *startCellIds, const mcIdType *endCellIds) const
 {
@@ -2382,7 +2382,7 @@ void MEDCouplingFieldDiscretizationGaussNE::integral(const MEDCouplingMesh *mesh
       const double *wArr=GetWeightArrayFromGeometricType(*it,wArrSz);
       INTERP_KERNEL::AutoPtr<double> wArr2=new double[wArrSz];
       double sum=std::accumulate(wArr,wArr+wArrSz,0.);
-      std::transform(wArr,wArr+wArrSz,(double *)wArr2,std::bind(std::multiplies<double>(),std::placeholders::_1,1./sum));        
+      std::transform(wArr,wArr+wArrSz,(double *)wArr2,std::bind(std::multiplies<double>(),std::placeholders::_1,1./sum));
       MCAuto<DataArrayIdType> ids=mesh->giveCellsWithType(*it);
       MCAuto<DataArrayIdType> ids2=ids->buildExplicitArrByRanges(nbOfNodesPerCell);
       const mcIdType *ptIds2=ids2->begin(),*ptIds=ids->begin();
@@ -2711,7 +2711,7 @@ MEDCouplingFieldDouble *MEDCouplingFieldDiscretizationGaussNE::getMeasureField(c
       const double *wArr=GetWeightArrayFromGeometricType(*it,wArrSz);
       INTERP_KERNEL::AutoPtr<double> wArr2=new double[wArrSz];
       double sum=std::accumulate(wArr,wArr+wArrSz,0.);
-      std::transform(wArr,wArr+wArrSz,(double *)wArr2,std::bind(std::multiplies<double>(),std::placeholders::_1,1./sum));     
+      std::transform(wArr,wArr+wArrSz,(double *)wArr2,std::bind(std::multiplies<double>(),std::placeholders::_1,1./sum));
       MCAuto<DataArrayIdType> ids=mesh->giveCellsWithType(*it);
       MCAuto<DataArrayIdType> ids2=ids->buildExplicitArrByRanges(nbOfNodesPerCell);
       const mcIdType *ptIds2=ids2->begin(),*ptIds=ids->begin();
@@ -2751,7 +2751,7 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationGaussNE::buildSubMeshData(const M
 
 /*!
  * This method is strictly equivalent to MEDCouplingFieldDiscretizationGauss::buildSubMeshData except that it is optimized for input defined as a range of cell ids.
- * 
+ *
  * \param [out] beginOut Valid only if \a di is NULL
  * \param [out] endOut Valid only if \a di is NULL
  * \param [out] stepOut Valid only if \a di is NULL
@@ -2791,7 +2791,7 @@ MEDCouplingMesh *MEDCouplingFieldDiscretizationGaussNE::buildSubMeshDataRange(co
  * This method is called by MEDCouplingFieldDiscretizationGaussNE::buildSubMeshData to return parameter \b di.
  *
  * \return a newly allocated array containing ids to select into the DataArrayDouble of the field.
- * 
+ *
  */
 DataArrayIdType *MEDCouplingFieldDiscretizationGaussNE::computeTupleIdsToSelectFromCellIds(const MEDCouplingMesh *mesh, const mcIdType *startCellIds, const mcIdType *endCellIds) const
 {
@@ -2922,8 +2922,8 @@ MCAuto<MEDCouplingFieldDiscretization> MEDCouplingFieldDiscretizationKriging::ag
 }
 
 /*!
- * Returns the matrix of size nbRows = \a nbOfTargetPoints and \a nbCols = \a nbCols. This matrix is useful if 
- * 
+ * Returns the matrix of size nbRows = \a nbOfTargetPoints and \a nbCols = \a nbCols. This matrix is useful if
+ *
  * \return the new result matrix to be deallocated by the caller.
  */
 DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeEvaluationMatrixOnGivenPts(const MEDCouplingMesh *mesh, const double *loc, mcIdType nbOfTargetPoints, mcIdType& nbCols) const
@@ -2967,7 +2967,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeEvaluationMatrixO
 /*!
  * This method returns the square matrix of size \a matSz that is the inverse of the kriging matrix. The returned matrix can returned all the coeffs of kriging
  * when multiplied by the vector of values attached to each point.
- * 
+ *
  * \param [out] isDrift return if drift coefficients are present in the returned vector of coefficients. If different from 0 there is presence of drift coefficients.
  * \param [out] matSz the size of returned square matrix
  * \return the new result matrix to be deallocated by the caller.
@@ -3004,7 +3004,7 @@ DataArrayDouble *MEDCouplingFieldDiscretizationKriging::computeMatrix(const MEDC
 /*!
  * This method computes coefficients to apply to each representing points of \a mesh, that is to say the nodes of \a mesh given a field array \a arr whose
  * number of tuples should be equal to the number of representing points in \a mesh.
- * 
+ *
  * \param [in] mesh is the sources of nodes on which kriging will be done regarding the parameters and the value of \c this->getSpaceDimension()
  * \param [in] arr input field DataArrayDouble whose number of tuples must be equal to the number of nodes in \a mesh
  * \param [out] isDrift return if drift coefficients are present in the returned vector of coefficients. If different from 0 there is presence of drift coefficients.

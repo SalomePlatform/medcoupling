@@ -51,7 +51,7 @@ namespace INTERP_KERNEL
     double intersectSegments(const double *coordsT, const double *coordsS) const;
     double intersectSegmentsInternal(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt0, double& xt1) const;
     bool isPtIncludedInSeg(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt) const;
-    
+
     struct TDualSegment
     {
       std::vector<double> _coords;

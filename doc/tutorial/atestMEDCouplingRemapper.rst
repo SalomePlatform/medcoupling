@@ -7,7 +7,7 @@ Interpoler avec MEDCouplingRemapper
 ::
 
 	import medcoupling as mc
-	from MEDCouplingRemapper import MEDCouplingRemapper 
+	from MEDCouplingRemapper import MEDCouplingRemapper
 	# Target mesh
 	arr = mc.DataArrayDouble(11)
 	arr.iota(0)

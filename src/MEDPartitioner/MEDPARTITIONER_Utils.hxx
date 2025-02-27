@@ -42,34 +42,34 @@ namespace MEDPARTITIONER
   MEDPARTITIONER_EXPORT std::vector<int> CreateRandomSize(const int size);
   MEDPARTITIONER_EXPORT void RandomizeAdj(int* xadj, int* adjncy, std::vector<int>& ran, std::vector<int>& vx, std::vector<int>& va);
   MEDPARTITIONER_EXPORT void TestRandomize();
-                       
+
   MEDPARTITIONER_EXPORT std::string ReprVectorOfString(const std::vector<std::string>& vec);
   MEDPARTITIONER_EXPORT std::string ReprVectorOfString(const std::vector<std::string>& vec, const std::string separator);
   MEDPARTITIONER_EXPORT std::string ReprMapOfStringInt(const std::map<std::string,mcIdType>& mymap);
   MEDPARTITIONER_EXPORT std::string ReprMapOfStringVectorOfString(const std::map< std::string,std::vector<std::string> >& mymap);
   MEDPARTITIONER_EXPORT std::string ReprFieldDescriptions(const std::vector<std::string>& vec,const  std::string separator);
-  
+
   MEDPARTITIONER_EXPORT std::string SerializeFromString(const std::string& s);
   MEDPARTITIONER_EXPORT std::string SerializeFromVectorOfString(const std::vector<std::string>& vec);
   MEDPARTITIONER_EXPORT std::vector<std::string> DeserializeToVectorOfString(const std::string& str);
   MEDPARTITIONER_EXPORT std::string EraseTagSerialized(const std::string& fromStr, const std::string& tag);
-  
+
   MEDPARTITIONER_EXPORT std::vector<std::string> VectorizeFromMapOfStringInt(const std::map<std::string,mcIdType>& mymap);
   MEDPARTITIONER_EXPORT std::map<std::string,mcIdType> DevectorizeToMapOfStringInt(const std::vector<std::string>& vec);
-  
+
   MEDPARTITIONER_EXPORT std::vector<std::string> VectorizeFromMapOfStringVectorOfString(const std::map< std::string,std::vector<std::string> >& mymap);
   MEDPARTITIONER_EXPORT std::map< std::string,std::vector<std::string> > DevectorizeToMapOfStringVectorOfString(const std::vector<std::string>& vec);
-  
+
   MEDPARTITIONER_EXPORT std::vector<std::string> SelectTagsInVectorOfString(const std::vector<std::string>& vec, const std::string tag);
   MEDPARTITIONER_EXPORT std::vector<std::string> DeleteDuplicatesInVectorOfString(const std::vector<std::string>& vec);
   MEDPARTITIONER_EXPORT std::map< std::string,std::vector<std::string> > DeleteDuplicatesInMapOfStringVectorOfString(const std::map< std::string,std::vector<std::string> >& mymap);
-  
+
   MEDPARTITIONER_EXPORT std::string Cle1ToStr(const std::string& s, const int inew);
   MEDPARTITIONER_EXPORT void Cle1ToData(const std::string& cle, std::string& s, int& inew);
-  
+
   MEDPARTITIONER_EXPORT std::string Cle2ToStr(const std::string& s,const int inew,const int iold);
   MEDPARTITIONER_EXPORT void Cle2ToData(const std::string& cle, std::string& s, int& inew, int& iold);
-  
+
   MEDPARTITIONER_EXPORT std::string ExtractFromDescription(const std::string& description,const  std::string& tag);
   MEDPARTITIONER_EXPORT void FieldDescriptionToData(const std::string& description,
                               int& idomain, std::string& fileName, std::string& meshName, std::string& fieldName,
@@ -80,7 +80,7 @@ namespace MEDPARTITIONER
   MEDCoupling::DataArrayIdType *CreateDataArrayIntFromVector(const std::vector<mcIdType>& v);
   MEDCoupling::DataArrayIdType *CreateDataArrayIntFromVector(const std::vector<mcIdType>& v, const int nbComponents);
   MEDCoupling::DataArrayDouble *CreateDataArrayDoubleFromVector(const std::vector<double>& v);
-  
+
   MEDCoupling::MEDCouplingUMesh *CreateEmptyMEDCouplingUMesh();
 
   std::vector<std::string> BrowseFieldDouble(const MEDCoupling::MEDCouplingFieldDouble* fd);
@@ -98,15 +98,15 @@ namespace MEDPARTITIONER
   //TODO void sendRecvVectorOfString(const std::vector<std::string>& vec, const int source, const int target);
   MEDPARTITIONER_EXPORT std::vector<std::string> SendAndReceiveVectorOfString(const std::vector<std::string>& vec, const int source, const int target);
   MEDPARTITIONER_EXPORT std::vector<std::string> AllgathervVectorOfString(const std::vector<std::string>& vec);
-  
+
   void SendDoubleVec(const std::vector<double>& vec, const int target);
   std::vector<double> *RecvDoubleVec(const int source);
   void RecvDoubleVec(std::vector<double>& vec, const int source);
-    
+
   void SendIntVec(const std::vector<mcIdType>& vec, const int target);
   std::vector<int>* RecvIntVec(int source);
   void RecvIntVec(std::vector<mcIdType>& vec, const int source);
-  
+
   void SendDataArrayInt(const MEDCoupling::DataArrayInt* da, const int target);
   MEDCoupling::DataArrayInt *RecvDataArrayInt(const int source);
   void SendDataArrayDouble(const MEDCoupling::DataArrayDouble* da, const int target);

@@ -5,7 +5,7 @@ Reading a med file
 Objective
 ~~~~~~~~~
 
-The MEDLoader class also allows to read a med file. 
+The MEDLoader class also allows to read a med file.
 
 We will use the case of the 3D cube in order to retrieve all meshes and fields along with value on one node.
 
@@ -33,7 +33,7 @@ This information is given by a number : 0,-1 or -2.
 
  * 0 means  the high dimension of the mesh
  * -1 means the second high dimension of the mesh
- 
+
 and the iteration and order of the field. In our case, since there is no iteration, it's -1 for these 2 arguments::
 
 	mesh3D = mc.ReadUMeshFromFile(medFileName,MeshName,0)

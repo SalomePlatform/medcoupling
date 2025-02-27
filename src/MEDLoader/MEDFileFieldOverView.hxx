@@ -69,7 +69,7 @@ namespace MEDCoupling
     std::string _name;
     mcIdType _nb_nodes;
     std::vector< std::vector<mcIdType> > _geo_types_distrib;
-  }; 
+  };
 
   class MEDFileField1TSStructItem;
 

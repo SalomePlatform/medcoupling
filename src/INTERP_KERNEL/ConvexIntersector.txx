@@ -38,14 +38,14 @@
 namespace INTERP_KERNEL
 {
   CONVINTERSECTOR_TEMPLATE
-  CONVEX_INTERSECTOR_::ConvexIntersector(const MyMeshType& meshT, const MyMeshType& meshS, 
+  CONVEX_INTERSECTOR_::ConvexIntersector(const MyMeshType& meshT, const MyMeshType& meshS,
                                          double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf,
                                          double medianPlane, bool doRotate , int oriantation, int printLevel)
     :InterpType<MyMeshType,MyMatrix,CONVEX_INTERSECTOR_ >(meshT,meshS,dimCaracteristic, precision, md3DSurf, minDot3DSurf, medianPlane, doRotate, oriantation, printLevel),
      _epsilon(precision*dimCaracteristic)
   {
     if(PlanarIntersector<MyMeshType,MyMatrix>::_print_level >= 1)
-      {        
+      {
         std::cout << " - intersection type = convex " << std::endl;
         if(SPACEDIM==3){
           if(PlanarIntersector<MyMeshType,MyMatrix>::_do_rotate) std::cout << "  _do_rotate = true" << std::endl;
@@ -60,7 +60,7 @@ namespace INTERP_KERNEL
   {
     double result = 0;
     int orientation = 1;
-    
+
     /*** Obtain the coordinates of T and S ***/
     std::vector<double> CoordsT;
     std::vector<double> CoordsS;
@@ -79,13 +79,13 @@ namespace INTERP_KERNEL
 
     //DEBUG prints
     if(PlanarIntersector<MyMeshType,MyMatrix>::_print_level >= 3)
-      {       
+      {
         std::cout << std::endl << "Number of nodes of the intersection = "<<  nb_inter << std::endl;
         for(int i=0; i<  nb_inter; i++)
           {for (int idim=0; idim<SPACEDIM; idim++) std::cout << inter[SPACEDIM*i+idim]<< " "; std::cout << std::endl;}
         std::cout << std::endl <<"Intersection area = " << result << std::endl;
       }
-    
+
     return orientation*result;
   }
 
@@ -111,13 +111,13 @@ namespace INTERP_KERNEL
 
     //DEBUG prints
     if(PlanarIntersector<MyMeshType,MyMatrix>::_print_level >= 3)
-      {       
+      {
         std::cout << std::endl << "Number of nodes of the intersection = "<<  nb_inter << std::endl;
         for(int i=0; i<  nb_inter; i++)
           {for (int idim=0; idim<SPACEDIM; idim++) std::cout << inter[SPACEDIM*i+idim]<< " "; std::cout << std::endl;}
         std::cout << std::endl <<"Intersection area = " << result << std::endl;
       }
-    
+
     return result;
   }
 

@@ -81,7 +81,7 @@ to be extracted. :ref:`Go to advanced reading<medcoupling_AdvancedReading>`.
 
 
 .. _medcoupling_Write_mesh:
-   
+
 Write mesh into file
 --------------------
 
@@ -155,7 +155,7 @@ The following call creates an array of double values consisting of 3 tuples with
    :end-before:  UG_DataArrayDouble_0
 
 The next call creates an array equivalent to one create above:
-                 
+
 .. literalinclude:: ../../../src/MEDCoupling_Swig/UsersGuideExamplesTest.py
    :start-after: UG_DataArrayDouble_1
    :end-before:  UG_DataArrayDouble_1
@@ -167,13 +167,13 @@ The call below creates an array holding the same but differently arranged values
    :end-before:  UG_DataArrayDouble_2
 
 You can change number of components in *d* so that it holds 3 tuples with 2 components again:
-                 
+
 .. literalinclude:: ../../../src/MEDCoupling_Swig/UsersGuideExamplesTest.py
    :start-after: UG_DataArrayDouble_3
    :end-before:  UG_DataArrayDouble_3
 
 Arrays of different types (DataArrayInt, DataArrayFloat) can be created in the same way as DataArrayDouble:
-                 
+
 .. literalinclude:: ../../../src/MEDCoupling_Swig/UsersGuideExamplesTest.py
    :start-after: UG_DataArrayDouble_4
    :end-before:  UG_DataArrayDouble_4
@@ -206,7 +206,7 @@ Then create MEDCouplingUMesh instance giving its mesh dimension (2 here) and a n
    :start-after: PySnippetUMeshStdBuild1_2
    :end-before:  PySnippetUMeshStdBuild1_2
 
-Then add cells to the mesh. This step includes 
+Then add cells to the mesh. This step includes
 
 - giving an upper bound of the number of cells to be inserted into the unstructured mesh.
 - entering nodal connectivity of all cells, cell per cell using MEDCouplingUMesh.insertNextCell method.
@@ -365,7 +365,7 @@ Finally set field values:
 Modify field values
 -------------------
 
-applyFunc method modifies all tuples of a field at once. It changes both values and number of components, only number of tuples remains the same. 
+applyFunc method modifies all tuples of a field at once. It changes both values and number of components, only number of tuples remains the same.
 
 To set value *val* to all tuples of the field *f* and to make it have *nbComp* components, call:
 
@@ -396,7 +396,7 @@ Using this feature, you can set a magnitude of a 3D vector as the fourth compone
 Define groups and write mesh using advanced API
 -----------------------------------------------
 
-To get access to full power of MED file, for example to define groups of cells, it is 
+To get access to full power of MED file, for example to define groups of cells, it is
 necessary to use the advanced medcoupling API, namely class MEDFileUMesh_.
 
 .. _MEDFileUMesh: ../../developer/classMEDCoupling_1_1MEDFileUMesh.html

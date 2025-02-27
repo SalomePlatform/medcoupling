@@ -50,7 +50,7 @@ void MEDFileUMeshPerTypeCommon::loadCommonPart(med_idt fid, const char *mName, i
   med_bool changement,transformation;
   _fam=0;
   if(MEDmeshnEntity(fid,mName,dt,it,entity,geoElt,MED_FAMILY_NUMBER,MED_NODAL,&changement,&transformation)>0)
-    {    
+    {
       if(!mrs || mrs->isCellFamilyFieldReading())
         {
           MCAuto<DataArrayMedInt> miFam=DataArrayMedInt::New();
@@ -115,7 +115,7 @@ MEDFileUMeshPerType *MEDFileUMeshPerType::NewPart(med_idt fid, const char *mName
   med_geometry_type geoElt;
   med_entity_type whichEntity;
   getMedTypes(fid, mName, dt, it, geoElt2, geoElt, whichEntity);
-  
+
   MCAuto<MEDFileUMeshPerType> ret(new MEDFileUMeshPerType);
   ret->loadPart(fid,mName,dt,it,mdim,geoElt,geoElt2,whichEntity,strt,stp,step,mrs);
   return ret.retn();
@@ -125,7 +125,7 @@ MEDFileUMeshPerType *MEDFileUMeshPerType::NewPart(med_idt fid, const char *mName
 MEDFileUMeshPerType *MEDFileUMeshPerType::NewPart(med_idt fid, const char *mName, int dt, int it, int mdim, INTERP_KERNEL::NormalizedCellType geoElt2, med_geometry_type geoElt, med_entity_type whichEntity, const std::vector<mcIdType>& distrib, MEDFileMeshReadSelector *mrs)
 {
    MCAuto<MEDFileUMeshPerType> ret(new MEDFileUMeshPerType);
-  ret->loadPart(fid,mName,dt,it,mdim,geoElt,geoElt2,whichEntity,distrib,mrs);  
+  ret->loadPart(fid,mName,dt,it,mdim,geoElt,geoElt2,whichEntity,distrib,mrs);
   return ret.retn();
 }
 

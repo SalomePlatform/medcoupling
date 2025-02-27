@@ -75,14 +75,14 @@ int MeshCollectionDriver::readSeq(const char* filename, const char* meshname)
   MEDCoupling::DataArrayIdType* cellIds(mfm->getFamilyFieldAtLevel(0)->deepCopy());
   MEDCoupling::DataArrayIdType* faceIds(mfm->getFamilyFieldAtLevel(-1)->deepCopy());
   (_collection->getCellFamilyIds()).push_back(cellIds);
-  (_collection->getFaceFamilyIds()).push_back(faceIds); 
+  (_collection->getFaceFamilyIds()).push_back(faceIds);
 
   //reading groups
   (_collection->getFamilyInfo())=mfm->getFamilyInfo();
   (_collection->getGroupInfo())=mfm->getGroupInfo();
 
   (_collection->getCZ()).clear();
-  
+
   ParallelTopology* aPT = new ParallelTopology((_collection->getMesh()));
   _collection->setTopology(aPT, true);
   _collection->setName(meshname);
@@ -181,7 +181,7 @@ void MeshCollectionDriver::readSubdomain(int idomain)
   std::string meshname=MyGlobals::_Mesh_Names[idomain];
   std::string file=MyGlobals::_File_Names[idomain];
   readFileData(file,meshname,idomain);
-  
+
   std::vector<std::string> localInformation;
   std::string str;
   localInformation.push_back(str+"ioldDomain="+IntToStr(idomain));

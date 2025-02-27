@@ -26,17 +26,17 @@ namespace INTERP_TEST
 {
 
 
-  void BBTreeTest::setUp() 
+  void BBTreeTest::setUp()
   {
   }
 
- 
-  void BBTreeTest::tearDown() 
+
+  void BBTreeTest::tearDown()
   {
   }
 
   /**
-   * Test that creates a tree in 2D and check that 
+   * Test that creates a tree in 2D and check that
    * the results are correct in three
    * cases :
    * a non matching search
@@ -56,20 +56,20 @@ namespace INTERP_TEST
           bbox[4*(i*N+j)+3]=j+1;
         }
     BBTree<2> tree(bbox,0,0,N*N);
-    std::vector <int> elems; 
-  
+    std::vector <int> elems;
+
     //box outside the tree
     double bbox1[4]={-2.0, -1.0, 0.0, 1.0};
     tree.getIntersectingElems(bbox1,elems);
     CPPUNIT_ASSERT_EQUAL(0,(int)elems.size());
     elems.clear();
-  
+
     //box intersecting 4 tree elems
     double bbox2[4]={2.5, 3.5, 0.5, 1.5};
     tree.getIntersectingElems(bbox2,elems);
     CPPUNIT_ASSERT_EQUAL(4,(int)elems.size());
     elems.clear();
-  
+
     //box exactly superimposed to two tree elems
     double bbox3[4]={5.0,6.0,7.0,9.0};
     tree.getIntersectingElems(bbox3,elems);
@@ -89,7 +89,7 @@ namespace INTERP_TEST
     const int nbP = 8, dim = 3;
     double coords[nbP*dim] =
       {
-        0,0,0,    2,0,0,   2,1,0,   0,1,0, 
+        0,0,0,    2,0,0,   2,1,0,   0,1,0,
         10,0,10, 12,0,10, 12,1,10, 10,1,10
       };
     INTERP_KERNEL::DirectedBoundingBox bb( coords, nbP, dim);
@@ -100,9 +100,9 @@ namespace INTERP_TEST
       CPPUNIT_ASSERT( !bb.isOut( coords + i ));
 
     // points near corners of extrusion are OUT
-    double p[nbP*dim] = 
+    double p[nbP*dim] =
       {
-        0,0,3,  6,0,3,   5,1,2,   0,1,2, 
+        0,0,3,  6,0,3,   5,1,2,   0,1,2,
         8,0,9, 11,0,8, 11,0.5,8, 8,0.5,9
       };
     for ( int i = 0; i < nbP*dim; i+=dim )
@@ -111,22 +111,22 @@ namespace INTERP_TEST
     // the extrusions  shifted by 3 in XOY plane are OUT
     double shifted_X[nbP*dim] =
       {
-        3,0,0,    5,0,0,   5,1,0,   3,1,0, 
+        3,0,0,    5,0,0,   5,1,0,   3,1,0,
         13,0,10, 15,0,10, 15,1,10, 13,1,10
       };
     double shifted_x[nbP*dim] =
       {
-        -3,0,0, -1,0,0, -1,1,0, -3,1,0, 
+        -3,0,0, -1,0,0, -1,1,0, -3,1,0,
         7,0,10, 9,0,10, 9,1,10, 7,1,10
       };
     double shifted_Y[nbP*dim] =
       {
-        0,3,0,    2,3,0,   2,4,0,   0,4,0, 
+        0,3,0,    2,3,0,   2,4,0,   0,4,0,
         10,3,10, 12,3,10, 12,4,10, 10,4,10
       };
     double shifted_y[nbP*dim] =
       {
-        0,-3,0,    2,-3,0,   2,-2,0,   0,-2,0, 
+        0,-3,0,    2,-3,0,   2,-2,0,   0,-2,0,
         10,-3,10, 12,-3,10, 12,-2,10, 10,-2,10
       };
     INTERP_KERNEL::DirectedBoundingBox shiftedBB_x( shifted_x, nbP, dim);
@@ -142,7 +142,7 @@ namespace INTERP_TEST
     // intersecting box is IN
     double inters_coords[nbP*dim] =
       {
-        0,0,0,    2,0,0,   2,1,0,   0,1,0, 
+        0,0,0,    2,0,0,   2,1,0,   0,1,0,
         0,0,2,    2,0,2,   2,1,2,   0,1,2
       };
     INTERP_KERNEL::DirectedBoundingBox ibb( inters_coords, nbP, dim);
@@ -185,7 +185,7 @@ namespace INTERP_TEST
       CPPUNIT_ASSERT( !bb.isOut( coords + i ));
 
     // points near corners of extrusion are OUT
-    double p[nbP*dim] = 
+    double p[nbP*dim] =
       {
         1,2,  4,1,
         11,8, 8,9,
@@ -213,7 +213,7 @@ namespace INTERP_TEST
     // intersecting box is IN
     double inters_coords[nbP*dim] =
       {
-        0,0,    2,0, 
+        0,0,    2,0,
         0,2,    2,2
       };
     INTERP_KERNEL::DirectedBoundingBox ibb( inters_coords, nbP, dim);
@@ -254,7 +254,7 @@ namespace INTERP_TEST
       CPPUNIT_ASSERT( !bb.isOut( coords + i ));
 
     // points near ends are OUT
-    double p[nbP*dim] = 
+    double p[nbP*dim] =
       {
         -0.0001, 10.1
       };

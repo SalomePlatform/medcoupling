@@ -1851,7 +1851,7 @@ void ASCIIReader::initIntReading(int nbValues)
 
 void ASCIIReader::initDoubleReading(int nbValues)
 {
-  init( nbValues, 3, 22 ); 
+  init( nbValues, 3, 22 );
 }
 
 //================================================================================

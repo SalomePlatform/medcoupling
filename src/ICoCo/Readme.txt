@@ -1,4 +1,4 @@
-Linked into target 'mc_icoco' library. 
+Linked into target 'mc_icoco' library.
 
 The files below are part of the official ICoCo API and should NOT be modified:
     - ICoCoField.h

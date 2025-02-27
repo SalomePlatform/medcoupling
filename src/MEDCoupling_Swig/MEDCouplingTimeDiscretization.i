@@ -71,7 +71,7 @@ namespace MEDCoupling
     virtual const DataArrayDouble *getEndArray() const;
     virtual DataArrayDouble *getEndArray();
     virtual std::vector< const DataArrayDouble *> getArraysForTime(double time) const;
-    virtual void getValueForTime(double time, const std::vector<double>& vals, double *res) const; 
+    virtual void getValueForTime(double time, const std::vector<double>& vals, double *res) const;
     virtual void getArrays(std::vector<DataArrayDouble *>& arrays) const;
     virtual bool isBefore(const MEDCouplingTimeDiscretization *other) const;
     virtual bool isStrictlyBefore(const MEDCouplingTimeDiscretization *other) const;

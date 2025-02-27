@@ -52,7 +52,7 @@ namespace INTERP_KERNEL
 
     /*!
      * \brief Returns volume of intersection
-     *  \retval double - 
+     *  \retval double -
      */
     INTERPKERNEL_EXPORT inline double getVolume() const { return _int_volume; }
 

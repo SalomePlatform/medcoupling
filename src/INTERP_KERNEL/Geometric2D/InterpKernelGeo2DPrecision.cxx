@@ -34,6 +34,6 @@ INTERP_KERNEL::QuadraticPlanarPrecision::~QuadraticPlanarPrecision()
 }
 
 void INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(double precision)
-{ 
+{
   _precision=precision;
 }

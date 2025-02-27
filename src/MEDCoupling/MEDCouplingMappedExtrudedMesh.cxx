@@ -657,7 +657,7 @@ mcIdType MEDCouplingMappedExtrudedMesh::FindCorrespCellByNodalConn(const std::ve
  * @param eps tolerance acceptable to determine compatibility
  * @param m1r output mesh with ref count equal to 1 with meshDim==1 and spaceDim==1
  * @param m2r output mesh with ref count equal to 1 with meshDim==1 and spaceDim==1
- * @param v is the output normalized vector of the common direction of 'm1' and 'm2'  
+ * @param v is the output normalized vector of the common direction of 'm1' and 'm2'
  * @throw in case that m1 and m2 are not compatible each other.
  */
 void MEDCouplingMappedExtrudedMesh::Project1DMeshes(const MEDCouplingUMesh *m1, const MEDCouplingUMesh *m2, double eps,

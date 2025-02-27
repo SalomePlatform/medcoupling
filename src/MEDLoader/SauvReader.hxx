@@ -95,7 +95,7 @@ class SauvReader : public MEDCoupling::RefCountObject
   double getDouble() const                               { return _fileReader->getDouble(); }
   std::string getName() const                            { return _fileReader->getName(); }
   std::string lineNb() const;
-  
+
 
   std::set<int> _encounteredPiles;
 

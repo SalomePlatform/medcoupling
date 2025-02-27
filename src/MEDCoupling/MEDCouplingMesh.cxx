@@ -116,7 +116,7 @@ bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const
  * This method checks geo equivalence between two meshes : \a this and \a other.
  * If no exception is thrown \a this and \a other are geometrically equivalent regarding \a levOfCheck level.
  * This method is typically used to change the mesh of a field "safely" depending the \a levOfCheck level considered.
- * 
+ *
  * In case of success cell \c other[i] is equal to the cell \c this[cellCor[i]].
  * In case of success node \c other->getCoords()[i] is equal to the node \c this->getCoords()[nodeCor[i]].
  *
@@ -295,7 +295,7 @@ MEDCouplingMesh *MEDCouplingMesh::buildPartRangeAndReduceNodes(mcIdType beginCel
  * The 'func' is a callback that takes as first parameter an input array of size 'this->getSpaceDimension()',
  * the second parameter is a pointer on a valid zone of size at least equal to 'nbOfComp' values. And too finish
  * the returned value is a boolean that is equal to False in case of invalid evaluation (log(0) for example...)
- * 
+ *
  * \param t type of field returned and specifies where the evaluation of func will be done.
  * \param nbOfComp number of components of returned field.
  * \param func pointer to a function that should return false if the evaluation failed. (division by 0. for example)
@@ -367,7 +367,7 @@ void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other)
  *  \param [in] func - a string defining the expression which is evaluated to get
  *         field values.
  *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
- *         caller is to delete this field using decrRef() as it is no more needed. 
+ *         caller is to delete this field using decrRef() as it is no more needed.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If computing \a func fails.
  *
@@ -398,7 +398,7 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
  * a corresponding node coordinates array (where it is set via
  * DataArrayDouble::setInfoOnComponent()).<br>
  * For more info on supported expressions that can be used in the function, see \ref
- * MEDCouplingArrayApplyFuncExpr. <br> 
+ * MEDCouplingArrayApplyFuncExpr. <br>
  * In a general case, a value resulting from the function evaluation is assigned to all
  * components of a field value. But there is a possibility to have its own expression for
  * each component within one function. For this purpose, there are predefined variable
@@ -418,7 +418,7 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
  *  \param [in] func - a string defining the expression which is evaluated to get
  *         field values.
  *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
- *         caller is to delete this field using decrRef() as it is no more needed. 
+ *         caller is to delete this field using decrRef() as it is no more needed.
  *  \throw If the node coordinates are not defined.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If computing \a func fails.
@@ -471,7 +471,7 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalyticCompo(TypeOfField t, in
  *  \param [in] func - a string defining the expression which is evaluated to get
  *         field values.
  *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
- *         caller is to delete this field using decrRef() as it is no more needed. 
+ *         caller is to delete this field using decrRef() as it is no more needed.
  *  \throw If the node coordinates are not defined.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If computing \a func fails.
@@ -519,7 +519,7 @@ MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(const MEDCouplingMesh *mesh1, cons
  * This method performs a systematic conversion to unstructured meshes before
  * performing aggregation contrary to the other MergeMeshes()
  * with two parameters that works only on the same type of meshes. So here it is possible
- * to mix different type of meshes. 
+ * to mix different type of meshes.
  *  \param [in] meshes - a vector of meshes to concatenate.
  *  \return MEDCouplingMesh * - the result mesh. It is a new instance of
  *          MEDCouplingUMesh. The caller is to delete this mesh using decrRef() as it
@@ -553,10 +553,10 @@ MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(std::vector<const MEDCouplingMesh 
 /*!
  * For example if \a type is INTERP_KERNEL::NORM_TRI3 , INTERP_KERNEL::NORM_POLYGON is returned.
  * If \a type is INTERP_KERNEL::NORM_HEXA8 , INTERP_KERNEL::NORM_POLYHED is returned.
- * 
+ *
  * \param [in] type the geometric type for which the corresponding dynamic type, is asked.
  * \return the corresponding dynamic type, able to store the input \a type.
- * 
+ *
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
 INTERP_KERNEL::NormalizedCellType MEDCouplingMesh::GetCorrespondingPolyType(INTERP_KERNEL::NormalizedCellType type)
@@ -568,7 +568,7 @@ INTERP_KERNEL::NormalizedCellType MEDCouplingMesh::GetCorrespondingPolyType(INTE
 /*!
  * \param [in] type the geometric type for which the number of nodes consituting it, is asked.
  * \return number of nodes consituting the input geometric type \a type.
- * 
+ *
  * \throw if type is dynamic as \c INTERP_KERNEL::NORM_POLYHED , \c INTERP_KERNEL::NORM_POLYGON , \c INTERP_KERNEL::NORM_QPOLYG
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
@@ -583,7 +583,7 @@ mcIdType MEDCouplingMesh::GetNumberOfNodesOfGeometricType(INTERP_KERNEL::Normali
 /*!
  * \param [in] type the geometric type for which the status static/dynamic is asked.
  * \return true for static geometric type, false for dynamic geometric type.
- * 
+ *
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
 bool MEDCouplingMesh::IsStaticGeometricType(INTERP_KERNEL::NormalizedCellType type)
@@ -601,7 +601,7 @@ bool MEDCouplingMesh::IsLinearGeometricType(INTERP_KERNEL::NormalizedCellType ty
 /*!
  * \param [in] type the geometric type for which the dimension is asked.
  * \return the dimension associated to the input geometric type \a type.
- * 
+ *
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
 int MEDCouplingMesh::GetDimensionOfGeometricType(INTERP_KERNEL::NormalizedCellType type)
@@ -613,7 +613,7 @@ int MEDCouplingMesh::GetDimensionOfGeometricType(INTERP_KERNEL::NormalizedCellTy
 /*!
  * \param [in] type the geometric type for which the representation is asked.
  * \return the string representation corresponding to the input geometric type \a type.
- * 
+ *
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
 const char *MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NormalizedCellType type)
@@ -628,7 +628,7 @@ const char *MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NormalizedCel
  * getCellsContainingPoint() for the case of multiple points.
  *  \param [in] pos - an array of coordinates of points in full interlace mode :
  *         X0,Y0,Z0,X1,Y1,Z1,... Size of the array must be \a
- *         this->getSpaceDimension() * \a nbOfPoints 
+ *         this->getSpaceDimension() * \a nbOfPoints
  *  \param [in] nbOfPoints - number of points to locate within \a this mesh.
  *  \param [in] eps - radius of balls (i.e. the precision).
  *  \param [out] elts - vector returning ids of found cells.
@@ -666,7 +666,7 @@ void MEDCouplingMesh::getCellsContainingPoints(const double *pos, mcIdType nbOfP
  * Behaves like MEDCouplingMesh::getCellsContainingPoints for cells in \a this that are linear.
  * For quadratic cells in \a this, this method behaves by just considering linear part of cells.
  * This method is here only for backward compatibility (interpolation GaussPoints to GaussPoints).
- * 
+ *
  * \sa MEDCouplingMesh::getCellsContainingPoints, MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss
  */
 void MEDCouplingMesh::getCellsContainingPointsLinearPartOnlyOnNonDynType(const double *pos, mcIdType nbOfPoints, double eps, MCAuto<DataArrayIdType>& elts, MCAuto<DataArrayIdType>& eltsIndex) const

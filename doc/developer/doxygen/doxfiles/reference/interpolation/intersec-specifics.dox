@@ -1,11 +1,11 @@
 /*!
 \page intersec-specifics Specificities of 2D and 3D intersectors
 
-All the options described here can be set using the 
+All the options described here can be set using the
 \ref MEDCoupling::MEDCouplingRemapper::setOptionInt "MEDCouplingRemapper::setOptionInt",
 \ref MEDCoupling::MEDCouplingRemapper::setOptionDouble "MEDCouplingRemapper::setOptionDouble",
 and \ref MEDCoupling::MEDCouplingRemapper::setOptionString "MEDCouplingRemapper::setOptionString"
-methods.   
+methods.
 
 \section interpolation2D Special features of 2D intersectors
 

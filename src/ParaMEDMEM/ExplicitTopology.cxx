@@ -44,8 +44,8 @@ _nb_components(1)
 {
   _nb_elems=paramesh.getCellMesh()->getNumberOfCells();
   const mcIdType* global=paramesh.getGlobalNumberingCell();
-  _loc2glob=new mcIdType[_nb_elems]; 
-  
+  _loc2glob=new mcIdType[_nb_elems];
+
     for (mcIdType i=0; i<_nb_elems; i++)
     {
       _loc2glob[i]=global[i];
@@ -75,24 +75,24 @@ ExplicitTopology::~ExplicitTopology()
 
 /*! Serializes the data contained in the Explicit Topology
  * for communication purposes*/
-void ExplicitTopology::serialize(mcIdType* & serializer, mcIdType& size) const 
+void ExplicitTopology::serialize(mcIdType* & serializer, mcIdType& size) const
 {
   vector <mcIdType> buffer;
-  
+
   buffer.push_back(_nb_elems);
   for (mcIdType i=0; i<_nb_elems; i++)
   {
     buffer.push_back(_loc2glob[i]);
   }
-    
+
   serializer=new mcIdType[buffer.size()];
   size=ToIdType(buffer.size());
   copy(buffer.begin(), buffer.end(), serializer);
-  
+
 }
 /*! Unserializes the data contained in the Explicit Topology
  * after communication. Uses the same structure as the one used for serialize()
- * 
+ *
  * */
 void ExplicitTopology::unserialize(const mcIdType* serializer,const CommInterface& comm_interface)
 {
@@ -106,7 +106,7 @@ void ExplicitTopology::unserialize(const mcIdType* serializer,const CommInterfac
     _loc2glob[i]=*ptr_serializer;
     _glob2loc[*ptr_serializer]=i;
     ptr_serializer++;
-    
+
   }
 
 }

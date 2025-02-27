@@ -56,7 +56,7 @@ MESSAGE(STATUS "Building ${PROJECT_NAME_UC} ${${PROJECT_NAME_UC}_VERSION} from \
 # ==============
 INCLUDE(SalomeSetupPlatform)
 
-# [ABN]: use the below for aggressive code quality check: 
+# [ABN]: use the below for aggressive code quality check:
 #if( EXISTS "aaaa")
 #    add_definitions(-Weverything)
 #    add_definitions(-Wno-inconsistent-missing-override)
@@ -72,7 +72,7 @@ INCLUDE(SalomeSetupPlatform)
 #    add_definitions(-Wno-exit-time-destructors -Wno-global-constructors -Wno-missing-prototypes)
 #    add_definitions(-Wno-covered-switch-default -Wno-weak-template-vtables -Wno-undefined-func-template -Wno-used-but-marked-unused)
 #    add_definitions(-Wno-unreachable-code-return -Wno-missing-noreturn -Wno-unused-member-function -Wno-header-hygiene)
-#    add_definitions(-Wno-ignored-qualifiers) # because of MED-file 
+#    add_definitions(-Wno-ignored-qualifiers) # because of MED-file
 #    add_definitions(-Wno-unused-function -Wno-unused-macros)
 #    add_definitions(-Wno-missing-field-initializers)
 #    add_definitions(-Wno-shadow)  # SWIG generates a lot of those ...
@@ -104,7 +104,7 @@ ELSE()
 ENDIF()
 CMAKE_DEPENDENT_OPTION(MEDCOUPLING_PARTITIONER_METIS "Enable metis graph library in MEDPartitioner."  ${USE_METIS_NOT_PARMETIS}
         "MEDCOUPLING_ENABLE_PARTITIONER" OFF)
-CMAKE_DEPENDENT_OPTION(MEDCOUPLING_PARTITIONER_SCOTCH "Enable scotch graph library in MEDPartitioner." ON 
+CMAKE_DEPENDENT_OPTION(MEDCOUPLING_PARTITIONER_SCOTCH "Enable scotch graph library in MEDPartitioner." ON
         "MEDCOUPLING_ENABLE_PARTITIONER" OFF)
 CMAKE_DEPENDENT_OPTION(MEDCOUPLING_PARTITIONER_PARMETIS "Enable parmetis graph library in MEDPartitioner." ON
         "MEDCOUPLING_ENABLE_PARTITIONER;MEDCOUPLING_USE_MPI" OFF)
@@ -177,7 +177,7 @@ IF(MEDCOUPLING_USE_MPI)
   # Used when exporting configuration:
   SET(MEDCOUPLING_CXX_COMPILER "${CMAKE_CXX_COMPILER}")
   SET(MEDCOUPLING_MPI_CXX_COMPILER "${MPI_CXX_COMPILER}")  # Might not always be set even if MPI there ...
-  SET(MEDCOUPLING_MPI_CXX_LIBRARIES "${MPI_CXX_LIBRARIES}")  
+  SET(MEDCOUPLING_MPI_CXX_LIBRARIES "${MPI_CXX_LIBRARIES}")
 
   ADD_DEFINITIONS("-DHAVE_MPI")
   SALOME_ADD_MPI_TO_HDF5()
@@ -224,7 +224,7 @@ IF(UNIX)
     MESSAGE(STATUS "Lapacke libraries: ${LAPACK_LIBRARIES}")
     MESSAGE(STATUS "Lapacke include dirs: ${LAPACKE_INCLUDE_DIRS}")
   ELSE()
-    MESSAGE(FATAL_ERROR "Error in Lapacke detection ! lapacke not found !") 
+    MESSAGE(FATAL_ERROR "Error in Lapacke detection ! lapacke not found !")
   ENDIF(LAPACK_FOUND)
   SALOME_LOG_OPTIONAL_PACKAGE(Lapack MEDCOUPLING_ENABLE_SHAPERECOGN)
 ELSEIF (MSVC)
@@ -248,7 +248,7 @@ ELSEIF (MSVC)
     MESSAGE(STATUS "Lapacke libraries: ${LAPACK_LIBRARIES}")
     MESSAGE(STATUS "Lapacke include dirs: ${LAPACKE_INCLUDE_DIRS}")
   ELSE()
-    MESSAGE(FATAL_ERROR "Error in Lapacke detection ! lapacke not found !") 
+    MESSAGE(FATAL_ERROR "Error in Lapacke detection ! lapacke not found !")
   ENDIF(LAPACK_FOUND)
   SALOME_LOG_OPTIONAL_PACKAGE(Lapack MEDCOUPLING_ENABLE_SHAPERECOGN)
 
@@ -399,7 +399,7 @@ IF(MEDCOUPLING_USE_MPI)
     ENDIF()
   ENDIF()
 ENDIF()
-  
+
 IF(MEDCOUPLING_ENABLE_SHAPERECOGN)
   LIST(APPEND _${PROJECT_NAME}_exposed_targets shaperecogn)
 ENDIF(MEDCOUPLING_ENABLE_SHAPERECOGN)
@@ -430,22 +430,22 @@ SET(XDR_ROOT_DIR "${XDR_ROOT_DIR}")
 SET(CONF_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/${INSTALL_INCLUDE_DIR}")
 
 # Build variables that will be expanded when configuring Salome<MODULE>Config.cmake:
-SALOME_CONFIGURE_PREPARE(MEDFile MPI Boost Swig Python CppUnit Graphviz Doxygen Sphinx   
+SALOME_CONFIGURE_PREPARE(MEDFile MPI Boost Swig Python CppUnit Graphviz Doxygen Sphinx
                          Metis ParMetis Scotch XDR)
 
-CONFIGURE_PACKAGE_CONFIG_FILE(${PROJECT_NAME}Config.cmake.in 
+CONFIGURE_PACKAGE_CONFIG_FILE(${PROJECT_NAME}Config.cmake.in
     ${PROJECT_BINARY_DIR}/to_install/${PROJECT_NAME}Config.cmake
     INSTALL_DESTINATION "${MEDCOUPLING_INSTALL_CMAKE_LOCAL}"
-    PATH_VARS CONF_INCLUDE_DIRS MEDCOUPLING_INSTALL_CMAKE_LOCAL CMAKE_INSTALL_PREFIX 
+    PATH_VARS CONF_INCLUDE_DIRS MEDCOUPLING_INSTALL_CMAKE_LOCAL CMAKE_INSTALL_PREFIX
        MEDFILE_ROOT_DIR MPI_ROOT_DIR
        BOOST_ROOT_DIR SWIG_ROOT_DIR PYTHON_ROOT_DIR CPPUNIT_ROOT_DIR GRAPHVIZ_ROOT_DIR DOXYGEN_ROOT_DIR
-       SPHINX_ROOT_DIR 
+       SPHINX_ROOT_DIR
        METIS_ROOT_DIR PARMETIS_ROOT_DIR SCOTCH_ROOT_DIR XDR_ROOT_DIR)
 
 WRITE_BASIC_PACKAGE_VERSION_FILE(${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
     VERSION ${${PROJECT_NAME_UC}_VERSION}
     COMPATIBILITY AnyNewerVersion)
-  
+
 # Install the CMake configuration files:
 INSTALL(FILES
   "${PROJECT_BINARY_DIR}/to_install/${PROJECT_NAME}Config.cmake"
@@ -453,6 +453,6 @@ INSTALL(FILES
   DESTINATION "${MEDCOUPLING_INSTALL_CMAKE_LOCAL}")
 
 # Install the export set for use with the install-tree
-INSTALL(EXPORT ${PROJECT_NAME}TargetGroup DESTINATION "${MEDCOUPLING_INSTALL_CMAKE_LOCAL}" 
+INSTALL(EXPORT ${PROJECT_NAME}TargetGroup DESTINATION "${MEDCOUPLING_INSTALL_CMAKE_LOCAL}"
         FILE ${PROJECT_NAME}Targets.cmake)
 

@@ -30,7 +30,7 @@
 #include "MEDCouplingRefCountObject.hxx"
 
 namespace MEDCoupling
-{ 
+{
   class MEDFileBlowStrEltUp
   {
   public:

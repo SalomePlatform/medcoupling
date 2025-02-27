@@ -75,7 +75,7 @@ namespace INTERP_KERNEL
     bbox.resize(2*SPACEDIM* nbelems);
     const double* coords = mesh.getCoordinatesPtr();
     const ConnType* conn = mesh.getConnectivityPtr();
-    const ConnType* conn_index = mesh.getConnectivityIndexPtr();  
+    const ConnType* conn_index = mesh.getConnectivityIndexPtr();
     int ibox=0;
     for(long icell=0; icell<nbelems; icell++)
       {
@@ -89,7 +89,7 @@ namespace INTERP_KERNEL
         //updating the bounding box with each node of the element
         for (ConnType j=0; j<nb_nodes_per_elem; j++)
           {
-            const double* coord_node = coords + 
+            const double* coord_node = coords +
               SPACEDIM*OTT<ConnType,numPol>
               ::coo2C(conn[OTT<ConnType,numPol>::conn2C(conn_index[icell]+j)]);
             for(int idim=0; idim<SPACEDIM; idim++)
@@ -137,10 +137,10 @@ namespace INTERP_KERNEL
           }
       }
   }
-  
+
   /*!
    * \param [in] startOfSeg - input coming from intersectSegments or intersectSegmentsInternal
-   * \param [in] endOfSeg - input coming from intersectSegments or intersectSegmentsInternal. NO Assume about sort 
+   * \param [in] endOfSeg - input coming from intersectSegments or intersectSegmentsInternal. NO Assume about sort
    * \param [in] pt - position of point that the method computes the bary coords for.
    */
   template<class MyMeshType, class MyMatrix>
@@ -149,7 +149,7 @@ namespace INTERP_KERNEL
     double deno(endOfSeg-startOfSeg);
     startPos = (endOfSeg-pt)/deno;
     startPos = std::max(startPos,0.); startPos = std::min(startPos,1.);
-    endPos=1.-startPos; 
+    endPos=1.-startPos;
   }
 
   /*!
@@ -180,7 +180,7 @@ namespace INTERP_KERNEL
       }
     return false;
   }
-  
+
   template<class MyMeshType, class MyMatrix>
   typename MyMeshType::MyConnType CurveIntersector<MyMeshType,MyMatrix>::getNodeIdOfTargetCellAt(ConnType icellT, ConnType nodeIdInCellT) const
   {
@@ -296,10 +296,10 @@ namespace INTERP_KERNEL
           }
       }
   }
-  
+
   template<class MyMeshType, class MyMatrix>
   bool CurveIntersector<MyMeshType,MyMatrix>::projectionThis(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt) const
-  {    
+  {
     enum { X=0, Y };
     switch(SPACEDIM)
       {
@@ -350,7 +350,7 @@ namespace INTERP_KERNEL
     }
     return true;
   }
-  
+
   /*!
    * \brief Return length of intersection of two segments
    */
@@ -359,7 +359,7 @@ namespace INTERP_KERNEL
   {
     if(!projectionThis(coordsT,coordsS,xs0,xs1,xt0,xt1))
       return 0.;
-    
+
     if ( xt0 > xt1 ) std::swap( xt0, xt1 );
     if ( xs0 > xs1 ) std::swap( xs0, xs1 );
 
@@ -400,7 +400,7 @@ namespace INTERP_KERNEL
     const double *coordsT_1D(&xt);
     return PointLocatorAlgos<DummyMyMeshType1D<MyMeshType>>::isElementContainsPoint(coordsT_1D,NORM_SEG2,coordsS_1D,TAB,2,this->_precision);
   }
-  
+
   /*!
    * \brief Return length of intersection of two segments
    */

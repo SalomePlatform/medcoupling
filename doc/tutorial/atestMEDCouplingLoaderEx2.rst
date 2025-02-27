@@ -49,7 +49,7 @@ Intersection géométrique de maillages
 	ids3 = iMob.findIdsEqual(-1)
 	partFixmWithoutZone1Mobm = partFixMob[ids3]
 	displayVTK(partFixmWithoutZone1Mobm,"partFixmWithoutZone1Mobm.vtu")
-	# Check that intersection worked properly 
+	# Check that intersection worked properly
 	# Check #0
 	areaPartFixm = partFixm.getMeasureField(False).getArray() # if set to True returns the absolut field value
 	areaPartFixm.abs()
@@ -103,7 +103,7 @@ Intersection géométrique de maillages
 	st = 0
 	end = st + len(zonesInMobm[0])
 	arr[iMob2.findIdsInRange(st,end)] = 1.
-	st += len(zonesInMobm[0]) ; 
+	st += len(zonesInMobm[0]) ;
 	end = st + len(zonesInMobm[1])
 	arr[iMob2.findIdsInRange(st,end)] = 2.
 	st += len(zonesInMobm[1])

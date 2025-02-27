@@ -19,7 +19,7 @@
 
 #ifdef WIN32
 %module MEDCouplingCompat
-#else 
+#else
 %module MEDCoupling
 #endif
 

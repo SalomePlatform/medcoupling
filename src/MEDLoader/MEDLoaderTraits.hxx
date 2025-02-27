@@ -47,7 +47,7 @@ namespace MEDCoupling
   class MEDFileInt32FieldMultiTSWithoutSDA;
   class MEDFileInt64FieldMultiTSWithoutSDA;
   class MEDFileFloatFieldMultiTSWithoutSDA;
-  
+
   template<>
   struct MEDLOADER_EXPORT MLFieldTraits<double>
   {
@@ -65,7 +65,7 @@ namespace MEDCoupling
     typedef MEDFileFloatField1TS F1TSType;
     typedef MEDFileFloatField1TSWithoutSDA F1TSWSDAType;
   };
-  
+
   template<>
   struct MEDLOADER_EXPORT MLFieldTraits<Int32>
   {
@@ -88,17 +88,17 @@ namespace MEDCoupling
   struct MEDLOADER_EXPORT MLMeshTraits
   {
   };
-  
+
   class MEDFileUMesh;
   class MEDFileCMesh;
   class MEDFileCurveLinearMesh;
-  
+
   template<>
   struct MEDLOADER_EXPORT MLMeshTraits<MEDFileUMesh>
   {
     static const char ClassName[];
   };
-  
+
   template<>
   struct MEDLOADER_EXPORT MLMeshTraits<MEDFileCMesh>
   {

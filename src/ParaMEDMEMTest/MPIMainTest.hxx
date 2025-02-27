@@ -53,13 +53,13 @@ int main(int argc, char* argv[])
   MPI_Init(&argc,&argv);
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-  
+
   // --- Create the event manager and test controller
   CPPUNIT_NS::TestResult controller;
 
   // ---  Add a listener that colllects test result
   CPPUNIT_NS::TestResultCollector result;
-  controller.addListener( &result );        
+  controller.addListener( &result );
 
   // ---  Add a listener that print dots as test run.
 #ifdef WIN32
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 #else
   CPPUNIT_NS::BriefTestProgressListener progress;
 #endif
-  controller.addListener( &progress );      
+  controller.addListener( &progress );
 
   // ---  Get the top level suite from the registry
 
@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
   testFile.open(testFileName.str().c_str(), std::ios::out |  std::ios::trunc);
   //CPPUNIT_NS::CompilerOutputter outputter( &result, std::cerr );
   CPPUNIT_NS::CompilerOutputter outputter( &result, testFile );
-  outputter.write(); 
+  outputter.write();
 
   // ---  Run the tests.
 
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
   // ---  Return error code 1 if the one of test failed.
 
   MPI_Finalize();
-  
+
   return wasSucessful ? 0 : 1;
 }
 

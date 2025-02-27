@@ -66,7 +66,7 @@ void MPIAccessDECTest::test_AllToAllDEC( bool Asynchronous ) {
 
   debugStream << "test_AllToAllDEC" << endl ;
 
-  //  MPI_Init(&argc, &argv) ; 
+  //  MPI_Init(&argc, &argv) ;
 
   int size ;
   int myrank ;
@@ -102,7 +102,7 @@ void MPIAccessDECTest::test_AllToAllDEC( bool Asynchronous ) {
 
   MPIAccessDEC * MyMPIAccessDEC = new MPIAccessDEC( *sourcegroup , *targetgroup ,
                                                     Asynchronous ) ;
-  
+
   MPIAccess * mpi_access = MyMPIAccessDEC->getMPIAccess() ;
 
 #define maxreq 100

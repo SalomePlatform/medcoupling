@@ -44,7 +44,7 @@ namespace INTERP_KERNEL
     //~DirectedBoundingBox();
 
     INTERPKERNEL_EXPORT void enlarge(const double tol);
-    
+
     INTERPKERNEL_EXPORT bool isDisjointWith(const DirectedBoundingBox& box) const;
 
     INTERPKERNEL_EXPORT bool isDisjointWith(const double* box) const;
@@ -87,7 +87,7 @@ namespace INTERP_KERNEL
   //================================================================================
   /*!
    * \brief Test point in local CS against box extremities
-   * 
+   *
    */
   //================================================================================
 

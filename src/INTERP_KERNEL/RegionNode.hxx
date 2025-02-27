@@ -26,7 +26,7 @@ namespace INTERP_KERNEL
 {
 
   /**
-   * \brief Class containing a tuplet of a source region and a target region. 
+   * \brief Class containing a tuplet of a source region and a target region.
    * This is used as the object to put on the stack in the depth-first search
    * in the bounding-box filtering process.
    */
@@ -34,11 +34,11 @@ namespace INTERP_KERNEL
   class RegionNode
   {
   public:
-    
+
     RegionNode() { }
-    
+
     ~RegionNode() { }
-    
+
     /**
      *  Accessor to source region
      *
@@ -54,12 +54,12 @@ namespace INTERP_KERNEL
     MeshRegion<ConnType>& getTargetRegion() { return _targetRegion; }
 
   private:
-    
+
     /// source region
-    MeshRegion<ConnType> _srcRegion;          
-    
+    MeshRegion<ConnType> _srcRegion;
+
     /// target region
-    MeshRegion<ConnType> _targetRegion;       
+    MeshRegion<ConnType> _targetRegion;
 
   };
 

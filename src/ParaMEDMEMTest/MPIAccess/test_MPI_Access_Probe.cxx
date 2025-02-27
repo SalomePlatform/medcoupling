@@ -44,7 +44,7 @@ void MPIAccessTest::test_MPI_Access_Probe() {
 
   debugStream << "test_MPI_Access_Probe" << endl ;
 
-//  MPI_Init(&argc, &argv) ; 
+//  MPI_Init(&argc, &argv) ;
 
   int size ;
   int myrank ;

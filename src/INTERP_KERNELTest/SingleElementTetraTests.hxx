@@ -22,7 +22,7 @@
 
 #include "InterpolationTestSuite.hxx"
 
-namespace INTERP_TEST 
+namespace INTERP_TEST
 {
   /**
    * \brief Class testing algorithm by intersecting simple meshes having only one element each. This serves mainly to verify that
@@ -120,7 +120,7 @@ namespace INTERP_TEST
     /// \brief Status : pass, but does not really test what it should - does not check that the intersections are detected. No longer needed.
     void tetraHalfstripOnly()
     {
-      // NB this test is not completely significant : we should also verify that 
+      // NB this test is not completely significant : we should also verify that
       // there are triangles on the element that give a non-zero volume
       _testTools->intersectMeshes("HalfstripOnly", "UnitTetra", 0.0);
     }
@@ -129,16 +129,16 @@ namespace INTERP_TEST
     /// \brief Status : pass, but does not really test what it should - does not check that the intersections are detected. No longer needed.
     void tetraHalfstripOnly2()
     {
-      // NB this test is not completely significant : we should also verify that 
+      // NB this test is not completely significant : we should also verify that
       // there are triangles on the element that give a non-zero volume
       _testTools->intersectMeshes("HalfstripOnly2", "UnitTetra", 0.0);
     }
-  
+
     /// Tetrahedron having only half-strip intersections with the unit tetrahedron
     /// \brief Status : pass, but does not really test what it should - does not check that the intersections are detected. No longer needed.
     void tetraSimpleHalfstripOnly()
     {
-      // NB this test is not completely significant : we should also verify that 
+      // NB this test is not completely significant : we should also verify that
       // there are triangles on the element that give a non-zero volume
       _testTools->intersectMeshes("SimpleHalfstripOnly", "UnitTetra", 0.0);
     }

@@ -17,7 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "SingleElementPlanarTests.hxx"  
+#include "SingleElementPlanarTests.hxx"
 #include "InterpolationUtils.hxx"
 #include "PolygonAlgorithms.hxx"
 #include "PolygonAlgorithms.txx"
@@ -26,7 +26,7 @@
 
 using namespace INTERP_KERNEL;
 
-namespace INTERP_TEST 
+namespace INTERP_TEST
 {
   const double _losange1[8] = {   1,0,   0,1,   -1,0,  0,-1 };
   const double _losange2[8] = {   2,0,    1,1,    0,0,  1,-1 };
@@ -37,7 +37,7 @@ namespace INTERP_TEST
   const double _losange5[8] = { 1.5,0, 0,1.5,-1.5,0,  0,-1.5 };
   const double _losange6[12]= {  2,0,   1,1,  0.5,0.5,0,0, 0.5,-0.5, 1,-1 };
   const double _losange7[10]= {  1,0,   0,1,   -1,0,  0,-1,  0.5,-0.5 };
-  const double _square3[10] = { -1,-1, -1,1,  0.5,1,  1,1, 1,-1, }; 
+  const double _square3[10] = { -1,-1, -1,1,  0.5,1,  1,1, 1,-1, };
   const double _square4[8]  = {-0.5,-1,-0.5,1,1.5,1,1.5,-1 };
   const double _square5[10] = { -1,-1, -1,1,    0,1,  1,1,  1,-1 };
   const double _losange8[8] = {  0,1,   1,-1,   0,-1.5,-0.5,-1 };
@@ -61,7 +61,7 @@ namespace INTERP_TEST
   const double _triangle9[6]= {13.9921,34.693, 22.4601,35.2129,      18.2785,42.3869 };
   const double _triangle10[6]= {84.8575,98.2042, 80,100, 82.2601,95.7202};
   const double _triangle11[6]= {80,100, 76.6659,91.9804, 85.3912,92.5061 };
-  
+
   //  Two diamonds intersecting without degeneracy (two distinct crossing points)
   //             /\  /\
   //            /  \/  \
@@ -75,70 +75,70 @@ namespace INTERP_TEST
 
   // \brief Status : pass
   void SingleElementPlanarTests::diamondsBasic()
-  {      
+  {
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_losange1,_losange2,4,4);
     std::deque< double > expected_result;
-    
+
     expected_result.push_back(0.5);expected_result.push_back(-0.5);
     expected_result.push_back(0);expected_result.push_back(0);
     expected_result.push_back(0.5);expected_result.push_back(0.5);
     expected_result.push_back(1);expected_result.push_back(0);
-    
-    CPPUNIT_ASSERT_MESSAGE("Basic diamond crossing test failed (CONVEX)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Basic diamond crossing test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
-  
+
   void SingleElementPlanarTests::diamondsBasic_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_losange1,_losange2,4,4,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
     expected_result.push_back(1);expected_result.push_back(0);
     expected_result.push_back(0.5);expected_result.push_back(0.5);
     expected_result.push_back(0);expected_result.push_back(0);
     expected_result.push_back(0.5);expected_result.push_back(-0.5);
-    
-    CPPUNIT_ASSERT_MESSAGE("Basic diamond crossing test failed (TRIANGULATION)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Basic diamond crossing test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
-  
-  
+
+
   //  Two diamonds with overlapping edges in an exclusion configuration
   //                   /\
   //                  /  \
   //             /\  /    \
   //            /  \/      \
-  //           /    \      / 
+  //           /    \      /
   //          /      \    /
   //          \      /\  /
   //           \    /  \/
-  //            \  /  
-  //             \/  
+  //            \  /
+  //             \/
   // \brief Status : pass
-  void SingleElementPlanarTests::tangentDiamonds() 
+  void SingleElementPlanarTests::tangentDiamonds()
   {
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_losange1,_losange3,4,4);
     std::deque< double > expected_result;
-    
-    CPPUNIT_ASSERT_MESSAGE("Diamond exclusion tangency test failed (CONVEX)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Diamond exclusion tangency test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::tangentDiamonds_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_losange1,_losange3,4,4,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
     expected_result.push_back(0.5);expected_result.push_back(0.5);
     expected_result.push_back(1);expected_result.push_back(0);
 
-    CPPUNIT_ASSERT_MESSAGE("Diamond exclusion tangency test failed (TRIANGULATION)", 
+    CPPUNIT_ASSERT_MESSAGE("Diamond exclusion tangency test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
-  
+
   //  Two tangent squares with overlapping edges, in an inclusion configuration
   //           _____________
   //     |             |
@@ -160,7 +160,7 @@ namespace INTERP_TEST
     expected_result.push_back(1.);expected_result.push_back(-0.25);
     expected_result.push_back(1.);expected_result.push_back(0.25);
 
-    CPPUNIT_ASSERT_MESSAGE("Squares inclusion tangency test failed (CONVEX)", 
+    CPPUNIT_ASSERT_MESSAGE("Squares inclusion tangency test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::tangentSquares_Triangulation()
@@ -178,7 +178,7 @@ namespace INTERP_TEST
     expected_result.push_back(0.);expected_result.push_back(-0.25);
     expected_result.push_back(1.);expected_result.push_back(-0.25);
 
-    CPPUNIT_ASSERT_MESSAGE("Squares inclusion tangency test failed (TRIANGULATION)", 
+    CPPUNIT_ASSERT_MESSAGE("Squares inclusion tangency test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
 
@@ -199,23 +199,23 @@ namespace INTERP_TEST
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_losange1,_losange4,4,4);
     std::deque< double > expected_result;
-    
-    CPPUNIT_ASSERT_MESSAGE("Diamond sharing (1) vertex test failed (CONVEX)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Diamond sharing (1) vertex test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::diamondsSharingVertex1_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_losange1,_losange4,4,4,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
     expected_result.push_back(1.);expected_result.push_back(0.);
-    
-    CPPUNIT_ASSERT_MESSAGE("Diamonds sharing (1) vertex test failed (TRIANGULATION)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Diamonds sharing (1) vertex test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
 
-  //  Two identical squares 
+  //  Two identical squares
   //           _____________
   //     |             |
   //     |             |
@@ -229,7 +229,7 @@ namespace INTERP_TEST
   {
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     /*
-      ////////////////// TEST DEACTIVATED by A. GEAY because memory fault : 
+      ////////////////// TEST DEACTIVATED by A. GEAY because memory fault :
       // conditional jump INTERP_KERNEL::PolygonAlgorithms<2>::intersectConvexPolygons(double const*, double const*, int, int) (PolygonAlgorithms.txx:629)
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_square1,_square1,4,4);
     std::deque< double > expected_result;
@@ -239,7 +239,7 @@ namespace INTERP_TEST
     expected_result.push_back(1.);expected_result.push_back(-1.);
     expected_result.push_back(1.);expected_result.push_back(1.);
 
-    CPPUNIT_ASSERT_MESSAGE("Identical squares test failed (CONVEX)", 
+    CPPUNIT_ASSERT_MESSAGE("Identical squares test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
     */
   }
@@ -247,7 +247,7 @@ namespace INTERP_TEST
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_square1,_square1,4,4,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
 
     expected_result.push_back(1.);expected_result.push_back(1.);
@@ -255,7 +255,7 @@ namespace INTERP_TEST
     expected_result.push_back(-1.);expected_result.push_back(-1.);
     expected_result.push_back(1.);expected_result.push_back(-1.);
 
-    CPPUNIT_ASSERT_MESSAGE("Identical squares test failed (TRIANGULATION)", 
+    CPPUNIT_ASSERT_MESSAGE("Identical squares test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   //  Square and diamond intersecting with no degeneracy
@@ -281,7 +281,7 @@ namespace INTERP_TEST
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_square1,_losange5,4,4);
     std::deque< double > expected_result;
-      
+
     expected_result.push_back(1.);expected_result.push_back(0.5);
     expected_result.push_back(0.5);expected_result.push_back(1.);
     expected_result.push_back(-0.5);expected_result.push_back(1.);
@@ -291,16 +291,16 @@ namespace INTERP_TEST
     expected_result.push_back(0.5);expected_result.push_back(-1.);
     expected_result.push_back(1.);expected_result.push_back(-0.5);
 
-    CPPUNIT_ASSERT_MESSAGE("Square and diamond basic test failed (CONVEX)", 
+    CPPUNIT_ASSERT_MESSAGE("Square and diamond basic test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::squareAndDiamondBasic_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_square1,_losange5,4,4,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
-      
+
     expected_result.push_back(1.);expected_result.push_back(0.);
     expected_result.push_back(1.);expected_result.push_back(0.5);
     expected_result.push_back(0.75);expected_result.push_back(0.75);
@@ -318,10 +318,10 @@ namespace INTERP_TEST
 
     // EAP: different place of (0,0) point on 32 and 64-bits platforms
     // we comment it for the sake of "make check" to pass
-    //CPPUNIT_ASSERT_MESSAGE("Square and diamond basic test failed (TRIANGULATION), maybe not significant (0,0) should be removed", 
+    //CPPUNIT_ASSERT_MESSAGE("Square and diamond basic test failed (TRIANGULATION), maybe not significant (0,0) should be removed",
     //(INTERP_KERNEL::checkEqualPolygons<vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
-  //  square and diamond intersecting at four degenerated pointss 
+  //  square and diamond intersecting at four degenerated pointss
   //      ______
   //     |  /\  |
   //     | /  \ |
@@ -336,22 +336,22 @@ namespace INTERP_TEST
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_square1,_losange1,4,4);
     std::deque< double > expected_result;
-    
+
     expected_result.push_back(0.);expected_result.push_back(-1.);
     expected_result.push_back(-1.);expected_result.push_back(0.);
     expected_result.push_back(0.);expected_result.push_back(1.);
     expected_result.push_back(1.);expected_result.push_back(0.);
-    
-    CPPUNIT_ASSERT_MESSAGE("Square and diamond critical tangency test failed (CONVEX)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Square and diamond critical tangency test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::squareAndDiamondCritical_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_square1,_losange1,4,4,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
-    
+
     expected_result.push_back(0.5);expected_result.push_back(0.5);
     expected_result.push_back(0.);expected_result.push_back(1.);
     expected_result.push_back(0);expected_result.push_back(0);
@@ -361,7 +361,7 @@ namespace INTERP_TEST
     expected_result.push_back(1.);expected_result.push_back(0.);
 
     //  0020208: Unit Test of MED failed
-//     CPPUNIT_ASSERT_MESSAGE("Square and diamond basic test failed (TRIANGULATION) maybe not significant (0,0) should be removed", 
+//     CPPUNIT_ASSERT_MESSAGE("Square and diamond basic test failed (TRIANGULATION) maybe not significant (0,0) should be removed",
 //                            (INTERP_KERNEL::checkEqualPolygons<vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   //  Two diamonds intersecting at one vertex on edge and one double vertex
@@ -372,40 +372,40 @@ namespace INTERP_TEST
   //          \    \ /    /
   //           \    *    /
   //            \  / \  /
-  //             \/   \/ 
+  //             \/   \/
 
 
   // \brief Status : pass
   void SingleElementPlanarTests::diamondsCritical()
   {
-     
+
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_losange6,_losange7,6,5);
     std::deque< double > expected_result;
-    
+
     expected_result.push_back(0.5);expected_result.push_back(-0.5);
     expected_result.push_back(0.5);expected_result.push_back(-0.5);
     expected_result.push_back(0);expected_result.push_back(0);
     expected_result.push_back(0.5);expected_result.push_back(0.5);
     expected_result.push_back(0.5);expected_result.push_back(0.5);
     expected_result.push_back(1);expected_result.push_back(0);
-    
-    CPPUNIT_ASSERT_MESSAGE("Basic diamond crossing test failed (CONVEX)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Basic diamond crossing test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::diamondsCritical_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_losange6,_losange7,6,5,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
-    
+
     expected_result.push_back(1);expected_result.push_back(0);
     expected_result.push_back(0.5);expected_result.push_back(0.5);
     expected_result.push_back(0);expected_result.push_back(0);
     expected_result.push_back(0.5);expected_result.push_back(-0.5);
-    
-    CPPUNIT_ASSERT_MESSAGE("Basic diamond crossing test failed (TRIANGULATION)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Basic diamond crossing test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
 
@@ -429,17 +429,17 @@ namespace INTERP_TEST
     expected_result.push_back(-0.5);expected_result.push_back(-1.);
     expected_result.push_back(1.);expected_result.push_back(-1.);
     expected_result.push_back(1.);expected_result.push_back(1.);
-    
-    CPPUNIT_ASSERT_MESSAGE("Critical quadrangles with tangency test failed (CONVEX)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Critical quadrangles with tangency test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::quadranglesCritical_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_square4,_square3,4,5,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
-    
+
     expected_result.push_back(1.);expected_result.push_back(-1.);
     expected_result.push_back(1.);expected_result.push_back(0.5);
     expected_result.push_back(1.);expected_result.push_back(1.);
@@ -448,8 +448,8 @@ namespace INTERP_TEST
     expected_result.push_back(-0.5);expected_result.push_back(-1./3);
     expected_result.push_back(-0.5);expected_result.push_back(-0.5);
     expected_result.push_back(-0.5);expected_result.push_back(-1.);
-  
-    CPPUNIT_ASSERT_MESSAGE("Critical quadrangles with tangency test failed (TRIANGULATION)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Critical quadrangles with tangency test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
 
@@ -461,7 +461,7 @@ namespace INTERP_TEST
   //     |  /     \ |
   //     |_/_______\|
   //       \       /
-  //        \     / 
+  //        \     /
   //         \   /
   //                   \ /
   // \brief Status : pass
@@ -470,22 +470,22 @@ namespace INTERP_TEST
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_square5,_losange8,5,4);
     std::deque< double > expected_result;
-    
+
     expected_result.push_back(0.);expected_result.push_back(1.);
     expected_result.push_back(-0.5);expected_result.push_back(-1.);
     expected_result.push_back(1.);expected_result.push_back(-1.);
     expected_result.push_back(1.);expected_result.push_back(-1.);
-    
-    CPPUNIT_ASSERT_MESSAGE("Square and diamond critical tangency test failed (CONVEX)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Square and diamond critical tangency test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::quadrangleAndDiamondCritical_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_square5,_losange8,5,4,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
-  
+
     expected_result.push_back(1.);expected_result.push_back(-1.);
     expected_result.push_back(1./3);expected_result.push_back(1./3);
     expected_result.push_back(0.);expected_result.push_back(1.);
@@ -493,11 +493,11 @@ namespace INTERP_TEST
     expected_result.push_back(-1./3);expected_result.push_back(-1./3);
     expected_result.push_back(-0.5);expected_result.push_back(-1.);
     expected_result.push_back(0.);expected_result.push_back(-1.);
-    
-    CPPUNIT_ASSERT_MESSAGE("Square and diamond critical tangency test failed (TRIANGULATION)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Square and diamond critical tangency test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
-  }  //  square and diamond intersecting at four degenerated pointss 
-  //    
+  }  //  square and diamond intersecting at four degenerated pointss
+  //
   //      �/�\
   //          � / � \
   //           �  /  �  \
@@ -511,37 +511,37 @@ namespace INTERP_TEST
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_losange1,_losange9,4,4);
     std::deque< double > expected_result;
-    
+
     expected_result.push_back(0.);expected_result.push_back(-1.);
     expected_result.push_back(0.);expected_result.push_back(-1.);
     expected_result.push_back(-1.);expected_result.push_back(0.);
     expected_result.push_back(0.);expected_result.push_back(1.);
     expected_result.push_back(0.);expected_result.push_back(1.);
     expected_result.push_back(0.5);expected_result.push_back(0.);
-    
-    CPPUNIT_ASSERT_MESSAGE("Diamonds with crossing at double vertex test failed (CONVEX)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Diamonds with crossing at double vertex test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::diamondsCritical2_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_losange1,_losange9,4,4,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
-    
+
     expected_result.push_back(0.);expected_result.push_back(-1.);
     expected_result.push_back(0.5);expected_result.push_back(0.);
     expected_result.push_back(0.);expected_result.push_back(1.);
     expected_result.push_back(-1.);expected_result.push_back(0.);
-    
-    CPPUNIT_ASSERT_MESSAGE("Diamonds with crossing at double vertex test failed (TRIANGULATION)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Diamonds with crossing at double vertex test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
 
   //  Two tangent hexagons with double vertices and a critical starting vertex on edge
-  //      _________ 
+  //      _________
   //             /         \���
-  //            �           \� 
+  //            �           \�
   //           /             \
   //          / �           � \
   //          \               /
@@ -553,7 +553,7 @@ namespace INTERP_TEST
   // \brief Status : pass
   void SingleElementPlanarTests::hexagonsCritical1()
   {
-      
+
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_hexagon1,_hexagon2,6,6);
     std::deque< double > expected_result;
@@ -564,15 +564,15 @@ namespace INTERP_TEST
     expected_result.push_back(-1.5);expected_result.push_back(0.5);
     expected_result.push_back(-1.);expected_result.push_back(1.);
     expected_result.push_back(1.);expected_result.push_back(1.);
-      
-    CPPUNIT_ASSERT_MESSAGE("First hexagon critical crossing test failed (CONVEX)", 
+
+    CPPUNIT_ASSERT_MESSAGE("First hexagon critical crossing test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::hexagonsCritical1_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_hexagon1,_hexagon2,6,6,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
 
     expected_result.push_back(-1.);expected_result.push_back(1.);
@@ -589,8 +589,8 @@ namespace INTERP_TEST
     expected_result.push_back(1.125);expected_result.push_back(0.875);
     expected_result.push_back(1.);expected_result.push_back(1.);
     expected_result.push_back(0.25);expected_result.push_back(0.75);
-    
-    CPPUNIT_ASSERT_MESSAGE("First hexagon critical crossing test failed (TRIANGULATION)", 
+
+    CPPUNIT_ASSERT_MESSAGE("First hexagon critical crossing test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
 
@@ -608,28 +608,28 @@ namespace INTERP_TEST
 
   // \brief Status : pass
   void SingleElementPlanarTests::hexagonsCritical2()
-  {  
+  {
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_hexagon1,_hexagon3,6,6);
     std::deque< double > expected_result;
 
-    CPPUNIT_ASSERT_MESSAGE("Second hexagon critical crossing test failed (CONVEX)", 
+    CPPUNIT_ASSERT_MESSAGE("Second hexagon critical crossing test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::hexagonsCritical2_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_hexagon1,_hexagon3,6,6,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
     expected_result.push_back(1.);expected_result.push_back(1.);
     expected_result.push_back(-1.);expected_result.push_back(1.);
 
-    CPPUNIT_ASSERT_MESSAGE("Second hexagon critical crossing test failed (TRIANGULATION)", 
+    CPPUNIT_ASSERT_MESSAGE("Second hexagon critical crossing test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
 
-  //  Square and quadrilateron with outer tangency 
+  //  Square and quadrilateron with outer tangency
   //           ________
   //     |        |
   //     |        |
@@ -655,12 +655,12 @@ namespace INTERP_TEST
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_square1,_square6,4,4,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
     expected_result.push_back(-1.);expected_result.push_back(1.);
     expected_result.push_back(0.5);expected_result.push_back(1.);
- 
-    CPPUNIT_ASSERT_MESSAGE("Identical squares test failed (TRIANGULATION)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Identical squares test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   //  Two diamonds sharing a vertex in an exclusion configuration
@@ -688,26 +688,26 @@ namespace INTERP_TEST
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_losange1,_losange10,4,4);
     std::deque< double > expected_result;
-            
-    CPPUNIT_ASSERT_MESSAGE("Diamond sharing vertex (2) test failed (CONVEX)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Diamond sharing vertex (2) test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests:: diamondsSharingVertex2_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_losange1,_losange10,4,4,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
     expected_result.push_back(0.);expected_result.push_back(-1.);
 
-    CPPUNIT_ASSERT_MESSAGE("Diamond sharing vertex (2) test failed (TRIANGULATION)", 
+    CPPUNIT_ASSERT_MESSAGE("Diamond sharing vertex (2) test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
 
   //  Triangle and diamond with a critical crossing at double starting vertex
-  //               ____  
-  //             /|\  / 
-  //            / | \/    
+  //               ____
+  //             /|\  /
+  //            / | \/
   //           /  | /\
   //          /   |/  \
   //          \       /
@@ -721,30 +721,30 @@ namespace INTERP_TEST
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_losange1,_triangle1,4,3);
     std::deque< double > expected_result;
-    
+
     expected_result.push_back(2./3);expected_result.push_back(1./3);
     expected_result.push_back(0.5);expected_result.push_back(0.);
     expected_result.push_back(0.);expected_result.push_back(1.);
 
-    CPPUNIT_ASSERT_MESSAGE("Triangle and diamonds critical test failed (CONVEX)", 
+    CPPUNIT_ASSERT_MESSAGE("Triangle and diamonds critical test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests:: triangleAndDiamondCritical_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_losange1,_triangle1,4,3,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
-    
+
     expected_result.push_back(2./3);expected_result.push_back(1./3);
     expected_result.push_back(0.);expected_result.push_back(1.);
     expected_result.push_back(0.5);expected_result.push_back(0.);
 
-    CPPUNIT_ASSERT_MESSAGE("Triangle and diamonds critical test failed (TRIANGULATION)", 
+    CPPUNIT_ASSERT_MESSAGE("Triangle and diamonds critical test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
 
-  //  Basic triangle and square intersection (two distinct points) 
+  //  Basic triangle and square intersection (two distinct points)
   //           __________
   //     |          |
   //     |       |\ |
@@ -752,7 +752,7 @@ namespace INTERP_TEST
   //     |       |  \
   //     |       |  |\
   //     |       |  |/
-  //     |       |  / 
+  //     |       |  /
   //     |       | /|
   //     |       |/ |
   //     |__________|
@@ -769,7 +769,7 @@ namespace INTERP_TEST
     expected_result.push_back(0.);expected_result.push_back(-0.5);
     expected_result.push_back(0.);expected_result.push_back(0.5);
 
-    CPPUNIT_ASSERT_MESSAGE("Identical squares test failed (CONVEX)", 
+    CPPUNIT_ASSERT_MESSAGE("Identical squares test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
 
@@ -787,14 +787,14 @@ namespace INTERP_TEST
     expected_result.push_back(0.);expected_result.push_back(-0.5);
     expected_result.push_back(1.);expected_result.push_back(-1./6);
 
-    CPPUNIT_ASSERT_MESSAGE("Identical squares test failed (TRIANGULATION)", 
+    CPPUNIT_ASSERT_MESSAGE("Identical squares test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   //  Two triangles with a starting vertex on edge
 
-  //             /\ ����  
-  //            /  �  �  
-  //           /  � �  
+  //             /\ ����
+  //            /  �  �
+  //           /  � �
   //          /__�___\
 
   // \brief Status : pass
@@ -803,12 +803,12 @@ namespace INTERP_TEST
     INTERP_KERNEL::PolygonAlgorithms<3> intersector (_Epsilon, _Precision);;
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_triangle3,_triangle4,3,3);
     std::deque< double > expected_result;
-    
+
     expected_result.push_back(2./3);expected_result.push_back(2.);expected_result.push_back(1./3);
     expected_result.push_back(0.5);expected_result.push_back(2.);expected_result.push_back(0.);
     expected_result.push_back(0.75);expected_result.push_back(2.);expected_result.push_back(0.25);
-  
-    CPPUNIT_ASSERT_MESSAGE("Triangles critical test failed (CONVEX)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Triangles critical test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,3>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::trianglesCritical_Triangulation()
@@ -827,13 +827,13 @@ namespace INTERP_TEST
     expected_result.push_back(0.5);expected_result.push_back(0.);
     expected_result.push_back(2./3);expected_result.push_back(1./3);
     expected_result.push_back(0.75);expected_result.push_back(0.25);
-  
-    CPPUNIT_ASSERT_MESSAGE("Triangles critical test failed (TRIANGULATION)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Triangles critical test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
-  
+
   //  Two tangent paralellograms intersecting at 3 double vertices (one being a starting vertex)
-  //              _______ 
+  //              _______
   //             /\      /\
   //            /  \    /  \
   //           /    \  /    \
@@ -851,8 +851,8 @@ namespace INTERP_TEST
     expected_result.push_back(0.);expected_result.push_back(0.);
     expected_result.push_back(-0.5);expected_result.push_back(1.);
     expected_result.push_back(0.5);expected_result.push_back(1.);
-      
-    CPPUNIT_ASSERT_MESSAGE("Paralellogram tangency test (1) failed (CONVEX)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Paralellogram tangency test (1) failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::paralellogramsCritical1_Triangulation()
@@ -868,21 +868,21 @@ namespace INTERP_TEST
     expected_result.push_back(-0.5);expected_result.push_back(1.);
     expected_result.push_back(-0.25);expected_result.push_back(0.5);
     expected_result.push_back(0.);expected_result.push_back(0.);
-    
-    CPPUNIT_ASSERT_MESSAGE("Paralellogram tangency test (1) failed (TRIANGULATION)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Paralellogram tangency test (1) failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
 
   //  Two paralellograms sharing a vertex in an exclusion configuration
-  //              ________ 
+  //              ________
   //             /       /
-  //            /       /  
-  //           /       /    
+  //            /       /
+  //           /       /
   //          /_______/_______
   //                 /       /
-  //                /       /  
-  //               /       /    
-  //              /_______/      
+  //                /       /
+  //               /       /
+  //              /_______/
 
 
   // \brief Status : pass
@@ -892,7 +892,7 @@ namespace INTERP_TEST
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_parallel1,_parallel3,4,4);
     std::deque< double > expected_result;
 
-    CPPUNIT_ASSERT_MESSAGE("Paralellogram tangency test failed (CONVEX)", 
+    CPPUNIT_ASSERT_MESSAGE("Paralellogram tangency test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::paralellogramsCritical2_Triangulation()
@@ -903,8 +903,8 @@ namespace INTERP_TEST
     std::vector< double > expected_result;
 
     expected_result.push_back(0.);expected_result.push_back(0.);
-    
-    CPPUNIT_ASSERT_MESSAGE("Paralellogram tangency test failed (TRIANGULATION)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Paralellogram tangency test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
 
@@ -913,10 +913,10 @@ namespace INTERP_TEST
   //              _____
   //             |    /
   //             __|___/
-  //            |  |  / 
+  //            |  |  /
   //            |  | /
   //            |  |/
-  //          |  /  
+  //          |  /
   //          | /
   //          |/
 
@@ -926,12 +926,12 @@ namespace INTERP_TEST
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_triangle5,_triangle6,3,3);
     std::deque< double > expected_result;
-    
+
     expected_result.push_back(1./3);expected_result.push_back(1./2);
     expected_result.push_back(1./3);expected_result.push_back(1./3);
     expected_result.push_back(1./2);expected_result.push_back(1./2);
-  
-    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical test failed (CONVEX)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::trianglesTangencyCritical_Triangulation()
@@ -940,12 +940,12 @@ namespace INTERP_TEST
     INTERP_KERNEL::intersec_de_polygone<2>(_triangle5,_triangle6,3,3,actual_result,_Epsilon/_Precision, _Precision );
 
     std::vector< double > expected_result;
-    
+
     expected_result.push_back(1./3);expected_result.push_back(1./2);
     expected_result.push_back(1./2);expected_result.push_back(1./2);
     expected_result.push_back(1./3);expected_result.push_back(1./3);
-    
-    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical test failed (TRIANGULATION)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
 
@@ -954,10 +954,10 @@ namespace INTERP_TEST
   //            /  \
   //           /    \
   //          /______\
-  //          \      /      
-  //           \    /      
-  //            \  /      
-  //             \/      
+  //          \      /
+  //           \    /
+  //            \  /
+  //             \/
 
 
   // \brief Status : pass
@@ -973,16 +973,16 @@ namespace INTERP_TEST
     //         dequePrintOut(expected_result);
     //         std::cerr<< "CPP_UNIT actual result= " << std::endl;
     //         dequePrintOut(actual_result);
-    //       }  
-    
-    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical (2) test failed (CONVEX)", 
+    //       }
+
+    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical (2) test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::trianglesTangencyCritical2_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_triangle1,_triangle7,3,3,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
     expected_result.push_back(1.);expected_result.push_back(1.);
     expected_result.push_back(0.);expected_result.push_back(1.);
@@ -994,8 +994,8 @@ namespace INTERP_TEST
     //         cerr<< "CPP_UNIT actual result= " << endl;
     //         vectPrintOut(actual_result);
     //       }
-    
-    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical (2) test failed (TRIANGULATION)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical (2) test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   // \brief Status : pass
@@ -1004,20 +1004,20 @@ namespace INTERP_TEST
     INTERP_KERNEL::PolygonAlgorithms<2> intersector (_Epsilon, _Precision);;
     std::deque< double > actual_result = intersector.intersectConvexPolygons(_triangle8,_triangle9,3,3);
     std::deque< double > expected_result;
-            
-    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical (3) test failed (CONVEX)", 
+
+    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical (3) test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::trianglesTangencyCritical3_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_triangle8,_triangle9,3,3,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
     expected_result.push_back(22.4601);expected_result.push_back(35.2129);
     expected_result.push_back(13.9921);expected_result.push_back(34.693);
 
-    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical (3) test failed (TRIANGULATION)", 
+    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical (3) test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::trianglesTangencyCritical4()
@@ -1029,22 +1029,22 @@ namespace INTERP_TEST
     expected_result.push_back(82.745193090443536);expected_result.push_back(96.184114390029166);
     expected_result.push_back(82.260099999999994);expected_result.push_back(95.720200000000006);
     expected_result.push_back(80);expected_result.push_back(100.);
-            
-    
-    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical (4) test failed (CONVEX)", 
+
+
+    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical (4) test failed (CONVEX)",
                            (INTERP_KERNEL::checkEqualPolygons<std::deque<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
   void SingleElementPlanarTests::trianglesTangencyCritical4_Triangulation()
   {
     std::vector< double > actual_result;
     INTERP_KERNEL::intersec_de_polygone<2>(_triangle10,_triangle11,3,3,actual_result,_Epsilon/_Precision, _Precision );
-    
+
     std::vector< double > expected_result;
     expected_result.push_back(80);expected_result.push_back(100.);
     expected_result.push_back(82.745193090443536);expected_result.push_back(96.184114390029166);
     expected_result.push_back(82.260099999999994);expected_result.push_back(95.720200000000006);
 
-    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical (4) test failed (TRIANGULATION)", 
+    CPPUNIT_ASSERT_MESSAGE("Triangles tangency critical (4) test failed (TRIANGULATION)",
                            (INTERP_KERNEL::checkEqualPolygons<std::vector<double>,2>(&actual_result, &expected_result, _Epsilon)));
   }
 

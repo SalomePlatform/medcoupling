@@ -2086,7 +2086,7 @@ void MEDCouplingBasicsTestInterp::test1DInterp_1()
   //      n0  n1     n2  n3
   //
   // ---+---+------+---+---> X
-  //    0.  1.     3.  4.   
+  //    0.  1.     3.  4.
   MEDCouplingUMesh *sourceMesh=build1DMesh(0);
   MEDCouplingUMesh *targetMesh=build1DMesh(0.5);
   //

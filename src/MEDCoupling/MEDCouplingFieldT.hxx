@@ -30,7 +30,7 @@ namespace MEDCoupling
 {
   template<class T>
   class MEDCouplingTimeDiscretizationTemplate;
-  
+
   template<class T>
   class MEDCouplingFieldT : public MEDCouplingField
   {

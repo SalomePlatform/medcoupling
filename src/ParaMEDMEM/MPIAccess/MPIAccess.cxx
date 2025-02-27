@@ -104,10 +104,10 @@ namespace MEDCoupling
     _base_request = -1 ;
     _max_request = std::numeric_limits<int>::max() ;
     _request = _base_request ;
-    
+
     _base_MPI_tag = BaseTag ;
     _max_MPI_tag = MaxTag ;
-    
+
     _send_request = new int[ _processor_group_size ] ;
     _recv_request = new int[ _processor_group_size ] ;
 
@@ -704,8 +704,8 @@ namespace MEDCoupling
     cout << "MPIAccess::TestAny not yet implemented" << endl ;
     return status ;
   }
-  
-  // Perform a wait of each Send or Recv asynchronous Request of the array 
+
+  // Perform a wait of each Send or Recv asynchronous Request of the array
   // array_of_RequestIds of size "count".
   // That array may be filled with a call to SendRequestIdsSize or RecvRequestIdsSize
   // Do nothing for a synchronous Request
@@ -731,7 +731,7 @@ namespace MEDCoupling
     return retstatus ;
   }
 
-  // Perform a "test" of each Send or Recv asynchronous Request of the array 
+  // Perform a "test" of each Send or Recv asynchronous Request of the array
   // array_of_RequestIds of size "count".
   // That array may be filled with a call to SendRequestIdsSize or RecvRequestIdsSize
   // If all requests are done, returns true in the flag argument
@@ -774,7 +774,7 @@ namespace MEDCoupling
     cout << "MPIAccess::TestSome not yet implemented" << endl ;
     return status ;
   }
-  
+
   // Probe checks if a message is available for read from FromSource rank.
   // Returns the corresponding source, MPITag, datatype and outcount
   // Probe is a blocking call which wait until a message is available
@@ -953,7 +953,7 @@ namespace MEDCoupling
   {
     return _comm_interface.errorString( errorcode, string, resultlen) ;
   }
-  
+
   // Returns source, tag, error and outcount corresponding to receiving RequestId
   // By default the corresponding structure of RequestId is deleted
   int MPIAccess::status(int RequestId, int &source, int &tag, int &error,
@@ -998,12 +998,12 @@ namespace MEDCoupling
       }
     return MPI_SUCCESS ;
   }
-  
+
   int MPIAccess::requestFree( MPI_Request *request )
   {
     return _comm_interface.requestFree( request ) ;
   }
-  
+
   // Print all information of all known requests for debugging purpose
   void MPIAccess::check() const
   {

@@ -32,7 +32,7 @@ namespace INTERP_KERNEL
    * matrix[0]=m_xx, matrix[1]=m_yy, matrix[2]=m_zz,
    * matrix[3]=m_xy, matrix[4]=m_yz, matrix[5]=m_xz
    * This method returns the 3 eigenvalues in 'eigenVals'.
-   * 
+   *
    * https://en.wikipedia.org/wiki/Eigenvalue_algorithm
    */
   void computeEigenValues6(const double *matrix, double *eigenVals)
@@ -58,7 +58,7 @@ namespace INTERP_KERNEL
     eigenVals[1]=tr-sqp*(cos(phi)+sqrt(3.)*sin(phi));
     eigenVals[2]=tr-sqp*(cos(phi)-sqrt(3.)*sin(phi));
   }
-  
+
   /*!
    * This method computes one eigenvector of a 3x3 symmetric matrix stored with 6 values in 'matrix'. The convention chosen for 'matrix' is described here:
    * matrix[0]=m_xx, matrix[1]=m_yy, matrix[2]=m_zz,

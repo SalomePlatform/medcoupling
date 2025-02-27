@@ -122,7 +122,7 @@
 	medFileName = "mc.MEDCoupling_cube3D.med"
 	# For note : True / False in Write* functions
 	# => True : overwriting existing file
-	# => False : add in existing file 
+	# => False : add in existing file
 	meshes=[mesh2D,mesh]
 	mc.WriteUMeshes(medFileName,meshes,True);
 	mc.WriteField(medFileName,field,False)

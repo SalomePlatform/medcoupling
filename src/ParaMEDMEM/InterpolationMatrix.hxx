@@ -41,14 +41,14 @@ namespace MEDCoupling
                               public DECOptions
   {
   public:
-    
-    InterpolationMatrix(const MEDCoupling::ParaFIELD *source_field, 
+
+    InterpolationMatrix(const MEDCoupling::ParaFIELD *source_field,
                         const ProcessorGroup& source_group,
                         const ProcessorGroup& target_group,
                         const DECOptions& dec_opt,
                         const InterpolationOptions& i_opt);
 
-    
+
     virtual ~InterpolationMatrix();
     void addContribution(MEDCouplingPointSet& distant_support, int iproc_distant,
                          const mcIdType* distant_elems, const std::string& srcMeth, const std::string& targetMeth);
@@ -70,7 +70,7 @@ namespace MEDCoupling
     void computeConservVolDenoL(ElementLocator& elementLocator);
     void computeIntegralDenoL(ElementLocator& elementLocator);
     void computeRevIntegralDenoL(ElementLocator& elementLocator);
-    
+
     void computeLocalColSum(std::vector<double>& res) const;
     void computeLocalRowSum(const std::vector<int>& distantProcs, std::vector<std::vector<mcIdType> >& resPerProcI,
                             std::vector<std::vector<double> >& resPerProcD) const;
@@ -103,7 +103,7 @@ namespace MEDCoupling
     std::map<std::pair<int,mcIdType>, mcIdType > _col_offsets;
     MEDCouplingPointSet *_source_support;
     MxN_Mapping _mapping;
- 
+
     const ProcessorGroup& _source_group;
     const ProcessorGroup& _target_group;
     std::vector< std::vector<double> > _target_volume;

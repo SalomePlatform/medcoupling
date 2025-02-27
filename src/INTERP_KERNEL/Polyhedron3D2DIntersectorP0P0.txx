@@ -29,11 +29,11 @@ namespace INTERP_KERNEL
 {
 
   /**
-   * Constructor creating object from target cell global number 
-   * The constructor first calculates the necessary nodes, 
-   * (depending on the splitting policy) and then splits the hexahedron into 
+   * Constructor creating object from target cell global number
+   * The constructor first calculates the necessary nodes,
+   * (depending on the splitting policy) and then splits the hexahedron into
    * tetrahedra, placing these in the internal vector _tetra.
-   * 
+   *
    * @param targetMesh  mesh containing the target elements
    * @param srcMesh     mesh containing the source elements
    * @param policy      splitting policy to be used
@@ -63,7 +63,7 @@ namespace INTERP_KERNEL
   {
     releaseArrays();
   }
-    
+
   template<class MyMeshType, class MyMatrixType>
   void Polyhedron3D2DIntersectorP0P0<MyMeshType,MyMatrixType>::releaseArrays()
   {
@@ -78,7 +78,7 @@ namespace INTERP_KERNEL
    * represented by the object.
    * The calculation is performed by calling the corresponding method for
    * each SplitterTetra object created by the splitting.
-   * 
+   *
    * @param targetCell in C mode.
    * @param srcCells in C mode.
    */
@@ -126,9 +126,9 @@ namespace INTERP_KERNEL
 
         if(surface!=0.)
           {
-            
+
             matrix[targetCell].insert(std::make_pair(cellSrcIdx, surface));
-            
+
             bool isSrcFaceColinearWithFaceOfTetraTargetCell = false;
             std::set<TriangleFaceKey>::iterator iter;
             for (iter = listOfTetraFacesColinear.begin(); iter != listOfTetraFacesColinear.end(); ++iter)
@@ -143,7 +143,7 @@ namespace INTERP_KERNEL
                     isSrcFaceColinearWithFaceOfTetraTargetCell = true;
                   }
               }
-            
+
             if (isSrcFaceColinearWithFaceOfTetraTargetCell)
               {
                 DuplicateFacesType::iterator intersectFacesIter = _intersect_faces.find(cellSrcIdx);

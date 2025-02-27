@@ -43,7 +43,7 @@ void MPIAccessTest::test_MPI_Access_Cyclic_Send_Recv() {
 
   debugStream << "test_MPI_Access_Cyclic_Send_Recv" << endl ;
 
-//  MPI_Init(&argc, &argv) ; 
+//  MPI_Init(&argc, &argv) ;
 
   int size ;
   int myrank ;

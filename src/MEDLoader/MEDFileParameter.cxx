@@ -288,7 +288,7 @@ MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const std::string& fileName
   med_int nbPar=MEDnParameter(fid);
   if(nbPar<1)
     {
-      std::ostringstream oss2; oss2 << "No parameter in file \"" << fileName << "\" !";  
+      std::ostringstream oss2; oss2 << "No parameter in file \"" << fileName << "\" !";
       throw INTERP_KERNEL::Exception(oss2.str().c_str());
     }
   INTERP_KERNEL::AutoPtr<char> pName=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
@@ -316,7 +316,7 @@ MEDFileParameterDouble1TS::MEDFileParameterDouble1TS(const std::string& fileName
     }
   else
     {
-      std::ostringstream oss2; oss2 << "First parameter in file \"" << fileName << "\" is not double !";  
+      std::ostringstream oss2; oss2 << "First parameter in file \"" << fileName << "\" is not double !";
       throw INTERP_KERNEL::Exception(oss2.str().c_str());
     }
 }
@@ -590,14 +590,14 @@ double MEDFileParameterMultiTS::getDoubleValue(int iteration, int order) const
   if(!elt)
     {
       std::ostringstream oss; oss << "MEDFileParameterMultiTS::getDoubleValue : time iteration it=" << iteration << " order=" << order;
-      oss << " exists but elt is empty !"; 
+      oss << " exists but elt is empty !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
   const MEDFileParameterDouble1TSWTI *eltC=dynamic_cast<const MEDFileParameterDouble1TSWTI *>(elt);
   if(!eltC)
     {
       std::ostringstream oss; oss << "MEDFileParameterMultiTS::getDoubleValue : time iteration it=" << iteration << " order=" << order;
-      oss << " exists but not double !"; 
+      oss << " exists but not double !";
     }
   return eltC->getValue();
 }

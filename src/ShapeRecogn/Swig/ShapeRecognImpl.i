@@ -24,7 +24,7 @@
 #include "ShapeRecognMeshBuilder.hxx"
 #include "PrimitiveType.hxx"
 #include "Areas.hxx"
- 
+
  #include <type_traits>		
 %}
 
@@ -77,7 +77,7 @@ public:
         std::copy(res.begin(),res.end(),ret->getPointer());
         return ret.retn();
       }
-      
+
       std::vector<double> getAxis(mcIdType areaId) const
       {
         std::array<double, 3> tmp(self->getAxis(areaId));
@@ -95,13 +95,13 @@ public:
         std::array<double, 3> tmp(self->getNormal(areaId));
         return {tmp.cbegin(),tmp.cend()};
       }
-      
+
       std::vector<double> getAffinePoint(mcIdType areaId) const
       {
         std::array<double, 3> tmp(self->getAffinePoint(areaId));
         return {tmp.cbegin(),tmp.cend()};
       }
-      
+
       std::vector<double> getCenter(mcIdType areaId) const
       {
         std::array<double, 3> tmp(self->getCenter(areaId));
@@ -129,7 +129,7 @@ std::vector<std::string> AllManagedPrimitivesStr();
   {
     return ConvertPrimitiveToString(static_cast<PrimitiveType>(type));
   }
-  
+
   int ConvertStringToPrimitiveSwig(const std::string& type)
   {
     return static_cast<std::underlying_type_t<PrimitiveType>>( ConvertStringToPrimitive(type) );
@@ -163,7 +163,7 @@ public:
           ret->incrRef();
           return ret;
       }
-      
+
       MEDCouplingFieldDouble *getNodeNormal() const
       {
           MEDCouplingFieldDouble *ret = const_cast<MEDCouplingFieldDouble *>( self->getNodeNormal() );
@@ -179,28 +179,28 @@ public:
           ret->incrRef();
           return ret;
       }
-      
+
       MEDCouplingFieldInt32 *getAreaPrimitiveType() const
       {
           MEDCouplingFieldInt32 *ret = const_cast<MEDCouplingFieldInt32 *>( self->getAreaPrimitiveType() );
           ret->incrRef();
           return ret;
       }
-      
+
       MEDCouplingFieldDouble *getAreaNormal() const
       {
           MEDCouplingFieldDouble *ret = const_cast<MEDCouplingFieldDouble *>( self->getAreaNormal() );
           ret->incrRef();
           return ret;
       }
-      
+
       MEDCouplingFieldDouble *getMinorRadius() const
       {
           MEDCouplingFieldDouble *ret = const_cast<MEDCouplingFieldDouble *>( self->getMinorRadius() );
           ret->incrRef();
           return ret;
       }
-      
+
       MEDCouplingFieldDouble *getRadius() const
       {
           MEDCouplingFieldDouble *ret = const_cast<MEDCouplingFieldDouble *>( self->getRadius() );
@@ -214,14 +214,14 @@ public:
           ret->incrRef();
           return ret;
       }
-      
+
       MEDCouplingFieldDouble *getCenter() const
       {
           MEDCouplingFieldDouble *ret = const_cast<MEDCouplingFieldDouble *>( self->getCenter() );
           ret->incrRef();
           return ret;
       }
-      
+
       MEDCouplingFieldDouble *getAxis() const
       {
           MEDCouplingFieldDouble *ret = const_cast<MEDCouplingFieldDouble *>( self->getAxis() );
@@ -275,7 +275,7 @@ public:
           ret->incrRef();
           return ret;
       }
-    
+
       ShapeRecognMesh *recognize()
       {
           MCAuto<ShapeRecognMesh> ret = self->recognize();

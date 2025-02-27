@@ -29,6 +29,6 @@
 # endif
 #else
 # define INTERPKERNEL_EXPORT
-#endif 
+#endif
 
 #endif

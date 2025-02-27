@@ -74,7 +74,7 @@ void QuadraticPlanarInterpTest::checkAssemblingBases1()
   Node *n12=new Node(0.5,1.); EdgeLin *e11_12=new EdgeLin(n11,n12);
   EdgeLin *e12_1=new EdgeLin(n12,n1);
   //Only one level
-  e1_2->incrRef(); e2_3->incrRef(); e3_4->incrRef(); e4_5->incrRef(); e5_6->incrRef(); e6_7->incrRef(); 
+  e1_2->incrRef(); e2_3->incrRef(); e3_4->incrRef(); e4_5->incrRef(); e5_6->incrRef(); e6_7->incrRef();
   e7_8->incrRef(); e8_9->incrRef(); e9_10->incrRef(); e10_11->incrRef(); e11_12->incrRef(); e12_1->incrRef();
   ComposedEdge *c=new ComposedEdge;
   c->pushBack(e1_2); c->pushBack(e2_3); c->pushBack(e3_4); c->pushBack(e4_5); c->pushBack(e5_6); c->pushBack(e6_7);
@@ -96,7 +96,7 @@ void QuadraticPlanarInterpTest::checkAssemblingBases1()
   //Multi-Level
   ComposedEdge::Delete(c);
   //(e1_2, (e2_3,(e3_4, e4_5, e5_6, e6_7, (e7_8, e8_9 ), ( e9_10 , e10_11 ), e11_12 ),e12_1 ) )
-  e1_2->incrRef(); e2_3->incrRef(); e3_4->incrRef(); e4_5->incrRef(); e5_6->incrRef(); e6_7->incrRef(); 
+  e1_2->incrRef(); e2_3->incrRef(); e3_4->incrRef(); e4_5->incrRef(); e5_6->incrRef(); e6_7->incrRef();
   e7_8->incrRef(); e8_9->incrRef(); e9_10->incrRef(); e10_11->incrRef(); e11_12->incrRef(); e12_1->incrRef();
   ComposedEdge *c2_2_4=new ComposedEdge; c2_2_4->pushBack(e7_8); c2_2_4->pushBack(e8_9);
   ComposedEdge *c2_2_5=new ComposedEdge; c2_2_5->pushBack(e9_10); c2_2_5->pushBack(e10_11);
@@ -167,8 +167,8 @@ void QuadraticPlanarInterpTest::checkAssemblingBases1()
   ComposedEdge::Delete(c);
   //clean-up
   //e1_1bis->decrRef(); e1bis_2->decrRef();
-  e1_2->decrRef(); e2_3->decrRef(); e3_4->decrRef(); e4_5->decrRef(); e5_6->decrRef(); e6_7->decrRef(); 
-  e7_8->decrRef(); e8_9->decrRef(); e9_10->decrRef(); e10_11->decrRef(); e11_12->decrRef(); e12_1->decrRef(); 
+  e1_2->decrRef(); e2_3->decrRef(); e3_4->decrRef(); e4_5->decrRef(); e5_6->decrRef(); e6_7->decrRef();
+  e7_8->decrRef(); e8_9->decrRef(); e9_10->decrRef(); e10_11->decrRef(); e11_12->decrRef(); e12_1->decrRef();
   //n1_bis->decrRef();
   n1->decrRef(); n2->decrRef(); n3->decrRef(); n4->decrRef(); n5->decrRef(); n6->decrRef();
   n7->decrRef(); n8->decrRef(); n9->decrRef(); n10->decrRef(); n11->decrRef(); n12->decrRef();
@@ -180,14 +180,14 @@ void QuadraticPlanarInterpTest::checkAssemblingBases1()
 void QuadraticPlanarInterpTest::checkAssemblingBases2()
 {
   //The "most" basic test1
-  Node *n1=new Node(0.,0.);                Node *n4=new Node(0.,-0.3);   
+  Node *n1=new Node(0.,0.);                Node *n4=new Node(0.,-0.3);
   Node *n2=new Node(1.,0.);                Node *n5=new Node(1.,-0.3);
   Node *n3=new Node(0.5,1.);               Node *n6=new Node(0.5,0.7);
   EdgeLin *e1_2=new EdgeLin(n1,n2);        EdgeLin *e4_5=new EdgeLin(n4,n5);
   EdgeLin *e2_3=new EdgeLin(n2,n3);        EdgeLin *e5_6=new EdgeLin(n5,n6);
   EdgeLin *e3_1=new EdgeLin(n3,n1);        EdgeLin *e6_4=new EdgeLin(n6,n4);
   //
-  e1_2->incrRef(); e2_3->incrRef(); e3_1->incrRef(); e4_5->incrRef(); e5_6->incrRef(); e6_4->incrRef(); 
+  e1_2->incrRef(); e2_3->incrRef(); e3_1->incrRef(); e4_5->incrRef(); e5_6->incrRef(); e6_4->incrRef();
   QuadraticPolygon pol1; pol1.pushBack(e1_2); pol1.pushBack(e2_3); pol1.pushBack(e3_1);
   QuadraticPolygon pol2; pol2.pushBack(e4_5); pol2.pushBack(e5_6); pol2.pushBack(e6_4);
   QuadraticPolygon cpyPol1(pol1); int nbOfSplits=0;
@@ -217,7 +217,7 @@ void QuadraticPlanarInterpTest::checkAssemblingBases2()
 
   //Deeper test some extremities of pol2 are on edges of pol1.
 
-  n1=new Node(0.,0.);                n4=new Node(1.5,-0.5);   
+  n1=new Node(0.,0.);                n4=new Node(1.5,-0.5);
   n2=new Node(1.,0.);                n5=new Node(0.5,0.);
   n3=new Node(0.5,1.);               n6=new Node(0.75,0.5); Node *n7=new Node(2.,0.5);
   e1_2=new EdgeLin(n1,n2); e2_3=new EdgeLin(n2,n3); e3_1=new EdgeLin(n3,n1);
@@ -251,7 +251,7 @@ void QuadraticPlanarInterpTest::checkAssemblingBases2()
 
   //Test with one edge of pol2 is included in pol1.
 
-  n1=new Node(0.,0.);                n4=new Node(-0.5,0.);   
+  n1=new Node(0.,0.);                n4=new Node(-0.5,0.);
   n2=new Node(1.,0.);                n5=new Node(0.,-1.);
   n3=new Node(0.5,1.);               n6=new Node(0.5,0.);
   e1_2=new EdgeLin(n1,n2); e2_3=new EdgeLin(n2,n3); e3_1=new EdgeLin(n3,n1);
@@ -283,7 +283,7 @@ void QuadraticPlanarInterpTest::checkAssemblingBases2()
 
   //Test of full overlapped polygons.
 
-  n1=new Node(0.,0.);                n4=new Node(0.,0.);   
+  n1=new Node(0.,0.);                n4=new Node(0.,0.);
   n2=new Node(1.,0.);                n5=new Node(1.,0.);
   n3=new Node(0.5,1.);               n6=new Node(0.5,1.);
   e1_2=new EdgeLin(n1,n2); e2_3=new EdgeLin(n2,n3); e3_1=new EdgeLin(n3,n1);

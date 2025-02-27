@@ -53,7 +53,7 @@ void METISGraph::partGraph(int ndomain,
   using std::vector;
   if (MyGlobals::_Verbose>10)
     std::cout << "proc " << MyGlobals::_Rank << " : METISGraph::partGraph" << std::endl;
-  
+
   //number of graph vertices
   int n=FromIdType<int>(_graph->getNumberOf());
   //graph
@@ -93,7 +93,7 @@ void METISGraph::partGraph(int ndomain,
 
   if(nparts >1)
     {
-      if (MyGlobals::_Verbose>10) 
+      if (MyGlobals::_Verbose>10)
         std::cout << "METISGraph::partGraph METIS_PartGraph METIS_PartGraph(RecursiveOrKway)" << std::endl;
       if (options_string != "k")
         MEDPARTITIONER_METIS_PartGraphRecursive(&n, xadj, adjncy, vwgt, adjwgt, &wgtflag,
@@ -118,7 +118,7 @@ void METISGraph::partGraph(int ndomain,
   delete [] partition;
 
   //creating a skylinearray with no copy of the index and partition array
-  //the fifth argument true specifies that only the pointers are passed 
+  //the fifth argument true specifies that only the pointers are passed
   //to the object
   _partition = MEDCoupling::MEDCouplingSkyLineArray::New(index,value);
 #endif

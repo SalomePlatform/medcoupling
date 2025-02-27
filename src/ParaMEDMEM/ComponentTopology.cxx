@@ -29,7 +29,7 @@ namespace MEDCoupling
   ComponentTopology::ComponentTopology(int nb_comp, ProcessorGroup* group):_proc_group(group)
   {
     int nb_blocks=group->size();
-  
+
     if (nb_blocks>nb_comp)
       throw INTERP_KERNEL::Exception("ComponentTopology Number of components must be larger than number of blocks");
 
@@ -42,7 +42,7 @@ namespace MEDCoupling
           _component_array[i]++;
       }
   }
-  
+
   /* Generic constructor for \a nb_comp components equally parted
    * in \a nb_blocks blocks
    */
@@ -50,7 +50,7 @@ namespace MEDCoupling
   {
     if (nb_blocks>nb_comp)
       throw INTERP_KERNEL::Exception("ComponentTopology Number of components must be larger than number of blocks");
-    
+
     _component_array.resize(nb_blocks+1);
     _component_array[0]=0;
     for (int i=1; i<=nb_blocks; i++)
@@ -59,17 +59,17 @@ namespace MEDCoupling
         if (i<=nb_comp%nb_blocks)
           _component_array[i]++;
       }
-  
+
   }
-  
+
   //!Constructor for one block of \a nb_comp components
   ComponentTopology::ComponentTopology(int nb_comp):_proc_group(0)
   {
-    
+
     _component_array.resize(2);
     _component_array[0]=0;
     _component_array[1]=nb_comp;
-  
+
   }
 
   //! Constructor for one component
@@ -78,9 +78,9 @@ namespace MEDCoupling
     _component_array.resize(2);
     _component_array[0]=0;
     _component_array[1]=1;
-  
+
   }
-  
+
   ComponentTopology::~ComponentTopology()
   {
   }
@@ -89,12 +89,12 @@ namespace MEDCoupling
   {
     if (_proc_group==0)
       return nbComponents();
-  
+
     int nbcomp;
     int myrank = _proc_group->myRank();
     if (myrank!=-1)
       nbcomp = _component_array[myrank+1]-_component_array[myrank];
-    else 
+    else
       nbcomp=0;
     return nbcomp;
   }
@@ -103,12 +103,12 @@ namespace MEDCoupling
   {
     if (_proc_group==0)
       return 0;
-  
+
     int icomp;
     int myrank = _proc_group->myRank();
     if (myrank!=-1)
       icomp = _component_array[myrank];
-    else 
+    else
       icomp=-1;
     return icomp;
   }

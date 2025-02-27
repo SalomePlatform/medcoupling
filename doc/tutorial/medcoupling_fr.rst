@@ -9,7 +9,7 @@ L'objectif de ces exercices est d'apprendre à manipuler les objets MEDCoupling 
  * La deuxième série d'exercices montre comment manipuler des maillages ``MEDCouplingUMesh``.
  * La troisième série d'exercices montre comment manipuler des champs ``MEDCouplingFieldDouble``.
 
- 
+
 .. toctree::
    :maxdepth: 2
 

@@ -323,11 +323,11 @@ void MEDCouplingBasicsTest4::testApplyFuncTwo1()
   da->setInfoOnComponent(0,"x [m]");
   da->setInfoOnComponent(1,"y [mm]");
   da->setInfoOnComponent(2,"z [km]");
-  
+
   CPPUNIT_ASSERT_THROW(da->applyFuncCompo(1,"x+y+zz+zzz"),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(da->applyFuncCompo(1,"toto(x+y)"),INTERP_KERNEL::Exception);
   CPPUNIT_ASSERT_THROW(da->applyFuncCompo(1,"x/0"),INTERP_KERNEL::Exception);
-  
+
   DataArrayDouble *da2=da->applyFuncCompo(1,"y+z");
  CPPUNIT_ASSERT_EQUAL(1,(int)da2->getNumberOfComponents());
  CPPUNIT_ASSERT_EQUAL(5,(int)da2->getNumberOfTuples());
@@ -1844,10 +1844,10 @@ void MEDCouplingBasicsTest4::testDADFindCommonTuples1()
   CPPUNIT_ASSERT_EQUAL(ToIdType(0),c->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(ToIdType(1),cI->getNbOfElems());
   CPPUNIT_ASSERT_EQUAL(ToIdType(0),cI->getIJ(0,0));
-  
+
   da->alloc(6,5);  //bad NumberOfComponents
   CPPUNIT_ASSERT_THROW(da->findCommonTuples(1e-2,-1,c,cI),INTERP_KERNEL::Exception);
-  
+
   c->decrRef();
   cI->decrRef();
   da->decrRef();

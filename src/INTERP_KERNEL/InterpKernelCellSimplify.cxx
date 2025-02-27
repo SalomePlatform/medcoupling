@@ -97,7 +97,7 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::simplifyDegeneratedCell(INTERP_K
 
 /*!
  * This static method tries to unpolygonize a cell whose connectivity is given by 'conn' and 'lgth'.
- * Contrary to INTERP_KERNEL::CellSimplify::simplifyDegeneratedCell method 'conn' and 'retConn' do not overlap. 
+ * Contrary to INTERP_KERNEL::CellSimplify::simplifyDegeneratedCell method 'conn' and 'retConn' do not overlap.
  */
 INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPoly2D(bool isQuad, const mcIdType *conn, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth)
 {
@@ -175,7 +175,7 @@ mcIdType *CellSimplify::getFullPolyh3DCell(INTERP_KERNEL::NormalizedCellType typ
 /*!
  * This static method tries to unpolygonize a cell whose connectivity is given by 'conn' (format is the same as specified in
  * method INTERP_KERNEL::CellSimplify::getFullPolyh3DCell ) and 'lgth'+'nbOfFaces'.
- * Contrary to INTERP_KERNEL::CellSimplify::simplifyDegeneratedCell method 'conn' and 'retConn' do not overlap. 
+ * Contrary to INTERP_KERNEL::CellSimplify::simplifyDegeneratedCell method 'conn' and 'retConn' do not overlap.
  */
 INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPoly3D(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth)
 {
@@ -279,7 +279,7 @@ bool CellSimplify::isWellOriented(const mcIdType *baseFace, mcIdType *retConn, c
 }
 
 /*!
- * This method is trying to permute the connectivity of 'oppFace' face so that the k_th node of 'baseFace' is associated to the 
+ * This method is trying to permute the connectivity of 'oppFace' face so that the k_th node of 'baseFace' is associated to the
  * k_th node in retConnOfOppFace. Excluded faces 'baseFace' and 'oppFace' all the other faces in 'conn' must be QUAD4 faces.
  * If the arrangement process succeeds true is returned and retConnOfOppFace is filled.
  */
@@ -310,7 +310,7 @@ bool CellSimplify::tryToArrangeOppositeFace(const mcIdType *conn, mcIdType lgth,
 /*!
  * Cell with 'conn' connectivity has been detected as a good candidate. Full check of this. If yes NORM_HEXA8 is returned.
  * This method is only callable if in 'conn' there is 8 nodes and 6 faces.
- * If fails a POLYHED is returned. 
+ * If fails a POLYHED is returned.
  */
 INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyHex8(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth)
 {
@@ -386,7 +386,7 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyHexp12(const mcIdType
 
 /*!
  * Cell with 'conn' connectivity has been detected as a good candidate. Full check of this. If yes NORM_PENTA6 is returned.
- * If fails a POLYHED is returned. 
+ * If fails a POLYHED is returned.
  */
 INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyPenta6(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth)
 {
@@ -430,7 +430,7 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyPenta6(const mcIdType
 
 /*!
  * Cell with 'conn' connectivity has been detected as a good candidate. Full check of this. If yes NORM_PYRA5 is returned.
- * If fails a POLYHED is returned. 
+ * If fails a POLYHED is returned.
  */
 INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyPyra5(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth)
 {
@@ -489,7 +489,7 @@ INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyPyra5(const mcIdType 
 
 /*!
  * Cell with 'conn' connectivity has been detected as a good candidate. Full check of this. If yes NORM_TETRA4 is returned.
- * If fails a POLYHED is returned. 
+ * If fails a POLYHED is returned.
  */
 INTERP_KERNEL::NormalizedCellType CellSimplify::tryToUnPolyTetra4(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth)
 {

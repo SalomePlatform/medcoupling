@@ -196,7 +196,7 @@ const double *MEDCouplingGaussLocalization::fillWithValues(const double *vals)
  * this method computes their coordinates in real world for each cells in \a mesh.
  * So the returned array will contain nbCells* \a ptsInRefCoo->getNumberOfTuples() tuples and the number of component
  * will be equal to the dimension of \a this.
- * 
+ *
  * This method ignores Gauss points in \a this and only those in \a ptsInRefCoo are considered here.
  */
 MCAuto<DataArrayDouble> MEDCouplingGaussLocalization::localizePtsInRefCooForEachCell(const DataArrayDouble *ptsInRefCoo, const MEDCouplingUMesh *mesh) const

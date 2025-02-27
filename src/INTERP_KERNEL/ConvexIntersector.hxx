@@ -39,7 +39,7 @@ namespace INTERP_KERNEL
     typedef typename MyMeshType::MyConnType ConnType;
     static const NumberingPolicy numPol=MyMeshType::My_numPol;
   public:
-    ConvexIntersector(const MyMeshType& meshT, const MyMeshType& meshS, 
+    ConvexIntersector(const MyMeshType& meshT, const MyMeshType& meshS,
                       double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane,
                       bool doRotate, int orientation, int printLevel);
     double intersectGeometry(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS);

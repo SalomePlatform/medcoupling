@@ -33,7 +33,7 @@ namespace MEDCoupling
    *
    * A field template aggregates a MEDCouplingMesh and a spatial discretization object (instance of
    * MEDCouplingFieldDiscretization).
-   * 
+   *
    * MEDCouplingFieldTemplate is the most appropriate type for the preparation of matrix using
    * MEDCouplingRemapper::prepareEx, since it contains the minimal information requireds to prepare
    * the interpolation matrix.

@@ -231,7 +231,7 @@ time values:
             if nbCompo not in self.dictCompo:
                 l = [x for x in self.dictCompo if x - nbCompo > 0]
                 if len(l)==0:
-                    continue;
+                    continue
                 nbCompo=l[0]
                 pass
             for iii,it in enumerate(its):

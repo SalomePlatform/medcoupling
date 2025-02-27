@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Check that the ICoCo headers used in MEDCoupling are well synchronized with the official ICoCo version 
+# Check that the ICoCo headers used in MEDCoupling are well synchronized with the official ICoCo version
 # hosted at:
 #   https://github.com/cea-trust-platform/icoco-coupling
 #

@@ -145,7 +145,7 @@ MEDCouplingUMesh::sortCellsInMEDFileFrmt();
 MEDCouplingUMesh::unPolyze();
 //MEDCouplingUMesh::zipConnectivityTraducer(int compType, int startCellId=0);
 MEDCouplingUMesh::zipCoordsTraducer();
-  ///@} 
+  ///@}
 
   /*! \name Advanced API  */
 ///@{
@@ -318,6 +318,6 @@ int MEDCouplingUMesh::_mesh_dim;
 std::set<INTERP_KERNEL::NormalizedCellType> MEDCouplingUMesh::_types;
 DataArrayInt * MEDCouplingUMesh::_nodal_connec;
 DataArrayInt * MEDCouplingUMesh::_nodal_connec_index;
-  ///@} 
+  ///@}
 }
 

@@ -146,7 +146,7 @@ bool INTERP_KERNEL::CurveIntersectorInternal::CurveIntersectorInternalProjection
     s01[X] = -s01[X], s01[Y] = -s01[Y];
 
   double medianDir[2] = {
-    t01[X] * ( 1.-medianLine) + s01[X] * medianLine, 
+    t01[X] * ( 1.-medianLine) + s01[X] * medianLine,
     t01[Y] * ( 1.-medianLine) + s01[Y] * medianLine
   };
   double medianSize = sqrt( medianDir[X]*medianDir[X] + medianDir[Y]*medianDir[Y] );

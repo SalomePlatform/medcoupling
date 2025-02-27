@@ -34,7 +34,7 @@ namespace MEDCoupling
     ByStringMPIProcessorGroup(const ByStringMPIProcessorGroup& other);
     virtual ~ByStringMPIProcessorGroup();
     virtual ByStringMPIProcessorGroup *deepCopy() const;
-    
+
   };
 }
 

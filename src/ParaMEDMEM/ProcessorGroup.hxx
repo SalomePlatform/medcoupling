@@ -34,7 +34,7 @@ namespace MEDCoupling
   class ProcessorGroup
   {
   public:
-  
+
     ProcessorGroup(const CommInterface& interface):_comm_interface(interface) { }
     ProcessorGroup(const CommInterface& interface, std::set<int> proc_ids):
       _comm_interface(interface),_proc_ids(proc_ids) { }

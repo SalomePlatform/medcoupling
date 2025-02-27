@@ -25,7 +25,7 @@ namespace INTERP_KERNEL
 {
   /**
    * Default constructor
-   * 
+   *
    */
   Interpolation3D::Interpolation3D()
   {

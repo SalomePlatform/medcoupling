@@ -31,7 +31,7 @@ Reading, Writing a MED file using MEDLoader advanced API
 	meshMEDFile.setMeshAtLevel(0,targetMesh)
 	meshMEDFile.setMeshAtLevel(-1,targetMesh1)
 	# Some groups on cells Level 0
-	grp0_0 = mc.DataArrayInt([0,1,3]) 
+	grp0_0 = mc.DataArrayInt([0,1,3])
 	grp0_0.setName("grp0_Lev0")
 	grp1_0 = mc.DataArrayInt([1,2,3,4])
 	grp1_0.setName("grp1_Lev0")
@@ -45,7 +45,7 @@ Reading, Writing a MED file using MEDLoader advanced API
 	grp2_M1.setName("grp2_LevM1")
 	meshMEDFile.setGroupsAtLevel(-1,[grp0_M1,grp1_M1,grp2_M1])	
 	# Write everything
-	meshMEDFile.write("TargetMesh2.med",2) # 2 stands for write from scratch 
+	meshMEDFile.write("TargetMesh2.med",2) # 2 stands for write from scratch
 	# Re-read and test equality
 	meshMEDFileRead = mc.MEDFileMesh.New("TargetMesh2.med")  # a new is needed because it returns a MEDFileUMesh (MEDFileMesh is abstract)
 	meshRead0 = meshMEDFileRead.getMeshAtLevel(0)
@@ -78,7 +78,7 @@ Reading, Writing a MED file using MEDLoader advanced API
 	#
 	# Writing and Reading fields on profile using MEDLoader advanced API
 	#
-	pfl = mc.DataArrayInt([1,2,3]) 
+	pfl = mc.DataArrayInt([1,2,3])
 	pfl.setName("My1stPfl")
 	fPart = f.buildSubPart(pfl)
 	fPart.setName("fPart")

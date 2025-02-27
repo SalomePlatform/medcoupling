@@ -40,7 +40,7 @@ namespace MEDCoupling
   SHAPE_RECOGNITION_EXPORT std::vector<std::string> AllManagedPrimitivesStr();
 
   SHAPE_RECOGNITION_EXPORT std::string ConvertPrimitiveToString(PrimitiveType type);
-  
+
   SHAPE_RECOGNITION_EXPORT PrimitiveType ConvertStringToPrimitive(const std::string& type);
 
   SHAPE_RECOGNITION_EXPORT int ConvertPrimitiveToInt(PrimitiveType type);

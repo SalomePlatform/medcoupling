@@ -39,7 +39,7 @@ namespace INTERP_TEST
     CPPUNIT_TEST( test_InterpolationOptions );
     CPPUNIT_TEST_SUITE_END();
 
-   
+
   public:
     void setUp();
 
@@ -49,7 +49,7 @@ namespace INTERP_TEST
     void test_InterpolationOptions();
 
   private:
-   
+
   };
 
 

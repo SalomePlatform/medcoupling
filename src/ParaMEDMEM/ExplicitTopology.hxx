@@ -70,7 +70,7 @@ namespace MEDCoupling
     INTERP_KERNEL::HashMap<mcIdType,mcIdType> _glob2loc;
   };
 
-  //!converts a pair <subdomainid,local> to a global number 
+  //!converts a pair <subdomainid,local> to a global number
   inline mcIdType ExplicitTopology::globalToLocal(const mcIdType global) const
   {
     return (_glob2loc.find(global))->second;
@@ -81,15 +81,15 @@ namespace MEDCoupling
   {
     return _loc2glob[local];
   }
-  
+
   //!Retrieves the number of elements for a given topology
   inline mcIdType ExplicitTopology::getNbElements() const
   {
     return _nb_elems;
   }
 
-  //Retrieves the local number of elements 
-  inline mcIdType ExplicitTopology::getNbLocalElements()const 
+  //Retrieves the local number of elements
+  inline mcIdType ExplicitTopology::getNbLocalElements()const
   {
     return ToIdType(_glob2loc.size());
   }

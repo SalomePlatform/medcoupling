@@ -70,7 +70,7 @@ MeshCollectionMedXmlDriver::MeshCollectionMedXmlDriver(MeshCollection* collectio
 /*!reads a MED File Xml Master File v>=2.3
  * and mounts the corresponding meshes in memory
  * the connect zones are created from the joints
- * 
+ *
  *\param filename Xml file containing the list of MED v2.3 files
  * */
 
@@ -96,7 +96,7 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
         throw INTERP_KERNEL::Exception("Xml Master File does not contain /MED/splitting/subdomain node");
 
       //as subdomain has only one property which is "number"
-      //it suffices to take the content of its first child 
+      //it suffices to take the content of its first child
       const char* mystring = (const char*)xpathObj->nodesetval->nodeTab[0]->properties->children->content;
       sscanf(mystring, "%d", &nbdomain);
 
@@ -122,12 +122,12 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
       if (xpathObj==0 || xpathObj->nodesetval->nodeNr ==0)
         throw INTERP_KERNEL::Exception("Xml Master File does not contain /MED/files/subfile nodes");
       int nbfiles = xpathObj->nodesetval ->nodeNr;
-    
+
       for (int i=0; i<nbfiles;i++)
         {
           //reading information about the domain
           std::string host;
-          //reading file names 
+          //reading file names
           std::ostringstream name_search_string;
           name_search_string<<"//files/subfile[@id=\""<<i+1<<"\"]/name";
           xmlXPathObjectPtr xpathObjfilename =
@@ -152,9 +152,9 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
         } //loop on domains
 
       //LIBXML cleanup
-      xmlXPathFreeObject(xpathObj); 
-      xmlXPathFreeContext(xpathCtx); 
-      xmlFreeDoc(master_doc); 
+      xmlXPathFreeObject(xpathObj);
+      xmlXPathFreeContext(xpathCtx);
+      xmlFreeDoc(master_doc);
 
     } //of try
   catch(...)
@@ -175,7 +175,7 @@ int MeshCollectionMedXmlDriver::read(const char* filename, ParaDomainSelector* d
 }
 
 
-/*! writes the collection of meshes in a 
+/*! writes the collection of meshes in a
  * MED v2.3 Xml file
  * with the connect zones being written as joints
  * \param filename name of the Xml file containing the meshes description
@@ -199,7 +199,7 @@ void MeshCollectionMedXmlDriver::write(const char* filename, ParaDomainSelector*
   xmlNewProp(node, BAD_CAST "ver", BAD_CAST "1");
 
   //Description tag
-  time_t present; 
+  time_t present;
   char date[20];
 #ifndef WIN32
   time( &present);
@@ -292,7 +292,7 @@ void MeshCollectionMedXmlDriver::write(const char* filename, ParaDomainSelector*
           //xmlNewChild(node,0,BAD_CAST "name", BAD_CAST ((_collection->getMesh())[idomain]->getName()).c_str());
         }
     }
-  
+
   //create the ascii description file
   if (domainSelector->rank()==0)
     {

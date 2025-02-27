@@ -82,7 +82,7 @@ namespace MEDCoupling
   private:
     void writeXX(const std::string& fileName, int mode, med_int maj, med_int min, med_int rel) const;
   };
-  
+
   class MEDFileCapability
   {
   public:

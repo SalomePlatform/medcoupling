@@ -31,7 +31,7 @@
 #include <map>
 
 namespace MEDCoupling
-{  
+{
   template<class ID, class T>
   class MapKeyVal : public RefCountObject, public TimeLabel
   {

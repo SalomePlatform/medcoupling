@@ -49,7 +49,7 @@ void MPIAccessTest::test_MPI_Access_Cancel() {
 
   debugStream << "test_MPI_Access_Cancel" << endl ;
 
-//  MPI_Init(&argc, &argv) ; 
+//  MPI_Init(&argc, &argv) ;
 
   int size ;
   int myrank ;

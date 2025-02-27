@@ -28,7 +28,7 @@
 using namespace MEDPARTITIONER;
 
 /*! constructor that allows to specify the desired partition
- * \param partition as table giving the domain number for each cell 
+ * \param partition as table giving the domain number for each cell
  *        (domain numbers range from 0 to ndomain-1
  * \param n number of cells in the mesh
  */

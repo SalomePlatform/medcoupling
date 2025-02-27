@@ -97,7 +97,7 @@ void Bounds::prepareForAggregation()
   _x_min=1e200; _x_max=-1e200; _y_min=1e200; _y_max=-1e200;
 }
 
-/*! 
+/*!
  * Given an arc defined by 'center', 'radius' and 'intrcptArcDelta' in radian, returns (by outputs intrcptArcAngle0 and intrcptArcDelta)
  * the intercepted angle of 'this' from 'center' point of view.
  * If diagonal of 'this' is the same order of 2*radius, intrcptArcAngle0 and intrcptArcDelta remains unchanged.

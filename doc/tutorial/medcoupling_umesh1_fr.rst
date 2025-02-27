@@ -4,7 +4,7 @@ Manipuler les maillages non structurés
 
 Les meshes non-structurées sont le type de maillage le plus utilisé. ``MEDCouplingUMesh`` est le nom de la classe en charge
 de représenter ces maillages dans MEDCoupling. ``MEDCouplingUMesh`` hérite de la classe ``MEDCouplingPointSet``.
-``MEDCouplingPointSet`` gère toutes les méthodes relatives au coordonnées. ``MEDCouplingUMesh`` a deux attributs en plus de 
+``MEDCouplingPointSet`` gère toutes les méthodes relatives au coordonnées. ``MEDCouplingUMesh`` a deux attributs en plus de
 ceux de ``MEDCouplingPointSet`` permettant de décrire la liste des noeuds contribuants à une cellule (i.e. la *connectivité*).
 
 Objectifs
@@ -76,17 +76,17 @@ Cela paraît idiot mais c'est un très grand classique du couplage ... ::
 	mesh3D.getCoords()[:] *= 100.
 	mesh3D.getCoords().setInfoOnComponents(["X [cm]","Y [cm]","Z [cm]"])
 
-.. note:: Il est important de mettre à jour les informations sur les composantes des coordonnées (les unités) pour éviter toute ambiguïté. 
+.. note:: Il est important de mettre à jour les informations sur les composantes des coordonnées (les unités) pour éviter toute ambiguïté.
 	INTERP_KERNEL library inclut un évaluateur d'unité.
 	
-.. note:: Noter l'astuce sur la première ligne ``[:]`` afin de récupérer la version inscriptible des coordonnées 
-	(et non une copie temporaire) 
+.. note:: Noter l'astuce sur la première ligne ``[:]`` afin de récupérer la version inscriptible des coordonnées
+	(et non une copie temporaire)
 
 Trouver les différents niveaux
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Le maillage est extrudé, il est donc très régulier, et aligné sur les axes Ox, Oy et Oz (cf figure). 
-On veut connaître quelles 
+Le maillage est extrudé, il est donc très régulier, et aligné sur les axes Ox, Oy et Oz (cf figure).
+On veut connaître quelles
 sont les côtes Z des différentes couches de cubes.
 Extraire les différents niveaux en Z dans ``mesh3D``, rangés de manière croissante.
 Utiliser la méthode ``DataArrayDouble.getDifferentValues()`` and ``DataArrayDouble.sort()``. ::
@@ -98,26 +98,26 @@ Utiliser la méthode ``DataArrayDouble.getDifferentValues()`` and ``DataArrayDou
 Extraire des identifiants de cellules
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Extraire les 6 identifiants des cellules de la seconde rangée suivant Oz. 
+Extraire les 6 identifiants des cellules de la seconde rangée suivant Oz.
 Il y a 3 possibilités pour faire cela. Nous allons les voir du plus simple au plus complexe.
 
 * En utilisant ``buildSlice3D()`` :
 	Méthode très simple mais gourmande en CPU. Pour trouver la solution il suffit de définir un plan dont le vecteur normal est ``[0.,0.,1.]``
-	et passant par le point ``[0., 0., (zLev[1]+zLev[2])/2]``. 
+	et passant par le point ``[0., 0., (zLev[1]+zLev[2])/2]``.
 	La méthode retourne deux choses : le maillage de coupe ``tmp`` (un maillage de mesh-dimension 2, mais de dimension spatiale
 	3) et pour chaque cellule 3D surfacique de ``tmp``, l'identifiant de la cellule 3D (=un volume) coupée dans le
 	maillage de départ  ::
 	
 		tmp, cellIdsSol1 = mesh3D.buildSlice3D([0.,0.,(zLev[1]+zLev[2])/2], [0.,0.,1.], 1e-12)
 
-* En utilisant les barycentres des cellules de ``mesh3D`` : 
+* En utilisant les barycentres des cellules de ``mesh3D`` :
 	L'utilisation des barycentres est une technique classique pour identifier un ensemble de cellules répondant à certains
 	critères géométriques.
-	Il s'agit d'abord de calculer les barycentres des cellules 3D de ``mesh3D`` (méthode 
+	Il s'agit d'abord de calculer les barycentres des cellules 3D de ``mesh3D`` (méthode
 	``MEDCouplingUMesh.computeCellCenterOfMass()``).
 	
 	Ensuite sélectionner la composante #2 des barycentres des cellules et mettre le résultat dans ``baryZ``.
-	Ensuite il suffit de selectionner dans ``baryZ`` les tuples qui sont dans l'intervalle ``[zLev[1], zLev[2]]``. 
+	Ensuite il suffit de selectionner dans ``baryZ`` les tuples qui sont dans l'intervalle ``[zLev[1], zLev[2]]``.
 	Les identifiants de ces tuples (i.e. leur index dans ``baryZ``) est directement un identifiant de cellule
 	car ``computeCellCenterOfMass()`` retourne un tableau indéxé par les numéros de cellule.::
 	
@@ -127,19 +127,19 @@ Il y a 3 possibilités pour faire cela. Nous allons les voir du plus simple au p
 
 * En utilisant ``MEDCouplingMappedExtrudedMesh`` :
 	C'est la méthode exclusivement basée sur la connectivité nodale pour déduire l'extrusion. Les coordonnées sont ici ignorées.
-	Pour construire un ``MEDCouplingMappedExtrudedMesh`` deux objets sont requis. Le maillage non-structuré 3D  
-	représentant en fait un maillage *extrudé*, et un maillage non structuré 3D surfacique (mesh-dim 2) 
+	Pour construire un ``MEDCouplingMappedExtrudedMesh`` deux objets sont requis. Le maillage non-structuré 3D
+	représentant en fait un maillage *extrudé*, et un maillage non structuré 3D surfacique (mesh-dim 2)
 	reposant sur les mêmes coordonnéees, à partir duquel l'extrusion sera calculée.
-	Commencer par construire le maillage 3D surfacique. Pour ce faire il suffit de repérer les noeuds appartenant 
+	Commencer par construire le maillage 3D surfacique. Pour ce faire il suffit de repérer les noeuds appartenant
 	à 1e-10 près de plan de vecteur normal ``[0.,0.,1.]`` et passant
-	par ``[0.,0.,zLev[0]]`` (``MEDCouplingUMesh.findNodesOnPlane()``). Ensuite appeler ``MEDCouplingUMesh.buildFacePartOfMySelfNode()`` 
+	par ``[0.,0.,zLev[0]]`` (``MEDCouplingUMesh.findNodesOnPlane()``). Ensuite appeler ``MEDCouplingUMesh.buildFacePartOfMySelfNode()``
 	pour construire ``mesh2D`` (lire la doc de la fonction). ::
 	
 		nodeIds = mesh3D.findNodesOnPlane([0., 0., zLev[0]], [0.,0.,1.], 1e-10)
 		mesh2D = mesh3D.buildFacePartOfMySelfNode(nodeIds, True)
 		
 
-	Il est alors possible de construire un maillage extrudé ``extMesh`` à partir de ``mesh3D`` et de ``mesh2D``. 
+	Il est alors possible de construire un maillage extrudé ``extMesh`` à partir de ``mesh3D`` et de ``mesh2D``.
 	Un maillage extrudé se construit en *reconnaissant* un maillage non structuré comme étant l'extrusion d'un maillage
 	de dimension ``n-1`` (avec ``n`` la dimension initiale de ``mesh3D``, ici 3). Si cela n'est pas le cas, la construction
 	plante. Le maillage 2D est forcément en haut ou en bas du 3D volumique, et le dernier entier spécifie la cellule à partir
@@ -147,7 +147,7 @@ Il y a 3 possibilités pour faire cela. Nous allons les voir du plus simple au p
 	
 		extMesh = mc.MEDCouplingMappedExtrudedMesh(mesh3D, mesh2D, 0)
 	
-	On a alors la garantie que, dans ``extMesh``,  les cellules sont ordonnées par niveau Z croissant. 
+	On a alors la garantie que, dans ``extMesh``,  les cellules sont ordonnées par niveau Z croissant.
 	Il suffit de récupérer le 2ème niveau (``MEDCouplingMappedExtrudedMesh.getMesh3DIds()``). ::
 	
 		n_cells = mesh2D.getNumberOfCells()
@@ -166,24 +166,24 @@ Extraire une sous partie d'un maillage 3D
 Utiliser les identifiants de cellules ``cellIdsSol2`` obtenus précédemment pour extraire une sous-partie de ``mesh3D``,
 c'est-à-dire un maillage avec un sous-ensemble des cellules de ``mesh3D``. ::
 
-	mesh3DPart = mesh3D[cellIdsSol2] 
+	mesh3DPart = mesh3D[cellIdsSol2]
 	
-.. note:: En C++ la méthode sous-jacente invoquée (et par ailleurs aussi disponible en Python) s'appelle    
+.. note:: En C++ la méthode sous-jacente invoquée (et par ailleurs aussi disponible en Python) s'appelle
 	``mesh3DPart = mesh3D.buildPartOfMySelf(cellIdsSol2,True)``
 
 .. note:: Le type géométrique ne rentre pas du tout en compte ici. L'instruction précédente prend les cellules
-	dans l'ordre où elles sont disponibles dans le maillage initial. 
+	dans l'ordre où elles sont disponibles dans le maillage initial.
 
-L'objet ``mesh3DPart`` contient ``len(cellIdsSol2)`` cellules désormais. La cellule #0 de ``mesh3DPart`` correspond à la cellule avec l'identifiant ``cellIdsSol2[0]`` de ``mesh3D``, et ainsi de suite. Ainsi ``cellIdsSol2`` peut être vu comme un 
+L'objet ``mesh3DPart`` contient ``len(cellIdsSol2)`` cellules désormais. La cellule #0 de ``mesh3DPart`` correspond à la cellule avec l'identifiant ``cellIdsSol2[0]`` de ``mesh3D``, et ainsi de suite. Ainsi ``cellIdsSol2`` peut être vu comme un
 tableau new-2-old.
 
-A ce point, ``mesh3DPart`` repose sur une copie du tableau de coordonnées de ``mesh3D``, c'est-à-dire  60 nodes. 
+A ce point, ``mesh3DPart`` repose sur une copie du tableau de coordonnées de ``mesh3D``, c'est-à-dire  60 nodes.
 Seuls 30 sont effectivement utilisés.
 Pour retirer les noeuds orphelins de ``mesh3DPart`` invoquer simplement ``MEDCouplingUMesh.zipCoords()``. ::
 
 	mesh3DPart.zipCoords()
 
-Maintenant, ``mesh3DPart`` repose sur 30 nodes et possède 6 cellules. Pour être prêt aux I/O MED-fichier, il est 
+Maintenant, ``mesh3DPart`` repose sur 30 nodes et possède 6 cellules. Pour être prêt aux I/O MED-fichier, il est
 alors important de voir si ``mesh3DPart`` est bien ordonné, c'est-à-dire si ses cellules sont bien rangées par type géométrique.
 On commence par inspecter l'état actuel : ::
 
@@ -197,7 +197,7 @@ Ou bien : ::
 
 	print(mesh3DPart.checkConsecutiveCellTypes())
 
-On voit que ``mesh3DPart`` contient 6 cellules, quatre HEXA8 puis deux POLYHED. Les cellules sont bien 
+On voit que ``mesh3DPart`` contient 6 cellules, quatre HEXA8 puis deux POLYHED. Les cellules sont bien
 groupées par type géométrique. Si ce n'était pas le cas, on aurait pu invoquer ``MEDCouplingUMesh.sortCellsInMEDFileFrmt()``.
 
 
@@ -215,8 +215,8 @@ Il y a deux solutions.
 	magn = baryXY.magnitude()
 	cellIds2Sol1 = magn.findIdsInRange(0.,1e-12)
 	
-* utiliser le maillage extrudé ``extMesh`` : partant de l'unique cellule dans ``mesh2D`` dont le centre est 
-  en ``[250.,150.,0.]``, la méthdode ``MEDCouplingMappedExtrudedMesh.getMesh3DIds()`` retourne les identifiants de 
+* utiliser le maillage extrudé ``extMesh`` : partant de l'unique cellule dans ``mesh2D`` dont le centre est
+  en ``[250.,150.,0.]``, la méthdode ``MEDCouplingMappedExtrudedMesh.getMesh3DIds()`` retourne les identifiants de
   cellules rangée par rangée. ::
 
 	bary2 = mesh2D.computeCellCenterOfMass()[:,[0,1]]
@@ -235,12 +235,12 @@ Maintenant on construit cette sous partie de ``mesh3D`` en utilisant ``cellIds2S
 Duplication, translation et aggrégation de maillages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Cette partie de l'exercice est intéressante pour construire des maillages complexes, ou pour aggréger des parties 
+Cette partie de l'exercice est intéressante pour construire des maillages complexes, ou pour aggréger des parties
 de maillages venant de différents processeurs.
 
 On cherche ici à dupliquer ``mesh3DSlice2``, le translater et l'aggréger avec l'original.
 
-Effectuer une copie complète de ``mesh3DSlice2`` (aussi appelée *deep copy*) sous le nom ``mesh3DSlice2bis``. 
+Effectuer une copie complète de ``mesh3DSlice2`` (aussi appelée *deep copy*) sous le nom ``mesh3DSlice2bis``.
 Sur cette copie effectuer une translation de ``v=[0.,1000.,0.]``.
 Puis aggréger ``mesh3DSlice2`` avec sa copie translatée ``mesh3DSlice2bis``, en utilisant ``MEDCouplingUMesh.MergeUMeshes()``. ::
 
@@ -259,23 +259,23 @@ Connectivité descendante
 
 Le but ici est de présenter la notion de *connectivité descendante* (*descending connectivity*).
 
-La connectivité descendante représente les éléments de dimension ``n-1`` 
+La connectivité descendante représente les éléments de dimension ``n-1``
 constituant chacune des cellules de dimension ``n`` (avec donc ``n`` la dimension du maillage, *mesh-dim*). Par exemple, pour un
 maillage de dimension 3 (les cellules sont des *volumes* 3D), cela donne l'ensemble des faces (des *surfaces* 2D) bordant
-ces volumes.  
+ces volumes.
 
 A titre d'exemple, on se propose dans notre cas de récupérer les faces *internes* du maillage ``mesh3D``.
-Pour cela il est nécessaire de construire le maillage 
-descendant de ``mesh3D`` (stocké dans ``mesh3DSurf``) c'est-à-dire 
+Pour cela il est nécessaire de construire le maillage
+descendant de ``mesh3D`` (stocké dans ``mesh3DSurf``) c'est-à-dire
 le maillage de mesh-dimension 2 (soit ``mesh3D.getMeshDimension()-1``) constitué
 des *faces* bordant chacune des cellules (ici des *volumes* 3D) de ``mesh3D``.
-La méthode ``MEDCoupling.buildDescendingConnectivity()`` calcule ce maillage, et retourne en même temps des tableaux 
-de correspondance. Ces tableaux font le lien entre les identifiants des cellules de ``mesh3D`` 
+La méthode ``MEDCoupling.buildDescendingConnectivity()`` calcule ce maillage, et retourne en même temps des tableaux
+de correspondance. Ces tableaux font le lien entre les identifiants des cellules de ``mesh3D``
 vers les identifiants de cellules de ``mesh3DSurf``, et vice-et-versa.
 
-Une face de ``mesh3DSurf`` est dite interne, si et seulement si, elle est partagée par plus d'une cellule 3D de ``mesh3D``. 
-Les 3ème et 4ème paramètres de sortie de la fonction donnent le lien 
-entre une face et ses cellules *parentes* (i.e. le ou les volumes qu'elle délimite). 
+Une face de ``mesh3DSurf`` est dite interne, si et seulement si, elle est partagée par plus d'une cellule 3D de ``mesh3D``.
+Les 3ème et 4ème paramètres de sortie de la fonction donnent le lien
+entre une face et ses cellules *parentes* (i.e. le ou les volumes qu'elle délimite).
 Ce lien est exprimé au format *indirect index* vu dans le premier exercice :ref:`indirect-index-exo`. ::
 
 	mesh3DSurf, desc, descIndx, revDesc, revDescIndx = mesh3D.buildDescendingConnectivity()
@@ -284,8 +284,8 @@ Ce lien est exprimé au format *indirect index* vu dans le premier exercice :ref
 	mesh3DSurfInside = mesh3DSurf[cellIds]
 	mesh3DSurfInside.writeVTK("mesh3DSurfInside.vtu")
 	
-Ce genre de manipulation est très utile pour accéder au voisinage d'une ou plusieurs cellules d'un maillage non-structuré. 
- 
+Ce genre de manipulation est très utile pour accéder au voisinage d'une ou plusieurs cellules d'un maillage non-structuré.
+
 .. image:: images/mesh3DSurfInside.jpg
 
 Solution

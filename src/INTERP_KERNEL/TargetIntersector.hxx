@@ -28,7 +28,7 @@
 namespace INTERP_KERNEL
 {
   /**
-   * \brief Abstract base class of Intersector classes. 
+   * \brief Abstract base class of Intersector classes.
    * These classes represent a target element and calculate its intersection
    * with the source elements.
    */
@@ -43,7 +43,7 @@ namespace INTERP_KERNEL
      * Tool for cell intersection, result is always positive.
      * @param targetCell id of cell in target mesh in \b C \b mode.
      * @param srcCells ids of cells in source mesh in \b C \b mode.
-     * @param res is an IN/OUT parameter that represents the icellTth row in final matrix, fed with at most icellsS elements. 
+     * @param res is an IN/OUT parameter that represents the icellTth row in final matrix, fed with at most icellsS elements.
      */
     virtual void intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res) = 0;
 

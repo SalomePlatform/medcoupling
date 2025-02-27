@@ -54,10 +54,10 @@ void ParMETISGraph::partGraph(int ndomain,
 {
   using std::vector;
   vector<int> ran,vx,va; //for randomize
-  
+
   if (MyGlobals::_Verbose>10)
     std::cout << "proc " << MyGlobals::_Rank << " : ParMETISGraph::partGraph" << std::endl;
-  
+
   // number of graph vertices
   int n=FromIdType<int>(_graph->getNumberOf());
   //graph
@@ -94,26 +94,26 @@ void ParMETISGraph::partGraph(int ndomain,
   throw INTERP_KERNEL::Exception("ParMETISGraph::partGraph : PARMETIS is not available. Check your products, please.");
 #else
   int* partition=new int[n];
-  
-  if (MyGlobals::_Verbose>10) 
+
+  if (MyGlobals::_Verbose>10)
     std::cout << "proc " << MyGlobals::_Rank << " : ParMETISGraph::partGraph ParMETIS_PartKway new" << std::endl;
   int * vtxdist=parallelizer->getProcVtxdist();
   MPI_Comm comm=MPI_COMM_WORLD;
-  ParMETIS_PartKway(vtxdist, xadj, adjncy, vwgt, 
-                                    adjwgt, &wgtflag, &base, &nparts, options, 
+  ParMETIS_PartKway(vtxdist, xadj, adjncy, vwgt,
+                                    adjwgt, &wgtflag, &base, &nparts, options,
                                     &edgecut, partition, &comm );
 
 
   /*doc from parmetis.h
     void __cdecl ParMETIS_PartKway(
-    idxtype *vtxdist, idxtype *xadj, idxtype *adjncy, idxtype *vwgt, 
-    idxtype *adjwgt, int *wgtflag, int *numflag, int *nparts, int *options, 
+    idxtype *vtxdist, idxtype *xadj, idxtype *adjncy, idxtype *vwgt,
+    idxtype *adjwgt, int *wgtflag, int *numflag, int *nparts, int *options,
     int *edgecut, idxtype *part, MPI_Comm *comm);
 
     void __cdecl ParMETIS_V3_PartKway(
-    idxtype *vtxdist, idxtype *xadj, idxtype *adjncy, idxtype *vwgt, 
-    idxtype *adjwgt, int *wgtflag, int *numflag, int *ncon, int *nparts, 
-    float *tpwgts, float *ubvec, int *options, int *edgecut, idxtype *part, 
+    idxtype *vtxdist, idxtype *xadj, idxtype *adjncy, idxtype *vwgt,
+    idxtype *adjwgt, int *wgtflag, int *numflag, int *ncon, int *nparts,
+    float *tpwgts, float *ubvec, int *options, int *edgecut, idxtype *part,
     MPI_Comm *comm);
   */
 
@@ -141,9 +141,9 @@ void ParMETISGraph::partGraph(int ndomain,
   delete [] partition;
 
   //creating a skylinearray with no copy of the index and partition array
-  //the fifth argument true specifies that only the pointers are passed 
+  //the fifth argument true specifies that only the pointers are passed
   //to the object
-  
+
   _partition = MEDCoupling::MEDCouplingSkyLineArray::New(index,value);
 #endif
 }

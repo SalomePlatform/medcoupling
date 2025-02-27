@@ -128,10 +128,10 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         #ON_GAUSS_PT
         f=MEDCouplingFieldDouble(ON_GAUSS_PT)
         f.setMesh(m)
-        f.setGaussLocalizationOnCells([0,4],[0,0,1,0,1,1,1,0],[1.1,1.1,2.2,2.2],[0.2,0.8]);
-        f.setGaussLocalizationOnCells([3],[0,0,1,0,1,1,1,0],[1.1,1.1,2.2,2.2,3.,3.],[0.2,0.4,0.4]);
-        f.setGaussLocalizationOnCells([1],[0,0,1,0,1,0],[1.1,1.1,2.2,2.2,3.,3.,4.,4.],[0.1,0.1,0.4,0.4]);
-        f.setGaussLocalizationOnCells([2],[0,0,1,0,1,0],[1.1,1.1,2.2,2.2,3.,3.,4.,4.,5.,5.],[0.1,0.1,0.4,0.3,0.1]);
+        f.setGaussLocalizationOnCells([0,4],[0,0,1,0,1,1,1,0],[1.1,1.1,2.2,2.2],[0.2,0.8])
+        f.setGaussLocalizationOnCells([3],[0,0,1,0,1,1,1,0],[1.1,1.1,2.2,2.2,3.,3.],[0.2,0.4,0.4])
+        f.setGaussLocalizationOnCells([1],[0,0,1,0,1,0],[1.1,1.1,2.2,2.2,3.,3.,4.,4.],[0.1,0.1,0.4,0.4])
+        f.setGaussLocalizationOnCells([2],[0,0,1,0,1,0],[1.1,1.1,2.2,2.2,3.,3.,4.,4.,5.,5.],[0.1,0.1,0.4,0.3,0.1])
         arr = DataArrayDouble(16, 2) ; arr[:, 0] = list(range(7, 23)) ; arr[:, 1] = 100 + arr[:, 0]
         f.setArray(arr)
         f.checkConsistencyLight()
@@ -181,15 +181,15 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         pass
 
     def testSwig2ComputeTupleIdsNearTupleBug1(self):
-        coords=[1.1,0.0, 1.1,0.0 ];
-        coordsArr=DataArrayDouble(coords,2,2);
-        mesh=MEDCouplingUMesh();
-        mesh.setCoords(coordsArr);
+        coords=[1.1,0.0, 1.1,0.0 ]
+        coordsArr=DataArrayDouble(coords,2,2)
+        mesh=MEDCouplingUMesh()
+        mesh.setCoords(coordsArr)
         points=[1.1, 0.002]
-        c,cI=mesh.getNodeIdsNearPoints(points,0.00185);
+        c,cI=mesh.getNodeIdsNearPoints(points,0.00185)
         self.assertTrue(c.isEqual(DataArrayInt([])))
         self.assertTrue(cI.isEqual(DataArrayInt([0,0])))
-        c,cI=mesh.getNodeIdsNearPoints(points,0.00200000000000001);
+        c,cI=mesh.getNodeIdsNearPoints(points,0.00200000000000001)
         self.assertTrue(c.isEqual(DataArrayInt([0,1])))
         self.assertTrue(cI.isEqual(DataArrayInt([0,2])))
         pass
@@ -198,16 +198,16 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         coords1=[0.,1.,2.,3.]
         coords2=[2.,1.,0.,3.] #0 <==> #2
         # mesh 1
-        mesh1=MEDCouplingUMesh.New();
-        coordsArr=DataArrayDouble.New(coords1,4,1);
-        mesh1.setCoords(coordsArr);
-        mesh1.setMeshDimension(0);
-        mesh1.allocateCells(0);
-        mesh1.finishInsertingCells();
+        mesh1=MEDCouplingUMesh.New()
+        coordsArr=DataArrayDouble.New(coords1,4,1)
+        mesh1.setCoords(coordsArr)
+        mesh1.setMeshDimension(0)
+        mesh1.allocateCells(0)
+        mesh1.finishInsertingCells()
         # mesh 2
-        mesh2=mesh1.deepCopy();
-        coordsArr=DataArrayDouble.New(coords2,4,1);
-        mesh2.setCoords(coordsArr);
+        mesh2=mesh1.deepCopy()
+        coordsArr=DataArrayDouble.New(coords2,4,1)
+        mesh2.setCoords(coordsArr)
         field = mesh1.fillFromAnalytic(ON_NODES,1,"x")
         field.checkConsistencyLight()
         levOfCheck = 10
@@ -576,7 +576,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         a=DataArrayInt([])
         self.assertTrue(a.checkAndPreparePermutation().isEqual(DataArrayInt([])))
         a=DataArrayInt([])
-        a.iota();
+        a.iota()
         self.assertTrue(a.isEqual(DataArrayInt([])))
         pass
 
@@ -1199,7 +1199,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         meshN.setName("ForBary")
         meshN.setMeshDimension(3) ; meshN.setCoords(coords)
         meshN.allocateCells(4)
-        meshN.insertNextCell(NORM_POLYHED,113,connN);
+        meshN.insertNextCell(NORM_POLYHED,113,connN)
         meshN.insertNextCell(NORM_POLYHED,99,connN[113:])
         meshN.insertNextCell(NORM_POLYHED,43,connN[212:])
         meshN.insertNextCell(NORM_POLYHED,92,connN[255:])
@@ -1393,20 +1393,20 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         targetFieldValsExpected=DataArrayDouble([1.645976003316459, 1.454458180060204, 1.286087532859835, 1.147305389930914, 1.040143042030752, 0.9592075185603157, 0.8932542207607532, 0.8296417057622609, 0.7572539678257579, 0.6669048311361028, 0.551329882743212, 0.4064445075734602, 0.2323703965460786, 0.03253142054561309, 1.615321686989539, 1.414941300553572, 1.238383118538708, 1.096701655702075, 0.9955792747382535, 0.9271194507282707, 0.8741000712825546, 0.8201879508155141, 0.7537335933761495, 0.6656210809234322, 0.5470285414729397, 0.3927301586610237, 0.2044036897887453, -0.01181672742825013, 1.609602552867195, 1.400625195269133, 1.213287847440801, 1.065318574929208, 0.9717609562002842, 0.9182626517777217, 0.8760698972315855, 0.8258196104516153, 0.7586487405165288, 0.6686168424854784, 0.5434121624038266, 0.3741815029337978, 0.1661376046619205, -0.0704038088420833, 1.635421686625182, 1.422642113482769, 1.225977424080963, 1.066864693789366, 0.9864801043792362, 0.9486639217909161, 0.9075176697327381, 0.8471248730261529, 0.7660983406349626, 0.6675300501188994, 0.5320013361909732, 0.3404583135353376, 0.1074346390951333, -0.1520751802856468, 1.695346918429566, 1.489526279573347, 1.297678617961701, 1.139921240332637, 1.080508463804929, 1.036847769764088, 0.9687840669352359, 0.8790397822170175, 0.76938768351059, 0.6441978169925557, 0.4915328571013788, 0.2742929463574293, 0.0148214290833748, -0.2671755287427691, 1.782761788232491, 1.59423004798623, 1.422317125787222, 1.286999529473285, 1.20500638941831, 1.127058114031519, 1.022332539190471, 0.8945753999401338, 0.7469190939381181, 0.582396906110898, 0.4015920181411496, 0.1584700483835366, -0.1251860255418387, -0.4254052799545267, 1.881794862747652, 1.712890309994015, 1.557517508390291, 1.422727414977963, 1.308048056353061, 1.187569766723152, 1.03942150436647, 0.8677583087532357, 0.6766652050643343, 0.4703897480238999, 0.2497994532908829, -0.02005989176786582, -0.3224387891441491, -0.6331519303649853, 1.973114284621266, 1.820187301531605, 1.673403730111759, 1.528504440482262, 1.379693463484634, 1.207642134784147, 1.008217764780293, 0.7863328498822348, 0.5465383049529959, 0.2944879513187435, 0.03250657765404452, -0.2670900851421072, -0.5806516907976924, -0.8911331026431459, 2.038729888975378, 1.895652364645637, 1.751759791756183, 1.594035761810714, 1.403016809171641, 1.171403152610878, 0.913267035125007, 0.6343281031932027, 0.3434843176189371, 0.04195410032095204, -0.2645533663891493, -0.58577400250975, -0.8958218846257981, -1.192230697656513, 2.064018033720731, 1.922048791644444, 1.773847180028208, 1.600340336378483, 1.361620036333164, 1.060873411411508, 0.7373484802125152, 0.3868966266761109, 0.04316272760227413, -0.3009370030949727, -0.6505233805563486, -0.9669887470696283, -1.250005719852354, -1.519122595631787, 2.039938287785342, 1.887400820799651, 1.722008733683987, 1.523879290022419, 1.23834392230135, 0.8606985727866472, 0.4844892131548788, 0.08077959236877175, -0.3195742594962179, -0.726291368696764, -1.094357645641832, -1.359078900303776, -1.604725656501341, -1.845297168323687, 1.965762248218393, 1.791665198563286, 1.595056719739704, 1.353692777435502, 1.033006623003495, 0.6416349531117889, 0.2290046916364761, -0.1993180965088852, -0.6311618804827295, -1.051489875129883, -1.409404344854132, -1.681249363331096, -1.917859637689007, -2.145034400762945, 1.849053542205925, 1.648479366622312, 1.418493963148431, 1.141939527533839, 0.8042385795619003, 0.4127534639189761, -0.008572116677791453, -0.4428317297963555, -0.8745477268718713, -1.281769237471681, -1.635421857742795, -1.926210204560556, -2.175577364628722, -2.405762639746138, 1.701519686999922, 1.475879908746998, 1.219065416294153, 0.9203732349759972, 0.5740137315474942, 0.1856460506119944, -0.2298288912529738, -0.6558565521653752, -1.075391078040103, -1.469402631469075, -1.820558929095151, -2.123592211415966, -2.388177455227765, -2.628832075944413])
         coeffsExpected=DataArrayDouble([0.3953237723894342,-0.17220705170185724,0.620727139132215,-0.01938292763088709,-0.007524685306185282,0.0016277944443884584,-0.0005209587893117361,-1.8992696595839718,-0.13154330748345855,0.11248800965389728,-0.47310750305033406,0.03685741122098605,0.21362468750754374,0.8082608687799991,-0.6775548200221704,-0.027683208482275873,-0.007806877014495724,-0.013539239795959668,0.3478535665778018,0.005145793726360813,0.03708618549628136,-0.18235332489209385,-0.04517273339177797,-0.081755114492025,0.12791746560435255,0.09659355695676189,-0.024809653129318366,0.08327587452569823,-1.790380673650165,-0.10622983512164165,0.14989029282340274,0.05949513762355707,0.004548072841131278,0.011252095917834793,-0.004848057194721367,-0.2658537133108412,0.016651579133606154,-0.021640915366981317,0.008975511042160175,-0.021052213988815974,-0.09347841701844657,0.03533229488135717,-0.014556185287109863,-0.27228591670520086,0.002989987191209683,-0.5489428537951813,-0.02134456783001304,-0.22462281620064825,0.005230853443767429,-0.1894678262257301,0.0033140729457334884,5.295483062326795,-0.2724500716060311,0.026433905662192683,0.01368706308878908,-0.03014264855048227,0.053679001877659956,0.08109477254132096,-0.005004603067203444,0.016907143132293558,0.2105509502082437,0.003657404455024417,-4.904755847017426,0.01634808163992959,-0.008325515865305198,0.062188432751569676,-0.013114633511406406,0.11020519384963083,-0.008599402366091309,-0.012125149710784723,0.31723729052927313,-0.10298398036815914,-0.07250078775612204,0.39976713701763433,0.45897498107347223,0.01018626210400031,0.20163425809089347,0.19729093298588943,0.42863333455911523,0.015595097081693168,0.06060353651437489,-0.16379444813161725,-0.43290344196574165,-0.5931022701412187,1.1906610004748832,0.44418106894148945,0.06536220001548931,0.010261694323554562,-0.05943099382075491,-0.04939614579484797,0.002234505477641322,-0.011262130967449935,0.09644905007708474,-0.029518792883267808,0.41564004027396634,-0.18459770295961597,0.3100981306103734,-0.2509873737065425,0.5434321443668653,0.3009912967350914,1.9560655796099518,-0.7143435150084513,-1.5123449469879784])
         #
-        nbOfInputPoints=100;
-        f=MEDCouplingFieldDouble.New(ON_NODES_KR,ONE_TIME);
-        mesh=MEDCoupling1SGTUMesh.New("aMesh",NORM_POINT1);
-        mesh.setCoords(srcPointCoordsXY);
-        f.setMesh(mesh);
-        f.setArray(srcFieldValsOnPoints);
-        f.checkConsistencyLight();
+        nbOfInputPoints=100
+        f=MEDCouplingFieldDouble.New(ON_NODES_KR,ONE_TIME)
+        mesh=MEDCoupling1SGTUMesh.New("aMesh",NORM_POINT1)
+        mesh.setCoords(srcPointCoordsXY)
+        f.setMesh(mesh)
+        f.setArray(srcFieldValsOnPoints)
+        f.checkConsistencyLight()
         #
-        res0=f.getValueOn([-0.5,-0.5]);
+        res0=f.getValueOn([-0.5,-0.5])
         self.assertAlmostEqual(targetFieldValsExpected.getIJ(0,0),res0[0],10)
         #
-        valuesToTest=f.getValueOnMulti(targetPointCoordsXY);
-        self.assertEqual(196,valuesToTest.getNumberOfTuples());
-        self.assertEqual(1,valuesToTest.getNumberOfComponents());
+        valuesToTest=f.getValueOnMulti(targetPointCoordsXY)
+        self.assertEqual(196,valuesToTest.getNumberOfTuples())
+        self.assertEqual(1,valuesToTest.getNumberOfComponents())
         for i in range(40):
             self.assertAlmostEqual(targetFieldValsExpected[i],valuesToTest.getIJ(i,0),10)
             pass
@@ -2349,7 +2349,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertTrue(DataArrayDouble([0.16666666666666666,0.08333333333333333,0.3333333333333333]).isEqual(DataArrayDouble(m2bis.getDXYZ()),1e-12))
         #
         self.assertEqual(3,m.getMeshDimension())
-        self.assertAlmostEqual(0.125,m.getMeasureOfAnyCell(),16);
+        self.assertAlmostEqual(0.125,m.getMeasureOfAnyCell(),16)
         mu=MEDCoupling1SGTUMesh(m.buildUnstructured())
         mu.checkConsistency()
         cooExp=DataArrayDouble([(1.5,3.5,2.5),(2,3.5,2.5),(2.5,3.5,2.5),(1.5,3.75,2.5),(2,3.75,2.5),(2.5,3.75,2.5),(1.5,3.5,3.5),(2,3.5,3.5),(2.5,3.5,3.5),(1.5,3.75,3.5),(2,3.75,3.5),(2.5,3.75,3.5),(1.5,3.5,4.5),(2,3.5,4.5),(2.5,3.5,4.5),(1.5,3.75,4.5),(2,3.75,4.5),(2.5,3.75,4.5),(1.5,3.5,5.5),(2,3.5,5.5),(2.5,3.5,5.5),(1.5,3.75,5.5),(2,3.75,5.5),(2.5,3.75,5.5)]) ; cooExp.setInfoOnComponents(["X [m]","Y [m]","Z [m]"])
@@ -2387,7 +2387,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         self.assertEqual((2.5,5.5,6.5),m.getOrigin())
         self.assertEqual((0.5,0.25,1.),m.getDXYZ())
         m.scale([0.,1.,3.],2.)
-        self.assertAlmostEqual(1.,m.getMeasureOfAnyCell(),16);
+        self.assertAlmostEqual(1.,m.getMeasureOfAnyCell(),16)
         self.assertEqual((3,2,4),m.getNodeStruct())
         self.assertEqual((5.,10.,10.),m.getOrigin())
         self.assertEqual((1.,0.5,2.),m.getDXYZ())
@@ -3127,12 +3127,12 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
                                NORM_SEG2,14,15])
         cI = DataArrayInt([0,3,7,10,14,18,21,24,27,30])
         coords2 = DataArrayDouble([float(i) for i in range(32)], 16, 2)
-        m2.setCoords(coords2);
-        m2.setConnectivity(c, cI);
-        m2.checkConsistency(1.0e-8);
+        m2.setCoords(coords2)
+        m2.setConnectivity(c, cI)
+        m2.checkConsistency(1.0e-8)
 
         # Shuffle a bit :-)
-        m2.renumberCells(DataArrayInt([0,3,6,8,1,4,7,5,2]), True);
+        m2.renumberCells(DataArrayInt([0,3,6,8,1,4,7,5,2]), True)
         res = m2.orderConsecutiveCells1D()
         expRes = [0,3,6,8,1,4,2,7,5]
         self.assertEqual(m2.getNumberOfCells(),res.getNumberOfTuples())
@@ -3778,10 +3778,10 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
                  3,6,7,
                  4,6,7,8,
                  5,7,8]
-        self.assertEqual(valRef,list(graph.getValuesArray().getValues()));
+        self.assertEqual(valRef,list(graph.getValuesArray().getValues()))
 
         indRef=[0, 3, 7, 10, 14, 19, 23, 26, 30, 33]
-        self.assertEqual(indRef,list(graph.getIndexArray().getValues()));
+        self.assertEqual(indRef,list(graph.getIndexArray().getValues()))
         pass
 
     def testSwig2MEDCouplingCurveLinearReprQuick1(self):
@@ -4372,7 +4372,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         field.setArray(arr)
         field.checkConsistencyLight()
         #####
-        fieldOnCell=field.voronoize(1e-12);
+        fieldOnCell=field.voronoize(1e-12)
         fieldOnCell.checkConsistencyLight()
         self.assertEqual(fieldOnCell.getMesh().getSpaceDimension(),3)
         self.assertEqual(fieldOnCell.getMesh().getMeshDimension(),2)
@@ -4406,7 +4406,7 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         field.setArray(arr)
         field.checkConsistencyLight()
         ####
-        fieldOnCell=field.voronoize(1e-12);
+        fieldOnCell=field.voronoize(1e-12)
         fieldOnCell.checkConsistencyLight()
         self.assertEqual(fieldOnCell.getMesh().getSpaceDimension(),3)
         self.assertEqual(fieldOnCell.getMesh().getMeshDimension(),1)

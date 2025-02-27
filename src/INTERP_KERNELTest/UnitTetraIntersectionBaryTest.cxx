@@ -282,7 +282,7 @@ namespace INTERP_TEST
       100,200,100,
       100,100,100,
       200,200,0 };
-    
+
     double S[] = {
       100,166.666666666666657,66.6666666666666714,
       100,150,50,
@@ -290,10 +290,10 @@ namespace INTERP_TEST
       100,100,100};
 
     mcIdType conn[4] = { 0,1,2,3 };
-    
+
     const double* tnodes[4]={ T, T+3, T+6, T+9 };
     const double* snodes[4]={ S, S+3, S+6, S+9 };
-    
+
     __MESH_DUMMY dummyMesh;
     SplitterTetra<__MESH_DUMMY> src( dummyMesh, snodes, conn );
     double volume = src.intersectTetra( tnodes );
@@ -337,9 +337,9 @@ namespace INTERP_TEST
 
   void UnitTetraIntersectionBaryTest::test_TetraAffineTransform_reverseApply()
   {
-    double nodes[12] = { -4.0, 9.0, 3.0, 
-                         11.0, 0.0, 2.0, 
-                         0.0, 0.0, 0.0, 
+    double nodes[12] = { -4.0, 9.0, 3.0,
+                         11.0, 0.0, 2.0,
+                         0.0, 0.0, 0.0,
                          2.0, 1.0,10.0 };
     //    double pSrc[3] = { -4.0, 9.0, 3.0 };
     double pSrc[3] = { 40., -20., 100. };
@@ -357,7 +357,7 @@ namespace INTERP_TEST
     // compute barycentric coordinates
     double nodes[4][3] = { {11.0, 0.0, 2.0 },
                            {-4.0, 9.0, 3.0 },
-                           { 0.0, 0.0, 0.0 }, 
+                           { 0.0, 0.0, 0.0 },
                            { 6.0, 1.0,10.0 }};
     std::vector<const double*> n (4);
     n[0] = &nodes[0][0];

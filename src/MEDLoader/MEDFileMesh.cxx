@@ -80,7 +80,7 @@ std::vector<const BigMemoryObject *> MEDFileMesh::getDirectChildrenWithNull() co
  * file. The first mesh in the file is loaded.
  *  \param [in] fileName - the name of MED file to read.
  *  \return MEDFileMesh * - a new instance of MEDFileMesh. The caller is to delete this
- *          mesh using decrRef() as it is no more needed. 
+ *          mesh using decrRef() as it is no more needed.
  *  \throw If the file is not readable.
  *  \throw If there is no meshes in the file.
  *  \throw If the mesh in the file is of a not supported type.
@@ -144,7 +144,7 @@ MEDFileMesh *MEDFileMesh::New(med_idt fid, MEDFileMeshReadSelector *mrs)
  *          from the MED file. Usually this joints are those just read by another iteration
  *          of mName mesh, when this method is called by MEDFileMeshMultiTS::New()
  *  \return MEDFileMesh * - a new instance of MEDFileMesh. The caller is to delete this
- *          mesh using decrRef() as it is no more needed. 
+ *          mesh using decrRef() as it is no more needed.
  *  \throw If the file is not readable.
  *  \throw If there is no mesh with given attributes in the file.
  *  \throw If the mesh in the file is of a not supported type.
@@ -300,7 +300,7 @@ void MEDFileMesh::copyFamGrpMapsFrom(const MEDFileMesh& other)
  * This method clear all the groups in the map.
  * So this method does not operate at all on arrays.
  * So this method can lead to orphan families.
- * 
+ *
  * \sa MEDFileMesh::clearFamMap, MEDFileMesh::clearFamGrpMaps
  */
 void MEDFileMesh::clearGrpMap()
@@ -323,7 +323,7 @@ void MEDFileMesh::clearFamMap()
 /*!
  * This method clear all the families and groups in the map.
  * So this method does not operate at all on arrays.
- * As all groups and families entry will be removed after 
+ * As all groups and families entry will be removed after
  * the call of MEDFileMesh::setFamilyFieldArr method with 0 or None (python) in the 2nd parameter can be useful to reduce the size of the object.
  *
  * \sa MEDFileMesh::clearFamMap, MEDFileMesh::clearFamMap
@@ -368,7 +368,7 @@ std::vector<std::string> MEDFileMesh::getFamiliesOnGroups(const std::vector<std:
       std::map<std::string, std::vector<std::string> >::const_iterator it2=_groups.find(*it);
       if(it2==_groups.end())
         {
-          std::ostringstream oss; oss << "No such group in mesh \"" << _name << "\" : " << *it; 
+          std::ostringstream oss; oss << "No such group in mesh \"" << _name << "\" : " << *it;
           std::vector<std::string> grps2=getGroupsNames(); oss << "\" !\nAvailable groups are :";
           std::copy(grps2.begin(),grps2.end(),std::ostream_iterator<std::string>(oss," "));
           throw INTERP_KERNEL::Exception(oss.str().c_str());
@@ -532,7 +532,7 @@ std::vector<std::string> MEDFileMesh::getFamiliesNamesWithFilePointOfView() cons
  * Returns names of groups that partly or fully appear on the level \a meshDimRelToMaxExt.
  *  \param [in] meshDimRelToMaxExt - a relative dimension of interest.
  *  \return std::vector<std::string> - a sequence of group names at \a meshDimRelToMaxExt
- *          level. 
+ *          level.
  */
 std::vector<std::string> MEDFileMesh::getGroupsOnSpecifiedLev(int meshDimRelToMaxExt) const
 {
@@ -672,7 +672,7 @@ void MEDFileMesh::assignFamilyNameWithGroupName()
 
 /*!
  * Removes all groups lying on no family. If there is no empty groups, \a this is let untouched.
- * 
+ *
  * \return the removed groups.
  */
 std::vector<std::string> MEDFileMesh::removeEmptyGroups()
@@ -768,8 +768,8 @@ void MEDFileMesh::removeFamily(const std::string& name)
  * Removes all groups in \a this that are orphan. A group is orphan if this group lies on
  * a set of families, themselves orphan. A family is said orphan if its id appears nowhere in
  * family field whatever its level. This method also suppresses the orphan families.
- * 
- * \return - The list of removed groups names. 
+ *
+ * \return - The list of removed groups names.
  *
  * \sa MEDFileMesh::removeOrphanFamilies.
  */
@@ -782,7 +782,7 @@ std::vector<std::string> MEDFileMesh::removeOrphanGroups()
 /*!
  * Removes all families in \a this that are orphan. A family is said orphan if its id appears nowhere in
  * family field whatever its level. Groups are updated in consequence, that is to say all groups lying on orphan family, will see their families list modified.
- * 
+ *
  * \return - The list of removed families names.
  * \sa MEDFileMesh::removeOrphanGroups , MEDFileMesh::removeFamiliesReferedByNoGroups
  */
@@ -845,7 +845,7 @@ void MEDFileMesh::removeFamiliesReferedByNoGroups()
  * This method has no impact on groups. This method only works on families. This method firstly removes families not referred by any groups in \a this, then all unused entities
  * are put as belonging to family 0 ("FAMILLE_ZERO"). Finally, all orphanFamilies are killed.
  * This method raises an exception if "FAMILLE_ZERO" is already belonging to a group.
- * 
+ *
  * This method also raises an exception if a family belonging to a group has also id 0 (which is not right in MED file format). You should never encounter this case using addGroup method.
  *
  * \sa MEDFileMesh::removeOrphanFamilies, MEDFileMesh::zipFamilies
@@ -947,7 +947,7 @@ void MEDFileMesh::zipFamilies()
         {
           newFams.erase( newFams.find(*familyToKill) );
         }
-      
+
     }
   // apply modifications in datastructure
   for(auto famIdsSubstSession : famIdsToSubstitute)
@@ -1016,7 +1016,7 @@ void MEDFileMesh::changeGroupName(const std::string& oldName, const std::string&
 }
 
 /*!
- * Changes an id of a family in \a this mesh. 
+ * Changes an id of a family in \a this mesh.
  * This method calls changeFamilyIdArr().
  *  \param [in] oldId - a current id of the family.
  *  \param [in] newId - a new family id.
@@ -1708,7 +1708,7 @@ mcIdType MEDFileMesh::getTheMinFamilyId() const
 
 /*!
  * This method only considers the maps. The contain of family array is ignored here.
- * 
+ *
  * \sa MEDFileMesh::computeAllFamilyIdsInUse
  */
 DataArrayIdType *MEDFileMesh::getAllFamiliesIdsReferenced() const
@@ -1724,7 +1724,7 @@ DataArrayIdType *MEDFileMesh::getAllFamiliesIdsReferenced() const
 
 /*!
  * This method does not consider map of family name, family id. Only family field array on different levels is considered.
- * 
+ *
  * \sa MEDFileMesh::getAllFamiliesIdsReferenced
  */
 DataArrayIdType *MEDFileMesh::computeAllFamilyIdsInUse() const
@@ -1745,7 +1745,7 @@ DataArrayIdType *MEDFileMesh::computeAllFamilyIdsInUse() const
 
 /*!
  * true is returned if no modification has been needed. false if family
- * renumbering has been needed.       
+ * renumbering has been needed.
  */
 bool MEDFileMesh::ensureDifferentFamIdsPerLevel()
 {
@@ -1995,7 +1995,7 @@ std::string MEDFileMesh::simpleRepr() const
 
 /*!
  * Simple loop over MEDFileMesh::addGroup method.
- * 
+ *
  * \sa MEDFileMesh::addGroup
  */
 void MEDFileMesh::addGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayIdType *>& grps)
@@ -2026,10 +2026,10 @@ DataArrayIdType *MEDFileMesh::getOrCreateAndGetFamilyFieldAtLevel(int meshDimRel
  *          are required.
  *  \param [in] grp - the name of the group of interest.
  *  \param [in] renum - if \c true, the optional numbers of entities, if available, are
- *          returned instead of ids. 
+ *          returned instead of ids.
  *  \return DataArrayIdType * - a new instance of DataArrayIdType holding either ids or
  *          numbers, if available and required, of mesh entities of the group. The caller
- *          is to delete this array using decrRef() as it is no more needed. 
+ *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If the name of a nonexistent group is specified.
  *  \throw If the family field is missing for \a meshDimRelToMaxExt.
  */
@@ -2051,7 +2051,7 @@ DataArrayIdType *MEDFileMesh::getGroupArr(int meshDimRelToMaxExt, const std::str
  *          returned instead of ids.
  *  \return DataArrayIdType * - a new instance of DataArrayIdType holding either ids or
  *          numbers, if available and required, of mesh entities of the groups. The caller
- *          is to delete this array using decrRef() as it is no more needed. 
+ *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If the name of a nonexistent group is present in \a grps.
  *  \throw If the family field is missing for \a meshDimRelToMaxExt.
  */
@@ -2067,10 +2067,10 @@ DataArrayIdType *MEDFileMesh::getGroupsArr(int meshDimRelToMaxExt, const std::ve
  *          are required.
  *  \param [in] fam - the name of the family of interest.
  *  \param [in] renum - if \c true, the optional numbers of entities, if available, are
- *          returned instead of ids. 
+ *          returned instead of ids.
  *  \return DataArrayIdType * - a new instance of DataArrayIdType holding either ids or
  *          numbers, if available and required, of mesh entities of the family. The caller
- *          is to delete this array using decrRef() as it is no more needed. 
+ *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If the family field is missing for \a meshDimRelToMaxExt.
  */
 DataArrayIdType *MEDFileMesh::getFamilyArr(int meshDimRelToMaxExt, const std::string& fam, bool renum) const
@@ -2086,10 +2086,10 @@ DataArrayIdType *MEDFileMesh::getFamilyArr(int meshDimRelToMaxExt, const std::st
  * Returns ids of nodes contained in a given group.
  *  \param [in] grp - the name of the group of interest.
  *  \param [in] renum - if \c true, the optional numbers of nodes, if available, are
- *          returned instead of ids. 
+ *          returned instead of ids.
  *  \return DataArrayIdType * - a new instance of DataArrayIdType holding either ids or
  *          numbers, if available and required, of nodes of the group. The caller
- *          is to delete this array using decrRef() as it is no more needed. 
+ *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If the name of a nonexistent group is specified.
  *  \throw If the family field is missing for nodes.
  */
@@ -2106,10 +2106,10 @@ DataArrayIdType *MEDFileMesh::getNodeGroupArr(const std::string& grp, bool renum
  * Returns ids of nodes contained in given groups.
  *  \param [in] grps - the names of the groups of interest.
  *  \param [in] renum - if \c true, the optional numbers of nodes, if available, are
- *          returned instead of ids. 
+ *          returned instead of ids.
  *  \return DataArrayIdType * - a new instance of DataArrayIdType holding either ids or
  *          numbers, if available and required, of nodes of the groups. The caller
- *          is to delete this array using decrRef() as it is no more needed. 
+ *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If the name of a nonexistent group is present in \a grps.
  *  \throw If the family field is missing for nodes.
  */
@@ -2122,10 +2122,10 @@ DataArrayIdType *MEDFileMesh::getNodeGroupsArr(const std::vector<std::string>& g
  * Returns ids of nodes contained in a given family.
  *  \param [in] fam - the name of the family of interest.
  *  \param [in] renum - if \c true, the optional numbers of nodes, if available, are
- *          returned instead of ids. 
+ *          returned instead of ids.
  *  \return DataArrayIdType * - a new instance of DataArrayIdType holding either ids or
  *          numbers, if available and required, of nodes of the family. The caller
- *          is to delete this array using decrRef() as it is no more needed. 
+ *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If the name of a nonexistent family is specified.
  *  \throw If the family field is missing for nodes.
  */
@@ -2142,10 +2142,10 @@ DataArrayIdType *MEDFileMesh::getNodeFamilyArr(const std::string& fam, bool renu
  * Returns ids of nodes contained in given families.
  *  \param [in] fams - the names of the families of interest.
  *  \param [in] renum - if \c true, the optional numbers of nodes, if available, are
- *          returned instead of ids. 
+ *          returned instead of ids.
  *  \return DataArrayIdType * - a new instance of DataArrayIdType holding either ids or
  *          numbers, if available and required, of nodes of the families. The caller
- *          is to delete this array using decrRef() as it is no more needed. 
+ *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If the family field is missing for nodes.
  */
 DataArrayIdType *MEDFileMesh::getNodeFamiliesArr(const std::vector<std::string>& fams, bool renum) const
@@ -2389,7 +2389,7 @@ void MEDFileMesh::getFamilyRepr(std::ostream& oss) const
  *  \param [in] dt - the number of a time step.
  *  \param [in] it - the number of an iteration.
  *  \return MEDFileUMesh * - a new instance of MEDFileUMesh. The caller is to delete this
- *          mesh using decrRef() as it is no more needed. 
+ *          mesh using decrRef() as it is no more needed.
  *  \throw If the file is not readable.
  *  \throw If there is no mesh with given attributes in the file.
  *  \throw If the mesh in the file is not an unstructured one.
@@ -2410,7 +2410,7 @@ MEDFileUMesh *MEDFileUMesh::New(med_idt fid, const std::string& mName, int dt, i
  * file. The first mesh in the file is loaded.
  *  \param [in] fileName - the name of MED file to read.
  *  \return MEDFileUMesh * - a new instance of MEDFileUMesh. The caller is to delete this
- *          mesh using decrRef() as it is no more needed. 
+ *          mesh using decrRef() as it is no more needed.
  *  \throw If the file is not readable.
  *  \throw If there is no meshes in the file.
  *  \throw If the mesh in the file is not an unstructured one.
@@ -2465,7 +2465,7 @@ MEDFileUMesh *MEDFileUMesh::New(const MEDCouplingMappedExtrudedMesh *mem)
 /*!
  * Returns an empty instance of MEDFileUMesh.
  *  \return MEDFileUMesh * - a new instance of MEDFileUMesh. The caller is to delete this
- *          mesh using decrRef() as it is no more needed. 
+ *          mesh using decrRef() as it is no more needed.
  */
 MEDFileUMesh *MEDFileUMesh::New()
 {
@@ -2564,7 +2564,7 @@ MEDFileUMesh *MEDFileUMesh::LoadPartOfFromUserDistrib(med_idt fid, const std::st
  * This method is an helper to load only consecutive nodes chunk of data of MED file pointed by \a fileName.
  * Consecutive chunk is specified classicaly by start (included) stop (excluded) format with \a startNodeId and \a stopNodeId respectively.
  * This method returns 5 elements.
- * 
+ *
  * \param [in] fileName - Name of file nodes to be read of.
  * \param [in] mName - Name of the mesh inside file pointed be \a fileName nodes to be read of.
  * \param [in] dt - Time iteration inside file pointed be \a fileName nodes to be read of.
@@ -2577,7 +2577,7 @@ MEDFileUMesh *MEDFileUMesh::LoadPartOfFromUserDistrib(med_idt fid, const std::st
  * \param [out] famCoords - output family id field of requested chunk (DataArrayIdType)
  * \param [out] numCoords - output num id field of requested chunk (DataArrayIdType)
  * \param [out] nameCoords - output names on nodes of requested chunk (DataArrayAsciiChar)
- * 
+ *
  * \sa MEDLoaderUMesh::LoadPartOf
  */
 void MEDFileUMesh::LoadPartCoords(const std::string& fileName, const std::string& mName, int dt, int it, const std::vector<std::string>& infosOnComp, mcIdType startNodeId, mcIdType stopNodeId,
@@ -3783,7 +3783,7 @@ MEDCouplingUMesh *MEDFileUMesh::getFamilies(int meshDimRelToMaxExt, const std::v
  *          returned instead of ids.
  *  \return DataArrayIdType * - a new instance of DataArrayIdType holding either ids or
  *          numbers, if available and required, of mesh entities of the families. The caller
- *          is to delete this array using decrRef() as it is no more needed. 
+ *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If the family field is missing for \a meshDimRelToMaxExt.
  */
 DataArrayIdType *MEDFileUMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum) const
@@ -3820,14 +3820,14 @@ DataArrayIdType *MEDFileUMesh::getFamiliesArr(int meshDimRelToMaxExt, const std:
 /*!
  * Returns a MEDCouplingUMesh of a given relative dimension.
  * \warning If \a meshDimRelToMaxExt == 1 (which means nodes), the returned mesh **is not
- * valid**. This is a feature, because MEDLoader does not create cells that do not exist! 
+ * valid**. This is a feature, because MEDLoader does not create cells that do not exist!
  * To build a valid MEDCouplingUMesh from the returned one in this case,
  * call MEDCouplingUMesh::Build0DMeshFromCoords().
  *  \param [in] meshDimRelToMaxExt - the relative dimension of interest.
  *  \param [in] renum - if \c true, the returned mesh is permuted according to the
  *          optional numbers of mesh entities.
  *  \return MEDCouplingUMesh * - a pointer to MEDCouplingUMesh that the caller is to
- *          delete using decrRef() as it is no more needed. 
+ *          delete using decrRef() as it is no more needed.
  *  \throw If there are no mesh entities of \a meshDimRelToMaxExt dimension in \a this mesh.
  */
 MEDCouplingUMesh *MEDFileUMesh::getMeshAtLevel(int meshDimRelToMaxExt, bool renum) const
@@ -3861,7 +3861,7 @@ std::vector<mcIdType> MEDFileUMesh::getDistributionOfTypes(int meshDimRelToMax) 
  *  \param [in] renum - if \c true, the returned mesh is permuted according to the
  *          optional numbers of mesh entities.
  *  \return MEDCouplingUMesh * - a pointer to MEDCouplingUMesh that the caller is to
- *          delete using decrRef() as it is no more needed. 
+ *          delete using decrRef() as it is no more needed.
  *  \throw If there are no mesh entities of the relative dimension == 0 in \a this mesh.
  */
 MEDCouplingUMesh *MEDFileUMesh::getLevel0Mesh(bool renum) const
@@ -3874,7 +3874,7 @@ MEDCouplingUMesh *MEDFileUMesh::getLevel0Mesh(bool renum) const
  *  \param [in] renum - if \c true, the returned mesh is permuted according to the
  *          optional numbers of mesh entities.
  *  \return MEDCouplingUMesh * - a pointer to MEDCouplingUMesh that the caller is to
- *          delete using decrRef() as it is no more needed. 
+ *          delete using decrRef() as it is no more needed.
  *  \throw If there are no mesh entities of the relative dimension == -1 in \a this mesh.
  */
 MEDCouplingUMesh *MEDFileUMesh::getLevelM1Mesh(bool renum) const
@@ -3887,7 +3887,7 @@ MEDCouplingUMesh *MEDFileUMesh::getLevelM1Mesh(bool renum) const
  *  \param [in] renum - if \c true, the returned mesh is permuted according to the
  *          optional numbers of mesh entities.
  *  \return MEDCouplingUMesh * - a pointer to MEDCouplingUMesh that the caller is to
- *          delete using decrRef() as it is no more needed. 
+ *          delete using decrRef() as it is no more needed.
  *  \throw If there are no mesh entities of the relative dimension == -2 in \a this mesh.
  */
 MEDCouplingUMesh *MEDFileUMesh::getLevelM2Mesh(bool renum) const
@@ -3900,7 +3900,7 @@ MEDCouplingUMesh *MEDFileUMesh::getLevelM2Mesh(bool renum) const
  *  \param [in] renum - if \c true, the returned mesh is permuted according to the
  *          optional numbers of mesh entities.
  *  \return MEDCouplingUMesh * - a pointer to MEDCouplingUMesh that the caller is to
- *          delete using decrRef() as it is no more needed. 
+ *          delete using decrRef() as it is no more needed.
  *  \throw If there are no mesh entities of the relative dimension == -3 in \a this mesh.
  */
 MEDCouplingUMesh *MEDFileUMesh::getLevelM3Mesh(bool renum) const
@@ -3927,7 +3927,7 @@ void MEDFileUMesh::declarePartsUpdated() const
  * Either MEDCouplingUMesh, or vector of MEDCoupling1GTUMesh instances.
  * When assignment is done the first one is done, which is not optimal in write mode for MED file.
  * This method allows to switch from MEDCouplingUMesh mode to MEDCoupling1GTUMesh mode.
- * 
+ *
  * \sa MEDFileUMesh::declarePartsUpdated
  */
 void MEDFileUMesh::forceComputationOfParts() const
@@ -4245,7 +4245,7 @@ MEDFileUMesh::crackAlong(const std::string &grp_name, bool grpMustBeFullyDup) {
     return CrackAlgo::Compute(this, grp_name, grpMustBeFullyDup);
 }
 
-void MEDFileUMesh::openCrack(const std::map<mcIdType, std::map<mcIdType, mcIdType>> & c2o2nN, const double & factor) 
+void MEDFileUMesh::openCrack(const std::map<mcIdType, std::map<mcIdType, mcIdType>> & c2o2nN, const double & factor)
 {
     CrackAlgo::OpenCrack(this, c2o2nN, factor);
 }
@@ -4380,7 +4380,7 @@ void MEDFileUMesh::buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, 
     }
 
   _num_coords.nullify(); _rev_num_coords.nullify(); _global_num_coords.nullify();
-  
+
   for (std::vector< MCAuto<MEDFileUMeshSplitL1> >::iterator it=_ms.begin();
       it != _ms.end(); it++)
     {
@@ -4399,7 +4399,7 @@ void MEDFileUMesh::buildInnerBoundaryAlongM1Group(const std::string& grpNameM1, 
  * \param [out] oldCode retrieves the distribution of types before the call if true is returned
  * \param [out] newCode retrieves the distribution of types after the call if true is returned
  * \param [out] o2nRenumCell tells for **all levels** the old 2 new renumbering of cells.
- * 
+ *
  * \return false if no modification has been performed linked to the unpolyzation. Neither cell type, not cell numbers. When false is returned no need of field on cells or on gauss renumbering.
  * Inversely, if true is returned, it means that distribution of cell by geometric type has changed and field on cell and field on gauss point must be renumbered.
  */
@@ -4548,7 +4548,7 @@ DataArrayIdType *MEDFileUMesh::zipCoords()
 
 /*!
  * This method is the extension of MEDCouplingUMesh::computeFetchedNodeIds. Except that here all levels are considered here.
- * 
+ *
  * \return newly allocated array containing all nodes in \a this that are part of nodal connectivity of at least one cell in \a this whatever its level.
  */
 DataArrayIdType *MEDFileUMesh::computeFetchedNodeIds() const
@@ -4567,7 +4567,7 @@ DataArrayIdType *MEDFileUMesh::computeFetchedNodeIds() const
  * This method is a const method. It computes the minimal set of node ids covered by the cell extraction of \a this.
  * The extraction of \a this is specified by the extractDef \a input map.
  * This map tells for each level of cells, the cells kept in the extraction.
- * 
+ *
  * \return - a new reference of DataArrayIdType that represents sorted node ids, the extraction is lying on.
  * \sa MEDFileField1TS::extractPart, MEDFileUMesh::extractPart
  */
@@ -4597,7 +4597,7 @@ DataArrayIdType *MEDFileUMesh::deduceNodeSubPartFromCellSubPart(const std::map<i
 
 /*!
  * This method returns a new MEDFileUMesh that is the result of the extraction of cells/nodes in \a this.
- * 
+ *
  * \return - a new reference of MEDFileUMesh
  * \sa MEDFileUMesh::deduceNodeSubPartFromCellSubPart, MEDFileFields::extractPart, MEDFileUMesh.reduceToCells
  */
@@ -5371,7 +5371,7 @@ void MEDFileUMesh::addGroup(int meshDimRelToMaxExt, const DataArrayIdType *ids)
 {
   std::vector<int> levs(getNonEmptyLevelsExt());
   if(std::find(levs.begin(),levs.end(),meshDimRelToMaxExt)==levs.end())
-    { 
+    {
       std::ostringstream oss; oss << "MEDFileUMesh::addGroup : level " << meshDimRelToMaxExt << " not available ! Should be in ";
       std::copy(levs.begin(),levs.end(),std::ostream_iterator<int>(oss," ")); oss << " !"; throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
@@ -5415,7 +5415,7 @@ void MEDFileUMesh::removeMeshAtLevel(int meshDimRelToMax)
  *  \param [in] meshDimRelToMax - a relative level to set the mesh at.
  *  \param [in] m - the new mesh to set.
  *  \throw If the name or the description of \a this mesh and \a m are not empty and are
- *         different. 
+ *         different.
  *  \throw If the node coordinates array is set \a this in mesh and \a m refers to
  *         another node coordinates array.
  *  \throw If the mesh dimension of \a m does not correspond to \a meshDimRelToMax or
@@ -5431,10 +5431,10 @@ void MEDFileUMesh::setMeshAtLevel(int meshDimRelToMax, MEDCoupling1GTUMesh *m)
  * Sets a new MEDCouplingUMesh at a given level in \a this mesh.
  *  \param [in] meshDimRelToMax - a relative level to set the mesh at.
  *  \param [in] m - the new mesh to set.
- *  \param [in] newOrOld - if \c true, cells in \a m are sorted by type to be ready for 
+ *  \param [in] newOrOld - if \c true, cells in \a m are sorted by type to be ready for
  *         writing \a this mesh in a MED file.
  *  \throw If the name or the description of \a this mesh and \a m are not empty and are
- *         different. 
+ *         different.
  *  \throw If the node coordinates array is set \a this in mesh and \a m refers to
  *         another node coordinates array.
  *  \throw If the mesh dimension of \a m does not correspond to \a meshDimRelToMax or
@@ -5564,7 +5564,7 @@ void MEDFileUMesh::setGroupsFromScratch(int meshDimRelToMax, const std::vector<c
  *  \param [in] ms - the sequence of meshes. Each mesh in \a ms represents a group to
  *         create in \a this mesh.
  *  \param [in] renum - if \c true, then the optional numbers of entities are taken into
- *         account. 
+ *         account.
  *  \throw If \a ms is empty.
  *  \throw If dimension of meshes in \a ms does not correspond to \a meshDimRelToMax or
  *         to the existing meshes of other levels of \a this mesh.
@@ -6063,7 +6063,7 @@ void MEDFileStructuredMesh::clearNonDiscrAttributes() const
  *          returned instead of ids.
  *  \return DataArrayIdType * - a new instance of DataArrayIdType holding either ids or
  *          numbers, if available and required, of mesh entities of the families. The caller
- *          is to delete this array using decrRef() as it is no more needed. 
+ *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If the family field is missing for \a meshDimRelToMaxExt.
  */
 DataArrayIdType *MEDFileStructuredMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum) const
@@ -6568,17 +6568,17 @@ void MEDFileStructuredMesh::deepCpyAttributes()
 
 /*!
  * Returns a pointer to mesh at the specified level (here 0 is compulsory for cartesian mesh).
- * 
+ *
  * \return a pointer to cartesian mesh that need to be managed by the caller.
  * \warning the returned pointer has to be managed by the caller.
  */
 
 /*!
- * Returns a pointer to MEDCouplingStructuredMesh held by \a this. 
+ * Returns a pointer to MEDCouplingStructuredMesh held by \a this.
  *  \param [in] meshDimRelToMax - it must be \c 0 or \c -1.
  *  \param [in] renum - it must be \c false.
  *  \return MEDCouplingMesh * - a pointer to MEDCouplingMesh that the caller is to
- *          delete using decrRef() as it is no more needed. 
+ *          delete using decrRef() as it is no more needed.
  */
 MEDCouplingMesh *MEDFileStructuredMesh::getMeshAtLevel(int meshDimRelToMax, bool renum) const
 {
@@ -6741,7 +6741,7 @@ void MEDFileStructuredMesh::releaseImplicitPartIfAny() const
 /*!
  * Retrieves the internal pointer (no decrRef requested) of the implicit face mesh if any.
  * To force to build it you can invoke MEDFileStructuredMesh::buildImplicitPartIfAny method.
- * 
+ *
  * \sa MEDFileStructuredMesh::buildImplicitPartIfAny
  */
 MEDCoupling1SGTUMesh *MEDFileStructuredMesh::getImplicitFaceMesh() const
@@ -6967,7 +6967,7 @@ void MEDFileStructuredMesh::writeStructuredLL(med_idt fid, const std::string& ma
 /*!
  * Returns an empty instance of MEDFileCMesh.
  *  \return MEDFileCMesh * - a new instance of MEDFileCMesh. The caller is to delete this
- *          mesh using decrRef() as it is no more needed. 
+ *          mesh using decrRef() as it is no more needed.
  */
 MEDFileCMesh *MEDFileCMesh::New()
 {
@@ -6979,7 +6979,7 @@ MEDFileCMesh *MEDFileCMesh::New()
  * file. The first mesh in the file is loaded.
  *  \param [in] fileName - the name of MED file to read.
  *  \return MEDFileCMesh * - a new instance of MEDFileCMesh. The caller is to delete this
- *          mesh using decrRef() as it is no more needed. 
+ *          mesh using decrRef() as it is no more needed.
  *  \throw If the file is not readable.
  *  \throw If there is no meshes in the file.
  *  \throw If the mesh in the file is not a Cartesian one.
@@ -7004,7 +7004,7 @@ MEDFileCMesh *MEDFileCMesh::New(med_idt fid, MEDFileMeshReadSelector *mrs)
  *  \param [in] dt - the number of a time step.
  *  \param [in] it - the number of an iteration.
  *  \return MEDFileCMesh * - a new instance of MEDFileCMesh. The caller is to delete this
- *          mesh using decrRef() as it is no more needed. 
+ *          mesh using decrRef() as it is no more needed.
  *  \throw If the file is not readable.
  *  \throw If there is no mesh with given attributes in the file.
  *  \throw If the mesh in the file is not a Cartesian one.
@@ -7197,7 +7197,7 @@ const MEDCouplingStructuredMesh *MEDFileCMesh::getStructuredMesh() const
  * Sets the MEDCouplingCMesh holding the data of \a this mesh.
  *  \param [in] m - the new MEDCouplingCMesh to refer to.
  *  \throw If the name or the description of \a this mesh and \a m are not empty and are
- *         different. 
+ *         different.
  */
 void MEDFileCMesh::setMesh(MEDCouplingCMesh *m)
 {
@@ -8008,7 +8008,7 @@ INTERP_KERNEL::NormalizedCellType MEDFileMesh::ConvertFromMEDFileGeoType(med_geo
     {
       if(geoType==MED_NO_GEOTYPE)
         return INTERP_KERNEL::NORM_ERROR;
-      std::ostringstream oss; oss << "MEDFileMesh::ConvertFromMEDFileGeoType : no entry with " << geoType << " !"; 
+      std::ostringstream oss; oss << "MEDFileMesh::ConvertFromMEDFileGeoType : no entry with " << geoType << " !";
       throw INTERP_KERNEL::Exception(oss.str());
     }
   return typmai2[std::distance(typmai,pos)];

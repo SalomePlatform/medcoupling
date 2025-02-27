@@ -94,28 +94,28 @@ MEDCouplingFieldTemplate *MEDCouplingFieldTemplate::New(TypeOfField type)
   return new MEDCouplingFieldTemplate(type);
 }
 
-MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f, bool isChecked):MEDCouplingField(f,false) 
+MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f, bool isChecked):MEDCouplingField(f,false)
 {
   forceTimeOfThis(f);
   if(isChecked)
     checkConsistencyLight();
 }
 
-MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldFloat& f, bool isChecked):MEDCouplingField(f,false) 
+MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldFloat& f, bool isChecked):MEDCouplingField(f,false)
 {
   forceTimeOfThis(f);
   if(isChecked)
     checkConsistencyLight();
 }
 
-MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldInt32& f, bool isChecked):MEDCouplingField(f,false) 
+MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldInt32& f, bool isChecked):MEDCouplingField(f,false)
 {
   forceTimeOfThis(f);
   if(isChecked)
     checkConsistencyLight();
 }
 
-MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldInt64& f, bool isChecked):MEDCouplingField(f,false) 
+MEDCouplingFieldTemplate::MEDCouplingFieldTemplate(const MEDCouplingFieldInt64& f, bool isChecked):MEDCouplingField(f,false)
 {
   forceTimeOfThis(f);
   if(isChecked)

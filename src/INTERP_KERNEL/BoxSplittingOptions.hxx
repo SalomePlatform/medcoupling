@@ -26,7 +26,7 @@
 #include <string>
 
 namespace INTERP_KERNEL
-{ 
+{
   /*!
    * \class BoxSplittingOptions
    * Class defining the options for box splitting used for AMR algorithm like creation of patches following a criterion.

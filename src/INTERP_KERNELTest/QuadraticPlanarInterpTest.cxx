@@ -68,7 +68,7 @@ void QuadraticPlanarInterpTest::ReadWriteInXfigElementary()
   CPPUNIT_ASSERT_DOUBLES_EQUAL(0.47,bound[3],ADMISSIBLE_ERROR);
   e1->decrRef();
   //Testing bounds calculation For Arc of circle.
-  
+
 }
 
 void QuadraticPlanarInterpTest::ReadWriteInXfigGlobal()
@@ -201,7 +201,7 @@ void QuadraticPlanarInterpTest::EdgeLinUnitary()
 }
 
 /*!
- * Here two things are tested. 
+ * Here two things are tested.
  * 1 ) One the overlapping calculation capability of edge/edge intersector.
  * 2 ) Then the capability to handle the case where 2 segs (whatever their type) are overlapped.
  * All the configuration of full or part overlapping have been tested.
@@ -399,7 +399,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT_EQUAL(3,(int)v2.size());
   CPPUNIT_ASSERT(v1[0]->intresincEqCoarse(v2[0]->getPtr())); CPPUNIT_ASSERT(!v1[0]->getDirection()); CPPUNIT_ASSERT(v2[0]->getDirection());
   CPPUNIT_ASSERT(v1[2]->intresincEqCoarse(v2[2]->getPtr())); CPPUNIT_ASSERT(!v1[2]->getDirection()); CPPUNIT_ASSERT(v2[2]->getDirection());
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(M_PI,v2[1]->getCurveLength(),1.e-5); // << not maximal precision because node switching 
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(M_PI,v2[1]->getCurveLength(),1.e-5); // << not maximal precision because node switching
   CPPUNIT_ASSERT_DOUBLES_EQUAL(M_PI/3.,v1[1]->getCurveLength(),1.e-12);
   CPPUNIT_ASSERT(v2[1]->getStartNode()==e1->getStartNode());
   CPPUNIT_ASSERT(v2[1]->getEndNode()==e1->getEndNode());
@@ -418,7 +418,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT_EQUAL(3,(int)v2.size());
   CPPUNIT_ASSERT(v1[0]->intresincEqCoarse(v2[2]->getPtr())); CPPUNIT_ASSERT(v1[0]->getDirection()); CPPUNIT_ASSERT(v2[2]->getDirection());
   CPPUNIT_ASSERT(v1[2]->intresincEqCoarse(v2[0]->getPtr())); CPPUNIT_ASSERT(v1[2]->getDirection()); CPPUNIT_ASSERT(v2[0]->getDirection());
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(M_PI,v2[1]->getCurveLength(),1.e-5); // << not maximal precision because node switching 
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(M_PI,v2[1]->getCurveLength(),1.e-5); // << not maximal precision because node switching
   CPPUNIT_ASSERT_DOUBLES_EQUAL(M_PI/3.,v1[1]->getCurveLength(),1.e-12);
   CPPUNIT_ASSERT(v2[1]->getStartNode()==e1->getEndNode());
   CPPUNIT_ASSERT(v2[1]->getEndNode()==e1->getStartNode());
@@ -616,7 +616,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
   CPPUNIT_ASSERT_EQUAL(1,(int)v1.size());
   CPPUNIT_ASSERT_EQUAL(2,(int)v2.size());
-  CPPUNIT_ASSERT(v1[0]->intresincEqCoarse(e1) && v1[0]->getDirection()); CPPUNIT_ASSERT(v2[0]->intresincEqCoarse(e1) && v2[0]->getDirection()); 
+  CPPUNIT_ASSERT(v1[0]->intresincEqCoarse(e1) && v1[0]->getDirection()); CPPUNIT_ASSERT(v2[0]->intresincEqCoarse(e1) && v2[0]->getDirection());
   CPPUNIT_ASSERT(e1->getStartNode()==v1[0]->getStartNode()); CPPUNIT_ASSERT(e1->getStartNode()==e2->getStartNode()); CPPUNIT_ASSERT(v2[1]->getEndNode()==e2->getEndNode());
   CPPUNIT_ASSERT(v2[0]->getEndNode()==v2[1]->getStartNode());
   CPPUNIT_ASSERT(e1->getStartNode()==v1.front()->getStartNode() && e1->getEndNode()==v1.back()->getEndNode());
@@ -629,7 +629,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
   CPPUNIT_ASSERT_EQUAL(1,(int)v1.size());
   CPPUNIT_ASSERT_EQUAL(2,(int)v2.size());
-  CPPUNIT_ASSERT(v1[0]->intresincEqCoarse(e1) && v1[0]->getDirection()); CPPUNIT_ASSERT(v2[0]->intresincEqCoarse(e1) && v2[0]->getDirection()); 
+  CPPUNIT_ASSERT(v1[0]->intresincEqCoarse(e1) && v1[0]->getDirection()); CPPUNIT_ASSERT(v2[0]->intresincEqCoarse(e1) && v2[0]->getDirection());
   CPPUNIT_ASSERT(e1->getStartNode()==v1[0]->getStartNode()); CPPUNIT_ASSERT(e1->getStartNode()==e2->getStartNode()); CPPUNIT_ASSERT(v2[1]->getEndNode()==e2->getEndNode());
   CPPUNIT_ASSERT(v2[0]->getEndNode()==v2[1]->getStartNode());
   CPPUNIT_ASSERT(e1->getStartNode()==v1.front()->getStartNode() && e1->getEndNode()==v1.back()->getEndNode());
@@ -642,7 +642,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
   CPPUNIT_ASSERT_EQUAL(1,(int)v1.size());
   CPPUNIT_ASSERT_EQUAL(2,(int)v2.size());
-  CPPUNIT_ASSERT(v1[0]->intresincEqCoarse(e1) && v1[0]->getDirection()); CPPUNIT_ASSERT(v2[0]->intresincEqCoarse(e1) && v2[0]->getDirection()); 
+  CPPUNIT_ASSERT(v1[0]->intresincEqCoarse(e1) && v1[0]->getDirection()); CPPUNIT_ASSERT(v2[0]->intresincEqCoarse(e1) && v2[0]->getDirection());
   CPPUNIT_ASSERT(e1->getStartNode()==v1[0]->getStartNode()); CPPUNIT_ASSERT(e1->getStartNode()==e2->getStartNode()); CPPUNIT_ASSERT(v2[1]->getEndNode()==e2->getEndNode());
   CPPUNIT_ASSERT(v2[0]->getEndNode()==v2[1]->getStartNode());
   CPPUNIT_ASSERT(e1->getStartNode()==v1.front()->getStartNode() && e1->getEndNode()==v1.back()->getEndNode());
@@ -655,7 +655,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
   CPPUNIT_ASSERT_EQUAL(1,(int)v1.size());
   CPPUNIT_ASSERT_EQUAL(2,(int)v2.size());
-  CPPUNIT_ASSERT(v1[0]->intresincEqCoarse(e1) && v1[0]->getDirection()); CPPUNIT_ASSERT(v2[1]->intresincEqCoarse(e1) && !v2[1]->getDirection()); 
+  CPPUNIT_ASSERT(v1[0]->intresincEqCoarse(e1) && v1[0]->getDirection()); CPPUNIT_ASSERT(v2[1]->intresincEqCoarse(e1) && !v2[1]->getDirection());
   CPPUNIT_ASSERT(e1->getStartNode()==v1[0]->getStartNode()); CPPUNIT_ASSERT(e1->getStartNode()==e2->getEndNode()); CPPUNIT_ASSERT(v2[1]->getEndNode()==e2->getEndNode());
   CPPUNIT_ASSERT(v2[0]->getEndNode()==v2[1]->getStartNode());
   CPPUNIT_ASSERT(e1->getStartNode()==v1.front()->getStartNode() && e1->getEndNode()==v1.back()->getEndNode());
@@ -668,7 +668,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
   CPPUNIT_ASSERT_EQUAL(2,(int)v1.size());
   CPPUNIT_ASSERT_EQUAL(1,(int)v2.size());
-  CPPUNIT_ASSERT(v1[1]->intresincEqCoarse(e2) && v1[1]->getDirection()); CPPUNIT_ASSERT(v2[0]->intresincEqCoarse(e2) && v2[0]->getDirection()); 
+  CPPUNIT_ASSERT(v1[1]->intresincEqCoarse(e2) && v1[1]->getDirection()); CPPUNIT_ASSERT(v2[0]->intresincEqCoarse(e2) && v2[0]->getDirection());
   CPPUNIT_ASSERT(e1->getStartNode()==v1[0]->getStartNode()); CPPUNIT_ASSERT(e1->getEndNode()==v1[1]->getEndNode()); CPPUNIT_ASSERT(e1->getEndNode()==e2->getEndNode());
   CPPUNIT_ASSERT(v1[0]->getEndNode()==v1[1]->getStartNode());
   CPPUNIT_ASSERT(e1->getStartNode()==v1.front()->getStartNode() && e1->getEndNode()==v1.back()->getEndNode());
@@ -681,7 +681,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
   CPPUNIT_ASSERT_EQUAL(2,(int)v1.size());
   CPPUNIT_ASSERT_EQUAL(1,(int)v2.size());
-  CPPUNIT_ASSERT(v1[1]->intresincEqCoarse(e2) && v1[1]->getDirection()); CPPUNIT_ASSERT(v2[0]->intresincEqCoarse(e2) && v2[0]->getDirection()); 
+  CPPUNIT_ASSERT(v1[1]->intresincEqCoarse(e2) && v1[1]->getDirection()); CPPUNIT_ASSERT(v2[0]->intresincEqCoarse(e2) && v2[0]->getDirection());
   CPPUNIT_ASSERT(e1->getStartNode()==v1[0]->getStartNode()); CPPUNIT_ASSERT(e1->getEndNode()==v1[1]->getEndNode()); CPPUNIT_ASSERT(e1->getEndNode()==e2->getEndNode());
   CPPUNIT_ASSERT(v1[0]->getEndNode()==v1[1]->getStartNode());
   CPPUNIT_ASSERT(e1->getStartNode()==v1.front()->getStartNode() && e1->getEndNode()==v1.back()->getEndNode());
@@ -694,7 +694,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT_EQUAL(1,(int)v3.getNumberOfAssociations());
   CPPUNIT_ASSERT_EQUAL(2,(int)v1.size());
   CPPUNIT_ASSERT_EQUAL(1,(int)v2.size());
-  CPPUNIT_ASSERT(v1[1]->intresincEqCoarse(e2) && v1[1]->getDirection()); CPPUNIT_ASSERT(v2[0]->intresincEqCoarse(e2) && v2[0]->getDirection()); 
+  CPPUNIT_ASSERT(v1[1]->intresincEqCoarse(e2) && v1[1]->getDirection()); CPPUNIT_ASSERT(v2[0]->intresincEqCoarse(e2) && v2[0]->getDirection());
   CPPUNIT_ASSERT(e1->getStartNode()==v1[0]->getStartNode()); CPPUNIT_ASSERT(e1->getEndNode()==v1[1]->getEndNode()); CPPUNIT_ASSERT(e1->getEndNode()==e2->getEndNode());
   CPPUNIT_ASSERT(v1[0]->getEndNode()==v1[1]->getStartNode());
   CPPUNIT_ASSERT(e1->getStartNode()==v1.front()->getStartNode() && e1->getEndNode()==v1.back()->getEndNode());
@@ -708,7 +708,7 @@ void QuadraticPlanarInterpTest::IntersectionEdgeOverlapUnitarySegSeg()
   CPPUNIT_ASSERT_EQUAL(2,(int)v1.size());
   CPPUNIT_ASSERT_EQUAL(1,(int)v2.size());
   CPPUNIT_ASSERT(e1->getStartNode()==v1[0]->getStartNode()); CPPUNIT_ASSERT(e1->getEndNode()==v1[1]->getEndNode()); CPPUNIT_ASSERT(e1->getEndNode()==e2->getStartNode());
-  CPPUNIT_ASSERT(v1[1]->intresincEqCoarse(e2) && !v1[1]->getDirection()); CPPUNIT_ASSERT(v2[0]->intresincEqCoarse(e2) && v2[0]->getDirection()); 
+  CPPUNIT_ASSERT(v1[1]->intresincEqCoarse(e2) && !v1[1]->getDirection()); CPPUNIT_ASSERT(v2[0]->intresincEqCoarse(e2) && v2[0]->getDirection());
   CPPUNIT_ASSERT(v1[0]->getEndNode()==v1[1]->getStartNode());
   CPPUNIT_ASSERT(e1->getStartNode()==v1.front()->getStartNode() && e1->getEndNode()==v1.back()->getEndNode());
   CPPUNIT_ASSERT(e2->getStartNode()==v2.front()->getStartNode() && e2->getEndNode()==v2.back()->getEndNode());

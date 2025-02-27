@@ -97,7 +97,7 @@ namespace INTERP_KERNEL
   {
     return PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getNumberOfElements();
   }
-  
+
   template<class MyMeshType, class MyMatrix>
   typename MyMeshType::MyConnType PlanarIntersectorP1P0PL<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
   {

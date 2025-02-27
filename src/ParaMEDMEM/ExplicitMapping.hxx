@@ -38,17 +38,17 @@ namespace MEDCoupling
   public:
     ExplicitMapping();
     ~ExplicitMapping();
-    
+
     void pushBackElem(std::pair<int,mcIdType> idistant);
     void  setDistantElem(mcIdType ilocal, std::pair<int,mcIdType> idistant);
     int nbDistantDomains();
     std::pair <int,mcIdType> getDistantNumbering(mcIdType ielem) const;
-    
+
     int getDistantDomain(int i);
     int getNbDistantElems(int i);
     mcIdType* serialize(int idproc);
     void unserialize(int nbprocs, int* sizes,int nbtarget, int* targetrank, mcIdType* commbuffer);
-    
+
     int* getBufferIndex() const { return _buffer_index; }
     int* getCounts() const { return _send_counts; }
   private:

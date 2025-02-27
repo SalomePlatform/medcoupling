@@ -28,13 +28,13 @@ namespace INTERP_KERNEL
 {
 
   // ----------------------------------------------------------------------------------
-  //  Correspondence tables describing all the variations of formulas. 
+  //  Correspondence tables describing all the variations of formulas.
   // ----------------------------------------------------------------------------------
 
   /// \brief Correspondence between facets and double products.
   ///
   /// This table encodes Grandy, table IV. Use 3*facet + {0,1,2} as index
-  const TransformedTriangle::DoubleProduct TransformedTriangle::DP_FOR_SEG_FACET_INTERSECTION[12] = 
+  const TransformedTriangle::DoubleProduct TransformedTriangle::DP_FOR_SEG_FACET_INTERSECTION[12] =
     {
       C_XH, C_XY, C_ZX, // OYZ
       C_YH, C_YZ, C_XY, // OZX
@@ -43,9 +43,9 @@ namespace INTERP_KERNEL
     };
 
   /// \brief Signs associated with entries in DP_FOR_SEGMENT_FACET_INTERSECTION.
-  /// 
+  ///
   /// This table encodes Grandy, table IV. Use 3*facet + {0,1,2} as index
-  const double TransformedTriangle::SIGN_FOR_SEG_FACET_INTERSECTION[12] = 
+  const double TransformedTriangle::SIGN_FOR_SEG_FACET_INTERSECTION[12] =
     {
       1.0, 1.0, -1.0,
       1.0, 1.0, -1.0,
@@ -56,7 +56,7 @@ namespace INTERP_KERNEL
   /// \brief Coordinates of corners of tetrahedron.
   ///
   /// Use 3*Corner + coordinate as index
-  const double TransformedTriangle::COORDS_TET_CORNER[12] = 
+  const double TransformedTriangle::COORDS_TET_CORNER[12] =
     {
       0.0, 0.0, 0.0,
       1.0, 0.0, 0.0,
@@ -82,7 +82,7 @@ namespace INTERP_KERNEL
   ///
   /// Gives the two corners associated with each edge
   /// Use 2*edge + {0, 1} as index
-  const TransformedTriangle::TetraCorner TransformedTriangle::CORNERS_FOR_EDGE[12] = 
+  const TransformedTriangle::TetraCorner TransformedTriangle::CORNERS_FOR_EDGE[12] =
     {
       O, X, // OX
       O, Y, // OY
@@ -119,7 +119,7 @@ namespace INTERP_KERNEL
   /// \brief Double products to use in halfstrip intersection tests.
   ///
   /// Use 4*(offset_edge) + {0,1,2,3} as index. offset_edge = edge - 3  (so that XY -> 0, YZ -> 1, ZX -> 2)
-  /// Entries with offset 0 and 1 are for the first condition (positive product) 
+  /// Entries with offset 0 and 1 are for the first condition (positive product)
   /// and those with offset 2 and 3 are for the second condition (negative product).
   const TransformedTriangle::DoubleProduct TransformedTriangle::DP_FOR_HALFSTRIP_INTERSECTION[12] =
     {
@@ -127,13 +127,13 @@ namespace INTERP_KERNEL
       C_01, C_XY, C_XH, C_01, // YZ
       C_XY, C_10, C_YH, C_XY  // ZX
     };
-  
+
   /// \brief Double products to use in segment-ray test.
   ///
   /// Use 7*corner_offset + {0,1,2,3,4,5,6} as index. corner_offset = corner - 1 (so that X -> 0, Y-> 1, Z->2)
   /// Entries with offset 0 are for first condition (zero double product) and the rest are for condition 3 (in the same
   /// order as in the article)
-  const TransformedTriangle::DoubleProduct TransformedTriangle::DP_SEGMENT_RAY_INTERSECTION[21] = 
+  const TransformedTriangle::DoubleProduct TransformedTriangle::DP_SEGMENT_RAY_INTERSECTION[21] =
     {
       C_10, C_YH, C_ZH, C_01, C_XY, C_YH, C_XY, // X
       C_01, C_XH, C_ZH, C_XY, C_10, C_ZH, C_10, // Y
@@ -141,7 +141,7 @@ namespace INTERP_KERNEL
     };
 
   /**
-   * Calculates the point of intersection between the given edge of the tetrahedron and the 
+   * Calculates the point of intersection between the given edge of the tetrahedron and the
    * triangle PQR. (Grandy, eq [22])
    *
    * @pre   testSurfaceEdgeIntersection(edge) returns true
@@ -152,16 +152,16 @@ namespace INTERP_KERNEL
   {
     assert(edge < H01);
 
-    // barycentric interpolation between points A and B 
+    // barycentric interpolation between points A and B
     // : (x,y,z)* = (1-alpha)*A + alpha*B where
     // alpha = t_A / (t_A - t_B)
-    
-    const TetraCorner corners[2] = 
+
+    const TetraCorner corners[2] =
       {
         CORNERS_FOR_EDGE[2*edge],
         CORNERS_FOR_EDGE[2*edge + 1]
       };
-    
+
     // calculate alpha
     const double tA = calcStableT(corners[0]);
     const double tB = calcStableT(corners[1]);
@@ -175,7 +175,7 @@ namespace INTERP_KERNEL
 
         pt[i] = (1 - alpha)*COORDS_TET_CORNER[3*corners[0] + i] + alpha*COORDS_TET_CORNER[3*corners[1] + i];
 #if 0
-        pt[i] = (1 - alpha) * getCoordinateForTetCorner<corners[0], i>() + 
+        pt[i] = (1 - alpha) * getCoordinateForTetCorner<corners[0], i>() +
           alpha * getCoordinateForTetCorner<corners[0], i>();
 #endif
         LOG(6, pt[i] );
@@ -189,7 +189,7 @@ namespace INTERP_KERNEL
    * and the given facet of the tetrahedron. (Grandy, eq. [23])
    *
    * @pre   testSurfaceEdgeIntersection(seg, facet) returns true
-   * 
+   *
    * @param seg    segment of the triangle
    * @param facet  facet of the tetrahedron
    * @param pt     array of three doubles in which to store the coordinates of the intersection point
@@ -211,7 +211,7 @@ namespace INTERP_KERNEL
     for(int i = 0 ; i < 3; ++i)
       {
         const int dpIdx = DP_INDEX[3*facet + i];
-       
+
         if(dpIdx < 0)
           {
             pt[i] = 0.0;
@@ -224,11 +224,11 @@ namespace INTERP_KERNEL
 
             LOG(4, "SegmentFacetIntPtCalc : pt[" << i << "] = " << pt[i]  );
             LOG(4, "c(" << seg << ", " << dp << ") = " <<  sign * calcStableC(seg, dp) );
-            assert(pt[i] >= 0.0); 
+            assert(pt[i] >= 0.0);
             assert(pt[i] <= 1.0);
           }
       }
-  
+
   }
 
   /**
@@ -236,7 +236,7 @@ namespace INTERP_KERNEL
    *
    * @param seg    segment of the triangle
    * @param edge   edge of tetrahedron
-   * @return      true if the segment intersects the edge 
+   * @return      true if the segment intersects the edge
    */
   bool TransformedTriangle::testSegmentEdgeIntersection(const TriSegment seg, const TetraEdge edge) const
   {
@@ -245,12 +245,12 @@ namespace INTERP_KERNEL
         // facets adjacent to the edge has a positive product
         bool isFacetCondVerified = false;
         TetraFacet facet[2];
-        for(int i = 0 ; i < 2 ; ++i) 
+        for(int i = 0 ; i < 2 ; ++i)
           {
             facet[i] = FACET_FOR_EDGE[2*edge + i];
 
             // find the two c-values -> the two for the other edges of the facet
-            int idx1 = 0 ; 
+            int idx1 = 0 ;
             int idx2 = 1;
             DoubleProduct dp1 = DP_FOR_SEG_FACET_INTERSECTION[3*facet[i] + idx1];
             DoubleProduct dp2 = DP_FOR_SEG_FACET_INTERSECTION[3*facet[i] + idx2];
@@ -286,18 +286,18 @@ namespace INTERP_KERNEL
           }
       }
   }
-    
+
   /**
    * Calculates the point of intersection between the given segment of the triangle
    * and the given edge of the tetrahedron. (Grandy, eq. [25])
    *
    * @pre   testSegmentEdgeIntersection(seg, edge) returns true
-   * 
+   *
    * @param seg    segment of the triangle
    * @param edge   edge of the tetrahedron
    * @param pt     array of three doubles in which to store the coordinates of the intersection point
    */
-  void TransformedTriangle::calcIntersectionPtSegmentEdge(const TriSegment seg, const TetraEdge edge, double* pt) const 
+  void TransformedTriangle::calcIntersectionPtSegmentEdge(const TriSegment seg, const TetraEdge edge, double* pt) const
   {
     assert(edge < H01);
 
@@ -312,12 +312,12 @@ namespace INTERP_KERNEL
         OZX, XYZ  // ZX
       };
 
-    const TetraFacet facets[2] = 
+    const TetraFacet facets[2] =
       {
         FACETS_FOR_EDGE[2*edge],
         FACETS_FOR_EDGE[2*edge + 1]
       };
-    
+
     // calculate s for the two edges
     double s[2];
     for(int i = 0; i < 2; ++i)
@@ -356,7 +356,7 @@ namespace INTERP_KERNEL
       }
   }
 
-    
+
   /**
    * Tests if the given segment of the triangle intersects the given corner of the tetrahedron.
    * (Grandy, eq. [21]).
@@ -365,7 +365,7 @@ namespace INTERP_KERNEL
    * @param corner corner of the tetrahedron
    * @return      true if the segment intersects the corner
    */
-  bool TransformedTriangle::testSegmentCornerIntersection(const TriSegment seg, const TetraCorner corner) const 
+  bool TransformedTriangle::testSegmentCornerIntersection(const TriSegment seg, const TetraCorner corner) const
   {
     // facets meeting at a given corner
     static const TetraFacet FACETS_FOR_CORNER[12] =
@@ -375,7 +375,7 @@ namespace INTERP_KERNEL
         OYZ, XYZ, OXY, // Y
         OZX, XYZ, OYZ  // Z
       };
-    
+
     // check segment intersect a facet
     for(int i = 0 ; i < 3 ; ++i)
       {
@@ -383,52 +383,52 @@ namespace INTERP_KERNEL
         if(testSegmentIntersectsFacet(seg, facet))
           return true;
       }
-    
+
     return false;
   }
 
   /**
-   * Tests if the given segment of the triangle intersects the half-strip above the 
+   * Tests if the given segment of the triangle intersects the half-strip above the
    * given edge of the h = 0 plane. (Grandy, eq. [30])
-   * 
+   *
    * @param seg    segment of the triangle
    * @param edge   edge of the h = 0 plane of the tetrahedron (XY, YZ, ZX)
-   * @return      true if the upwards ray from the corner intersects the triangle. 
+   * @return      true if the upwards ray from the corner intersects the triangle.
    */
   bool TransformedTriangle::testSegmentHalfstripIntersection(const TriSegment seg, const TetraEdge edge)
   {
     // get right index here to avoid "filling out" array
     const int edgeIndex = static_cast<int>(edge) - 3;
-    
+
     // double products used in test
     // products 1 and 2 for each edge -> first condition in Grandy [30]
     // products 3 and 4 for each edge -> third condition
     // NB : some uncertainty whether these last are correct
     // DP_FOR_HALFSTRIP_INTERSECTION
-    
+
     // facets to use in second condition (S_m)
-    static const TetraFacet FACET_FOR_HALFSTRIP_INTERSECTION[3] = 
+    static const TetraFacet FACET_FOR_HALFSTRIP_INTERSECTION[3] =
       {
         NO_TET_FACET, // XY -> special case : test with plane H = 0
         OYZ, // YZ
         OZX  // ZX
       };
 
-    const double cVals[4] = 
+    const double cVals[4] =
       {
         calcStableC(seg, DP_FOR_HALFSTRIP_INTERSECTION[4*edgeIndex]),
         calcStableC(seg, DP_FOR_HALFSTRIP_INTERSECTION[4*edgeIndex + 1]),
         calcStableC(seg, DP_FOR_HALFSTRIP_INTERSECTION[4*edgeIndex + 2]),
         calcStableC(seg, DP_FOR_HALFSTRIP_INTERSECTION[4*edgeIndex + 3])
       };
-    
+
     const TetraFacet facet =  FACET_FOR_HALFSTRIP_INTERSECTION[edgeIndex];
-    
+
     // special case : facet H = 0
     const bool cond2 = (facet == NO_TET_FACET) ? testSegmentIntersectsHPlane(seg) : testSegmentIntersectsFacet(seg, facet);
     LOG(4, "Halfstrip tests (" << strTriS(seg) << ", " << strTE(edge) << ") : " << (cVals[0]*cVals[1] < 0.0) << ", " << cond2 << ", " << (cVals[2]*cVals[3] > 0.0) );
-    LOG(4, "c2 = " << cVals[2] << ", c3 = " << cVals[3] ); 
-  
+    LOG(4, "c2 = " << cVals[2] << ", c3 = " << cVals[3] );
+
     return (cVals[0]*cVals[1] < 0.0) && cond2 && (cVals[2]*cVals[3] > 0.0);
   }
 
@@ -437,7 +437,7 @@ namespace INTERP_KERNEL
    * and the halfstrip above the given edge of the tetrahedron. (Grandy, eq. [31])
    *
    * @pre   testSegmentHalfstripIntersection(seg, edge) returns true
-   * 
+   *
    * @param seg    segment of the triangle
    * @param edge   edge of the tetrahedron defining the halfstrip
    * @param pt     array of three doubles in which to store the coordinates of the intersection point
@@ -451,7 +451,7 @@ namespace INTERP_KERNEL
     const int edgeIndex = static_cast<int>(edge) - 3;
     assert(edgeIndex >= 0);
     assert(edgeIndex < 3);
-    
+
     // Barycentric interpolation on the edge
     // for edge AB : (x,y,z)* = (1-alpha) * A + alpha * B
     // where alpha = cB / (cB - cA)
@@ -459,18 +459,18 @@ namespace INTERP_KERNEL
     const double cA = calcStableC(seg, DP_FOR_HALFSTRIP_INTERSECTION[4*edgeIndex]);
     const double cB = calcStableC(seg, DP_FOR_HALFSTRIP_INTERSECTION[4*edgeIndex + 1]);
     assert(cA != cB);
-    
+
     const double alpha = cA / (cA - cB);
-    
+
     for(int i = 0; i < 3; ++i)
       {
-        const TetraCorner corners[2] = 
+        const TetraCorner corners[2] =
           {
             CORNERS_FOR_EDGE[2*edge],
             CORNERS_FOR_EDGE[2*edge + 1]
           };
 
-        const double cornerCoords[2] = 
+        const double cornerCoords[2] =
           {
             COORDS_TET_CORNER[3*corners[0] + i],
             COORDS_TET_CORNER[3*corners[1] + i]
@@ -483,14 +483,14 @@ namespace INTERP_KERNEL
       }
     assert(epsilonEqualRelative(pt[0] + pt[1] + pt[2], 1.0));
   }
-    
+
   /**
-   * Tests if the given segment of triangle PQR intersects the ray pointing 
+   * Tests if the given segment of triangle PQR intersects the ray pointing
    * in the upwards z - direction from the given corner of the tetrahedron. (Grandy eq. [29])
-   * 
+   *
    * @param seg    segment of the triangle PQR
    * @param corner corner of the tetrahedron on the h = 0 facet (X, Y, or Z)
-   * @return      true if the upwards ray from the corner intersects the segment. 
+   * @return      true if the upwards ray from the corner intersects the segment.
    */
   bool TransformedTriangle::testSegmentRayIntersection(const TriSegment seg, const TetraCorner corner) const
   {
@@ -502,7 +502,7 @@ namespace INTERP_KERNEL
 
     // facets to use
     //? not sure this is correct
-    static const TetraFacet FIRST_FACET_SEGMENT_RAY_INTERSECTION[3] = 
+    static const TetraFacet FIRST_FACET_SEGMENT_RAY_INTERSECTION[3] =
       {
         OZX, // X
         OYZ, // Y
@@ -512,15 +512,15 @@ namespace INTERP_KERNEL
     // cond 2
     const bool cond21 = testSegmentIntersectsFacet(seg, FIRST_FACET_SEGMENT_RAY_INTERSECTION[cornerIdx]);
     const bool cond22  = (corner == Z) ? testSegmentIntersectsFacet(seg, OYZ) : testSegmentIntersectsHPlane(seg);
-    
+
     if(!(cond21 || cond22))
       {
         LOG(4, "SR fails at cond 2 : cond21 = " << cond21 << ", cond22 = " << cond22 );
         return false;
       }
-    
-    // cond 3 
-    const double cVals[6] = 
+
+    // cond 3
+    const double cVals[6] =
       {
         calcStableC(seg, DP_SEGMENT_RAY_INTERSECTION[7*cornerIdx + 1]),
         calcStableC(seg, DP_SEGMENT_RAY_INTERSECTION[7*cornerIdx + 2]),
@@ -529,15 +529,15 @@ namespace INTERP_KERNEL
         calcStableC(seg, DP_SEGMENT_RAY_INTERSECTION[7*cornerIdx + 5]),
         calcStableC(seg, DP_SEGMENT_RAY_INTERSECTION[7*cornerIdx + 6]),
       };
-    
+
     // cond. 3
     if(( (cVals[0] + cVals[1])*(cVals[2] - cVals[3]) - cVals[4]*cVals[5] ) >= 0.0)
       {
         LOG(4, "SR fails at cond 3 : " << (cVals[0] + cVals[1])*(cVals[2] - cVals[3]) - cVals[4]*cVals[5]  );
       }
     return ( (cVals[0] + cVals[1])*(cVals[2] - cVals[3]) - cVals[4]*cVals[5] ) < 0.0;
-    
-  } 
+
+  }
 
   // /////////////////////////////////////////////////////////////////////////////////
   //  Utility methods used in intersection tests                       ///////////////
@@ -553,7 +553,7 @@ namespace INTERP_KERNEL
   {
     // NB DoubleProduct enum corresponds to TetraEdge enum according to Grandy, table III
     // so we can use the edge directly
-    
+
     const double cPQ = calcStableC(PQ, DoubleProduct(edge));
     const double cQR = calcStableC(QR, DoubleProduct(edge));
     const double cRP = calcStableC(RP, DoubleProduct(edge));
@@ -564,10 +564,10 @@ namespace INTERP_KERNEL
     // Grandy, p.446
     // test for == 0.0 is OK here, if you look at the way double products were pre-comuted:
     const int numZeros = (cPQ == 0.0 ? 1 : 0) + (cQR == 0.0 ? 1 : 0) + (cRP == 0.0 ? 1 : 0);
-    
-    if(numZeros >= 2 ) 
+
+    if(numZeros >= 2 )
       {
-        LOG(5, "TriangleSurroundsEdge test fails due to too many 0 dp" ); 
+        LOG(5, "TriangleSurroundsEdge test fails due to too many 0 dp" );
       }
 
     return (cPQ*cQR >= 0.0) && (cQR*cRP >= 0.0) && (cRP*cPQ >= 0.0) && numZeros < 2;

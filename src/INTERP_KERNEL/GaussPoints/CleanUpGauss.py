@@ -76,4 +76,4 @@ for i in range(nbPts):
         print(("    coords[%d] = %s[%d];"%(j,varName,i*dim+j)))
         pass
     print("    break;")
-        
+

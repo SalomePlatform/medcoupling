@@ -33,7 +33,7 @@ namespace MEDCoupling
 
 using namespace MEDCoupling;
 
-namespace MEDPARTITIONER 
+namespace MEDPARTITIONER
 {
   class ParaDomainSelector;
   class MEDPARTITIONER_EXPORT Graph
@@ -48,13 +48,13 @@ namespace MEDPARTITIONER
 
     void setEdgesWeights(int *edgeweight) { _edge_weight=edgeweight; }
     void setVerticesWeights(int *cellweight) { _cell_weight=cellweight; }
-    
+
     //computes partitioning of the graph
     virtual void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=0) = 0;
-    
+
     //returns the partitioning
     const mcIdType *getPart() const;
-    
+
     //returns the number of graph vertices (which can correspond to the cells in the mesh!)
     mcIdType nbVertices() const;
 
@@ -67,7 +67,7 @@ namespace MEDPARTITIONER
   protected:
     MCAuto<MEDCouplingSkyLineArray> _graph;
     MCAuto<MEDCouplingSkyLineArray> _partition;
-    int* _edge_weight;  
+    int* _edge_weight;
     int* _cell_weight;
   };
 }

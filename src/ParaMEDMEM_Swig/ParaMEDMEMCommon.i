@@ -105,8 +105,8 @@ namespace MEDCoupling
 
     int send(void* buffer, int count, MPI_Datatype datatype, int target, int tag, MPI_Comm comm) const;
     int recv(void* buffer, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status* status) const;
-    int sendRecv(void* sendbuf, int sendcount, MPI_Datatype sendtype, 
-                 int dest, int sendtag, void* recvbuf, int recvcount, 
+    int sendRecv(void* sendbuf, int sendcount, MPI_Datatype sendtype,
+                 int dest, int sendtag, void* recvbuf, int recvcount,
                  MPI_Datatype recvtype, int source, int recvtag, MPI_Comm comm,
                  MPI_Status* status);
 
@@ -142,7 +142,7 @@ namespace MEDCoupling
                  MPI_Comm comm) const;
     int allToAllV(void* sendbuf, int* sendcounts, int* senddispls,
                   MPI_Datatype sendtype, void* recvbuf, int* recvcounts,
-                  int* recvdispls, MPI_Datatype recvtype, 
+                  int* recvdispls, MPI_Datatype recvtype,
                   MPI_Comm comm) const;
 
     int reduce(void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm) const;
@@ -206,7 +206,7 @@ namespace MEDCoupling
       }
 
       DataArrayIdType *getCellIdsLyingOnNodes(const DataArrayIdType *globalNodeIds, bool fullyIn) const
-      { 
+      {
         MCAuto<DataArrayIdType> ret(self->getCellIdsLyingOnNodes(globalNodeIds,fullyIn));
         return ret.retn();
       }
@@ -269,7 +269,7 @@ namespace MEDCoupling
           ret->incrRef();
         return ret;
       }
-      
+
       DataArrayIdType *getGlobalIdsArray() const
       {
         DataArrayIdType *ret(self->getGlobalIdsArray());
@@ -316,7 +316,7 @@ namespace MEDCoupling
             return new InterpKernelDEC(src_ids, trg_ids, *((MPI_Comm*)comm_ptr));
         }
 
-        // This one should really not be called directly by the user since it still has an interface with a pointer to MPI_Comm 
+        // This one should really not be called directly by the user since it still has an interface with a pointer to MPI_Comm
         // which Swig doesn't handle nicely.
         // It is just here to provide a constructor taking a **pointer** to a comm - See pythoncode below.
         static InterpKernelDEC* _NewWithPG_internal(ProcessorGroup& source_group, ProcessorGroup& target_group)
@@ -368,7 +368,7 @@ namespace MEDCoupling
              return new OverlapDEC(ids, *((MPI_Comm*)comm_ptr));
           }
 
-          // This one should really not be called directly by the user since it still has an interface with a pointer to MPI_Comm 
+          // This one should really not be called directly by the user since it still has an interface with a pointer to MPI_Comm
           // which Swig doesn't handle nicely.
           // It is just here to provide a constructor taking a **pointer** to a comm - See pythoncode below.
           static OverlapDEC* _NewWithComm_internal(const std::set<int>& ids, long long another_comm)
@@ -388,7 +388,7 @@ namespace MEDCoupling
     mcIdType size=self->getCellMesh()->getNumberOfCells();
     PyObject *ret=PyList_New(size);
     for(mcIdType i=0;i<size;i++)
-      PyList_SetItem(ret,i,PyInt_FromLong(tmp[i])); 
+      PyList_SetItem(ret,i,PyInt_FromLong(tmp[i]));
     return ret;
   }
 
@@ -398,7 +398,7 @@ namespace MEDCoupling
     mcIdType size=self->getFaceMesh()->getNumberOfCells();
     PyObject *ret=PyList_New(size);
     for(mcIdType i=0;i<size;i++)
-      PyList_SetItem(ret,i,PyInt_FromLong(tmp[i])); 
+      PyList_SetItem(ret,i,PyInt_FromLong(tmp[i]));
     return ret;
   }
 
@@ -408,7 +408,7 @@ namespace MEDCoupling
     mcIdType size=self->getCellMesh()->getNumberOfNodes();
     PyObject *ret=PyList_New(size);
     for(mcIdType i=0;i<size;i++)
-      PyList_SetItem(ret,i,PyInt_FromLong(tmp[i])); 
+      PyList_SetItem(ret,i,PyInt_FromLong(tmp[i]));
     return ret;
   }
 }

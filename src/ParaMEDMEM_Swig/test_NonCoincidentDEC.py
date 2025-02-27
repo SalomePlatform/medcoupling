@@ -68,7 +68,7 @@ class ParaMEDMEM_DEC_Tests(unittest.TestCase):
 
             parafield = ParaFIELD(parasupport, comptopo)
 
-            nb_local = support.getNumberOfElements(MED_ALL_ELEMENTS);
+            nb_local = support.getNumberOfElements(MED_ALL_ELEMENTS)
 
             value = [1.0]*nb_local
 
@@ -103,7 +103,7 @@ class ParaMEDMEM_DEC_Tests(unittest.TestCase):
 
         if source_group.containsMyRank():
             field_before_int = [parafield.getVolumeIntegral(1)]
-            MPI.MPI_Bcast(field_before_int, 1, MPI.MPI_DOUBLE, 0, MPI.MPI_COMM_WORLD);
+            MPI.MPI_Bcast(field_before_int, 1, MPI.MPI_DOUBLE, 0, MPI.MPI_COMM_WORLD)
             dec.synchronize()
             print("DEC usage")
             dec.setForcedRenormalization(False)

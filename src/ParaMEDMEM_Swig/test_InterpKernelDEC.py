@@ -36,7 +36,7 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         msh.simplexize(0)
         msh.setName("src_mesh")
         fld = MEDCouplingFieldDouble(ON_CELLS, ONE_TIME)
-        fld.setMesh(msh); fld.setName("source_F");
+        fld.setMesh(msh); fld.setName("source_F")
         da = DataArrayDouble(msh.getNumberOfCells())
         da.iota()
         da *= 2
@@ -236,7 +236,7 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
             dec.setForcedRenormalization(False)
             dec.sendData()
             dec.recvData()
-            field_after_int=parafield.getVolumeIntegral(0,True);
+            field_after_int=parafield.getVolumeIntegral(0,True)
             self.assertTrue(math.fabs(field_after_int-field_before_int)<1e-8)
             pass
         else:
@@ -257,8 +257,8 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
 
     def testInterpKernelDEC_2D_py_3(self):
         """ Test on a question that often comes back: should I re-synchronize() / re-attach() each time that
-        I want to send a new field? 
-        Basic answer: 
+        I want to send a new field?
+        Basic answer:
           - you do not have to re-synchronize, but you can re-attach a new field, as long as it has the same support.
         WARNING: this differs in OverlapDEC ...
         """

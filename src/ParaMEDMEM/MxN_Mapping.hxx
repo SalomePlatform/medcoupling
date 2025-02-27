@@ -48,7 +48,7 @@ namespace MEDCoupling
     MCAuto<DataArrayIdType> retrieveNonFetchedIdsTarget(mcIdType nbTuples) const;
     void sendRecv(double* sendfield, MEDCouplingFieldDouble& field) const ;
     void reverseSendRecv(double* recvfield, MEDCouplingFieldDouble& field) const ;
- 
+
     //
     const std::vector<std::pair<int,mcIdType> >& getSendingIds() const { return _sending_ids; }
     const std::vector<int>& getSendProcsOffsets() const { return _send_proc_offsets; }

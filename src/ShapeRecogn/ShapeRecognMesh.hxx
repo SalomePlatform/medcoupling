@@ -55,7 +55,7 @@ namespace MEDCoupling
         const MEDCouplingFieldDouble *getCenter() const;
         const MEDCouplingFieldDouble *getAxis() const;
         const MEDCouplingFieldDouble *getApex() const;
-        
+
         // see ShapeRecognMeshBuilder::buildAreaAxisPoint
         // see ShapeRecognMeshBuilder::buildAreaAffinePoint
 

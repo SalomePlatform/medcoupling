@@ -277,7 +277,7 @@
         {
           return MEDCoupling_ ## ARRAY ## _New__SWIG_1(elt0,nbOfTuples,nbOfComp);
         }
-      
+
       std::string __str__() const
       {
         return self->reprNotTooLong();
@@ -304,7 +304,7 @@
       {
         return self->iterator();
       }
-   
+
       PyObject *accumulate() const
       {
         mcIdType sz=ToIdType(self->getNumberOfComponents());
@@ -369,7 +369,7 @@
         PyTuple_SetItem(ret,1,PyInt_FromLong(b));
         return ret;
       }
-   
+
       static PyObject *ConvertIndexArrayToO2N(mcIdType nbOfOldTuples, PyObject *arr, PyObject *arrI)
       {
         mcIdType newNbOfTuples=-1;
@@ -737,7 +737,7 @@
         PyTuple_SetItem(ret,1,PyInt_FromLong(tmp));
         return ret;
       }
-    
+
       PyObject *getMaxAbsValue(std::size_t& tupleId) const
       {
       	std::size_t tmp;
@@ -1333,7 +1333,7 @@
       {
         return self->negate();
       }
- 
+
       ARRAY *__add__(PyObject *obj)
       {
         const char msg[]="Unexpected situation in __add__ !";
@@ -1952,7 +1952,7 @@
             throw INTERP_KERNEL::Exception(msg);
           }
       }
-   
+
       PyObject *___ipow___(PyObject *trueSelf, PyObject *obj)
       {
         const char msg[]="Unexpected situation in __ipow__ !";
@@ -1994,7 +1994,7 @@
         self->reprQuickOverview(oss);
         return oss.str();
       }
-      
+
       void pushBackValsSilent(PyObject *li)
       {
         mcIdType szArr,sw;
@@ -2003,7 +2003,7 @@
         const INT *tmp=convertIntStarLikePyObjToCppIntStar(li,sw,szArr,iTypppArr,stdvecTyyppArr);
         self->pushBackValsSilent(tmp,tmp+szArr);
       }
-      
+
       PyObject *partitionByDifferentValues() const
       {
         std::vector<INT> ret1;
@@ -2021,12 +2021,12 @@
         PyTuple_SetItem(pyRet,1,pyRet1);
         return pyRet;
       }
-      
+
       DataArrayIdType *locateComponentId(const ARRAY *valToSearchIntoTuples, const DataArrayIdType *tupleIdHint) const
       {
         return self->locateComponentId(valToSearchIntoTuples,tupleIdHint);
       }
-      
+
       PyObject *findIdsRangesInListOfIds(const ARRAY *listOfIds) const
       {
         DataArrayIdType *ret0=0;
@@ -2037,7 +2037,7 @@
         PyTuple_SetItem(pyRet,1,SWIG_NewPointerObj(SWIG_as_voidptr(ret1),SWIGTITraits<INT>::TI, SWIG_POINTER_OWN | 0 ));
         return pyRet;
       }
-      
+
       PyObject *forThisAsPartitionBuildReduction(DataArrayIdType *commonEntities, DataArrayIdType *commonEntitiesIndex) const
       {
         MCAuto<DataArrayIdType> ceCpp( MCAuto<DataArrayIdType>::TakeRef(commonEntities) );
@@ -2212,7 +2212,7 @@
         PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(arrIndexOut),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
-      
+
       static PyObject *FromVTKInternalReprOfPolyedra(const ARRAY *arrIn, const DataArrayIdType *arrIndxIn) throw(INTERP_KERNEL::Exception)
       {
         MCAuto<ARRAY> arrOut;
@@ -2334,7 +2334,7 @@
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
-  
+
       PyObject *___isub___(PyObject *trueSelf, PyObject *obj)
       {
         MCAuto<ARRAY> ret=self->buildDAInt(1,self->getNumberOfCompo());
@@ -2342,7 +2342,7 @@
         Py_XINCREF(trueSelf);
         return trueSelf;
       }
-  
+
       PyObject *___imul___(PyObject *trueSelf, PyObject *obj)
       {
         MCAuto<ARRAY> ret=self->buildDAInt(1,self->getNumberOfCompo());
@@ -2370,7 +2370,7 @@
       {
         return PyInt_FromLong(self->getNumberOfCompo());
       }
-  
+
       PyObject *__getitem__(PyObject *obj)
       {
         const char msg2[]="ARRAY ## Tuple::__getitem__ : Mismatch of slice values in 2nd parameter (components) !";
@@ -2662,7 +2662,7 @@ namespace MEDCoupling
     TRANSFORMWITHINDARR( DataArrayInt32, Int32 )
 #endif
   };
-  
+
   class DataArrayInt64Iterator;
 
   class DataArrayInt64 : public DataArray

@@ -247,7 +247,7 @@ void MEDCouplingPointSet::getCoordinatesOfNode(mcIdType nodeId, std::vector<doub
 }
 
 /*!
- * Finds nodes equal within \a precision and returns an array describing the 
+ * Finds nodes equal within \a precision and returns an array describing the
  * permutation to remove duplicated nodes.
  *  \param [in] precision - minimal absolute distance between two nodes at which they are
  *              considered not coincident.
@@ -256,7 +256,7 @@ void MEDCouplingPointSet::getCoordinatesOfNode(mcIdType nodeId, std::vector<doub
  *              returned. Put -1 to this parameter to have all nodes returned.
  *  \param [out] areNodesMerged - is set to \a true if any coincident nodes found.
  *  \param [out] newNbOfNodes - returns number of unique nodes.
- *  \return DataArrayIdType * - the permutation array in "Old to New" mode. For more 
+ *  \return DataArrayIdType * - the permutation array in "Old to New" mode. For more
  *          info on "Old to New" mode see \ref numbering. The caller
  *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
@@ -282,7 +282,7 @@ DataArrayIdType *MEDCouplingPointSet::buildPermArrayForMergeNode(double precisio
  *              nodes have id strictly lower than \a limitTupleId then they are not
  *              returned. Put -1 to this parameter to have all nodes treated.
  *  \param [out] comm - the array holding ids of coincident nodes.
- *               \a comm->getNumberOfComponents() == 1. 
+ *               \a comm->getNumberOfComponents() == 1.
  *               \a comm->getNumberOfTuples() == \a commIndex->back(). The caller
  *               is to delete this array using decrRef() as it is no more needed.
  *  \param [out] commIndex - the array dividing all ids stored in \a comm into
@@ -337,7 +337,7 @@ DataArrayIdType *MEDCouplingPointSet::getNodeIdsNearPoint(const double *pos, dou
  *         be of length \a nbOfPoints * \a this->getSpaceDimension() at least, else the
  *         behavior is not warranted.
  *  \param [in] nbOfPoints - number of points whose coordinates are given by \a pos
- *         parameter. 
+ *         parameter.
  *  \param [in] eps - the lowest distance between (using infinite norm) a point and a node at which the node is
  *         not returned by this method.
  *  \param [out] c - array (\ref numbering-indirect) returning ids of nodes located closer than \a eps to the
@@ -384,11 +384,11 @@ DataArrayIdType *MEDCouplingPointSet::buildNewNumberingFromCommonNodesFormat(con
 
 /*!
  * Permutes and possibly removes nodes as specified by \a newNodeNumbers array.
- * If \a newNodeNumbers[ i ] < 0 then the i-th node is removed, 
+ * If \a newNodeNumbers[ i ] < 0 then the i-th node is removed,
  * else \a newNodeNumbers[ i ] is a new id of the i-th node. The nodal connectivity
  * array is modified accordingly.
  *  \param [in] newNodeNumbers - a permutation array, of length \a
- *         this->getNumberOfNodes(), in "Old to New" mode. 
+ *         this->getNumberOfNodes(), in "Old to New" mode.
  *         See \ref numbering for more info on renumbering modes.
  *  \param [in] newNbOfNodes - number of nodes remaining after renumbering.
  *  \throw If the coordinates array is not set.
@@ -410,12 +410,12 @@ void MEDCouplingPointSet::renumberNodes(const mcIdType *newNodeNumbers, mcIdType
 
 /*!
  * Permutes and possibly removes nodes as specified by \a newNodeNumbers array.
- * If \a newNodeNumbers[ i ] < 0 then the i-th node is removed, 
+ * If \a newNodeNumbers[ i ] < 0 then the i-th node is removed,
  * else \a newNodeNumbers[ i ] is a new id of the i-th node. The nodal connectivity
  * array is modified accordingly. In contrast to renumberNodes(), location
  * of merged nodes (whose new ids coincide) is changed to be at their barycenter.
  *  \param [in] newNodeNumbers - a permutation array, of length \a
- *         this->getNumberOfNodes(), in "Old to New" mode. 
+ *         this->getNumberOfNodes(), in "Old to New" mode.
  *         See \ref numbering for more info on renumbering modes.
  *  \param [in] newNbOfNodes - number of nodes remaining after renumbering, which is
  *         actually one more than the maximal id in \a newNodeNumbers.
@@ -524,7 +524,7 @@ void MEDCouplingPointSet::recenterForMaxPrecision(double eps)
 
 /*!
  * Rotates \a this set of nodes by \a angle around either an axis (in 3D) or a point
- * (in 2D). 
+ * (in 2D).
  *  \param [in] center - coordinates either of an origin of rotation axis (in 3D) or
  *         of center of rotation (in 2D). This array is to be of size \a
  *         this->getSpaceDimension() at least.
@@ -556,9 +556,9 @@ void MEDCouplingPointSet::rotate(const double *center, const double *vector, dou
 }
 
 /*!
- * Translates \a this set of nodes. 
+ * Translates \a this set of nodes.
  *  \param [in] vector - components of a translation vector. This array is to be of
- *         size \a this->getSpaceDimension() at least. 
+ *         size \a this->getSpaceDimension() at least.
  *  \throw If the coordinates array is not set.
  *  \throw If \a vector == NULL.
  *
@@ -585,7 +585,7 @@ void MEDCouplingPointSet::translate(const double *vector)
 
 
 /*!
- * Applies scaling transformation to \a this set of nodes. 
+ * Applies scaling transformation to \a this set of nodes.
  *  \param [in] point - coordinates of a scaling center. This array is to be of
  *         size \a this->getSpaceDimension() at least.
  *  \param [in] factor - a scale factor.
@@ -668,7 +668,7 @@ void MEDCouplingPointSet::tryToShareSameCoords(const MEDCouplingPointSet& other,
 /*!
  * This method duplicates the nodes whose ids are in [\b nodeIdsToDuplicateBg, \b nodeIdsToDuplicateEnd) and put the result of their duplication at the end
  * of existing node ids.
- * 
+ *
  * \param [in] nodeIdsToDuplicateBg begin of node ids (included) to be duplicated in connectivity only
  * \param [in] nodeIdsToDuplicateEnd end of node ids (excluded) to be duplicated in connectivity only
  */
@@ -723,7 +723,7 @@ void MEDCouplingPointSet::findNodesOnPlane(const double *pt, const double *vec, 
  *  \param [in] pt - components of coordinates of an initial point of the line. This
  *         array is to be of size \a this->getSpaceDimension() at least.
  *  \param [in] vec - components of a vector defining the line direction. This array
- *         is to be of size \a this->getSpaceDimension() at least. Vector magnitude 
+ *         is to be of size \a this->getSpaceDimension() at least. Vector magnitude
  *         must be greater than 10*\a eps.
  *  \param [in] eps - maximal distance of a node from the line at which the node is
  *         considered to lie on the line.
@@ -783,10 +783,10 @@ void MEDCouplingPointSet::findNodesOnLine(const double *pt, const double *vec, d
  * given point sets, so that (1) the number of nodes in the result array is a sum of the
  * number of nodes of given point sets and (2) the number of component in the result array
  * is same as that of each of given point sets. Info on components is copied from the first
- * of the given point set. Space dimension of the given point sets must be the same. 
+ * of the given point set. Space dimension of the given point sets must be the same.
  *  \param [in] m1 - a point set whose coordinates will be included in the result array.
  *  \param [in] m2 - another point set whose coordinates will be included in the
- *         result array. 
+ *         result array.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble.
  *          The caller is to delete this result array using decrRef() as it is no more
  *          needed.
@@ -976,7 +976,7 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const double* bb1, const double*
       bbtemp[i*2]=bb1[i*2]-deltamax*eps;
       bbtemp[i*2+1]=bb1[i*2+1]+deltamax*eps;
     }
-  
+
   for (int idim=0; idim < dim; idim++)
     {
       bool intersects = (bbtemp[idim*2]<bb2[idim*2+1])
@@ -984,7 +984,7 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const double* bb1, const double*
       if (!intersects)
         {
           delete [] bbtemp;
-          return false; 
+          return false;
         }
     }
   delete [] bbtemp;
@@ -1012,7 +1012,7 @@ bool MEDCouplingPointSet::intersectsBoundingBox(const INTERP_KERNEL::DirectedBou
       bbtemp[i*2]=bb2[i*2]-deltamax*eps;
       bbtemp[i*2+1]=bb2[i*2+1]+deltamax*eps;
     }
-  
+
   bool intersects(!bb1.isDisjointWith(bbtemp));
   delete [] bbtemp;
   return intersects;
@@ -1036,7 +1036,7 @@ void MEDCouplingPointSet::rotate3D(const double *center, const double *vect, dou
  * \param [in] trgMesh - target mesh
  * \param [in] eps - precision of the detection
  * \return DataArrayIdType * - An array that gives for each cell of \a trgMesh, how many cells in \a srcMesh (regarding the precision of detection \a eps) can interacts.
- * 
+ *
  * \throw If \a srcMesh and \a trgMesh have not the same space dimension.
  */
 DataArrayIdType *MEDCouplingPointSet::ComputeNbOfInteractionsWithSrcCells(const MEDCouplingPointSet *srcMesh, const MEDCouplingPointSet *trgMesh, double eps)
@@ -1055,7 +1055,7 @@ DataArrayIdType *MEDCouplingPointSet::ComputeNbOfInteractionsWithSrcCells(const 
  *  \param [in] end - specifies the end of the array \a start, so that
  *              the last value of \a start is \a end[ -1 ].
  *  \return MEDCouplingMesh * - a new instance of MEDCouplingMesh. The caller is to
- *         delete this mesh using decrRef() as it is no more needed. 
+ *         delete this mesh using decrRef() as it is no more needed.
  */
 MEDCouplingMesh *MEDCouplingPointSet::buildPart(const mcIdType *start, const mcIdType *end) const
 {
@@ -1064,7 +1064,7 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPart(const mcIdType *start, const mcI
 
 /*!
  * Creates a new MEDCouplingMesh containing a part of cells of \a this mesh. The
- * cells to include to the result mesh are specified by an array of cell ids. 
+ * cells to include to the result mesh are specified by an array of cell ids.
  * <br> This method additionally returns a renumbering map in "Old to New" mode
  * which allows the caller to know the mapping between nodes in \a this and the result mesh.
  *  \param [in] start - an array of cell ids to include to the result mesh.
@@ -1073,7 +1073,7 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPart(const mcIdType *start, const mcI
  *  \param [out] arr - a new DataArrayIdType that is the "Old to New" renumbering
  *         map. The caller is to delete this array using decrRef() as it is no more needed.
  *  \return MEDCouplingMesh * - a new instance of MEDCouplingMesh. The caller is to
- *         delete this mesh using decrRef() as it is no more needed. 
+ *         delete this mesh using decrRef() as it is no more needed.
  */
 MEDCouplingMesh *MEDCouplingPointSet::buildPartAndReduceNodes(const mcIdType *start, const mcIdType *end, DataArrayIdType*& arr) const
 {
@@ -1114,7 +1114,7 @@ MEDCouplingMesh *MEDCouplingPointSet::buildPartRange(mcIdType beginCellIds, mcId
  * \param [out] endOut valid only if \a arr not NULL !
  * \param [out] stepOut valid only if \a arr not NULL !
  * \param [out] arr correspondence old to new in node ids.
- * 
+ *
  * \sa MEDCouplingUMesh::buildPartOfMySelfSlice
  */
 MEDCouplingMesh *MEDCouplingPointSet::buildPartRangeAndReduceNodes(mcIdType beginCellIds, mcIdType endCellIds, mcIdType stepCellIds, mcIdType& beginOut, mcIdType& endOut, mcIdType& stepOut, DataArrayIdType*& arr) const
@@ -1221,7 +1221,7 @@ bool MEDCouplingPointSet::areCellsFrom2MeshEqual(const MEDCouplingPointSet *othe
       getCoordinatesOfNode(c1[0],n1);
       other->getCoordinatesOfNode(c2[0],n2);
       std::transform(n1.begin(),n1.end(),n2.begin(),n1.begin(),std::minus<double>());
-      std::transform(n1.begin(),n1.end(),n1.begin(),[](double c){return fabs(c);}); 
+      std::transform(n1.begin(),n1.end(),n1.begin(),[](double c){return fabs(c);});
       if(*std::max_element(n1.begin(),n1.end())>prec)
         return false;
     }
@@ -1294,7 +1294,7 @@ MEDCouplingPointSet *MEDCouplingPointSet::buildPartOfMySelfSlice(mcIdType start,
 /*!
  Creates a new MEDCouplingUMesh containing some cells of \a this mesh. The cells to
  copy are selected basing on specified node ids and the value of \a fullyIn
- parameter. If \a fullyIn ==\c true, a cell is copied if its all nodes are in the 
+ parameter. If \a fullyIn ==\c true, a cell is copied if its all nodes are in the
  array \a begin of node ids. If \a fullyIn ==\c false, a cell is copied if any its
  node is in the array of node ids. The created mesh shares the node coordinates array
  with \a this mesh.
@@ -1304,7 +1304,7 @@ MEDCouplingPointSet *MEDCouplingPointSet::buildPartOfMySelfSlice(mcIdType start,
  *         array \a begin are copied, else cells whose any node is in the
  *         array \a begin are copied.
  *  \return MEDCouplingPointSet * - new instance of MEDCouplingUMesh. The caller is
- *         to delete this mesh using decrRef() as it is no more needed. 
+ *         to delete this mesh using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If any node id in \a begin is not valid.
@@ -1340,10 +1340,10 @@ MEDCouplingPointSet *MEDCouplingPointSet::buildPartOfMySelfNode(const mcIdType *
  *         policy, it can be used by users not sensitive to cell orientation.
  *  \param [in] startCellId - specifies the cell id at which search for equal cells
  *         starts. By default it is 0, which means that all cells in \a this will be
- *         scanned. 
+ *         scanned.
  *  \return DataArrayIdType - a new instance of DataArrayIdType, of length \a
  *           this->getNumberOfCells() before call of this method. The caller is to
- *           delete this array using decrRef() as it is no more needed. 
+ *           delete this array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
@@ -1385,7 +1385,7 @@ bool MEDCouplingPointSet::areAllNodesFetched() const
  * exception is thrown. The meshes are
  * considered equivalent if (1) \a this mesh contains the same nodes as the \a other
  * mesh (with a specified precision) and (2) \a this mesh contains the same cells as
- * the \a other mesh (with use of a specified cell comparison technique). The mapping 
+ * the \a other mesh (with use of a specified cell comparison technique). The mapping
  * from \a other to \a this for nodes and cells is returned via out parameters.
  *
  * If \a cellCor is null (or Py_None) it means that for all #i cell in \a other is equal to cell # i in \a this.
@@ -1458,7 +1458,7 @@ void MEDCouplingPointSet::checkDeepEquivalWith(const MEDCouplingMesh *other, int
  * Checks if \a this and \a other meshes are geometrically equivalent, else an
  * exception is thrown. The meshes are considered equivalent if (1) they share one
  * node coordinates array and (2) they contain the same cells (with use of a specified
- * cell comparison technique). The mapping from cells of the \a other to ones of \a this 
+ * cell comparison technique). The mapping from cells of the \a other to ones of \a this
  * is returned via an out parameter.
  *
  * If \a cellCor is null (or Py_None) it means that for all #i cell in \a other is equal to cell # i in \a this.
@@ -1525,7 +1525,7 @@ void MEDCouplingPointSet::checkFastEquivalWith(const MEDCouplingMesh *other, dou
  *         array \a begin are returned.
  *  \return DataArrayIdType * - a new instance of DataArrayIdType holding ids of found
  *         cells. The caller is to delete this array using decrRef() as it is no more
- *         needed. 
+ *         needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If any cell id in \a begin is not valid.
@@ -1557,7 +1557,7 @@ DataArrayIdType *MEDCouplingPointSet::getCellIdsLyingOnNodes(const mcIdType *beg
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If any cell id in \a partBg is not valid.
- * 
+ *
  * \sa MEDCouplingPointSet::getCellIdsLyingOnNodes
  *
  *  \if ENABLE_EXAMPLES
@@ -1573,10 +1573,10 @@ DataArrayIdType *MEDCouplingPointSet::getCellIdsFullyIncludedInNodeIds(const mcI
 /*!
  * Removes unused nodes (the node coordinates array is shorten) and returns an array
  * mapping between new and old node ids in "Old to New" mode. -1 values in the returned
- * array mean that the corresponding old node is no more used. 
+ * array mean that the corresponding old node is no more used.
  *  \return DataArrayIdType * - a new instance of DataArrayIdType of length \a
  *           this->getNumberOfNodes() before call of this method. The caller is to
- *           delete this array using decrRef() as it is no more needed. 
+ *           delete this array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  *  \throw If the nodal connectivity includes an invalid id.
@@ -1595,13 +1595,13 @@ DataArrayIdType *MEDCouplingPointSet::zipCoordsTraducer()
 }
 
 /*!
- * Merges nodes equal within \a precision and returns an array describing the 
+ * Merges nodes equal within \a precision and returns an array describing the
  * permutation used to remove duplicate nodes.
  *  \param [in] precision - minimal absolute distance between two nodes at which they are
  *              considered not coincident.
  *  \param [out] areNodesMerged - is set to \c true if any coincident nodes removed.
  *  \param [out] newNbOfNodes - number of nodes remaining after the removal.
- *  \return DataArrayIdType * - the permutation array in "Old to New" mode. For more 
+ *  \return DataArrayIdType * - the permutation array in "Old to New" mode. For more
  *          info on "Old to New" mode see \ref numbering. The caller
  *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.
@@ -1621,14 +1621,14 @@ DataArrayIdType *MEDCouplingPointSet::mergeNodes(double precision, bool& areNode
 }
 
 /*!
- * Merges nodes equal within \a precision and returns an array describing the 
+ * Merges nodes equal within \a precision and returns an array describing the
  * permutation used to remove duplicate nodes. In contrast to mergeNodes(), location
  *  of merged nodes is changed to be at their barycenter.
  *  \param [in] precision - minimal absolute distance between two nodes at which they are
  *              considered not coincident.
  *  \param [out] areNodesMerged - is set to \c true if any coincident nodes removed.
  *  \param [out] newNbOfNodes - number of nodes remaining after the removal.
- *  \return DataArrayIdType * - the permutation array in "Old to New" mode. For more 
+ *  \return DataArrayIdType * - the permutation array in "Old to New" mode. For more
  *          info on "Old to New" mode see \ref numbering. The caller
  *          is to delete this array using decrRef() as it is no more needed.
  *  \throw If the coordinates array is not set.

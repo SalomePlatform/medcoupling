@@ -43,7 +43,7 @@ namespace INTERP_KERNEL
 
     /// Enumeration of different planes to project on when calculating order
     enum CoordType { XY, XZ, YZ };
-  
+
     /**
      * Constructor
      *
@@ -52,9 +52,9 @@ namespace INTERP_KERNEL
      *                    to the plane being projected on
      */
     ProjectedCentralCircularSortOrder(const double* barycenter, const CoordType type)
-      : _aIdx((type == YZ) ? 1 : 0), 
+      : _aIdx((type == YZ) ? 1 : 0),
         _bIdx((type == XY) ? 1 : 2),
-        _a(barycenter[_aIdx]), 
+        _a(barycenter[_aIdx]),
         _b(barycenter[_bIdx])
     {
     }
@@ -65,7 +65,7 @@ namespace INTERP_KERNEL
      *
      * @param  pt1   a double[3] representing a point
      * @param  pt2   a double[3] representing a point
-     * @return       true if the angle of the difference vector between pt1 and the barycenter is greater than that 
+     * @return       true if the angle of the difference vector between pt1 and the barycenter is greater than that
      *               of the difference vector between pt2 and the barycenter.
      */
     bool operator()(const double* pt1, const double* pt2)
@@ -86,21 +86,21 @@ namespace INTERP_KERNEL
   private:
     /// index corresponding to first coordinate of plane on which points are projected
     const int _aIdx;
-  
+
     /// index corresponding to second coordinate of plane on which points are projected
     const int _bIdx;
 
     /// value of first projected coordinate of the barycenter
     const double _a;
-  
+
     /// value of second projected coordinate of the barycenter
     const double _b;
   };
 
   // ----------------------------------------------------------------------------------
-  // TransformedTriangle PUBLIC  
+  // TransformedTriangle PUBLIC
   // ----------------------------------------------------------------------------------
-  
+
   /**
    * Constructor
    *
@@ -113,8 +113,8 @@ namespace INTERP_KERNEL
   TransformedTriangle::TransformedTriangle(double* p, double* q, double* r)
     : _is_double_products_calculated(false),  _is_triple_products_calculated(false), _volume(0)
   {
-  
-    for(int i = 0 ; i < 3 ; ++i) 
+
+    for(int i = 0 ; i < 3 ; ++i)
       {
         // xyz coordinates
         _coords[5*P + i] = p[i];
@@ -123,7 +123,7 @@ namespace INTERP_KERNEL
       }
 
     // h coordinate
-    
+
     _coords[5*P + 3] = 1 - p[0] - p[1] - p[2];
     _coords[5*Q + 3] = 1 - q[0] - q[1] - q[2];
     _coords[5*R + 3] = 1 - r[0] - r[1] - r[2];
@@ -143,7 +143,7 @@ namespace INTERP_KERNEL
     preCalculateTriangleSurroundsEdge();
 
     preCalculateTripleProducts();
- 
+
   }
 
   /**
@@ -162,26 +162,26 @@ namespace INTERP_KERNEL
   }
 
   /**
-   * Calculates the volume of intersection between the triangle and the 
+   * Calculates the volume of intersection between the triangle and the
    * unit tetrahedron.
    *
-   * @return   volume of intersection of this triangle with unit tetrahedron, 
+   * @return   volume of intersection of this triangle with unit tetrahedron,
    *            as described in Grandy
    *
    */
   double TransformedTriangle::calculateIntersectionVolume()
   {
-    // check first that we are not below z - plane    
+    // check first that we are not below z - plane
     if(isTriangleBelowTetraeder())
       {
         LOG(2, " --- Triangle is below tetraeder - V = 0.0");
         return 0.0;
       }
-    
+
     // get the sign of the volume -  equal to the sign of the z-component of the normal
     // of the triangle, u_x * v_y - u_y * v_x, where u = q - p and v = r - p
     // if it is zero, the triangle is perpendicular to the z - plane and so the volume is zero
-//     const double uv_xy[4] = 
+//     const double uv_xy[4] =
 //       {
 //         _coords[5*Q] - _coords[5*P], _coords[5*Q + 1] - _coords[5*P + 1], // u_x, u_y
 //         _coords[5*R] - _coords[5*P], _coords[5*R + 1] - _coords[5*P + 1]  // v_x, v_y
@@ -202,7 +202,7 @@ namespace INTERP_KERNEL
 
     LOG(2, "-- Calculating intersection polygons ... ");
     calculateIntersectionAndProjectionPolygons();
-    
+
     double barycenter[3];
 
     // calculate volume under A
@@ -244,10 +244,10 @@ namespace INTERP_KERNEL
     LOG(2, "vol B = " << volB);
     LOG(2, "TOTAL = " << sign*(volA+volB));
 #endif
-  
+
     return _volume = sign * (volA + volB);
 
-  } 
+  }
 
   /**
    * Calculates the volume of intersection between the triangle and the
@@ -355,7 +355,7 @@ namespace INTERP_KERNEL
         for(TetraFacet facet = OYZ ; facet < NO_TET_FACET ; facet = TetraFacet(facet + 1))
           {
             // is this test worth it?
-            const bool doTest = 
+            const bool doTest =
                 !isZero[DP_FOR_SEG_FACET_INTERSECTION[3*facet]] &&
                 !isZero[DP_FOR_SEG_FACET_INTERSECTION[3*facet + 1]] &&
                 !isZero[DP_FOR_SEG_FACET_INTERSECTION[3*facet + 2]];
@@ -401,7 +401,7 @@ namespace INTERP_KERNEL
         // segment - corner
         for(TetraCorner corner = O ; corner < NO_TET_CORNER ; corner = TetraCorner(corner + 1))
           {
-            const bool doTest = 
+            const bool doTest =
                 isZero[DoubleProduct( EDGES_FOR_CORNER[3*corner] )] &&
                 isZero[DoubleProduct( EDGES_FOR_CORNER[3*corner+1] )] &&
                 isZero[DoubleProduct( EDGES_FOR_CORNER[3*corner+2] )];
@@ -629,7 +629,7 @@ namespace INTERP_KERNEL
      * Calculates the barycenters of the given intersection polygon.
      *
      * @pre  the intersection polygons have been calculated with calculateIntersectionAndProjectionPolygons()
-     * 
+     *
      * @param poly        one of the two intersection polygons
      * @param barycenter  array of three doubles where barycenter is stored
      *
@@ -670,7 +670,7 @@ namespace INTERP_KERNEL
      *
      * @param poly        one of the two intersection polygons
      * @param barycenter  array of three doubles with the coordinates of the barycenter
-     * 
+     *
      */
     void TransformedTriangle::sortIntersectionPolygon(const IntersectionPolygon poly, const double* barycenter)
     {
@@ -705,7 +705,7 @@ namespace INTERP_KERNEL
       // NB : do not change place of first object, with respect to which the order
       // is defined
       sort((polygon.begin()), polygon.end(), order);
-    
+
       LOG(3,"Sorted polygon is ");
       for(size_t i = 0 ; i < polygon.size() ; ++i)
         {
@@ -719,7 +719,7 @@ namespace INTERP_KERNEL
      *
      * @pre  the intersection polygones have been calculated with calculateIntersectionAndProjectionPolygons(),
      *       and they have been sorted in circular order with sortIntersectionPolygons(void)
-     * 
+     *
      * @param poly        one of the two intersection polygons
      * @param barycenter  array of three doubles with the coordinates of the barycenter
      * @return           the volume between the polygon and the z = 0 plane
@@ -739,16 +739,16 @@ namespace INTERP_KERNEL
         {
           const double* ptCurr = polygon[i];  // pt "i"
           const double* ptNext = polygon[(i + 1) % m]; // pt "i+1" (pt m == pt 0)
-       
+
           const double factor1 = ptCurr[2] + ptNext[2] + barycenter[2];
-          const double factor2 = 
-            ptCurr[0]*(ptNext[1] - barycenter[1]) 
+          const double factor2 =
+            ptCurr[0]*(ptNext[1] - barycenter[1])
             + ptNext[0]*(barycenter[1] - ptCurr[1])
             + barycenter[0]*(ptCurr[1] - ptNext[1]);
           vol += (factor1 * factor2) / 6.0;
         }
 
-      LOG(2,"Abs. Volume is " << vol); 
+      LOG(2,"Abs. Volume is " << vol);
       return vol;
     }
 
@@ -800,7 +800,7 @@ namespace INTERP_KERNEL
       // coordinate to check
       const int coord = static_cast<int>(facet);
       const int ind1 = ( coord+1 ) % 3, ind2 = ( coord+2 ) % 3;
-      const double uv_xy[4] = 
+      const double uv_xy[4] =
         {
           // u_x, u_y
           _coords[5*Q+ind1] - _coords[5*P+ind1], _coords[5*Q+ind2] - _coords[5*P+ind2],
@@ -816,7 +816,7 @@ namespace INTERP_KERNEL
 
     /**
      * Determines whether the triangle is below the z-plane.
-     * 
+     *
      * @return true if the z-coordinate of the three corners of the triangle are all less than 0, false otherwise.
      */
     bool TransformedTriangle::isTriangleBelowTetraeder() const
@@ -843,4 +843,4 @@ namespace INTERP_KERNEL
     }
 
 
-  } // NAMESPACE 
+  } // NAMESPACE

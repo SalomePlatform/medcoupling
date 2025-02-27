@@ -27,7 +27,7 @@
 namespace INTERP_KERNEL
 {
 
-  /** 
+  /**
    * @param targetMesh  mesh containing the target elements
    * @param srcMesh     mesh containing the source elements
    */
@@ -43,7 +43,7 @@ namespace INTERP_KERNEL
   }
 
   /**
-   * 
+   *
    * @param targetCell in C mode.
    * @param srcCells in C mode.
    *

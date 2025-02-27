@@ -1,4 +1,4 @@
-""" Python version of MEDCouplingUMesh::findNodesToDuplicate() and MEDCouplingUMesh::findCellsToRenumber() methods which are at the core of the 
+""" Python version of MEDCouplingUMesh::findNodesToDuplicate() and MEDCouplingUMesh::findCellsToRenumber() methods which are at the core of the
     MEDFileUMesh::buildInnerBoundaryAlongM1Group() algorithm.
     This greatly helps algorithm tuning ...
 """
@@ -270,17 +270,17 @@ def findCellsToRenumber(this, otherDimM1OnSameCoords, dupl):
 ###
 # //
 # //  // Now handling remaining cells not touched by the for loop above, called "naked" cells (see cell #20 in mArndGrpLarge in testBuildInnerBoundary8() ...)
-# //  DAInt naked = hitCellsLarge->findIdsEqual(0);
-# //  const mcIdType *mLargCP=mArGrpLargeDesc->getNodalConnectivity()->begin(), *mLargCIP=mArGrpLargeDesc->getNodalConnectivityIndex()->begin();
+# //  DAInt naked = hitCellsLarge->findIdsEqual(0)
+# //  const mcIdType *mLargCP=mArGrpLargeDesc->getNodalConnectivity()->begin(), *mLargCIP=mArGrpLargeDesc->getNodalConnectivityIndex()->begin()
 # //  for (const auto &c: *naked)
 # //    {
-# //      std::map<mcIdType, mcIdType> nbDup;
+# //      std::map<mcIdType, mcIdType> nbDup
 # //      // Retrieve list of faces of cell c
-# //      mcIdType nbFac1=descILP[c+1]-descILP[c];
-# //      std::vector<mcIdType> fac1(nbFac1);
-# //      std::copy(descLP+descILP[c], descLP+descILP[c+1], fac1.begin());
-# //      std::sort(fac1.begin(), fac1.end());
-# //      mcIdType cnt00 = neighILP[c];
+# //      mcIdType nbFac1=descILP[c+1]-descILP[c]
+# //      std::vector<mcIdType> fac1(nbFac1)
+# //      std::copy(descLP+descILP[c], descLP+descILP[c+1], fac1.begin())
+# //      std::sort(fac1.begin(), fac1.end())
+# //      mcIdType cnt00 = neighILP[c]
 # //      for (const mcIdType *n=neighLP+cnt00; cnt00 < neighILP[c+1]; n++, cnt00++)
 # //        {
 # //          if (hitCellsLargeP[*n] == 0)
@@ -289,34 +289,34 @@ def findCellsToRenumber(this, otherDimM1OnSameCoords, dupl):
 # //          // with the most "economical" face, i.e. the face made of a minimal number of duplicated points.
 # //          // TODO: this is a shaky criteria ... find sth more robust ...
 # //          //   1. find face(s) making the link
-# //          mcIdType nbFac2=descILP[*n+1]-descILP[*n];
-# //          std::vector<mcIdType> fac2(nbFac2);
-# //          std::copy(descLP+descILP[*n], descLP+descILP[*n+1], fac2.begin());
-# //          std::sort(fac2.begin(), fac2.end());
-# //          std::vector<mcIdType> comFac;
+# //          mcIdType nbFac2=descILP[*n+1]-descILP[*n]
+# //          std::vector<mcIdType> fac2(nbFac2)
+# //          std::copy(descLP+descILP[*n], descLP+descILP[*n+1], fac2.begin())
+# //          std::sort(fac2.begin(), fac2.end())
+# //          std::vector<mcIdType> comFac
 # //          std::set_intersection(fac1.begin(), fac1.end(),
 # //                                fac2.begin() ,fac2.end(),
-# //                                std::back_inserter(comFac));
+# //                                std::back_inserter(comFac))
 # //          if (comFac.size() == 0)
-# //            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: internal error no common face between two cells should not happen");
+# //            throw INTERP_KERNEL::Exception("MEDCouplingUMesh::findCellsToRenumber: internal error no common face between two cells should not happen")
 # //          //   2. count number of duplicated node for this face.
 # //          for (const auto &f : comFac) // for all common faces
 # //            {
-# //              std::vector<mcIdType> comNod;
+# //              std::vector<mcIdType> comNod
 # //              std::set_intersection(nodeIdsToDuplicateBg, nodeIdsToDuplicateEnd,
 # //                                    mLargCP+mLargCIP[f]+1, mLargCP+mLargCIP[f+1],    // first +1 to skip type in connectivity
-# //                                    std::back_inserter(comNod));
+# //                                    std::back_inserter(comNod))
 # //              // in case the two cells are in contact by multiple faces, take the most conservative value
-# //              mcIdType val=-1;
-# //              if(nbDup.find(*n) != nbDup.end()) val=nbDup[*n];
-# //              nbDup[*n] = std::max(val, (mcIdType)comNod.size());
+# //              mcIdType val=-1
+# //              if(nbDup.find(*n) != nbDup.end()) val=nbDup[*n]
+# //              nbDup[*n] = std::max(val, (mcIdType)comNod.size())
 # //            }
 # //        }
 # //      // Minimal value in nbDup?
-# //      using PairId = std::pair<mcIdType, mcIdType>;
-# //      auto comp_fonc = [](const PairId& p1, const PairId& p2) { return p1.second < p2.second; };
-# //      PairId zemin = *min_element(nbDup.begin(), nbDup.end(), comp_fonc);
-# //      hitCellsLargeP[c] = hitCellsLargeP[zemin.first];
+# //      using PairId = std::pair<mcIdType, mcIdType>
+# //      auto comp_fonc = [](const PairId& p1, const PairId& p2) { return p1.second < p2.second; }
+# //      PairId zemin = *min_element(nbDup.begin(), nbDup.end(), comp_fonc)
+# //      hitCellsLargeP[c] = hitCellsLargeP[zemin.first]
 # //    }
 
 

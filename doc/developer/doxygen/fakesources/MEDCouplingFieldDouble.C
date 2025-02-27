@@ -85,9 +85,9 @@ namespace MEDCoupling
    */
   MEDCouplingFieldDouble *MEDCouplingFieldDouble::operator/(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) {}
   /*!
-   * Returns a new MEDCouplingFieldDouble containing a dot product of \a this and a given field, 
+   * Returns a new MEDCouplingFieldDouble containing a dot product of \a this and a given field,
    * so that the i-th tuple of the result field (_f_) is a sum of products of j-th components of
-   * i-th tuples of two fields (\f$ f_i = \sum_ {}^n f1_j * f2_j \f$). 
+   * i-th tuples of two fields (\f$ f_i = \sum_ {}^n f1_j * f2_j \f$).
    * Number of tuples and components in the two fields must be the same.
    *  \param [in] other - the input field.
    *  \return MEDCouplingFieldDouble * - the new instance of MEDCouplingFieldDouble.
@@ -98,8 +98,8 @@ namespace MEDCoupling
    */
   MEDCouplingFieldDouble *MEDCouplingFieldDouble::dot(const MEDCouplingFieldDouble& other) const throw(INTERP_KERNEL::Exception) {}
   /*!
-   * Returns a new MEDCouplingFieldDouble containing a cross product of \a this and 
-   * a given field, so that the i-th tuple of the result field is a 3D vector which 
+   * Returns a new MEDCouplingFieldDouble containing a cross product of \a this and
+   * a given field, so that the i-th tuple of the result field is a 3D vector which
    * is a cross product of two vectors defined by the i-th tuples of the two fields.
    * Number of tuples in the fields must be the same.
    * Number of components in the fields must be 3.
@@ -175,7 +175,7 @@ namespace MEDCoupling
   void MEDCouplingFieldDouble::setOrder(int order) throw(INTERP_KERNEL::Exception) {}
   /*!
    * Sets the order number of iteration where the second data array of \a this field has
-   * been calculated. 
+   * been calculated.
    *  \param [in] order - the order number.
    */
   void MEDCouplingFieldDouble::setEndOrder(int order) throw(INTERP_KERNEL::Exception) {}
@@ -339,12 +339,12 @@ MEDCouplingFieldDouble::zipCoords(double epsOnVals=1e-15);
     const MEDCouplingFieldDouble & MEDCouplingFieldDouble::operator+=(const MEDCouplingFieldDouble& other);
     const MEDCouplingFieldDouble & MEDCouplingFieldDouble::operator-=(const MEDCouplingFieldDouble& other);
     const MEDCouplingFieldDouble & MEDCouplingFieldDouble::operator/=(const MEDCouplingFieldDouble& other);
-///@} 
+///@}
 /*! \name   Advanced API   */
 ///@{
 MEDCouplingFieldDouble::renumberCellsWithoutMesh(const int *old2NewBg, bool check=true);
 MEDCouplingFieldDouble::renumberNodesWithoutMesh(const int *old2NewBg, int newNbOfNodes, double eps=1e-15);
-///@} 
+///@}
 
 /*! \name Others... */
 ///@{
@@ -389,5 +389,5 @@ MEDCouplingFieldDouble::synchronizeTimeWithMesh();
 MEDCouplingFieldDouble::synchronizeTimeWithSupport();
 MEDCouplingFieldDouble::~MEDCouplingFieldDouble();
 MEDCouplingFieldDouble::_time_discr;
-///@} 
+///@}
 }

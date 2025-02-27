@@ -42,11 +42,11 @@ namespace INTERP_KERNEL
     virtual ~GenericPointLocatorAlgos() { }
     virtual std::list<mcIdType> locates(const double* x, double eps) = 0;
   };
-        
+
   template<class MyMeshType>
   class PointLocatorAlgos: public GenericPointLocatorAlgos
   {
-  private : 
+  private :
     double* _bb;
     BBTree<MyMeshType::MY_SPACEDIM,typename MyMeshType::MyConnType>* _tree;
     const MyMeshType& _mesh;
@@ -89,8 +89,8 @@ namespace INTERP_KERNEL
       delete[] _bb;
       delete _tree;
     }
-        
-    //returns the list of elements that contains 
+
+    //returns the list of elements that contains
     //the point pointed to by x
     std::list<typename MyMeshType::MyConnType> locates(const double* x, double eps)
     {
@@ -116,9 +116,9 @@ namespace INTERP_KERNEL
                          C
                         / \
                        /   \
-             Xo       /     \ 
+             Xo       /     \
                      A-------B
-       
+
          here XA^XC and XC^XB have different signs*/
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;
       std::unique_ptr<char[]> sign( new char[nbEdges] );
@@ -197,7 +197,7 @@ namespace INTERP_KERNEL
       const int SPACEDIM=MyMeshType::MY_SPACEDIM;
       typedef typename MyMeshType::MyConnType ConnType;
       const NumberingPolicy numPol=MyMeshType::My_numPol;
-      
+
       int nbfaces = cmType.getNumberOfSons2(conn_elem,conn_elem_sz);
       std::unique_ptr<char[]> sign( new char[nbfaces] );
       std::unique_ptr<ConnType[]> connOfSon( new ConnType[conn_elem_sz] );
@@ -287,14 +287,14 @@ namespace INTERP_KERNEL
         }
       throw INTERP_KERNEL::Exception("Invalid spacedim detected ! Managed spaceDim are 2 and 3 !");
     }
-        
+
     bool elementContainsPoint(typename MyMeshType::MyConnType i, const double* x, double eps)
     {
       //as i is extracted from the BBTRee, it is already in C numbering
       //it is not necessary to convert it from F to C
       typedef typename MyMeshType::MyConnType ConnType;
       const NumberingPolicy numPol=MyMeshType::My_numPol;
-      
+
       const double* coords= _mesh.getCoordinatesPtr();
       const ConnType* conn=_mesh.getConnectivityPtr();
       const ConnType* conn_index= _mesh.getConnectivityIndexPtr();
@@ -303,7 +303,7 @@ namespace INTERP_KERNEL
       NormalizedCellType type=_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(i));
       return isElementContainsPoint(x,type,coords,conn_elem,conn_elem_sz,eps);
     }
-                
+
     static bool decideFromSign(const char *sign, mcIdType nbelem)
     {
       char min_sign = 1;
@@ -313,7 +313,7 @@ namespace INTERP_KERNEL
           min_sign=(sign[i]<min_sign)?sign[i]:min_sign;
           max_sign=(sign[i]>max_sign)?sign[i]:max_sign;
         }
-      return (min_sign!=-1 || max_sign!=1);     
+      return (min_sign!=-1 || max_sign!=1);
     }
   };
 

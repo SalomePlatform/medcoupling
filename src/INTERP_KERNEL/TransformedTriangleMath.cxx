@@ -30,9 +30,9 @@
 
 namespace INTERP_KERNEL
 {
-  
+
   // ----------------------------------------------------------------------------------
-  //  Tables                                                       
+  //  Tables
   // ----------------------------------------------------------------------------------
 
   /// Table with first coordinate (a) used to calculate double product c^pq_ab = p_a * q_b - p_b * q_a (index to be used : DoubleProduct)
@@ -50,9 +50,9 @@ namespace INTERP_KERNEL
       0, 3, 2, // Y
       0, 1, 3  // Z
     };
-  
+
   /// Double products used to calculate triple products by expanding one of the three rows of the determinant (index to be used : 3*Corner + row)
-  const TransformedTriangle::DoubleProduct TransformedTriangle::DP_FOR_DETERMINANT_EXPANSION[12] = 
+  const TransformedTriangle::DoubleProduct TransformedTriangle::DP_FOR_DETERMINANT_EXPANSION[12] =
     {
       // row 1, 2, 3
       C_YZ, C_ZX, C_XY, // O
@@ -60,10 +60,10 @@ namespace INTERP_KERNEL
       C_ZH, C_ZX, C_XH, // Y
       C_YH, C_XH, C_XY  // Z
     };
-  
+
   /// The machine epsilon, used in precision corrections
   const double TransformedTriangle::MACH_EPS = std::numeric_limits<double>::epsilon();
-  
+
   /// 4.0 * the machine epsilon, represents the precision of multiplication when performing corrections corrections ( f in Grandy )
   const double TransformedTriangle::MULT_PREC_F = 4.0 * TransformedTriangle::MACH_EPS;
 
@@ -112,11 +112,11 @@ namespace INTERP_KERNEL
           }
       }
   }
-  
+
   // ----------------------------------------------------------------------------------
-  //  Double and triple product calculations                           
+  //  Double and triple product calculations
   // ----------------------------------------------------------------------------------
-  
+
   /**
    * Pre-calculates all double products for this triangle, and stores
    * them internally. This method makes compensation for precision errors,
@@ -177,7 +177,7 @@ namespace INTERP_KERNEL
                     LOG(5, "Double product for (seg,dp) = (" << seg << ", " << dp << ") = " );
                     LOG(5, std::fabs(_doubleProducts[8*seg + dp]) << " is imprecise, reset to 0.0" );
                   }
-#endif 
+#endif
 
                 _doubleProducts[idx] = 0.0;
               }
@@ -189,7 +189,7 @@ namespace INTERP_KERNEL
 
   /**
    * Checks if the double products for a given segment are consistent, as defined by
-   * Grandy, [46]. 
+   * Grandy, [46].
    *
    * @param   seg Segment for which to check consistency of double products
    * @return  true if the double products are consistent, false if not
@@ -239,7 +239,7 @@ namespace INTERP_KERNEL
 
   /**
    * Calculate the shortest distance between a tetrahedron corner and a triangle segment.
-   * 
+   *
    * @param  corner corner of the tetrahedron
    * @param  seg    segment of the triangle
    * @return shortest distance from the corner to the segment
@@ -249,33 +249,33 @@ namespace INTERP_KERNEL
     // NB uses fact that TriSegment <=> TriCorner that is first point of segment (PQ <=> P)
     const TriCorner ptP_idx = TriCorner(seg);
     const TriCorner ptQ_idx = TriCorner( (seg + 1) % 3);
-    
+
     const double ptP[3] = { _coords[5*ptP_idx], _coords[5*ptP_idx + 1], _coords[5*ptP_idx + 2]  };
     const double ptQ[3] = { _coords[5*ptQ_idx], _coords[5*ptQ_idx + 1], _coords[5*ptQ_idx + 2]  };
-    
+
     // coordinates of corner
-    const double ptTetCorner[3] = 
-      { 
+    const double ptTetCorner[3] =
+      {
         COORDS_TET_CORNER[3*corner    ],
         COORDS_TET_CORNER[3*corner + 1],
         COORDS_TET_CORNER[3*corner + 2]
       };
-    
+
     // dist^2 = ( PQ x CP )^2 / |PQ|^2 where C is the corner point
-    
+
     // difference vectors
     const double diffPQ[3] = { ptQ[0] - ptP[0], ptQ[1] - ptP[1], ptQ[2] - ptP[2] };
     const double diffCornerP[3] = { ptP[0] - ptTetCorner[0], ptP[1] - ptTetCorner[1], ptP[2] - ptTetCorner[2] };
-    
+
     // cross product of difference vectors
     double crossProd[3];
     cross(diffPQ, diffCornerP, crossProd);
-    
+
     const double cross_squared = dot(crossProd, crossProd);
     const double norm_diffPQ_squared = dot(diffPQ, diffPQ);
-    
+
     assert(norm_diffPQ_squared != 0.0);
-    
+
     return cross_squared / norm_diffPQ_squared;
   }
 
@@ -299,7 +299,7 @@ namespace INTERP_KERNEL
       {
         LOG(6, "- Triple product for corner " << corner );
 
-        for(int row = 1 ; row < 4 ; ++row) 
+        for(int row = 1 ; row < 4 ; ++row)
           {
             const DoubleProduct dp = DP_FOR_DETERMINANT_EXPANSION[3*corner + (row - 1)];
 
@@ -322,7 +322,7 @@ namespace INTERP_KERNEL
 
             if(minAngle < TRIPLE_PRODUCT_ANGLE_THRESHOLD)
               _tripleProducts[corner] = calcTByDevelopingRow(corner, minRow, true);
-            else 
+            else
               _tripleProducts[corner] = calcTByDevelopingRow(corner, minRow, false);
 
             _validTP[corner] = true;
@@ -348,24 +348,24 @@ namespace INTERP_KERNEL
   double TransformedTriangle::calculateAngleEdgeTriangle(const TetraEdge edge) const
   {
     // find normal to PQR - cross PQ and PR
-    const double pq[3] = 
-      { 
-        _coords[5*Q]     - _coords[5*P], 
+    const double pq[3] =
+      {
+        _coords[5*Q]     - _coords[5*P],
         _coords[5*Q + 1] - _coords[5*P + 1],
         _coords[5*Q + 2] - _coords[5*P + 2]
       };
-    
-    const double pr[3] = 
-      { 
-        _coords[5*R]     - _coords[5*P], 
+
+    const double pr[3] =
+      {
+        _coords[5*R]     - _coords[5*P],
         _coords[5*R + 1] - _coords[5*P + 1],
         _coords[5*R + 2] - _coords[5*P + 2]
       };
-    
+
     double normal[3];
 
     cross(pq, pr, normal);
-    
+
     static const double EDGE_VECTORS[18] =
       {
         1.0, 0.0, 0.0, // OX
@@ -375,8 +375,8 @@ namespace INTERP_KERNEL
         0.0,-1.0, 1.0, // YZ
         1.0, 0.0,-1.0 // ZX
       };
-    
-    const double edgeVec[3] = { 
+
+    const double edgeVec[3] = {
       EDGE_VECTORS[3*edge],
       EDGE_VECTORS[3*edge + 1],
       EDGE_VECTORS[3*edge + 2],
@@ -387,7 +387,7 @@ namespace INTERP_KERNEL
     const double lenNormal = norm(normal);
     const double lenEdgeVec = norm(edgeVec);
     const double dotProd = dot(normal, edgeVec);
-    
+
     //? is this more stable? -> no subtraction
     //    return asin( dotProd / ( lenNormal * lenEdgeVec ) ) + 3.141592625358979 / 2.0;
     const double tmp=dotProd / ( lenNormal * lenEdgeVec );
@@ -397,11 +397,11 @@ namespace INTERP_KERNEL
 
   /**
    * Calculates triple product associated with the given corner of tetrahedron, developing
-   * the determinant by the given row. The triple product gives the signed volume of 
-   * the tetrahedron between this corner and the triangle PQR. If the flag project is true, 
+   * the determinant by the given row. The triple product gives the signed volume of
+   * the tetrahedron between this corner and the triangle PQR. If the flag project is true,
    * one coordinate is projected out in order to eliminate errors in the intersection point
    * calculation due to cancellation.
-   * 
+   *
    * Consistency with the double product computation and potential cancellation is also done here.
    *
    *
@@ -413,13 +413,13 @@ namespace INTERP_KERNEL
    */
   double TransformedTriangle::calcTByDevelopingRow(const TetraCorner corner, const int row, const bool project) const
   {
-    
+
     // OVERVIEW OF CALCULATION
     // --- sign before the determinant
     // the sign used depends on the sign in front of the triple product (Grandy, [15]),
     // and the convention used in the definition of the double products
-  
-    // the sign in front of the determinant gives the following schema for the three terms (I): 
+
+    // the sign in front of the determinant gives the following schema for the three terms (I):
     // corner/row    1    2   3
     // O (sign:+)    +    -   +
     // X (sign:-)    -    +   -
@@ -447,7 +447,7 @@ namespace INTERP_KERNEL
     // comparing the two schemas (I) and (II) gives us the following matrix of signs,
     // putting 1 when the signs in (I) and (II) are equal and -1 when they are different :
 
-    static const int SIGNS[12] = 
+    static const int SIGNS[12] =
       {
         1, 1, 1,
         -1,-1, 1,
@@ -457,7 +457,7 @@ namespace INTERP_KERNEL
 
     // find the offsets of the rows of the determinant
     const int offset = COORDINATE_FOR_DETERMINANT_EXPANSION[3 * corner + (row - 1)];
-  
+
     const DoubleProduct dp = DP_FOR_DETERMINANT_EXPANSION[3 * corner + (row - 1)];
 
     const int sign = SIGNS[3 * corner + (row - 1)];
@@ -469,7 +469,7 @@ namespace INTERP_KERNEL
     double alpha = 0.0;
 
     // coordinate to use for projection (Grandy, [57]) with edges
-    // OX, OY, OZ, XY, YZ, ZX in order : 
+    // OX, OY, OZ, XY, YZ, ZX in order :
     // (y, z, x, h, h, h)
     // for the first three we could also use {2, 0, 1}
     static const int PROJECTION_COORDS[6] = { 1, 2, 0, 3, 3, 3 } ;
@@ -528,7 +528,7 @@ namespace INTERP_KERNEL
 
     if( epsilonEqual( p_term + q_term + r_term, 0.0, THRESHOLD_F * MULT_PREC_F * delta) )
       {
-        LOG(4, "Reset imprecise triple product for corner " << corner << " to zero" ); 
+        LOG(4, "Reset imprecise triple product for corner " << corner << " to zero" );
         return 0.0;
       }
     else

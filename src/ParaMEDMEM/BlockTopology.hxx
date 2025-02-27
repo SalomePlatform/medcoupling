@@ -30,7 +30,7 @@ namespace MEDCoupling
   class ComponentTopology;
   class MEDCouplingCMesh;
 
-  typedef enum{Block,Cycle} CYCLE_TYPE; 
+  typedef enum{Block,Cycle} CYCLE_TYPE;
 
   /*!
    * \anchor BlockTopology-det
@@ -46,7 +46,7 @@ namespace MEDCoupling
   {
   public:
     BlockTopology();
-    BlockTopology(const ProcessorGroup& group, MEDCouplingCMesh *grid); 
+    BlockTopology(const ProcessorGroup& group, MEDCouplingCMesh *grid);
     BlockTopology(const BlockTopology& geom_topo, const ComponentTopology& comp_topo);
     BlockTopology(const ProcessorGroup& group, mcIdType nb_elem);
     virtual ~BlockTopology();
@@ -67,7 +67,7 @@ namespace MEDCoupling
     int _dimension;
     //proc array
     std::vector<int> _nb_procs_per_dim;
-    //stores the offsets vector  
+    //stores the offsets vector
     std::vector<std::vector<mcIdType> > _local_array_indices;
     //stores the cycle type (block or cyclic)
     std::vector<CYCLE_TYPE> _cycle_type;

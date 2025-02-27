@@ -45,11 +45,11 @@ namespace MEDPARTITIONER
   class ParaDomainSelector;
   class ConnectZone;
   class JointFinder;
-  
+
   typedef enum{MedAscii, MedXml, Undefined} DriverType;
   typedef std::multimap<std::pair<int,mcIdType>, std::pair<int,mcIdType> > NodeMapping ;
   typedef std::vector<std::pair<int,int> >  NodeList;
-  
+
   class MEDPARTITIONER_EXPORT MeshCollection
   {
   public:
@@ -64,10 +64,10 @@ namespace MEDPARTITIONER
     MeshCollection(const std::string& filename, const std::string& meshname);
     ~MeshCollection();
     bool isParallelMode() const { return _domain_selector; }
-    
+
     //writing to a distributed file
     void write(const std::string& filename);
-    
+
     //getting the driver
     MeshCollectionDriver *retrieveDriver();
     MeshCollectionDriver *getDriver() const;
@@ -91,7 +91,7 @@ namespace MEDPARTITIONER
     int getNbOfGlobalMeshes() const { return (int)_mesh.size(); }
     mcIdType getNbOfLocalCells() const;
     mcIdType getNbOfLocalFaces() const;
-    
+
     //getting a reference to mesh vector
     std::vector<MEDCoupling::MEDCouplingUMesh*>& getMesh();
     std::vector<MEDCoupling::MEDCouplingUMesh*>& getFaceMesh();
@@ -103,7 +103,7 @@ namespace MEDPARTITIONER
 
     std::vector<MEDCoupling::DataArrayIdType*>& getCellFamilyIds() { return _cell_family_ids; }
     std::vector<MEDCoupling::DataArrayIdType*>& getFaceFamilyIds() { return _face_family_ids; }
-    
+
     std::map<std::string, MEDCoupling::DataArrayIdType*>& getMapDataArrayInt() { return _map_dataarray_int; }
     std::map<std::string, MEDCoupling::DataArrayDouble*>& getMapDataArrayDouble() { return _map_dataarray_double; }
 
@@ -114,7 +114,7 @@ namespace MEDPARTITIONER
     std::vector<std::string>&  getFieldDescriptions() { return _field_descriptions; }
     void prepareFieldDescriptions();
     void filterFaceOnCell();
-     
+
     //getting a reference to connect zones vector
     std::vector<MEDPARTITIONER::ConnectZone*>& getCZ();
 
@@ -125,8 +125,8 @@ namespace MEDPARTITIONER
     //setting a new topology
     void setTopology(Topology* topology, bool takeOwneship);
 
-    //getting/setting the name of the global mesh (as opposed 
-    //to the name of a subdomain \a nn, which is name_nn) 
+    //getting/setting the name of the global mesh (as opposed
+    //to the name of a subdomain \a nn, which is name_nn)
     std::string getName() const { return _name; }
     void setName(const std::string& name) { _name=name; }
     void setDomainNames(const std::string& name);
@@ -138,13 +138,13 @@ namespace MEDPARTITIONER
     void setDescription(const std::string& name) { _description=name; }
 
     //creates the node mapping between an old collection and the present one
-    void createNodeMapping(MeshCollection& initialCollection, 
+    void createNodeMapping(MeshCollection& initialCollection,
                            std::multimap<std::pair<int,mcIdType>,std::pair<int,mcIdType> >& nodeMapping);
-    
-    void castCellMeshes(MeshCollection& initialCollection, 
+
+    void castCellMeshes(MeshCollection& initialCollection,
                         std::vector<std::vector<std::vector<mcIdType> > >& new2oldIds,
                         std::vector<MEDCoupling::DataArrayIdType*> & o2nRenumber);
-    
+
     //creates faces on the new collection
     void castFaceMeshes(MeshCollection& initialCollection,
                         const std::multimap<std::pair<int,mcIdType>, std::pair<int,mcIdType> >& nodeMapping,
@@ -169,8 +169,8 @@ namespace MEDPARTITIONER
 
     void findCommonDistantNodes(std::vector<std::vector<std::multimap<int,mcIdType> > >& commonDistantNodes);
 
-    
-    void remapIntField(int inew, int iold, 
+
+    void remapIntField(int inew, int iold,
                        const MEDCoupling::MEDCouplingUMesh& sourceMesh,
                        const MEDCoupling::MEDCouplingUMesh& targetMesh,
                        const mcIdType* fromArray,
@@ -190,39 +190,39 @@ namespace MEDPARTITIONER
 
     //link to mesh_collection topology
     Topology* _topology;
-    
+
     //control over topology
     bool _owns_topology;
-    
+
     //Driver for read/write operations
     MeshCollectionDriver* _driver;
-    
+
     //Parallelizer - mark of parallel execution mode
     ParaDomainSelector* _domain_selector;
-    
+
     //links to meshes
     std::vector<MEDCoupling::MEDCouplingUMesh*> _mesh;
     std::vector<MEDCoupling::MEDCouplingUMesh*> _face_mesh;
-    
+
     //index of a non empty mesh within _mesh (in parallel mode all of meshes can be empty)
     int _i_non_empty_mesh;
-    
+
     //family ids storages
     std::vector<MEDCoupling::DataArrayIdType*> _cell_family_ids;
     std::vector<MEDCoupling::DataArrayIdType*> _face_family_ids;
-    
+
     //DataArrayInt* storages
     std::map<std::string, MEDCoupling::DataArrayIdType*> _map_dataarray_int;
     //DataArrayDouble* storages
     std::map<std::string, MEDCoupling::DataArrayDouble*> _map_dataarray_double;
-    
+
     //fields to be partitioned
     std::vector<std::string> _field_descriptions;
-    
+
     //group family conversion
     std::map<std::string, mcIdType> _family_info;
     std::map<std::string, std::vector<std::string> > _group_info;
-  
+
     //list of groups that are not to be split
     std::vector<std::string> _indivisible_regions;
 

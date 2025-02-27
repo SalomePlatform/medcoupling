@@ -14,7 +14,7 @@ This concept is used all over the
 MEDCoupling, \ref parallel "ParaMEDMEM", and \ref medloader "MEDLoader" modules so it should be correctly
 understood to efficiently deal with \ref meshes "Meshes" and \ref fields "Fields".
 
-\ref MEDCoupling::DataArray "DataArrays" are the atomic element of potentially heavy-memory objects in 
+\ref MEDCoupling::DataArray "DataArrays" are the atomic element of potentially heavy-memory objects in
 the 3 modules mentioned above.
 
 There are for the moment two types of arrays :

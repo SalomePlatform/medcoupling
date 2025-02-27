@@ -54,7 +54,7 @@ namespace MEDCoupling
      \param dec_options DEC options (including projection method P0, P1)
      \param interp_options interpolation options
   */
-  InterpolationMatrix::InterpolationMatrix(const MEDCoupling::ParaFIELD *source_field, 
+  InterpolationMatrix::InterpolationMatrix(const MEDCoupling::ParaFIELD *source_field,
                                            const ProcessorGroup& source_group,
                                            const ProcessorGroup& target_group,
                                            const DECOptions& dec_options,
@@ -264,7 +264,7 @@ namespace MEDCoupling
     //loop over the elements to build the interpolation
     //matrix structures
     std::size_t source_size=values.size();
-    for (std::size_t ielem=0; ielem < source_size; ielem++) 
+    for (std::size_t ielem=0; ielem < source_size; ielem++)
       {
         _row_offsets[ielem+1] += ToIdType(values[ielem].size());
         for(map<mcIdType,double>::const_iterator iter=values[ielem].begin();iter!=values[ielem].end();iter++)
@@ -286,11 +286,11 @@ namespace MEDCoupling
                 _col_offsets.insert(make_pair(make_pair(iproc_distant,localId),col_id));
                 _mapping.addElementFromSource(iproc_distant,localId);
               }
-            else 
+            else
               {
                 col_id = iter2->second;
               }
-            //the non zero coefficient is stored 
+            //the non zero coefficient is stored
             //ielem is the row,
             //col_id is the number of the column
             //iter->second is the value of the coefficient
@@ -409,13 +409,13 @@ namespace MEDCoupling
         break;
       }
   }
-  
+
   void InterpolationMatrix::computeConservVolDenoW(ElementLocator& elementLocator)
   {
     computeGlobalColSum(_deno_reverse_multiply);
     computeGlobalRowSum(elementLocator,_deno_multiply,_deno_reverse_multiply);
   }
-  
+
   void InterpolationMatrix::computeConservVolDenoL(ElementLocator& elementLocator)
   {
     int pol1=elementLocator.sendPolicyToWorkingSideL();
@@ -471,7 +471,7 @@ namespace MEDCoupling
       }
     source_triangle_surf->decrRef();
   }
-  
+
   /*!
    * Nothing to do because surface computation is on working side.
    */
@@ -700,7 +700,7 @@ namespace MEDCoupling
           *iter4=acc[*iter3];
       }
   }
-  
+
   void InterpolationMatrix::mergeRowSum3(const std::vector< std::vector<mcIdType> >& globalIdsPartial, std::vector< std::vector<double> >& rowsPartialSumD)
   {
     std::map<mcIdType,double> sum;
@@ -933,7 +933,7 @@ namespace MEDCoupling
       THROW_IK_EXCEPTION("InterpolationMatrix::retrieveNonFetchedIdsSource : not supposed to be called target side !");
     return ret;
   }
-  
+
 
   /**!
    \brief performs s=WTt, where t is the target field, s is the source field,

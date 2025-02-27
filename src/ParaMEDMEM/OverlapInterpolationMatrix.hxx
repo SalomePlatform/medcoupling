@@ -40,7 +40,7 @@ namespace MEDCoupling
                                      public DECOptions
   {
   public:
-    
+
     OverlapInterpolationMatrix(ParaFIELD *source_field,
                                ParaFIELD *target_field,
                                const ProcessorGroup& group,
@@ -56,13 +56,13 @@ namespace MEDCoupling
                          const MEDCouplingPointSet *trg, const DataArrayIdType *trgIds, const std::string& trgMeth, int trgProcId);
 
     void prepare(const std::vector< int > & procsToSendField);
-    
+
     void computeSurfacesAndDeno();
 
     void multiply(double default_val);
 
     void transposeMultiply();
-    
+
     virtual ~OverlapInterpolationMatrix();
   private:
 

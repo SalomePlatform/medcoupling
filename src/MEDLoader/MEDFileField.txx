@@ -47,12 +47,12 @@ namespace MEDCoupling
     arrC->incrRef();
     _arr=arrC;
   }
-  
+
   /*!
    * Returns a pointer to the underground DataArrayTemplate<T>  instance. So the
    * caller should not decrRef() it. This method allows for a direct access to the field
    * values. This method is quite unusable if there is more than a nodal field or a cell
-   * field on single geometric cell type. 
+   * field on single geometric cell type.
    *  \return DataArrayTemplate<T> * - the pointer to the field values array.
    */
   template<class T>
@@ -60,19 +60,19 @@ namespace MEDCoupling
   {
     return getOrCreateAndGetArrayTemplate();
   }
-  
+
   template<class T>
   const DataArray *MEDFileField1TSTemplateWithoutSDA<T>::getOrCreateAndGetArray() const
   {
     return getOrCreateAndGetArrayTemplate();
   }
-  
+
   template<class T>
   DataArray *MEDFileField1TSTemplateWithoutSDA<T>::createNewEmptyDataArrayInstance() const
   {
     return Traits<T>::ArrayType::New();
   }
-  
+
   template<class T>
   typename Traits<T>::ArrayType const *MEDFileField1TSTemplateWithoutSDA<T>::getOrCreateAndGetArrayTemplate() const
   {
@@ -82,7 +82,7 @@ namespace MEDCoupling
     (const_cast< MEDFileField1TSTemplateWithoutSDA<T> *>(this))->_arr=Traits<T>::ArrayType::New();
     return _arr;
   }
-  
+
   template<class T>
   typename Traits<T>::ArrayType *MEDFileField1TSTemplateWithoutSDA<T>::getOrCreateAndGetArrayTemplate()
   {
@@ -97,7 +97,7 @@ namespace MEDCoupling
    * Returns a pointer to the underground DataArrayTemplate<T> instance. So the
    * caller should not decrRef() it. This method allows for a direct access to the field
    * values. This method is quite unusable if there is more than a nodal field or a cell
-   * field on single geometric cell type. 
+   * field on single geometric cell type.
    *  \return DataArrayTemplate<T> * - the pointer to the field values array.
    */
   template<class T>
@@ -109,7 +109,7 @@ namespace MEDCoupling
     else
       return 0;
   }
-  
+
   /*!
    * Returns a pointer to the underground DataArrayDouble instance and a
    * sequence describing parameters of a support of each part of \a this field. The
@@ -136,12 +136,12 @@ namespace MEDCoupling
     this->_field_per_mesh[0]->getUndergroundDataArrayExt(entries);
     return getUndergroundDataArrayTemplate();
   }
-  
+
   /*!
    * Returns a pointer to the underground DataArrayDouble instance. So the
    * caller should not decrRef() it. This method allows for a direct access to the field
    * values. This method is quite unusable if there is more than a nodal field or a cell
-   * field on single geometric cell type. 
+   * field on single geometric cell type.
    *  \return DataArrayDouble * - the pointer to the field values array.
    */
   template<class T>
@@ -149,7 +149,7 @@ namespace MEDCoupling
   {
     return getUndergroundDataArrayTemplate();
   }
-  
+
   template<class T>
   void MEDFileField1TSTemplateWithoutSDA<T>::aggregate(const std::vector<typename MLFieldTraits<T>::F1TSWSDAType const *>& f1tss, const std::vector< std::vector< std::pair<int,mcIdType> > >& dts)
   {
@@ -172,7 +172,7 @@ namespace MEDCoupling
       }
     typename MLFieldTraits<T>::F1TSWSDAType const *refPt(f1tss[0]);
     setName(refPt->getName());
-    
+
     const DataArray *arr(refPt->getUndergroundDataArray());
     std::size_t nbCompo(arr->getNumberOfComponents());
     for(typename std::vector<typename MLFieldTraits<T>::F1TSWSDAType const *>::const_iterator it=f1tss.begin();it!=f1tss.end();it++)
@@ -226,7 +226,7 @@ namespace MEDCoupling
       }
     return ret.retn();
   }
-  
+
   ///////////////////////////////////////////////////////
 
   template<class T>
@@ -249,7 +249,7 @@ namespace MEDCoupling
   }
 
   /*!
-   * Returns a new instance of MEDFileField1TS holding data of the first time step of 
+   * Returns a new instance of MEDFileField1TS holding data of the first time step of
    * the first field that has been read from a specified MED file.
    *  \param [in] fileName - the name of the MED file to read.
    *  \return MEDFileField1TS * - a new instance of MEDFileFieldMultiTS. The caller
@@ -262,7 +262,7 @@ namespace MEDCoupling
     MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
     return New(fid,loadAll);
   }
-  
+
   template<class T>
   typename MLFieldTraits<T>::F1TSType *MEDFileTemplateField1TS<T>::New(med_idt fid, bool loadAll)
   {
@@ -272,7 +272,7 @@ namespace MEDCoupling
   }
 
   /*!
-   * Returns a new instance of MEDFileField1TS holding data of the first time step of 
+   * Returns a new instance of MEDFileField1TS holding data of the first time step of
    * a given field that has been read from a specified MED file.
    *  \param [in] fileName - the name of the MED file to read.
    *  \param [in] fieldName - the name of the field to read.
@@ -297,7 +297,7 @@ namespace MEDCoupling
   }
 
   /*!
-   * Returns a new instance of MEDFileField1TS holding data of a given time step of 
+   * Returns a new instance of MEDFileField1TS holding data of a given time step of
    * a given field that has been read from a specified MED file.
    *  \param [in] fileName - the name of the MED file to read.
    *  \param [in] fieldName - the name of the field to read.
@@ -315,7 +315,7 @@ namespace MEDCoupling
     MEDFileUtilities::AutoFid fid(OpenMEDFileForRead(fileName));
     return New(fid,fieldName,iteration,order,loadAll);
   }
-  
+
   template<class T>
   typename MLFieldTraits<T>::F1TSType *MEDFileTemplateField1TS<T>::New(med_idt fid, const std::string& fieldName, int iteration, int order, bool loadAll)
   {
@@ -343,7 +343,7 @@ namespace MEDCoupling
     ret->contentNotNull();
     return ret.retn();
   }
-  
+
   template<class T>
   const typename MLFieldTraits<T>::F1TSWSDAType *MEDFileTemplateField1TS<T>::contentNotNull() const
   {
@@ -358,7 +358,7 @@ namespace MEDCoupling
       }
     return ret;
   }
-  
+
   template<class T>
   typename MLFieldTraits<T>::F1TSWSDAType *MEDFileTemplateField1TS<T>::contentNotNull()
   {
@@ -373,7 +373,7 @@ namespace MEDCoupling
       }
     return ret;
   }
-  
+
   template<class T>
   typename Traits<T>::ArrayType *MEDFileTemplateField1TS<T>::ReturnSafelyTypedDataArray(MCAuto<DataArray>& arr)
   {
@@ -395,7 +395,7 @@ namespace MEDCoupling
    *  \param [out] pfl - a new instance of DataArrayInt holding ids of mesh entities the
    *          field of interest lies on. If the field lies on all entities of the given
    *          dimension, all ids in \a pfl are zero. The caller is to delete this array
-   *          using decrRef() as it is no more needed.  
+   *          using decrRef() as it is no more needed.
    *  \return DataArrayInt * - a new instance of DataArrayInt holding values of the
    *          field. The caller is to delete this array using decrRef() as it is no more needed.
    *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in \a mesh.
@@ -420,7 +420,7 @@ namespace MEDCoupling
   {
     return contentNotNull()->getUndergroundDataArrayTemplate();
   }
-  
+
   template<class T>
   typename Traits<T>::ArrayType *MEDFileTemplateField1TS<T>::getUndergroundDataArrayExt(std::vector< std::pair<std::pair<INTERP_KERNEL::NormalizedCellType,int>,std::pair<mcIdType,mcIdType> > >& entries) const
   {
@@ -469,7 +469,7 @@ namespace MEDCoupling
    *
    * \param [in] mesh - the mesh the field is lying on
    * \return typename Traits<T>::FieldType * - a new instance of typename Traits<T>::FieldType. The
-   *          caller is to delete this field using decrRef() as it is no more needed. 
+   *          caller is to delete this field using decrRef() as it is no more needed.
    */
   template<class T>
   typename Traits<T>::FieldType *MEDFileTemplateField1TS<T>::field(const MEDFileMesh *mesh) const
@@ -482,7 +482,7 @@ namespace MEDCoupling
 
   /*!
    * Returns a new typename Traits<T>::FieldType of a given type lying on
-   * mesh entities of a given dimension of the first mesh in MED file. If \a this field 
+   * mesh entities of a given dimension of the first mesh in MED file. If \a this field
    * has not been constructed via file reading, an exception is thrown.
    * For more info, see \ref AdvMEDLoaderAPIFieldRW
    *  \param [in] type - a spatial discretization of interest.
@@ -495,7 +495,7 @@ namespace MEDCoupling
    *          - 3 - permute cells and nodes.
    *
    *  \return typename Traits<T>::FieldType * - a new instance of typename Traits<T>::FieldType. The
-   *          caller is to delete this field using decrRef() as it is no more needed. 
+   *          caller is to delete this field using decrRef() as it is no more needed.
    *  \throw If \a this field has not been constructed via file reading.
    *  \throw If the MED file is not readable.
    *  \throw If there is no mesh in the MED file.
@@ -516,7 +516,7 @@ namespace MEDCoupling
 
   /*!
    * Returns a new typename Traits<T>::FieldType of a given type lying on
-   * the top level cells of the first mesh in MED file. If \a this field 
+   * the top level cells of the first mesh in MED file. If \a this field
    * has not been constructed via file reading, an exception is thrown.
    * For more info, see \ref AdvMEDLoaderAPIFieldRW
    *  \param [in] type - a spatial discretization of interest.
@@ -528,7 +528,7 @@ namespace MEDCoupling
    *          - 3 - permute cells and nodes.
    *
    *  \return typename Traits<T>::FieldType * - a new instance of typename Traits<T>::FieldType. The
-   *          caller is to delete this field using decrRef() as it is no more needed. 
+   *          caller is to delete this field using decrRef() as it is no more needed.
    *  \throw If \a this field has not been constructed via file reading.
    *  \throw If the MED file is not readable.
    *  \throw If there is no mesh in the MED file.
@@ -560,12 +560,12 @@ namespace MEDCoupling
    *          - 3 - permute cells and nodes.
    *
    *  \return typename Traits<T>::FieldType * - a new instance of typename Traits<T>::FieldType. The
-   *          caller is to delete this field using decrRef() as it is no more needed. 
+   *          caller is to delete this field using decrRef() as it is no more needed.
    *  \throw If no field of \a this is lying on \a mesh.
    *  \throw If the mesh is empty.
    *  \throw If no field values of the given \a type are available.
    *  \sa getFieldAtLevel()
-   *  \sa getFieldOnMeshAtLevel() 
+   *  \sa getFieldOnMeshAtLevel()
    */
   template<class T>
   typename Traits<T>::FieldType *MEDFileTemplateField1TS<T>::getFieldOnMeshAtLevel(TypeOfField type, const MEDCouplingMesh *mesh, int renumPol) const
@@ -590,12 +590,12 @@ namespace MEDCoupling
    *          - 3 - permute cells and nodes.
    *
    *  \return typename Traits<T>::FieldType * - a new instance of typename Traits<T>::FieldType. The
-   *          caller is to delete this field using decrRef() as it is no more needed. 
+   *          caller is to delete this field using decrRef() as it is no more needed.
    *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in the mesh.
    *  \throw If no field of \a this is lying on \a mesh.
    *  \throw If no field values of the given \a type or given \a meshDimRelToMax are available.
    *  \sa getFieldAtLevel()
-   *  \sa getFieldOnMeshAtLevel() 
+   *  \sa getFieldOnMeshAtLevel()
    */
   template<class T>
   typename Traits<T>::FieldType *MEDFileTemplateField1TS<T>::getFieldOnMeshAtLevel(TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh, int renumPol) const
@@ -609,7 +609,7 @@ namespace MEDCoupling
   /*!
    * Returns a new typename Traits<T>::FieldType of a given type lying on a given support.
    * This method is called "Old" because in MED3 norm a field has only one meshName
-   * attached, so this method is for readers of MED2 files. If \a this field 
+   * attached, so this method is for readers of MED2 files. If \a this field
    * has not been constructed via file reading, an exception is thrown.
    * For more info, see \ref AdvMEDLoaderAPIFieldRW
    *  \param [in] type - a spatial discretization of interest.
@@ -623,7 +623,7 @@ namespace MEDCoupling
    *          - 3 - permute cells and nodes.
    *
    *  \return typename Traits<T>::FieldType * - a new instance of typename Traits<T>::FieldType. The
-   *          caller is to delete this field using decrRef() as it is no more needed. 
+   *          caller is to delete this field using decrRef() as it is no more needed.
    *  \throw If the MED file is not readable.
    *  \throw If there is no mesh named \a mName in the MED file.
    *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in the mesh.
@@ -646,7 +646,7 @@ namespace MEDCoupling
   /*!
    * Adds a MEDCouplingFieldDouble to \a this. The underlying mesh of the given field is
    * checked if its elements are sorted suitable for writing to MED file ("STB" stands for
-   * "Sort By Type"), if not, an exception is thrown. 
+   * "Sort By Type"), if not, an exception is thrown.
    * For more info, see \ref AdvMEDLoaderAPIFieldRW
    *  \param [in] field - the field to add to \a this.
    *  \throw If the name of \a field is empty.
@@ -709,7 +709,7 @@ namespace MEDCoupling
     MCAuto<MEDCouplingFieldTemplate> ft(MEDCouplingFieldTemplate::NewWithoutCheck(*field));
     contentNotNull()->setFieldProfile(field->timeDiscrSafe(),ft,field->getArray(),mesh,meshDimRelToMax,profile,*this,*contentNotNull(),smartPflKiller);
   }
-  
+
   /*!
    * Return an extraction of \a this using \a extractDef map to specify the extraction.
    * The keys of \a extractDef is level relative to max ext of \a mm mesh.
@@ -805,7 +805,7 @@ namespace MEDCoupling
   {
     return new typename MLFieldTraits<T>::FMTSWSDAType(fid,fieldName,meshName,fieldTyp,infos,nbOfStep,dtunit,loadAll,ms,entities);
   }
-  
+
   template<class T>
   void MEDFileTemplateFieldMultiTSWithoutSDA<T>::checkCoherencyOfType(const MEDFileAnyTypeField1TSWithoutSDA *f1ts) const
   {
@@ -818,25 +818,25 @@ namespace MEDCoupling
         throw INTERP_KERNEL::Exception(oss.str());
       }
   }
-  
+
   template<class T>
   const char *MEDFileTemplateFieldMultiTSWithoutSDA<T>::getTypeStr() const
   {
     return MLFieldTraits<T>::F1TSWSDAType::TYPE_STR;
   }
-  
+
   template<class T>
   MEDFileAnyTypeFieldMultiTSWithoutSDA *MEDFileTemplateFieldMultiTSWithoutSDA<T>::createNew() const
   {
     return new typename MLFieldTraits<T>::FMTSWSDAType;
   }
-  
+
   template<class T>
   MEDFileAnyTypeField1TSWithoutSDA *MEDFileTemplateFieldMultiTSWithoutSDA<T>::createNew1TSWithoutSDAEmptyInstance() const
   {
     return new typename MLFieldTraits<T>::F1TSWSDAType;
   }
-  
+
   //////////////////////////
 
   template<class T>
@@ -859,9 +859,9 @@ namespace MEDCoupling
       }
     return ret.retn();
   }
-  
+
   //////////////////////////
-  
+
   template<class T>
   MEDFileTemplateFieldMultiTS<T>::MEDFileTemplateFieldMultiTS()
   {
@@ -872,12 +872,12 @@ namespace MEDCoupling
   MEDFileTemplateFieldMultiTS<T>::MEDFileTemplateFieldMultiTS(med_idt fid, bool loadAll, const MEDFileMeshes *ms):MEDFileAnyTypeFieldMultiTS(fid,loadAll,ms)
   {
   }
-  
+
   template<class T>
   MEDFileTemplateFieldMultiTS<T>::MEDFileTemplateFieldMultiTS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities):MEDFileAnyTypeFieldMultiTS(fid,fieldName,loadAll,ms,entities)
   {
   }
-  
+
   template<class T>
   MEDFileTemplateFieldMultiTS<T>::MEDFileTemplateFieldMultiTS(const typename MLFieldTraits<T>::FMTSWSDAType& other, bool shallowCopyOfContent):MEDFileAnyTypeFieldMultiTS(other,shallowCopyOfContent)
   {
@@ -1002,7 +1002,7 @@ namespace MEDCoupling
    * \param [in] order - the iteration order number of required time step.
    * \param [in] mesh - the mesh the field is lying on
    * \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
-   *          caller is to delete this field using decrRef() as it is no more needed. 
+   *          caller is to delete this field using decrRef() as it is no more needed.
    */
   template<class T>
   typename Traits<T>::FieldType *MEDFileTemplateFieldMultiTS<T>::field(int iteration, int order, const MEDFileMesh *mesh) const
@@ -1030,7 +1030,7 @@ namespace MEDCoupling
    *          - 3 - permute cells and nodes.
    *
    *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
-   *          caller is to delete this field using decrRef() as it is no more needed. 
+   *          caller is to delete this field using decrRef() as it is no more needed.
    *  \throw If the MED file is not readable.
    *  \throw If there is no mesh in the MED file.
    *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in the mesh.
@@ -1064,7 +1064,7 @@ namespace MEDCoupling
    *          - 3 - permute cells and nodes.
    *
    *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
-   *          caller is to delete this field using decrRef() as it is no more needed. 
+   *          caller is to delete this field using decrRef() as it is no more needed.
    *  \throw If the MED file is not readable.
    *  \throw If there is no mesh in the MED file.
    *  \throw If no field values of the required parameters are available.
@@ -1099,7 +1099,7 @@ namespace MEDCoupling
    *          - 3 - permute cells and nodes.
    *
    *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
-   *          caller is to delete this field using decrRef() as it is no more needed. 
+   *          caller is to delete this field using decrRef() as it is no more needed.
    *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in the mesh.
    *  \throw If no field of \a this is lying on \a mesh.
    *  \throw If no field values of the required parameters are available.
@@ -1119,7 +1119,7 @@ namespace MEDCoupling
 
   /*!
    * Returns a new MEDCouplingFieldDouble of given type, of a given time step, lying on a
-   * given support. 
+   * given support.
    * For more info, see \ref AdvMEDLoaderAPIFieldRW
    *  \param [in] type - a spatial discretization of the new field.
    *  \param [in] iteration - the iteration number of a required time step.
@@ -1133,7 +1133,7 @@ namespace MEDCoupling
    *          - 3 - permute cells and nodes.
    *
    *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The
-   *          caller is to delete this field using decrRef() as it is no more needed. 
+   *          caller is to delete this field using decrRef() as it is no more needed.
    *  \throw If no field of \a this is lying on \a mesh.
    *  \throw If no field values of the required parameters are available.
    */
@@ -1180,7 +1180,7 @@ namespace MEDCoupling
    *  \param [out] pfl - a new instance of DataArrayIdType holding ids of mesh entities the
    *          field of interest lies on. If the field lies on all entities of the given
    *          dimension, all ids in \a pfl are zero. The caller is to delete this array
-   *          using decrRef() as it is no more needed.  
+   *          using decrRef() as it is no more needed.
    *  \return DataArrayDouble * - a new instance of DataArrayDouble holding values of the
    *          field. The caller is to delete this array using decrRef() as it is no more needed.
    *  \throw If there are no mesh entities of \a meshDimRelToMax dimension in \a mesh.
@@ -1201,7 +1201,7 @@ namespace MEDCoupling
   /*!
    * Adds a MEDCouplingFieldDouble to \a this as another time step. The underlying mesh of
    * the given field is checked if its elements are sorted suitable for writing to MED file
-   * ("STB" stands for "Sort By Type"), if not, an exception is thrown. 
+   * ("STB" stands for "Sort By Type"), if not, an exception is thrown.
    * For more info, see \ref AdvMEDLoaderAPIFieldRW
    *  \param [in] field - the field to add to \a this.
    *  \throw If the name of \a field is empty.
@@ -1265,7 +1265,7 @@ namespace MEDCoupling
     MCAuto<MEDCouplingFieldDouble> field2(MEDFileTemplateField1TS<T>::ToFieldTemplateWithTime(field));
     contentNotNull()->appendFieldProfile(field2,arr,mesh,meshDimRelToMax,profile,*this,smartPflKiller);
   }
-  
+
   template<class T>
   const typename MLFieldTraits<T>::FMTSWSDAType *MEDFileTemplateFieldMultiTS<T>::contentNotNull() const
   {
@@ -1346,13 +1346,13 @@ namespace MEDCoupling
       }
     return ret2;
   }
-  
+
   template<class T>
   typename MLFieldTraits<T>::FMTSType *MEDFileTemplateFieldMultiTS<T>::buildNewEmptyImpl() const
   {
     return MLFieldTraits<T>::FMTSType::New();
   }
-  
+
   template<class T>
   void MEDFileTemplateFieldMultiTS<T>::checkCoherencyOfType(const MEDFileAnyTypeField1TS *f1ts) const
   {

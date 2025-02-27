@@ -70,7 +70,7 @@ MEDPARTITIONER::ParaDomainSelector::ParaDomainSelector(bool mesure_memory)
 #endif
   MyGlobals::_World_Size=_world_size;
   MyGlobals::_Rank=_rank;
-  
+
   if (MyGlobals::_Verbose>200) std::cout << "proc " << MyGlobals::_Rank << " of " << MyGlobals::_World_Size << std::endl;
   evaluateMemory();
 }
@@ -100,10 +100,10 @@ bool MEDPARTITIONER::ParaDomainSelector::isOnDifferentHosts() const
   MPI_Sendrecv((void*)&name_here[0],  MPI_MAX_PROCESSOR_NAME, MPI_CHAR, next_proc, tag,
                (void*)&name_there[0], MPI_MAX_PROCESSOR_NAME, MPI_CHAR, prev_proc, tag,
                MPI_COMM_WORLD, &status);
-               
+
   //bug: (isOnDifferentHosts here and there) is not (isOnDifferentHosts somewhere)
   //return string(name_here) != string(name_there);
-  
+
   int sum_same = -1;
   int same = 1;
   if (std::string(name_here) != std::string(name_there))
@@ -176,14 +176,14 @@ void MEDPARTITIONER::ParaDomainSelector::gatherNbOf(const std::vector<MEDCouplin
       total_nb_cells+=all_nb_elems[i*2];
       total_nb_nodes+=all_nb_elems[i*2+1];
     }
-  
+
   if (MyGlobals::_Is0verbose>10)
     std::cout << "totalNbCells " << total_nb_cells << " totalNbNodes " << total_nb_nodes << std::endl;
-  
+
   std::vector<mcIdType>& cell_shift_by_domain=_cell_shift_by_domain;
   std::vector<mcIdType>& node_shift_by_domain=_node_shift_by_domain;
   std::vector<mcIdType>& face_shift_by_domain=_face_shift_by_domain;
- 
+
   std::vector< mcIdType > ordered_nbs_cell, ordered_nbs_node, domain_order(nb_domains);
   ordered_nbs_cell.push_back(0);
   ordered_nbs_node.push_back(0);
@@ -205,7 +205,7 @@ void MEDPARTITIONER::ParaDomainSelector::gatherNbOf(const std::vector<MEDCouplin
     }
   cell_shift_by_domain.back() = ordered_nbs_cell.back(); // to know total nb of elements
   node_shift_by_domain.back() = ordered_nbs_node.back(); // to know total nb of elements
-  
+
   if (MyGlobals::_Is0verbose>300)
     {
       std::cout << "proc " << MyGlobals::_Rank << " : cellShiftByDomain ";
@@ -227,7 +227,7 @@ void MEDPARTITIONER::ParaDomainSelector::gatherNbOf(const std::vector<MEDCouplin
     }
   for (std::size_t i=1; i<_nb_vert_of_procs.size(); ++i)
     _nb_vert_of_procs[i] += _nb_vert_of_procs[i-1]; // to CSR format : cumulated
-  
+
   if (MyGlobals::_Is0verbose>200)
     {
       std::cout << "proc " << MyGlobals::_Rank << " : gatherNbOf : vtxdist is ";
@@ -235,7 +235,7 @@ void MEDPARTITIONER::ParaDomainSelector::gatherNbOf(const std::vector<MEDCouplin
         std::cout << _nb_vert_of_procs[i] << " ";
       std::cout << std::endl;
     }
-  
+
   evaluateMemory();
   return;
 }
@@ -336,7 +336,7 @@ std::unique_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gathe
         value_size_of_proc[i] = 0;
       proc_value_displacement.push_back( proc_value_displacement.back() + value_size_of_proc[i] );
     }
-  
+
   // update graph_index
   for ( int i = 1; i < nbProcs(); ++i )
     {
@@ -344,7 +344,7 @@ std::unique_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gathe
       for ( int j = proc_index_displacement[i]; j < proc_index_displacement[i+1]; ++j )
         graph_index[ j ] += shift;
     }
-  
+
   // --------------
   // Gather values
   // --------------
@@ -368,7 +368,7 @@ std::unique_ptr<MEDPARTITIONER::Graph> MEDPARTITIONER::ParaDomainSelector::gathe
 
   mcIdType * partition = new mcIdType[ _cell_shift_by_domain.back() ];
   const mcIdType* part = graph->getPart();
-  
+
   MPI_Allgatherv((void*) part,              // send local partition
                  index_size_of_proc[_rank], // index size on this proc
                  MPI_ID_TYPE,
@@ -495,7 +495,7 @@ int *MEDPARTITIONER::ParaDomainSelector::exchangeSubentityIds( int loc_domain, i
   MPI_Status status;
   MPI_Sendrecv((void*)&loc_ids_here[0], (int)loc_ids_here.size(), MPI_INT, dest, tag,
                (void*) loc_ids_dist,    (int)loc_ids_here.size(), MPI_INT, dest, tag,
-               MPI_COMM_WORLD, &status);  
+               MPI_COMM_WORLD, &status);
 #endif
   evaluateMemory();
 
@@ -606,7 +606,7 @@ void MEDPARTITIONER::ParaDomainSelector::recvMesh(MEDCoupling::MEDCouplingUMesh*
   std::vector<double> tinyInfoDistantD(1);
   //Getting tiny info of local mesh to allow the distant proc to initialize and allocate
   //the transmitted mesh.
-  MPI_Status status; 
+  MPI_Status status;
   int tinyVecSize;
   MPI_Recv(&tinyVecSize, 1, MPI_INT, source, 1113, MPI_COMM_WORLD, &status);
   tinyInfoDistant.resize(tinyVecSize);
@@ -625,7 +625,7 @@ void MEDPARTITIONER::ParaDomainSelector::recvMesh(MEDCoupling::MEDCouplingUMesh*
                                                                    (MEDCoupling::MEDCouplingMeshType) tinyInfoDistant[0]);
       std::vector<std::string> unusedTinyDistantSts;
       mesh=dynamic_cast<MEDCoupling::MEDCouplingUMesh*> (distant_mesh_tmp);
- 
+
       mesh->resizeForUnserialization(tinyInfoDistant,v1Distant,v2Distant,unusedTinyDistantSts);
       int nbDistElem=0;
       mcIdType *ptDist=0;

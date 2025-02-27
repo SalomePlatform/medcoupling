@@ -43,7 +43,7 @@ namespace INTERP_KERNEL
   class OTT//OffsetToolTrait
   {
   };
-  
+
   template<class ConnType>
   class OTT<ConnType,ALL_C_MODE>
   {
@@ -53,7 +53,7 @@ namespace INTERP_KERNEL
     static ConnType conn2C(ConnType i) { return i; }
     static ConnType coo2C(ConnType i) { return i; }
   };
-  
+
   template<class ConnType>
   class OTT<ConnType,ALL_FORTRAN_MODE>
   {
@@ -115,12 +115,12 @@ namespace INTERP_KERNEL
                                                const double* P_2,
                                                const double* P_3)
   {
-       
+
     std::vector<double> Vect;
     double P1_P2=norme_vecteur(P_1,P_2);
     double P2_P3=norme_vecteur(P_2,P_3);
     double P3_P1=norme_vecteur(P_3,P_1);
-       
+
     double N=P1_P2*P1_P2+P3_P1*P3_P1-P2_P3*P2_P3;
     double D=2.0*P1_P2*P3_P1;
     double COS=N/D;
@@ -133,9 +133,9 @@ namespace INTERP_KERNEL
     if (SIN>1.0) SIN=1.0;
     if (SIN<-1.0) SIN=-1.0;
     Vect.push_back(SIN);
-       
+
     return Vect;
-       
+
   }
 
   /*!
@@ -189,9 +189,9 @@ namespace INTERP_KERNEL
   }
 
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
-  /*     calcul les coordonnees du barycentre d'un polygone   */ 
+  /*     calcul les coordonnees du barycentre d'un polygone   */
   /*     le vecteur en entree est constitue des coordonnees   */
-  /*     des sommets du polygone                              */                             
+  /*     des sommets du polygone                              */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
 
   inline std::vector<double> bary_poly(const std::vector<double>& V)
@@ -214,7 +214,7 @@ namespace INTERP_KERNEL
 
     return Bary;
   }
-  
+
   /*!
    * Given 6 coeffs of a Tria6 returns the corresponding value of a given pos
    */
@@ -222,7 +222,7 @@ namespace INTERP_KERNEL
   {
     return coeffs[0]+coeffs[1]*pos[0]+coeffs[2]*pos[1]+coeffs[3]*pos[0]*pos[0]+coeffs[4]*pos[0]*pos[1]+coeffs[5]*pos[1]*pos[1];
   }
-  
+
   /*!
    * Given xsi,eta in refCoo (length==2) return 6 coeffs in weightedPos.
    */
@@ -334,7 +334,7 @@ namespace INTERP_KERNEL
     return true;
   }
 
-  
+
   /*!
    * \brief Solve system equation in matrix form using Gaussian elimination algorithm
    *  \param matrix - N x N+NB_OF_VARS matrix
@@ -391,7 +391,7 @@ namespace INTERP_KERNEL
   }
 
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
-  /*     Calculate barycentric coordinates of a 2D point p */ 
+  /*     Calculate barycentric coordinates of a 2D point p */
   /*     with respect to the triangle verices.             */
   /*     triaCoords are in full interlace                  */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
@@ -425,7 +425,7 @@ namespace INTERP_KERNEL
     bc[0]=fabs((*p-n[1][0])/delta);
     bc[1]=fabs((*p-n[0][0])/delta);
   }
-  
+
   inline void barycentric_coords_tri3(const std::vector<const double*>& n, const double *p, double *bc)
   {
     enum { _XX=0, _YY, _ZZ };
@@ -457,12 +457,12 @@ namespace INTERP_KERNEL
     // bc1*( x1 - x4 ) + bc2*( x2 - x4 ) + bc3*( x3 - x4 ) = px - x4
     // bc1*( y1 - y4 ) + bc2*( y2 - y4 ) + bc3*( y3 - y4 ) = px - y4
     // bc1*( z1 - z4 ) + bc2*( z2 - z4 ) + bc3*( z3 - z4 ) = px - z4
-          
+
     double T[3][4]=
       {{ n[0][_XX]-n[3][_XX], n[1][_XX]-n[3][_XX], n[2][_XX]-n[3][_XX], p[_XX]-n[3][_XX] },
        { n[0][_YY]-n[3][_YY], n[1][_YY]-n[3][_YY], n[2][_YY]-n[3][_YY], p[_YY]-n[3][_YY] },
        { n[0][_ZZ]-n[3][_ZZ], n[1][_ZZ]-n[3][_ZZ], n[2][_ZZ]-n[3][_ZZ], p[_ZZ]-n[3][_ZZ] }};
-          
+
     if ( !solveSystemOfEquations<3>( T, bc ) )
       bc[0]=1., bc[1] = bc[2] = bc[3] = 0;
     else
@@ -472,7 +472,7 @@ namespace INTERP_KERNEL
   inline void barycentric_coords_tri6(const std::vector<const double*>& n, const double *p, double *bc)
   {
     double matrix2[48]={1., 0., 0., 0., 0., 0., 0., 0.,
-                        1., 0., 0., 0., 0., 0., 1., 0., 
+                        1., 0., 0., 0., 0., 0., 1., 0.,
                         1., 0., 0., 0., 0., 0., 0., 1.,
                         1., 0., 0., 0., 0., 0., 0.5, 0.,
                         1., 0., 0., 0., 0., 0., 0.5, 0.5,
@@ -525,7 +525,7 @@ namespace INTERP_KERNEL
     refCoo[2]=computeTetra10RefBase(res+20,p);
     computeWeightedCoeffsInTetra10FromRefBase(refCoo,bc);
   }
-  
+
   /*!
    * Calculate barycentric coordinates of a point p with respect to triangle or tetra vertices.
    * This method makes 2 assumptions :
@@ -761,12 +761,12 @@ namespace INTERP_KERNEL
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
 
   inline double  Surf_Poly(const std::vector<double>& Poly)
-  { 
+  {
 
     double Surface=0;
     for(unsigned long i=0; i<(Poly.size())/2-2; i++)
       {
-        double Surf=Surf_Tri( &Poly[0],&Poly[2*(i+1)],&Poly[2*(i+2)] ); 
+        double Surf=Surf_Tri( &Poly[0],&Poly[2*(i+1)],&Poly[2*(i+2)] );
         Surface=Surface + Surf ;
       }
     return Surface ;
@@ -775,7 +775,7 @@ namespace INTERP_KERNEL
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
   /*   fonction qui teste si un point est dans une maille     */
   /*   point: P_0                                             */
-  /*   P_1, P_2, P_3 sommet des mailles                       */   
+  /*   P_1, P_2, P_3 sommet des mailles                       */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
 
   inline bool point_dans_triangle(const double* P_0,const double* P_1,
@@ -796,7 +796,7 @@ namespace INTERP_KERNEL
   }
 
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
-  /*fonction pour verifier qu'un point n'a pas deja ete considerer dans   */ 
+  /*fonction pour verifier qu'un point n'a pas deja ete considerer dans   */
   /*      le vecteur et le rajouter au vecteur sinon.                     */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
 
@@ -804,27 +804,27 @@ namespace INTERP_KERNEL
   {
     std::size_t taille=V.size();
     bool isPresent=false;
-    for(std::size_t i=0;i<taille/2;i++) 
+    for(std::size_t i=0;i<taille/2;i++)
       {
         if (sqrt(((P[0]-V[2*i])*(P[0]-V[2*i])+(P[1]-V[2*i+1])*(P[1]-V[2*i+1])))<absolute_precision)
           isPresent=true;
-      
+
       }
     if(!isPresent)
       {
-      
+
         V.push_back(P[0]);
-        V.push_back(P[1]);    
+        V.push_back(P[1]);
       }
   }
 
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
-  /* fonction qui rajoute les sommet du triangle P dans le vecteur V        */ 
+  /* fonction qui rajoute les sommet du triangle P dans le vecteur V        */
   /* si ceux-ci sont compris dans le triangle S et ne sont pas deja dans    */
   /* V.                                                                     */
   /*sommets de P: P_1, P_2, P_3                                             */
-  /*sommets de S: P_4, P_5, P_6                                             */  
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */ 
+  /*sommets de S: P_4, P_5, P_6                                             */
+  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
 
   inline void rajou_sommet_triangl(const double* P_1,const double* P_2,const double* P_3,
                                    const double* P_4,const double* P_5,const double* P_6,
@@ -848,11 +848,11 @@ namespace INTERP_KERNEL
   /*  calcul de l'intersection de deux segments: segments P1P2 avec P3P4      */
   /*  . Si l'intersection est non nulle et si celle-ci n'est                  */
   /*  n'est pas deja contenue dans Vect on la rajoute a Vect                  */
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _*/ 
+  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _  _ _ _ _ _ _ _ _*/
 
   inline void inters_de_segment(const double * P_1,const double * P_2,
                                 const double * P_3,const double * P_4,
-                                std::vector<double>& Vect, 
+                                std::vector<double>& Vect,
                                 double dim_caracteristic, double precision)
   {
     // calcul du determinant de P_1P_2 et P_3P_4.
@@ -882,14 +882,14 @@ namespace INTERP_KERNEL
 
 
 
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/  
+  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   /*      calcul l'intersection de deux triangles            */
   /* P_1, P_2, P_3: sommets du premier triangle              */
   /* P_4, P_5, P_6: sommets du deuxi�me triangle             */
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/ 
+  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
 
   inline void intersec_de_triangle(const double* P_1,const double* P_2, const double* P_3,
-                                   const double* P_4,const double* P_5,const double* P_6, 
+                                   const double* P_4,const double* P_5,const double* P_6,
                                    std::vector<double>& Vect, double dim_caracteristic, double precision)
   {
     inters_de_segment(P_1,P_2,P_4,P_5,Vect, dim_caracteristic, precision);
@@ -920,7 +920,7 @@ namespace INTERP_KERNEL
           {
             A=1;
             break;
-          } 
+          }
       }
     if(A==0)
       {V.push_back(Num); }
@@ -935,22 +935,22 @@ namespace INTERP_KERNEL
     {
       double norm1 = sqrt(theta1.first*theta1.first +theta1.second*theta1.second);
       double norm2 = sqrt(theta2.first*theta2.first +theta2.second*theta2.second);
-      
+
       double epsilon = 1.e-12;
-      
-      if( norm1 < epsilon || norm2 < epsilon  ) 
+
+      if( norm1 < epsilon || norm2 < epsilon  )
         std::cout << "Warning InterpolationUtils.hxx: AngleLess : Vector with zero norm, cannot define the angle !!!! " << std::endl;
-      
+
       return theta1.second*(norm2 + theta2.first) < theta2.second*(norm1 + theta1.first);
-    
+
     }
   };
 
 
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */  
+  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
   /* fonction pour reconstituer un polygone convexe a partir  */
   /*              d'un nuage de point.                        */
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */  
+  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
 
   inline std::vector<double> reconstruct_polygon(const std::vector<double>& V)
   {
@@ -980,13 +980,13 @@ namespace INTERP_KERNEL
             //             else
             //               {angle[i+1]=-atan2(SIN[i+1],COS[i+1]);}
           }
-                     
+
         //ensuite on ordonne les angles.
         std::vector<double> Pt_ordonne;
         Pt_ordonne.reserve(taille);
         //        std::multimap<double,int> Ordre;
         std::multimap<std::pair<double,double>,int, AngleLess> CosSin;
-        for(int i=0;i<taille/2;i++)       
+        for(int i=0;i<taille/2;i++)
           {
             //  Ordre.insert(std::make_pair(angle[i],i));
             CosSin.insert(std::make_pair(std::make_pair(SIN[i],COS[i]),i));
@@ -1021,7 +1021,7 @@ namespace INTERP_KERNEL
     bb[3]=-std::numeric_limits<double>::max();
     bb[4]=std::numeric_limits<double>::max();
     bb[5]=-std::numeric_limits<double>::max();
-    
+
     for (int i=0; i<nb_nodes; i++)
       {
         double x = coordsOfMesh[3*(iP+i)];
@@ -1033,7 +1033,7 @@ namespace INTERP_KERNEL
         bb[3]=(y>bb[3])?y:bb[3];
         bb[4]=(z<bb[4])?z:bb[4];
         bb[5]=(z>bb[5])?z:bb[5];
-      }              
+      }
   }
 
   /*!
@@ -1053,11 +1053,11 @@ namespace INTERP_KERNEL
     std::size_t posMid(std::distance(sw.begin(),std::find(sw.begin(),sw.end(),false)));
     outVect[posMin]=0.; outVect[posMid]=1.; outVect[posMax]=-inpVect[posMid]/inpVect[posMax];
   }
-  
+
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   /* Computes the dot product of a and b */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
-  template<int dim> 
+  template<int dim>
   inline double dotprod( const double * a, const double * b)
   {
     double result=0;
@@ -1066,27 +1066,27 @@ namespace INTERP_KERNEL
   }
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   /* Computes the norm of vector v */
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/  
-  template<int dim> 
+  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
+  template<int dim>
   inline double norm(const double * v)
-  {   
+  {
     double result =0;
     for(int idim =0; idim<dim; idim++) result+=v[idim]*v[idim];
     return sqrt(result);
   }
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   /* Computes the square norm of vector a-b */
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/  
-  template<int dim> 
+  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
+  template<int dim>
   inline double distance2( const double * a, const double * b)
-  {   
+  {
     double result =0;
     for(int idim =0; idim<dim; idim++) result+=(a[idim]-b[idim])*(a[idim]-b[idim]);
     return result;
   }
-  template<class T, int dim> 
+  template<class T, int dim>
   inline double distance2(  T * a, std::size_t inda, T * b, std::size_t indb)
-  {   
+  {
     double result =0;
     for(int idim =0; idim<dim; idim++) result += ((*a)[inda+idim] - (*b)[indb+idim])* ((*a)[inda+idim] - (*b)[indb+idim]);
     return result;
@@ -1102,16 +1102,16 @@ namespace INTERP_KERNEL
   {
     return a[0]*determinant(b+1,c+1)-b[0]*determinant(a+1,c+1)+c[0]*determinant(a+1,b+1);
   }
-  
+
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   /* Computes the cross product of AB and AC */
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/  
+  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
 
   template<int dim> inline void crossprod( const double * A, const double * B, const double * C, double * V);
-  
+
   template<> inline
   void crossprod<2>( const double * A, const double * B, const double * C, double * V)
-  {   
+  {
     double AB[2];
     double AC[2];
     for(int idim =0; idim<2; idim++) AB[idim] = B[idim]-A[idim];//B-A
@@ -1122,7 +1122,7 @@ namespace INTERP_KERNEL
   }
   template<> inline
   void crossprod<3>( const double * A, const double * B, const double * C, double * V)
-  {   
+  {
     double AB[3];
     double AC[3];
     for(int idim =0; idim<3; idim++) AB[idim] = B[idim]-A[idim];//B-A
@@ -1130,14 +1130,14 @@ namespace INTERP_KERNEL
 
     V[0]=AB[1]*AC[2]-AB[2]*AC[1];
     V[1]=-AB[0]*AC[2]+AB[2]*AC[0];
-    V[2]=AB[0]*AC[1]-AB[1]*AC[0];    
+    V[2]=AB[0]*AC[1]-AB[1]*AC[0];
   }
   template<> inline
   void crossprod<1>( const double * /*A*/, const double * /*B*/, const double * /*C*/, double * /*V*/)
   {
     // just to be able to compile
   }
-  
+
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
   /* Checks whether point A is inside the quadrangle BCDE */
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
@@ -1148,14 +1148,14 @@ namespace INTERP_KERNEL
     crossprod<dim>(A,B,C,ABC);
     crossprod<dim>(A,D,E,ADE);
     return dotprod<dim>(ABC,ADE);
-  }   
+  }
 
-  
+
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   /* Computes the geometric angle (in [0,Pi]) between two non zero vectors AB and AC */
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/  
+  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   template<int dim> inline double angle(const double * A, const double * B, const double * C, double * n)
-  {   
+  {
     double AB[dim];
     double AC[dim];
     double orthAB[dim];
@@ -1172,13 +1172,13 @@ namespace INTERP_KERNEL
 
     double denom= normAC+AB_dot_AC;
     double numer=norm<dim>(orthAB);
-    
+
     return 2*atan2(numer,denom);
-  }    
-  
+  }
+
   /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   /* Tells whether the frame constituted of vectors AB, AC and n is direct */
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/  
+  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   template<int dim> inline double direct_frame(const double * A, const double * B, const double * C, double * n);
   template<> inline
   double direct_frame<2>(const double * A, const double * B, const double * C, double * n)
@@ -1187,7 +1187,7 @@ namespace INTERP_KERNEL
     double AC[2];
     for(int idim =0; idim<2; idim++) AB[idim] = B[idim]-A[idim];//B-A;
     for(int idim =0; idim<2; idim++) AC[idim] = C[idim]-A[idim];//C-A;
-    
+
     return  determinant(AB,AC)*n[0];
   }
   template<> inline
@@ -1197,16 +1197,16 @@ namespace INTERP_KERNEL
     double AC[3];
     for(int idim =0; idim<3; idim++) AB[idim] = B[idim]-A[idim];//B-A;
     for(int idim =0; idim<3; idim++) AC[idim] = C[idim]-A[idim];//C-A;
-    
+
     return determinant(AB,AC,n)>0;
   }
 
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/  
+  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
   /*      calcul l'intersection de deux polygones COPLANAIRES */
   /* en dimension DIM (2 ou 3). Si DIM=3 l'algorithme ne considere*/
   /* que les deux premieres coordonnees de chaque point */
-  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/ 
-  template<int DIM> inline void intersec_de_polygone(const double * Coords_A, const double * Coords_B, 
+  /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
+  template<int DIM> inline void intersec_de_polygone(const double * Coords_A, const double * Coords_B,
                                                      int nb_NodesA, int nb_NodesB,
                                                      std::vector<double>& inter,
                                                      double dim_caracteristic, double precision)
@@ -1225,14 +1225,14 @@ namespace INTERP_KERNEL
   }
 
   /*_ _ _ _ _ _ _ _ _
-   *_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-   *  fonctions qui calcule l'aire d'un polygone en dimension 2 ou 3    
+   *_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+   *  fonctions qui calcule l'aire d'un polygone en dimension 2 ou 3
    *_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ */
   template<int DIM> inline double polygon_area(std::vector<double>& inter)
   {
     double result=0.;
     double area[DIM];
-                  
+
     for(int i = 1; i<(int)inter.size()/DIM-1; i++)
       {
         INTERP_KERNEL::crossprod<DIM>(&inter[0],&inter[DIM*i],&inter[DIM*(i+1)],area);
@@ -1240,12 +1240,12 @@ namespace INTERP_KERNEL
       }
     return result;
   }
-         
+
   template<int DIM> inline double polygon_area(std::deque<double>& inter)
   {
     double result=0.;
     double area[DIM];
-                  
+
     for(int i = 1; i<(int)inter.size()/DIM-1; i++)
       {
         INTERP_KERNEL::crossprod<DIM>(&inter[0],&inter[DIM*i],&inter[DIM*(i+1)],area);
@@ -1292,7 +1292,7 @@ namespace INTERP_KERNEL
     }
     return normFact;
   }
-  
+
   /*!
    * Computes the triple product (XA^XB).XC/(norm(XA^XB)) (in 3D)
    * Returned value is equal to the distance (positive or negative depending of the position of C relative to XAB plane) between XAB plane and C point.
@@ -1302,18 +1302,18 @@ namespace INTERP_KERNEL
     double XA[3]={ A[0]-X[0], A[1]-X[1], A[2]-X[2] };
     double XB[3]={ B[0]-X[0], B[1]-X[1], B[2]-X[2] };
     double XC[3]={ C[0]-X[0], C[1]-X[1], C[2]-X[2] };
-    
+
     double XA_cross_XB[3] = {XA[1]*XB[2]-XA[2]*XB[1], XA[2]*XB[0]-XA[0]*XB[2], XA[0]*XB[1]-XA[1]*XB[0]};
     // norm is equal to double the area of the triangle
     double norm = std::sqrt(XA_cross_XB[0]*XA_cross_XB[0]+XA_cross_XB[1]*XA_cross_XB[1]+XA_cross_XB[2]*XA_cross_XB[2]);
 
     return ( XA_cross_XB[0]*XC[0]+ XA_cross_XB[1]*XC[1] + XA_cross_XB[2]*XC[2] ) / norm;
   }
-  
+
   /*! Subroutine of checkEqualPolygins that tests if two list of nodes (not necessarily distincts) describe the same polygon, assuming they share a common point.*/
   /*! Indexes istart1 and istart2 designate two points P1 in L1 and P2 in L2 that have identical coordinates. Generally called with istart1=0.*/
   /*! Integer sign ( 1 or -1) indicate the direction used in going all over L2. */
-  template<class T, int dim> 
+  template<class T, int dim>
   bool checkEqualPolygonsOneDirection(T * L1, T * L2, std::size_t size1, std::size_t size2, std::size_t istart1, std::size_t istart2, double epsilon, int sign)
   {
     std::size_t i1 = istart1;
@@ -1323,8 +1323,8 @@ namespace INTERP_KERNEL
 
     while(true)
       {
-        while( i1next!=istart1 && distance2<T,dim>(L1,i1*dim, L1,i1next*dim) < epsilon ) i1next = (  i1next + 1 ) % size1;  
-        while( i2next!=istart2 && distance2<T,dim>(L2,i2*dim, L2,i2next*dim) < epsilon ) i2next = (  i2next + sign +size2 ) % size2;  
+        while( i1next!=istart1 && distance2<T,dim>(L1,i1*dim, L1,i1next*dim) < epsilon ) i1next = (  i1next + 1 ) % size1;
+        while( i2next!=istart2 && distance2<T,dim>(L2,i2*dim, L2,i2next*dim) < epsilon ) i2next = (  i2next + sign +size2 ) % size2;
 
         if(i1next == istart1)
           {
@@ -1335,7 +1335,7 @@ namespace INTERP_KERNEL
         else
           if(i2next == istart2)
             return false;
-          else 
+          else
             {
               if(distance2<T,dim>(L1,i1next*dim, L2,i2next*dim) > epsilon )
                 return false;
@@ -1352,10 +1352,10 @@ namespace INTERP_KERNEL
 
   /*! Tests if two list of nodes (not necessarily distincts) describe the same polygon.*/
   /*! Existence of multiple points in the list is considered.*/
-  template<class T, int dim> 
+  template<class T, int dim>
   bool checkEqualPolygons(T * L1, T * L2, double epsilon)
   {
-    if(L1==NULL || L2==NULL) 
+    if(L1==NULL || L2==NULL)
       {
         std::cout << "Warning InterpolationUtils.hxx:checkEqualPolygonsPointer: Null pointer " << std::endl;
         throw(Exception("big error: not closed polygon..."));
@@ -1369,10 +1369,10 @@ namespace INTERP_KERNEL
     while( istart2 < size2  && distance2<T,dim>(L1,istart1*dim, L2,istart2*dim) > epsilon ) istart2++;
 
     if(istart2 == size2)
-      {  
+      {
         return (size1 == 0) && (size2 == 0);
       }
-    else 
+    else
       return   checkEqualPolygonsOneDirection<T,dim>( L1, L2, size1, size2, istart1, istart2, epsilon,  1)
         || checkEqualPolygonsOneDirection<T,dim>( L1, L2, size1, size2, istart1, istart2, epsilon, -1);
 

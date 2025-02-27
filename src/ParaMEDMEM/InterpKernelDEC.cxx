@@ -35,11 +35,11 @@ namespace MEDCoupling
   InterpKernelDEC::InterpKernelDEC():
     DisjointDEC(),
     _interpolation_matrix(0)
-  {  
+  {
   }
 
   /*!
-    This constructor creates an InterpKernelDEC which has \a source_group as a working side 
+    This constructor creates an InterpKernelDEC which has \a source_group as a working side
     and  \a target_group as an idle side. All the processors will actually participate, but intersection computations will be performed on the working side during the \a synchronize() phase.
     The constructor must be called synchronously on all processors of both processor groups.
     The source group and target group MUST form a partition of all the procs within the communicator passed as 'world_comm'
@@ -79,7 +79,7 @@ namespace MEDCoupling
     _interpolation_matrix(0)
   {
   }
-  
+
   /*!
    * Split the interaction group based on the predefined token string "<->"
    *  The string at left of the token will be the source group and the string at right the target group
@@ -97,7 +97,7 @@ namespace MEDCoupling
   }
 
   /*!
-   * Creates an InterpKernelDEC from an string defining an interaction. 
+   * Creates an InterpKernelDEC from an string defining an interaction.
    *  The source and target group are obtained by spliting the string based in the "<->" token.
    *  The constructor accepting a ProcessorGroup and two strings is reused.
    */
@@ -120,7 +120,7 @@ namespace MEDCoupling
   }
 
 
-  /*! 
+  /*!
     \brief Synchronization process for exchanging topologies.
 
     This method prepares all the structures necessary for sending data from a processor group to the other. It uses the mesh
@@ -138,16 +138,16 @@ namespace MEDCoupling
     if(!isInUnion())
       return ;
     delete _interpolation_matrix;
-    _interpolation_matrix = new InterpolationMatrix (_local_field, *_source_group,*_target_group,*this,*this); 
+    _interpolation_matrix = new InterpolationMatrix (_local_field, *_source_group,*_target_group,*this,*this);
 
-    //setting up the communication DEC on both sides  
+    //setting up the communication DEC on both sides
     if (_source_group->containsMyRank())
       {
         //locate the distant meshes
         ElementLocator locator(*_local_field, *_target_group, *_source_group);
-        //transferring option from InterpKernelDEC to ElementLocator   
+        //transferring option from InterpKernelDEC to ElementLocator
         locator.copyOptions(*this);
-        MEDCouplingPointSet* distant_mesh=0; 
+        MEDCouplingPointSet* distant_mesh=0;
         mcIdType* distant_ids=0;
         std::string distantMeth;
         for (int i=0; i<_target_group->size(); i++)
@@ -270,25 +270,25 @@ namespace MEDCoupling
   {
     if (_source_group->containsMyRank())
       {
-    
+
         _interpolation_matrix->multiply(*_local_field->getField());
         if (getForcedRenormalization())
           renormalizeTargetField(getMeasureAbsStatus());
-    
+
       }
     else if (_target_group->containsMyRank())
       _interpolation_matrix->transposeMultiply(*_local_field->getField());
   }
 
   /*!
-    Sends the data available at time \a time in asynchronous mode. 
+    Sends the data available at time \a time in asynchronous mode.
     \param time time at which the value is available
-    \param deltatime time interval between the value presently sent and the next one. 
+    \param deltatime time interval between the value presently sent and the next one.
   */
   void InterpKernelDEC::sendData( double time , double deltatime )
   {
     _interpolation_matrix->getAccessDEC()->setTime(time,deltatime);
     sendData() ;
   }
-  
+
 }

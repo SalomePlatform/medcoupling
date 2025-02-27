@@ -30,8 +30,8 @@ namespace INTERP_KERNEL
 {
 
   /**
-   * Constructor creating object from target cell global number 
-   * 
+   * Constructor creating object from target cell global number
+   *
    * @param targetMesh  mesh containing the target elements
    * @param srcMesh     mesh containing the source elements
    * @param policy      splitting policy to be used
@@ -68,7 +68,7 @@ namespace INTERP_KERNEL
   /**
    * Calculates the volume of intersection of an element in the source mesh and the target element
    * represented by the object.
-   * 
+   *
    * @param targetCell in C mode.
    * @param srcCells in C mode.
    */

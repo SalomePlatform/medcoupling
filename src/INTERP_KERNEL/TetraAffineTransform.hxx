@@ -52,7 +52,7 @@ namespace INTERP_KERNEL
     void calculateDeterminant();
 
     void factorizeLU(double* lu, int* idx) const;
-      
+
     void forwardSubstitution(double* x, const double* lu, const double* b, const int* idx) const;
 
     void backwardSubstitution(double* x, const double* lu, const double* b, const int* idx) const;

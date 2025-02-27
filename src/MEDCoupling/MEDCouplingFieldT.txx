@@ -30,7 +30,7 @@ namespace MEDCoupling
   MEDCouplingFieldT<T>::MEDCouplingFieldT(const MEDCouplingFieldT<T>& other, bool deepCopy):MEDCouplingField(other,deepCopy),_time_discr(other._time_discr->performCopyOrIncrRef(deepCopy))
   {
   }
-  
+
   /*!
    * Checks if \a this field is correctly defined, else an exception is thrown.
    *  \throw If the mesh is not set.
@@ -52,7 +52,7 @@ namespace MEDCoupling
   MEDCouplingFieldT<T>::MEDCouplingFieldT(const MEDCouplingField& other, MEDCouplingTimeDiscretizationTemplate<T> *timeDiscr, bool deepCopy):MEDCouplingField(other,deepCopy),_time_discr(timeDiscr)
   {
   }
-  
+
   template<class T>
   MEDCouplingFieldT<T>::MEDCouplingFieldT(TypeOfField type, MEDCouplingTimeDiscretizationTemplate<T> *timeDiscr):MEDCouplingField(type),_time_discr(timeDiscr)
   {
@@ -93,7 +93,7 @@ namespace MEDCoupling
    * - \ref MEDCouplingTemporalDisc "temporal discretization" data that holds array(s)
    * of field values,
    * - \ref MEDCouplingSpatialDisc "a spatial discretization".
-   * 
+   *
    * This method behaves exactly like clone() except that here the underlying **mesh is
    * always deeply duplicated**, whatever the value \a recDeepCpy parameter.
    * The result of \c cloneWithMesh(true) is exactly the same as that of deepCopy().
@@ -124,7 +124,7 @@ namespace MEDCoupling
     std::string tmp;
     return isEqualIfNotWhy(other,meshPrec,valsPrec,tmp);
   }
-  
+
   template<class T>
   bool MEDCouplingFieldT<T>::isEqualIfNotWhy(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec, std::string& reason) const
   {
@@ -139,7 +139,7 @@ namespace MEDCoupling
       }
     return true;
   }
-  
+
   /*!
    * Checks equality of \a this and \a other field. Only numeric data is considered,
    * i.e. names, description etc are not compared.
@@ -161,7 +161,7 @@ namespace MEDCoupling
       return false;
     return true;
   }
-  
+
   /*!
    * Copies tiny info (component names, name and description) from an \a other field to
    * \a this one.
@@ -195,17 +195,17 @@ namespace MEDCoupling
         _time_discr->copyTinyAttrFrom(*other->_time_discr);
       }
   }
-  
+
   template<class T>
   void MEDCouplingFieldT<T>::copyAllTinyAttrFrom(const MEDCouplingFieldT<T> *other)
   {
     copyTinyStringsFrom(other);
     copyTinyAttrFrom(other);
   }
-  
+
   /*!
    * Permutes values of \a this field according to a given permutation array for cells
-   * renumbering. The underlying mesh is deeply copied and its cells are also permuted. 
+   * renumbering. The underlying mesh is deeply copied and its cells are also permuted.
    * The number of cells remains the same; for that the permutation array \a old2NewBg
    * should not contain equal ids.
    * ** Warning, this method modifies the mesh aggreagated by \a this (by performing a deep copy ) **.
@@ -214,14 +214,14 @@ namespace MEDCoupling
    *         to be equal to \a this->getMesh()->getNumberOfCells().
    *  \param [in] check - if \c true, \a old2NewBg is transformed to a new permutation
    *         array, so that its maximal cell id to correspond to (be less than) the number
-   *         of cells in mesh. This new array is then used for the renumbering. If \a 
-   *         check == \c false, \a old2NewBg is used as is, that is less secure as validity 
+   *         of cells in mesh. This new array is then used for the renumbering. If \a
+   *         check == \c false, \a old2NewBg is used as is, that is less secure as validity
    *         of ids in \a old2NewBg is not checked.
    *  \throw If the mesh is not set.
    *  \throw If the spatial discretization of \a this field is NULL.
    *  \throw If \a check == \c true and \a old2NewBg contains equal ids.
    *  \throw If mesh nature does not allow renumbering (e.g. structured mesh).
-   * 
+   *
    *  \if ENABLE_EXAMPLES
    *  \ref cpp_mcfielddouble_renumberCells "Here is a C++ example".<br>
    *  \ref  py_mcfielddouble_renumberCells "Here is a Python example".
@@ -239,19 +239,19 @@ namespace MEDCoupling
 
   /*!
    * Permutes values of \a this field according to a given permutation array for cells
-   * renumbering. The underlying mesh is \b not permuted. 
+   * renumbering. The underlying mesh is \b not permuted.
    * The number of cells remains the same; for that the permutation array \a old2NewBg
    * should not contain equal ids.
    * This method performs a part of job of renumberCells(). The reasonable use of this
    * method is only for multi-field instances lying on the same mesh to avoid a
-   * systematic duplication and renumbering of _mesh attribute. 
+   * systematic duplication and renumbering of _mesh attribute.
    * \warning Use this method with a lot of care!
    *  \param [in] old2NewBg - the permutation array in "Old to New" mode. Its length is
    *         to be equal to \a this->getMesh()->getNumberOfCells().
    *  \param [in] check - if \c true, \a old2NewBg is transformed to a new permutation
    *         array, so that its maximal cell id to correspond to (be less than) the number
-   *         of cells in mesh. This new array is then used for the renumbering. If \a 
-   *         check == \c false, \a old2NewBg is used as is, that is less secure as validity 
+   *         of cells in mesh. This new array is then used for the renumbering. If \a
+   *         check == \c false, \a old2NewBg is used as is, that is less secure as validity
    *         of ids in \a old2NewBg is not checked.
    *  \throw If the mesh is not set.
    *  \throw If the spatial discretization of \a this field is NULL.
@@ -274,7 +274,7 @@ namespace MEDCoupling
     //
     updateTime();
   }
-  
+
   /*!
    * This method is more strict than MEDCouplingField::areCompatibleForMerge method.
    * This method is used for operation on fields to operate a first check before attempting operation.
@@ -292,7 +292,7 @@ namespace MEDCoupling
       return false;
     return true;
   }
-  
+
   template<class T>
   bool MEDCouplingFieldT<T>::areStrictlyCompatibleForMulDiv(const MEDCouplingField *other) const
   {
@@ -322,7 +322,7 @@ namespace MEDCoupling
       return false;
     return true;
   }
-  
+
   template<class T>
   bool MEDCouplingFieldT<T>::areCompatibleForMul(const MEDCouplingField *other) const
   {
@@ -386,7 +386,7 @@ namespace MEDCoupling
       ret << "Mesh support information : No mesh set !\n";
     return ret.str();
   }
-  
+
   template<class T>
   void MEDCouplingFieldT<T>::reprQuickOverview(std::ostream& stream) const
   {
@@ -445,9 +445,9 @@ namespace MEDCoupling
    * \n This method makes the assumption that \a this field is correctly defined when this method is called (\a this->checkConsistencyLight() returns without any exception thrown), **no check of this will be done**.
    * \n This method returns a restriction of \a this so that only tuple ids specified in [ \a partBg , \a partEnd ) will be contained in the returned field.
    * \n Parameter [\a partBg, \a partEnd ) specifies **cell ids whatever the spatial discretization** of \a this (
-   * \ref MEDCoupling::ON_CELLS "ON_CELLS", 
+   * \ref MEDCoupling::ON_CELLS "ON_CELLS",
    * \ref MEDCoupling::ON_NODES "ON_NODES",
-   * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT", 
+   * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT",
    * \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE",
    * \ref MEDCoupling::ON_NODES_KR "ON_NODES_KR",
    * \ref MEDCoupling::ON_NODES_FE "ON_NODES_FE").
@@ -460,12 +460,12 @@ namespace MEDCoupling
    *
    * Let, for example, \a this be a field on nodes lying on a mesh that have 10 cells and 11 nodes, and \a partBg contains following cellIds [3,7,6].
    * Thus \a this currently contains 11 tuples. If the restriction of mesh to 3 cells leads to a mesh with 6 nodes, then the returned field
-   * will contain 6 tuples and \a this field will lie on this restricted mesh. 
+   * will contain 6 tuples and \a this field will lie on this restricted mesh.
    *
    * \param [in] partBg - start (included) of input range of cell ids to select [ \a partBg, \a partEnd )
    * \param [in] partEnd - end (not included) of input range of cell ids to select [ \a partBg, \a partEnd )
    * \return a newly allocated field the caller should deal with.
-   * 
+   *
    * \throw if there is presence of an invalid cell id in [ \a partBg, \a partEnd ) regarding the number of cells of \a this->getMesh().
    *
    * \if ENABLE_EXAMPLES
@@ -509,9 +509,9 @@ namespace MEDCoupling
    * This method makes the assumption that the field is correctly defined when this method is called, no check of this will be done.
    * This method returns a restriction of \a this so that only tuples with ids specified in \a part will be contained in the returned field.
    * Parameter \a part specifies **cell ids whatever the spatial discretization of this** (
-   * \ref MEDCoupling::ON_CELLS "ON_CELLS", 
+   * \ref MEDCoupling::ON_CELLS "ON_CELLS",
    * \ref MEDCoupling::ON_NODES "ON_NODES",
-   * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT", 
+   * \ref MEDCoupling::ON_GAUSS_PT "ON_GAUSS_PT",
    * \ref MEDCoupling::ON_GAUSS_NE "ON_GAUSS_NE",
    * \ref MEDCoupling::ON_NODES_KR "ON_NODES_KR",
    * \ref MEDCoupling::ON_NODES_FE "ON_NODES_FE").
@@ -524,7 +524,7 @@ namespace MEDCoupling
    *
    * Let, for example, \a this be a field on nodes lying on a mesh that have 10 cells and 11 nodes, and \a part contains following cellIds [3,7,6].
    * Thus \a this currently contains 11 tuples. If the restriction of mesh to 3 cells leads to a mesh with 6 nodes, then the returned field
-   * will contain 6 tuples and \a this field will lie on this restricted mesh. 
+   * will contain 6 tuples and \a this field will lie on this restricted mesh.
    *
    *  \param [in] part - an array of cell ids to include to the result field.
    *  \return MEDCouplingFieldDouble * - a new instance of MEDCouplingFieldDouble. The caller is to delete this field using decrRef() as it is no more needed.
@@ -542,11 +542,11 @@ namespace MEDCoupling
       throw INTERP_KERNEL::Exception("MEDCouplingFieldT::buildSubPart : not empty array must be passed to this method !");
     return buildSubPart(part->begin(),part->end());
   }
-  
+
   /*!
    * This method is equivalent to MEDCouplingFieldDouble::buildSubPart, the only difference is that the input range of cell ids is
    * given using a range given \a begin, \a end and \a step to optimize the part computation.
-   * 
+   *
    * \sa MEDCouplingFieldDouble::buildSubPart
    */
   template<class T>
@@ -586,7 +586,7 @@ namespace MEDCoupling
     ret->timeDiscrSafe()->setArrays(arrs,0);
     return ret.retn();
   }
-  
+
   template<class T>
   const MEDCouplingTimeDiscretizationTemplate<T> *MEDCouplingFieldT<T>::timeDiscrSafe() const
   {
@@ -595,7 +595,7 @@ namespace MEDCoupling
       throw INTERP_KERNEL::Exception("const FieldT : Null type of time discr !");
     return ret;
   }
-  
+
   template<class T>
   MEDCouplingTimeDiscretizationTemplate<T> *MEDCouplingFieldT<T>::timeDiscrSafe()
   {

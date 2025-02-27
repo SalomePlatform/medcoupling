@@ -32,9 +32,9 @@ namespace MEDCoupling
   /*!
    \class ByStringMPIProcessorGroup
 
-   The ByStringMPIProcessorGroup implements a derived version of MPIProcessorGroup. 
+   The ByStringMPIProcessorGroup implements a derived version of MPIProcessorGroup.
 
-   Groups are formed from MPI ranks with the same simCodeTag. Two trivial cases: 
+   Groups are formed from MPI ranks with the same simCodeTag. Two trivial cases:
     - All simCodeTag are equal, then one group is formed from all mpi ranks in the communicator
     - All simCodeTag are different, then n-MPI groups are formed.
   */
@@ -66,7 +66,7 @@ namespace MEDCoupling
 
     char globalnames[displacement[size_world-1]];
 
-    interface.allGatherV( simCodeTag.c_str(), stringSize, MPI_CHAR, &globalnames, 
+    interface.allGatherV( simCodeTag.c_str(), stringSize, MPI_CHAR, &globalnames,
                           words_size.data(), displacement.data(), MPI_CHAR, world_comm );
 
     for (size_t rank = 0; rank < (std::size_t)(size_world); rank++)
@@ -77,7 +77,7 @@ namespace MEDCoupling
     return myRanksSet;
   }
 
-  /*! 
+  /*!
    * Creates a processor group that is based on all the
    processors of MPI_COMM_WORLD .This routine must be called by all processors in MPI_COMM_WORLD.
    \param interface CommInterface object giving access to the MPI
@@ -98,7 +98,7 @@ namespace MEDCoupling
   ByStringMPIProcessorGroup::ByStringMPIProcessorGroup(const CommInterface& interface, const std::string& simCodeTag, const MPI_Comm& world_comm ):
     MPIProcessorGroup(interface, DefineSetIdByStringName( interface, simCodeTag, world_comm ), simCodeTag, world_comm )
   {
-  } 
+  }
 
   ByStringMPIProcessorGroup::ByStringMPIProcessorGroup(const ByStringMPIProcessorGroup& other):
     MPIProcessorGroup(other)

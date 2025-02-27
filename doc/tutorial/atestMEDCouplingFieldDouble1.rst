@@ -18,7 +18,7 @@ Playing with fields
 	# Create a field
 	f = mesh.fillFromAnalytic(mc.ON_CELLS,1,"(x-5.)*(x-5.)+(y-5.)*(y-5.)+(z-5.)*(z-5.)")  # 1 means that the field should have one component
 	f.setName("MyField")
-	# A variant: 
+	# A variant:
 	f2 = mc.MEDCouplingFieldDouble(mc.ON_CELLS, mc.ONE_TIME)
 	f2.setMesh(mesh)
 	f2.setName("MyField2")

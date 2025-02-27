@@ -115,8 +115,8 @@ ELSE()
   SET(MEDCouling_target_name MEDCoupling)
 ENDIF()
 
-IF(${CMAKE_VERSION} VERSION_LESS "3.8.0") 
-  SWIG_ADD_MODULE(${MEDCouling_target_name} python MEDCoupling.i)  
+IF(${CMAKE_VERSION} VERSION_LESS "3.8.0")
+  SWIG_ADD_MODULE(${MEDCouling_target_name} python MEDCoupling.i)
 ELSE()
   SWIG_ADD_LIBRARY(${MEDCouling_target_name} LANGUAGE python SOURCES MEDCoupling.i)
 ENDIF()
@@ -148,8 +148,8 @@ SET (SWIG_MODULE_MEDCouplingRemapper_EXTRA_DEPS ${MEDCoupling_SWIG_DPYS_FILES}
     ${interpkernel_HEADERS_HXX} ${interpkernel_HEADERS_TXX})
 
 
-IF(${CMAKE_VERSION} VERSION_LESS "3.8.0") 
-  SWIG_ADD_MODULE(MEDCouplingRemapper python MEDCouplingRemapper.i)  
+IF(${CMAKE_VERSION} VERSION_LESS "3.8.0")
+  SWIG_ADD_MODULE(MEDCouplingRemapper python MEDCouplingRemapper.i)
 ELSE()
   SWIG_ADD_LIBRARY(MEDCouplingRemapper LANGUAGE python SOURCES MEDCouplingRemapper.i)
 ENDIF()

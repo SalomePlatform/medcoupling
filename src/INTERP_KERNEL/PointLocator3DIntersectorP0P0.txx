@@ -46,7 +46,7 @@ namespace INTERP_KERNEL
   }
 
   /**
-   * 
+   *
    * @param targetCell in C mode.
    * @param srcCells in C mode.
    *

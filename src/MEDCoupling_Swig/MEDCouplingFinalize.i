@@ -62,7 +62,7 @@ DataArrayInt64.__ifloordiv__=MEDCouplingDataArrayInt64Idiv
 DataArrayInt64.__rfloordiv__=DataArrayInt64.__rdiv__
 
 DataArrayByte.__reduce__=MEDCouplingDataArrayByteReduce
-  
+
 DataArrayFloat.__reduce__=MEDCouplingDataArrayFloatReduce
 DataArrayFloat.__iadd__=MEDCouplingDataArrayFloatIadd
 DataArrayFloat.__isub__=MEDCouplingDataArrayFloatIsub
@@ -88,7 +88,7 @@ MEDCouplingFieldTemplate.__reduce__=MEDCouplingFieldTemplateReduce
 
 MEDCouplingFieldInt32.__reduce__=MEDCouplingFieldInt32Reduce
 MEDCouplingFieldInt64.__reduce__=MEDCouplingFieldInt64Reduce
-  
+
 MEDCouplingFieldFloat.__reduce__=MEDCouplingFieldFloatReduce
 
 DataArrayDoubleTuple.__iadd__=MEDCouplingDataArrayDoubleTupleIadd

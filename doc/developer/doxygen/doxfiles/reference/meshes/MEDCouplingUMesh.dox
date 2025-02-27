@@ -33,7 +33,7 @@ All of examples given here make the assumption that the \ref ParaMEDMEM "ParaMED
 Here we will create a mesh with spacedim==3 and meshdim==2. \b mesh contains 5 cells (with geometric type INTERP_KERNEL::NORM_TRI3, INTERP_KERNEL::NORM_QUAD4)
 and 9 nodes.
 
-You can notice that it is possible to mix cell types as long as the dimension of the cell is exactly 
+You can notice that it is possible to mix cell types as long as the dimension of the cell is exactly
 equal to meshDim to respect \ref MEDCouplingMeshes "this rule".
 
 \ref medcouplingcppexamplesUmeshStdBuild1 "Here is the C++ implementation."

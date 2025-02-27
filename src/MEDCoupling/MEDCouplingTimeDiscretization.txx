@@ -34,14 +34,14 @@ namespace MEDCoupling
 
   template<class T>
   const double MEDCouplingTimeDiscretizationTemplate<T>::TIME_TOLERANCE_DFT=1.e-12;
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::updateTime() const
   {
     if(_array)
       updateTimeWith(*_array);
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::setArray(typename Traits<T>::ArrayType *array, TimeLabel *owner)
   {
@@ -56,14 +56,14 @@ namespace MEDCoupling
           owner->declareAsNew();
       }
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::copyTinyAttrFrom(const MEDCouplingTimeDiscretizationTemplate<T>& other)
   {
     TimeHolder::copyTinyAttrFrom(other);
     _time_tolerance=other._time_tolerance;
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::copyTinyStringsFrom(const MEDCouplingTimeDiscretizationTemplate<T>& other)
   {
@@ -77,7 +77,7 @@ namespace MEDCoupling
   {
     return getTimeUnit().capacity();
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::checkConsistencyLight() const
   {
@@ -86,7 +86,7 @@ namespace MEDCoupling
     if(_time_tolerance<0.)
       throw INTERP_KERNEL::Exception("time tolerance is expected to be greater than 0. !");
   }
-  
+
   template<class T>
   std::vector<const BigMemoryObject *> MEDCouplingTimeDiscretizationTemplate<T>::getDirectChildrenWithNull() const
   {
@@ -94,7 +94,7 @@ namespace MEDCoupling
     ret.push_back(_array);
     return ret;
   }
-  
+
   template<class T>
   bool MEDCouplingTimeDiscretizationTemplate<T>::areStrictlyCompatible(const MEDCouplingTimeDiscretizationTemplate<T> *other, std::string& reason) const
   {
@@ -124,7 +124,7 @@ namespace MEDCoupling
       return false;
     return true;
   }
-  
+
   template<class T>
   bool MEDCouplingTimeDiscretizationTemplate<T>::areCompatible(const MEDCouplingTimeDiscretizationTemplate<T> *other) const
   {
@@ -138,7 +138,7 @@ namespace MEDCoupling
       return false;
     return true;
   }
-  
+
   template<class T>
   bool MEDCouplingTimeDiscretizationTemplate<T>::areStrictlyCompatibleForMul(const MEDCouplingTimeDiscretizationTemplate<T> *other) const
   {
@@ -154,7 +154,7 @@ namespace MEDCoupling
       return false;
     return true;
   }
-  
+
   template<class T>
   bool MEDCouplingTimeDiscretizationTemplate<T>::areStrictlyCompatibleForDiv(const MEDCouplingTimeDiscretizationTemplate<T> *other) const
   {
@@ -183,20 +183,20 @@ namespace MEDCoupling
     else
       _array=0;
   }
-  
+
   template<class T>
   MEDCouplingTimeDiscretizationTemplate<T>::~MEDCouplingTimeDiscretizationTemplate()
   {
     if(_array)
       _array->decrRef();
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::setEndArray(typename Traits<T>::ArrayType *array, TimeLabel *owner)
   {
     throw INTERP_KERNEL::Exception("setEndArray not available for this type of time discretization !");
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::setArrays(const std::vector<typename Traits<T>::ArrayType *>& arrays, TimeLabel *owner)
   {
@@ -204,26 +204,26 @@ namespace MEDCoupling
       throw INTERP_KERNEL::Exception("MEDCouplingTimeDiscretization::setArrays : number of arrays must be one.");
     setArray(arrays.back(),owner);
   }
-  
+
   template<class T>
   const typename Traits<T>::ArrayType *MEDCouplingTimeDiscretizationTemplate<T>::getEndArray() const
   {
     throw INTERP_KERNEL::Exception("getEndArray not available for this type of time discretization !");
   }
-  
+
   template<class T>
   typename Traits<T>::ArrayType *MEDCouplingTimeDiscretizationTemplate<T>::getEndArray()
   {
     throw INTERP_KERNEL::Exception("getEndArray not available for this type of time discretization !");
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::getArrays(std::vector<typename Traits<T>::ArrayType *>& arrays) const
   {
     arrays.resize(1);
     arrays[0]=_array;
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const
   {
@@ -238,13 +238,13 @@ namespace MEDCoupling
         tinyInfo.push_back(-1);
       }
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const
   {
     tinyInfo.push_back(_time_tolerance);
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const
   {
@@ -252,7 +252,7 @@ namespace MEDCoupling
     for(std::size_t i=0;i<nbOfCompo;i++)
       tinyInfo.push_back(_array->getInfoOnComponent(i));
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::resizeForUnserialization(const std::vector<mcIdType>& tinyInfoI, std::vector<typename Traits<T>::ArrayType *>& arrays)
   {
@@ -268,7 +268,7 @@ namespace MEDCoupling
     _array=arr;
     arrays[0]=arr;
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::checkForUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<typename Traits<T>::ArrayType *>& arrays)
   {
@@ -287,7 +287,7 @@ namespace MEDCoupling
         _array->incrRef();
       }
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationTemplate<T>::finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS)
   {
@@ -296,9 +296,9 @@ namespace MEDCoupling
     for(std::size_t i=0;i<nbOfCompo;i++)
       _array->setInfoOnComponent(i,tinyInfoS[i]);
   }
-  
+
   /////////////////////////
-  
+
   template<class T>
   std::string MEDCouplingTimeDiscretizationSimple<T>::getStringRepr() const
   {
@@ -307,31 +307,31 @@ namespace MEDCoupling
     stream << "\nTime unit is : \"" << this->getTimeUnit() << "\"";
     return stream.str();
   }
-  
+
   template<class T>
   double MEDCouplingTimeDiscretizationSimple<T>::getEndTime(int& iteration, int& order) const
   {
     throw INTERP_KERNEL::Exception("getEndTime : invalid for this type of time discr !");
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationSimple<T>::setEndIteration(int it)
   {
     throw INTERP_KERNEL::Exception("setEndIteration : invalid for this type of time discr !");
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationSimple<T>::setEndOrder(int order)
   {
     throw INTERP_KERNEL::Exception("setEndOrder : invalid for this type of time discr !");
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationSimple<T>::setEndTimeValue(double time)
   {
     throw INTERP_KERNEL::Exception("setEndTimeValue : invalid for this type of time discr !");
   }
-  
+
   template<class T>
   void MEDCouplingTimeDiscretizationSimple<T>::setEndTime(double time, int iteration, int order)
   {

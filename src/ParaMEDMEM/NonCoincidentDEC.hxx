@@ -27,10 +27,10 @@ struct _fvm_locator_t;
 typedef enum {NN} InterpolationMethod;
 
 namespace MEDCoupling
-{   
+{
   class NonCoincidentDEC : public DEC
   {
-    public:  
+    public:
     NonCoincidentDEC();
     NonCoincidentDEC(ProcessorGroup& , ProcessorGroup&);
 
@@ -41,26 +41,26 @@ namespace MEDCoupling
     void recvData();
 
     void sendData();
-    
+
     void prepareSourceDE() { }
     void prepareTargetDE() { }
-    
+
     void setInterpolationMethod(InterpolationMethod method) { _method=method; }
-    
+
     private :
     // Structure for computing the localization
     // of remote nodes on local mesh
     _fvm_locator_t* _locator;
-    
-    //Number of distant points to be located locally 
+
+    //Number of distant points to be located locally
     int _nb_distant_points;
-    
-    //coordinates of distant points 
+
+    //coordinates of distant points
     const double* _distant_coords;
-    
-    //local element number containing the distant points  
-    const int* _distant_locations; 
-   
+
+    //local element number containing the distant points
+    const int* _distant_locations;
+
    //inerpolation method
    InterpolationMethod _method;
   };

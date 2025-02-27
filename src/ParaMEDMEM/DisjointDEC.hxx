@@ -85,7 +85,7 @@ namespace MEDCoupling
     void attachLocalField( MEDCouplingFieldDouble *field);
     void attachLocalField(const ParaFIELD *field, bool ownPt=false);
     void attachLocalField(const ICoCo::MEDDoubleField *field);
-    
+
     virtual void prepareSourceDE() = 0;
     virtual void prepareTargetDE() = 0;
     virtual void recvData() = 0;
@@ -112,7 +112,7 @@ namespace MEDCoupling
     ProcessorGroup* _union_group;
     ProcessorGroup* _source_group;
     ProcessorGroup* _target_group;
-    
+
     const CommInterface* _comm_interface;
     bool _owns_field;
     bool _owns_groups;

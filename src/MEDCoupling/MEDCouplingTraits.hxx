@@ -50,7 +50,7 @@ namespace MEDCoupling
   class DataArrayInt32Iterator;
   class DataArrayInt64Iterator;
   class DataArrayByteIterator;
-  
+
   template<>
   struct MEDCOUPLING_EXPORT Traits<double>
   {
@@ -76,7 +76,7 @@ namespace MEDCoupling
     using FieldType = MEDCouplingFieldFloat;
     using ArrayTuple = DataArrayFloatTuple;
   };
-  
+
   template<>
   struct MEDCOUPLING_EXPORT Traits<Int32>
   {

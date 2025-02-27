@@ -51,7 +51,7 @@ namespace MEDCoupling
   protected:
     int _iteration;
     int _order;
-    double _time;    
+    double _time;
   };
 
   class MEDFileParameterDouble1TSWTI : public MEDFileParameter1TS

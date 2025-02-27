@@ -63,7 +63,7 @@ def MEDFileUMeshFuseNodesAndCells(self, compType = 2 , eps = 1e-6, logLev = logg
   o2n,newNbNodes = ml.DataArrayInt.ConvertIndexArrayToO2N(initNbNodes,cc,cci)
   n2oNodes = o2n.invertArrayO2N2N2O( newNbNodes )
   newCoords = self.getCoords()[n2oNodes]
-  # creation of 
+  # creation of
   mmOut = ml.MEDFileUMesh()
   mmOut.copyFamGrpMapsFrom( self )
 
@@ -177,7 +177,7 @@ def MEDFileUMeshTetrahedrize(self, splitType, logLev = logging.INFO):
 
   def deal3D( mmOut, splitType):
       """
-      : return : 3D cells in self having a QUAD4 as subcell candidate of spliting 
+      : return : 3D cells in self having a QUAD4 as subcell candidate of spliting
       """
       m0 = self[0]
       m0s = [ml.MEDCoupling1SGTUMesh(elt) for elt in m0.splitByType()]
@@ -296,12 +296,12 @@ def MEDFileUMeshTetrahedrize(self, splitType, logLev = logging.INFO):
 def MEDFileUMeshReduceToCells(self, level, keepCells, removeOrphanNodes=True):
     """
     Method returning a new MEDFileUMesh, restriction of self to level and keepCell cells at this level.
-    This method also 
+    This method also
 
     :param level: Specifies the top level of the returned MEDFileUMesh expected
     :param keepCells: A DataArrayInt specifying cell ids at level level of self
     :param removeOrphanNodes: Specifies if orphan nodes should be removed at the end
-    
+
     see also MEDFileUMesh.extractPart
     """
     import MEDLoader as ml

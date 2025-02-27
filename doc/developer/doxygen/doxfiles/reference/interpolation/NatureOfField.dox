@@ -33,7 +33,7 @@ Indeed in some cases (e.g. non \ref MeshOverlap "overlapping meshes"), it is imp
 
 In order to use the various \ref intro-interp "interpolations", you have to specify the nature of your field.
 When the source and target meshes do not overlap, different treatments will be employed depending on the nature of the source and target fields.
-You can specify the nature of the field when you create a \ref fields "MEDCoupling field" 
+You can specify the nature of the field when you create a \ref fields "MEDCoupling field"
 with the following constructor:
 \code
 MEDCouplingFieldDouble(NatureOfField n, MEDCouplingTimeDiscretization *td, MEDCouplingFieldDiscretization *type);

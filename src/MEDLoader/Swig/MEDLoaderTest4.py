@@ -5006,11 +5006,11 @@ class MEDLoaderTest4(unittest.TestCase):
         WriteFieldUsingAlreadyWrittenMesh(fname,f)
         ########## GO for reading in MEDReader,by not loading all. Mesh is fully loaded but not fields values
         ms=MEDFileMeshes() # here we reproduce what is done by ParaMEDFileMeshes.ParaNew
-        ms.pushMesh(MEDFileUMesh.LoadPartOf(fname,"Mesh",[NORM_QUAD4],[0,2,1],-1,-1));
+        ms.pushMesh(MEDFileUMesh.LoadPartOf(fname,"Mesh",[NORM_QUAD4],[0,2,1],-1,-1))
         ms[0].zipCoords()
         ms.cartesianizeMe()
         #
-        fields=MEDFileFields.LoadPartOf(fname,False,ms);
+        fields=MEDFileFields.LoadPartOf(fname,False,ms)
         fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
@@ -5514,7 +5514,7 @@ class MEDLoaderTest4(unittest.TestCase):
         ms.pushMesh(mm)
         ms[0].zipCoords()
         ms.cartesianizeMe()
-        fields=MEDFileFields.LoadPartOf(fname,False,ms);
+        fields=MEDFileFields.LoadPartOf(fname,False,ms)
         fields.removeFieldsWithoutAnyTimeStep()
         fields_per_mesh=[fields.partOfThisLyingOnSpecifiedMeshName(meshName) for meshName in ms.getMeshesNames()]
         allFMTSLeavesToDisplay=[]
@@ -5749,7 +5749,7 @@ class MEDLoaderTest4(unittest.TestCase):
         m.insertNextCell(NORM_QUAD4,[2,3,5,6])
         mm = MEDFileUMesh()
         mm[0] = m
-        # now test context manager 
+        # now test context manager
         fmts = MEDFileFieldMultiTS()
         f1ts = MEDFileField1TS()
         f = MEDCouplingFieldDouble(ON_CELLS) ; f.setName("Field") ; f.setMesh(mm[0]) ; f.setArray(DataArrayDouble([0.123]))
@@ -5823,12 +5823,12 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue( mmOut.getGroupArr(1,"RedNode").isEqualWithoutConsideringStr( DataArrayInt([6, 7, 10, 11]) ) )
         self.assertTrue( mmOut.getGroupArr(1,"GreenNode").isEqualWithoutConsideringStr( DataArrayInt([7, 11, 19, 22]) ) )
         self.assertEqual( len( mmOut.getFamilyFieldAtLevel(1).findIdsGreaterOrEqualTo(0) ) , 28 )
-        self.assertEqual( len( mmOut.getFamilyFieldAtLevel(-1).findIdsLowerOrEqualTo(0) ) , 45 ) 
+        self.assertEqual( len( mmOut.getFamilyFieldAtLevel(-1).findIdsLowerOrEqualTo(0) ) , 45 )
 
     def test50(self):
         """
         [EDF30178] : test of MEDFileUMesh.tetrahedrize
-        """ 
+        """
         import logging
         arr = DataArrayDouble([(0,0),(1,0),(2,0),(0,1),(1,1),(2,1),(0,2),(1,2),(2,2)])
         m = MEDCouplingUMesh("mesh",2)

@@ -53,15 +53,15 @@ def checkFreeMemory(size):
 class MEDCouplingBasicsTest4(unittest.TestCase):
     def testSwigDADOp4(self):
         da = DataArrayDouble.New(list(range(6, 30)), 12, 2)
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         for i in range(24):
             self.assertAlmostEqual(da.getIJ(0,i),float(i+6),13)
             pass
         # operator transpose
         da.transpose()
-        self.assertEqual(2,da.getNumberOfTuples());
-        self.assertEqual(12,da.getNumberOfComponents());
+        self.assertEqual(2,da.getNumberOfTuples())
+        self.assertEqual(12,da.getNumberOfComponents())
         for i in range(24):
             self.assertAlmostEqual(da.getIJ(0,i),float(i+6),13)
             pass
@@ -82,16 +82,16 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         da=-dabis
         da+=[100.,101.]
         expected2=[106.,108.,108.,110.,110.,112.,112.,114.,114.,116.,116.,118.,118.,120.,120.,122.,122.,124.,124.,126.,126.,128.,128.,130.]
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         for i in range(24):
             self.assertAlmostEqual(da.getIJ(0,i),expected2[i],13)
             pass
         for pos,elt in enumerate(dabis):
             da[pos]+=elt
             pass
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         for elt in da:
             li=elt[:]
             self.assertAlmostEqual(li[0],100.,13) ; self.assertAlmostEqual(li[1],101.,13)
@@ -108,16 +108,16 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         da=-dabis
         da-=[100.,101.]
         expected2=[-94.,-94.,-92.,-92.,-90.,-90.,-88.,-88.,-86.,-86.,-84.,-84.,-82.,-82.,-80.,-80.,-78.,-78.,-76.,-76.,-74.,-74.,-72.,-72.]
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         for i in range(24):
             self.assertAlmostEqual(da.getIJ(0,i),expected2[i],13)
             pass
         for pos,elt in enumerate(dabis):
             da[pos]-=elt
             pass
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         expected3=[-88.,-87.,-84.,-83.,-80.,-79.,-76.,-75.,-72.,-71.,-68.,-67.,-64.,-63.,-60.,-59.,-56.,-55.,-52.,-51.,-48.,-47.,-44.,-43.]
         for i in range(24):
             self.assertAlmostEqual(da.getIJ(0,i),expected3[i],13)
@@ -134,16 +134,16 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         da=-dabis
         da*=[100.,101.]
         expected2=[600.,707.,800.,909.,1000.,1111.,1200.,1313.,1400.,1515.,1600.,1717.,1800.,1919.,2000.,2121.,2200.,2323.,2400.,2525.,2600.,2727.,2800.,2929.]
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         for i in range(24):
             self.assertAlmostEqual(da.getIJ(0,i),expected2[i],13)
             pass
         for pos,elt in enumerate(dabis):
             da[pos]*=elt
             pass
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         expected3=[-3600.,-4949.,-6400.,-8181.,-10000.,-12221.,-14400.,-17069.,-19600.,-22725.,-25600.,-29189.,-32400.,-36461.,-40000.,-44541.,-48400.,-53429.,-57600.,-63125.,-67600.,-73629.,-78400.,-84941.0]
         for i in range(24):
             self.assertAlmostEqual(da.getIJ(0,i),expected3[i],13)
@@ -160,16 +160,16 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         da=-dabis
         da/=[100.,101.]
         expected2=[0.06,0.06930693069306931,0.08,0.0891089108910891,0.1,0.10891089108910891,0.12,0.12871287128712872,0.14,0.1485148514851485,0.16,0.16831683168316833,0.18,0.18811881188118812,0.2,0.2079207920792079,0.22,0.22772277227722773,0.24,0.24752475247524752,0.26,0.26732673267326734,0.28,0.2871287128712871]
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         for i in range(24):
             self.assertAlmostEqual(da.getIJ(0,i),expected2[i],13)
             pass
         for pos,elt in enumerate(dabis):
             da[pos]/=elt
             pass
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         expected3=[-0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.009900990099009901, -0.01, -0.0099009900990099]
         for i in range(24):
             self.assertAlmostEqual(da.getIJ(0,i),expected3[i],13)
@@ -178,15 +178,15 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
 
     def testSwigDAIOp4(self):
         da = DataArrayInt.New(list(range(6, 30)), 12, 2)
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         for i in range(24):
             self.assertEqual(da.getIJ(0,i),i+6)
             pass
         # operator transpose
         da.transpose()
-        self.assertEqual(2,da.getNumberOfTuples());
-        self.assertEqual(12,da.getNumberOfComponents());
+        self.assertEqual(2,da.getNumberOfTuples())
+        self.assertEqual(12,da.getNumberOfComponents())
         for i in range(24):
             self.assertEqual(da.getIJ(0,i),i+6)
             pass
@@ -207,16 +207,16 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         da=-dabis
         da+=[100,101]
         expected2=[106,108,108,110,110,112,112,114,114,116,116,118,118,120,120,122,122,124,124,126,126,128,128,130]
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         for i in range(24):
             self.assertEqual(da.getIJ(0,i),expected2[i])
             pass
         for pos,elt in enumerate(dabis):
             da[pos]+=elt
             pass
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         for elt in da:
             li=elt[:]
             self.assertEqual(li[0],100) ; self.assertEqual(li[1],101)
@@ -233,16 +233,16 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         da=-dabis
         da-=[100,101]
         expected2=[-94,-94,-92,-92,-90,-90,-88,-88,-86,-86,-84,-84,-82,-82,-80,-80,-78,-78,-76,-76,-74,-74,-72,-72]
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         for i in range(24):
             self.assertEqual(da.getIJ(0,i),expected2[i])
             pass
         for pos,elt in enumerate(dabis):
             da[pos]-=elt
             pass
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         expected3=[-88,-87,-84,-83,-80,-79,-76,-75,-72,-71,-68,-67,-64,-63,-60,-59,-56,-55,-52,-51,-48,-47,-44,-43]
         for i in range(24):
             self.assertEqual(da.getIJ(0,i),expected3[i])
@@ -259,16 +259,16 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         da=-dabis
         da*=[100,101]
         expected2=[600,707,800,909,1000,1111,1200,1313,1400,1515,1600,1717,1800,1919,2000,2121,2200,2323,2400,2525,2600,2727,2800,2929]
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         for i in range(24):
             self.assertEqual(da.getIJ(0,i),expected2[i])
             pass
         for pos,elt in enumerate(dabis):
             da[pos]*=elt
             pass
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         expected3=[-3600,-4949,-6400,-8181,-10000,-12221,-14400,-17069,-19600,-22725,-25600,-29189,-32400,-36461,-40000,-44541,-48400,-53429,-57600,-63125,-67600,-73629,-78400,-84941.0]
         for i in range(24):
             self.assertEqual(da.getIJ(0,i),expected3[i])
@@ -284,8 +284,8 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
             pass
         da=-dabis
         da/=DataArrayInt.New([2,3],1,2)
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         expected2=[3,2,4,3,5,3,6,4,7,5,8,5,9,6,10,7,11,7,12,8,13,9,14,9]
         for i in range(24):
             self.assertEqual(da.getIJ(0,i),expected2[i])
@@ -296,75 +296,75 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         da=DataArrayDouble.New([5,6,7,8,9,6,7,-2,3,9,8,10])
         da.rearrange(3)
         da2=DataArrayDouble.New([5.,8.,10.,12])
-        self.assertEqual(4,da2.getNumberOfTuples());
-        self.assertEqual(1,da2.getNumberOfComponents());
+        self.assertEqual(4,da2.getNumberOfTuples())
+        self.assertEqual(1,da2.getNumberOfComponents())
         da3=da+da2
-        self.assertEqual(4,da3.getNumberOfTuples());
-        self.assertEqual(3,da3.getNumberOfComponents());
+        self.assertEqual(4,da3.getNumberOfTuples())
+        self.assertEqual(3,da3.getNumberOfComponents())
         expected1=[10.,11.,12.,16.,17.,14.,17.,8.,13.,21.,20.,22.]
         for i in range(12):
             self.assertAlmostEqual(da3.getIJ(0,i),expected1[i],13)
             pass
         da3=da2+da
-        self.assertEqual(4,da3.getNumberOfTuples());
-        self.assertEqual(3,da3.getNumberOfComponents());
+        self.assertEqual(4,da3.getNumberOfTuples())
+        self.assertEqual(3,da3.getNumberOfComponents())
         for i in range(12):
             self.assertAlmostEqual(da3.getIJ(0,i),expected1[i],13)
             pass
         # Test new API of classmethod DataArrayDouble.New
         vals=[5,6,7,8,9,6,7,-2,3,9,8,10]
         da=DataArrayDouble.New(vals)
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(1,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(1,da.getNumberOfComponents())
         for i in range(12):
             self.assertAlmostEqual(da.getIJ(0,i),vals[i],13)
             pass
         da=DataArrayDouble.New(vals,12)
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(1,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(1,da.getNumberOfComponents())
         for i in range(12):
             self.assertAlmostEqual(da.getIJ(0,i),vals[i],13)
             pass
         da=DataArrayDouble.New(vals,1,12)
-        self.assertEqual(1,da.getNumberOfTuples());
-        self.assertEqual(12,da.getNumberOfComponents());
+        self.assertEqual(1,da.getNumberOfTuples())
+        self.assertEqual(12,da.getNumberOfComponents())
         for i in range(12):
             self.assertAlmostEqual(da.getIJ(0,i),vals[i],13)
             pass
         da=DataArrayDouble.New(vals,6,2)
-        self.assertEqual(6,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(6,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         for i in range(12):
             self.assertAlmostEqual(da.getIJ(0,i),vals[i],13)
             pass
         da=DataArrayDouble.New(vals,4,3)
-        self.assertEqual(4,da.getNumberOfTuples());
-        self.assertEqual(3,da.getNumberOfComponents());
+        self.assertEqual(4,da.getNumberOfTuples())
+        self.assertEqual(3,da.getNumberOfComponents())
         for i in range(12):
             self.assertAlmostEqual(da.getIJ(0,i),vals[i],13)
             pass
-        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,11);
-        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,13);
-        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,5,2);
-        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,7,2);
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,11)
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,13)
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,5,2)
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,7,2)
         pass
 
     def testSwigDADOp6(self):
         da=DataArrayInt.New([5,6,7,8,9,6,7,-2,3,9,8,10])
         da.rearrange(3)
         da2=DataArrayInt.New([5,8,10,12])
-        self.assertEqual(4,da2.getNumberOfTuples());
-        self.assertEqual(1,da2.getNumberOfComponents());
+        self.assertEqual(4,da2.getNumberOfTuples())
+        self.assertEqual(1,da2.getNumberOfComponents())
         da3=da+da2
-        self.assertEqual(4,da3.getNumberOfTuples());
-        self.assertEqual(3,da3.getNumberOfComponents());
+        self.assertEqual(4,da3.getNumberOfTuples())
+        self.assertEqual(3,da3.getNumberOfComponents())
         expected1=[10,11,12,16,17,14,17,8,13,21,20,22]
         for i in range(12):
             self.assertEqual(da3.getIJ(0,i),expected1[i])
             pass
         da3=da2+da
-        self.assertEqual(4,da3.getNumberOfTuples());
-        self.assertEqual(3,da3.getNumberOfComponents());
+        self.assertEqual(4,da3.getNumberOfTuples())
+        self.assertEqual(3,da3.getNumberOfComponents())
         for i in range(12):
             self.assertEqual(da3.getIJ(0,i),expected1[i])
             pass
@@ -372,280 +372,280 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         # Test new API of classmethod DataArrayInt.New
         vals=[5,6,7,8,9,6,7,-2,3,9,8,10]
         da=DataArrayDouble.New(vals)
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(1,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(1,da.getNumberOfComponents())
         for i in range(12):
             self.assertEqual(da.getIJ(0,i),vals[i])
             pass
         da=DataArrayDouble.New(vals,12)
-        self.assertEqual(12,da.getNumberOfTuples());
-        self.assertEqual(1,da.getNumberOfComponents());
+        self.assertEqual(12,da.getNumberOfTuples())
+        self.assertEqual(1,da.getNumberOfComponents())
         for i in range(12):
             self.assertEqual(da.getIJ(0,i),vals[i])
             pass
         da=DataArrayDouble.New(vals,1,12)
-        self.assertEqual(1,da.getNumberOfTuples());
-        self.assertEqual(12,da.getNumberOfComponents());
+        self.assertEqual(1,da.getNumberOfTuples())
+        self.assertEqual(12,da.getNumberOfComponents())
         for i in range(12):
             self.assertEqual(da.getIJ(0,i),vals[i])
             pass
         da=DataArrayDouble.New(vals,6,2)
-        self.assertEqual(6,da.getNumberOfTuples());
-        self.assertEqual(2,da.getNumberOfComponents());
+        self.assertEqual(6,da.getNumberOfTuples())
+        self.assertEqual(2,da.getNumberOfComponents())
         for i in range(12):
             self.assertEqual(da.getIJ(0,i),vals[i])
             pass
         da=DataArrayDouble.New(vals,4,3)
-        self.assertEqual(4,da.getNumberOfTuples());
-        self.assertEqual(3,da.getNumberOfComponents());
+        self.assertEqual(4,da.getNumberOfTuples())
+        self.assertEqual(3,da.getNumberOfComponents())
         for i in range(12):
             self.assertEqual(da.getIJ(0,i),vals[i])
             pass
-        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,11);
-        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,13);
-        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,5,2);
-        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,7,2);
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,11)
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,13)
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,5,2)
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,vals,7,2)
         pass
 
     def testSwigDADOp9(self):
         l1=[(1.,2.,3),(4.,5.,6.),(7.,8.,9.),[10.,11.,12.]]
         da1=DataArrayDouble(l1,4,3)
-        self.assertEqual(4,da1.getNumberOfTuples());
-        self.assertEqual(3,da1.getNumberOfComponents());
+        self.assertEqual(4,da1.getNumberOfTuples())
+        self.assertEqual(3,da1.getNumberOfComponents())
         da2=DataArrayDouble(12) ; da2.iota(1.) ; da2.rearrange(3)
         self.assertTrue(da2.isEqual(da1,1e-12))
-        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,3,4);
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,3,4)
         da3=DataArrayDouble(l1,4)
         self.assertTrue(da3.isEqual(da1,1e-12))
-        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,3);
-        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,5);
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,3)
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,5)
         l1=[(1.,2.,3),(4.,(5.),((6.))),(7.,8.,9.),[10.,11.,12.]]
         da1=DataArrayDouble(l1,4,3)
-        self.assertEqual(4,da1.getNumberOfTuples());
-        self.assertEqual(3,da1.getNumberOfComponents());
+        self.assertEqual(4,da1.getNumberOfTuples())
+        self.assertEqual(3,da1.getNumberOfComponents())
         da2=DataArrayDouble(12) ; da2.iota(1.) ; da2.rearrange(3)
         self.assertTrue(da2.isEqual(da1,1e-12))
-        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,3,4);
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,3,4)
         da3=DataArrayDouble(l1,4)
         self.assertTrue(da3.isEqual(da1,1e-12))
-        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,3);
-        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,5);
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,3)
+        self.assertRaises(InterpKernelException,DataArrayDouble.New,l1,5)
         #
         l1=[(1,2,3),(4,5,6),(7,8,9),[10,11,12]]
         da1=DataArrayInt(l1,4,3)
-        self.assertEqual(4,da1.getNumberOfTuples());
-        self.assertEqual(3,da1.getNumberOfComponents());
+        self.assertEqual(4,da1.getNumberOfTuples())
+        self.assertEqual(3,da1.getNumberOfComponents())
         da2=DataArrayInt(12) ; da2.iota(1) ; da2.rearrange(3)
         self.assertTrue(da2.isEqual(da1))
-        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,3,4);
+        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,3,4)
         da3=DataArrayInt(l1,4)
         self.assertTrue(da3.isEqual(da1))
-        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,3);
-        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,5);
+        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,3)
+        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,5)
         l1=[(1,[2],3),(4,[(5)],6),((([7])),8,9),[10,11,12]]
         da1=DataArrayInt(l1,4,3)
-        self.assertEqual(4,da1.getNumberOfTuples());
-        self.assertEqual(3,da1.getNumberOfComponents());
+        self.assertEqual(4,da1.getNumberOfTuples())
+        self.assertEqual(3,da1.getNumberOfComponents())
         da2=DataArrayInt(12) ; da2.iota(1) ; da2.rearrange(3)
         self.assertTrue(da2.isEqual(da1))
-        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,3,4);
+        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,3,4)
         da3=DataArrayInt(l1,4)
         self.assertTrue(da3.isEqual(da1))
-        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,3);
-        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,5);
+        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,3)
+        self.assertRaises(InterpKernelException,DataArrayInt.New,l1,5)
         pass
 
     def testRenumberNodesInConn1(self):
         mesh2DCoords=[-0.3,-0.3,0., 0.2,-0.3,0., 0.7,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.7,0.2,0., -0.3,0.7,0., 0.2,0.7,0., 0.7,0.7,0. ]
         mesh2DConn=[1,4,2, 4,5,2, 0,3,4,1, 6,7,4,3, 7,8,5,4]
-        mesh2D=MEDCouplingUMesh.New("mesh",2);
-        mesh2D.allocateCells(5);
+        mesh2D=MEDCouplingUMesh.New("mesh",2)
+        mesh2D.allocateCells(5)
         mesh2D.insertNextCell(NORM_TRI3,3,mesh2DConn[0:3])
         mesh2D.insertNextCell(NORM_TRI3,3,mesh2DConn[3:6])
         mesh2D.insertNextCell(NORM_QUAD4,4,mesh2DConn[6:10])
         mesh2D.insertNextCell(NORM_QUAD4,4,mesh2DConn[10:14])
         mesh2D.insertNextCell(NORM_QUAD4,4,mesh2DConn[14:18])
-        mesh2D.finishInsertingCells();
-        myCoords=DataArrayDouble.New(mesh2DCoords,9,3);
-        mesh2D.setCoords(myCoords);
-        mesh2D.checkConsistencyLight();
+        mesh2D.finishInsertingCells()
+        myCoords=DataArrayDouble.New(mesh2DCoords,9,3)
+        mesh2D.setCoords(myCoords)
+        mesh2D.checkConsistencyLight()
         #
         mesh3DCoords=[-0.3,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.2,-0.3,0., -0.3,-0.3,1., -0.3,0.2,1., 0.2,0.2,1., 0.2,-0.3,1. ]
         mesh3DConn=[0,1,2,3,4,5,6,7]
-        mesh3D=MEDCouplingUMesh.New("mesh",3);
-        mesh3D.allocateCells(1);
+        mesh3D=MEDCouplingUMesh.New("mesh",3)
+        mesh3D.allocateCells(1)
         mesh3D.insertNextCell(NORM_HEXA8,8,mesh3DConn[:])
-        mesh3D.finishInsertingCells();
-        myCoords3D=DataArrayDouble.New(mesh3DCoords,8,3);
-        mesh3D.setCoords(myCoords3D);
-        mesh3D.checkConsistencyLight();
+        mesh3D.finishInsertingCells()
+        myCoords3D=DataArrayDouble.New(mesh3DCoords,8,3)
+        mesh3D.setCoords(myCoords3D)
+        mesh3D.checkConsistencyLight()
         #
-        mesh3D_2=mesh3D.deepCopy();
-        mesh2D_2=mesh2D.deepCopy();
-        mesh3D_4=mesh3D.deepCopy();
-        mesh2D_4=mesh2D.deepCopy();
-        oldNbOf3DNodes=mesh3D.getNumberOfNodes();
-        renumNodes=DataArrayInt.New();
-        renumNodes.alloc(mesh2D.getNumberOfNodes(),1);
-        renumNodes.iota(oldNbOf3DNodes);
-        coo=DataArrayDouble.Aggregate(mesh3D.getCoords(),mesh2D.getCoords());
-        mesh3D.setCoords(coo);
-        mesh2D.setCoords(coo);
+        mesh3D_2=mesh3D.deepCopy()
+        mesh2D_2=mesh2D.deepCopy()
+        mesh3D_4=mesh3D.deepCopy()
+        mesh2D_4=mesh2D.deepCopy()
+        oldNbOf3DNodes=mesh3D.getNumberOfNodes()
+        renumNodes=DataArrayInt.New()
+        renumNodes.alloc(mesh2D.getNumberOfNodes(),1)
+        renumNodes.iota(oldNbOf3DNodes)
+        coo=DataArrayDouble.Aggregate(mesh3D.getCoords(),mesh2D.getCoords())
+        mesh3D.setCoords(coo)
+        mesh2D.setCoords(coo)
         mesh2DCpy=mesh2D.deepCopy()
-        mesh2D_3=mesh2D.deepCopy();
-        mesh2D_3.shiftNodeNumbersInConn(oldNbOf3DNodes);
-        mesh2D.renumberNodesInConn(renumNodes);
-        mesh2DCpy.renumberNodesInConn(renumNodes.getValues());
+        mesh2D_3=mesh2D.deepCopy()
+        mesh2D_3.shiftNodeNumbersInConn(oldNbOf3DNodes)
+        mesh2D.renumberNodesInConn(renumNodes)
+        mesh2DCpy.renumberNodesInConn(renumNodes.getValues())
         self.assertTrue(mesh2D.isEqual(mesh2DCpy,1e-12))
         self.assertTrue(mesh2D.isEqual(mesh2D_3,1e-12))
         #
-        da1,da2=mesh3D.checkGeoEquivalWith(mesh3D_2,10,1e-12);
-        self.assertTrue(da1==None);
-        self.assertEqual(8,da2.getNumberOfTuples());
-        self.assertEqual(1,da2.getNumberOfComponents());
+        da1,da2=mesh3D.checkGeoEquivalWith(mesh3D_2,10,1e-12)
+        self.assertTrue(da1==None)
+        self.assertEqual(8,da2.getNumberOfTuples())
+        self.assertEqual(1,da2.getNumberOfComponents())
         expected1=[8,11,12,9,4,5,6,7]
         for i in range(8):
-            self.assertEqual(expected1[i],da2.getIJ(i,0));
+            self.assertEqual(expected1[i],da2.getIJ(i,0))
             pass
         #
-        da1,da2=mesh2D.checkGeoEquivalWith(mesh2D_2,10,1e-12);
-        self.assertTrue(da1==None);
-        self.assertEqual(9,da2.getNumberOfTuples());
-        self.assertEqual(1,da2.getNumberOfComponents());
+        da1,da2=mesh2D.checkGeoEquivalWith(mesh2D_2,10,1e-12)
+        self.assertTrue(da1==None)
+        self.assertEqual(9,da2.getNumberOfTuples())
+        self.assertEqual(1,da2.getNumberOfComponents())
         for i in range(9):
-            self.assertEqual(8+i,da2.getIJ(i,0));
+            self.assertEqual(8+i,da2.getIJ(i,0))
             pass
         #
-        mesh2D_5=mesh2D_4.deepCopy();
-        mesh2D_5.translate([1.,0.,0.]);
-        meshes=[mesh3D_4,mesh2D_4,mesh2D_5];
-        MEDCouplingUMesh.PutUMeshesOnSameAggregatedCoords(meshes);
-        self.assertTrue(mesh3D_4.getCoords().getHiddenCppPointer()==mesh2D_4.getCoords().getHiddenCppPointer());
-        self.assertTrue(mesh2D_4.getCoords().getHiddenCppPointer()==mesh2D_5.getCoords().getHiddenCppPointer());
-        mesh3D_4.checkConsistencyLight(); mesh2D_4.checkConsistencyLight(); mesh2D_5.checkConsistencyLight();
-        self.assertEqual(26,mesh3D_4.getNumberOfNodes());
-        self.assertEqual(3,mesh3D_4.getSpaceDimension());
-        self.assertEqual(9,mesh3D_4.getNodalConnectivity().getNumberOfTuples());
-        self.assertEqual(23,mesh2D_4.getNodalConnectivity().getNumberOfTuples());
-        self.assertEqual(23,mesh2D_5.getNodalConnectivity().getNumberOfTuples());
+        mesh2D_5=mesh2D_4.deepCopy()
+        mesh2D_5.translate([1.,0.,0.])
+        meshes=[mesh3D_4,mesh2D_4,mesh2D_5]
+        MEDCouplingUMesh.PutUMeshesOnSameAggregatedCoords(meshes)
+        self.assertTrue(mesh3D_4.getCoords().getHiddenCppPointer()==mesh2D_4.getCoords().getHiddenCppPointer())
+        self.assertTrue(mesh2D_4.getCoords().getHiddenCppPointer()==mesh2D_5.getCoords().getHiddenCppPointer())
+        mesh3D_4.checkConsistencyLight(); mesh2D_4.checkConsistencyLight(); mesh2D_5.checkConsistencyLight()
+        self.assertEqual(26,mesh3D_4.getNumberOfNodes())
+        self.assertEqual(3,mesh3D_4.getSpaceDimension())
+        self.assertEqual(9,mesh3D_4.getNodalConnectivity().getNumberOfTuples())
+        self.assertEqual(23,mesh2D_4.getNodalConnectivity().getNumberOfTuples())
+        self.assertEqual(23,mesh2D_5.getNodalConnectivity().getNumberOfTuples())
         expected2=[18,0,1,2,3,4,5,6,7]
         expected3=[3,9,12,10, 3,12,13,10, 4,8,11,12,9, 4,14,15,12,11, 4,15,16,13,12]
         expected4=[3,18,21,19, 3,21,22,19, 4,17,20,21,18, 4,23,24,21,20, 4,24,25,22,21]
         expected5=[-0.3,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.2,-0.3,0., -0.3,-0.3,1., -0.3,0.2,1., 0.2,0.2,1., 0.2,-0.3,1., -0.3,-0.3,0., 0.2,-0.3,0., 0.7,-0.3,0., -0.3,0.2,0., 0.2,0.2,0., 0.7,0.2,0., -0.3,0.7,0., 0.2,0.7,0., 0.7,0.7,0., 0.7, -0.3, 0.0, 1.2, -0.3, 0.0, 1.7, -0.3, 0.0, 0.7, 0.2, 0.0, 1.2, 0.2, 0.0, 1.7, 0.2, 0.0, 0.7, 0.7, 0.0, 1.2, 0.7, 0.0, 1.7, 0.7, 0.0]
-        self.assertEqual(expected2,mesh3D_4.getNodalConnectivity().getValues());
-        self.assertEqual(expected3,mesh2D_4.getNodalConnectivity().getValues());
-        self.assertEqual(expected4,mesh2D_5.getNodalConnectivity().getValues());
+        self.assertEqual(expected2,mesh3D_4.getNodalConnectivity().getValues())
+        self.assertEqual(expected3,mesh2D_4.getNodalConnectivity().getValues())
+        self.assertEqual(expected4,mesh2D_5.getNodalConnectivity().getValues())
         for i in range(78):
-            self.assertAlmostEqual(expected5[i],mesh3D_4.getCoords().getIJ(0,i),12);
+            self.assertAlmostEqual(expected5[i],mesh3D_4.getCoords().getIJ(0,i),12)
             pass
         #
-        MEDCouplingUMesh.MergeNodesOnUMeshesSharingSameCoords(meshes,1e-12);
-        mesh3D_4.checkConsistencyLight(); mesh2D_4.checkConsistencyLight(); mesh2D_5.checkConsistencyLight();
-        self.assertTrue(mesh3D_4.getCoords().getHiddenCppPointer()==mesh2D_4.getCoords().getHiddenCppPointer());
-        self.assertTrue(mesh2D_4.getCoords().getHiddenCppPointer()==mesh2D_5.getCoords().getHiddenCppPointer());
-        self.assertEqual(19,mesh3D_4.getNumberOfNodes());
-        self.assertEqual(3,mesh3D_4.getSpaceDimension());
-        self.assertEqual(9,mesh3D_4.getNodalConnectivity().getNumberOfTuples());
-        self.assertEqual(23,mesh2D_4.getNodalConnectivity().getNumberOfTuples());
-        self.assertEqual(23,mesh2D_5.getNodalConnectivity().getNumberOfTuples());
+        MEDCouplingUMesh.MergeNodesOnUMeshesSharingSameCoords(meshes,1e-12)
+        mesh3D_4.checkConsistencyLight(); mesh2D_4.checkConsistencyLight(); mesh2D_5.checkConsistencyLight()
+        self.assertTrue(mesh3D_4.getCoords().getHiddenCppPointer()==mesh2D_4.getCoords().getHiddenCppPointer())
+        self.assertTrue(mesh2D_4.getCoords().getHiddenCppPointer()==mesh2D_5.getCoords().getHiddenCppPointer())
+        self.assertEqual(19,mesh3D_4.getNumberOfNodes())
+        self.assertEqual(3,mesh3D_4.getSpaceDimension())
+        self.assertEqual(9,mesh3D_4.getNodalConnectivity().getNumberOfTuples())
+        self.assertEqual(23,mesh2D_4.getNodalConnectivity().getNumberOfTuples())
+        self.assertEqual(23,mesh2D_5.getNodalConnectivity().getNumberOfTuples())
         expected6=[18,0,1,2,3,4,5,6,7]
         expected7=[3,3,2,8, 3,2,9,8, 4,0,1,2,3, 4,10,11,2,1, 4,11,12,9,2]
         expected8=[3,13,15,14, 3,15,16,14, 4,8,9,15,13, 4,12,17,15,9, 4,17,18,16,15]
         expected9=[-0.3, -0.3, 0., -0.3, 0.2, 0., 0.2, 0.2, 0., 0.2, -0.3, 0., -0.3, -0.3, 1., -0.3, 0.2, 1.,
                     0.2, 0.2, 1., 0.2, -0.3, 1., 0.7, -0.3, 0., 0.7, 0.2, 0., -0.3, 0.7, 0., 0.2, 0.7, 0.,
                     0.7, 0.7, 0., 1.2, -0.3, 0., 1.7, -0.3, 0., 1.2, 0.2, 0., 1.7, 0.2, 0., 1.2, 0.7, 0., 1.7, 0.7, 0.]
-        self.assertEqual(expected6,mesh3D_4.getNodalConnectivity().getValues());
-        self.assertEqual(expected7,mesh2D_4.getNodalConnectivity().getValues());
-        self.assertEqual(expected8,mesh2D_5.getNodalConnectivity().getValues());
+        self.assertEqual(expected6,mesh3D_4.getNodalConnectivity().getValues())
+        self.assertEqual(expected7,mesh2D_4.getNodalConnectivity().getValues())
+        self.assertEqual(expected8,mesh2D_5.getNodalConnectivity().getValues())
         for i in range(57):
-            self.assertAlmostEqual(expected9[i],mesh3D_4.getCoords().getIJ(0,i),12);
+            self.assertAlmostEqual(expected9[i],mesh3D_4.getCoords().getIJ(0,i),12)
             pass
         #
         pass
 
     def testComputeNeighborsOfCells1(self):
-        m=MEDCouplingDataForTest.build2DTargetMesh_1();
-        d1,d2=m.computeNeighborsOfCells();
-        self.assertEqual(6,d2.getNumberOfTuples());
-        self.assertEqual(10,d1.getNumberOfTuples());
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        d1,d2=m.computeNeighborsOfCells()
+        self.assertEqual(6,d2.getNumberOfTuples())
+        self.assertEqual(10,d1.getNumberOfTuples())
         expected1=[0,2,4,6,8,10]
         expected2=[3,1,0,2,4,1,4,0,2,3]
-        self.assertEqual(expected1,d2.getValues());
-        self.assertEqual(expected2,d1.getValues());
+        self.assertEqual(expected1,d2.getValues())
+        self.assertEqual(expected2,d1.getValues())
         pass
 
     def testCheckButterflyCellsBug1(self):
         mesh2DCoords=[323.85,120.983748908684,317.5,131.982271536747,336.55,120.983748908686,330.2,131.982271536751,323.85,142.98079416481]
         mesh2DConn=[4,1,0,2,3]
-        mesh2D=MEDCouplingUMesh.New("mesh",2);
-        mesh2D.allocateCells(1);
+        mesh2D=MEDCouplingUMesh.New("mesh",2)
+        mesh2D.allocateCells(1)
         mesh2D.insertNextCell(NORM_POLYGON,5,mesh2DConn[0:5])
-        mesh2D.finishInsertingCells();
-        myCoords=DataArrayDouble.New(mesh2DCoords,5,2);
-        mesh2D.setCoords(myCoords);
-        mesh2D.checkConsistencyLight();
+        mesh2D.finishInsertingCells()
+        myCoords=DataArrayDouble.New(mesh2DCoords,5,2)
+        mesh2D.setCoords(myCoords)
+        mesh2D.checkConsistencyLight()
         #
-        v=mesh2D.checkButterflyCells();
-        self.assertTrue(v.empty());
+        v=mesh2D.checkButterflyCells()
+        self.assertTrue(v.empty())
         pass
 
     def testDataArrayIntRange1(self):
-        d=DataArrayInt.Range(2,17,7);
+        d=DataArrayInt.Range(2,17,7)
         expected1=[2,9,16]
-        self.assertEqual(3,d.getNumberOfTuples());
-        self.assertEqual(1,d.getNumberOfComponents());
-        self.assertEqual(expected1,d.getValues());
+        self.assertEqual(3,d.getNumberOfTuples())
+        self.assertEqual(1,d.getNumberOfComponents())
+        self.assertEqual(expected1,d.getValues())
         #
-        d=DataArrayInt.Range(2,23,7);
-        self.assertEqual(3,d.getNumberOfTuples());
-        self.assertEqual(1,d.getNumberOfComponents());
-        self.assertEqual(expected1,d.getValues());
+        d=DataArrayInt.Range(2,23,7)
+        self.assertEqual(3,d.getNumberOfTuples())
+        self.assertEqual(1,d.getNumberOfComponents())
+        self.assertEqual(expected1,d.getValues())
         #
-        d=DataArrayInt.Range(2,24,7);
+        d=DataArrayInt.Range(2,24,7)
         expected2=[2,9,16,23]
-        self.assertEqual(4,d.getNumberOfTuples());
-        self.assertEqual(1,d.getNumberOfComponents());
-        self.assertEqual(expected2,d.getValues());
+        self.assertEqual(4,d.getNumberOfTuples())
+        self.assertEqual(1,d.getNumberOfComponents())
+        self.assertEqual(expected2,d.getValues())
         #
-        d=DataArrayInt.Range(24,2,-7);
+        d=DataArrayInt.Range(24,2,-7)
         expected3=[24,17,10,3]
-        self.assertEqual(4,d.getNumberOfTuples());
-        self.assertEqual(1,d.getNumberOfComponents());
-        self.assertEqual(expected3,d.getValues());
+        self.assertEqual(4,d.getNumberOfTuples())
+        self.assertEqual(1,d.getNumberOfComponents())
+        self.assertEqual(expected3,d.getValues())
         #
-        d=DataArrayInt.Range(23,2,-7);
+        d=DataArrayInt.Range(23,2,-7)
         expected4=[23,16,9]
-        self.assertEqual(3,d.getNumberOfTuples());
-        self.assertEqual(1,d.getNumberOfComponents());
-        self.assertEqual(expected4,d.getValues());
+        self.assertEqual(3,d.getNumberOfTuples())
+        self.assertEqual(1,d.getNumberOfComponents())
+        self.assertEqual(expected4,d.getValues())
         #
-        d=DataArrayInt.Range(23,22,-7);
-        self.assertEqual(1,d.getNumberOfTuples());
-        self.assertEqual(1,d.getNumberOfComponents());
-        self.assertEqual(23,d.getIJ(0,0));
+        d=DataArrayInt.Range(23,22,-7)
+        self.assertEqual(1,d.getNumberOfTuples())
+        self.assertEqual(1,d.getNumberOfComponents())
+        self.assertEqual(23,d.getIJ(0,0))
         #
-        d=DataArrayInt.Range(22,23,7);
-        self.assertEqual(1,d.getNumberOfTuples());
-        self.assertEqual(1,d.getNumberOfComponents());
-        self.assertEqual(22,d.getIJ(0,0));
+        d=DataArrayInt.Range(22,23,7)
+        self.assertEqual(1,d.getNumberOfTuples())
+        self.assertEqual(1,d.getNumberOfComponents())
+        self.assertEqual(22,d.getIJ(0,0))
         #
-        d=DataArrayInt.Range(22,22,7);
-        self.assertEqual(0,d.getNumberOfTuples());
-        self.assertEqual(1,d.getNumberOfComponents());
+        d=DataArrayInt.Range(22,22,7)
+        self.assertEqual(0,d.getNumberOfTuples())
+        self.assertEqual(1,d.getNumberOfComponents())
         #
-        d=DataArrayInt.Range(22,22,-7);
-        self.assertEqual(0,d.getNumberOfTuples());
-        self.assertEqual(1,d.getNumberOfComponents());
+        d=DataArrayInt.Range(22,22,-7)
+        self.assertEqual(0,d.getNumberOfTuples())
+        self.assertEqual(1,d.getNumberOfComponents())
         #
-        self.assertRaises(InterpKernelException,DataArrayInt.Range,22,23,-7);
-        self.assertRaises(InterpKernelException,DataArrayInt.Range,23,22,7);
-        self.assertRaises(InterpKernelException,DataArrayInt.Range,23,22,0);
-        self.assertRaises(InterpKernelException,DataArrayInt.Range,22,23,0);
+        self.assertRaises(InterpKernelException,DataArrayInt.Range,22,23,-7)
+        self.assertRaises(InterpKernelException,DataArrayInt.Range,23,22,7)
+        self.assertRaises(InterpKernelException,DataArrayInt.Range,23,22,0)
+        self.assertRaises(InterpKernelException,DataArrayInt.Range,22,23,0)
         pass
 
     def testSwigUMeshGetItem1(self):
-        m=MEDCouplingDataForTest.build2DTargetMesh_1();
-        subMesh=m.buildPartOfMySelf([1,3],True);
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        subMesh=m.buildPartOfMySelf([1,3],True)
         self.assertTrue(isinstance(subMesh,MEDCouplingUMesh))
         m1=m[[1,3]]
         self.assertTrue(isinstance(m1,MEDCouplingUMesh))
@@ -658,7 +658,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         self.assertTrue(isinstance(m5_1,MEDCouplingUMesh))
         m5_2=m[3]
         self.assertTrue(isinstance(m5_2,MEDCouplingUMesh))
-        m5=MEDCouplingUMesh.MergeUMeshesOnSameCoords([m5_1,m5_2]);
+        m5=MEDCouplingUMesh.MergeUMeshesOnSameCoords([m5_1,m5_2])
         m5.setName(subMesh.getName())
         self.assertTrue(isinstance(m4,MEDCouplingUMesh))
         self.assertTrue(subMesh.isEqual(m1,1e-12))
@@ -666,7 +666,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         self.assertTrue(subMesh.isEqual(m3,1e-12))
         self.assertTrue(subMesh.isEqual(m4,1e-12))
         self.assertTrue(subMesh.isEqual(m5,1e-12))
-        self.assertRaises(InterpKernelException,m.buildPartOfMySelf,[1,5],True);
+        self.assertRaises(InterpKernelException,m.buildPartOfMySelf,[1,5],True)
         pass
 
     def testSwigGetItem3(self):
@@ -685,7 +685,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         pass
 
     def testSwigDADISub1(self):
-        mesh3D,mesh2D=MEDCouplingDataForTest.build3DExtrudedUMesh_1();
+        mesh3D,mesh2D=MEDCouplingDataForTest.build3DExtrudedUMesh_1()
         bary=mesh3D.computeCellCenterOfMass()
         bary=bary[:,:2]
         pts=bary.getDifferentValues(1e-12)
@@ -700,22 +700,22 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         for pos,pt in enumerate(pts):
             bary2=bary[:,:2]
             bary2[:]+=pt
-            self.assertAlmostEqual(expected2[pos][0],bary2.accumulate()[0],12);
-            self.assertAlmostEqual(expected2[pos][1],bary2.accumulate()[1],12);
+            self.assertAlmostEqual(expected2[pos][0],bary2.accumulate()[0],12)
+            self.assertAlmostEqual(expected2[pos][1],bary2.accumulate()[1],12)
             pass
         expected3=[[-3.,22.5],[45.,337.5],[-9., 22.5],[-15.,67.5],[3.,112.5],[-9.,112.5]]
         for pos,pt in enumerate(pts):
             bary2=bary[:,:2]
             bary2[:]*=pt
-            self.assertAlmostEqual(expected3[pos][0],bary2.accumulate()[0],12);
-            self.assertAlmostEqual(expected3[pos][1],bary2.accumulate()[1],12);
+            self.assertAlmostEqual(expected3[pos][0],bary2.accumulate()[0],12)
+            self.assertAlmostEqual(expected3[pos][1],bary2.accumulate()[1],12)
             pass
         expected4=[[-12.,90.],[0.8,6.],[-4,90.],[-2.4,30.],[12.,18],[-4,18.]]
         for pos,pt in enumerate(pts):
             bary2=bary[:,:2]
             bary2[:]/=pt
-            self.assertAlmostEqual(expected4[pos][0],bary2.accumulate()[0],12);
-            self.assertAlmostEqual(expected4[pos][1],bary2.accumulate()[1],12);
+            self.assertAlmostEqual(expected4[pos][0],bary2.accumulate()[0],12)
+            self.assertAlmostEqual(expected4[pos][1],bary2.accumulate()[1],12)
             pass
         #
         d=DataArrayInt.New([1,2,0,1,0,2],3,2)
@@ -750,10 +750,10 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
 
     def testDataArrayDoubleGetMinMaxPerComponent1(self):
         values1=[1.,2.,3.,-0.9,2.1,3.,1.3,1.7,3.,1.,1.8,3.]
-        d1=DataArrayDouble.New();
+        d1=DataArrayDouble.New()
         self.assertRaises(InterpKernelException,d1.getMinMaxPerComponent)
-        d1=DataArrayDouble.New(values1,4,3);
-        res=d1.getMinMaxPerComponent();
+        d1=DataArrayDouble.New(values1,4,3)
+        res=d1.getMinMaxPerComponent()
         self.assertTrue(isinstance(res,list))
         self.assertEqual(3,len(res))
         for i in range(3):
@@ -765,8 +765,8 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
             self.assertAlmostEqual(expected1[i], res[i // 2][i % 2], 14)
             pass
         #
-        d1.rearrange(2);
-        res=d1.getMinMaxPerComponent();
+        d1.rearrange(2)
+        res=d1.getMinMaxPerComponent()
         self.assertTrue(isinstance(res,list))
         self.assertEqual(2,len(res))
         for i in range(2):
@@ -778,8 +778,8 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
             self.assertAlmostEqual(expected2[i], res[i // 2][i % 2], 14)
             pass
         #
-        d1.rearrange(1);
-        res=d1.getMinMaxPerComponent();
+        d1.rearrange(1)
+        res=d1.getMinMaxPerComponent()
         self.assertTrue(isinstance(res,list))
         self.assertEqual(1,len(res))
         for i in range(1):
@@ -802,28 +802,28 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         pass
 
     def testZipConnectivityPol1(self):
-        m1=MEDCouplingDataForTest.build2DTargetMesh_1();
+        m1=MEDCouplingDataForTest.build2DTargetMesh_1()
         cells1=[2,3,4]
-        m2_1=m1.buildPartOfMySelf(cells1,True);
+        m2_1=m1.buildPartOfMySelf(cells1,True)
         m2=m2_1
         self.assertTrue(isinstance(m2,MEDCouplingUMesh))
         # no permutation policy 0
         isOk,arr=m1.areCellsIncludedIn(m2,0)
-        self.assertTrue(isOk);
-        self.assertEqual(3,arr.getNumberOfTuples());
-        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertTrue(isOk)
+        self.assertEqual(3,arr.getNumberOfTuples())
+        self.assertEqual(1,arr.getNumberOfComponents())
         self.assertEqual(cells1,arr.getValues())
         # no permutation policy 1
         isOk,arr=m1.areCellsIncludedIn(m2,1)
-        self.assertTrue(isOk);
-        self.assertEqual(3,arr.getNumberOfTuples());
-        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertTrue(isOk)
+        self.assertEqual(3,arr.getNumberOfTuples())
+        self.assertEqual(1,arr.getNumberOfComponents())
         self.assertEqual(cells1,arr.getValues())
         # no permutation policy 2
         isOk,arr=m1.areCellsIncludedIn(m2,2)
-        self.assertTrue(isOk);
-        self.assertEqual(3,arr.getNumberOfTuples());
-        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertTrue(isOk)
+        self.assertEqual(3,arr.getNumberOfTuples())
+        self.assertEqual(1,arr.getNumberOfComponents())
         self.assertEqual(cells1,arr.getValues())
         # some modification into m2
         modif1=[2,4,5]
@@ -831,66 +831,66 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         #policy 0 fails because cell0 in m2 has same orientation be not same connectivity
         expected1=[5,3,4]
         isOk,arr=m1.areCellsIncludedIn(m2,0)
-        self.assertTrue(not isOk);
-        self.assertEqual(3,arr.getNumberOfTuples());
-        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertTrue(not isOk)
+        self.assertEqual(3,arr.getNumberOfTuples())
+        self.assertEqual(1,arr.getNumberOfComponents())
         self.assertEqual(expected1,arr.getValues())
         #policy 1 succeeds because cell0 in m2 has not exactly the same conn
         isOk,arr=m1.areCellsIncludedIn(m2,1)
-        self.assertTrue(isOk);
-        self.assertEqual(3,arr.getNumberOfTuples());
-        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertTrue(isOk)
+        self.assertEqual(3,arr.getNumberOfTuples())
+        self.assertEqual(1,arr.getNumberOfComponents())
         self.assertEqual(cells1,arr.getValues())
         #policy 2 succeeds because cell0 in m2 has same nodes in connectivity
         isOk,arr=m1.areCellsIncludedIn(m2,2)
-        self.assertTrue(isOk);
-        self.assertEqual(3,arr.getNumberOfTuples());
-        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertTrue(isOk)
+        self.assertEqual(3,arr.getNumberOfTuples())
+        self.assertEqual(1,arr.getNumberOfComponents())
         self.assertEqual(cells1,arr.getValues())
         #some new modification into m2
         modif2=[2,5,4]
         m2.getNodalConnectivity()[1:4]=modif2
         #policy 0 fails because cell0 in m2 has not exactly the same conn
         isOk,arr=m1.areCellsIncludedIn(m2,0)
-        self.assertTrue(not isOk);
-        self.assertEqual(3,arr.getNumberOfTuples());
-        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertTrue(not isOk)
+        self.assertEqual(3,arr.getNumberOfTuples())
+        self.assertEqual(1,arr.getNumberOfComponents())
         self.assertEqual(expected1,arr.getValues())
         #policy 1 fails too because cell0 in m2 has not same orientation
         isOk,arr=m1.areCellsIncludedIn(m2,1)
-        self.assertTrue(not isOk);
-        self.assertEqual(3,arr.getNumberOfTuples());
-        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertTrue(not isOk)
+        self.assertEqual(3,arr.getNumberOfTuples())
+        self.assertEqual(1,arr.getNumberOfComponents())
         self.assertEqual(expected1,arr.getValues())
         #policy 2 succeeds because cell0 in m2 has same nodes in connectivity
         isOk,arr=m1.areCellsIncludedIn(m2,2)
-        self.assertTrue(isOk);
-        self.assertEqual(3,arr.getNumberOfTuples());
-        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertTrue(isOk)
+        self.assertEqual(3,arr.getNumberOfTuples())
+        self.assertEqual(1,arr.getNumberOfComponents())
         self.assertEqual(cells1,arr.getValues())
         # Now 1D
         cells2=[3,2]
-        m1=MEDCouplingDataForTest.build1DSourceMesh_2();
-        m2_1=m1.buildPartOfMySelf(cells2,True);
+        m1=MEDCouplingDataForTest.build1DSourceMesh_2()
+        m2_1=m1.buildPartOfMySelf(cells2,True)
         m2=m2_1
         self.assertTrue(isinstance(m2,MEDCouplingUMesh))
         # no permutation policy 0
         isOk,arr=m1.areCellsIncludedIn(m2,0)
-        self.assertTrue(isOk);
-        self.assertEqual(2,arr.getNumberOfTuples());
-        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertTrue(isOk)
+        self.assertEqual(2,arr.getNumberOfTuples())
+        self.assertEqual(1,arr.getNumberOfComponents())
         self.assertEqual(cells2,arr.getValues())
         # no permutation policy 1
         isOk,arr=m1.areCellsIncludedIn(m2,1)
-        self.assertTrue(isOk);
-        self.assertEqual(2,arr.getNumberOfTuples());
-        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertTrue(isOk)
+        self.assertEqual(2,arr.getNumberOfTuples())
+        self.assertEqual(1,arr.getNumberOfComponents())
         self.assertEqual(cells2,arr.getValues())
         # no permutation policy 2
         isOk,arr=m1.areCellsIncludedIn(m2,2)
-        self.assertTrue(isOk);
-        self.assertEqual(2,arr.getNumberOfTuples());
-        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertTrue(isOk)
+        self.assertEqual(2,arr.getNumberOfTuples())
+        self.assertEqual(1,arr.getNumberOfComponents())
         self.assertEqual(cells2,arr.getValues())
         # some modification into m2
         modif3=[4,3]
@@ -898,21 +898,21 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         #policy 0 fails because cell0 in m2 has not exactly the same conn
         expected2=[4,2]
         isOk,arr=m1.areCellsIncludedIn(m2,0)
-        self.assertTrue(not isOk);
-        self.assertEqual(2,arr.getNumberOfTuples());
-        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertTrue(not isOk)
+        self.assertEqual(2,arr.getNumberOfTuples())
+        self.assertEqual(1,arr.getNumberOfComponents())
         self.assertEqual(expected2,arr.getValues())
         #policy 1 fails too because cell0 in m2 has not same orientation
         isOk,arr=m1.areCellsIncludedIn(m2,1)
-        self.assertTrue(not isOk);
-        self.assertEqual(2,arr.getNumberOfTuples());
-        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertTrue(not isOk)
+        self.assertEqual(2,arr.getNumberOfTuples())
+        self.assertEqual(1,arr.getNumberOfComponents())
         self.assertEqual(expected2,arr.getValues())
         #policy 2 succeeds because cell0 in m2 has same nodes in connectivity
         isOk,arr=m1.areCellsIncludedIn(m2,2)
-        self.assertTrue(isOk);
-        self.assertEqual(2,arr.getNumberOfTuples());
-        self.assertEqual(1,arr.getNumberOfComponents());
+        self.assertTrue(isOk)
+        self.assertEqual(2,arr.getNumberOfTuples())
+        self.assertEqual(1,arr.getNumberOfComponents())
         self.assertEqual(cells2,arr.getValues())
         pass
 
@@ -928,7 +928,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         d=DataArrayInt.New([4,5,6,10,3,-1],2,3)
         self.toSeeIfDaIIopsAreOK(d)
         dExp=DataArrayInt.New([2,4,6,0,0,6],2,3)
-        self.assertTrue(d.isEqual(dExp));
+        self.assertTrue(d.isEqual(dExp))
         pass
 
     def toSeeIfDaDIopsAreOK(self,d):
@@ -942,7 +942,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         d=DataArrayDouble.New([4.,5.,6.,10.,3.,-1.],2,3)
         self.toSeeIfDaDIopsAreOK(d)
         dExp=DataArrayDouble.New([16.,18.,20.,28.,14.,6.],2,3)
-        self.assertTrue(d.isEqual(dExp,1e-14));
+        self.assertTrue(d.isEqual(dExp,1e-14))
         pass
 
     def testConvexEnvelop2D1(self):
@@ -950,22 +950,22 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         conn=[0,2,3,4,5,6,1,1,8,2,0,6,18,7,2,9,10,3,0,1,8,3,10,11,12,4,0,2,4,3,12,13,14,5,0,5,0,4,14,15,16,6,6,1,0,5,16,17,18,7,20,8,1,18,36,19,8,21,9,2,1,7,20,9,22,23,10,2,8,21,10,23,24,11,3,2,9,11,24,25,26,12,3,10,12,11,26,27,13,4,3,13,12,27,28,29,14,4,14,4,13,29,30,15,5,15,5,14,30,31,32,16,16,6,5,15,32,33,17,17,18,6,16,33,34,35,18,7,1,6,17,35,36,19,38,20,7,36,60,37,20,39,21,8,7,19,38,21,40,22,9,8,20,39,22,41,42,23,9,21,40,23,42,43,24,10,9,22,24,43,44,25,11,10,23,25,44,45,46,26,11,24,26,25,46,47,27,12,11,27,26,47,48,28,13,12,28,27,48,49,50,29,13,29,13,28,50,51,30,14,30,14,29,51,52,31,15,31,15,30,52,53,54,32,32,16,15,31,54,55,33,33,17,16,32,55,56,34,34,35,17,33,56,57,58,35,36,18,17,34,58,59,36,19,7,18,35,59,60,37,62,38,19,60,90,61,38,63,39,20,19,37,62,39,64,40,21,20,38,63,40,65,41,22,21,39,64,41,66,67,42,22,40,65,42,67,68,43,23,22,41,43,68,69,44,24,23,42,44,69,70,45,25,24,43,45,70,71,72,46,25,44,46,45,72,73,47,26,25,47,46,73,74,48,27,26,48,47,74,75,49,28,27,49,48,75,76,77,50,28,50,28,49,77,78,51,29,51,29,50,78,79,52,30,52,30,51,79,80,53,31,53,31,52,80,81,82,54,54,32,31,53,82,83,55,55,33,32,54,83,84,56,56,34,33,55,84,85,57,57,58,34,56,85,86,87,58,59,35,34,57,87,88,59,60,36,35,58,88,89,60,37,19,36,59,89,90,61,92,62,37,90,126,91,62,93,63,38,37,61,92,63,94,64,39,38,62,93,64,95,65,40,39,63,94,65,96,66,41,40,64,95,66,97,98,67,41,65,96,67,98,99,68,42,41,66,68,99,100,69,43,42,67,69,100,101,70,44,43,68,70,101,102,71,45,44,69,71,102,103,104,72,45,70,72,71,104,105,73,46,45,73,72,105,106,74,47,46,74,73,106,107,75,48,47,75,74,107,108,76,49,48,76,75,108,109,110,77,49,77,49,76,110,111,78,50,78,50,77,111,112,79,51,79,51,78,112,113,80,52,80,52,79,113,114,81,53,81,53,80,114,115,116,82,82,54,53,81,116,117,83,83,55,54,82,117,118,84,84,56,55,83,118,119,85,85,57,56,84,119,120,86,86,87,57,85,120,121,122,87,88,58,57,86,122,123,88,89,59,58,87,123,124,89,90,60,59,88,124,125,90,61,37,60,89,125,126,91,128,92,61,126,168,127,92,129,93,62,61,91,128,93,130,94,63,62,92,129,94,131,95,64,63,93,130,95,132,96,65,64,94,131,96,133,97,66,65,95,132,97,134,135,98,66,96,133,98,135,136,99,67,66,97,99,136,137,100,68,67,98,100,137,138,101,69,68,99,101,138,139,102,70,69,100,102,139,140,103,71,70,101,103,140,141,142,104,71,102,104,103,142,143,105,72,71,105,104,143,144,106,73,72,106,105,144,145,107,74,73,107,106,145,146,108,75,74,108,107,146,147,109,76,75,109,108,147,148,149,110,76,110,76,109,149,150,111,77,111,77,110,150,151,112,78,112,78,111,151,152,113,79,113,79,112,152,153,114,80,114,80,113,153,154,115,81,115,81,114,154,155,156,116,116,82,81,115,156,157,117,117,83,82,116,157,158,118,118,84,83,117,158,159,119,119,85,84,118,159,160,120,120,86,85,119,160,161,121,121,122,86,120,161,162,163,122,123,87,86,121,163,164,123,124,88,87,122,164,165,124,125,89,88,123,165,166,125,126,90,89,124,166,167,126,91,61,90,125,167,168,127,170,128,91,168,216,169,128,171,129,92,91,127,170,129,172,130,93,92,128,171,130,173,131,94,93,129,172,131,174,132,95,94,130,173,132,175,133,96,95,131,174,133,176,134,97,96,132,175,134,177,178,135,97,133,176,135,178,179,136,98,97,134,136,179,180,137,99,98,135,137,180,181,138,100,99,136,138,181,182,139,101,100,137,139,182,183,140,102,101,138,140,183,184,141,103,102,139,141,184,185,186,142,103,140,142,141,186,187,143,104,103,143,142,187,188,144,105,104,144,143,188,189,145,106,105,145,144,189,190,146,107,106,146,145,190,191,147,108,107,147,146,191,192,148,109,108,148,147,192,193,194,149,109,149,109,148,194,195,150,110,150,110,149,195,196,151,111,151,111,150,196,197,152,112,152,112,151,197,198,153,113,153,113,152,198,199,154,114,154,114,153,199,200,155,115,155,115,154,200,201,202,156,156,116,115,155,202,203,157,157,117,116,156,203,204,158,158,118,117,157,204,205,159,159,119,118,158,205,206,160,160,120,119,159,206,207,161,161,121,120,160,207,208,162,162,163,121,161,208,209,210,163,164,122,121,162,210,211,164,165,123,122,163,211,212,165,166,124,123,164,212,213,166,167,125,124,165,213,214,167,168,126,125,166,214,215,168,127,91,126,167,215,216,169,218,170,127,216,270,217,170,219,171,128,127,169,218,171,220,172,129,128,170,219,172,221,173,130,129,171,220,173,222,174,131,130,172,221,174,223,175,132,131,173,222,175,224,176,133,132,174,223,176,225,177,134,133,175,224,177,226,227,178,134,176,225,178,227,228,179,135,134,177,179,228,229,180,136,135,178,180,229,230,181,137,136,179,181,230,231,182,138,137,180,182,231,232,183,139,138,181,183,232,233,184,140,139,182,184,233,234,185,141,140,183,185,234,235,236,186,141,184,186,185,236,237,187,142,141,187,186,237,238,188,143,142,188,187,238,239,189,144,143,189,188,239,240,190,145,144,190,189,240,241,191,146,145,191,190,241,242,192,147,146,192,191,242,243,193,148,147,193,192,243,244,245,194,148,194,148,193,245,246,195,149,195,149,194,246,247,196,150,196,150,195,247,248,197,151,197,151,196,248,249,198,152,198,152,197,249,250,199,153,199,153,198,250,251,200,154,200,154,199,251,252,201,155,201,155,200,252,253,254,202,202,156,155,201,254,255,203,203,157,156,202,255,256,204,204,158,157,203,256,257,205,205,159,158,204,257,258,206,206,160,159,205,258,259,207,207,161,160,206,259,260,208,208,162,161,207,260,261,209,209,210,162,208,261,262,263,210,211,163,162,209,263,264,211,212,164,163,210,264,265,212,213,165,164,211,265,266,213,214,166,165,212,266,267,214,215,167,166,213,267,268,215,216,168,167,214,268,269,216,169,127,168,215,269,270,217,272,218,169,270,330,271,218,273,219,170,169,217,272,219,274,220,171,170,218,273,220,275,221,172,171,219,274,221,276,222,173,172,220,275,222,277,223,174,173,221,276,223,278,224,175,174,222,277,224,279,225,176,175,223,278,225,280,226,177,176,224,279,226,281,282,227,177,225,280,227,282,283,228,178,177,226,228,283,284,229,179,178,227,229,284,285,230,180,179,228,230,285,286,231,181,180,229,231,286,287,232,182,181,230,232,287,288,233,183,182,231,233,288,289,234,184,183,232,234,289,290,235,185,184,233,235,290,291,292,236,185,234,236,235,292,293,237,186,185,237,236,293,294,238,187,186,238,237,294,295,239,188,187,239,238,295,296,240,189,188,240,239,296,297,241,190,189,241,240,297,298,242,191,190,242,241,298,299,243,192,191,243,242,299,300,244,193,192,244,243,300,301,302,245,193,245,193,244,302,303,246,194,246,194,245,303,304,247,195,247,195,246,304,305,248,196,248,196,247,305,306,249,197,249,197,248,306,307,250,198,250,198,249,307,308,251,199,251,199,250,308,309,252,200,252,200,251,309,310,253,201,253,201,252,310,311,312,254,254,202,201,253,312,313,255,255,203,202,254,313,314,256,256,204,203,255,314,315,257,257,205,204,256,315,316,258,258,206,205,257,316,317,259,259,207,206,258,317,318,260,260,208,207,259,318,319,261,261,209,208,260,319,320,262,262,263,209,261,320,321,322,263,264,210,209,262,322,323,264,265,211,210,263,323,324,265,266,212,211,264,324,325,266,267,213,212,265,325,326,267,268,214,213,266,326,327,268,269,215,214,267,327,328,269,270,216,215,268,328,329,270,217,169,216,269,329,330,271,272,217,330,273,218,217,271,274,219,218,272,275,220,219,273,276,221,220,274,277,222,221,275,278,223,222,276,279,224,223,277,280,225,224,278,281,226,225,279,281,282,226,280,283,227,226,281,284,228,227,282,285,229,228,283,286,230,229,284,287,231,230,285,288,232,231,286,289,233,232,287,290,234,233,288,291,235,234,289,291,292,235,290,291,293,236,235,292,294,237,236,293,295,238,237,294,296,239,238,295,297,240,239,296,298,241,240,297,299,242,241,298,300,243,242,299,301,244,243,301,300,302,244,244,301,303,245,245,302,304,246,246,303,305,247,247,304,306,248,248,305,307,249,249,306,308,250,250,307,309,251,251,308,310,252,252,309,311,253,311,253,310,312,254,253,311,313,255,254,312,314,256,255,313,315,257,256,314,316,258,257,315,317,259,258,316,318,260,259,317,319,261,260,318,320,262,261,319,321,321,322,262,320,323,263,262,321,324,264,263,322,325,265,264,323,326,266,265,324,327,267,266,325,328,268,267,326,329,269,268,327,330,270,269,328,271,217,270,329]
         connI=[0,7,14,21,28,35,42,49,56,63,70,77,84,91,98,105,112,119,126,133,140,147,154,161,168,175,182,189,196,203,210,217,224,231,238,245,252,259,266,273,280,287,294,301,308,315,322,329,336,343,350,357,364,371,378,385,392,399,406,413,420,427,434,441,448,455,462,469,476,483,490,497,504,511,518,525,532,539,546,553,560,567,574,581,588,595,602,609,616,623,630,637,644,651,658,665,672,679,686,693,700,707,714,721,728,735,742,749,756,763,770,777,784,791,798,805,812,819,826,833,840,847,854,861,868,875,882,889,896,903,910,917,924,931,938,945,952,959,966,973,980,987,994,1001,1008,1015,1022,1029,1036,1043,1050,1057,1064,1071,1078,1085,1092,1099,1106,1113,1120,1127,1134,1141,1148,1155,1162,1169,1176,1183,1190,1197,1204,1211,1218,1225,1232,1239,1246,1253,1260,1267,1274,1281,1288,1295,1302,1309,1316,1323,1330,1337,1344,1351,1358,1365,1372,1379,1386,1393,1400,1407,1414,1421,1428,1435,1442,1449,1456,1463,1470,1477,1484,1491,1498,1505,1512,1519,1526,1533,1540,1547,1554,1561,1568,1575,1582,1589,1596,1603,1610,1617,1624,1631,1638,1645,1652,1659,1666,1673,1680,1687,1694,1701,1708,1715,1722,1729,1736,1743,1750,1757,1764,1771,1778,1785,1792,1799,1806,1813,1820,1827,1834,1841,1848,1855,1862,1869,1876,1883,1890,1897,1901,1905,1909,1913,1917,1921,1925,1929,1933,1937,1941,1945,1949,1953,1957,1961,1965,1969,1973,1977,1981,1985,1989,1993,1997,2001,2005,2009,2013,2017,2021,2025,2029,2033,2037,2041,2045,2049,2053,2057,2061,2065,2069,2073,2077,2081,2085,2089,2093,2097,2101,2105,2109,2113,2117,2121,2125,2129,2133,2137]
         #
-        m=MEDCouplingUMesh.New("convexhull",2);
-        m.allocateCells(331);
+        m=MEDCouplingUMesh.New("convexhull",2)
+        m.allocateCells(331)
         for i in range(331):
-            m.insertNextCell(NORM_POLYGON,conn[connI[i]:connI[i+1]]);
+            m.insertNextCell(NORM_POLYGON,conn[connI[i]:connI[i+1]])
             pass
-        m.finishInsertingCells();
-        coordsDa=DataArrayDouble.New(coords,331,2);
-        m.setCoords(coordsDa);
-        m.checkConsistencyLight();
+        m.finishInsertingCells()
+        coordsDa=DataArrayDouble.New(coords,331,2)
+        m.setCoords(coordsDa)
+        m.checkConsistencyLight()
         #
-        da=m.convexEnvelop2D();
+        da=m.convexEnvelop2D()
         m.checkConsistencyLight()
         self.assertEqual(coordsDa.getHiddenCppPointer(),m.getCoords().getHiddenCppPointer())
-        daC=da.buildComplement(m.getNumberOfCells());
-        expected2=DataArrayInt.New([271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,302,303,304,305,306,307,308,309,310,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330]);
-        self.assertTrue(expected2.isEqual(daC));
+        daC=da.buildComplement(m.getNumberOfCells())
+        expected2=DataArrayInt.New([271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,302,303,304,305,306,307,308,309,310,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330])
+        self.assertTrue(expected2.isEqual(daC))
         #
         vals=m.getMeasureField(False).getArray()
         ref=271*[184.69493088478035]+3*[-61.564976961404426,-92.34746544254946,-92.34746544259811,-92.34746544253488,-92.3474654425349,-92.34746544180479,-92.34746544253493,-92.3474654419026,-92.34746544190256,-92.34746544253491]+2*[61.564976961404426,-92.34746544254946,-92.34746544259811,-92.34746544253488,-92.3474654425349,-92.34746544180479,-92.34746544253493,-92.3474654419026,-92.34746544190256,-92.34746544253491]+[-61.564976961404426,-92.34746544254946,-92.34746544259811,-92.34746544253488,-92.3474654425349,-92.34746544180479,-92.34746544253493,-92.3474654419026,-92.34746544190256,-92.34746544253491]
@@ -993,69 +993,69 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         pass
 
     def testDataArraySort1(self):
-        arr=DataArrayInt.New();
+        arr=DataArrayInt.New()
         self.assertRaises(InterpKernelException,arr.sort,True)
         self.assertRaises(InterpKernelException,arr.sort,False)
         values=[2,1,6,5,4,7]
-        arr.alloc(3,2);
+        arr.alloc(3,2)
         self.assertRaises(InterpKernelException,arr.sort,True)
         self.assertRaises(InterpKernelException,arr.sort,False)
-        arr.rearrange(1);
+        arr.rearrange(1)
         arr.setValues(values,6,1)
-        arr1=arr.deepCopy();
-        arr2=arr.deepCopy();
-        arr1.sort(True);
+        arr1=arr.deepCopy()
+        arr2=arr.deepCopy()
+        arr1.sort(True)
         expected1=[1,2,4,5,6,7]
-        self.assertEqual(6,arr1.getNumberOfTuples());
-        self.assertEqual(1,arr1.getNumberOfComponents());
-        self.assertEqual(expected1,arr1.getValues());
-        arr2.sort(False);
+        self.assertEqual(6,arr1.getNumberOfTuples())
+        self.assertEqual(1,arr1.getNumberOfComponents())
+        self.assertEqual(expected1,arr1.getValues())
+        arr2.sort(False)
         expected2=[7,6,5,4,2,1]
-        self.assertEqual(6,arr2.getNumberOfTuples());
-        self.assertEqual(1,arr2.getNumberOfComponents());
-        self.assertTrue(expected2,arr2.getValues());
+        self.assertEqual(6,arr2.getNumberOfTuples())
+        self.assertEqual(1,arr2.getNumberOfComponents())
+        self.assertTrue(expected2,arr2.getValues())
         #
-        ard=DataArrayDouble.New();
+        ard=DataArrayDouble.New()
         self.assertRaises(InterpKernelException,ard.sort,True)
         self.assertRaises(InterpKernelException,ard.sort,False)
         valuesD=[2.,1.,6.,5.,4.,7.]
-        ard.alloc(3,2);
+        ard.alloc(3,2)
         self.assertRaises(InterpKernelException,ard.sort,True)
         self.assertRaises(InterpKernelException,ard.sort,False)
-        ard.rearrange(1);
+        ard.rearrange(1)
         ard.setValues(valuesD,6,1)
-        ard1=ard.deepCopy();
-        ard2=ard.deepCopy();
-        ard1.sort(True);
+        ard1=ard.deepCopy()
+        ard2=ard.deepCopy()
+        ard1.sort(True)
         expected3=[1.,2.,4.,5.,6.,7.]
-        self.assertEqual(6,ard1.getNumberOfTuples());
-        self.assertEqual(1,ard1.getNumberOfComponents());
+        self.assertEqual(6,ard1.getNumberOfTuples())
+        self.assertEqual(1,ard1.getNumberOfComponents())
         for i in range(6):
             self.assertAlmostEqual(expected3[i],ard1.getIJ(i,0),12)
             pass
-        ard2.sort(False);
+        ard2.sort(False)
         expected4=[7.,6.,5.,4.,2.,1.]
-        self.assertEqual(6,ard2.getNumberOfTuples());
-        self.assertEqual(1,ard2.getNumberOfComponents());
+        self.assertEqual(6,ard2.getNumberOfTuples())
+        self.assertEqual(1,ard2.getNumberOfComponents())
         for i in range(6):
             self.assertAlmostEqual(expected4[i],ard2.getIJ(i,0),12)
             pass
         pass
 
     def testPartitionBySpreadZone1(self):
-        m=MEDCouplingDataForTest.build2DTargetMesh_1();
-        m4=MEDCouplingUMesh.MergeUMeshes([m,m[-3:],m[0:2]]);
-        m4.renumberCells([5,2,9,6,4,7,0,1,3,8]);
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        m4=MEDCouplingUMesh.MergeUMeshes([m,m[-3:],m[0:2]])
+        m4.renumberCells([5,2,9,6,4,7,0,1,3,8])
         #
-        v2=m4.partitionBySpreadZone();
-        self.assertTrue(3,len(v2));
+        v2=m4.partitionBySpreadZone()
+        self.assertTrue(3,len(v2))
         self.assertTrue(v2[0].isEqual(DataArrayInt.New([0,1,7])))
         self.assertTrue(v2[1].isEqual(DataArrayInt.New([2,4,5,6,9])))
         self.assertTrue(v2[2].isEqual(DataArrayInt.New([3,8])))
         #
-        m5=m4.buildSpreadZonesWithPoly();
-        self.assertEqual(3,m5.getNumberOfCells());
-        self.assertTrue(m5.getCoords().getHiddenCppPointer()==m4.getCoords().getHiddenCppPointer());
+        m5=m4.buildSpreadZonesWithPoly()
+        self.assertEqual(3,m5.getNumberOfCells())
+        self.assertTrue(m5.getCoords().getHiddenCppPointer()==m4.getCoords().getHiddenCppPointer())
         self.assertEqual([5,15,16,17,14,11,13,12,5,2,1,0,3,6,7,8,5,5,18,21,22,20,19],m5.getNodalConnectivity().getValues())
         self.assertEqual([0,8,17,23],m5.getNodalConnectivityIndex().getValues())
         #
@@ -1064,20 +1064,20 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
     def testGiveCellsWithType1(self):
         expected0=[1,2]
         expected1=[0,3,4]
-        m=MEDCouplingDataForTest.build2DTargetMesh_1();
-        da=m.giveCellsWithType(NORM_TRI3);
-        self.assertEqual(2,da.getNumberOfTuples());
-        self.assertEqual(1,da.getNumberOfComponents());
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        da=m.giveCellsWithType(NORM_TRI3)
+        self.assertEqual(2,da.getNumberOfTuples())
+        self.assertEqual(1,da.getNumberOfComponents())
         self.assertEqual(expected0,da.getValues())
         #
-        da=m.giveCellsWithType(NORM_QUAD4);
-        self.assertEqual(3,da.getNumberOfTuples());
-        self.assertEqual(1,da.getNumberOfComponents());
+        da=m.giveCellsWithType(NORM_QUAD4)
+        self.assertEqual(3,da.getNumberOfTuples())
+        self.assertEqual(1,da.getNumberOfComponents())
         self.assertEqual(expected1,da.getValues())
         #
-        da=m.giveCellsWithType(NORM_TRI6);
-        self.assertEqual(0,da.getNumberOfTuples());
-        self.assertEqual(1,da.getNumberOfComponents());
+        da=m.giveCellsWithType(NORM_TRI6)
+        self.assertEqual(0,da.getNumberOfTuples())
+        self.assertEqual(1,da.getNumberOfComponents())
         #
         self.assertRaises(InterpKernelException,m.giveCellsWithType,NORM_SEG2)
         self.assertRaises(InterpKernelException,m.giveCellsWithType,NORM_HEXA8)
@@ -1193,10 +1193,10 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         pass
 
     def testBuildSlice3D2(self):
-        mesh3D,mesh2D=MEDCouplingDataForTest.build3DExtrudedUMesh_1();
+        mesh3D,mesh2D=MEDCouplingDataForTest.build3DExtrudedUMesh_1()
         vec1=[-0.07,1.,0.07]
         origin1=[1.524,1.4552,1.74768]
-        slice1,ids=mesh3D.buildSlice3D(origin1,vec1,1e-10);
+        slice1,ids=mesh3D.buildSlice3D(origin1,vec1,1e-10)
         f=MEDCouplingFieldDouble(ON_CELLS,ONE_TIME)
         f.setTime(4.5,6,7) ; f.setMesh(mesh3D)
         arr=DataArrayDouble(mesh3D.getNumberOfCells(),2)
@@ -1208,16 +1208,16 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         arr2=arr[expected1]
         #
         f2=f.extractSlice3D(origin1,vec1,1e-10)
-        self.assertTrue(f2.getArray().isEqual(arr2,1e-12));
+        self.assertTrue(f2.getArray().isEqual(arr2,1e-12))
         self.assertTrue(slice1.isEqual(f2.getMesh(),1e-12))
         self.assertEqual(6,f2.getTime()[1]) ; self.assertEqual(7,f2.getTime()[2])
-        self.assertAlmostEqual(4.5,f2.getTime()[0],12);
+        self.assertAlmostEqual(4.5,f2.getTime()[0],12)
         pass
 
     def testComputeTupleIdsToSelectFromCellIds1(self):
         m=MEDCouplingDataForTest.build2DTargetMesh_3()
-        f=MEDCouplingFieldDouble.New(ON_GAUSS_NE,NO_TIME);
-        f.setMesh(m);
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_NE,NO_TIME)
+        f.setMesh(m)
         arr=DataArrayDouble(52,2) ; arr.rearrange(1) ; arr.iota(7.) ; arr.rearrange(2)
         f.setArray(arr)
         #
@@ -1246,7 +1246,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         ids=skin.computeFetchedNodeIds()
         self.assertEqual([0,1,2,3,4,5,9,10,14,15,19,20,24,25,26,27,28,29],ids.getValues())
         part=umesh.buildFacePartOfMySelfNode(ids,True)
-        part.setName(skin.getName());
+        part.setName(skin.getName())
         self.assertTrue(part.isEqual(skin,1e-12))
         part2=part[1::2]
         part[::2]=part2
@@ -1303,26 +1303,26 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
     def testUnPolyze3(self):
         coord=[0.0,0.5,-0.5,-0.5,-0.5,-0.5,0.5,-0.5,-0.5,0.0,0.5,0.5,-0.5,-0.5,0.5,0.5,-0.5,0.5]
         conn=[1,2,5,4,-1,4,3,0,1,-1,2,0,3,5,-1,0,2,1,-1,4,5,3]
-        m=MEDCouplingUMesh.New("a mesh",3);
-        m.allocateCells(1);
+        m=MEDCouplingUMesh.New("a mesh",3)
+        m.allocateCells(1)
         m.insertNextCell(NORM_POLYHED,22,conn[0:22])
-        m.finishInsertingCells();
-        coords=DataArrayDouble(coord,6,3);
-        m.setCoords(coords);
-        m.checkConsistencyLight();
+        m.finishInsertingCells()
+        coords=DataArrayDouble(coord,6,3)
+        m.setCoords(coords)
+        m.checkConsistencyLight()
         #
-        vol=m.getMeasureField(False);
-        self.assertEqual(1,vol.getArray().getNumberOfTuples());
+        vol=m.getMeasureField(False)
+        self.assertEqual(1,vol.getArray().getNumberOfTuples())
         self.assertAlmostEqual(0.5,vol.getArray().getIJ(0,0),12)
         #
-        m.unPolyze();
+        m.unPolyze()
         #
         self.assertEqual([NORM_PENTA6],m.getAllGeoTypes())
         self.assertTrue(DataArrayInt([0,7]).isEqual(m.getNodalConnectivityIndex()))
         self.assertTrue(DataArrayInt([16,0,2,1,3,5,4]).isEqual(m.getNodalConnectivity()))
         #
-        vol=m.getMeasureField(False);
-        self.assertEqual(1,vol.getArray().getNumberOfTuples());
+        vol=m.getMeasureField(False)
+        self.assertEqual(1,vol.getArray().getNumberOfTuples())
         self.assertAlmostEqual(0.5,vol.getArray().getIJ(0,0),12)
         pass
 
@@ -1333,23 +1333,23 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         targetFieldValsExpected=[2.975379475824351, 2.95613491917003, 2.936890362515361, 2.917645805861018, 2.898401249206574, 2.879156692552137, 2.859912135897732, 2.840667579243201, 2.821423022588731, 2.802178465934342, 2.78293390927989, 2.763689352625457, 2.744444795971001, 2.725209522098197, 2.709077577124666, 2.706677252549218, 2.727467797847971, 2.713338094723676, 2.671342424824244, 2.664877370146978, 2.653840141412181, 2.619607861392791, 2.569777214476479, 2.513263929794591, 2.450732752808528, 2.368313560985155, 2.250909795670307, 2.098194272085416, 1.954257891732065, 1.895040660973802, 1.865256788315972, 1.835475248687992, 1.80569370905998, 1.775912169431971, 1.746130629803976, 1.716349090175918, 1.686567550547855, 1.656786010919941, 1.627004471291988, 1.597222931663817]
         coeffsExpected=DataArrayDouble.New([52.238272642008695, 26.186513281350948, -173.42106377948534, 324.56733663875184, -104.64968873410248, 34.375030568158316, -256.12372208190425, 105.2292032463934, -16.239907618144965, 7.838025836978943, 2.621910745077291, -0.4902609628247241])
         #
-        nbOfInputPoints=10;
-        f=MEDCouplingFieldDouble.New(ON_NODES_KR,ONE_TIME);
-        srcArrX=DataArrayDouble.New(srcPointCoordsX,nbOfInputPoints,1);
-        cmesh=MEDCouplingCMesh.New("aMesh");
-        cmesh.setCoordsAt(0,srcArrX);
-        umesh=cmesh.buildUnstructured();
-        f.setMesh(umesh);
-        srcVals=DataArrayDouble.New(srcFieldValsOnPoints,nbOfInputPoints,1);
-        f.setArray(srcVals);
-        f.checkConsistencyLight();
+        nbOfInputPoints=10
+        f=MEDCouplingFieldDouble.New(ON_NODES_KR,ONE_TIME)
+        srcArrX=DataArrayDouble.New(srcPointCoordsX,nbOfInputPoints,1)
+        cmesh=MEDCouplingCMesh.New("aMesh")
+        cmesh.setCoordsAt(0,srcArrX)
+        umesh=cmesh.buildUnstructured()
+        f.setMesh(umesh)
+        srcVals=DataArrayDouble.New(srcFieldValsOnPoints,nbOfInputPoints,1)
+        f.setArray(srcVals)
+        f.checkConsistencyLight()
         #
-        res0=f.getValueOn(targetPointCoordsX[:1]);
+        res0=f.getValueOn(targetPointCoordsX[:1])
         self.assertAlmostEqual(targetFieldValsExpected[0],res0[0],10)
         #
-        valuesToTest=f.getValueOnMulti(targetPointCoordsX);
-        self.assertEqual(40,valuesToTest.getNumberOfTuples());
-        self.assertEqual(1,valuesToTest.getNumberOfComponents());
+        valuesToTest=f.getValueOnMulti(targetPointCoordsX)
+        self.assertEqual(40,valuesToTest.getNumberOfTuples())
+        self.assertEqual(1,valuesToTest.getNumberOfComponents())
         for i in range(40):
             self.assertAlmostEqual(targetFieldValsExpected[i],valuesToTest.getIJ(i,0),10)
             pass
@@ -1529,31 +1529,31 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         data2=[6,2,0,-8,-9,-56]
         data3=[-1,0,3,2,4,6]
         data4=[7,5,2,3,0,-6]
-        d=DataArrayInt.New(data1);
-        self.assertTrue(d.isMonotonic(True));
-        self.assertTrue(not d.isMonotonic(False));
-        d.checkMonotonic(True);
+        d=DataArrayInt.New(data1)
+        self.assertTrue(d.isMonotonic(True))
+        self.assertTrue(not d.isMonotonic(False))
+        d.checkMonotonic(True)
         self.assertRaises(InterpKernelException,d.checkMonotonic,False)
-        d=DataArrayInt.New(data2);
-        self.assertTrue(d.isMonotonic(False));
-        self.assertTrue(not d.isMonotonic(True));
-        d.checkMonotonic(False);
+        d=DataArrayInt.New(data2)
+        self.assertTrue(d.isMonotonic(False))
+        self.assertTrue(not d.isMonotonic(True))
+        d.checkMonotonic(False)
         self.assertRaises(InterpKernelException,d.checkMonotonic,True)
-        d=DataArrayInt.New(data3);
-        self.assertTrue(not d.isMonotonic(False));
-        self.assertTrue(not d.isMonotonic(True));
+        d=DataArrayInt.New(data3)
+        self.assertTrue(not d.isMonotonic(False))
+        self.assertTrue(not d.isMonotonic(True))
         self.assertRaises(InterpKernelException,d.checkMonotonic,True)
         self.assertRaises(InterpKernelException,d.checkMonotonic,False)
-        d=DataArrayInt.New(data4);
-        self.assertTrue(not d.isMonotonic(False));
-        self.assertTrue(not d.isMonotonic(True));
+        d=DataArrayInt.New(data4)
+        self.assertTrue(not d.isMonotonic(False))
+        self.assertTrue(not d.isMonotonic(True))
         self.assertRaises(InterpKernelException,d.checkMonotonic,True)
         self.assertRaises(InterpKernelException,d.checkMonotonic,False)
         d=DataArrayInt.New(0,1)
-        self.assertTrue(d.isMonotonic(True));
-        self.assertTrue(d.isMonotonic(False));
-        d.checkMonotonic(True);
-        d.checkMonotonic(False);
+        self.assertTrue(d.isMonotonic(True))
+        self.assertTrue(d.isMonotonic(False))
+        d.checkMonotonic(True)
+        d.checkMonotonic(False)
         d=DataArrayInt.New(data4,3,2);#throw because nbComp!=1
         self.assertRaises(InterpKernelException,d.isMonotonic,True)
         self.assertRaises(InterpKernelException,d.isMonotonic,False)
@@ -1599,36 +1599,36 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
 
     def testIntersect2DMeshesTmp6(self):
         # coordinates
-        coords=DataArrayDouble.New([2.7554552980815448e-15,45,-45,5.5109105961630896e-15,-31.819805153394636,31.81980515339464,2.8779199779962799e-15,47,2.8166876380389124e-15,46,-47,5.7558399559925599e-15,-33.234018715767732,33.234018715767739,-46,5.6333752760778247e-15],8,2);
+        coords=DataArrayDouble.New([2.7554552980815448e-15,45,-45,5.5109105961630896e-15,-31.819805153394636,31.81980515339464,2.8779199779962799e-15,47,2.8166876380389124e-15,46,-47,5.7558399559925599e-15,-33.234018715767732,33.234018715767739,-46,5.6333752760778247e-15],8,2)
         # connectivity
         conn=DataArrayInt.New([8,0,3,5,1,4,6,7,2])
-        connI=DataArrayInt.New([0,9]);
-        m1=MEDCouplingUMesh.New("Fixe",2);
-        m1.setCoords(coords);
-        m1.setConnectivity(conn,connI,True);
+        connI=DataArrayInt.New([0,9])
+        m1=MEDCouplingUMesh.New("Fixe",2)
+        m1.setCoords(coords)
+        m1.setConnectivity(conn,connI,True)
         #
-        coords=DataArrayDouble.New([-7.3800475508445391,41.854329503018846,-3.7041190667754655,42.338274668899189,-3.7041190667754655,45.338274668899189,-7.3800475508445382,44.854329503018839,-5.5473631693521845,42.136406608386956,-3.7041190667754655,43.838274668899189,-5.5420833088100014,45.09630208595901,-7.3800475508445382,43.354329503018839,-3.7041190667754651,52.338274668899189,-7.3800475508445382,51.854329503018839,-3.7041190667754655,48.838274668899189,-5.5420833088100014,52.09630208595901,-7.3800475508445382,48.354329503018839],13,2);
+        coords=DataArrayDouble.New([-7.3800475508445391,41.854329503018846,-3.7041190667754655,42.338274668899189,-3.7041190667754655,45.338274668899189,-7.3800475508445382,44.854329503018839,-5.5473631693521845,42.136406608386956,-3.7041190667754655,43.838274668899189,-5.5420833088100014,45.09630208595901,-7.3800475508445382,43.354329503018839,-3.7041190667754651,52.338274668899189,-7.3800475508445382,51.854329503018839,-3.7041190667754655,48.838274668899189,-5.5420833088100014,52.09630208595901,-7.3800475508445382,48.354329503018839],13,2)
         # connectivity
-        conn=DataArrayInt.New([8,0,1,2,3,4,5,6,7,8,3,2,8,9,6,10,11,12]);
-        connI=DataArrayInt.New([0,9,18]);
+        conn=DataArrayInt.New([8,0,1,2,3,4,5,6,7,8,3,2,8,9,6,10,11,12])
+        connI=DataArrayInt.New([0,9,18])
         #
-        m2=MEDCouplingUMesh.New("Mobile",2);
-        m2.setCoords(coords);
-        m2.setConnectivity(conn,connI,True);
+        m2=MEDCouplingUMesh.New("Mobile",2)
+        m2.setCoords(coords)
+        m2.setConnectivity(conn,connI,True)
         #
-        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1,m2,1e-10);
-        self.assertTrue(d1.isEqual(DataArrayInt([0,0,0,0])));
-        self.assertTrue(d2.isEqual(DataArrayInt([0,1,-1,-1])));
-        self.assertEqual(4,m3.getNumberOfCells());
-        self.assertEqual(4,d1.getNumberOfTuples());
-        self.assertEqual(4,d2.getNumberOfTuples());
-        self.assertEqual(43,m3.getNumberOfNodes());
+        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1,m2,1e-10)
+        self.assertTrue(d1.isEqual(DataArrayInt([0,0,0,0])))
+        self.assertTrue(d2.isEqual(DataArrayInt([0,1,-1,-1])))
+        self.assertEqual(4,m3.getNumberOfCells())
+        self.assertEqual(4,d1.getNumberOfTuples())
+        self.assertEqual(4,d2.getNumberOfTuples())
+        self.assertEqual(43,m3.getNumberOfNodes())
         dI,areMerged,newNbOfNodes=m3.mergeNodes(1e-12)
-        self.assertEqual(35,m3.getNumberOfNodes());
-        m3.zipCoords();
-        self.assertEqual(23,m3.getNumberOfNodes());
+        self.assertEqual(35,m3.getNumberOfNodes())
+        m3.zipCoords()
+        self.assertEqual(23,m3.getNumberOfNodes())
         #
-        f=m3.getMeasureField(True);
+        f=m3.getMeasureField(True)
         valuesExpected=DataArrayDouble([1.6603638692585716,5.747555728471923,129.68907101754394,7.4162714498559694])
         self.assertTrue(f.getArray().isEqual(valuesExpected,1e-12))
         pass
@@ -1761,96 +1761,96 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         da3=DataArrayInt.New([1,3,5])
         da4=DataArrayInt.New([1,3,5,6,7,9,13])
         #
-        a=da1.buildSubstractionOptimized(da2);
-        self.assertTrue(a.isEqual(DataArrayInt([1,6,7,13])));
+        a=da1.buildSubstractionOptimized(da2)
+        self.assertTrue(a.isEqual(DataArrayInt([1,6,7,13])))
         #
-        a=da1.buildSubstractionOptimized(da3);
-        self.assertTrue(a.isEqual(DataArrayInt([6,7,9,13])));
+        a=da1.buildSubstractionOptimized(da3)
+        self.assertTrue(a.isEqual(DataArrayInt([6,7,9,13])))
         #
-        a=da1.buildSubstractionOptimized(da4);
-        self.assertTrue(a.isEqual(DataArrayInt([])));
+        a=da1.buildSubstractionOptimized(da4)
+        self.assertTrue(a.isEqual(DataArrayInt([])))
         pass
 
     def testDAIIsStrictlyMonotonic1(self):
         da1=DataArrayInt.New([1,3,5,6,7,9,13])
-        self.assertTrue(da1.isStrictlyMonotonic(True));
-        da1.checkStrictlyMonotonic(True);
-        self.assertTrue(da1.isMonotonic(True));
-        da1.checkMonotonic(True);
-        self.assertTrue(not da1.isStrictlyMonotonic(False));
+        self.assertTrue(da1.isStrictlyMonotonic(True))
+        da1.checkStrictlyMonotonic(True)
+        self.assertTrue(da1.isMonotonic(True))
+        da1.checkMonotonic(True)
+        self.assertTrue(not da1.isStrictlyMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,False)
-        self.assertTrue(not da1.isMonotonic(False));
+        self.assertTrue(not da1.isMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,False)
         #
         da1=DataArrayInt.New([1,3,5,6,6,9,13])
-        self.assertTrue(not da1.isStrictlyMonotonic(True));
+        self.assertTrue(not da1.isStrictlyMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,True)
-        self.assertTrue(da1.isMonotonic(True));
-        da1.checkMonotonic(True);
-        self.assertTrue(not da1.isStrictlyMonotonic(False));
+        self.assertTrue(da1.isMonotonic(True))
+        da1.checkMonotonic(True)
+        self.assertTrue(not da1.isStrictlyMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,False)
-        self.assertTrue(not da1.isMonotonic(False));
+        self.assertTrue(not da1.isMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,False)
         #
         da1=DataArrayInt.New([1,3,5,6,5,9,13])
-        self.assertTrue(not da1.isStrictlyMonotonic(True));
+        self.assertTrue(not da1.isStrictlyMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,True)
-        self.assertTrue(not da1.isMonotonic(True));
+        self.assertTrue(not da1.isMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,True)
-        self.assertTrue(not da1.isStrictlyMonotonic(False));
+        self.assertTrue(not da1.isStrictlyMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,False)
-        self.assertTrue(not da1.isMonotonic(False));
+        self.assertTrue(not da1.isMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,False)
         #
         da1=DataArrayInt.New([13,9,7,6,5,3,1])
-        self.assertTrue(not da1.isStrictlyMonotonic(True));
+        self.assertTrue(not da1.isStrictlyMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,True)
-        self.assertTrue(not da1.isMonotonic(True));
+        self.assertTrue(not da1.isMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,True)
-        self.assertTrue(da1.isStrictlyMonotonic(False));
-        da1.checkStrictlyMonotonic(False);
-        self.assertTrue(da1.isMonotonic(False));
-        da1.checkMonotonic(False);
+        self.assertTrue(da1.isStrictlyMonotonic(False))
+        da1.checkStrictlyMonotonic(False)
+        self.assertTrue(da1.isMonotonic(False))
+        da1.checkMonotonic(False)
         #
         da1=DataArrayInt.New([13,9,6,6,5,3,1])
-        self.assertTrue(not da1.isStrictlyMonotonic(True));
+        self.assertTrue(not da1.isStrictlyMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,True)
-        self.assertTrue(not da1.isMonotonic(True));
+        self.assertTrue(not da1.isMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,True)
-        self.assertTrue(not da1.isStrictlyMonotonic(False));
+        self.assertTrue(not da1.isStrictlyMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,False)
-        self.assertTrue(da1.isMonotonic(False));
-        da1.checkMonotonic(False);
+        self.assertTrue(da1.isMonotonic(False))
+        da1.checkMonotonic(False)
         #
         da1=DataArrayInt.New([13,9,5,6,5,3,1])
-        self.assertTrue(not da1.isStrictlyMonotonic(True));
+        self.assertTrue(not da1.isStrictlyMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,True)
-        self.assertTrue(not da1.isMonotonic(True));
+        self.assertTrue(not da1.isMonotonic(True))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,True)
-        self.assertTrue(not da1.isStrictlyMonotonic(False));
+        self.assertTrue(not da1.isStrictlyMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkStrictlyMonotonic,False)
-        self.assertTrue(not da1.isMonotonic(False));
+        self.assertTrue(not da1.isMonotonic(False))
         self.assertRaises(InterpKernelException,da1.checkMonotonic,False)
         #
         da1=DataArrayInt.New([])
-        self.assertTrue(da1.isStrictlyMonotonic(True));
-        da1.checkStrictlyMonotonic(True);
-        self.assertTrue(da1.isMonotonic(True));
-        da1.checkMonotonic(True);
-        self.assertTrue(da1.isStrictlyMonotonic(False));
-        da1.checkStrictlyMonotonic(False);
-        self.assertTrue(da1.isMonotonic(False));
-        da1.checkMonotonic(False);
+        self.assertTrue(da1.isStrictlyMonotonic(True))
+        da1.checkStrictlyMonotonic(True)
+        self.assertTrue(da1.isMonotonic(True))
+        da1.checkMonotonic(True)
+        self.assertTrue(da1.isStrictlyMonotonic(False))
+        da1.checkStrictlyMonotonic(False)
+        self.assertTrue(da1.isMonotonic(False))
+        da1.checkMonotonic(False)
         #
         da1=DataArrayInt.New([13])
-        self.assertTrue(da1.isStrictlyMonotonic(True));
-        da1.checkStrictlyMonotonic(True);
-        self.assertTrue(da1.isMonotonic(True));
-        da1.checkMonotonic(True);
-        self.assertTrue(da1.isStrictlyMonotonic(False));
-        da1.checkStrictlyMonotonic(False);
-        self.assertTrue(da1.isMonotonic(False));
-        da1.checkMonotonic(False);
+        self.assertTrue(da1.isStrictlyMonotonic(True))
+        da1.checkStrictlyMonotonic(True)
+        self.assertTrue(da1.isMonotonic(True))
+        da1.checkMonotonic(True)
+        self.assertTrue(da1.isStrictlyMonotonic(False))
+        da1.checkStrictlyMonotonic(False)
+        self.assertTrue(da1.isMonotonic(False))
+        da1.checkMonotonic(False)
         pass
 
     def testFindAndCorrectBadOriented3DCells1(self):
@@ -1862,7 +1862,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         m2=MEDCouplingUMesh("m",3) ; m2.allocateCells(0); m2.insertNextCell(NORM_PENTA6,[0,1,2,3,4,5]); #Well oriented
         m3=MEDCouplingUMesh("m",3) ; m3.allocateCells(0); m3.insertNextCell(NORM_HEXA8,[0,1,2,3,4,5,6,7]); #Well oriented
         m4=MEDCouplingUMesh("m",3) ; m4.allocateCells(0)
-        self.assertRaises(InterpKernelException,m4.insertNextCell,NORM_HEXGP12,[0,1,2,3,4,5,6,7,8,9,10,11,12]);
+        self.assertRaises(InterpKernelException,m4.insertNextCell,NORM_HEXGP12,[0,1,2,3,4,5,6,7,8,9,10,11,12])
         m4.insertNextCell(NORM_HEXGP12,[0,1,2,3,4,5,6,7,8,9,10,11]); #Well oriented
         c0=DataArrayDouble([0.,0.,0.,0.,1.,0.,1.,0.,0.,0.,0.,1.],4,3) ; m0.setCoords(c0)
         c1=DataArrayDouble([0.,0.,0.,0.,1.,0.,1.,1.,0.,1.,0.,0.,0.,0.,1.],5,3) ; m1.setCoords(c1)
@@ -1943,7 +1943,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         coords=DataArrayDouble([-0.21606,-0.10803,0.29999999999999999,-0.21606,-0.10803,0.37700000000000006,0,-0.10803,0.29999999999999999,0,-0.10803,0.37700000000000006,0,0.10803,0.29999999999999999,0,0.10803,0.37700000000000006,-0.21606,0.10803,0.29999999999999999,-0.21606,0.10803,0.37700000000000006,0,0.03601,0.29999999999999999,0,0.03601,0.37700000000000006,0,-0.03601,0.29999999999999999,0,-0.03601,0.37700000000000006],12,3)
         conn=[[0,2,10,8,4,6],[1,3,11,9,5,7],[0,1,3,2],[2,3,11,10],[10,11,9,8],[8,9,5,4],[4,5,7,6],[6,7,1,0]]
         for i in range(256):
-            mesh=MEDCouplingUMesh("FluidMesh_1",3);
+            mesh=MEDCouplingUMesh("FluidMesh_1",3)
             mesh.allocateCells(0)
             conn2=[elt[:] for elt in conn]
             code=bin(i)[2:] ; code='0'*(8-len(code))+code
@@ -2001,10 +2001,10 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         m.insertNextCell(NORM_TRI3,[0,1,2])
         a,b=m.distanceToPoint([-0.335,2.27,1.21])
         self.assertEqual(0,b)
-        self.assertAlmostEqual(0.0223609881003,a,12);
+        self.assertAlmostEqual(0.0223609881003,a,12)
         a,b=m.distanceToPoint(DataArrayDouble([-0.335,2.27,1.21],1,3))
         self.assertEqual(0,b)
-        self.assertAlmostEqual(0.0223609881003,a,12);
+        self.assertAlmostEqual(0.0223609881003,a,12)
         a,b=coords.distanceToTuple([-0.335,2.27,1.21])
         self.assertAlmostEqual(5.243302871282566,a,14)
         self.assertEqual(0,b)
@@ -2250,7 +2250,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
 
     def testSwig2NonRegressionDASetSelectedComponents1(self):
         da=DataArrayDouble.New([1.,2.,3.,4.,5.,6.],3,2)
-        dv=DataArrayDouble.New();
+        dv=DataArrayDouble.New()
         dv.alloc(4,4)
         dv.fillWithZero()
         # da has less tuples than dv
@@ -2259,7 +2259,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         self.assertTrue(dv.isEqual(DataArrayDouble([2.,1.,0.,0.,4.,3.,0.,0.,6.,5.,0.,0.,0.,0.,0.,0.],4,4),1e-14))
         #
         da=DataArrayInt.New([1,2,3,4,5,6],3,2)
-        dv=DataArrayInt.New();
+        dv=DataArrayInt.New()
         dv.alloc(4,4)
         dv.fillWithZero()
         # da has less tuples than dv
@@ -2620,7 +2620,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
             ids3=ptsi.findClosestTupleId(d2i)
             idsExpected3=idsExpected2.deepCopy() ; idsExpected3.reverse()
             self.assertTrue(idsExpected3.isEqual(ids3))
-            
+
             #
             ones = [1.0]*nbPt
             twos = [2.0]*nbPt
@@ -2630,7 +2630,7 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
             ids4 = d3.findClosestTupleId(d4)
             self.assertTrue(idsExpected.isEqual(ids))
             pass
-    
+
 
     def testSwig2DataArrayAsciiChar1(self):
         alpha=DataArrayInt(26) ; alpha.iota(ord("A"))

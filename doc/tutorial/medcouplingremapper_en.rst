@@ -2,7 +2,7 @@
 Interpolate with MEDCouplingRemapper
 ------------------------------------
 
-The purpose of this exercise is to interpolate between two meshes "srcMesh" and "trgMesh". 
+The purpose of this exercise is to interpolate between two meshes "srcMesh" and "trgMesh".
 To make the reader aware of some subtleties about interpolation, a special case
 is considered: "srcMesh" is a refinement of "trgMesh".
 
@@ -18,7 +18,7 @@ To start the exercise import the whole Python module  MEDCouplingRemapper. ::
 Create a MEDCouplingUMesh 2D instance, built from a Cartesian mesh
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Build the unstructured mesh "trgMesh" from a 2D Cartesian mesh with 10x10 cells, 
+Build the unstructured mesh "trgMesh" from a 2D Cartesian mesh with 10x10 cells,
 starting at point [0.,0.] and having a step of 1.0 along the X and Y directions.
 ::
 
@@ -45,7 +45,7 @@ Store the result in "srcMesh".
 Interpolate using MEDCouplingRemapper
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Compute the first part of the interpolation matrix with the following considerations: 
+Compute the first part of the interpolation matrix with the following considerations:
 "srcMesh" is regarded as a discretization at cell points, and so is "trgMesh".
 To this end invoke prepare() on an instance of the MEDCouplingRemapper class ("remap").
 ::
@@ -54,9 +54,9 @@ To this end invoke prepare() on an instance of the MEDCouplingRemapper class ("r
 	remap.prepare(srcMesh,trgMesh,"P0P0")
 
 Check that the computed matrix is correct in this trivial case: get the internal
-interpolation matrix by calling MEDCouplingRemapper.getCrudeMatrix() and save it in 
-"myMatrix". This matrix gives for each cell in "trgMesh" the cell IDs of "srcMesh" 
-which are intersecting the target and the area of intersection. Check that for each 
+interpolation matrix by calling MEDCouplingRemapper.getCrudeMatrix() and save it in
+"myMatrix". This matrix gives for each cell in "trgMesh" the cell IDs of "srcMesh"
+which are intersecting the target and the area of intersection. Check that for each
 cell in "trgMesh" the sum of the areas is always equal to 1.0.
 ::
 
@@ -72,7 +72,7 @@ cell in "trgMesh" the sum of the areas is always equal to 1.0.
 
 .. note:: Some triangles were added into "srcMesh" to make "myMatrix" less boring. "myMatrix".
 
-Create a field at cell points "srcField" built from the following analytical formula: 
+Create a field at cell points "srcField" built from the following analytical formula:
 "7-sqrt((x-5.)*(x-5.)+(y-5.)*(y-5.))" where x and y represent the usual space coordinates.
 ::
 
@@ -99,7 +99,7 @@ Set the nature of "srcField" to IntensiveMaximum (intensive field, e.g. a temper
 	srcField.setNature(IntensiveMaximum)
 	trgFieldCV=remap.transferField(srcField,1e300)
 
-Check that with this nature the field integral is conserved. On the other side 
+Check that with this nature the field integral is conserved. On the other side
 the sum on cells (accumulation) is NOT conserved. ::
 
 	print("IntensiveMaximum %lf == %lf"%(srcField.integral(True)[0],trgFieldCV.integral(True)[0]))
@@ -110,7 +110,7 @@ Set the nature of "srcField" to ExtensiveConservation (extensive field, e.g. a p
 	srcField.setNature(ExtensiveConservation)
 	trgFieldI=remap.transferField(srcField,1e300)
 
-Check that given this nature the field integral is NOT conserved. On the other side the 
+Check that given this nature the field integral is NOT conserved. On the other side the
 cumulative sum on cells is conserved. ::
 ::
 

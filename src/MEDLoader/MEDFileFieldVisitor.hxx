@@ -31,7 +31,7 @@ namespace MEDCoupling
   class MEDFileAnyTypeFieldMultiTSWithoutSDA;
   class MEDFileFieldPerMeshPerTypeCommon;
   class MEDFileFieldPerMeshPerTypePerDisc;
-  
+
   class MEDFileFieldVisitor
   {
   public:

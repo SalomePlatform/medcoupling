@@ -113,7 +113,7 @@ namespace INTERP_TEST
     CPPUNIT_TEST( checkArcArcIntersection1 );
 
     CPPUNIT_TEST_SUITE_END();
-  public:  
+  public:
     void setUp();
     void tearDown();
     void cleanUp();

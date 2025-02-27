@@ -28,9 +28,9 @@ IteratorOnComposedEdge::IteratorOnComposedEdge():_list_handle(0)
 {
 }
 
-IteratorOnComposedEdge::IteratorOnComposedEdge(ComposedEdge *compEdges):_list_handle(compEdges->getListBehind()) 
+IteratorOnComposedEdge::IteratorOnComposedEdge(ComposedEdge *compEdges):_list_handle(compEdges->getListBehind())
 {
-  first(); 
+  first();
 }
 
 void IteratorOnComposedEdge::operator=(const IteratorOnComposedEdge& other)

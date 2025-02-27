@@ -2,11 +2,11 @@
 MEDCoupling,  NumPy et SciPy
 ----------------------------
 
-NumPy est un package additionnel de python qui permet de manipuler des tableaux de manière optimisée. 
+NumPy est un package additionnel de python qui permet de manipuler des tableaux de manière optimisée.
 Il s'agit d'un prérequis optionnel de MEDCoupling.
 
-NumPy est une passerelle vers le HPC Python (multiprocessing, pyCUDA, SciPy...) et offre de puissantes 
-fonctions de calcul vectoriel. C'est pourquoi MEDCoupling offre des liens avec NumPy. 
+NumPy est une passerelle vers le HPC Python (multiprocessing, pyCUDA, SciPy...) et offre de puissantes
+fonctions de calcul vectoriel. C'est pourquoi MEDCoupling offre des liens avec NumPy.
 Un bon point de départ pour la découverte de NumPy est le `Tutorial NumPy <http://wiki.scipy.org/Tentative_NumPy_Tutorial>`_
 
 SciPy est aussi un package de python nécessitant NumPy. Il s'agit également d'un prérequis optionnel de MEDCoupling.
@@ -54,7 +54,7 @@ Pour le vérifier assignons 7.0 un tuple sur 2 avec ``nparr`` et vérifions que 
 	print(nparr.__repr__())
 	print(arr.__repr__())
 
-C'est rigolo ! Mais si je détruis ``arr`` (le premier à avoir alloué la mémoire) est-ce que ``nparr`` est tué aussi ? 
+C'est rigolo ! Mais si je détruis ``arr`` (le premier à avoir alloué la mémoire) est-ce que ``nparr`` est tué aussi ?
 Ne risque-t-on pas le SIGSEGV ?
 Testons : ::
 
@@ -75,7 +75,7 @@ Modifions ``nparr`` en assignant 5.0 pour tous les tuples et vérifier que les 2
 	print(nparr.__repr__())
 	print(arr2.__repr__())
 
-Nous en profitons pour montrer un petit service pratique avec NumPy, à savoir, l'écriture optimisée. 
+Nous en profitons pour montrer un petit service pratique avec NumPy, à savoir, l'écriture optimisée.
 Ecrivons le contenu binaire de ``nparr`` dans un fichier. ::
 
 	f = open("toto.data","w+b")
@@ -111,20 +111,20 @@ Avant nous vérifions que l'on peut jouer avec SciPy ! ::
 
 	assert(mc.MEDCouplingHasSciPyBindings())
 
-Pour le moment créons un maillage non conforme. Nous collons simplement deux maillages structurés avec des 
+Pour le moment créons un maillage non conforme. Nous collons simplement deux maillages structurés avec des
 discrétisations spatiales différentes.::
 
 	c1 = mc.MEDCouplingCMesh()
-	arr1 = mc.DataArrayDouble(7) 
-	arr1.iota() 
+	arr1 = mc.DataArrayDouble(7)
+	arr1.iota()
 	c1.setCoords(arr1,arr1,arr1)
 	c2 = mc.MEDCouplingCMesh()
 	arr2 = mc.DataArrayDouble(9)
-	arr2.iota() 
+	arr2.iota()
 	arr2 *= 6./8.
 	c2.setCoords(arr2,arr2,arr2)
 
-Dégénérons ``c1`` et ``c2`` en non-structuré, une translation de ``[6.,0.,0.]`` de ``c2``,  et en faisant 
+Dégénérons ``c1`` et ``c2`` en non-structuré, une translation de ``[6.,0.,0.]`` de ``c2``,  et en faisant
 l'agrégation des deux, c'est dans la poche. ::
 
 	c1 = c1.buildUnstructured()
@@ -161,17 +161,17 @@ Récupérer la matrice creuse au format CSR du remapper. ::
 
 	mat = rem.getCrudeCSRMatrix()
 	
-.. note:: Le format CSR est un format de stockage efficace des matrices 
+.. note:: Le format CSR est un format de stockage efficace des matrices
 	creuses : `Sparse matrix CSR <http://en.wikipedia.org/wiki/Sparse_matrix>`_
 
-Comme nous avons bien suivi les exos sur NumPy, grâce au NumPy array ``mat.indptr`` on peut récupérer 
+Comme nous avons bien suivi les exos sur NumPy, grâce au NumPy array ``mat.indptr`` on peut récupérer
 l'ensemble des lignes de la matrice ``mat`` ayant exactement un élément non nul. ::
 
 	indptr = mc.DataArrayInt(mat.indptr)
 	indptr2 = indptr.deltaShiftIndex()
 	cellIdsOfSkin = indptr2.findIdsEqual(1)
 
-C'est presque fini. Créer le sous maillage contenant uniquement la peau et l'écrire dans 
+C'est presque fini. Créer le sous maillage contenant uniquement la peau et l'écrire dans
 un fichier VTK ou MED pour le visualiser avec ParaView. ::
 
 	skin = skinAndNCFaces[cellIdsOfSkin]

@@ -27,13 +27,13 @@ import math
 from mpi4py import MPI
 
 class ParaMEDMEM_O_DEC_Tests(unittest.TestCase):
-    """ This test illustrates a basic use of the OverlapDEC and shows notably that not all 
-    processors must possess a piece of the source and/or target mesh. 
+    """ This test illustrates a basic use of the OverlapDEC and shows notably that not all
+    processors must possess a piece of the source and/or target mesh.
     Look at the C++ documentation of the class for more informations.
     In this case, the source mesh is only stored on 2 procs, whereas the target is on 4.
     Since only a single group of processor is defined in the setup, the 2 idle procs on the source side are just providing an empty mesh,
-    thus indicating that they don't participate in the source definition. 
-    
+    thus indicating that they don't participate in the source definition.
+
     Main method is testOverlapDEC_2D_py_1()
     """
 
@@ -162,8 +162,8 @@ class ParaMEDMEM_O_DEC_Tests(unittest.TestCase):
     @WriteInTmpDir
     def testOverlapDEC_2D_py_2(self):
         """ Test on a question that often comes back: should I re-synchronize() / re-attach() each time that
-        I want to send a new field? 
-        Basic answer: 
+        I want to send a new field?
+        Basic answer:
           - you do not have to re-synchronize, but you can re-attach a new field, as long as it has the same support.
         WARNING: this differs in InterpKernelDEC ...
         """

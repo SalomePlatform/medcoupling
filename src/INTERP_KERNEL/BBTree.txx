@@ -73,7 +73,7 @@ public:
     if (nbelems < MIN_NB_ELEMS || level> MAX_LEVEL)
       {
         _terminal=true;
-      
+
       }
     double median = std::numeric_limits<double>::max();
     {
@@ -99,7 +99,7 @@ public:
 
     std::vector<ConnType> new_elems_left;
     std::vector<ConnType> new_elems_right;
- 
+
     new_elems_left.reserve(nbelems/2+1);
     new_elems_right.reserve(nbelems/2+1);
     double max_left = -std::numeric_limits<double>::max();
@@ -113,7 +113,7 @@ public:
           elem=i;
         double max=bbs[elem*dim*2+(level%dim)*2+1];
         double min = bbs[elem*dim*2+(level%dim)*2];
-      
+
         if (min>median)
           {
             new_elems_right.push_back(elem);
@@ -139,9 +139,9 @@ public:
     if(!new_elems_right.empty())
       tmp=&(new_elems_right[0]);
     _right=new BBTree(bbs, tmp, level+1, (ConnType)new_elems_right.size(),_epsilon);
-  
+
   }
- 
+
   ~BBTree()
   {
     if (_left!=0)  delete _left;
@@ -150,7 +150,7 @@ public:
   }
 
   /*! returns in \a elems the list of elements potentially intersecting the bounding box pointed to by \a bb
-    
+
     \param bb pointer to query bounding box
     \param elems list of elements (given in 0-indexing that is to say in \b C \b mode) intersecting the bounding box
   */
@@ -176,7 +176,7 @@ public:
         return;
       }
 
-    //non terminal node 
+    //non terminal node
     double min = bb[(_level%dim)*2];
     double max = bb[(_level%dim)*2+1];
     if (max < _min_right)
@@ -216,7 +216,7 @@ public:
           }
         return ret;
       }
-    //non terminal node 
+    //non terminal node
     double min = bb[(_level%dim)*2];
     double max = bb[(_level%dim)*2+1];
     if (max < _min_right)
@@ -226,7 +226,7 @@ public:
     return _left->getNbOfIntersectingElems(bb)+_right->getNbOfIntersectingElems(bb);
   }
 
- 
+
   /*! returns in \a elems the list of elements potentially containing the point pointed to by \a xx
     \param xx pointer to query point coords
     \param elems list of elements (given in 0-indexing) intersecting the bounding box
@@ -253,7 +253,7 @@ public:
         return;
       }
 
-    //non terminal node 
+    //non terminal node
     if (xx[_level%dim] < _min_right)
       {
         _left->getElementsAroundPoint(xx, elems);

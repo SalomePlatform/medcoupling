@@ -83,7 +83,7 @@ namespace MEDCoupling
   bool MEDCouplingByteOrder();
   const char *MEDCouplingByteOrderStr();
   bool IsCXX11Compiled();
-  
+
   class BigMemoryObject
   {
   public:
@@ -122,7 +122,7 @@ namespace MEDCoupling
       }
     }
   };
-  
+
   class RefCountObjectOnly
   {
   public:
@@ -193,7 +193,7 @@ namespace MEDCoupling
     return false;
 #endif
   }
-  
+
   bool MEDCouplingUse64BitIDs()
   {
 #ifndef MEDCOUPLING_USE_64BIT_IDS

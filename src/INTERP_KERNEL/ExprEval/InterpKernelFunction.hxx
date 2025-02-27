@@ -57,7 +57,7 @@ namespace INTERP_KERNEL
   };
 
   class INTERPKERNEL_EXPORT UnaryFunction : public Function
-  { 
+  {
   public:
     int getNbInputParams() const;
   };
@@ -367,7 +367,7 @@ namespace INTERP_KERNEL
   public:
     static const char REPR[];
   };
-  
+
   class INTERPKERNEL_EXPORT DivFunction : public BinaryFunction
   {
   public:

@@ -2,17 +2,17 @@
 Visualiser une instance de MEDCoupling dans ParaViS à travers CORBA
 -------------------------------------------------------------------
 
-Il peut être intéressant de visualiser directement un maillage ou un champ en mémoire dans 
+Il peut être intéressant de visualiser directement un maillage ou un champ en mémoire dans
 un process Python avec une session de ParaViS. Cela évite d'avoir à écrire le maillage (ou le champ) sur disque.
 Cette technique peut également être utilisée pour :
 
 * faire des noeuds de visualisation dans le module YACS
-* maquetter un script Python, et profiter de l'interpreteur interactif Python tout en 
+* maquetter un script Python, et profiter de l'interpreteur interactif Python tout en
   bénéficiant de l'interface graphique de ParaViS.
-  
-Nous allons pour ce faire bénéficier des mécanismes de distribution mis en oeuvre dans SALOME sur 
-la base du standard `CORBA <http://fr.wikipedia.org/wiki/Common_Object_Request_Broker_Architecture>`_. 
-SALOME utilise l'implémentation `omniORB <http://omniorb.sourceforge.net/>`_ et 
+
+Nous allons pour ce faire bénéficier des mécanismes de distribution mis en oeuvre dans SALOME sur
+la base du standard `CORBA <http://fr.wikipedia.org/wiki/Common_Object_Request_Broker_Architecture>`_.
+SALOME utilise l'implémentation `omniORB <http://omniorb.sourceforge.net/>`_ et
 `omniORBPy <http://omniorb.sourceforge.net/>`_ du standard.
 
 Début de l'implémentation
@@ -54,7 +54,7 @@ Récupérer les identifiants pour ParaViS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Ce qui suit est général à tout code omniORBpy. Afficher l'IOR ``ior`` de ``ref_m`` (c'est à dire l'identifiant
-unique de l'objet sur le bus CORBA) pour pouvoir passer cette chaîne de caractères au plugin ParaMEDCorbaPlugin 
+unique de l'objet sur le bus CORBA) pour pouvoir passer cette chaîne de caractères au plugin ParaMEDCorbaPlugin
 de ParaViS, et ainsi créer une nouvelle source dans ParaViS. ::
 
 	import CORBA
@@ -62,7 +62,7 @@ de ParaViS, et ainsi créer une nouvelle source dans ParaViS. ::
 	ior = orb.object_to_string(ref_m)
 	print(ior)
 
-Puis, via un copier/coller dans l'IHM ParaViS (Menu "Source -> Para MED Corba Plugin Source"), passer l'IOR. 
+Puis, via un copier/coller dans l'IHM ParaViS (Menu "Source -> Para MED Corba Plugin Source"), passer l'IOR.
 On voit s'afficher notre maillage.
 
 Utiliser ParaViS en interactif
@@ -75,12 +75,12 @@ Le but ici est juste de voir le principe. Il s'agit d'un point d'entrée pour r�
 	salome.salome_init()
 	import pvsimple as pvs
 
-.. note:: Le module ``pvsimple`` est, à peu de choses prêt, identique au module ``paraview.simple``. 
+.. note:: Le module ``pvsimple`` est, à peu de choses prêt, identique au module ``paraview.simple``.
 	Il est juste adapté à une utilisation au sein de SALOME. Voir la formation PARAVIS à ce sujet.
 
-Une fois cet import réalisé, le script est automatiquement connecté au même serveur de visualisation que 
+Une fois cet import réalisé, le script est automatiquement connecté au même serveur de visualisation que
 l'interface graphique de SALOME (si le module PARAVIS est bien actif !). Nous pouvons donc envoyer des commandes
-au serveur de visualisation pour demander l'affichage de notre objet CORBA.  :: 
+au serveur de visualisation pour demander l'affichage de notre objet CORBA.  ::
 
 	# We now talk to the PVServer directly
 	import pvsimple as pvs

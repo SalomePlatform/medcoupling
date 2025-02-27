@@ -113,7 +113,7 @@ namespace MEDCoupling
     throw INTERP_KERNEL::Exception("Not implemented yet !!!!");
     //_interpolation_matrix->transposeMultiply();
   }
-  
+
   void OverlapDEC::synchronize()
   {
     if(!isInGroup())

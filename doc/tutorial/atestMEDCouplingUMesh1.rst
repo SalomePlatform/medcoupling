@@ -44,7 +44,7 @@ Playing with unstructured mesh
 	zLev = mesh3D.getCoords()[:,2]
 	zLev = zLev.getDifferentValues(1e-12)
 	zLev.sort()
-	# Extract cells from a given Z level - Solution 1 
+	# Extract cells from a given Z level - Solution 1
 	tmp,cellIdsSol1 = mesh3D.buildSlice3D([0.,0.,(zLev[1]+zLev[2])/2],[0.,0.,1.],1e-12)
 	# Idem - Solution 2
 	bary = mesh3D.computeCellCenterOfMass()
@@ -81,7 +81,7 @@ Playing with unstructured mesh
 	idStart = int(ids) # ids is assumed to contain only one value, if not an exception is thrown
 	ze_range = list(range(idStart,mesh3D.getNumberOfCells(),mesh2D.getNumberOfCells()))
 	cellIds2Sol2 = extMesh.getMesh3DIds()[ze_range]
-	# Construct the final sub-part 
+	# Construct the final sub-part
 	mesh3DSlice2 = mesh3D[cellIds2Sol1]
 	mesh3DSlice2.zipCoords()
 	# Aggregate two meshes, one being the translated version of the original

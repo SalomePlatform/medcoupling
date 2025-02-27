@@ -70,7 +70,7 @@ void MPIAccessDECTest::test_AllToAllTimeDEC( bool Asynchronous ) {
 
   debugStream << "test_AllToAllTimeDEC" << endl ;
 
-  //  MPI_Init(&argc, &argv) ; 
+  //  MPI_Init(&argc, &argv) ;
 
   int size ;
   int myrank ;
@@ -116,7 +116,7 @@ void MPIAccessDECTest::test_AllToAllTimeDEC( bool Asynchronous ) {
   debugStream << "test_AllToAllTimeDEC" << myrank << " Barrier :" << endl ;
   mpi_access->barrier() ;
   debugStream << "test_AllToAllTimeDEC" << myrank << " Barrier done" << endl ;
-  
+
 #define maxproc 11
 #define maxreq 10000
 #define datamsglength 10
@@ -142,7 +142,7 @@ void MPIAccessDECTest::test_AllToAllTimeDEC( bool Asynchronous ) {
     }
     MyMPIAccessDEC->setTime( time , nextdeltatime ) ;
     debugStream << "test_AllToAllTimeDEC" << myrank << "=====TIME " << time << "=====DELTATIME "
-         << nextdeltatime << "=====MAXTIME " << maxtime << " ======" << endl ; 
+         << nextdeltatime << "=====MAXTIME " << maxtime << " ======" << endl ;
     int * sendbuf = new int[datamsglength*size] ;
     //     int * sendbuf = (int *) malloc(sizeof(int)*datamsglength*size) ;
     int * recvbuf = new int[datamsglength*size] ;

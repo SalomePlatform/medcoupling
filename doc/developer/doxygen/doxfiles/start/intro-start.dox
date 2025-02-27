@@ -1,6 +1,6 @@
 /*!
 
-\page intro-start What can I do with MED? 
+\page intro-start What can I do with MED?
 
 Simulation studies require the manipulation of \ref meshes "meshes" and \ref fields "fields" for data
 pre-processing, in calculation schemes (including chaining and coupling
@@ -26,7 +26,7 @@ In addition, the \ref library "MED module" offers several interfacing levels; us
 benefit from an interaction level adapted to their codes.
 
 The main services offered by \ref library "MEDCoupling" are:
-- Manipulation of \ref fields "fields" and their support \ref meshes "mesh", serialized with the 
+- Manipulation of \ref fields "fields" and their support \ref meshes "mesh", serialized with the
 \ref medloader "MED format".
 - Operations on scalars, vectors, and second order tensors.
 - 1D/2D/3D \ref interpolation "interpolation" on nodes, cells, Gauss points and nodes by element.

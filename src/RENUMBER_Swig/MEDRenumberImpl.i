@@ -21,7 +21,7 @@
 %{
 #include "RenumberingFactory.hxx"
 #include "RENUMBER_Renumbering.hxx"
-  
+
 using namespace MED_RENUMBER;
 %}
 

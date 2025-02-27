@@ -42,7 +42,7 @@ void MEDCouplingRemapperTest::test2DInterpP0P0_1()
   remapper.setPrecision(1e-12);
   remapper.setIntersectionType(INTERP_KERNEL::Triangulation);
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
-  
+
   MEDCouplingFieldDouble *srcField=MEDCouplingFieldDouble::New(ON_CELLS);
   srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);
@@ -123,7 +123,7 @@ void MEDCouplingRemapperTest::test2DInterpP0P0R_1()
   remapper.setPrecision(1e-12);
   remapper.setIntersectionType(INTERP_KERNEL::Triangulation);
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
-  
+
   MEDCouplingFieldDouble *targetField=MEDCouplingFieldDouble::New(ON_CELLS);
   targetField->setNature(IntensiveMaximum);
   targetField->setMesh(targetMesh);
@@ -282,7 +282,7 @@ void MEDCouplingRemapperTest::test2DInterpMultiMethods()
   remapper.setPrecision(1e-12);
   remapper.setIntersectionType(INTERP_KERNEL::Triangulation);
   CPPUNIT_ASSERT_EQUAL(1,remapper.prepare(sourceMesh,targetMesh,"P0P0"));
-  
+
   MEDCouplingFieldDouble *srcField=MEDCouplingFieldDouble::New(ON_CELLS);
   srcField->setNature(IntensiveMaximum);
   srcField->setMesh(sourceMesh);

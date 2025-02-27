@@ -41,7 +41,7 @@ int main(int argc, char** argv)
   t_begin=(double)clock();
   if (argc <5)
     {
-      cerr << "Usage : " << argv[0] 
+      cerr << "Usage : " << argv[0]
            << " filename_in meshname method[BOOST/METIS] filename_out" << endl << endl;
       return -1;
     }

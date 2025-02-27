@@ -78,10 +78,10 @@ void CppExample_MEDCouplingFieldDouble_MaxFields()
   valsArr2->useExternalArrayWithRWAccess( vals2, 2,2 ); // 2 tuples per 2 components
   MCAuto<MEDCouplingFieldDouble> field2 = MEDCouplingFieldDouble::New( ON_NODES );
   field2->setArray( valsArr2 );
-  // max field 
+  // max field
   MCAuto<MEDCouplingFieldDouble> fieldMax = MEDCouplingFieldDouble::MaxFields( field1, field2 );
   CPPUNIT_ASSERT( std::equal( valsMax, valsMax+4, fieldMax->getArray()->getConstPointer() )); // fieldMax == valsMax
-  // min field 
+  // min field
   MCAuto<MEDCouplingFieldDouble> fieldMin = MEDCouplingFieldDouble::MinFields( field1, field2 );
   CPPUNIT_ASSERT( std::equal( valsMin, valsMin+4, fieldMin->getArray()->getConstPointer() )); // fieldMin == valsMin
   //! [CppSnippet_MEDCouplingFieldDouble_MaxFields_1]
@@ -196,9 +196,9 @@ void CppExample_MEDCouplingFieldDouble_applyFunc_same_nb_comp()
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc_same_nb_comp_1]
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc_same_nb_comp_2]
   const double* v2 = field->getArray()->getConstPointer();
-  CPPUNIT_ASSERT_DOUBLES_EQUAL( v2[0], 10 + v[0], 13 );      // "10 + IVec * v"  
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( v2[0], 10 + v[0], 13 );      // "10 + IVec * v"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( v2[1], 10 + v[1]*v[1], 13 ); // "10 + JVec * v*v"
-  CPPUNIT_ASSERT_DOUBLES_EQUAL( v2[2], 10 + v[2], 13 );      // "10 + IVec * v"  
+  CPPUNIT_ASSERT_DOUBLES_EQUAL( v2[2], 10 + v[2], 13 );      // "10 + IVec * v"
   CPPUNIT_ASSERT_DOUBLES_EQUAL( v2[3], 10 + v[3]*v[3], 13 ); // "10 + JVec * v*v"
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc_same_nb_comp_2]
 }
@@ -218,7 +218,7 @@ void CppExample_MEDCouplingFieldDouble_applyFunc3()
   const char func[] = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10";
   const char* varNames[2] = { "a", "b" }; // names used to refer to X and Y components
   std::vector<std::string> varNamesVec( varNames, varNames+2 );
-  field->applyFuncNamedCompo( 3, varNamesVec, func ); // require 3 components 
+  field->applyFuncNamedCompo( 3, varNamesVec, func ); // require 3 components
   CPPUNIT_ASSERT( field->getNumberOfComponents() == 3 ); // 3 components as required
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc3_1]
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc3_2]
@@ -246,7 +246,7 @@ void CppExample_MEDCouplingFieldDouble_applyFunc2()
   field->setArray( array );
   // transform the field to a 3D vector field
   const char func[] = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10";
-  field->applyFuncCompo( 3, func ); // require 3 components 
+  field->applyFuncCompo( 3, func ); // require 3 components
   CPPUNIT_ASSERT( field->getNumberOfComponents() == 3 ); // 3 components as required
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc2_1]
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc2_2]
@@ -272,7 +272,7 @@ void CppExample_MEDCouplingFieldDouble_applyFunc()
   field->setArray( array );
   // transform the field to a 3D vector field
   const char func[] = "IVec * b + JVec * a + KVec * sqrt( a*a + b*b ) + 10";
-  field->applyFunc( 3, func ); // require 3 components 
+  field->applyFunc( 3, func ); // require 3 components
   CPPUNIT_ASSERT( field->getNumberOfComponents() == 3 ); // 3 components as required
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc_1]
   //! [CppSnippet_MEDCouplingFieldDouble_applyFunc_2]
@@ -502,7 +502,7 @@ void CppExample_MEDCouplingFieldDouble_getValueOn_time()
   const double pos[2] = { 1., 1. }; // we are in 2D space
   double value[1]; // the field is scalar <-> 1 component
   field->getValueOn( pos, 0.5*( time1 + time2 ), value );
-  CPPUNIT_ASSERT( fabs( value[0] - 0.5*( 10. + 20. )) < 1e-13 ); 
+  CPPUNIT_ASSERT( fabs( value[0] - 0.5*( 10. + 20. )) < 1e-13 );
   //! [CppSnippet_MEDCouplingFieldDouble_getValueOn_time_3]
 }
 
@@ -940,9 +940,9 @@ void CppExample_MEDCouplingUMesh_getCellsContainingPoints()
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const mcIdType conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);   
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4); 
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
@@ -1153,9 +1153,9 @@ void CppExample_MEDCouplingUMesh_findBoundaryNodes()
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const mcIdType conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);   
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4); 
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
@@ -1179,9 +1179,9 @@ void CppExample_MEDCouplingUMesh_buildBoundaryMesh()
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const mcIdType conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);   
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4); 
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
@@ -1306,9 +1306,9 @@ void CppExample_MEDCouplingUMesh_getCellIdsFullyIncludedInNodeIds()
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const mcIdType conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);   
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4); 
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
@@ -1422,8 +1422,8 @@ void CppExample_MEDCouplingUMesh_zipConnectivityTraducer()
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const mcIdType conn[11]={0,3,4,1, 1,4,2, 4,1,0,3};
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+0); // 0     
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4); // 1     
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+0); // 0
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4); // 1
   mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4); // 2 == 1
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+0); // 3 == 0
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+7); // 4 ~~ 0
@@ -1452,9 +1452,9 @@ void CppExample_MEDCouplingUMesh_zipCoordsTraducer()
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const mcIdType conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);   
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4); 
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
@@ -1485,9 +1485,9 @@ void CppExample_MEDCouplingUMesh_getNodeIdsInUse()
   mesh->setMeshDimension(2);
   mesh->allocateCells(5);
   const mcIdType conn[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
-  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);   
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4); 
-  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7); 
+  mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+4);
+  mesh->insertNextCell(INTERP_KERNEL::NORM_TRI3,3, conn+7);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+10);
   mesh->insertNextCell(INTERP_KERNEL::NORM_QUAD4,4,conn+14);
   mesh->finishInsertingCells();
@@ -2136,7 +2136,7 @@ void CppExampleFieldDoubleBuildSubPart1()
   array=MEDCoupling::DataArrayDouble::New();
   array->alloc(mesh1->getNumberOfNodes(),2);
   const double arr2[18]={3.,103.,4.,104.,5.,105.,6.,106.,7.,107.,8.,108.,9.,109.,10.,110.,11.,111.};
-  std::copy(arr2,arr2+18,array->getPointer());  
+  std::copy(arr2,arr2+18,array->getPointer());
   f1->setArray(array);
   array->decrRef();
   //! [CppSnippetFieldDoubleBuildSubPart1_3]
@@ -2145,7 +2145,7 @@ void CppExampleFieldDoubleBuildSubPart1()
   f2=f1->buildSubPart(part2,part2+2);
   //! [CppSnippetFieldDoubleBuildSubPart1_4]
   f2->decrRef();
-  //idem previous because nodes of cell#4 are not fully present in part3 
+  //idem previous because nodes of cell#4 are not fully present in part3
   const mcIdType part3[2]={1,2};
   MEDCoupling::DataArrayIdType *arrr=MEDCoupling::DataArrayIdType::New();
   arrr->alloc(2,1);
@@ -2166,7 +2166,7 @@ void CppExampleFieldDoubleBuildSubPart1()
 void CppSnippetUMeshStdBuild1()
 {
   //! [CppSnippetUMeshStdBuild1_1]
-  double coords[27]={-0.3,-0.3,0.,   0.2,-0.3,0.,   0.7,-0.3,0.,   -0.3,0.2,0.,   0.2,0.2,0., 
+  double coords[27]={-0.3,-0.3,0.,   0.2,-0.3,0.,   0.7,-0.3,0.,   -0.3,0.2,0.,   0.2,0.2,0.,
                      0.7,0.2,0.,    -0.3,0.7,0.,    0.2,0.7,0.,     0.7,0.7,0. };
   mcIdType nodalConnPerCell[18]={0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4};
   //! [CppSnippetUMeshStdBuild1_1]
@@ -2184,7 +2184,7 @@ void CppSnippetUMeshStdBuild1()
   //! [CppSnippetUMeshStdBuild1_3]
   //! [CppSnippetUMeshStdBuild1_4]
   MEDCoupling::DataArrayDouble *coordsArr=MEDCoupling::DataArrayDouble::New();
-  coordsArr->alloc(9,3);//here coordsArr are declared to have 3 components, mesh will deduce that its spaceDim==3. 
+  coordsArr->alloc(9,3);//here coordsArr are declared to have 3 components, mesh will deduce that its spaceDim==3.
   std::copy(coords,coords+27,coordsArr->getPointer());
   mesh->setCoords(coordsArr);//coordsArr contains 9 tuples, that is to say mesh contains 9 nodes.
   coordsArr->decrRef();
@@ -2243,7 +2243,7 @@ void CppSnippetCMeshStdBuild1()
 void CppSnippetUMeshAdvBuild1()
 {
   //! [CppSnippetUMeshAdvBuild1_1]
-  double coords[27]={-0.3,-0.3,0.,   0.2,-0.3,0.,   0.7,-0.3,0.,   -0.3,0.2,0.,   0.2,0.2,0., 
+  double coords[27]={-0.3,-0.3,0.,   0.2,-0.3,0.,   0.7,-0.3,0.,   -0.3,0.2,0.,   0.2,0.2,0.,
                      0.7,0.2,0.,    -0.3,0.7,0.,    0.2,0.7,0.,     0.7,0.7,0. };
   mcIdType nodalConnPerCell[23]={4,0,3,4,1, 3,1,4,2, 3,4,5,2, 4,6,7,4,3, 4,7,8,5,4};
   mcIdType nodalConnPerCellIndex[6]={0,5,9,13,18,23};
@@ -2264,7 +2264,7 @@ void CppSnippetUMeshAdvBuild1()
   //! [CppSnippetUMeshAdvBuild1_3]
   //! [CppSnippetUMeshAdvBuild1_4]
   MEDCoupling::DataArrayDouble *coordsArr=MEDCoupling::DataArrayDouble::New();
-  coordsArr->alloc(9,3);//here coordsArr are declared to have 3 components, mesh will deduce that its spaceDim==3. 
+  coordsArr->alloc(9,3);//here coordsArr are declared to have 3 components, mesh will deduce that its spaceDim==3.
   std::copy(coords,coords+27,coordsArr->getPointer());
   mesh->setCoords(coordsArr);//coordsArr contains 9 tuples, that is to say mesh contains 9 nodes.
   coordsArr->decrRef();
@@ -2381,7 +2381,7 @@ void CppSnippetFieldDoubleBuild1()
   double XCoords[9]={-0.3,0.07,0.1,0.3,0.45,0.47,0.49,1.,1.22};
   double YCoords[7]={0.07,0.1,0.37,0.45,0.47,0.49,1.007};
   MEDCoupling::DataArrayDouble *arrX=MEDCoupling::DataArrayDouble::New(); arrX->alloc(9,1); std::copy(XCoords,XCoords+9,arrX->getPointer()); arrX->setInfoOnComponent(0,"X [m]");
-  MEDCoupling::DataArrayDouble *arrY=MEDCoupling::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]"); 
+  MEDCoupling::DataArrayDouble *arrY=MEDCoupling::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]");
   MEDCoupling::MEDCouplingCMesh *mesh=MEDCoupling::MEDCouplingCMesh::New("My2D_CMesh");
   mesh->setCoords(arrX,arrY); arrX->decrRef(); arrY->decrRef();
   //! [CppSnippetFieldDoubleBuild1_1]
@@ -2400,7 +2400,7 @@ void CppSnippetFieldDoubleBuild1()
   fieldOnCells->decrRef();
   //! [CppSnippetFieldDoubleBuild1_1]
   arrX=MEDCoupling::DataArrayDouble::New(); arrX->alloc(9,1); std::copy(XCoords,XCoords+9,arrX->getPointer()); arrX->setInfoOnComponent(0,"X [m]");
-  arrY=MEDCoupling::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]"); 
+  arrY=MEDCoupling::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]");
   mesh=MEDCoupling::MEDCouplingCMesh::New("My2D_CMesh");
   mesh->setCoords(arrX,arrY); arrX->decrRef(); arrY->decrRef();
   //! [CppSnippetFieldDoubleBuild1_2]
@@ -2433,7 +2433,7 @@ void CppSnippetFieldDoubleBuild2()
   double XCoords[9]={-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22};
   double YCoords[7]={0.,0.1,0.37,0.45,0.47,0.49,1.007};
   MEDCoupling::DataArrayDouble *arrX=MEDCoupling::DataArrayDouble::New(); arrX->alloc(9,1); std::copy(XCoords,XCoords+9,arrX->getPointer()); arrX->setInfoOnComponent(0,"X [m]");
-  MEDCoupling::DataArrayDouble *arrY=MEDCoupling::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]"); 
+  MEDCoupling::DataArrayDouble *arrY=MEDCoupling::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]");
   MEDCoupling::MEDCouplingCMesh *mesh=MEDCoupling::MEDCouplingCMesh::New("My2D_CMesh");
   mesh->setCoords(arrX,arrY); arrX->decrRef(); arrY->decrRef();
   //! [CppSnippetFieldDoubleBuild2_1]
@@ -2458,7 +2458,7 @@ void CppSnippetFieldDoubleBuild3()
   double XCoords[9]={-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22};
   double YCoords[7]={0.,0.1,0.37,0.45,0.47,0.49,1.007};
   MEDCoupling::DataArrayDouble *arrX=MEDCoupling::DataArrayDouble::New(); arrX->alloc(9,1); std::copy(XCoords,XCoords+9,arrX->getPointer()); arrX->setInfoOnComponent(0,"X [m]");
-  MEDCoupling::DataArrayDouble *arrY=MEDCoupling::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]"); 
+  MEDCoupling::DataArrayDouble *arrY=MEDCoupling::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]");
   MEDCoupling::MEDCouplingCMesh *mesh=MEDCoupling::MEDCouplingCMesh::New("My2D_CMesh");
   mesh->setCoords(arrX,arrY); arrX->decrRef(); arrY->decrRef();
   //! [CppSnippetFieldDoubleBuild3_1]
@@ -2485,7 +2485,7 @@ void CppSnippetFieldDoubleBuild4()
   double XCoords[9]={-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22};
   double YCoords[7]={0.,0.1,0.37,0.45,0.47,0.49,1.007};
   MEDCoupling::DataArrayDouble *arrX=MEDCoupling::DataArrayDouble::New(); arrX->alloc(9,1); std::copy(XCoords,XCoords+9,arrX->getPointer()); arrX->setInfoOnComponent(0,"X [m]");
-  MEDCoupling::DataArrayDouble *arrY=MEDCoupling::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]"); 
+  MEDCoupling::DataArrayDouble *arrY=MEDCoupling::DataArrayDouble::New(); arrY->alloc(7,1); std::copy(YCoords,YCoords+7,arrY->getPointer()); arrY->setInfoOnComponent(0,"Y [m]");
   MEDCoupling::MEDCouplingCMesh *mesh=MEDCoupling::MEDCouplingCMesh::New("My2D_CMesh");
   mesh->setCoords(arrX,arrY); arrX->decrRef(); arrY->decrRef();
   //! [CppSnippetFieldDoubleBuild4_1]
@@ -2493,7 +2493,7 @@ void CppSnippetFieldDoubleBuild4()
   fieldOnNodes->setName("MyVecFieldOnNodeWithConstTime");
   fieldOnNodes->setTimeUnit("ms"); // Time unit is ms.
   fieldOnNodes->setStartTime(4.22,2,-1);
-  fieldOnNodes->setEndTime(6.44,4,-1); // fieldOnNodes is defined in interval [4.22 ms,6.44 ms] 
+  fieldOnNodes->setEndTime(6.44,4,-1); // fieldOnNodes is defined in interval [4.22 ms,6.44 ms]
   fieldOnNodes->setMesh(mesh);
   mesh->decrRef(); // no more need of mesh because mesh has been attached to fieldOnNodes
   MEDCoupling::DataArrayDouble *array=MEDCoupling::DataArrayDouble::New();

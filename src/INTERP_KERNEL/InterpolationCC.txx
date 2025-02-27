@@ -125,10 +125,10 @@ namespace INTERP_KERNEL
    *        src_mesh and the elements of targetMesh
    *  \param src_mesh - source mesh
    *  \param tgt_mesh - target mesh
-   *  \param result - matrix in which the result is stored 
+   *  \param result - matrix in which the result is stored
    *  \param method - interpolation method, not used as only "P0P0" is implemented so far
-   * 
-   * The matrix is partially sparse : it is a vector of maps of integer - double pairs. 
+   *
+   * The matrix is partially sparse : it is a vector of maps of integer - double pairs.
    * It can also be an INTERP_KERNEL::Matrix object.
    * The length of the vector is equal to the number of target elements - for each target
    * element there is a map, regardless of whether the element intersects any source
@@ -171,7 +171,7 @@ namespace INTERP_KERNEL
       src_nb_cells[ j ] = src_mesh.nbCellsAlongAxis( axis );
       tgt_nb_cells[ j ] = tgt_mesh.nbCellsAlongAxis( axis );
     }
-    
+
     // ============================================
     // Calculate cell interferences along the axes
     // ============================================

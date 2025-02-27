@@ -46,7 +46,7 @@ class MEDLoaderSplitter:
 
     def getSplittedInstances(self):
         return self._mfd_splitted
-    
+
     @classmethod
     def __splitMEDFileField1TSNodePfl(cls,mm,fieldName,pfl,ids,cache,procID):
         zeLev = None
@@ -65,7 +65,7 @@ class MEDLoaderSplitter:
         trad=trado2n.invertArrayO2N2N2O(m0Part.getNumberOfNodes()) # 3D part of nodes n2o
         part=mLev.getCellIdsFullyIncludedInNodeIds(trad)
         mSubPart=mLev[part] # 2D part lying on 3D part
-        mSubPartReducedNode=mSubPart.deepCopy() ; mSubPartReducedNode.renumberNodesInConn(trado2n) ; mSubPartReducedNode.setCoords(m0Part.getCoords()) # 2D part lying on 3D part node zipped 
+        mSubPartReducedNode=mSubPart.deepCopy() ; mSubPartReducedNode.renumberNodesInConn(trado2n) ; mSubPartReducedNode.setCoords(m0Part.getCoords()) # 2D part lying on 3D part node zipped
         #
         if mSubPart.getNumberOfCells()==0:
             cache[(fieldName,procID)]["res"] = None
@@ -84,7 +84,7 @@ class MEDLoaderSplitter:
         cache[(fieldName,procID)]["subProfileInProcReducedNode"] = subProfileInProcReducedNode
         pass
 
-    
+
     @classmethod
     def __splitMEDFileField1TSNode(cls,t,mm,mmOut,f1tsIn,f1tsOut,ids,cache,procID):
         if len(f1tsIn.getPflsReallyUsed())!=0:
@@ -114,7 +114,7 @@ class MEDLoaderSplitter:
             f1tsOut.setFieldNoProfileSBT(fRet)
             pass
         pass
-    
+
     @classmethod
     def __splitMEDFileField1TSCell(cls,t,mm,mmOut,f1tsIn,f1tsOut,ids,cache,procID):
         f=f1tsIn.getFieldOnMeshAtLevel(t,0,mm)
@@ -123,7 +123,7 @@ class MEDLoaderSplitter:
         o2n=m.getRenumArrForMEDFileFrmt() ; fRet.renumberCells(o2n,False)
         f1tsOut.setFieldNoProfileSBT(fRet)
         pass
-    
+
     def __splitMEDFileField1TS(self,mm,mmOutList,f1ts,idsLst,cache):
         """
            Split input f1ts into parts defined by idsLst.
@@ -144,7 +144,7 @@ class MEDLoaderSplitter:
                 pass
             pass
         return ret
-    
+
     def __splitFields(self,mm,mmOutList,mfflds,idsLst):
         ret0 = [MEDFileFields() for i in range(len(idsLst))]
         from collections import defaultdict
@@ -160,7 +160,7 @@ class MEDLoaderSplitter:
                 pass
             for fieldsPart,fmtsPart in zip(ret0,ret1):
                 if len(fmtsPart) != 0 :
-                    fieldsPart.pushField(fmtsPart);
+                    fieldsPart.pushField(fmtsPart)
                 pass
             pass
         return ret0

@@ -49,12 +49,12 @@ namespace INTERP_KERNEL
    * \defgroup InterpolationCU InterpolationCU
    * \class InterpolationCU
    * \brief Class used to calculate the volumes of intersection between the elements of a cartesian and an unstructured  meshes.
-   * 
+   *
    */
   //================================================================================
   /**
    * Default constructor
-   * 
+   *
    */
   //================================================================================
 
@@ -71,22 +71,22 @@ namespace INTERP_KERNEL
   /**
    * Calculates the matrix of volumes of intersection between the elements of srcMesh and the elements of targetMesh.
    * The calculation is done in two steps. First a filtering process reduces the number of pairs of elements for which the
-   * calculation must be carried out by eliminating pairs that do not intersect based on their bounding boxes. Then, the 
+   * calculation must be carried out by eliminating pairs that do not intersect based on their bounding boxes. Then, the
    * volume of intersection is calculated for the remaining pairs, and entered into the
-   * intersection matrix. 
-   * 
-   * The matrix is partially sparse : it is a vector of maps of integer - double pairs. 
+   * intersection matrix.
+   *
+   * The matrix is partially sparse : it is a vector of maps of integer - double pairs.
    * It can also be an INTERP_KERNEL::Matrix object.
    * The length of the vector is equal to the number of target elements - for each target element there is a map, regardless
    * of whether the element intersects any source elements or not. But in the maps there are only entries for those source elements
-   * which have a non-zero intersection volume with the target element. The vector has indices running from 
+   * which have a non-zero intersection volume with the target element. The vector has indices running from
    * 0 to (nb target elements - 1), meaning that the map for target element i is stored at index i - 1. In the maps, however,
    * the indexing is more natural : the intersection volume of the target element i with source element j is found at matrix[i-1][j].
-   * 
+   *
 
    * @param src_mesh     cartesian source mesh
    * @param tgt_mesh  unstructured target mesh
-   * @param result      matrix in which the result is stored 
+   * @param result      matrix in which the result is stored
    * @param method      interpolation method
    */
   //================================================================================
@@ -195,22 +195,22 @@ namespace INTERP_KERNEL
   /**
    * Calculates the matrix of volumes of intersection between the elements of srcMesh and the elements of targetMesh.
    * The calculation is done in two steps. First a filtering process reduces the number of pairs of elements for which the
-   * calculation must be carried out by eliminating pairs that do not intersect based on their bounding boxes. Then, the 
+   * calculation must be carried out by eliminating pairs that do not intersect based on their bounding boxes. Then, the
    * volume of intersection is calculated for the remaining pairs, and entered into the
-   * intersection matrix. 
-   * 
-   * The matrix is partially sparse : it is a vector of maps of integer - double pairs. 
+   * intersection matrix.
+   *
+   * The matrix is partially sparse : it is a vector of maps of integer - double pairs.
    * It can also be an INTERP_KERNEL::Matrix object.
    * The length of the vector is equal to the number of target elements - for each target element there is a map, regardless
    * of whether the element intersects any source elements or not. But in the maps there are only entries for those source elements
-   * which have a non-zero intersection volume with the target element. The vector has indices running from 
+   * which have a non-zero intersection volume with the target element. The vector has indices running from
    * 0 to (nb target elements - 1), meaning that the map for target element i is stored at index i - 1. In the maps, however,
    * the indexing is more natural : the intersection volume of the target element i with source element j is found at matrix[i-1][j].
-   * 
+   *
 
    * @param meshS     2-dimesional unstructured target mesh
    * @param meshT     2-dimensional cartesian source mesh
-   * @param result      matrix in which the result is stored 
+   * @param result      matrix in which the result is stored
    * @param method      interpolation method
    */
   //================================================================================

@@ -97,7 +97,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         a0,a1,a2=m.getTinySerializationInformation()
         b0,b1=m.serialize()
         m2=MEDCouplingUMesh()
-        m2.unserialization(a0,a1,b0,b1,a2);
+        m2.unserialization(a0,a1,b0,b1,a2)
         self.assertTrue(m2.isEqual(m,1e-16))
         pass
 
@@ -200,7 +200,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         b=a[:] ; b.iota(7000.)
         f.setArray(DataArrayDouble.Meld(a,b))
         f.getArray().setInfoOnComponents(["u1","vv2"])
-        f.checkConsistencyLight();
+        f.checkConsistencyLight()
         #
         st=pickle.dumps(f,pickle.HIGHEST_PROTOCOL)
         f2=pickle.loads(st)
@@ -215,10 +215,10 @@ class MEDCouplingPickleTest(unittest.TestCase):
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test12(self):
         """  Test of MEDCouplingFieldDouble on Gauss Points lying on MEDCouplingUMesh pickeling."""
-        _a=0.446948490915965;
-        _b=0.091576213509771;
-        _p1=0.11169079483905;
-        _p2=0.0549758718227661;
+        _a=0.446948490915965
+        _b=0.091576213509771
+        _p1=0.11169079483905
+        _p2=0.0549758718227661
         refCoo1=[ 0.,0., 1.,0., 0.,1. ]
         gsCoo1=[ 2*_b-1, 1-4*_b, 2*_b-1, 2.07*_b-1, 1-4*_b,
                  2*_b-1, 1-4*_a, 2*_a-1, 2*_a-1, 1-4*_a, 2*_a-1, 2*_a-1 ]
@@ -227,64 +227,64 @@ class MEDCouplingPickleTest(unittest.TestCase):
         _gsCoo1=gsCoo1
         _wg1=wg1
         #
-        m=MEDCouplingDataForTest.build2DTargetMesh_1();
-        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,NO_TIME);
-        f.setMesh(m);
-        self.assertEqual(5,f.getNumberOfMeshPlacesExpected());
-        self.assertEqual(0,f.getNbOfGaussLocalization());
-        f.setGaussLocalizationOnType(NORM_TRI3,_refCoo1,_gsCoo1,_wg1);
+        m=MEDCouplingDataForTest.build2DTargetMesh_1()
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,NO_TIME)
+        f.setMesh(m)
+        self.assertEqual(5,f.getNumberOfMeshPlacesExpected())
+        self.assertEqual(0,f.getNbOfGaussLocalization())
+        f.setGaussLocalizationOnType(NORM_TRI3,_refCoo1,_gsCoo1,_wg1)
         f.setGaussLocalizationOnType(NORM_TRI3,_refCoo1,_gsCoo1,_wg1); # not a bug only to check that it works well
         self.assertRaises(InterpKernelException,f.setGaussLocalizationOnType,NORM_QUAD4,_refCoo1,_gsCoo1,_wg1)
-        self.assertEqual(1,f.getNbOfGaussLocalization());
+        self.assertEqual(1,f.getNbOfGaussLocalization())
         refCoo2=[ 0.,0., 1.,0., 1.,1., 0.,1. ]
         _refCoo2=refCoo2
         _gsCoo1=_gsCoo1[0:4]
         _wg1=_wg1[0:2]
-        f.setGaussLocalizationOnType(NORM_QUAD4,_refCoo2,_gsCoo1,_wg1);
-        self.assertEqual(2,f.getNbOfGaussLocalization());
-        array=DataArrayDouble.New();
+        f.setGaussLocalizationOnType(NORM_QUAD4,_refCoo2,_gsCoo1,_wg1)
+        self.assertEqual(2,f.getNbOfGaussLocalization())
+        array=DataArrayDouble.New()
         ptr=18*2*[None]
         for i in range(18 * 2):
             ptr[i]=float(i+1)
-        array.setValues(ptr,18,2);
-        ptr=array.getPointer();
-        f.setArray(array);
-        f.setName("MyFirstFieldOnGaussPoint");
-        f.checkConsistencyLight();
-        self.assertAlmostEqual(27.,f.getIJK(2,5,0),14);
-        self.assertAlmostEqual(16.,f.getIJK(1,5,1),14);
+        array.setValues(ptr,18,2)
+        ptr=array.getPointer()
+        f.setArray(array)
+        f.setName("MyFirstFieldOnGaussPoint")
+        f.checkConsistencyLight()
+        self.assertAlmostEqual(27.,f.getIJK(2,5,0),14)
+        self.assertAlmostEqual(16.,f.getIJK(1,5,1),14)
         #
-        f.clearGaussLocalizations();
-        self.assertEqual(0,f.getNbOfGaussLocalization());
-        self.assertRaises(InterpKernelException,f.checkConsistencyLight);
+        f.clearGaussLocalizations()
+        self.assertEqual(0,f.getNbOfGaussLocalization())
+        self.assertRaises(InterpKernelException,f.checkConsistencyLight)
         ids1=[0,1,3,4]
-        self.assertRaises(InterpKernelException,f.setGaussLocalizationOnCells,ids1,_refCoo2,_gsCoo1,_wg1);
-        self.assertEqual(0,f.getNbOfGaussLocalization());
+        self.assertRaises(InterpKernelException,f.setGaussLocalizationOnCells,ids1,_refCoo2,_gsCoo1,_wg1)
+        self.assertEqual(0,f.getNbOfGaussLocalization())
         ids2=[0,4]
-        f.setGaussLocalizationOnCells(ids2,_refCoo2,_gsCoo1,_wg1);
-        self.assertEqual(1,f.getNbOfGaussLocalization());
-        self.assertEqual(0,f.getGaussLocalizationIdOfOneCell(0));
-        self.assertRaises(InterpKernelException,f.getGaussLocalizationIdOfOneCell,1);
+        f.setGaussLocalizationOnCells(ids2,_refCoo2,_gsCoo1,_wg1)
+        self.assertEqual(1,f.getNbOfGaussLocalization())
+        self.assertEqual(0,f.getGaussLocalizationIdOfOneCell(0))
+        self.assertRaises(InterpKernelException,f.getGaussLocalizationIdOfOneCell,1)
         ids3=[1,2]
-        f.setGaussLocalizationOnCells(ids3,_refCoo1,_gsCoo1,_wg1);
-        self.assertEqual(2,f.getNbOfGaussLocalization());
-        self.assertEqual(0,f.getGaussLocalizationIdOfOneCell(0));
-        self.assertEqual(1,f.getGaussLocalizationIdOfOneCell(1));
-        self.assertEqual(1,f.getGaussLocalizationIdOfOneCell(2));
+        f.setGaussLocalizationOnCells(ids3,_refCoo1,_gsCoo1,_wg1)
+        self.assertEqual(2,f.getNbOfGaussLocalization())
+        self.assertEqual(0,f.getGaussLocalizationIdOfOneCell(0))
+        self.assertEqual(1,f.getGaussLocalizationIdOfOneCell(1))
+        self.assertEqual(1,f.getGaussLocalizationIdOfOneCell(2))
         self.assertRaises(InterpKernelException,f.checkConsistencyLight);#<- cell 3 has no localization
         ids4=[3]
-        _gsCoo2=_gsCoo1;
-        _wg2=_wg1;
-        _gsCoo2[0]=0.8888777776666;
-        _wg2[0]=0.1234567892377;
-        f.setGaussLocalizationOnCells(ids4,_refCoo2,_gsCoo2,_wg2);
-        self.assertEqual(3,f.getNbOfGaussLocalization());
-        tmpIds=f.getCellIdsHavingGaussLocalization(0);
-        self.assertEqual(ids2,list(tmpIds.getValues()));
+        _gsCoo2=_gsCoo1
+        _wg2=_wg1
+        _gsCoo2[0]=0.8888777776666
+        _wg2[0]=0.1234567892377
+        f.setGaussLocalizationOnCells(ids4,_refCoo2,_gsCoo2,_wg2)
+        self.assertEqual(3,f.getNbOfGaussLocalization())
+        tmpIds=f.getCellIdsHavingGaussLocalization(0)
+        self.assertEqual(ids2,list(tmpIds.getValues()))
         self.assertRaises(InterpKernelException,f.checkConsistencyLight);#<- it's always not ok because undelying array not with the good size.
-        array2=f.getArray().subArray(0,10);
-        f.setArray(array2);
-        f.checkConsistencyLight();
+        array2=f.getArray().subArray(0,10)
+        f.setArray(array2)
+        f.checkConsistencyLight()
         ####
         st=pickle.dumps(f,pickle.HIGHEST_PROTOCOL)
         f2=pickle.loads(st)
@@ -346,7 +346,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         b=a[:] ; b.iota(7000)
         f.setArray(DataArrayInt32.Meld(a,b))
         f.getArray().setInfoOnComponents(["u1","vv2"])
-        f.checkConsistencyLight();
+        f.checkConsistencyLight()
         #
         st = pickle.dumps(f, pickle.HIGHEST_PROTOCOL)
         f2 = pickle.loads(st)
@@ -369,7 +369,7 @@ class MEDCouplingPickleTest(unittest.TestCase):
         b=a[:] ; b.iota(7000.)
         f.setArray(DataArrayFloat.Meld(a,b))
         f.getArray().setInfoOnComponents(["u1","vv2"])
-        f.checkConsistencyLight();
+        f.checkConsistencyLight()
         #
         st = pickle.dumps(f, pickle.HIGHEST_PROTOCOL)
         f2 = pickle.loads(st)

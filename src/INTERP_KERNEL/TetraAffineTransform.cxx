@@ -34,17 +34,17 @@ namespace INTERP_KERNEL
 
   /**
    * Constructor
-   * Create the TetraAffineTransform object from the tetrahedron 
-   * with corners specified in pts. If the tetrahedron is degenerate or almost degenerate, 
+   * Create the TetraAffineTransform object from the tetrahedron
+   * with corners specified in pts. If the tetrahedron is degenerate or almost degenerate,
    * construction succeeds, but the determinant of the transform is set to 0.
    *
    * @param pts  a 4x3 matrix containing 4 points (P0X,P0Y,P0Z,P1X,P1Y,P1Z,...) of 3 coordinates each
    */
   TetraAffineTransform::TetraAffineTransform(const double *pts)
   {
-    
+
     LOG(2,"Creating transform from tetraeder : ");
-    
+
     // three last points -> linear transform
     for(int i = 0; i < 3 ; ++i)
       {
@@ -58,14 +58,14 @@ namespace INTERP_KERNEL
     // remember _linear_transform for the reverse transformation
     memcpy( _back_linear_transform, _linear_transform, 9*sizeof(double));
     memcpy( _back_translation,      pts,          3*sizeof(double));
-    
+
     calculateDeterminant();
-    
+
     LOG(3, "determinant before inverse = " << _determinant);
 
     double ni(1./INTERP_KERNEL::normInf(_linear_transform));
     ni = ni*ni*ni;
-    
+
     // check that tetra is non-planar -> determinant is not zero
     // AGY : the check to 0. must integrate the infinite norm of _linear_transform matrix.
     // otherwise set _determinant to zero to signal caller that transformation did not work
@@ -77,7 +77,7 @@ namespace INTERP_KERNEL
 
     // we need the inverse transform
     invertLinearTransform();
-    
+
     // first point -> translation
     // calculate here because translation takes place in "transformed space",
     // or in other words b = -A*O where A is the linear transform
@@ -86,7 +86,7 @@ namespace INTERP_KERNEL
       {
         _translation[i] = -(_linear_transform[3*i]*pts[0] + _linear_transform[3*i+1]*pts[1] + _linear_transform[3*i+2]*pts[2]) ;
       }
-    
+
     // precalculate determinant (again after inversion of transform)
     calculateDeterminant();
 
@@ -105,7 +105,7 @@ namespace INTERP_KERNEL
               assert(epsilonEqual(v[j], (3*i+j == 3 || 3*i+j == 7 || 3*i+j == 11 ) ? 1.0 : 0.0));
             }
       }
-    
+
     LOG(4, " ok");
 #endif
   }
@@ -113,7 +113,7 @@ namespace INTERP_KERNEL
   /**
    * Calculates the transform of point srcPt and stores the result in destPt.
    * If destPt == srcPt, then srcPt is overwritten safely.
-   *  
+   *
    *
    * @param destPt  double[3] in which to store the transformed point
    * @param srcPt   double[3] containing coordinates of points to be transformed
@@ -122,23 +122,23 @@ namespace INTERP_KERNEL
   void TetraAffineTransform::apply(double* destPt, const double* srcPt) const
   {
     double* dest = destPt;
-    
+
     // are we self-allocating ?
     const bool selfAllocation = (destPt == srcPt);
-    
+
     if(selfAllocation)
       {
         // alloc temporary memory
         dest = new double[3];
-       
+
         LOG(6, "Info : Self-affectation in TetraAffineTransform::apply");
       }
-    
+
     for(int i = 0 ; i < 3 ; ++i)
       {
         // matrix - vector multiplication
         dest[i] = _linear_transform[3*i] * srcPt[0] + _linear_transform[3*i + 1] * srcPt[1] + _linear_transform[3*i + 2] * srcPt[2];
-       
+
         // translation
         dest[i] += _translation[i];
       }
@@ -164,18 +164,18 @@ namespace INTERP_KERNEL
   void TetraAffineTransform::reverseApply(double* destPt, const double* srcPt) const
   {
     double* dest = destPt;
-    
+
     // are we self-allocating ?
     const bool selfAllocation = (destPt == srcPt);
-    
+
     if(selfAllocation)
       {
         // alloc temporary memory
         dest = new double[3];
-       
+
         LOG(6, "Info : Self-affectation in TetraAffineTransform::reverseApply");
       }
-    
+
     for(int i = 0 ; i < 3 ; ++i)
       {
         // matrix - vector multiplication
@@ -221,7 +221,7 @@ namespace INTERP_KERNEL
         if(i != 2 ) std::cout << std::endl;
       }
     std::cout << "]" << std::endl;
-    
+
     std::cout << "b = " << "[" << _translation[0] << ", " << _translation[1] << ", " << _translation[2] << "]" << std::endl;
   }
 
@@ -237,24 +237,24 @@ namespace INTERP_KERNEL
   void TetraAffineTransform::invertLinearTransform()
   {
     //{ we copy the matrix for the lu-factorization
-    // maybe inefficient    
+    // maybe inefficient
     double lu[9];
     for(int i = 0 ; i < 9; ++i)
       {
         lu[i] = _linear_transform[i];
       }
-    
+
     // calculate LU factorization
     int idx[3];
     factorizeLU(lu, idx);
-    
+
     // calculate inverse by forward and backward substitution
     // store in _linear_transform
     // NB _linear_transform cannot be overwritten with lu in the loop
     for(int i = 0 ; i < 3 ; ++i)
       {
         // form standard base vector i
-        const double b[3] = 
+        const double b[3] =
           {
             double ( int(i == 0) ),
             double ( int(i == 1) ),
@@ -262,15 +262,15 @@ namespace INTERP_KERNEL
           };
 
         LOG(6,  "b = [" << b[0] << ", " << b[1] << ", " << b[2] << "]");
-       
+
         double y[3];
         forwardSubstitution(y, lu, b, idx);
-       
+
         double x[3];
         backwardSubstitution(x, lu, y, idx);
-       
+
         // copy to _linear_transform matrix
-        // NB : this is a column operation, so we cannot 
+        // NB : this is a column operation, so we cannot
         // do this directly when we calculate x
         for(int j = 0 ; j < 3 ; j++)
           {
@@ -278,24 +278,24 @@ namespace INTERP_KERNEL
           }
       }
   }
-  
+
   /**
    * Updates the member _determinant of the matrix A of the transformation.
    *
    */
   void TetraAffineTransform::calculateDeterminant()
   {
-    const double subDet[3] = 
+    const double subDet[3] =
       {
         _linear_transform[4] * _linear_transform[8] - _linear_transform[5] * _linear_transform[7],
         _linear_transform[3] * _linear_transform[8] - _linear_transform[5] * _linear_transform[6],
         _linear_transform[3] * _linear_transform[7] - _linear_transform[4] * _linear_transform[6]
       };
 
-    _determinant = _linear_transform[0] * subDet[0] - _linear_transform[1] * subDet[1] + _linear_transform[2] * subDet[2]; 
+    _determinant = _linear_transform[0] * subDet[0] - _linear_transform[1] * subDet[1] + _linear_transform[2] * subDet[2];
   }
 
-  
+
   /////////////////////////////////////////////////
   /// Auxiliary methods for inverse calculation ///
   /////////////////////////////////////////////////
@@ -303,7 +303,7 @@ namespace INTERP_KERNEL
 
   /**
    * Calculates the LU-factorization of the matrix A (_linear_transform)
-   * and stores it in lu. Since partial pivoting is used, there are 
+   * and stores it in lu. Since partial pivoting is used, there are
    * row swaps. This is represented by the index permutation vector idx : to access element
    * (i,j) of lu, use lu[3*idx[i] + j]
    *
@@ -318,10 +318,10 @@ namespace INTERP_KERNEL
       {
         idx[i] = i;
       }
-            
+
     for(int k = 0; k < 2 ; ++k)
       {
-         
+
         // find pivot
         int i = k;
         double max = std::fabs(lu[3*idx[k] + k]);
@@ -335,12 +335,12 @@ namespace INTERP_KERNEL
               }
             ++i;
           }
-             
+
         // swap rows in index vector
         int tmp = idx[k];
         idx[k] = idx[row];
         idx[row] = tmp;
-      
+
         // calculate row
         for(int j = k + 1 ; j < 3 ; ++j)
           {
@@ -361,7 +361,7 @@ namespace INTERP_KERNEL
 
   /**
    * Solves the system Lx = b, where L is lower unit-triangular (ones on the diagonal)
-   * 
+   *
    * @param x   double[3] in which the solution is stored
    * @param lu  double[9] containing the LU-factorization
    * @param b   double[3] containing the right-hand side
@@ -379,8 +379,8 @@ namespace INTERP_KERNEL
   }
 
   /**
-   * Solves the system Ux = b, where U is upper-triangular 
-   * 
+   * Solves the system Ux = b, where U is upper-triangular
+   *
    * @param x   double[3] in which the solution is stored
    * @param lu  double[9] containing the LU-factorization
    * @param b   double[3] containing the right-hand side
@@ -393,5 +393,5 @@ namespace INTERP_KERNEL
     x[idx[1]] = ( b[idx[1]] - lu[3*idx[1] + 2] * x[idx[2]] ) / lu[3*idx[1] + 1];
     x[idx[0]] = ( b[idx[0]] - lu[3*idx[0] + 1] * x[idx[1]] - lu[3*idx[0] + 2] * x[idx[2]] ) / lu[3*idx[0]];
   }
-  
+
 }

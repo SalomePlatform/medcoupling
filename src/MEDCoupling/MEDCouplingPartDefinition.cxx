@@ -168,7 +168,7 @@ void DataArrayPartDefinition::checkConsistencyLight() const
 
 /*!
  * This method tries to simplify \a this if possible.
- * 
+ *
  * \return a new reference (equal to this) to be decrRefed.
  */
 PartDefinition *DataArrayPartDefinition::tryToSimplify() const
@@ -336,7 +336,7 @@ void SlicePartDefinition::checkConsistencyLight() const
 
 /*!
  * Return \a this (because it cannot be simplified)
- * 
+ *
  * \return a new reference (equal to this) to be decrRefed.
  */
 PartDefinition *SlicePartDefinition::tryToSimplify() const

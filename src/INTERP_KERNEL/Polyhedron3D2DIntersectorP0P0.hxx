@@ -28,8 +28,8 @@ namespace INTERP_KERNEL
 {
 
 
-  /** 
-   * \brief Class responsible for calculating intersection between a hexahedron target element and  
+  /**
+   * \brief Class responsible for calculating intersection between a hexahedron target element and
    * the source elements.
    *
    */
@@ -62,10 +62,10 @@ namespace INTERP_KERNEL
   private:
     void releaseArrays();
   private:
-    /// pointers to the SplitterTetra objects representing the tetrahedra 
+    /// pointers to the SplitterTetra objects representing the tetrahedra
     /// that result from the splitting of the hexahedron target cell
     std::vector< SplitterTetra<MyMeshType>* > _tetra;
-    
+
     SplitterTetra2<MyMeshType> _split;
 
     double _dim_caracteristic;

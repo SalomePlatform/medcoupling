@@ -91,7 +91,7 @@ namespace INTERP_KERNEL
     }
     return *this;
   }
-  
+
   template <class T>
   void DenseMatrixT<T>::resize(mcIdType newn, mcIdType newm)
   {
@@ -150,7 +150,7 @@ namespace INTERP_KERNEL
   template<class T>
   T Determinant33(const T *m)
   { return m[0]*(m[4]*m[8]-m[7]*m[5])-m[1]*(m[3]*m[8]-m[6]*m[5])+m[2]*(m[3]*m[7]-m[6]*m[4]);}
-  
+
   template <class T>
   T DenseMatrixT<T>::determinant() const
   {
@@ -162,7 +162,7 @@ namespace INTERP_KERNEL
       return Determinant33(v[0]);
     THROW_IK_EXCEPTION("DenseMatrixT::determinant : only 1x1, 2x2 and 3x3 implemented !");
   }
-  
+
   template <class T>
   T DenseMatrixT<T>::toJacobian() const
   {

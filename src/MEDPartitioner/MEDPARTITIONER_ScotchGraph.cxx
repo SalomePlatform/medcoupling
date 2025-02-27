@@ -34,7 +34,7 @@ extern "C"
 #endif
 
 using namespace MEDPARTITIONER;
-  
+
 SCOTCHGraph::SCOTCHGraph():Graph()
 {
 }
@@ -51,7 +51,7 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
 {
   if (MyGlobals::_Verbose>10)
     std::cout << "proc " << MyGlobals::_Rank << " : SCOTCHGraph::partGraph" << std::endl;
-  
+
   //number of graph vertices
   int n = FromIdType<int>(_graph->getNumberOf());
   //graph
@@ -72,7 +72,7 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
 #else
   //output parameters
   int* partition = new int[n+1];
-  
+
   SCOTCH_Graph scotch_graph;
   SCOTCH_graphInit(&scotch_graph);
   SCOTCH_graphBuild(&scotch_graph,
@@ -87,7 +87,7 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
                     _edge_weight);
   SCOTCH_Strat scotch_strategy;
   SCOTCH_stratInit(&scotch_strategy);
-  
+
   //!user-defined options for the strategy
   if (options_string!="")
     SCOTCH_stratGraphMap(&scotch_strategy,options_string.c_str());
@@ -102,7 +102,7 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
     for (int i=0; i<n+1; i++)
       partition[i]=0;
     }
-  
+
   SCOTCH_stratExit(&scotch_strategy);
   SCOTCH_graphExit(&scotch_graph);
 
@@ -115,9 +115,9 @@ void SCOTCHGraph::partGraph(int ndomain, const std::string& options_string, Para
       value[i]=ToIdType(partition[i]);
     }
   delete [] partition;
-  
+
   //creating a skylinearray with no copy of the index and partition array
-  //the fifth argument true specifies that only the pointers are passed 
+  //the fifth argument true specifies that only the pointers are passed
   //to the object
   _partition = MEDCoupling::MEDCouplingSkyLineArray::New(index,value);
 #endif

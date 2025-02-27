@@ -28,6 +28,6 @@
 # endif
 #else
 # define SHAPE_RECOGNITION_EXPORT
-#endif 
+#endif
 
 #endif

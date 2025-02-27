@@ -44,11 +44,11 @@ First of all, creation of a mesh "targetMesh". ::
         targetMesh.insertNextCell(mc.NORM_QUAD4,4,targetConn[14:18])
         myCoords=mc.DataArrayDouble.New(targetCoords,9,2)
         targetMesh.setCoords(myCoords)
-        
+
 
 .. note:: targetMesh is grouped by geometric type.
 
-Build "targetMesh1" representing the sub-constituents (faces) of "targetMesh" reduced to cell ids [3,4,7,8]. 
+Build "targetMesh1" representing the sub-constituents (faces) of "targetMesh" reduced to cell ids [3,4,7,8].
 ::
 
 	targetMeshConsti=targetMesh.buildDescendingConnectivity()[0]

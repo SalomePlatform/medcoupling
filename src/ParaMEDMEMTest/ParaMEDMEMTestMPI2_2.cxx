@@ -54,7 +54,7 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
   MEDCoupling::ParaFIELD *parafield=0;
   MEDCoupling::CommInterface* interface;
   MEDCoupling::MPIProcessorGroup* source, *target;
-  
+
   MPI_Comm_size( MPI_COMM_WORLD, &lsize );
   MPI_Comm_rank( MPI_COMM_WORLD, &lrank );
   if(lsize!=3)
@@ -66,7 +66,7 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
   /* Connection to remote program */
   MPI2Connector *mpio = new MPI2Connector;
   gcom = mpio->remoteMPI2Connect(service);
-  
+
   MPI_Comm_size( gcom, &gsize );
   MPI_Comm_rank( gcom, &grank );
   if(gsize!=5)

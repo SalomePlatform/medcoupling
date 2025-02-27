@@ -49,15 +49,15 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         pass
 
     def testIntersect2DMeshesTmp1(self):
-        m1c=MEDCouplingCMesh.New();
-        coordsX=DataArrayDouble.New();
+        m1c=MEDCouplingCMesh.New()
+        coordsX=DataArrayDouble.New()
         arrX=[ -1., 1., 2., 4. ]
-        coordsX.setValues(arrX,4,1);
-        m1c.setCoordsAt(0,coordsX);
-        coordsY=DataArrayDouble.New();
+        coordsX.setValues(arrX,4,1)
+        m1c.setCoordsAt(0,coordsX)
+        coordsY=DataArrayDouble.New()
         arrY=[ -2., 2., 4., 8. ]
-        coordsY.setValues(arrY,4,1);
-        m1c.setCoordsAt(1,coordsY);
+        coordsY.setValues(arrY,4,1)
+        m1c.setCoordsAt(1,coordsY)
         m1=m1c.buildUnstructured()
         m1bis=m1.buildPartOfMySelf([3,4,5],False)
         m2=m1.deepCopy()
@@ -67,179 +67,179 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1bis,m2,1e-10)
         expected1=[0,0,1,1,1,2,2,2]
         expected2=[0,-1,0,1,-1,1,2,-1]
-        self.assertEqual(8,d1.getNumberOfTuples());
-        self.assertEqual(8,d2.getNumberOfTuples());
-        self.assertEqual(8,m3.getNumberOfCells());
-        self.assertEqual(22,m3.getNumberOfNodes());
-        self.assertEqual(2,m3.getSpaceDimension());
-        self.assertEqual(expected1,d1.getValues());
-        self.assertEqual(expected2,d2.getValues());
+        self.assertEqual(8,d1.getNumberOfTuples())
+        self.assertEqual(8,d2.getNumberOfTuples())
+        self.assertEqual(8,m3.getNumberOfCells())
+        self.assertEqual(22,m3.getNumberOfNodes())
+        self.assertEqual(2,m3.getSpaceDimension())
+        self.assertEqual(expected1,d1.getValues())
+        self.assertEqual(expected2,d2.getValues())
         expected3=[5,17,1,16,12,5,16,0,4,5,17,12,5,18,1,17,13,5,19,2,18,13,5,17,5,6,19,13,5,20,2,19,14,5,21,3,20,14,5,19,6,7,21,14]
         expected4=[0,5,12,17,22,28,33,38,44]
         expected5=[-1.0,2.0,1.0,2.0,2.0,2.0,4.0,2.0,-1.0,4.0,1.0,4.0,2.0,4.0,4.0,4.0,-0.5,-1.5,1.5,-1.5,2.5,-1.5,4.5,-1.5,-0.5,2.5,1.5,2.5,2.5,2.5,4.5,2.5,-0.5,2.0,1.0,2.5,1.5,2.0,2.0,2.5,2.5,2.0,4.0,2.5]
-        self.assertEqual(44,m3.getNodalConnectivity().getNumberOfTuples());
-        self.assertEqual(9,m3.getNodalConnectivityIndex().getNumberOfTuples());
-        self.assertEqual(expected3,m3.getNodalConnectivity().getValues());
-        self.assertEqual(expected4,m3.getNodalConnectivityIndex().getValues());
+        self.assertEqual(44,m3.getNodalConnectivity().getNumberOfTuples())
+        self.assertEqual(9,m3.getNodalConnectivityIndex().getNumberOfTuples())
+        self.assertEqual(expected3,m3.getNodalConnectivity().getValues())
+        self.assertEqual(expected4,m3.getNodalConnectivityIndex().getValues())
         for i in range(44):
-            self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12);
+            self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12)
             pass
         pass
 
     def testIntersect2DMeshesTmp2(self):
-        m1c=MEDCouplingCMesh.New();
-        coordsX1=DataArrayDouble.New();
+        m1c=MEDCouplingCMesh.New()
+        coordsX1=DataArrayDouble.New()
         arrX1=[ 0., 1., 1.5, 2. ]
-        coordsX1.setValues(arrX1,4,1);
-        m1c.setCoordsAt(0,coordsX1);
-        coordsY1=DataArrayDouble.New();
+        coordsX1.setValues(arrX1,4,1)
+        m1c.setCoordsAt(0,coordsX1)
+        coordsY1=DataArrayDouble.New()
         arrY1=[ 0., 1.5, 3.]
-        coordsY1.setValues(arrY1,3,1);
-        m1c.setCoordsAt(1,coordsY1);
-        m1=m1c.buildUnstructured();
-        m2c=MEDCouplingCMesh.New();
-        coordsX2=DataArrayDouble.New();
+        coordsY1.setValues(arrY1,3,1)
+        m1c.setCoordsAt(1,coordsY1)
+        m1=m1c.buildUnstructured()
+        m2c=MEDCouplingCMesh.New()
+        coordsX2=DataArrayDouble.New()
         arrX2=[ 0., 1., 2. ]
-        coordsX2.setValues(arrX2,3,1);
-        m2c.setCoordsAt(0,coordsX2);
-        coordsY2=DataArrayDouble.New();
+        coordsX2.setValues(arrX2,3,1)
+        m2c.setCoordsAt(0,coordsX2)
+        coordsY2=DataArrayDouble.New()
         arrY2=[ 0., 1., 3.]
-        coordsY2.setValues(arrY2,3,1);
-        m2c.setCoordsAt(1,coordsY2);
-        m2=m2c.buildUnstructured();
+        coordsY2.setValues(arrY2,3,1)
+        m2c.setCoordsAt(1,coordsY2)
+        m2=m2c.buildUnstructured()
         #
         m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1,m2,1e-10)
         #
         expected1=[0,0,1,1,2,2,3,4,5]
         expected2=[0,2,1,3,1,3,2,3,3]
-        self.assertEqual(9,d1.getNumberOfTuples());
-        self.assertEqual(9,d2.getNumberOfTuples());
-        self.assertEqual(9,m3.getNumberOfCells());
-        self.assertEqual(22,m3.getNumberOfNodes());
-        self.assertEqual(2,m3.getSpaceDimension());
-        self.assertEqual(expected1,d1.getValues());
-        self.assertEqual(expected2,d2.getValues());
+        self.assertEqual(9,d1.getNumberOfTuples())
+        self.assertEqual(9,d2.getNumberOfTuples())
+        self.assertEqual(9,m3.getNumberOfCells())
+        self.assertEqual(22,m3.getNumberOfNodes())
+        self.assertEqual(2,m3.getSpaceDimension())
+        self.assertEqual(expected1,d1.getValues())
+        self.assertEqual(expected2,d2.getValues())
         expected3=[5,16,13,12,15,5,15,4,5,16,5,21,2,13,16,5,16,5,6,21,5,17,14,2,21,5,21,6,7,17,5,4,18,19,5,5,5,19,10,6,5,6,10,20,7]
         expected4=[0,5,10,15,20,25,30,35,40,45]
         expected5=[0.0,0.0,1.0,0.0,1.5,0.0,2.0,0.0,0.0,1.5,1.0,1.5,1.5,1.5,2.0,1.5,0.0,3.0,1.0,3.0,1.5,3.0,2.0,3.0,0.0,0.0,1.0,0.0,2.0,0.0,0.0,1.0,1.0,1.0,2.0,1.0,0.0,3.0,1.0,3.0,2.0,3.0,1.5,1.0]
-        self.assertEqual(45,m3.getNodalConnectivity().getNumberOfTuples());
-        self.assertEqual(10,m3.getNodalConnectivityIndex().getNumberOfTuples());
-        self.assertEqual(expected3,m3.getNodalConnectivity().getValues());
-        self.assertEqual(expected4,m3.getNodalConnectivityIndex().getValues());
+        self.assertEqual(45,m3.getNodalConnectivity().getNumberOfTuples())
+        self.assertEqual(10,m3.getNodalConnectivityIndex().getNumberOfTuples())
+        self.assertEqual(expected3,m3.getNodalConnectivity().getValues())
+        self.assertEqual(expected4,m3.getNodalConnectivityIndex().getValues())
         for i in range(44):
-            self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12);
+            self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12)
             pass
         pass
 
     def testIntersect2DMeshesTmp3(self):
-        m1Coords=[0.,0.,1.,0.,1.5,0.,0.,1.,0.,1.5,-1.,0.,-1.5,0.,0.,-1,0.,-1.5,0.5,0.,1.25,0.,0.70710678118654757,0.70710678118654757,1.0606601717798214,1.0606601717798214,0.,0.5,0.,1.25,-0.70710678118654757,0.70710678118654757,-1.0606601717798214,1.0606601717798214,-0.5,0.,-1.25,0.,-0.70710678118654757,-0.70710678118654757,-1.0606601717798214,-1.0606601717798214,0.,-0.5,0.,-1.25,0.70710678118654757,-0.70710678118654757,1.0606601717798214,-1.0606601717798214];
-        m1Conn=[0,3,1,13,11,9, 3,4,2,1,14,12,10,11, 5,3,0,15,13,17, 6,4,3,5,16,14,15,18, 5,0,7,17,21,19, 6,5,7,8,18,19,22,20, 0,1,7,9,23,21, 1,2,8,7,10,24,22,23];
-        m1=MEDCouplingUMesh.New();
-        m1.setMeshDimension(2);
-        m1.allocateCells(8);
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[0:6]);
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[6:14]);
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[14:20]);
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[20:28]);
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[28:34]);
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[34:42]);
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[42:48]);
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[48:56]);
-        m1.finishInsertingCells();
-        myCoords1=DataArrayDouble.New();
-        myCoords1.setValues(m1Coords,25,2);
-        m1.setCoords(myCoords1);
+        m1Coords=[0.,0.,1.,0.,1.5,0.,0.,1.,0.,1.5,-1.,0.,-1.5,0.,0.,-1,0.,-1.5,0.5,0.,1.25,0.,0.70710678118654757,0.70710678118654757,1.0606601717798214,1.0606601717798214,0.,0.5,0.,1.25,-0.70710678118654757,0.70710678118654757,-1.0606601717798214,1.0606601717798214,-0.5,0.,-1.25,0.,-0.70710678118654757,-0.70710678118654757,-1.0606601717798214,-1.0606601717798214,0.,-0.5,0.,-1.25,0.70710678118654757,-0.70710678118654757,1.0606601717798214,-1.0606601717798214]
+        m1Conn=[0,3,1,13,11,9, 3,4,2,1,14,12,10,11, 5,3,0,15,13,17, 6,4,3,5,16,14,15,18, 5,0,7,17,21,19, 6,5,7,8,18,19,22,20, 0,1,7,9,23,21, 1,2,8,7,10,24,22,23]
+        m1=MEDCouplingUMesh.New()
+        m1.setMeshDimension(2)
+        m1.allocateCells(8)
+        m1.insertNextCell(NORM_TRI6,6,m1Conn[0:6])
+        m1.insertNextCell(NORM_QUAD8,8,m1Conn[6:14])
+        m1.insertNextCell(NORM_TRI6,6,m1Conn[14:20])
+        m1.insertNextCell(NORM_QUAD8,8,m1Conn[20:28])
+        m1.insertNextCell(NORM_TRI6,6,m1Conn[28:34])
+        m1.insertNextCell(NORM_QUAD8,8,m1Conn[34:42])
+        m1.insertNextCell(NORM_TRI6,6,m1Conn[42:48])
+        m1.insertNextCell(NORM_QUAD8,8,m1Conn[48:56])
+        m1.finishInsertingCells()
+        myCoords1=DataArrayDouble.New()
+        myCoords1.setValues(m1Coords,25,2)
+        m1.setCoords(myCoords1)
         #
         m2Coords=[0.,0.,1.1,0.,1.1,1.,0.,1.,1.7,0.,1.7,1.,-1.1,1.,-1.1,0.,-1.7,0.,-1.7,1.,-1.7,-1,-1.1,-1.,0.,-1.,1.1,-1,1.7,-1.]
         m2Conn=[0,3,2,1, 1,2,5,4, 7,6,3,0, 8,9,6,7, 7,0,12,11, 8,7,11,10, 0,1,13,12, 1,4,14,13]
-        m2=MEDCouplingUMesh.New();
-        m2.setMeshDimension(2);
-        m2.allocateCells(8);
+        m2=MEDCouplingUMesh.New()
+        m2.setMeshDimension(2)
+        m2.allocateCells(8)
         for i in range(8):
             m2.insertNextCell(NORM_QUAD4,4,m2Conn[4*i:4*(i+1)])
             pass
-        m2.finishInsertingCells();
-        myCoords2=DataArrayDouble.New();
-        myCoords2.setValues(m2Coords,15,2);
-        m2.setCoords(myCoords2);
+        m2.finishInsertingCells()
+        myCoords2=DataArrayDouble.New()
+        myCoords2.setValues(m2Coords,15,2)
+        m2.setCoords(myCoords2)
         #
         m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1,m2,1e-10)
         m3.unPolyze()
         #
         expected1=[0,1,1,1,2,3,3,3,4,5,5,5,6,7,7,7]
         expected2=[0,0,1,-1,2,2,3,-1,4,4,5,-1,6,6,7,-1]
-        self.assertEqual(16,d1.getNumberOfTuples());
-        self.assertEqual(16,d2.getNumberOfTuples());
-        self.assertEqual(16,m3.getNumberOfCells());
-        self.assertEqual(104,m3.getNumberOfNodes());
-        self.assertEqual(2,m3.getSpaceDimension());
-        self.assertEqual(expected1,d1.getValues());
-        self.assertEqual(expected2,d2.getValues());
+        self.assertEqual(16,d1.getNumberOfTuples())
+        self.assertEqual(16,d2.getNumberOfTuples())
+        self.assertEqual(16,m3.getNumberOfCells())
+        self.assertEqual(104,m3.getNumberOfNodes())
+        self.assertEqual(2,m3.getSpaceDimension())
+        self.assertEqual(expected1,d1.getValues())
+        self.assertEqual(expected2,d2.getValues())
         expected3=[6,28,1,25,44,45,46,8,26,1,28,27,47,48,49,50,8,40,2,26,27,51,52,53,54,8,28,4,40,27,55,56,57,58,6,28,25,5,59,60,61,8,28,5,32,31,62,63,64,65,8,32,6,41,31,66,67,68,69,8,41,4,28,31,70,71,72,73,6,25,37,5,74,75,76,8,32,5,37,36,77,78,79,80,8,42,6,32,36,81,82,83,84,8,37,8,42,36,85,86,87,88,6,1,37,25,89,90,91,8,37,1,26,38,92,93,94,95,8,26,2,43,38,96,97,98,99,8,43,8,37,38,100,101,102,103]
         expected4=[0,7,16,25,34,41,50,59,68,75,84,93,102,109,118,127,136]
         expected5=[0.,0.,1.,0.,1.5,0.,0.,1.,0.,1.5,-1.,0.,-1.5,0.,0.,-1.,0.,-1.5,0.5,0.,1.25,0.,0.7071067811865476,0.7071067811865476,1.0606601717798214,1.0606601717798214,0.,0.5,0.,1.25,-0.7071067811865476,0.7071067811865476,-1.0606601717798214,1.0606601717798214,-0.5,0.,-1.25,0.,-0.7071067811865476,-0.7071067811865476,-1.0606601717798214,-1.0606601717798214,0.,-0.5,0.,-1.25,0.7071067811865476,-0.7071067811865476,1.0606601717798214,-1.0606601717798214,0.,0.,1.1,0.,1.1,1.,0.,1.,1.7,0.,1.7,1.,-1.1,1.,-1.1,0.,-1.7,0.,-1.7,1.,-1.7,-1.,-1.1,-1.,0.,-1.,1.1,-1.,1.7,-1.,1.118033988749895,1.,-1.118033988749895,1.,-1.118033988749895,-1.,1.118033988749895,-1.,0.7071067811865477,0.7071067811865476,0.5,0.,0.,0.5,1.05,0.,0.7071067811865475,0.7071067811865477,0.55,1.,1.1,0.5,1.4012585384440737,0.535233134659635,1.3,0.,1.1,0.5,1.1090169943749475,1.,0.,1.25,0.6123724356957946,1.369306393762915,1.1090169943749475,1.,0.55,1.,0.,0.5,-0.5,0.,-0.7071067811865477,0.7071067811865476,-0.7071067811865475,0.7071067811865477,-1.05,0.,-1.1,0.5,-0.55,1.,-1.3,0.,-1.4012585384440737,0.5352331346596344,-1.1090169943749475,1.,-1.1,0.5,-0.6123724356957941,1.3693063937629155,0.,1.25,-0.55,1.,-1.1090169943749475,1.,0.,-0.5,-0.7071067811865475,-0.7071067811865477,-0.5,0.,-1.05,0.,-0.7071067811865478,-0.7071067811865475,-0.55,-1.,-1.1,-0.5,-1.4012585384440734,-0.5352331346596354,-1.3,0.,-1.1,-0.5,-1.1090169943749475,-1.,0.,-1.25,-0.6123724356957945,-1.369306393762915,-1.1090169943749475,-1.,-0.55,-1.,0.7071067811865475,-0.7071067811865477,0.,-0.5,0.5,0.,0.7071067811865477,-0.7071067811865475,1.05,0.,1.1,-0.5,0.55,-1.,1.3,0.,1.4012585384440737,-0.535233134659635,1.1090169943749475,-1.,1.1,-0.5,0.6123724356957946,-1.369306393762915,0.,-1.25,0.55,-1.,1.1090169943749475,-1.0]
-        self.assertEqual(136,m3.getNodalConnectivity().getNumberOfTuples());
-        self.assertEqual(17,m3.getNodalConnectivityIndex().getNumberOfTuples());
-        self.assertEqual(expected3,m3.getNodalConnectivity().getValues());
-        self.assertEqual(expected4,m3.getNodalConnectivityIndex().getValues());
+        self.assertEqual(136,m3.getNodalConnectivity().getNumberOfTuples())
+        self.assertEqual(17,m3.getNodalConnectivityIndex().getNumberOfTuples())
+        self.assertEqual(expected3,m3.getNodalConnectivity().getValues())
+        self.assertEqual(expected4,m3.getNodalConnectivityIndex().getValues())
         for i in range(208):
-            self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12);
+            self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12)
             pass
         pass
 
     def testIntersect2DMeshesTmp4(self):
-        m1Coords=[0.,0.,1.,0.,1.5,0.,0.,1.,0.,1.5,-1.,0.,-1.5,0.,0.,-1,0.,-1.5,0.5,0.,1.25,0.,0.70710678118654757,0.70710678118654757,1.0606601717798214,1.0606601717798214,0.,0.5,0.,1.25,-0.70710678118654757,0.70710678118654757,-1.0606601717798214,1.0606601717798214,-0.5,0.,-1.25,0.,-0.70710678118654757,-0.70710678118654757,-1.0606601717798214,-1.0606601717798214,0.,-0.5,0.,-1.25,0.70710678118654757,-0.70710678118654757,1.0606601717798214,-1.0606601717798214];
-        m1Conn=[0,3,1,13,11,9, 3,4,2,1,14,12,10,11, 5,3,0,15,13,17, 6,4,3,5,16,14,15,18, 5,0,7,17,21,19, 6,5,7,8,18,19,22,20, 0,1,7,9,23,21, 1,2,8,7,10,24,22,23];
-        m1=MEDCouplingUMesh.New();
-        m1.setMeshDimension(2);
-        m1.allocateCells(8);
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[0:6]);
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[6:14]);
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[14:20]);
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[20:28]);
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[28:34]);
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[34:42]);
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[42:48]);
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[48:56]);
-        m1.finishInsertingCells();
-        myCoords1=DataArrayDouble.New();
-        myCoords1.setValues(m1Coords,25,2);
-        m1.setCoords(myCoords1);
+        m1Coords=[0.,0.,1.,0.,1.5,0.,0.,1.,0.,1.5,-1.,0.,-1.5,0.,0.,-1,0.,-1.5,0.5,0.,1.25,0.,0.70710678118654757,0.70710678118654757,1.0606601717798214,1.0606601717798214,0.,0.5,0.,1.25,-0.70710678118654757,0.70710678118654757,-1.0606601717798214,1.0606601717798214,-0.5,0.,-1.25,0.,-0.70710678118654757,-0.70710678118654757,-1.0606601717798214,-1.0606601717798214,0.,-0.5,0.,-1.25,0.70710678118654757,-0.70710678118654757,1.0606601717798214,-1.0606601717798214]
+        m1Conn=[0,3,1,13,11,9, 3,4,2,1,14,12,10,11, 5,3,0,15,13,17, 6,4,3,5,16,14,15,18, 5,0,7,17,21,19, 6,5,7,8,18,19,22,20, 0,1,7,9,23,21, 1,2,8,7,10,24,22,23]
+        m1=MEDCouplingUMesh.New()
+        m1.setMeshDimension(2)
+        m1.allocateCells(8)
+        m1.insertNextCell(NORM_TRI6,6,m1Conn[0:6])
+        m1.insertNextCell(NORM_QUAD8,8,m1Conn[6:14])
+        m1.insertNextCell(NORM_TRI6,6,m1Conn[14:20])
+        m1.insertNextCell(NORM_QUAD8,8,m1Conn[20:28])
+        m1.insertNextCell(NORM_TRI6,6,m1Conn[28:34])
+        m1.insertNextCell(NORM_QUAD8,8,m1Conn[34:42])
+        m1.insertNextCell(NORM_TRI6,6,m1Conn[42:48])
+        m1.insertNextCell(NORM_QUAD8,8,m1Conn[48:56])
+        m1.finishInsertingCells()
+        myCoords1=DataArrayDouble.New()
+        myCoords1.setValues(m1Coords,25,2)
+        m1.setCoords(myCoords1)
         #
         m2Coords=[0.,0.,1.1,0.,1.1,1.,0.,1.,1.7,0.,1.7,1.,-1.1,1.,-1.1,0.,-1.7,0.,-1.7,1.,-1.7,-1,-1.1,-1.,0.,-1.,1.1,-1,1.7,-1.]
         m2Conn=[0,3,2,1, 1,2,5,4, 7,6,3,0, 8,9,6,7, 7,0,12,11, 8,7,11,10, 0,1,13,12, 1,4,14,13]
-        m2=MEDCouplingUMesh.New();
-        m2.setMeshDimension(2);
-        m2.allocateCells(8);
+        m2=MEDCouplingUMesh.New()
+        m2.setMeshDimension(2)
+        m2.allocateCells(8)
         for i in range(8):
             m2.insertNextCell(NORM_QUAD4,4,m2Conn[4*i:4*(i+1)])
             pass
-        m2.finishInsertingCells();
-        myCoords2=DataArrayDouble.New();
-        myCoords2.setValues(m2Coords,15,2);
-        m2.setCoords(myCoords2);
+        m2.finishInsertingCells()
+        myCoords2=DataArrayDouble.New()
+        myCoords2.setValues(m2Coords,15,2)
+        m2.setCoords(myCoords2)
         #
         m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m2,m1,1e-10)
         m3.unPolyze()
         #
         expected1=[0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7]
         expected2=[0,1,1,-1,2,3,3,-1,4,5,5,-1,6,7,7,-1]
-        self.assertEqual(16,d1.getNumberOfTuples());
-        self.assertEqual(16,d2.getNumberOfTuples());
-        self.assertEqual(16,m3.getNumberOfCells());
-        self.assertEqual(104,m3.getNumberOfNodes());
-        self.assertEqual(2,m3.getSpaceDimension());
-        self.assertEqual(expected1,d1.getValues());
-        self.assertEqual(expected2,d2.getValues());
+        self.assertEqual(16,d1.getNumberOfTuples())
+        self.assertEqual(16,d2.getNumberOfTuples())
+        self.assertEqual(16,m3.getNumberOfCells())
+        self.assertEqual(104,m3.getNumberOfNodes())
+        self.assertEqual(2,m3.getSpaceDimension())
+        self.assertEqual(expected1,d1.getValues())
+        self.assertEqual(expected2,d2.getValues())
         expected3=[6,16,15,18,44,45,46,8,18,2,1,16,47,48,49,50,8,17,1,2,40,51,52,53,54,8,40,5,4,17,55,56,57,58,6,18,15,20,59,60,61,8,20,7,6,18,62,63,64,65,8,41,6,7,21,66,67,68,69,8,21,8,9,41,70,71,72,73,6,20,15,22,74,75,76,8,22,11,7,20,77,78,79,80,8,21,7,11,42,81,82,83,84,8,42,10,8,21,85,86,87,88,6,22,15,16,89,90,91,8,16,1,13,22,92,93,94,95,8,43,13,1,17,96,97,98,99,8,17,4,14,43,100,101,102,103]
         expected4=[0,7,16,25,34,41,50,59,68,75,84,93,102,109,118,127,136]
         expected5=[0.,0.,1.1, 0.,1.1,1.,0.,1.,1.7,0.,1.7,1.,-1.1,1.,-1.1,0.,-1.7,0.,-1.7,1.,-1.7,-1.,-1.1,-1.,0.,-1.,1.1,-1.,1.7,-1.,0.,0.,1.,0.,1.5,0.,0.,1.,0.,1.5,-1.,0.,-1.5,0.,0.,-1.,0.,-1.5,0.5,0.,1.25,0.,0.7071067811865476,0.7071067811865476,1.0606601717798214,1.0606601717798214,0.,0.5,0.,1.25,-0.7071067811865476,0.7071067811865476,-1.0606601717798214,1.0606601717798214,-0.5,0.,-1.25,0.,-0.7071067811865476,-0.7071067811865476,-1.0606601717798214,-1.0606601717798214,0.,-0.5,0.,-1.25,0.7071067811865476,-0.7071067811865476,1.0606601717798214,-1.0606601717798214,1.1180339887498951,1.,-1.1180339887498951,1.,-1.1180339887498951,-1.,1.1180339887498951,-1.,0.5,0.,0.,0.5,0.7071067811865477,0.7071067811865476,0.55,1.,1.1,0.5,1.05,0.,0.7071067811865477,0.7071067811865475,1.3,0.,1.1,0.5,1.1090169943749475,1.,1.4012585384440737,0.535233134659635,1.4090169943749475,1.,1.7,0.5,1.6,0.,1.4012585384440737,0.535233134659635,0.,0.5,-0.5,0.,-0.7071067811865477,0.7071067811865476,-1.05,0.,-1.1,0.5,-0.55,1.,-0.7071067811865478,0.7071067811865475,-1.1090169943749475,1.,-1.1,0.5,-1.3,0.,-1.4012585384440737,0.5352331346596344,-1.6,0.,-1.7,0.5,-1.4090169943749475,1.,-1.4012585384440737,0.5352331346596344,-0.5,0.,0.,-0.5,-0.7071067811865475,-0.7071067811865477,-0.55,-1.,-1.1,-0.5,-1.05,0.,-0.7071067811865475,-0.7071067811865477,-1.3,0.,-1.1,-0.5,-1.1090169943749475,-1.,-1.4012585384440734,-0.5352331346596354,-1.4090169943749475,-1.,-1.7,-0.5,-1.6,0.,-1.4012585384440732,-0.5352331346596354,0.,-0.5,0.5,0.,0.7071067811865475,-0.7071067811865477,1.05,0.,1.1,-0.5,0.55,-1.,0.7071067811865475,-0.7071067811865477,1.1090169943749475,-1.,1.1,-0.5,1.3,0.,1.4012585384440737,-0.535233134659635,1.6,0.,1.7,-0.5,1.4090169943749475,-1.,1.4012585384440737,-0.535233134659635]
-        self.assertEqual(136,m3.getNodalConnectivity().getNumberOfTuples());
-        self.assertEqual(17,m3.getNodalConnectivityIndex().getNumberOfTuples());
-        self.assertEqual(expected3,m3.getNodalConnectivity().getValues());
-        self.assertEqual(expected4,m3.getNodalConnectivityIndex().getValues());
+        self.assertEqual(136,m3.getNodalConnectivity().getNumberOfTuples())
+        self.assertEqual(17,m3.getNodalConnectivityIndex().getNumberOfTuples())
+        self.assertEqual(expected3,m3.getNodalConnectivity().getValues())
+        self.assertEqual(expected4,m3.getNodalConnectivityIndex().getValues())
         for i in range(208):
-            self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12);
+            self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12)
             pass
         pass
 
@@ -248,29 +248,29 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         conn=DataArrayInt.New([8,0,1,2,3,4,5,6,7,8,3,2,8,9,6,10,11,12,8,9,8,13,14,11,15,16,17,8,14,13,1,0,16,18,4,19,8,1,20,21,2,22,23,24,5,8,2,21,25,8,24,26,27,10,8,8,25,28,13,27,29,30,15,8,13,28,20,1,30,31,22,18,8,20,32,33,21,34,35,36,23,8,21,33,37,25,36,38,39,26,8,25,37,40,28,39,41,42,29,8,28,40,32,20,42,43,34,31,8,32,44,45,33,46,47,48,35,8,33,45,49,37,48,50,51,38,8,37,49,52,40,51,53,54,41,8,40,52,44,32,54,55,46,43,8,44,56,57,45,58,59,60,47,8,45,57,61,49,60,62,63,50,8,49,61,64,52,63,65,66,53,8,52,64,56,44,66,67,58,55,8,56,68,69,57,70,71,72,59,8,57,69,73,61,72,74,75,62,8,61,73,76,64,75,77,78,65,8,64,76,68,56,78,79,70,67,8,68,80,81,69,82,83,84,71,8,69,81,85,73,84,86,87,74,8,73,85,88,76,87,89,90,77,8,76,88,80,68,90,91,82,79,8,80,92,93,81,94,95,96,83,8,81,93,97,85,96,98,99,86,8,85,97,100,88,99,101,102,89,8,88,100,92,80,102,103,94,91,8,92,104,105,93,106,107,108,95,8,93,105,109,97,108,110,111,98,8,97,109,112,100,111,113,114,101,8,100,112,104,92,114,115,106,103,8,104,116,117,105,118,119,120,107,8,105,117,121,109,120,122,123,110,8,109,121,124,112,123,125,126,113,8,112,124,116,104,126,127,118,115,8,116,128,129,117,130,131,132,119,8,117,129,133,121,132,134,135,122,8,121,133,136,124,135,137,138,125,8,124,136,128,116,138,139,130,127,8,128,140,141,129,142,143,144,131,8,129,141,145,133,144,146,147,134,8,133,145,148,136,147,149,150,137,8,136,148,140,128,150,151,142,139,8,140,152,153,141,154,155,156,143,8,141,153,157,145,156,158,159,146,8,145,157,160,148,159,161,162,149,8,148,160,152,140,162,163,154,151,8,152,164,165,153,166,167,168,155,8,153,165,169,157,168,170,171,158,8,157,169,172,160,171,173,174,161,8,160,172,164,152,174,175,166,163,8,164,176,177,165,178,179,180,167,8,165,177,181,169,180,182,183,170,8,169,181,184,172,183,185,186,173,8,172,184,176,164,186,187,178,175],540)
         connI=DataArrayInt.New([0,9,18,27,36,45,54,63,72,81,90,99,108,117,126,135,144,153,162,171,180,189,198,207,216,225,234,243,252,261,270,279,288,297,306,315,324,333,342,351,360,369,378,387,396,405,414,423,432,441,450,459,468,477,486,495,504,513,522,531,540],61)
         #
-        m1=MEDCouplingUMesh.New("Fix",2);
-        m1.setCoords(coords);
-        m1.setConnectivity(conn,connI,True);
+        m1=MEDCouplingUMesh.New("Fix",2)
+        m1.setCoords(coords)
+        m1.setConnectivity(conn,connI,True)
         #
         coords=DataArrayDouble([46.5,-2.5,53.5,-2.5,53.5,2.5,46.5,2.5,50,-2.5,53.5,0,50,2.5,46.5,0,60.5,-2.5,60.5,2.5,57,-2.5,60.5,0,57,2.5,53.5,7.5,46.5,7.5,53.5,5,50,7.5,46.5,5,60.5,7.5,60.5,5,57,7.5,-2,47,2,47,2,53,-2,53,0,47,2,50,0,53,-2,50,6,47,6,53,4,47,6,50,4,53,2,59,-2,59,2,56,0,59,-2,56,6,59,6,56,4,59],42,2)
         # connectivity
-        conn=DataArrayInt([8,0,1,2,3,4,5,6,7,8,1,8,9,2,10,11,12,5,8,3,2,13,14,6,15,16,17,8,2,9,18,13,12,19,20,15,8,21,22,23,24,25,26,27,28,8,22,29,30,23,31,32,33,26,8,24,23,34,35,27,36,37,38,8,23,30,39,34,33,40,41,36],72);
-        conn.setName("");
+        conn=DataArrayInt([8,0,1,2,3,4,5,6,7,8,1,8,9,2,10,11,12,5,8,3,2,13,14,6,15,16,17,8,2,9,18,13,12,19,20,15,8,21,22,23,24,25,26,27,28,8,22,29,30,23,31,32,33,26,8,24,23,34,35,27,36,37,38,8,23,30,39,34,33,40,41,36],72)
+        conn.setName("")
         connI=DataArrayInt([0,9,18,27,36,45,54,63,72],9)
-        m2=MEDCouplingUMesh.New("Mobile",2);
-        m2.setCoords(coords);
-        m2.setConnectivity(conn,connI,True);
+        m2=MEDCouplingUMesh.New("Mobile",2)
+        m2.setCoords(coords)
+        m2.setConnectivity(conn,connI,True)
         #
-        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1,m2,1e-10);
-        self.assertEqual(105,m3.getNumberOfCells());
-        self.assertEqual(105,d1.getNumberOfTuples());
-        self.assertEqual(105,d2.getNumberOfTuples());
-        self.assertEqual(704,m3.getNumberOfNodes());
+        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1,m2,1e-10)
+        self.assertEqual(105,m3.getNumberOfCells())
+        self.assertEqual(105,d1.getNumberOfTuples())
+        self.assertEqual(105,d2.getNumberOfTuples())
+        self.assertEqual(704,m3.getNumberOfNodes())
         #
         areaExpected=[-65.18804756198824,-65.18804756198824,-65.18804756198824,-65.18804756198824,-66.75884388878285,-66.75884388878285,-66.7588438887833,-66.75884388878308,-68.32964021557768,-68.32964021557768,-68.32964021557814,-68.32964021557791,-69.9004365423732,-69.9004365423732,-69.90043654237297,-69.90043654237297,-1.194568659706448,-1.0869994447159463,-142.2316939607081,-144.51326206513068,-144.5132620651309,-1.1945686597064424,-143.3186934054243,-5.002264310862817,-10.0261332846393,-3.9727823117092953,-7.290862524642649,-124.504404940456,-3.9727823117093237,-146.82366506060032,-150.79644737231024,-5.002264310862776,-145.79418306144626,-5.00208651738126,-10.054764051268958,-4.001067863263231,-8.027932154428669,-129.99378209314813,-4.001067863263216,-153.07856481622616,-157.0796326794898,-5.0020865173811915,-152.07754616210832,-5.001928880064381,-10.050590216368969,-4.00098721602491,-8.025810856794209,-136.28350081741684,-4.000987216024939,-159.36183077064402,-163.36281798667005,-5.0019288800643285,-158.36088910660442,-1.2991516319851801,-3.702636830195414,-3.7815130030068254,-6.265364371195623,-0.02516260900254963,-0.6553944641345026,-3.975752765070567,-7.368528340442765,-142.57249927881398,-0.02516260900254963,-3.9757527650706095,-165.64508791977525,-169.64600329384803,-1.299151631985167,-3.7026368301953885,-164.6442148316677,-10.00321285677458,-20.08414323176165,-8.001644468035863,-16.042954878437143,-304.0096070742277,-8.00164446803587,-350.1399180412005,-358.1415625092368,-10.003212856774468,-348.13834965246224,-3.794150313030109,-8.65049239704272,-0.02260276689354157,-0.5885167811200915,-370.2185414798688,-0.022602766893559393,-383.2517009710623,-383.2743037379555,-3.7941503130300576,-379.48015342492505,-408.40704496667513,-408.4070449666742,-408.4070449666742,-408.4070449666742,-433.53978619538975,-433.5397861953902,-433.5397861953911,-433.53978619539066,-458.67252742410983,-458.6725274241094,-458.67252742410983,-458.6725274241089,-608.6835766330232,-608.6835766330232,-608.6835766330232,-608.6835766330241]
         expected1=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,16,16,17,18,19,19,20,20,20,20,20,21,21,22,23,23,24,24,24,24,24,25,25,26,27,27,28,28,28,28,28,29,29,30,31,31,32,32,32,32,32,32,32,32,32,33,33,33,34,35,35,35,36,36,36,36,36,37,37,38,39,39,40,40,40,40,40,41,41,42,43,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59]
         expected2=[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,2,-1,-1,-1,0,-1,0,2,4,5,-1,4,-1,-1,0,-1,0,2,4,5,-1,4,-1,-1,0,-1,0,2,4,5,-1,4,-1,-1,0,-1,0,1,2,3,4,5,6,7,-1,4,6,-1,-1,0,1,-1,1,3,6,7,-1,6,-1,-1,1,-1,1,3,6,7,-1,6,-1,-1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
-        f3=m3.getMeasureField(False).getArray().getValues();
+        f3=m3.getMeasureField(False).getArray().getValues()
         for i in range(105):
             self.assertAlmostEqual(areaExpected[i],f3[i],10)
             pass
@@ -280,36 +280,36 @@ class MEDCouplingIntersectTest(unittest.TestCase):
 
     def testIntersect2DMeshesTmp6(self):
         # coordinates
-        coords=DataArrayDouble.New([2.7554552980815448e-15,45,-45,5.5109105961630896e-15,-31.819805153394636,31.81980515339464,2.8779199779962799e-15,47,2.8166876380389124e-15,46,-47,5.7558399559925599e-15,-33.234018715767732,33.234018715767739,-46,5.6333752760778247e-15],8,2);
+        coords=DataArrayDouble.New([2.7554552980815448e-15,45,-45,5.5109105961630896e-15,-31.819805153394636,31.81980515339464,2.8779199779962799e-15,47,2.8166876380389124e-15,46,-47,5.7558399559925599e-15,-33.234018715767732,33.234018715767739,-46,5.6333752760778247e-15],8,2)
         # connectivity
         conn=DataArrayInt.New([8,0,3,5,1,4,6,7,2])
-        connI=DataArrayInt.New([0,9]);
-        m1=MEDCouplingUMesh.New("Fixe",2);
-        m1.setCoords(coords);
-        m1.setConnectivity(conn,connI,True);
+        connI=DataArrayInt.New([0,9])
+        m1=MEDCouplingUMesh.New("Fixe",2)
+        m1.setCoords(coords)
+        m1.setConnectivity(conn,connI,True)
         #
-        coords=DataArrayDouble.New([-7.3800475508445391,41.854329503018846,-3.7041190667754655,42.338274668899189,-3.7041190667754655,45.338274668899189,-7.3800475508445382,44.854329503018839,-5.5473631693521845,42.136406608386956,-3.7041190667754655,43.838274668899189,-5.5420833088100014,45.09630208595901,-7.3800475508445382,43.354329503018839,-3.7041190667754651,52.338274668899189,-7.3800475508445382,51.854329503018839,-3.7041190667754655,48.838274668899189,-5.5420833088100014,52.09630208595901,-7.3800475508445382,48.354329503018839],13,2);
+        coords=DataArrayDouble.New([-7.3800475508445391,41.854329503018846,-3.7041190667754655,42.338274668899189,-3.7041190667754655,45.338274668899189,-7.3800475508445382,44.854329503018839,-5.5473631693521845,42.136406608386956,-3.7041190667754655,43.838274668899189,-5.5420833088100014,45.09630208595901,-7.3800475508445382,43.354329503018839,-3.7041190667754651,52.338274668899189,-7.3800475508445382,51.854329503018839,-3.7041190667754655,48.838274668899189,-5.5420833088100014,52.09630208595901,-7.3800475508445382,48.354329503018839],13,2)
         # connectivity
-        conn=DataArrayInt.New([8,0,1,2,3,4,5,6,7,8,3,2,8,9,6,10,11,12]);
-        connI=DataArrayInt.New([0,9,18]);
+        conn=DataArrayInt.New([8,0,1,2,3,4,5,6,7,8,3,2,8,9,6,10,11,12])
+        connI=DataArrayInt.New([0,9,18])
         #
-        m2=MEDCouplingUMesh.New("Mobile",2);
-        m2.setCoords(coords);
-        m2.setConnectivity(conn,connI,True);
+        m2=MEDCouplingUMesh.New("Mobile",2)
+        m2.setCoords(coords)
+        m2.setConnectivity(conn,connI,True)
         #
-        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1,m2,1e-10);
-        self.assertTrue(d1.isEqual(DataArrayInt([0,0,0,0])));
-        self.assertTrue(d2.isEqual(DataArrayInt([0,1,-1,-1])));
-        self.assertEqual(4,m3.getNumberOfCells());
-        self.assertEqual(4,d1.getNumberOfTuples());
-        self.assertEqual(4,d2.getNumberOfTuples());
-        self.assertEqual(43,m3.getNumberOfNodes());
+        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1,m2,1e-10)
+        self.assertTrue(d1.isEqual(DataArrayInt([0,0,0,0])))
+        self.assertTrue(d2.isEqual(DataArrayInt([0,1,-1,-1])))
+        self.assertEqual(4,m3.getNumberOfCells())
+        self.assertEqual(4,d1.getNumberOfTuples())
+        self.assertEqual(4,d2.getNumberOfTuples())
+        self.assertEqual(43,m3.getNumberOfNodes())
         dI,areMerged,newNbOfNodes=m3.mergeNodes(1e-12)
-        self.assertEqual(35,m3.getNumberOfNodes());
-        m3.zipCoords();
-        self.assertEqual(23,m3.getNumberOfNodes());
+        self.assertEqual(35,m3.getNumberOfNodes())
+        m3.zipCoords()
+        self.assertEqual(23,m3.getNumberOfNodes())
         #
-        f=m3.getMeasureField(True);
+        f=m3.getMeasureField(True)
         valuesExpected=DataArrayDouble([1.6603638692585716,5.747555728471923,129.68907101754394,7.4162714498559694])
         self.assertTrue(f.getArray().isEqual(valuesExpected,1e-12))
         pass
@@ -341,7 +341,7 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         pass
 
     def testIntersect2DMeshes8(self):
-        """ Quadratic precision values were improperly reset before testing colinearities 
+        """ Quadratic precision values were improperly reset before testing colinearities
         This was also impacting the mapping computation. """
         eps = 1.0e-8
         mesh1 = MEDCouplingUMesh('assemblyGrid_Pij', 2)
@@ -368,7 +368,7 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         pass
 
     def testIntersect2DMeshes9(self):
-        """ Last part of the intersection algorithm was not properly dealing with residual cells when 
+        """ Last part of the intersection algorithm was not properly dealing with residual cells when
         it was a quad polygon just made of 2 edges. Was throwing an exception. """
         eps = 1e-6
         back = MEDCouplingUMesh('crh7_rse1', 2)
@@ -573,7 +573,7 @@ class MEDCouplingIntersectTest(unittest.TestCase):
 
     def testIntersect2DMeshesTmp9(self):
         """ Tricky case: two triangular shapes intersecting, but not perfectly, at their tips. Several issues fixed:
-            - Bug fix: seg seg intersector epsilon is to be taken absolutely for colinearity test (even for very small vectors 
+            - Bug fix: seg seg intersector epsilon is to be taken absolutely for colinearity test (even for very small vectors
             we don't want to have false positive on colinearity. So go back to a comparison with an angle.)
             - when intersecting nodes are merged, they were not properly added on pol2.
             - bug fix in compute residual: the stop condition is really on pol1Zip only.
@@ -838,7 +838,7 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         coordX = DataArrayDouble([-1., 1., 2])
         m1c.setCoordsAt(0,coordX)
         coordY = DataArrayDouble([0., 2.])
-        m1c.setCoordsAt(1,coordY);
+        m1c.setCoordsAt(1,coordY)
         m1 = m1c.buildUnstructured()
 
         # A simple line:
@@ -891,7 +891,7 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         """ Line pieces ending (or fully located) in the middle of a cell """
         m1c = MEDCouplingCMesh()
         m1c.setCoordsAt(0,DataArrayDouble([-1., 1.]))
-        m1c.setCoordsAt(1,DataArrayDouble([-1., 1.]));
+        m1c.setCoordsAt(1,DataArrayDouble([-1., 1.]))
         m1 = m1c.buildUnstructured()
         coords2 = DataArrayDouble([0.,0.,  0.,1.5, -1.5,0.,  0.5,0.0,  0.0,-0.5, 1.1,-0.6], 6,2)
         m2 = MEDCouplingUMesh("piecewise_line", 1)
@@ -918,7 +918,7 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         coordX = DataArrayDouble([-1., 1., 2])
         m1c.setCoordsAt(0,coordX)
         coordY = DataArrayDouble([0., 2.])
-        m1c.setCoordsAt(1,coordY);
+        m1c.setCoordsAt(1,coordY)
         m1 = m1c.buildUnstructured()
         # A simple line:
         m2 = MEDCouplingUMesh("bla", 1)

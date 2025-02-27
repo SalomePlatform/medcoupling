@@ -32,12 +32,12 @@ namespace INTERP_KERNEL
 {
   template<class T, NumberingPolicy type>
   class Matrix;
-  
+
   template<class U, NumberingPolicy type>
   std::ostream& operator<<(std::ostream& in, const Matrix<U,type>& m);
   template<class U, NumberingPolicy type>
   std::istream& operator>>(std::istream& in, Matrix<U,type>& m);
-        
+
   template<class T, NumberingPolicy type=ALL_C_MODE>
   class Matrix
   {
@@ -77,7 +77,7 @@ namespace INTERP_KERNEL
 
       void insert(const std::pair<int,T>& myPair) { vector<std::pair<int,T> >::push_back(myPair); }
     };
-    
+
   private:
     unsigned int _nb_rows;
     T* _coeffs;
@@ -104,7 +104,7 @@ namespace INTERP_KERNEL
           typename std::map<int,T>::iterator it;
           for (it=matrix[i].begin(); it != matrix[i].end(); it++)
             _auxiliary_matrix[i].push_back(*it);//MN: pq push_back plutot que simple affectation?
-        }      
+        }
     }
     /*!Copy constructor
      */
@@ -123,7 +123,7 @@ namespace INTERP_KERNEL
           memcpy(_cols, m._cols, size*sizeof(int));
         }
     }
-    
+
     ~Matrix()
     {
       delete[] _coeffs;
@@ -153,7 +153,7 @@ namespace INTERP_KERNEL
       _nb_rows=nbrows;
       _auxiliary_matrix.resize(nbrows);
     }
-    
+
     /*! sets (i,j) coefficient to \a value */
     void setIJ(int irow, int icol, T value)
     {
@@ -161,7 +161,7 @@ namespace INTERP_KERNEL
         throw Exception("filling a configured matrix");
       if (_auxiliary_matrix.empty())
         _auxiliary_matrix.resize(_nb_rows);
-      
+
       for (unsigned int i=0; i< _auxiliary_matrix[OTT<int,type>::ind2C(irow)].size(); i++)
         if (_auxiliary_matrix[OTT<int,type>::ind2C(irow)][i].first == icol)
           {
@@ -170,9 +170,9 @@ namespace INTERP_KERNEL
           }
       _auxiliary_matrix[OTT<int,type>::ind2C(irow)].push_back(std::make_pair(icol, value));
     }
-    
-    /*!      
-      Matrix multiplies vector \a input and stores the result in 
+
+    /*!
+      Matrix multiplies vector \a input and stores the result in
       vector \a output.
       The vector pointed by \a input must be dimensioned
       to the number of columns while the vector pointed by output must be
@@ -182,7 +182,7 @@ namespace INTERP_KERNEL
     {
       if (!_is_configured)
         configure();
-      
+
       for (int i=0; i< _nb_rows; i++)
         {
           output[i]=0.;
@@ -194,10 +194,10 @@ namespace INTERP_KERNEL
         }
     }
 
-    /*!      
-      Matrix multiplies vector \a input and stores the result in 
+    /*!
+      Matrix multiplies vector \a input and stores the result in
       vector \a output.
-      input and output are supposed to represent the same field 
+      input and output are supposed to represent the same field
       discretised on two different on meshes.
       nb_comp is the number of components of the fields input and output
       The vector pointed by \a input must be dimensioned
@@ -208,7 +208,7 @@ namespace INTERP_KERNEL
     {
       if (!_is_configured)
         configure();
-      
+
       for (int i=0; i< _nb_rows; i++)
         {
           for(int comp = 0; comp < nb_comp; comp++)
@@ -220,11 +220,11 @@ namespace INTERP_KERNEL
                 output[i*nb_comp+comp]+=input[icol*nb_comp+comp]*_coeffs[j];
             }
         }
-    }   
-    /*!      
-      Transpose-multiplies vector \a input and stores the result in 
+    }
+    /*!
+      Transpose-multiplies vector \a input and stores the result in
       vector \a output.
-      nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
+      nb_cols is the number of columns of the matrix, (it is not an attribute of the class)
       The vector pointed by \a input must be dimensioned
       to the number of lines _nb_rows while the vector pointed by output must be
       dimensioned to the number of columns nb_cols.
@@ -233,7 +233,7 @@ namespace INTERP_KERNEL
     {
       if (!_is_configured)
         configure();
-      
+
       for (int icol=0; icol< nb_cols; icol++)
         output[icol]=0.;
       for (int i=0; i< _nb_rows; i++)
@@ -245,13 +245,13 @@ namespace INTERP_KERNEL
             }
         }
     }
-    /*!      
-      Transpose-multiplies vector \a input and stores the result in 
+    /*!
+      Transpose-multiplies vector \a input and stores the result in
       vector \a output.
-      input and output are supposed to represent the same field 
+      input and output are supposed to represent the same field
       discretised on two different on meshes.
       nb_comp is the number of components of the fields input and output
-      nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
+      nb_cols is the number of columns of the matrix, (it is not an attribute of the class)
       The vector pointed by \a input must be dimensioned
       to _nb_rows*nb_comp while the vector pointed by output must be
       dimensioned to nb_cols*nb_comp.
@@ -260,7 +260,7 @@ namespace INTERP_KERNEL
     {
       if (!_is_configured)
         configure();
-      
+
       for (int icol=0; icol< nb_cols; icol++)
         for(int comp = 0; comp < nb_comp; comp++)
           output[icol*nb_comp+comp]=0.;
@@ -277,7 +277,7 @@ namespace INTERP_KERNEL
     }
     /*
       Sums the coefficients of each column of the matrix
-      nb_cols is the number of columns of the matrix, (it is not an attribute of the class) 
+      nb_cols is the number of columns of the matrix, (it is not an attribute of the class)
       The vector output must be dimensioned to nb_cols
     */
     void colSum(std::vector< T >& output, int nb_cols)
@@ -307,7 +307,7 @@ namespace INTERP_KERNEL
       for (int i=0; i< _nb_rows; i++)
         {
           output[i]=0;
-          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++) 
+          for (unsigned int j=_ncols_offset[i]; j< _ncols_offset[i+1]; j++)
             output[i]+=_coeffs[j];
         }
     }
@@ -316,7 +316,7 @@ namespace INTERP_KERNEL
       and puts it under a CSR form so that it becomes
       efficient both in terms of memory occupation and
       in terms of multiplication */
-    
+
     void configure()
     {
       _ncols_offset.resize(_nb_rows+1);
@@ -340,7 +340,7 @@ namespace INTERP_KERNEL
       _is_configured=true;
     }
 
-    /*! 
+    /*!
      * 0 <= irow < n
      */
     Row &operator [] (unsigned int irow)
@@ -352,18 +352,18 @@ namespace INTERP_KERNEL
     {
       return _nb_rows;
     }
-    
+
   };
-  
+
   /*! output to an ascii file
     only nonzero elements are written
     - the first line contains the indexing (0 or 1)
     - the second line contains the number of rows.
-    - for each row, a line contains: 
-    - the number of nonzero coeffs 
+    - for each row, a line contains:
+    - the number of nonzero coeffs
     - and for each coeff : icol, value
-    
-    for instance, matrix 
+
+    for instance, matrix
     | 1.0 0.0 0.5 |
     | 0.0 1.0 0.0 |
     | 0.2 0.0 1.0 |
@@ -374,7 +374,7 @@ namespace INTERP_KERNEL
     1 1 1.0
     2 0 0.2 2 1.0
   */
-  
+
   template<class T, NumberingPolicy type>
   std::ostream& operator<<(std::ostream& out, const Matrix<T, type>& m)
   {
@@ -405,7 +405,7 @@ namespace INTERP_KERNEL
       }
     return out;
   }
-  
+
   template<class T, NumberingPolicy type>
   std::istream& operator>>(std::istream& in, Matrix<T,type>& m)
   {

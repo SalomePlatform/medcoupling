@@ -116,11 +116,11 @@ namespace
                   const int        index)
   {
     // Converts names like:
-    // MED:                       GIBI:     
+    // MED:                       GIBI:
     //   TEMPERATURE_FLUIDE   ->    TEMPE001
     //   TEMPERATURE_SOLIDE   ->    TEMPE002
     //   PRESSION             ->    PRESSION
-    //   NU                   ->    NU      
+    //   NU                   ->    NU
     //   VOLUM001             ->    VOLUM001
     //   VOLUMOFOBJECT        ->    VOLUM003
     //   VOLUM002             ->    VOLUM002
@@ -825,7 +825,7 @@ void SauvWriter::writeCompoundSubMesh(int iSub)
   for ( size_t i = 0; i < sm._subs.size(); ++i ) // loop on sub-meshes of families
     for ( int j = 0; j < sm._subs[i]->_nbSauvObjects; ++j )
       subIDs.push_back( sm._subs[i]->_id + j );
-      
+
   *_sauvFile << zeroI8
              << setw(8) << subIDs.size()
              << zeroI8
@@ -857,14 +857,14 @@ void SauvWriter::writeNodes()
   //
   TFieldCounter fcount( *_sauvFile, 10 );// * 8000 FORMAT(10I8)
   for ( mcIdType i = 0; i < nbNodes; ++i, fcount++ )
-    *_sauvFile << setw(8) << i + 1; 
+    *_sauvFile << setw(8) << i + 1;
   fcount.stop();
 
   // write coordinates and density of nodes
 
   *_sauvFile << " ENREGISTREMENT DE TYPE   2" << endl;
   *_sauvFile << " PILE NUMERO  33NBRE OBJETS NOMMES       0NBRE OBJETS       1" << endl;
-  // 
+  //
   const int           dim = umesh->getSpaceDimension();
   const mcIdType nbValues = nbNodes * ( dim + 1 );
   *_sauvFile << setw(8) << nbValues << endl;

@@ -1791,7 +1791,7 @@ void MEDCouplingUMesh::Intersect2DMeshWith1DLine(const MEDCouplingUMesh *mesh2D,
 {
   if(!mesh2D || !mesh1D)
     throw INTERP_KERNEL::Exception("MEDCouplingUMesh::Intersect2DMeshWith1DLine : input meshes must be not NULL !");
-  
+
   mesh2D->checkFullyDefined();
   mesh1D->checkFullyDefined();
 

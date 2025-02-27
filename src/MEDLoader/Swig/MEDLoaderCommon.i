@@ -1500,7 +1500,7 @@ namespace MEDCoupling
          {
            return MEDFileUMesh::New();
          }
-         
+
          static MEDFileUMesh *LoadConnectivityOnlyPartOf(const std::string& fileName, const std::string& mName, PyObject *types, const std::vector<mcIdType>& slicPerTyp, int dt=-1, int it=-1, MEDFileMeshReadSelector *mrs=0)
          {
            std::vector<int> typesCpp1;

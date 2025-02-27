@@ -40,17 +40,17 @@ class FileCreator(object):
         self._tester=tester
         self._fname=fname
         pass
-        
+
     def fileName(self):
         return self._fname
-    
+
     def __enter__(self):
         import os
         if os.path.exists(self._fname):
             os.remove(self._fname)
             pass
         return self
-    
+
     def __exit__(self, type, value, traceback):
         import os
         if not os.path.exists(self._fname):
@@ -59,7 +59,7 @@ class FileCreator(object):
         else:
             os.remove(self._fname)
         pass
-        
+
 class medcouplingTest(unittest.TestCase):
 
     def test0(self):
@@ -70,7 +70,7 @@ class medcouplingTest(unittest.TestCase):
         hh=MEDCouplingRemapper()
         ee=InterpKernelException("ee")
         pass
-    
+
     @unittest.skipUnless(HasMEDFileExt(),"Requires link to MED file")
     @WriteInTmpDir
     def test1(self):
@@ -115,7 +115,7 @@ class medcouplingTest(unittest.TestCase):
             self.partitionerTesterHelper(eval(st))
             pass
         pass
-    
+
     @unittest.skipUnless(HasParallelInterpolatorExt(),"Requires // interpolator activated")
     def test4(self):
         interface=CommInterface()
@@ -126,20 +126,20 @@ class medcouplingTest(unittest.TestCase):
         f=MEDCouplingFieldDouble(ON_NODES)
         f.setTime(1.25,3,6)
         a,b,c=f.getTime()
-        self.assertEqual(b,3) ; self.assertEqual(c,6) ; self.assertAlmostEqual(a,1.25,14);
+        self.assertEqual(b,3) ; self.assertEqual(c,6) ; self.assertAlmostEqual(a,1.25,14)
         f1ts=MEDFileField1TS()
         f1ts.setTime(10,13,10.75)
         f.copyTimeInfoFrom(f1ts)
         a,b,c=f.getTime()
-        self.assertEqual(b,10) ; self.assertEqual(c,13) ; self.assertAlmostEqual(a,10.75,14);
+        self.assertEqual(b,10) ; self.assertEqual(c,13) ; self.assertAlmostEqual(a,10.75,14)
         f2=MEDCouplingFieldInt(ON_NODES)
         f2.copyTimeInfoFrom(f1ts)
         a,b,c=f2.getTime()
-        self.assertEqual(b,10) ; self.assertEqual(c,13) ; self.assertAlmostEqual(a,10.75,14);
+        self.assertEqual(b,10) ; self.assertEqual(c,13) ; self.assertAlmostEqual(a,10.75,14)
         f3=MEDCouplingFieldFloat(ON_NODES)
         f3.copyTimeInfoFrom(f1ts)
         a,b,c=f3.getTime()
-        self.assertEqual(b,10) ; self.assertEqual(c,13) ; self.assertAlmostEqual(a,10.75,14);
+        self.assertEqual(b,10) ; self.assertEqual(c,13) ; self.assertAlmostEqual(a,10.75,14)
         pass
 
     @unittest.skipUnless(HasShapeRecognitionExt(),"Requires Shape recognition extension activated")
@@ -164,7 +164,7 @@ class medcouplingTest(unittest.TestCase):
         procIdOnCells=g.getPartition().getValuesArray()
         m0=m[procIdOnCells.findIdsEqual(0)] ; m0.setName("m0")
         pass
-    
+
     pass
 
 if __name__ == "__main__":

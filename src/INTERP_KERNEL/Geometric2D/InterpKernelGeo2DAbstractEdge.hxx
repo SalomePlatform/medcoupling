@@ -47,7 +47,7 @@ namespace INTERP_KERNEL
   public:
     INTERPKERNEL_EXPORT IteratorOnComposedEdge();
     INTERPKERNEL_EXPORT IteratorOnComposedEdge(ComposedEdge *compEdges);
-    bool isValid() const { return _list_handle!=0; } 
+    bool isValid() const { return _list_handle!=0; }
     INTERPKERNEL_EXPORT void operator=(const IteratorOnComposedEdge& other);
     void first() { _deep_it=_list_handle->begin(); }
     void next() { _deep_it++; }

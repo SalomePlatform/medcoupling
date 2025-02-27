@@ -172,7 +172,7 @@ std::string MEDPARTITIONER::ReprVectorOfString(const std::vector<std::string>& v
   if (vec.size()==0)
     return std::string(" NONE\n");
   std::ostringstream oss;
-  for (std::vector<std::string>::const_iterator i=vec.begin(); i!=vec.end(); ++i) 
+  for (std::vector<std::string>::const_iterator i=vec.begin(); i!=vec.end(); ++i)
     oss << " -> '" << *i << "'" << std::endl;
   return oss.str();
 }
@@ -182,7 +182,7 @@ std::string MEDPARTITIONER::ReprVectorOfString(const std::vector<std::string>& v
   if (vec.size()==0)
     return std::string(" NONE\n");
   std::ostringstream oss;
-  for (std::vector<std::string>::const_iterator i=vec.begin(); i!=vec.end(); ++i) 
+  for (std::vector<std::string>::const_iterator i=vec.begin(); i!=vec.end(); ++i)
     oss << separator << *i;
   return oss.str();
 }
@@ -192,7 +192,7 @@ std::string MEDPARTITIONER::ReprMapOfStringInt(const std::map<std::string,mcIdTy
   if (mymap.size()==0)
     return std::string(" NONE\n");
   std::ostringstream oss;
-  for (std::map<std::string,mcIdType>::const_iterator i=mymap.begin(); i!=mymap.end(); ++i) 
+  for (std::map<std::string,mcIdType>::const_iterator i=mymap.begin(); i!=mymap.end(); ++i)
     oss << " -> [" << (*i).first << "]=" << (*i).second << std::endl;
   return oss.str();
 }
@@ -202,7 +202,7 @@ std::string MEDPARTITIONER::ReprMapOfStringVectorOfString(const std::map< std::s
   if (mymap.size()==0)
     return std::string(" NONE\n");
   std::ostringstream oss;
-  for (std::map< std::string,std::vector<std::string> >::const_iterator i=mymap.begin(); i!=mymap.end(); ++i) 
+  for (std::map< std::string,std::vector<std::string> >::const_iterator i=mymap.begin(); i!=mymap.end(); ++i)
     oss << " -> [" << (*i).first << "]=" << std::endl << ReprVectorOfString((*i).second) << std::endl;
   return oss.str();
 }
@@ -214,7 +214,7 @@ std::string MEDPARTITIONER::ReprFieldDescriptions(const std::vector<std::string>
   std::ostringstream oss;
   for (std::vector<std::string>::const_iterator i=vec.begin(); i!=vec.end(); ++i)
     {
-      oss << " ->"; 
+      oss << " ->";
       oss << ReprVectorOfString(DeserializeToVectorOfString(*i), separator) << std::endl;
     }
   return oss.str();
@@ -352,7 +352,7 @@ std::map< std::string,std::vector<std::string> > MEDPARTITIONER::DevectorizeToMa
   for (std::vector<std::string>::const_iterator i=vec.begin(); i!=vec.end(); ++i)
     {
       std::vector<std::string> vs=DeserializeToVectorOfString(*i);
-    
+
       std::string enTete=vs[0];
       std::size_t posmax=enTete.size();
       std::size_t foundKey=enTete.find("Keymap/");
@@ -386,7 +386,7 @@ std::vector<std::string> MEDPARTITIONER::SelectTagsInVectorOfString(const std::v
 }
 
 /*!
- * 
+ *
  */
 std::vector<std::string> MEDPARTITIONER::DeleteDuplicatesInVectorOfString(const std::vector<std::string>& vec)
 {
@@ -484,7 +484,7 @@ std::string MEDPARTITIONER::ExtractFromDescription(const std::string& descriptio
   return description.substr(beg,lg-tag.length());
 }
 
-void MEDPARTITIONER::FieldDescriptionToData(const std::string& description, 
+void MEDPARTITIONER::FieldDescriptionToData(const std::string& description,
                                             int& idomain, std::string& fileName, std::string& meshName, std::string& fieldName, int& typeField, int& DT, int& IT)
 {
   idomain=StrToInt(ExtractFromDescription(description,"idomain="));
@@ -496,7 +496,7 @@ void MEDPARTITIONER::FieldDescriptionToData(const std::string& description,
   IT=StrToInt(ExtractFromDescription(description,"IT="));
 }
 
-void MEDPARTITIONER::FieldShortDescriptionToData(const std::string& description, 
+void MEDPARTITIONER::FieldShortDescriptionToData(const std::string& description,
                                                  std::string& fieldName, int& typeField, int& entity, int& DT, int& IT)
 {
   fieldName=ExtractFromDescription(description,"fieldName=");
@@ -561,7 +561,7 @@ std::vector<std::string> MEDPARTITIONER::BrowseAllFields(const std::string& myfi
 {
   std::vector<std::string> res;
   std::vector<std::string> meshNames=MEDCoupling::GetMeshNames(myfile);
-  
+
   for (std::size_t i=0; i<meshNames.size(); i++)
     {
       std::vector<std::string> fieldNames=
@@ -596,7 +596,7 @@ std::vector<std::string> MEDPARTITIONER::BrowseAllFields(const std::string& myfi
 std::vector<std::string> MEDPARTITIONER::GetInfosOfField(const char *fileName, const char *meshName, const int idomain)
 {
   const int lggeom=10;
-  const med_geometry_type GEOMTYPE[lggeom]={ //MED_N_CELL_FIXED_GEO] = { 
+  const med_geometry_type GEOMTYPE[lggeom]={ //MED_N_CELL_FIXED_GEO] = {
     //MED_POINT1,
     //MED_SEG2,
     //MED_SEG3,
@@ -618,7 +618,7 @@ std::vector<std::string> MEDPARTITIONER::GetInfosOfField(const char *fileName, c
     MED_HEXA20,
     MED_HEXA27,
     //MED_POLYGON,
-    //MED_POLYHEDRON 
+    //MED_POLYHEDRON
   };
 
   const char * const GEOMTYPENAME[lggeom]={
@@ -669,7 +669,7 @@ std::vector<std::string> MEDPARTITIONER::GetInfosOfField(const char *fileName, c
     //"MED_STRUCT_ELEMENT",
     //"MED_UNDEF_ENTITY_TYPE"
   };
-  
+
   std::vector<std::string> res;
   med_idt fid=MEDfileOpen(fileName,MED_ACC_RDONLY);
   med_int nbFields=MEDnField(fid);
@@ -696,7 +696,7 @@ std::vector<std::string> MEDPARTITIONER::GetInfosOfField(const char *fileName, c
       for (int k=1; k<=nbPdt; k++)
         {
           MEDfieldComputingStepInfo(fid,nomcha,k,&numdt,&numo,&dt);
-          if (MyGlobals::_Verbose>20) 
+          if (MyGlobals::_Verbose>20)
             std::cout<< "on filename " << fileName << " field " << i << " fieldName " << curFieldName << " meshName " << curMeshName <<
               " typ " << typcha << " nbComponent " << ncomp << " nbPdt " << nbPdt << " noPdt " << k <<
               " ndt " << numdt << " nor " << numo << " dt " << dt << std::endl;

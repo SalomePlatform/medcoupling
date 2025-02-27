@@ -25,13 +25,13 @@
 
 namespace INTERP_KERNEL
 {
-  
+
   /**
    * Constructor creating box from an array of the points corresponding
    * to the vertices of the element.
    * Each point is represented by an array of three doubles.
    *
-   * @param pts     array of points 
+   * @param pts     array of points
    * @param numPts  number of vertices
    *
    */
@@ -55,7 +55,7 @@ namespace INTERP_KERNEL
    * to the vertices of the element.
    * Each point is represented by an array of three doubles.
    *
-   * @param pts     array of points 
+   * @param pts     array of points
    * @param numPts  number of vertices
    *
    */
@@ -74,7 +74,7 @@ namespace INTERP_KERNEL
       {
         updateWithPoint(pts[i]);
       }
-  
+
     assert(isValid());
   }
 
@@ -91,13 +91,13 @@ namespace INTERP_KERNEL
         _coords[c] = std::min(box1._coords[c], box2._coords[c]);
         _coords[c + 3] = std::max(box1._coords[c + 3], box2._coords[c + 3]);
       }
-    
+
     assert(isValid());
   }
 
   /**
    * Determines if the intersection with a given box is empty
-   * 
+   *
    * @param    box   BoundingBox with which intersection is tested
    * @return  true if intersection between boxes is empty, false if not
    */
@@ -107,32 +107,32 @@ namespace INTERP_KERNEL
       {
         const double otherMinCoord = box.getCoordinate(c);
         const double otherMaxCoord = box.getCoordinate(BoxCoord(c + 3));
-       
-        // boxes are disjoint if there exists a direction in which the 
+
+        // boxes are disjoint if there exists a direction in which the
         // minimum coordinate of one is greater than the maximum coordinate of the other
 
         // more stable version ?
         // const double tol = 1.0e-2*_coords[c];
-        // if(_coords[c] > otherMaxCoord + tol 
+        // if(_coords[c] > otherMaxCoord + tol
         //   || _coords[c + 3] < otherMinCoord - tol)
-       
-       
-        if(_coords[c] > otherMaxCoord 
+
+
+        if(_coords[c] > otherMaxCoord
            || _coords[c + 3] < otherMinCoord)
-       
+
           {
             return true;
           }
-       
+
       }
     return false;
   }
-    
-  
+
+
 
   /**
    * Updates the bounding box to include a given point
-   * 
+   *
    * @param pt    point to be included
    *
    */
@@ -148,7 +148,7 @@ namespace INTERP_KERNEL
 
       }
   }
-  
+
   /**
    * Checks if the box is valid, which it is if its minimum coordinates are
    * smaller than its maximum coordinates in all directions.

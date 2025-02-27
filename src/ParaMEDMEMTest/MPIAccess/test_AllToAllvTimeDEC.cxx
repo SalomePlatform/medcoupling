@@ -74,7 +74,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDEC( bool Asynchronous , bool UseMPINat
 
   debugStream << "test_AllToAllvTimeDEC" << endl ;
 
-  //  MPI_Init(&argc, &argv) ; 
+  //  MPI_Init(&argc, &argv) ;
 
   int size ;
   int myrank ;
@@ -175,7 +175,7 @@ void MPIAccessDECTest::test_AllToAllvTimeDEC( bool Asynchronous , bool UseMPINat
     }
     MyMPIAccessDEC->setTime( timeLoc , nextdeltatime ) ;
     debugStream << "test_AllToAllvTimeDEC" << myrank << "=====TIME " << timeLoc << "=====DELTATIME "
-         << nextdeltatime << "=====MAXTIME " << maxtime << " ======" << endl ; 
+         << nextdeltatime << "=====MAXTIME " << maxtime << " ======" << endl ;
     int * sendbuf = new int[datamsglength*size] ;
     //     int * sendbuf = (int *) malloc(sizeof(int)*datamsglength*size) ;
     int * recvbuf = new int[datamsglength*size] ;

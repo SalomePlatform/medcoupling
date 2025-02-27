@@ -2057,7 +2057,7 @@ DataArrayDouble *DataArrayDouble::fromCartToCylGiven(const DataArrayDouble *coor
  *  \return DataArrayDouble * - the new instance of DataArrayDouble, whose each tuple
  *          is calculated from the tuple <em>(t)</em> of \a this array as follows:
  *          \f$ t[0]^2+t[1]^2+t[2]^2+2*t[3]^2+2*t[4]^2+2*t[5]^2\f$.
- *         The caller is to delete this result array using decrRef() as it is no more needed. 
+ *         The caller is to delete this result array using decrRef() as it is no more needed.
  *  \throw If \a this->getNumberOfComponents() != 6.
  */
 DataArrayDouble *DataArrayDouble::doublyContractedProduct() const

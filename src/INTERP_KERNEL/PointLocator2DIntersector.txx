@@ -43,7 +43,7 @@ namespace INTERP_KERNEL
     InterpType<MyMeshType,MyMatrix,PTLOC2D_INTERSECTOR >(meshT,meshS,dimCaracteristic, precision, md3DSurf, minDot3DSurf, medianPlane, true, orientation, 0)
   {
   }
-  
+
   INTERSECTOR_TEMPLATE
   double PTLOC2D_INTERSECTOR::intersectGeometry(ConnType icellT,   ConnType icellS,
                                                 ConnType nbNodesT, ConnType nbNodesS)

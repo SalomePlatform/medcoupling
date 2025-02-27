@@ -99,7 +99,7 @@ namespace MEDPARTITIONER
 
     MCAuto<MEDCouplingSkyLineArray> _node_corresp;
     MCAuto<MEDCouplingSkyLineArray> _face_corresp;
-  
+
     std::map < std::pair <mcIdType,mcIdType>, MEDCouplingSkyLineArray * > _entity_corresp;
   };
 }

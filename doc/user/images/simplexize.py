@@ -120,7 +120,7 @@ ipar.setParameter("SMESH_4", "VTKViewer_0_PointMarker", "std:1:9")
 ipar.setParameter("SMESH_4", "VTKViewer_0_Opacity", "1")
 ipar.setParameter("SMESH_4", "VTKViewer_0_ClippingPlane", "Off")
 
- 
+
 if salome.sg.hasDesktop():
   salome.sg.updateObjBrowser(True)
   iparameters.getSession().restoreVisualState(1)

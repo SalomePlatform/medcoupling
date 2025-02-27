@@ -31,14 +31,14 @@ class INTERPKERNELTEST_EXPORT BogusClass {
   friend class TestBogusClass;
 
 public:
-  BogusClass(double _x) : x(_x) {;} 
- 
+  BogusClass(double _x) : x(_x) {;}
+
   double getX() { return x; }
 
-private: 
+private:
   double x;
 };
-  
+
 /**
  * \brief Class used to figure out CppUnit : not very useful
  *

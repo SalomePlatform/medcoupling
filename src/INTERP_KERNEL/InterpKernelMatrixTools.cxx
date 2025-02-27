@@ -41,8 +41,8 @@ namespace INTERP_KERNEL
    *
    *    Charles Lawson, Richard Hanson, David Kincaid, Fred Krogh,
    *    Basic Linear Algebra Subprograms for Fortran Usage,
-   *    Algorithm 539, 
-   *    ACM Transactions on Mathematical Software, 
+   *    Algorithm 539,
+   *    ACM Transactions on Mathematical Software,
    *    Volume 5, Number 3, September 1979, pages 308-323.
    *
    *  \param [in] n the number of entries in the vectors.
@@ -177,7 +177,7 @@ namespace INTERP_KERNEL
         for(i=0;i<m;i++)
           { temp=x[i]; x[i]=y[i]; y[i]=temp; }
         for(i=m;i<n;i+=3)
-          { 
+          {
             temp=x[i]; x[i]=y[i]; y[i]=temp;
             temp=x[i+1]; x[i+1]=y[i+1]; y[i+1]=temp;
             temp=x[i+2]; x[i+2]=y[i+2]; y[i+2]=temp;

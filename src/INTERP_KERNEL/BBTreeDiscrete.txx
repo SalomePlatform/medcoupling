@@ -60,7 +60,7 @@ public:
     if (nbelems < MIN_NB_ELEMS || level> MAX_LEVEL)
       {
         _terminal=true;
-      
+
       }
     DataType median = std::numeric_limits<DataType>::max();
     {
@@ -85,7 +85,7 @@ public:
 
     std::vector<ConnType> new_elems_left;
     std::vector<ConnType> new_elems_right;
- 
+
     new_elems_left.reserve(nbelems/2+1);
     new_elems_right.reserve(nbelems/2+1);
     DataType max_left = -std::numeric_limits<DataType>::max();
@@ -97,9 +97,9 @@ public:
           elem= elems[i];
         else
           elem=i;
-        
+
         DataType value = bbs[elem*dim+(level%dim)];
-      
+
         if (value >= median)
           {
             new_elems_right.push_back(elem);
@@ -121,13 +121,13 @@ public:
     if(!new_elems_right.empty())
       tmp = new_elems_right.data();
     _right.reset(new BBTreeDiscrete(bbs, tmp, level+1, (ConnType)new_elems_right.size()) );
-  
+
   }
- 
+
   ~BBTreeDiscrete() = default;
 
   /*! returns in \a elems the list of elements potentially intersecting the bounding box pointed to by \a bb
-    
+
     \param bb pointer to query bounding box
     \param elems list of elements (given in 0-indexing that is to say in \b C \b mode) intersecting the bounding box
   */
@@ -153,7 +153,7 @@ public:
         return ;
       }
 
-    //non terminal node 
+    //non terminal node
     DataType value = bb[_level%dim];
     if (value < _min_right)
       {

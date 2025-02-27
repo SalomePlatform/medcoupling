@@ -37,8 +37,8 @@
 
 using namespace std;
 
-namespace MEDCoupling 
-{ 
+namespace MEDCoupling
+{
   const int OverlapElementLocator::START_TAG_MESH_XCH = 1140;
 
   OverlapElementLocator::OverlapElementLocator(const ParaFIELD *sourceField, const ParaFIELD *targetField,
@@ -50,7 +50,7 @@ namespace MEDCoupling
       _domain_bounding_boxes(0),
       _epsAbs(epsAbs),
       _group(group)
-  { 
+  {
     if(_local_source_field)
       _local_source_mesh=_local_source_field->getSupport()->getCellMesh();
     if(_local_target_field)
@@ -120,9 +120,9 @@ namespace MEDCoupling
           }
       }
     comm_interface.allGather(minmax, bbSize, MPI_DOUBLE,
-                             _domain_bounding_boxes,bbSize, MPI_DOUBLE, 
+                             _domain_bounding_boxes,bbSize, MPI_DOUBLE,
                              *comm);
-  
+
     // Computation of all pairs needing an interpolation - pairs are duplicated now !
     _proc_pairs.clear();//first is source second is target
     _proc_pairs.resize(_group.size());
@@ -394,7 +394,7 @@ namespace MEDCoupling
     for (const Proc_SrcOrTgt& pst: secondRcv)
       receiveRemoteMeshFrom(pst.first, pst.second);
   }
-  
+
   std::string OverlapElementLocator::getSourceMethod() const
   {
     return _local_source_field->getField()->getDiscretization()->getStringRepr();
@@ -461,7 +461,7 @@ namespace MEDCoupling
         bool intersects = (target_bb[idim*2]<source_bb[idim*2+1]+_epsAbs)
           && (source_bb[idim*2]<target_bb[idim*2+1]+_epsAbs);
         if (!intersects)
-          return false; 
+          return false;
       }
     return true;
   }

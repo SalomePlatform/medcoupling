@@ -45,7 +45,7 @@ namespace MEDCoupling
   {
     return { this->_seq_da };
   }
-  
+
   template<class T>
   void ParaDataArrayTemplate<T>::checkOKOneComponent(const std::string& msg) const
   {

@@ -26,16 +26,16 @@
 
 namespace INTERP_KERNEL
 {
-    
+
   /**
    * Default constructor
-   * 
+   *
    */
   template<class ConnType>
   MeshRegion<ConnType>::MeshRegion():_box(0)
   {
   }
-    
+
   /**
    * Destructor
    *
@@ -45,7 +45,7 @@ namespace INTERP_KERNEL
   {
     delete _box;
   }
-  
+
   /**
    * Adds an element to the region, updating the bounding box. If the bounding box does not yet
    * exist, it is created here. This creation is delayed to make it possible to have empty MeshRegions
@@ -62,7 +62,7 @@ namespace INTERP_KERNEL
 
     const unsigned char numNodes = element->getNumberOfNodes();
     const ConnType elemIdx = element->getIndex();
-       
+
     if(_box == 0)
       {
         const double** pts = new const double*[numNodes];
@@ -72,7 +72,7 @@ namespace INTERP_KERNEL
           {
             pts[i] = getCoordsOfNode(i, OTT<typename MyMeshType::MyConnType,MyMeshType::My_numPol>::indFC(elemIdx), mesh);
           }
-           
+
         _box = new BoundingBox(pts, numNodes);
         delete [] pts;
 
@@ -107,7 +107,7 @@ namespace INTERP_KERNEL
     // sort elements by their bounding boxes
     std::sort(_elements.begin(), _elements.end(), cmp);
 
-    // put the first half of the elements in region1 and the 
+    // put the first half of the elements in region1 and the
     // rest in region2
     typename std::vector< MeshElement<ConnType> *>::const_iterator iter = _elements.begin();
     int elemCount = 0;
@@ -127,10 +127,10 @@ namespace INTERP_KERNEL
   }
 
   /**
-   * Determines if a given element can intersect the elements of this region by 
+   * Determines if a given element can intersect the elements of this region by
    * testing whether the bounding box of the region intersects the bounding box of the element.
    * Note that the test is only true in one direction : if the bounding boxes are disjoint, the
-   * element cannot intersect any of the elements in the region, but if they are not disjoint, the 
+   * element cannot intersect any of the elements in the region, but if they are not disjoint, the
    * element may or may not do so.
    *
    * @param   elem  Element with which to test for disjoint-ness
@@ -145,9 +145,9 @@ namespace INTERP_KERNEL
     assert(elemBox != 0);
 
     return _box->isDisjointWith(*elemBox);
-  }  
+  }
 
-  
+
 }
 
 #endif

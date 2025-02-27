@@ -5037,11 +5037,11 @@ struct NotInRange
    * This method searches each value in \a valToSearchIntoTuples among values in \a this given the corresponding tuple to find into.
    * If the value at the corresponding tuple is not found in the tuple an exception will be thrown.
    * If the value is found the corresponding component id is returned.
-   * 
+   *
    *  \param [in] valToSearchIntoTuples - a one component array containing the values to find in \a this
    *  \param [in] tupleIdHint - a one component array having same size than \a valToSearchIntoTuples giving for each value the tuple to find into
    *  \return DataArrayInt * - A newly allocated array having same size than \a valToSearchIntoTuples with one component
-   * 
+   *
    *   \b Example: <br>
    *          - \a this: [(0, 1, 2), (3, 4, 5), (6, 2, 3), (7, 8, 9), (9, 0, 10), (11, 12, 13), (14, 5, 11), (15, 16, 17)]
    *          - \a valToSearchIntoTuples: [1, 4, 6, 8, 10, 12, 14, 16, 17]
@@ -6590,19 +6590,19 @@ struct NotInRange
   /*!
    * \a this is considered as an array defining a partition. It means that values in \a this define partition-ids. All tuples in \a this with same value can be considered as partition.
    * Typically MED stores families uses this compact storage method.
-   * 
+   *
    * This method computes and returns the partition stored in \a this on reduced space using a reduction operation specified by pairs \a commonEntities and \a commonEntitiesIndex parameters.
    * The reduction operation is the consequence of a fusion of enties. It explains the storage format defining reduction.
-   * 
+   *
    * An another way to consider this method : This method can be seen as an interpolation on integer field (\a this). For fused entities it returns in compact way all combinations of partition configuration.
-   * 
+   *
    * \param [out] partitionsToBeModified - For all partitions impacted by the reduction a n-uplet is returned (n is deduced thanks to \a partitionsToBeModifiedIndex)
    *                                       Each n-uplet represents a list of partitions impacted by reduction. The first element of n-uplet represents the ID to locate entities (using for example findIdsEqual in returned array)
    *                                       Remaining IDs in n-uplet are Partition IDs impacted.
    * \param [out] partitionsToBeModifiedIndex - Index attached to \a partitionsToBeModified to interprete.
-   * 
-   * \return - The partition array that is the output of the reduction of \a this. 
-   * 
+   *
+   * \return - The partition array that is the output of the reduction of \a this.
+   *
    * \sa MEDCouplingUMesh::findCommonCells, DataArrayDouble::findCommonTuples
    */
   template <class T>
@@ -6630,7 +6630,7 @@ struct NotInRange
     T *retPt( ret->getPointer() );
     const mcIdType *o2nPt( o2n->begin() );
     //
-    partitionsToBeModified = DataArrayType::New(); partitionsToBeModified->alloc(0,1); 
+    partitionsToBeModified = DataArrayType::New(); partitionsToBeModified->alloc(0,1);
     partitionsToBeModifiedIndex = DataArrayIdType::New(); partitionsToBeModifiedIndex->alloc(1,1); partitionsToBeModifiedIndex->setIJSilent(0,0,0);
     if( !sizeOfPacks->empty() )// if empty -> no fusion -> ret is already ready at this point -> nothing to do.
     {// ready to work
@@ -7528,7 +7528,7 @@ struct NotInRange
     arrOut=arro.retn();
     arrIndexOut=arrIo.retn();
   }
-  
+
   /*!
    * This method converts from VTK <= 9.3 polyhedra nodal connectivity to MED.
    *

@@ -31,7 +31,7 @@ namespace INTERP_KERNEL
   {
   }
 
-  
+
   /**
      \brief  Function used to set the options for the intersection calculation
      \details The following options can be modified:
@@ -51,7 +51,7 @@ namespace INTERP_KERNEL
      - Values: integer between 0 and 3.
      - Default: 0.
   */
-  void Interpolation3DSurf::setOptions(double precision, int printLevel, double medianPlan, 
+  void Interpolation3DSurf::setOptions(double precision, int printLevel, double medianPlan,
                                        IntersectionType intersectionType, bool doRotat, int orientation)
   {
     InterpolationPlanar<Interpolation3DSurf>::setOptions(precision,printLevel,intersectionType, orientation);

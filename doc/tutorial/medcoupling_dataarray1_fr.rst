@@ -2,12 +2,12 @@
 Manipuler les DataArray
 -----------------------
 
-Les DataArrays (``DataArrayInt`` et ``DataArrayDouble``) sont utilisés dans MEDCoupling pour stocker des valeurs sous 
+Les DataArrays (``DataArrayInt`` et ``DataArrayDouble``) sont utilisés dans MEDCoupling pour stocker des valeurs sous
 forme de tableaux contigus en mémoire. Les valeurs sont groupées par tuples, et chaque tuple a le même nombre de composantes.
 Ils sont à la base de beaucoup de traitements réalisés dans MEDCoupling. Il est ainsi important de bien savoir les manipuler.
 
 Les ``DataArrayDouble`` sont souvent utilisés pour la manipulation directe des valeurs d'un champ comme on le verra plus tard.
-Les ``DataArrayInt`` eux sont utilisés pour toutes les fonctionnalités travaillant avec des identifiants de 
+Les ``DataArrayInt`` eux sont utilisés pour toutes les fonctionnalités travaillant avec des identifiants de
 cellules et/ou de points.
 
 Le but de l'exercice
@@ -38,7 +38,7 @@ Pour commencer l'exercice importer le module Python ``medcoupling`` et l'aliaser
 	import medcoupling as mc
 	import math
 
-On rappelle que toutes les méthodes statiques du module commencent par une majuscule. 
+On rappelle que toutes les méthodes statiques du module commencent par une majuscule.
 Avec ces imports sont disponibles :
 
 * toutes les classes de MEDCoupling
@@ -62,7 +62,7 @@ Ceci est aussi équivalent à ::
 	d = mc.DataArrayDouble(12)
 	d.rearrange(2)
 
-Notons enfin que l'on peut aussi directement construire un ``DataArray`` à partir d'une liste Python. Par défaut le tableau 
+Notons enfin que l'on peut aussi directement construire un ``DataArray`` à partir d'une liste Python. Par défaut le tableau
 n'a qu'une seule composante. ::
 
 	d_example = mc.DataArrayDouble([0.0,1.0,2.5])
@@ -139,7 +139,7 @@ Créer les 7 copies de ``d`` et opérer la "translation" correspondante.  ::
 		ds[pos] = d[:]      # Perform a deep copy of d and place it at position 'pos' in ds
 		ds[pos] += t        # Adding a vector to a set of coordinates does a translation. t could have been a DataArrayDouble too.
 		pass
-          
+
 .. note:: Le ``pass`` à la fin de la boucle ``for`` n'est pas indispensable mais aide certains éditeurs à indenter le code.
 
 Une autre façon de faire un peu plus compacte (pour les amoureux des *one-liner*) : ::
@@ -176,19 +176,19 @@ Utiliser ``help(mc.DataArrayDouble.findCommonTuples)`` pour en connaitre l'inter
 On a ainsi récupéré dans ``c`` l'ensemble des m=12 groupes de noeuds communs accollés. ``cI`` contient les index pour repérer les identifiants de points dans ``c`` pour tout groupe
 ``i`` dans [0,12). Ainsi les identifiants de tuples du groupe ``i`` commencent à l'index ``cI[i]`` et finissent à l'index ``cI[i+1]``.
 
-La méthode ``findCommonTuples()`` retourne ainsi 2 paramètres: un tableau contenant la liste des tuples communs 
-et un tableau d'index qui permet de naviguer dans le premier tableau.    
-Il s'agit d'une forme de retour très classique dans MEDCoupling, appelée *indirect indexing*. Cela apparaît souvent dans la manipulation des 
-maillages non structurés. Cette représentation est rappelée sur l'image ci-dessous, où le premier tableau est en haut, 
+La méthode ``findCommonTuples()`` retourne ainsi 2 paramètres: un tableau contenant la liste des tuples communs
+et un tableau d'index qui permet de naviguer dans le premier tableau.
+Il s'agit d'une forme de retour très classique dans MEDCoupling, appelée *indirect indexing*. Cela apparaît souvent dans la manipulation des
+maillages non structurés. Cette représentation est rappelée sur l'image ci-dessous, où le premier tableau est en haut,
 et le deuxième tableau permettant de la parcourir en bas:
 
 .. image:: images/IndirectIndex.jpg
 	:scale: 50
 
 
-.. note:: Le dernier élément de ``cI`` pointe en dehors du tableau ``c``. Ce dernier index est toujours présent 
+.. note:: Le dernier élément de ``cI`` pointe en dehors du tableau ``c``. Ce dernier index est toujours présent
    et permet de s'assurer que des traitements tels que les *slices* présentés juste après, sont toujours valables,
-   sans avoir besoin de particulariser le dernier groupe. 
+   sans avoir besoin de particulariser le dernier groupe.
 
 
 .. _indirect-index-exo:
@@ -211,7 +211,7 @@ Vérifier, en l'affichant, que pour tous les identifiants de tuples dans ``tmp``
    ces 3 répétitions.
 
 Maintenant on va déduire des variables ``oldNbOfTuples``, ``c`` et ``cI`` le nombre de tuples effectivement différents dans d2.
-Pour ce faire, nous allons trouver le nombre de tuples doublons dans ``d2`` et soustraire le résultat de ``oldNbOfTuples``. 
+Pour ce faire, nous allons trouver le nombre de tuples doublons dans ``d2`` et soustraire le résultat de ``oldNbOfTuples``.
 
 Pour connaître le nombre de doublons, invoquer ``DataArrayInt.deltaShiftIndex`` qui retourne pour chaque groupe sa taille.
 Mettre le résultat dans ``a``. ::
@@ -232,23 +232,23 @@ Construire un tableau "old-2-new"
 Nous allons maintenant exploiter cette information pour extraire un seul
 représentant dans chaque groupe de points dupliqués.
 
-Les deux tableaux ``c`` et ``cI`` définissent une surjection d'un espace de départ à 42 (``oldNbOfTuples``) tuples X 
-vers un espace à 24 (``myNewNbOfTuples``) tuples Y. 
+Les deux tableaux ``c`` et ``cI`` définissent une surjection d'un espace de départ à 42 (``oldNbOfTuples``) tuples X
+vers un espace à 24 (``myNewNbOfTuples``) tuples Y.
 
 .. image:: images/SurjectionDataArray.png
 
 L'autre manière de définir cette surjection (sans perte d'information) est de la représenter par un tableau "old-2-new".
-Ce mode de stockage prend la forme d'un DataArrayInt ``o2n`` composé de Card(X) tuples (i.e. 42) à une composante. 
+Ce mode de stockage prend la forme d'un DataArrayInt ``o2n`` composé de Card(X) tuples (i.e. 42) à une composante.
 Pour chaque tuple (élément) d'index ``i`` de ``o2n``, la case ``o2n[i]`` contient le nouvel identifiant de tuple dans Y.
 On va donc d'un ancien identifiant (old) vers un nouveau (new).
 
-Nous allons construire ce tableau pour extraire un sous-ensemble des coordonnées de départ, et ne garder que les 
+Nous allons construire ce tableau pour extraire un sous-ensemble des coordonnées de départ, et ne garder que les
 tuples uniques (non doublons) dans l'ensemble de départ.
 
-.. note:: Pour toutes les opérations de renumérotation en MEDCoupling (bijection), 
+.. note:: Pour toutes les opérations de renumérotation en MEDCoupling (bijection),
 	le format "old-2-new" est systématiquement utilisé.
 
-La méthode statique ``DataArrayInt.ConvertIndexArrayToO2N()`` (nom un peu barbare, on vous l'accorde) 
+La méthode statique ``DataArrayInt.ConvertIndexArrayToO2N()`` (nom un peu barbare, on vous l'accorde)
 permet de passer du mode de stockage de cette surjection ``c``, ``cI`` au format ``o2n``.
 On récupère au passage card(Y) c'est-à-dire le ``newNbOfTuples``. ::
 
@@ -257,21 +257,21 @@ On récupère au passage card(Y) c'est-à-dire le ``newNbOfTuples``. ::
 	print("myNewNbOfTuples = %d, newNbOfTuples = %d" % (myNewNbOfTuples, newNbOfTuples))
 	assert(myNewNbOfTuples == newNbOfTuples)
 
-Nous pouvons maintenant constuire le tableau de points uniques ``d3``. A l'aide de ``o2n`` 
+Nous pouvons maintenant constuire le tableau de points uniques ``d3``. A l'aide de ``o2n``
 et ``newNbOfTuples``, invoquer ``DataArrayDouble.renumberAndReduce()`` sur ``d2``. ::
 
 	d3 = d2.renumberAndReduce(o2n, newNbOfTuples)
 
-L'inconvénient de cette méthode c'est que finalement on ne connait pas pour chaque groupe de tuple communs dans 
+L'inconvénient de cette méthode c'est que finalement on ne connait pas pour chaque groupe de tuple communs dans
 d2 quel identifiant a été utilisé.
-Par exemple pour le groupe 0 on sait que les tuples 0, 8 et 16 (tmp.getValues()) sont tous égaux, et on ne sait 
+Par exemple pour le groupe 0 on sait que les tuples 0, 8 et 16 (tmp.getValues()) sont tous égaux, et on ne sait
 pas si 0, 8 ou 16 a été utilisé pour remplir ``d3``.
 
-Si l'on souhaite expliciter ce choix, on peut passer en format "new-2-old". Ce mode de stockage prend la forme d'un 
+Si l'on souhaite expliciter ce choix, on peut passer en format "new-2-old". Ce mode de stockage prend la forme d'un
 ``DataArrayInt`` ``n2o`` composé de Card(Y)
 tuples (24) à 1 composante. Pour chaque tuple (élément) d'index i de ``n2o``, la case ``n2o[i]`` contient l'index du tuple qui a été choisi dans X.
 
-Pour passer d'une description "old-2-new" vers "new-2-old", la méthode est ``DataArrayInt.invertArrayO2N2N2O()``. 
+Pour passer d'une description "old-2-new" vers "new-2-old", la méthode est ``DataArrayInt.invertArrayO2N2N2O()``.
 Effectuer ce traitement sur la variable ``o2n``. ::
 
 	n2o = o2n.invertArrayO2N2N2O(newNbOfTuples)
@@ -305,7 +305,7 @@ Maintenant, allouer le nombre de cellules avec (un majorant du) nombre attendu d
 
 	m.allocateCells(7)
 
-Enfin grâce à ``o2n`` on a la *connectivité* (i.e. la liste des points formant un hexagone) 
+Enfin grâce à ``o2n`` on a la *connectivité* (i.e. la liste des points formant un hexagone)
 des 7 hexagones utilisant les coordonnées ``d3``. ::
 
 	for i in range(7):
@@ -318,7 +318,7 @@ Vérifier que ``m`` est correct et ne contient pas d'anomalie. ::
 	 m.checkConsistencyLight()
 
 .. note:: Il est toujours une bonne idée d'appeler cette méthode après la construction "from scratch" d'un maillage.
-   Cela assure qu'il n'y a pas de gros "couacs" dans la connectivité, etc ... 
+   Cela assure qu'il n'y a pas de gros "couacs" dans la connectivité, etc ...
 
 Pour vérifier *visuellment* que ``m`` est correct, l'écrire dans un fichier "My7hexagons.vtu" et le visualiser dans ParaViS. ::
 

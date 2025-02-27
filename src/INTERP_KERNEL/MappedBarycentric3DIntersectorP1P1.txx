@@ -29,8 +29,8 @@ namespace INTERP_KERNEL
 {
 
   /**
-   * Constructor creating object from target cell global number 
-   * 
+   * Constructor creating object from target cell global number
+   *
    * @param targetMesh  mesh containing the target elements
    * @param srcMesh     mesh containing the source elements
    */

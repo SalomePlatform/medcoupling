@@ -17,7 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#include "CommInterface.hxx" 
+#include "CommInterface.hxx"
 #include "ProcessorGroup.hxx"
 #include "MPIProcessorGroup.hxx"
 #include "MPIAccessDEC.hxx"
@@ -37,7 +37,7 @@ namespace MEDCoupling
     _access_DEC->setTimeInterpolator(getTimeInterpolationMethod());
     _send_proc_offsets.resize(_union_group->size()+1,0);
     _recv_proc_offsets.resize(_union_group->size()+1,0);
-  
+
   }
 
   MxN_Mapping::~MxN_Mapping()
@@ -75,19 +75,19 @@ namespace MEDCoupling
       {
         nbsend[i]=_send_proc_offsets[i+1]-_send_proc_offsets[i];
       }
-  
+
     MPIProcessorGroup* group = static_cast<MPIProcessorGroup*>(_union_group);
     const MPI_Comm* comm=group->getComm();
     comm_interface.allToAll(nbsend, 1, MPI_INT,
                             nbrecv, 1, MPI_INT,
                             *comm);
-         
+
     for (int i=0; i<_union_group->size(); i++)
       {
         for (int j=i+1;j<_union_group->size()+1; j++)
           _recv_proc_offsets[j]+=nbrecv[i];
-    
-      } 
+
+      }
 
     delete[] nbsend;
     delete[] nbrecv;
@@ -97,7 +97,7 @@ namespace MEDCoupling
     mcIdType* irecvbuf=0;
     if (_sending_ids.size()>0)
       isendbuf = new mcIdType[_sending_ids.size()];
-    if (_recv_ids.size()>0)  
+    if (_recv_ids.size()>0)
       irecvbuf = new mcIdType[_recv_ids.size()];
     int* sendcounts = new int[_union_group->size()];
     int* senddispls=new int[_union_group->size()];
@@ -120,13 +120,13 @@ namespace MEDCoupling
     comm_interface.allToAllV(isendbuf, sendcounts, senddispls, MPI_ID_TYPE,
                              irecvbuf, recvcounts, recvdispls, MPI_ID_TYPE,
                              *comm);
-                           
+
     for (int i=0; i< _recv_proc_offsets[_union_group->size()]; i++)
-      _recv_ids[i]=irecvbuf[i];                           
- 
+      _recv_ids[i]=irecvbuf[i];
+
     if (_sending_ids.size()>0)
       delete[] isendbuf;
-    if (_recv_ids.size()>0)  
+    if (_recv_ids.size()>0)
       delete[] irecvbuf;
     delete[] sendcounts;
     delete[]recvcounts;
@@ -152,17 +152,17 @@ namespace MEDCoupling
   }
 
   /*! Exchanging field data between two groups of processes
-   * 
+   *
    * \param field MEDCoupling field containing the values to be sent
-   * 
+   *
    * The ids that were defined by addElementFromSource method
    * are sent.
-   */ 
-  void MxN_Mapping::sendRecv(double* sendfield, MEDCouplingFieldDouble& field) const 
+   */
+  void MxN_Mapping::sendRecv(double* sendfield, MEDCouplingFieldDouble& field) const
   {
     CommInterface comm_interface=_union_group->getCommInterface();
     const MPIProcessorGroup* group = static_cast<const MPIProcessorGroup*>(_union_group);
- 
+
     int nbcomp=(int)field.getArray()->getNumberOfComponents();
     double* sendbuf=0;
     double* recvbuf=0;
@@ -174,7 +174,7 @@ namespace MEDCoupling
     int* senddispls=new int[_union_group->size()];
     int* recvcounts=new int[_union_group->size()];
     int* recvdispls=new int[_union_group->size()];
-  
+
     for (int i=0; i< _union_group->size(); i++)
       {
         sendcounts[i]=nbcomp*(_send_proc_offsets[i+1]-_send_proc_offsets[i]);
@@ -186,13 +186,13 @@ namespace MEDCoupling
     vector<int> offsets = _send_proc_offsets;
 
     for (int i=0; i<(int)_sending_ids.size();i++)
-      { 
+      {
         int iproc = _sending_ids[i].first;
         for (int icomp=0; icomp<nbcomp; icomp++)
           sendbuf[offsets[iproc]*nbcomp+icomp]=sendfield[i*nbcomp+icomp];
         offsets[iproc]++;
       }
-  
+
     //communication phase
     switch (getAllToAllMethod())
       {
@@ -209,7 +209,7 @@ namespace MEDCoupling
                                recvbuf, recvcounts, recvdispls, MPI_DOUBLE);
         break;
       }
-  
+
     //setting the received values in the field
     DataArrayDouble *fieldArr=field.getArray();
     double* recvptr=recvbuf;
@@ -229,19 +229,19 @@ namespace MEDCoupling
       delete[] recvbuf;
     delete[] sendcounts;
     delete[] recvcounts;
-    delete[] senddispls; 
+    delete[] senddispls;
     delete[] recvdispls;
-  
+
   }
 
   /*! Exchanging field data between two groups of processes
-   * 
+   *
    * \param field MEDCoupling field containing the values to be sent
-   * 
+   *
    * The ids that were defined by addElementFromSource method
    * are sent.
-   */ 
-  void MxN_Mapping::reverseSendRecv(double* recvfield, MEDCouplingFieldDouble& field) const 
+   */
+  void MxN_Mapping::reverseSendRecv(double* recvfield, MEDCouplingFieldDouble& field) const
   {
     CommInterface comm_interface=_union_group->getCommInterface();
     const MPIProcessorGroup* group = static_cast<const MPIProcessorGroup*>(_union_group);
@@ -294,7 +294,7 @@ namespace MEDCoupling
       }
 
     //setting the received values in the field
-    double* recvptr=recvbuf;                         
+    double* recvptr=recvbuf;
     for (int i=0; i< _send_proc_offsets[_union_group->size()]; i++)
       {
         for (int icomp=0; icomp<nbcomp; icomp++)
@@ -309,7 +309,7 @@ namespace MEDCoupling
       delete[] recvbuf;
     delete[] sendcounts;
     delete[] recvcounts;
-    delete[] senddispls; 
+    delete[] senddispls;
     delete[] recvdispls;
   }
 

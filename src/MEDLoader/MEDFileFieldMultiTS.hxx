@@ -139,7 +139,7 @@ namespace MEDCoupling
     MEDFileTemplateFieldMultiTSWithoutSDA(med_idt fid, const std::string& fieldName, const std::string& meshName, med_field_type fieldTyp, const std::vector<std::string>& infos, int nbOfStep, const std::string& dtunit, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities):MEDFileAnyTypeFieldMultiTSWithoutSDA(fid,fieldName,meshName,fieldTyp,infos,nbOfStep,dtunit,loadAll,ms,entities) { }
     void checkCoherencyOfType(const MEDFileAnyTypeField1TSWithoutSDA *f1ts) const;
   };
-  
+
   class MEDFileFieldMultiTSWithoutSDA : public MEDFileTemplateFieldMultiTSWithoutSDA<double>
   {
     friend class MEDFileTemplateFieldMultiTSWithoutSDA<double>;
@@ -356,7 +356,7 @@ namespace MEDCoupling
     MEDFileTemplateFieldMultiTS(med_idt fid, bool loadAll, const MEDFileMeshes *ms);
     MEDFileTemplateFieldMultiTS(med_idt fid, const std::string& fieldName, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities=0);
   };
-  
+
   class MEDFileIntFieldMultiTS;
 
   /*!

@@ -53,14 +53,14 @@ namespace INTERP_KERNEL
           ConnType N1 = OTT<ConnType,numPol>::coo2C(connec[0]);
           ConnType N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
           ConnType N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
-              
+
           return INTERP_KERNEL::calculateAreaForTria(coords+(SPACEDIM*N1),
                                                      coords+(SPACEDIM*N2),
                                                      coords+(SPACEDIM*N3),
                                                      SPACEDIM);
         }
         break;
-            
+
       case INTERP_KERNEL::NORM_TRI6 :
       case INTERP_KERNEL::NORM_TRI7 :
         {
@@ -80,7 +80,7 @@ namespace INTERP_KERNEL
           ConnType N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
           ConnType N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
           ConnType N4 = OTT<ConnType,numPol>::coo2C(connec[3]);
-              
+
           return INTERP_KERNEL::calculateAreaForQuad(coords+SPACEDIM*N1,
                                                      coords+SPACEDIM*N2,
                                                      coords+SPACEDIM*N3,
@@ -89,7 +89,7 @@ namespace INTERP_KERNEL
         }
         break;
       case INTERP_KERNEL::NORM_QUAD8 :
-      case INTERP_KERNEL::NORM_QUAD9 :  
+      case INTERP_KERNEL::NORM_QUAD9 :
         {
           const double *pts[8];
           pts[0] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[0]);
@@ -104,7 +104,7 @@ namespace INTERP_KERNEL
         }
         break;
       case INTERP_KERNEL::NORM_POLYGON :
-        {          
+        {
           const double **pts=new const double *[lgth];
           for(int inod=0;inod<lgth;inod++)
             pts[inod] = coords+SPACEDIM*OTT<ConnType,numPol>::coo2C(connec[inod]);
@@ -130,14 +130,14 @@ namespace INTERP_KERNEL
           ConnType N2 = OTT<ConnType,numPol>::coo2C(connec[1]);
           ConnType N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
           ConnType N4 = OTT<ConnType,numPol>::coo2C(connec[3]);
-              
+
           return INTERP_KERNEL::calculateVolumeForTetra(coords+SPACEDIM*N1,
                                                         coords+SPACEDIM*N2,
                                                         coords+SPACEDIM*N3,
                                                         coords+SPACEDIM*N4);
         }
         break;
-            
+
       case INTERP_KERNEL::NORM_PYRA5 :
       case INTERP_KERNEL::NORM_PYRA13 :
         {
@@ -146,7 +146,7 @@ namespace INTERP_KERNEL
           ConnType N3 = OTT<ConnType,numPol>::coo2C(connec[2]);
           ConnType N4 = OTT<ConnType,numPol>::coo2C(connec[3]);
           ConnType N5 = OTT<ConnType,numPol>::coo2C(connec[4]);
-              
+
           return INTERP_KERNEL::calculateVolumeForPyra(coords+SPACEDIM*N1,
                                                        coords+SPACEDIM*N2,
                                                        coords+SPACEDIM*N3,
@@ -154,7 +154,7 @@ namespace INTERP_KERNEL
                                                        coords+SPACEDIM*N5);
         }
         break;
-            
+
       case INTERP_KERNEL::NORM_PENTA6 :
       case INTERP_KERNEL::NORM_PENTA15 :
       case INTERP_KERNEL::NORM_PENTA18 :
@@ -165,7 +165,7 @@ namespace INTERP_KERNEL
           ConnType N4 = OTT<ConnType,numPol>::coo2C(connec[3]);
           ConnType N5 = OTT<ConnType,numPol>::coo2C(connec[4]);
           ConnType N6 = OTT<ConnType,numPol>::coo2C(connec[5]);
-              
+
           return INTERP_KERNEL::calculateVolumeForPenta(coords+SPACEDIM*N1,
                                                         coords+SPACEDIM*N2,
                                                         coords+SPACEDIM*N3,
@@ -174,7 +174,7 @@ namespace INTERP_KERNEL
                                                         coords+SPACEDIM*N6);
         }
         break;
-            
+
       case INTERP_KERNEL::NORM_HEXA8 :
       case INTERP_KERNEL::NORM_HEXA20 :
       case INTERP_KERNEL::NORM_HEXA27 :
@@ -187,7 +187,7 @@ namespace INTERP_KERNEL
           ConnType N6 = OTT<ConnType,numPol>::coo2C(connec[5]);
           ConnType N7 = OTT<ConnType,numPol>::coo2C(connec[6]);
           ConnType N8 = OTT<ConnType,numPol>::coo2C(connec[7]);
-              
+
           return INTERP_KERNEL::calculateVolumeForHexa(coords+SPACEDIM*N1,
                                                        coords+SPACEDIM*N2,
                                                        coords+SPACEDIM*N3,
@@ -351,16 +351,16 @@ namespace INTERP_KERNEL
         break;
       case NORM_TETRA4:
         {
-          res[0]=coords[3*OTT<ConnType,numPol>::coo2C(connec[0])]; 
+          res[0]=coords[3*OTT<ConnType,numPol>::coo2C(connec[0])];
           res[1]=coords[3*OTT<ConnType,numPol>::coo2C(connec[0])+1];
           res[2]=coords[3*OTT<ConnType,numPol>::coo2C(connec[0])+2];
-          res[0]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[1])]; 
+          res[0]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[1])];
           res[1]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[1])+1];
           res[2]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[1])+2];
-          res[0]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[2])]; 
+          res[0]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[2])];
           res[1]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[2])+1];
           res[2]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[2])+2];
-          res[0]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[3])]; 
+          res[0]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[3])];
           res[1]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[3])+1];
           res[2]+=coords[3*OTT<ConnType,numPol>::coo2C(connec[3])+2];
           res[0]*=0.25; res[1]*=0.25; res[2]*=0.25;
@@ -446,11 +446,11 @@ namespace INTERP_KERNEL
     double perim( (AB+BC+CA)*0.5 );
     double num( 2*sqrt(perim*(perim-AB)*(perim-BC)*(perim-CA)) );
     res[0] = num/AB; res[1] = num/BC; res[2] = num/CA;
-    if (AB/maxLength <= EPS) 
+    if (AB/maxLength <= EPS)
       res[0] = BC;
-    if (BC/maxLength <= EPS) 
+    if (BC/maxLength <= EPS)
       res[1] = CA;
-    if (CA/maxLength <= EPS) 
+    if (CA/maxLength <= EPS)
       res[3] = AB;
   }
 }

@@ -6,7 +6,7 @@ Playing with regular hexagons using DataArrayDouble
 
 ::
 
-	import medcoupling as mc 
+	import medcoupling as mc
 	import math
 	# Building the coordinates of the initial hexagon, centered at 0,0
 	d = mc.DataArrayDouble(6,2)
@@ -39,7 +39,7 @@ Playing with regular hexagons using DataArrayDouble
 	print("Have I got the right number of tuples?")
 	print("myNewNbOfTuples = %d, newNbOfTuples = %d" % (myNewNbOfTuples, newNbOfTuples))
 	assert(myNewNbOfTuples == newNbOfTuples)
-	# Extracting the unique set of tuples 
+	# Extracting the unique set of tuples
 	d3 = d2.renumberAndReduce(o2n, newNbOfTuples)
 	n2o = o2n.invertArrayO2N2N2O(newNbOfTuples)
 	d3_bis = d2[n2o]

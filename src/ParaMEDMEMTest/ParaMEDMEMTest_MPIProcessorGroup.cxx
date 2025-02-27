@@ -35,7 +35,7 @@
 
 using namespace std;
 using namespace MEDCoupling;
- 
+
 /*
  * Check methods defined in MPPIProcessorGroup.hxx
  *
@@ -52,9 +52,9 @@ using namespace MEDCoupling;
  (+) const MPI_Comm* getComm() const {return &_comm;}
  (+) ProcessorGroup* createComplementProcGroup() const;
  (o) ProcessorGroup* createProcGroup() const;
-   
+
 */
- 
+
 void ParaMEDMEMTest::testMPIProcessorGroup_constructor()
 {
   CommInterface comm_interface;
@@ -93,22 +93,22 @@ void ParaMEDMEMTest::testMPIProcessorGroup_constructor()
     }
 
 }
- 
+
 void ParaMEDMEMTest::testMPIProcessorGroup_boolean()
 {
   int size;
   MPI_Comm_size(MPI_COMM_WORLD, &size);
-  
+
   CommInterface comm_interface;
   MPIProcessorGroup group(comm_interface,0,0);
   MPIProcessorGroup group2(comm_interface,size-1,size-1);
   ProcessorGroup* group_fuse=group.fuse(group2);
   int group_fuse_size=(size==1)?1:2;
   CPPUNIT_ASSERT_EQUAL(group_fuse_size,group_fuse->size());
- 
+
   ProcessorGroup* group_complement=((MPIProcessorGroup*)group_fuse)->createComplementProcGroup();
   CPPUNIT_ASSERT_EQUAL(group_complement->size(),size-group_fuse_size);
-  
+
   delete group_fuse;
   delete group_complement;
 
@@ -128,12 +128,12 @@ void ParaMEDMEMTest::testMPIProcessorGroup_rank()
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  
+
   CommInterface comm_interface;
   MPIProcessorGroup group(comm_interface,0,0);
   MPIProcessorGroup group2(comm_interface,size-1,size-1);
   ProcessorGroup* group_fuse=group2.fuse(group);
-  
+
   if (group.containsMyRank())
     CPPUNIT_ASSERT_EQUAL (group.myRank(), rank);
 
@@ -142,7 +142,7 @@ void ParaMEDMEMTest::testMPIProcessorGroup_rank()
       int trank=group_fuse->translateRank(&group2,0);
       if (size==1)
         CPPUNIT_ASSERT_EQUAL(trank,0);
-      else  
+      else
         CPPUNIT_ASSERT_EQUAL(trank,1);
     }
   delete group_fuse;

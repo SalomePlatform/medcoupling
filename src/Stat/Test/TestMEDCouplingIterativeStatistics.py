@@ -87,7 +87,7 @@ class MEDCouplingIterativeStatisticsTest(unittest.TestCase):
 
         size = int(1e1)
         mesh = ot.RegularGrid(0.0, 1.0 / size, size)
-        
+
         sampling_size = 10
         sample = ot.Sample(sampling_size, 3)
         for i in range(sampling_size):

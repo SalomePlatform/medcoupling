@@ -39,7 +39,7 @@ namespace MEDCoupling
   class ParaFIELD;
   class ProcessorGroup;
   class OverlapInterpolationMatrix;
-  
+
   typedef std::pair<int,int>   ProcCouple;     // a couple of proc IDs, typically used to define a exchange betw 2 procs
 
   class OverlapElementLocator : public INTERP_KERNEL::InterpolationOptions

@@ -76,7 +76,7 @@ namespace INTERP_KERNEL
     else
       return IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getNumberOfElements();
   }
-  
+
   template<class MyMeshType, class MyMatrix>
   typename MyMeshType::MyConnType IntegralUniformIntersectorP0<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
   {
@@ -85,7 +85,7 @@ namespace INTERP_KERNEL
     else
       return 1;
   }
-  
+
   template<class MyMeshType, class MyMatrix>
   void IntegralUniformIntersectorP0<MyMeshType,MyMatrix>::intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res)
   {
@@ -116,7 +116,7 @@ namespace INTERP_KERNEL
     else
       return IntegralUniformIntersector<MyMeshType,MyMatrix>::_mesh.getNumberOfNodes();
   }
-  
+
   template<class MyMeshType, class MyMatrix>
   typename MyMeshType::MyConnType IntegralUniformIntersectorP1<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
   {
@@ -125,7 +125,7 @@ namespace INTERP_KERNEL
     else
       return 1;
   }
-  
+
   template<class MyMeshType, class MyMatrix>
   void IntegralUniformIntersectorP1<MyMeshType,MyMatrix>::intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res)
   {

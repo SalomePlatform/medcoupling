@@ -49,12 +49,12 @@ Playing with NumPy and SciPy
 	#
 	assert(mc.MEDCouplingHasSciPyBindings())
 	c1 = mc.MEDCouplingCMesh()
-	arr1 = mc.DataArrayDouble(7) 
-	arr1.iota() 
+	arr1 = mc.DataArrayDouble(7)
+	arr1.iota()
 	c1.setCoords(arr1,arr1,arr1)
 	c2 = mc.MEDCouplingCMesh()
 	arr2 = mc.DataArrayDouble(9)
-	arr2.iota() 
+	arr2.iota()
 	arr2 *= 6./8.
 	c2.setCoords(arr2,arr2,arr2)
 	c1 = c1.buildUnstructured()

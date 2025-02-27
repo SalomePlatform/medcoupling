@@ -52,7 +52,7 @@ public:
     \param [in] elems array to the indices of the elements contained in the BBTreePts
     \param [in] level level in the BBTreePts recursive structure
     \param [in] nbelems nb of elements in the BBTreePts
-    \param [in] epsilon precision to which points are decided to be coincident. Contrary to BBTree, the absolute epsilon is computed. So the internal epsilon is always positive. 
+    \param [in] epsilon precision to which points are decided to be coincident. Contrary to BBTree, the absolute epsilon is computed. So the internal epsilon is always positive.
 
     Parameters \a elems and \a level are used only by BBTreePts itself for creating trees recursively. A typical use is therefore :
     \code
@@ -85,7 +85,7 @@ public:
     double median=*(nodes+nbelems/2);
     delete [] nodes;
     std::vector<ConnType> new_elems_left,new_elems_right;
- 
+
     new_elems_left.reserve(nbelems/2+1);
     new_elems_right.reserve(nbelems/2+1);
     double max_left = -std::numeric_limits<double>::max();
@@ -123,7 +123,7 @@ public:
   }
 
 
- 
+
   ~BBTreePts()
   {
     delete _left;
@@ -172,10 +172,10 @@ public:
     else
       { elem=elemr; return retr; }
   }
- 
+
   /*! returns in \a elems the list of elements potentially containing the point pointed to by \a xx
    * ** Infinite norm is used here not norm 2 ! ***
-   * 
+   *
    *  \param xx pointer to query point coords
    *  \param elems list of elements (given in 0-indexing) intersecting the bounding box
    * \sa BBTreePts::getElementsAroundPoint2
@@ -196,7 +196,7 @@ public:
           }
         return;
       }
-    //non terminal node 
+    //non terminal node
     if(xx[_level%dim]<_min_right)
       {
         _left->getElementsAroundPoint(xx,elems);
@@ -210,7 +210,7 @@ public:
     _left->getElementsAroundPoint(xx,elems);
     _right->getElementsAroundPoint(xx,elems);
   }
-  
+
   ConnType size() const
   {
     if(_terminal)

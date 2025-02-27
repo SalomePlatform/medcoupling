@@ -43,7 +43,7 @@ namespace MEDCoupling
     void prepareTargetDE();
     void recvData();
     void sendData();
-  private:  
+  private:
     ExplicitTopology* _toposource;
     ExplicitTopology* _topotarget;
     ProcessorGroup* _targetgroup;
@@ -56,7 +56,7 @@ namespace MEDCoupling
     double* _sendbuffer;
     std::map<int,std::pair<int,int> > _distant_elems;
     ExplicitMapping _explicit_mapping;
-  }; 
+  };
 }
 
 #endif

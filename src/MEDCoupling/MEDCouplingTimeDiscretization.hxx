@@ -74,13 +74,13 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT virtual void setEndOrder(int order) = 0;
     MEDCOUPLING_EXPORT virtual void setEndTimeValue(double time) = 0;
     MEDCOUPLING_EXPORT virtual void setEndTime(double time, int iteration, int order) = 0;
-    
+
     MEDCOUPLING_EXPORT virtual void setEndArray(typename Traits<T>::ArrayType *array, TimeLabel *owner);
     MEDCOUPLING_EXPORT virtual void setArrays(const std::vector< typename Traits<T>::ArrayType *>& arrays, TimeLabel *owner);
     MEDCOUPLING_EXPORT virtual const typename Traits<T>::ArrayType *getEndArray() const;
     MEDCOUPLING_EXPORT virtual typename Traits<T>::ArrayType *getEndArray();
     MEDCOUPLING_EXPORT virtual void getArrays(std::vector<typename Traits<T>::ArrayType *>& arrays) const;
-    
+
     MEDCOUPLING_EXPORT virtual std::string getStringRepr() const = 0;
     MEDCOUPLING_EXPORT virtual TypeOfTimeDiscretization getEnum() const = 0;
     MEDCOUPLING_EXPORT virtual MEDCouplingTimeDiscretizationTemplate<T> *performCopyOrIncrRef(bool deepCopy) const = 0;
@@ -219,7 +219,7 @@ namespace MEDCoupling
     double getStartTime(int& iteration, int& order) const { return _tk.getAllInfo(iteration,order); }
     void setStartIteration(int it) { _tk.setIteration(it); }
     void setStartOrder(int order) { _tk.setOrder(order); }
-    void setStartTimeValue(double time) { _tk.setTimeValue(time); } 
+    void setStartTimeValue(double time) { _tk.setTimeValue(time); }
     void setStartTime(double time, int iteration, int order) { _tk.setAllInfo(time,iteration,order); }
     double getEndTime(int& iteration, int& order) const;
     void setEndIteration(int it);
@@ -237,7 +237,7 @@ namespace MEDCoupling
   protected:
     static const TypeOfTimeDiscretization DISCRETIZATION=ONE_TIME;
   };
-  
+
   class MEDCouplingTimeDiscretizationInt32 : public MEDCouplingTimeDiscretizationSimple<Int32>
   {
   public:
@@ -275,7 +275,7 @@ namespace MEDCoupling
   private:
     static const TypeOfTimeDiscretization DISCRETIZATION=ONE_TIME;
   };
-  
+
   class MEDCouplingNoTimeLabel : public MEDCouplingTimeDiscretization
   {
   public:

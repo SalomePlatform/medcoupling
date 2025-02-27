@@ -49,12 +49,12 @@ class MPIAccessDECTest : public CppUnit::TestFixture
   //CPPUNIT_TEST( test_AllToAllvTimeDoubleDECSynchronousPointToPoint ) ;
   CPPUNIT_TEST( test_AllToAllvTimeDoubleDECAsynchronousPointToPoint ) ;
   CPPUNIT_TEST_SUITE_END();
-  
+
 
 public:
- 
+
   MPIAccessDECTest():CppUnit::TestFixture(){}
-  ~MPIAccessDECTest(){}  
+  ~MPIAccessDECTest(){}
   void setUp(){}
   void tearDown(){}
   void test_AllToAllDECSynchronousPointToPoint() ;

@@ -40,7 +40,7 @@ def MeshPart0():
     nodeIds = p0.computeFetchedNodeIds()
     p0.zipCoords()
     return mc.ParaUMesh(p0,mc.DataArrayInt(list(range(50))),nodeIds)
-    
+
 def MeshPart1():
     mesh = GenerateGlobalMesh()
     cellIds = mc.DataArrayInt(list(range(50,100,1)))

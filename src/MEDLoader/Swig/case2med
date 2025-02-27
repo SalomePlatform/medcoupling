@@ -33,7 +33,7 @@ if len(args) != 1:
     parser.print_usage()
     exit(1)
     pass
-    
+
 fname=args[0]  #"cas_test_simple.case"
 if opts.here:
     fOut=os.path.splitext(os.path.basename(fname))[0]+".med"
@@ -51,4 +51,4 @@ except:
     raise
 medfd.write(fOut,2)
 print("#########\nFile \"%s\" written !\n#########"%(fOut))
-    
+

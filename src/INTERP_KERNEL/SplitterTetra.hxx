@@ -77,7 +77,7 @@ namespace INTERP_KERNEL
       0, 3, 2, 6,
       0, 7, 3, 6
     };
-  
+
   static const int SPLIT_NODES_6_WO[24] = /* WO for well oriented !!! normals of 3 first points are OUTSIDE the TETRA4 */
     {
       0, 5, 1, 6,
@@ -87,11 +87,11 @@ namespace INTERP_KERNEL
       0, 2, 3, 6,
       0, 3, 7, 6
     };
-  
+
   // Each sub-node is the barycenter of 4 other nodes.
   // For the faces, these are on the original mesh.
   // For the barycenter, the four face sub-nodes are used.
-  static const int GENERAL_24_SUB_NODES[28] = 
+  static const int GENERAL_24_SUB_NODES[28] =
     {
       0,1,4,5,// sub-node 8  (face)
       0,1,2,3,// sub-node 9  (face)
@@ -102,7 +102,7 @@ namespace INTERP_KERNEL
       8,9,10,11// sub-node 14 (cell)
     };
 
-  static const int GENERAL_24_SUB_NODES_WO[28] = 
+  static const int GENERAL_24_SUB_NODES_WO[28] =
     {
       0,4,5,1,// sub-node 8  (face)
       0,1,2,3,// sub-node 9  (face)
@@ -112,8 +112,8 @@ namespace INTERP_KERNEL
       2,6,7,3,// sub-node 13 (face)
       8,9,10,11// sub-node 14 (cell)
     };
-  
-  static const int TETRA_EDGES_GENERAL_24[48] = 
+
+  static const int TETRA_EDGES_GENERAL_24[48] =
     {
       // face with center 8
       0,1,
@@ -146,12 +146,12 @@ namespace INTERP_KERNEL
       7,3,
       3,2
     };
-  
+
   // Each sub-node is the barycenter of two other nodes.
   // For the edges, these lie on the original mesh.
   // For the faces, these are the edge sub-nodes.
   // For the cell these are two face sub-nodes.
-  static const int GENERAL_48_SUB_NODES[38] = 
+  static const int GENERAL_48_SUB_NODES[38] =
     {
       0,1,   // sub-node 8 (edge)
       0,4,   // sub-node 9 (edge)
@@ -177,7 +177,7 @@ namespace INTERP_KERNEL
   // Define 8 hexahedral subzones as in Grandy, p449
   // the values correspond to the nodes that correspond to nodes 1,2,3,4,5,6,7,8 in the subcell
   // For the correspondence of the nodes, see the GENERAL_48_SUB_NODES table in calculateSubNodes
-  static const int GENERAL_48_SUBZONES[64] = 
+  static const int GENERAL_48_SUBZONES[64] =
     {
       0,8,21,12,9,20,26,22,
       8,1,13,21,20,10,23,26,
@@ -189,7 +189,7 @@ namespace INTERP_KERNEL
       26,23,18,25,24,15,6,19
     };
 
-  static const mcIdType GENERAL_48_SUBZONES_2[64] = 
+  static const mcIdType GENERAL_48_SUBZONES_2[64] =
     {
       0,-1,-14,-5,-2,-13,-19,-15,
       -1,1,-6,-14,-13,-3,-16,-19,
@@ -202,10 +202,10 @@ namespace INTERP_KERNEL
 
   void SplitHexa8IntoTetras(SplittingPolicy policy, const mcIdType *nodalConnBg, const mcIdType *nodalConnEnd, const double *coords,
                             std::vector<mcIdType>& tetrasNodalConn, std::vector<double>& addCoords);
-  
+
   INTERPKERNEL_EXPORT void SplitIntoTetras(SplittingPolicy policy, NormalizedCellType gt, const mcIdType *nodalConnBg, const mcIdType *nodalConnEnd, const double *coords,
                                            std::vector<mcIdType>& tetrasNodalConn, std::vector<double>& addCoords);
-  
+
   /**
    * \brief Class representing a triangular face, used as key in caching hash map in SplitterTetra.
    *
@@ -213,10 +213,10 @@ namespace INTERP_KERNEL
   class TriangleFaceKey
   {
   public:
-    
+
     /**
      * Constructor
-     * Sorts the given nodes (so that the order in which they are passed does not matter) and 
+     * Sorts the given nodes (so that the order in which they are passed does not matter) and
      * calculates a hash value for the key.
      *
      * @param node1  global number of the first node of the face
@@ -232,10 +232,10 @@ namespace INTERP_KERNEL
     /**
      * Equality comparison operator.
      * Compares this TriangleFaceKey object to another and determines if they represent the same face.
-     * 
+     *
      * @param   key  TriangleFaceKey with which to compare
      * @return  true if key has the same three nodes as this object, false if not
-     */ 
+     */
     bool operator==(const TriangleFaceKey& key) const
     {
       return _nodes[0] == key._nodes[0] && _nodes[1] == key._nodes[1] && _nodes[2] == key._nodes[2];
@@ -273,17 +273,17 @@ namespace INTERP_KERNEL
     {
       return _hashVal;
     }
-     
+
     inline static void Sort3Ints(mcIdType* sorted, mcIdType node1, mcIdType node2, mcIdType node3);
 
   private:
     /// global numbers of the three nodes, sorted in ascending order
     mcIdType _nodes[3];
-    
+
     /// hash value for the object, calculated in the constructor
     mcIdType _hashVal;
   };
-  
+
   /**
    * Method to sort three integers in ascending order
    *
@@ -319,7 +319,7 @@ namespace INTERP_KERNEL
             sorted[0] = x2;
             sorted[1] = x1 < x3 ? x1 : x3;
             sorted[2] = x1 < x3 ? x3 : x1;
-          } 
+          }
         else
           {
             // x3, x2, x1
@@ -331,9 +331,9 @@ namespace INTERP_KERNEL
   }
 
   /**
-   * \brief Template specialization of INTERP_KERNEL::hash<T> function object for use with a 
+   * \brief Template specialization of INTERP_KERNEL::hash<T> function object for use with a
    * with TriangleFaceKey as key class.
-   * 
+   *
    */
   template<> class hash<INTERP_KERNEL::TriangleFaceKey>
   {
@@ -353,7 +353,7 @@ namespace INTERP_KERNEL
 
 namespace INTERP_KERNEL
 {
-  /** 
+  /**
    * \brief Class calculating the volume of intersection between a tetrahedral target element and
    * source elements with triangular or quadratilateral faces.
    *
@@ -363,7 +363,7 @@ namespace INTERP_KERNEL
   {
   public:
     typedef typename MyMeshType::MyConnType ConnType;
-    
+
     SplitterTetra(const MyMeshType& srcMesh, const double** tetraCorners, const typename MyMeshType::MyConnType *nodesId);
 
     SplitterTetra(const MyMeshType& srcMesh, const double tetraCorners[12], const ConnType *conn = 0);
@@ -383,7 +383,7 @@ namespace INTERP_KERNEL
     double intersectTetra(const double** tetraCorners);
 
     ConnType getId(mcIdType id) { return _conn[id]; }
-    
+
     void splitIntoDualCells(SplitterTetra<MyMeshType> **output);
 
     void splitMySelfForDual(double* output, int i, ConnType& nodeId);
@@ -408,29 +408,29 @@ namespace INTERP_KERNEL
 
     /// disallow copying
     SplitterTetra(const SplitterTetra& t);
-    
+
     /// disallow assignment
     SplitterTetra& operator=(const SplitterTetra& t);
 
     // member variables
     /// affine transform associated with this target element
     TetraAffineTransform* _t;
-    
+
     /// HashMap relating node numbers to transformed nodes, used for caching
     HashMap< ConnType , double* > _nodes;
-    
+
     /// HashMap relating triangular faces to calculated volume contributions, used for caching
     HashMap< TriangleFaceKey, double > _volumes;
 
     /// reference to the source mesh
     const MyMeshType& _src_mesh;
-                
+
     // node id of the first node in target mesh in C mode.
     ConnType _conn[4];
 
     double _coords[12];
-    
-    /// Smallest volume of the intersecting elements in the transformed space that will be returned as non-zero. 
+
+    /// Smallest volume of the intersecting elements in the transformed space that will be returned as non-zero.
     /// Since the scale is always the same in the transformed space (the target tetrahedron is unitary), this number is independent of the scale of the meshes.
     static const double SPARSE_TRUNCATION_LIMIT;
   };
@@ -438,11 +438,11 @@ namespace INTERP_KERNEL
   /**
    * Function used to filter out elements by checking if they belong to one of the halfspaces
    * x <= 0, x >= 1, y <= 0, y >= 1, z <= 0, z >= 1, (indexed 0 - 7). The function updates an array of boolean variables
-   * which indicates whether the points that have already been checked are all in a halfspace. For each halfspace, 
+   * which indicates whether the points that have already been checked are all in a halfspace. For each halfspace,
    * the corresponding array element will be true if and only if it was true when the method was called and pt lies in the halfspace.
-   * 
+   *
    * @param pt        double[3] containing the coordinates of a transformed point
-   * @param isOutside bool[8] which indicate the results of earlier checks. 
+   * @param isOutside bool[8] which indicate the results of earlier checks.
    */
   template<class MyMeshType>
   inline void SplitterTetra<MyMeshType>::CheckIsOutside(const double* pt, bool* isOutside, const double errTol)
@@ -456,7 +456,7 @@ namespace INTERP_KERNEL
     isOutside[6] = isOutside[6] && (1.0 - pt[0] - pt[1] - pt[2] < errTol);
     isOutside[7] = isOutside[7] && (1.0 - pt[0] - pt[1] - pt[2] > (1.0-errTol) );
   }
-  
+
   template<class MyMeshType>
   inline void SplitterTetra<MyMeshType>::CheckIsStrictlyOutside(const double* pt, bool* isStrictlyOutside, const double errTol)
   {
@@ -481,7 +481,7 @@ namespace INTERP_KERNEL
    */
   template<class MyMeshType>
   inline void SplitterTetra<MyMeshType>::calculateNode(typename MyMeshType::MyConnType globalNodeNum)
-  {  
+  {
     const double* node = _src_mesh.getCoordinatesPtr()+MyMeshType::MY_SPACEDIM*globalNodeNum;
     double* transformedNode = new double[MyMeshType::MY_SPACEDIM];
     assert(transformedNode != 0);
@@ -593,7 +593,7 @@ namespace INTERP_KERNEL
        barycenter[1] += pt[1];
        barycenter[2] += pt[2];
       }
-    
+
     barycenter[0] /= (double)n;
     barycenter[1] /= (double)n;
     barycenter[2] /= (double)n;
@@ -627,7 +627,7 @@ namespace INTERP_KERNEL
       nodeId=_node_ids[node];
     else
       nodeId=-1;
-    return ret;    
+    return ret;
   }
 }
 

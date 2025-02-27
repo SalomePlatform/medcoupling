@@ -27,7 +27,7 @@ using namespace INTERP_KERNEL;
 
 ElementaryEdge::ElementaryEdge(const ElementaryEdge& other):_direction(other._direction),_ptr(other._ptr)
 {
-  _ptr->incrRef(); 
+  _ptr->incrRef();
 }
 
 ElementaryEdge::~ElementaryEdge()
@@ -148,7 +148,7 @@ TypeOfEdgeLocInPolygon ElementaryEdge::locateFullyMySelfAbsolute(const ComposedE
 {
   Node *node=_ptr->buildRepresentantOfMySelf(); // build barycenter used to detect if the edge is IN or OUT
   if(pol.isInOrOut(node))
-    declareIn(); 
+    declareIn();
   else
     declareOut();
   node->decrRef();
@@ -156,7 +156,7 @@ TypeOfEdgeLocInPolygon ElementaryEdge::locateFullyMySelfAbsolute(const ComposedE
 }
 
 Node *ElementaryEdge::getEndNode() const
-{ 
+{
   if(_direction)
     return _ptr->getEndNode();
   else return _ptr->getStartNode();
@@ -166,7 +166,7 @@ Node *ElementaryEdge::getStartNode() const
 {
   if(_direction)
     return _ptr->getStartNode();
-  else 
+  else
     return _ptr->getEndNode();
 }
 
@@ -174,7 +174,7 @@ bool ElementaryEdge::changeEndNodeWith(Node *node) const
 {
   if(_direction)
     return _ptr->changeEndNodeWith(node);
-  else 
+  else
     return _ptr->changeStartNodeWith(node);
 }
 
@@ -182,7 +182,7 @@ bool ElementaryEdge::changeStartNodeWith(Node *node) const
 {
   if(_direction)
     return _ptr->changeStartNodeWith(node);
-  else 
+  else
     return _ptr->changeEndNodeWith(node);
 }
 

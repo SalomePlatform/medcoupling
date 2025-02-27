@@ -88,7 +88,7 @@ namespace MEDCoupling // inline methods of MEDFileFieldGlobsReal
    * Replaces references to some profiles (a reference is a profile name) by references
    * to other profiles.
    * \param [in] mapOfModif - a sequence describing required replacements. Each element of
-   *        this sequence is a pair whose 
+   *        this sequence is a pair whose
    *        - the first item is a vector of profile names to replace by the second item,
    *        - the second item is a profile name to replace every profile of the first item.
    */
@@ -97,7 +97,7 @@ namespace MEDCoupling // inline methods of MEDFileFieldGlobsReal
    * Replaces references to some localizations (a reference is a localization name) by references
    * to other localizations.
    * \param [in] mapOfModif - a sequence describing required replacements. Each element of
-   *        this sequence is a pair whose 
+   *        this sequence is a pair whose
    *        - the first item is a vector of localization names to replace by the second item,
    *        - the second item is a localization name to replace every localization of the first
    *          item.

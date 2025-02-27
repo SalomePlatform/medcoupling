@@ -6,9 +6,9 @@ Nous partons ici d'un fichier :download:`agitateur.med <data/agitateur.med>` aya
 
 .. image:: images/agitateur.jpg
 
-Il s'agit du résultat d'un petit calcul diphasique : l'agitateur magnétique en vert (repéré seulement par un champ 
-aux cellules, et n'ayant *pas* de maillage propre) tourne d'un pas de temps à l'autre au 
-sein d'une phase liquide. Deux gouttes de liquide chutent pendant ce temps vers l'interface air/eau (en gris).  
+Il s'agit du résultat d'un petit calcul diphasique : l'agitateur magnétique en vert (repéré seulement par un champ
+aux cellules, et n'ayant *pas* de maillage propre) tourne d'un pas de temps à l'autre au
+sein d'une phase liquide. Deux gouttes de liquide chutent pendant ce temps vers l'interface air/eau (en gris).
 
 Le but de l'exercice est de calculer le couple appliqué sur cet agitateur, qui est la pièce mécanique entraînant la
 partie basse du fluide.
@@ -21,7 +21,7 @@ L'objectif est de donner un exemple complet de post-traitement non trivial à pa
 Début de l'implémentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Pour commencer l'exercice importer le module python ``medcoupling``. 
+Pour commencer l'exercice importer le module python ``medcoupling``.
 Importer aussi ``numpy``. ::
 
 	import medcoupling as mc
@@ -87,7 +87,7 @@ La pression est en bar, la convertir au préalable en pascal (Pa). ::
 
 	pressSkin = pressOnSkinAgitateurMc.getArray()
 	pressSkin *= 1e5                   # conversion from bar to Pa
-	areaSkin = agitateurSkinMc.getMeasureField(True).getArray()  
+	areaSkin = agitateurSkinMc.getMeasureField(True).getArray()
 	forceSkin = pressSkin*areaSkin
 	normalSkin = agitateurSkinMc.buildOrthogonalField().getArray()
 	forceVectSkin = forceSkin*normalSkin
@@ -102,7 +102,7 @@ Calculer le polyèdre représentant l'enveloppe du maillage 3D de l'agitateur ``
 	singlePolyhedron.orientCorrectlyPolyhedrons()
 	centerOfMass = singlePolyhedron.computeCellCenterOfMass()
 
-.. note:: L'appel à ``MEDCouplingUMesh.orientCorrectlyPolyhedrons()`` n'est pas obligatoire mais conseillé car 
+.. note:: L'appel à ``MEDCouplingUMesh.orientCorrectlyPolyhedrons()`` n'est pas obligatoire mais conseillé car
 	si par malheur le polyhèdre est mal orienté, son barycentre sera incorrect !
 
 Calculer pour chaque cellule de la peau de l'agitateur le moment par rapport au centre de masse ``centerOfMass``
@@ -113,7 +113,7 @@ le vecteur ``centerOfMass`` -> ``G``, avec ``G`` le barycentre de la cellule cou
 	barySkin=agitateurSkinMc.computeCellCenterOfMass()
 	posSkin = barySkin-centerOfMass
 
-Appliquer maintenant la formule classique de calcul du moment : calculer le produit 
+Appliquer maintenant la formule classique de calcul du moment : calculer le produit
 vectoriel par cellule de ``posSkin`` avec ``forceVectSkin`` (méthode ``DataArrayDouble.CrossProduct()``). ::
 
 	torquePerCellOnSkin = mc.DataArrayDouble.CrossProduct(posSkin,forceVectSkin)
@@ -136,7 +136,7 @@ Calculer la puissance par cellule de la peau de l'agitateur et la sommer. ::
 	power = powerSkin.accumulate()[0]
 	print("power = %r W"%(power))
 
-Calculer la vitesse *angulaire*. Pour ce faire, calculer la somme de ``x^2``, ``y^2`` et ``xz`` de ``posSkin`` et 
+Calculer la vitesse *angulaire*. Pour ce faire, calculer la somme de ``x^2``, ``y^2`` et ``xz`` de ``posSkin`` et
 construire (avec NumPy) la matrice 2x2 d'inertie ``inertiaSkin=[[x2,xy], [xy,z2]]``.
 
 Récupérer le vecteur propre associé à la valeur propre maximale

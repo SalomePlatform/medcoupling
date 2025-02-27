@@ -57,7 +57,7 @@ void ParaMEDMEMTest::testFabienAPI1()
   //
   MEDCoupling::InterpKernelDEC *dec=new MEDCoupling::InterpKernelDEC(procs_source,procs_target);
   if(dec->isInSourceSide())
-    {    
+    {
       mesh=MEDCouplingUMesh::New();
       mesh->setMeshDimension(2);
       DataArrayDouble *myCoords=DataArrayDouble::New();
@@ -142,7 +142,7 @@ void ParaMEDMEMTest::testFabienAPI2()
   //
   MEDCoupling::InterpKernelDEC *dec=new MEDCoupling::InterpKernelDEC(procs_source,procs_target);
   if(dec->isInSourceSide())
-    {    
+    {
       mesh=MEDCouplingUMesh::New();
       mesh->setMeshDimension(2);
       DataArrayDouble *myCoords=DataArrayDouble::New();

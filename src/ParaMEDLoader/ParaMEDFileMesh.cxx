@@ -190,8 +190,8 @@ MEDFileUMesh *ParaMEDFileUMesh::NewPrivate(med_idt fid, int iPart, int nbOfParts
  * \param [in] fName - name of the field we want to load
  * \param [in] mName - name of the mesh on which the field is defined
  * \param [in] distrib - vector of cells/nodes on which we want to load the field \a fName (with c-type indexing, so starting from zero).
- * \param [in] loc - localisation of the field 
- * \param [in] geoType - geometrical type of the cells on which the field is laying (only needed if the field is located on cells) 
+ * \param [in] loc - localisation of the field
+ * \param [in] geoType - geometrical type of the cells on which the field is laying (only needed if the field is located on cells)
  * \param [in] dt - Time order at which to read the field
  * \param [in] it - Time iteration at which to read the field
  * \return MEDFileField1TS* - a new instance of MEDFileField1TS. The

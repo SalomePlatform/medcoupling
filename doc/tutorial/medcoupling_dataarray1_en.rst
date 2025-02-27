@@ -24,7 +24,7 @@ Concepts at hand:
 * Display a DataArrayDouble instance and invoke the getValue() method to convert it to a list
 * Use convenient notations da[...]
 * Learn about renumbering (old2new convention)
-* Invoke services from findCommonTuples 
+* Invoke services from findCommonTuples
 
 Starting the implementation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,7 +101,7 @@ Verify that for each tuple of d its norm (returned by the magnitude() method) is
 	print(d.magnitude().isUniform(3.,1e-12))
 
 
-Duplication and aggregation of DataArrayDouble 
+Duplication and aggregation of DataArrayDouble
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 translationToPerform contains a list of vectors of size 2. This list has length 7 (7 hexagons) Cette liste de taille 7 (7 hexagones) and describes the appropriate translation for each copy of d.
@@ -150,7 +150,7 @@ c is an array containing all the common nodes grouped sequentially. cI contains 
 Manipulate DataArrayInt couple representing a pair (Data,IndexData)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The number of common tuples is len(cI)-1, i.e. 12 in our case. 
+The number of common tuples is len(cI)-1, i.e. 12 in our case.
 Get the list of tuple ids forming the first group of common nodes and store the result in tmp. ::
 
 	tmp=c[cI[0]:cI[0+1]]

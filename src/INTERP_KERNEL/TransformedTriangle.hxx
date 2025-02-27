@@ -26,7 +26,7 @@
 
 #include <vector>
 
-// Levels : 
+// Levels :
 // 1 - overview of algorithm + volume result
 // 2 - algorithm detail
 // 3 - intersection polygon results detail
@@ -54,18 +54,18 @@ namespace INTERP_KERNEL
    * \brief Class representing one of the faces of the triangulated source polyhedron after having been transformed
    * with the affine transform that takes the target tetrahedron to the unit tetrahedron. It contains the
    * logic for calculating the volume of intersection between the triangle and the unit tetrahedron.
-   * 
-   * \see TransformedTriangle.hxx 
    *
-   * Reference : J. Grandy, "Conservative Remapping and Region Overlays by Intersecting Arbitrary Polyhedra", 
+   * \see TransformedTriangle.hxx
+   *
+   * Reference : J. Grandy, "Conservative Remapping and Region Overlays by Intersecting Arbitrary Polyhedra",
    *             Journal of Computational Physics (1999)
    *
    */
 
   /**
    * OVERVIEW of how the class works : (details can be found in the documentation of each method)
-   * 
-   * Constructor : 
+   *
+   * Constructor :
    * The constructor takes as arguments three pointers to double[3] vectors holding the transformed
    * coordinates of the corners of the triangle. It copies their coordinates and then proceeds to pre-calculating certain
    * entities used in the intersection calculation : the double products, triple products and the values of the function E
@@ -74,23 +74,23 @@ namespace INTERP_KERNEL
    *  - the special case of PQR included in the XYZ plane is treated
    *  - the inconsistencies between double products/triple products computation is handled
    *
-   * calculateIntersectionVolume() : 
+   * calculateIntersectionVolume() :
    * This is the only method in the public interface. It calculates the volume under the intersection polygons
    * between the triangle and the unit tetrahedron, as described in Grandy, pp. 435-447. It does this by first calculating the
    * intersection polygons A and B, with the method calculateIntersectionPolygons(). It then calculates the barycenter of each
-   * polygon in calculatePolygonBarycenter(), and sorts their points in a circular order around the barycenter in 
-   * sortIntersecionPolygon(). The sorting is done with STL sort, using the order defined in the class 
+   * polygon in calculatePolygonBarycenter(), and sorts their points in a circular order around the barycenter in
+   * sortIntersecionPolygon(). The sorting is done with STL sort, using the order defined in the class
    * ProjectedCentralCircularSortOrder. The volume under each polygon is then calculated with calculateVolumeUnderPolygon(), which
    * implements formula [34] in Grandy.
    *
    * calculateIntersectionPolygons() :
-   * This method goes through all the possible ways in which the triangle can intersect the tetrahedron and tests for these 
+   * This method goes through all the possible ways in which the triangle can intersect the tetrahedron and tests for these
    * types of intersections in accordance with the formulas described in Grandy. These tests are implemented in the test* - methods.
-   *    The formulas in the article are stated for one case each only, while the calculation must take into account all cases. 
-   * To this end, a number of tables, implemented as static const arrays of different types, are used. The tables 
-   * mainly contain values of the different enumeration types described at the beginning of the class interface. For example, 
-   * the formula Grandy gives for the segment-halfstrip intersection tests ([30]) is for use with the halfstrip above the zx edge. 
-   * For the other two halfstrips (above the xy and yz edges), other double products are used, which 
+   *    The formulas in the article are stated for one case each only, while the calculation must take into account all cases.
+   * To this end, a number of tables, implemented as static const arrays of different types, are used. The tables
+   * mainly contain values of the different enumeration types described at the beginning of the class interface. For example,
+   * the formula Grandy gives for the segment-halfstrip intersection tests ([30]) is for use with the halfstrip above the zx edge.
+   * For the other two halfstrips (above the xy and yz edges), other double products are used, which
    * are stored in the table DP_FOR_HALFSTRIP_INTERSECTION. This allows us to treat
    * all the edges equally, avoiding switch() - statements. It is the careful choice of order of the enumeration types that makes this
    * possible. Notably, there is a correspondence between the TetraEdge type and the DoubleProduct type (see Grandy, table III) that
@@ -101,7 +101,7 @@ namespace INTERP_KERNEL
    */
   class INTERPKERNEL_EXPORT TransformedTriangle
   {
- 
+
 
   public:
     friend class INTERP_TEST::TransformedTriangleIntersectTest;
@@ -123,10 +123,10 @@ namespace INTERP_KERNEL
 
     /// Corners of triangle
     enum TriCorner { P = 0, Q, R, NO_TRI_CORNER };
-    
+
     /// Segments (edges) of triangle
     enum TriSegment { PQ = 0, QR, RP, NO_TRI_SEGMENT };
-    
+
     /// Intersection polygons
     enum IntersectionPolygon{ A = 0, B, NO_INTERSECTION_POLYGONS };
 
@@ -134,10 +134,10 @@ namespace INTERP_KERNEL
     /// NB : order corresponds to TetraEdges (Grandy, table III)
     enum DoubleProduct { C_YZ = 0, C_ZX, C_XY, C_ZH, C_XH, C_YH, C_01, C_10, NO_DP };
 
-    TransformedTriangle(double* p, double* q, double* r); 
+    TransformedTriangle(double* p, double* q, double* r);
     ~TransformedTriangle();
 
-    double calculateIntersectionVolume(); 
+    double calculateIntersectionVolume();
     double calculateIntersectionSurface(TetraAffineTransform* tat);
     void dumpCoords() const;
 
@@ -150,12 +150,12 @@ namespace INTERP_KERNEL
     TransformedTriangle() { }
 
     // ----------------------------------------------------------------------------------
-    //  High-level methods called directly by calculateIntersectionVolume()     
+    //  High-level methods called directly by calculateIntersectionVolume()
     // ----------------------------------------------------------------------------------
     void calculateIntersectionAndProjectionPolygons();
-    void calculatePolygonBarycenter(const IntersectionPolygon poly, double* barycenter); 
-    void sortIntersectionPolygon(const IntersectionPolygon poly, const double* barycenter); 
-    double calculateVolumeUnderPolygon(IntersectionPolygon poly, const double* barycenter); 
+    void calculatePolygonBarycenter(const IntersectionPolygon poly, double* barycenter);
+    void sortIntersectionPolygon(const IntersectionPolygon poly, const double* barycenter);
+    double calculateVolumeUnderPolygon(IntersectionPolygon poly, const double* barycenter);
 
     // ----------------------------------------------------------------------------------
     //  High-level methods called directly by calculateIntersectionSurface()
@@ -164,7 +164,7 @@ namespace INTERP_KERNEL
     double calculateSurfacePolygon();
 
     // ----------------------------------------------------------------------------------
-    //  Detection of degenerate triangles  
+    //  Detection of degenerate triangles
     // ----------------------------------------------------------------------------------
     bool isTriangleInPlaneOfFacet(const TetraFacet facet) const;
     bool isTriangleParallelToFacet(const TetraFacet facet) const;
@@ -172,14 +172,14 @@ namespace INTERP_KERNEL
     bool isTriangleBelowTetraeder() const;
 
     // ----------------------------------------------------------------------------------
-    //  Intersection test methods and intersection point calculations           
+    //  Intersection test methods and intersection point calculations
     // ----------------------------------------------------------------------------------
-    inline bool testSurfaceEdgeIntersection(const TetraEdge edge) const; 
-    void calcIntersectionPtSurfaceEdge(const TetraEdge edge, double* pt) const;  
-    inline bool testSegmentFacetIntersection(const TriSegment seg, const TetraFacet facet) const; 
-    void calcIntersectionPtSegmentFacet(const TriSegment seg, const TetraFacet facet, double* pt) const;  
-    bool testSegmentEdgeIntersection(const TriSegment seg, const TetraEdge edge) const; 
-    void calcIntersectionPtSegmentEdge(const TriSegment seg, const TetraEdge edge, double* pt) const ; 
+    inline bool testSurfaceEdgeIntersection(const TetraEdge edge) const;
+    void calcIntersectionPtSurfaceEdge(const TetraEdge edge, double* pt) const;
+    inline bool testSegmentFacetIntersection(const TriSegment seg, const TetraFacet facet) const;
+    void calcIntersectionPtSegmentFacet(const TriSegment seg, const TetraFacet facet, double* pt) const;
+    bool testSegmentEdgeIntersection(const TriSegment seg, const TetraEdge edge) const;
+    void calcIntersectionPtSegmentEdge(const TriSegment seg, const TetraEdge edge, double* pt) const ;
     bool testSegmentCornerIntersection(const TriSegment seg, const TetraCorner corner) const ;
     inline bool testSurfaceRayIntersection(const TetraCorner corner) const;
     bool testSegmentHalfstripIntersection(const TriSegment seg, const TetraEdge edg);
@@ -190,7 +190,7 @@ namespace INTERP_KERNEL
     inline bool testCornerAboveXYZFacet(const TriCorner corner) const;
 
     // ----------------------------------------------------------------------------------
-    //  Utility methods used in intersection tests                       
+    //  Utility methods used in intersection tests
     // ----------------------------------------------------------------------------------
     bool testTriangleSurroundsEdge(const TetraEdge edge) const;
     inline bool testEdgeIntersectsTriangle(const TetraEdge edge) const;
@@ -201,7 +201,7 @@ namespace INTERP_KERNEL
     bool testTriangleSurroundsRay(const TetraCorner corner) const;
 
     // ----------------------------------------------------------------------------------
-    //  Double and triple product calculations                           
+    //  Double and triple product calculations
     // ----------------------------------------------------------------------------------
     void handleDegenerateCases();
     bool areDoubleProductsConsistent(const TriSegment seg) const;
@@ -225,20 +225,20 @@ namespace INTERP_KERNEL
     inline const std::string& strTriS(TriSegment tc) const;
 
     // ----------------------------------------------------------------------------------
-    //  Member variables                                                 
+    //  Member variables
     // ----------------------------------------------------------------------------------
   protected:
 
     /// Array holding the coordinates of the triangle's three corners
-    /// order : 
+    /// order :
     /// [ p_x, p_y, p_z, p_h, p_H, q_x, q_y, q_z, q_h, q_H, r_x, r_y, r_z, r_h, r_H ]
     double _coords[15];
-    
+
     /// Flag showing whether the double products have been calculated yet
     bool _is_double_products_calculated;
 
     /// Flag showing whether the triple products have been calculated yet
-    bool _is_triple_products_calculated; 
+    bool _is_triple_products_calculated;
 
     /// Array containing the 24 double products.
     /// order : c^PQ_YZ, ... ,cPQ_10, ... c^QR_YZ, ... c^RP_YZ
@@ -256,11 +256,11 @@ namespace INTERP_KERNEL
     /// Vector holding the points of the intersection polygon A.
     /// these points are allocated in calculateIntersectionPolygons() and liberated in the destructor
     std::vector<double*> _polygonA;
-    
+
     /// Vector holding the points of the intersection polygon B.
     /// These points are allocated in calculateIntersectionPolygons() and liberated in the destructor
     std::vector<double*> _polygonB;
-    
+
     /// Array holding the coordinates of the barycenter of the polygon A
     /// This point is calculated in calculatePolygonBarycenter
     double _barycenterA[3];
@@ -275,20 +275,20 @@ namespace INTERP_KERNEL
 
     /// calculated volume for use of UnitTetraIntersectionBary
     double _volume;
-    
+
     /**
      * Calls TransformedTriangle::testTriangleSurroundsEdge for edges OX to ZX and stores the result in
-     * member variable array_triangleSurroundsEdgeCache. 
+     * member variable array_triangleSurroundsEdgeCache.
      *
      */
     void preCalculateTriangleSurroundsEdge();
 
-    /// Array holding results of the test testTriangleSurroundsEdge() for all the edges. 
+    /// Array holding results of the test testTriangleSurroundsEdge() for all the edges.
     /// These are calculated in preCalculateTriangleSurroundsEdge().
     bool _triangleSurroundsEdgeCache[NO_TET_EDGE];
 
     // ----------------------------------------------------------------------------------
-    //  Constants                                                    
+    //  Constants
     // ----------------------------------------------------------------------------------
 
     // offsets : 0 -> x, 1 -> y, 2 -> z, 3 -> h, 4 -> H
@@ -302,11 +302,11 @@ namespace INTERP_KERNEL
     // (0,1,2,3) <=> (x,y,z,h)
     static const int COORDINATE_FOR_DETERMINANT_EXPANSION[12];
 
-    // contains the edge of the double product used when 
+    // contains the edge of the double product used when
     // expanding the triple product determinant associated with each corner
     // by a given row
     static const DoubleProduct DP_FOR_DETERMINANT_EXPANSION[12];
-    
+
     // values used to decide how/when imprecise the double products
     // should be to set them to 0.0
     static const double MACH_EPS;    // machine epsilon
@@ -339,7 +339,7 @@ namespace INTERP_KERNEL
 
     // correspondence edge - corners
     static const TetraEdge EDGES_FOR_CORNER[12];
-   
+
     // double products used in segment-halfstrip test
     static const DoubleProduct DP_FOR_HALFSTRIP_INTERSECTION[12];
 

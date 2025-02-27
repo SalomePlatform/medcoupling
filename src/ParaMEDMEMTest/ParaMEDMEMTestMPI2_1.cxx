@@ -79,9 +79,9 @@ void MPI2ParaMEDMEMTest::testBasicMPI2_1()
 
   const double sourceCoordsAll[2][8]={{0.4,0.5,0.4,1.5,1.6,1.5,1.6,0.5},
                                       {0.3,-0.5,1.6,-0.5,1.6,-1.5,0.3,-1.5}};
-  
+
   mcIdType conn4All[8]={0,1,2,3,4,5,6,7};
-  
+
   std::ostringstream stream; stream << "sourcemesh2D proc " << grank;
   mesh=MEDCouplingUMesh::New(stream.str().c_str(),2);
   mesh->allocateCells(2);

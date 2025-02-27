@@ -63,7 +63,7 @@ namespace INTERP_TEST
     }
 
     /// Intersection between two boxes in general position with hexahedral elements. One has 200 elements and the other 420.
-    /// \brief Status : fails - reason unknown. The matrix does not fulfill the transpose requirement : that W_AB = W_BA^T 
+    /// \brief Status : fails - reason unknown. The matrix does not fulfill the transpose requirement : that W_AB = W_BA^T
     void hexaBoxesMoved()
     {
       _testTools->intersectMeshes("MovedHexaBox1", "MovedHexaBox2", 65250);

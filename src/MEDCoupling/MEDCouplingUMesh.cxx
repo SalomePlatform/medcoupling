@@ -212,9 +212,9 @@ void MEDCouplingUMesh::checkConsistencyLight() const
  * algorithms. <br> In addition to the checks performed by checkConsistencyLight(), this
  * method thoroughly checks the nodal connectivity. For more geometrical checking
  * checkGeomConsistency method is better than this.
- * 
+ *
  * \sa MEDCouplingUMesh::checkGeomConsistency
- * 
+ *
  *  \param [in] eps - a not used parameter.
  *  \throw If the mesh dimension is not set.
  *  \throw If the coordinates array is not set (if mesh dimension != -1 ).
@@ -293,7 +293,7 @@ void MEDCouplingUMesh::checkConsistency(double eps) const
 /*!
  * This method adds some geometrical checks in addition to the informatical check of checkConsistency method.
  * This method in particular checks that a same node is not repeated several times in a cell.
- * 
+ *
  *  \throw If there is a presence a multiple same node ID in nodal connectivity of cell.
  */
 void MEDCouplingUMesh::checkGeomConsistency(double eps) const
@@ -702,7 +702,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::buildDescendingConnectivity(DataArrayIdType 
  * and return descending and reverse descending correspondances to this.
  *
  * \param [in] targetDeltaLevel target delta level compared to \a this mesh dimension. This parameter is expected to be lower than zero.
- * 
+ *
  * \throw If targetDeltaLevel is greater or equal to zero
  * \throw If targetDeltaLevel is lower than -meshDim
  * \sa MEDCouplingUMesh::buildDescendingConnectivity, MEDCouplingUMesh::explode3DMeshTo1D
@@ -753,7 +753,7 @@ MEDCouplingUMesh *MEDCouplingUMesh::explode3DMeshTo1D(DataArrayIdType *desc, Dat
 /*!
  * This method computes the micro edges constituting each cell in \a this. Micro edge is an edge for non quadratic cells. Micro edge is an half edge for quadratic cells.
  * This method works for both meshes with mesh dimension equal to 2 or 3. Dynamical cells are not supported (polygons, polyhedrons...)
- * 
+ *
  * \sa explode3DMeshTo1D, buildDescendingConnectiviy
  */
 MEDCouplingUMesh *MEDCouplingUMesh::explodeMeshIntoMicroEdges(DataArrayIdType *desc, DataArrayIdType *descIndx, DataArrayIdType *revDesc, DataArrayIdType *revDescIndx) const
@@ -4453,7 +4453,7 @@ void MEDCouplingUMesh::getCellsContainingPoints(const double *pos, mcIdType nbOf
  * Behaves like MEDCouplingMesh::getCellsContainingPoints for cells in \a this that are linear.
  * For quadratic cells in \a this, this method behaves by just considering linear part of cells.
  * This method is here only for backward compatibility (interpolation GaussPoints to GaussPoints).
- * 
+ *
  * \sa MEDCouplingUMesh::getCellsContainingPoints, MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss
  */
 void MEDCouplingUMesh::getCellsContainingPointsLinearPartOnlyOnNonDynType(const double *pos, mcIdType nbOfPoints, double eps, MCAuto<DataArrayIdType>& elts, MCAuto<DataArrayIdType>& eltsIndex) const

@@ -66,7 +66,7 @@ public:
     delete [] nodes;
     std::vector<mcIdType> new_elems_left;
     std::vector<mcIdType> new_elems_right;
- 
+
     new_elems_left.reserve(nbelems/2+1);
     new_elems_right.reserve(nbelems/2+1);
     double max_left = -std::numeric_limits<double>::max();
@@ -80,7 +80,7 @@ public:
           elem=i;
         double max=bbs[elem*dim*2+(level%dim)*2+1];
         double min = bbs[elem*dim*2+(level%dim)*2];
-      
+
         if (min>median)
           {
             new_elems_right.push_back(elem);
@@ -133,7 +133,7 @@ public:
         _right->getElemsWhoseMinDistanceToPtSmallerThan(pt,minOfMaxDstsSq,elems);
       }
   }
-  
+
   /** Get the minimal (square) distance between a point and all the available bounding boxes in the tree.
     The (square) distance to a bbox is the true geometric distance between the point and a face
     (or an edge, or a corner) of the bbox.
@@ -193,9 +193,9 @@ public:
       }
     else//min>max -> no cells in this
       return std::numeric_limits<double>::max();
-    
+
   }
-  
+
   static double GetMinDistanceFromBBoxToPt(const double *bbox, const double *pt)
   {
     if(bbox[0]<=bbox[1])

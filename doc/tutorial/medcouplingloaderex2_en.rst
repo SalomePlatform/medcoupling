@@ -2,7 +2,7 @@
 Full example 2 - RJH
 --------------------
 
-Two MED files are used in this case, which are (very freely) inspired by the RJH experimental reactor. 
+Two MED files are used in this case, which are (very freely) inspired by the RJH experimental reactor.
 
 The first file "Fixe.med" represents the 2D geometry of the static RJH without the installations.
 
@@ -29,7 +29,7 @@ To implement this exercise we use the Python scripting language and import the `
 Read and repare the static mesh "Fixe.med"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-With the advanced API read the whole file "Fixe.med" and call "fixm" the MEDCouplingUMEsh instance 
+With the advanced API read the whole file "Fixe.med" and call "fixm" the MEDCouplingUMEsh instance
 representing the static mesh. ::
 
 	fixe = mc.MEDFileMesh.New("Fixe.med")
@@ -53,8 +53,8 @@ Same thing for "Mobile.med" (called "mobm"). Repair it by deleting duplicated no
 Repair the "mobm" mesh converting from POLYGON to QPOLYG (temporary solution)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This section will disappear in the future. 
-The RJH mesh being more generic than TRI6 and QUAD8 we need to store cells with an intermediate type QPOLYG 
+This section will disappear in the future.
+The RJH mesh being more generic than TRI6 and QUAD8 we need to store cells with an intermediate type QPOLYG
 (Quadratic Polygon) which is the polygonal extension to the 2D cells with a dynamic edge count.
 For now this geometrical type QPOLYG is in MEDCoupling but there is no equivalent yet in MED file (work in progress
 at EDF).
@@ -65,9 +65,9 @@ Only "mobm" is concerned. Convert all polygonal cells in "mobm" into QPOLYG. ::
 	mobm.getNodalConnectivity()[mobm.getNodalConnectivityIndex()[ids]]=NORM_QPOLYG
 	mobm.computeTypes()
 
-Visualize "fixm" and "mobm" using ParaView. Tesselation is needed: OpenGL doesn't handle properly circle arcs 
+Visualize "fixm" and "mobm" using ParaView. Tesselation is needed: OpenGL doesn't handle properly circle arcs
 and those have to be split into smaller linear segments to be able to represent them. The method MEDCouplingUMesh.tessellate2D() achieves this but modifies the mesh (non const method in C++).
-It only take a cut fineness parameter (0.1 will suffice (angle expressed in rd)). Remember not to modify 
+It only take a cut fineness parameter (0.1 will suffice (angle expressed in rd)). Remember not to modify
 neither "fixm" nor "mobm"! ::
 
         fixm2 = fixm.deepCopy()        # tessellate2D is non const  - a mesh copy is required
@@ -88,8 +88,8 @@ Define a small method displayVTK() which we will use later on. ::
 Perform reductions and identifying zones
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-"mobm" is made of 6 distinct parts (see image above). We only want the first part. 
-Use MEDCouplingUMesh.partitionBySpreadZone() to partition "mobm" in zones and only 
+"mobm" is made of 6 distinct parts (see image above). We only want the first part.
+Use MEDCouplingUMesh.partitionBySpreadZone() to partition "mobm" in zones and only
 extract the first zone.
 Name this new instance "zone1Mobm", remove all orphan nodes and display. ::
 
@@ -115,13 +115,13 @@ Name this object "partFixm", remove its orphan nodes and display it. ::
 Geometrical intersection of the two meshes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This is the core of the exercise. 
+This is the core of the exercise.
 
-We intersect geometrically "partFixm" and "zone1Mobm". 
-This boils down to partition in a minimal fashion "partFixm" into cells belonging either fully to 
-"partFixm", or to "partFixm" and "zone1Mobm". Invoke the static method 
+We intersect geometrically "partFixm" and "zone1Mobm".
+This boils down to partition in a minimal fashion "partFixm" into cells belonging either fully to
+"partFixm", or to "partFixm" and "zone1Mobm". Invoke the static method
 MEDCouplingUMesh.Intersect2DMeshes(), with "partFixm" and "zone1Mobm", and use a precision
-of 1e-10 (merge detection threshold). 
+of 1e-10 (merge detection threshold).
 This method returns 3 parameters (see API documentation) which will be called partFixMob, iPart and iMob.
 
 In partFixMob merge common nodes with a threshold of 1e-10. ::
@@ -138,7 +138,7 @@ Get and display partFixm part which is not in zone1Mobm. Call this mesh partFixm
 .. image:: images/partFixmWithoutZone1Mobm.jpg
 
 
-Let's now check the result quality given by MEDCouplingUMesh.Intersect2DMeshes. 
+Let's now check the result quality given by MEDCouplingUMesh.Intersect2DMeshes.
 Three tests will be passed:
 
  * (check#0) the cell area sum in partFixm equals the one in partFixMob
@@ -154,7 +154,7 @@ To check this let's inspect the areas of the 38 cells of partFixm (variable name
 
 All values are negative: this MED file doesn't respect the MED file convention.
 "partFixm" being mis-oriented and the method MEDCouplingUMesh.Intersect2DMeshes() conserving the orientation, "partFixMob" is also mis-oriented.
-To cut long story short, we perform comparison on absolute arrays. 
+To cut long story short, we perform comparison on absolute arrays.
 Check then that the first test check#0 is successful ::
 
 	areaPartFixm = partFixm.getMeasureField(isAbs=False).getArray()
@@ -191,7 +191,7 @@ Finally check#2. ::
 Use intersection information to create fields
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We are done with partFixMob. 
+We are done with partFixMob.
 Now create a cell field on partFixMob by setting it to 0 on the part covering only partFixm and 1 on the overlapped
 part. Visualize it in a VTK file. ::
 
@@ -208,7 +208,7 @@ part. Visualize it in a VTK file. ::
 
 .. image:: images/LocationEx2.jpg
 
-More generally take zones 0, 1 and 5. 
+More generally take zones 0, 1 and 5.
 Create a cell field whose value is 0 in the zone being exclusively part of fixm,
 1 in the zone #0, 2 in the zone #1 and 3 in the zone #5. ::
 

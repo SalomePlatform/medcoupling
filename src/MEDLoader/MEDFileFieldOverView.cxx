@@ -930,7 +930,7 @@ MEDUMeshMultiLev::MEDUMeshMultiLev(const MEDStructuredMeshMultiLev& other, const
   _pfls.resize(1); _pfls[0]=0;
 }
 
-/*! 
+/*!
  * To be called only once ! Because due to some optimizations (sometimes aggressive) the internal state can be changed...
  * If returned value is false output pointer \a coords is not the internal pointer. If returned value is true output pointer \a coords is directly the internal pointer.
  * If true is returned, the \a coords output parameter should be used with care (non const method call) to avoid to change the internal state of MEDFileUMesh instance.
@@ -2255,7 +2255,7 @@ bool MEDFileField1TSStruct::isDataSetSupportFastlyEqualTo(const MEDFileField1TSS
   int b0,b1;
   bool a0(presenceOfCellDiscr(b0)),a1(presenceOfPartialNodeDiscr(b1));
   int d0,d1;
-  bool c0(other.presenceOfCellDiscr(d0)),c1(other.presenceOfPartialNodeDiscr(d1)); 
+  bool c0(other.presenceOfCellDiscr(d0)),c1(other.presenceOfPartialNodeDiscr(d1));
   if(a0!=c0 || a1!=c1)
     return false;
   if(a0)

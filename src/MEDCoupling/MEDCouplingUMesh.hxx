@@ -472,11 +472,11 @@ namespace MEDCoupling
   struct UMeshIndexConnectivityFunctor { const DataArrayIdType *operator()(const MEDCouplingUMesh *um) { return um->getNodalConnectivityIndex(); } };
 
   using UMeshConnectivityIndexIterator = UMeshGenIterator<UMeshIndexConnectivityFunctor,DataArrayIdType>;
-  
+
   struct UMeshConnectivityFunctor { const DataArrayIdType *operator()(const MEDCouplingUMesh *um) { return um->getNodalConnectivity(); } };
 
   using UMeshConnectivityIterator = UMeshGenIterator<UMeshConnectivityFunctor,DataArrayIdType>;
-  
+
   struct UMeshCoordsFunctor { const DataArrayDouble *operator()(const MEDCouplingUMesh *um) { return um->getCoords(); } };
 
   using UMeshCoordsIterator = UMeshGenIterator<UMeshCoordsFunctor,DataArrayDouble>;

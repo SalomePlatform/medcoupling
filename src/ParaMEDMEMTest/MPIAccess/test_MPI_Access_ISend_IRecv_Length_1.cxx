@@ -42,7 +42,7 @@ using namespace MEDCoupling;
 
 void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length_1() {
 
-  //  MPI_Init(&argc, &argv) ; 
+  //  MPI_Init(&argc, &argv) ;
 
   int size ;
   int myrank ;
@@ -160,7 +160,7 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length_1() {
     if ( sts != MPI_SUCCESS ) {
       ostringstream strstream ;
       strstream << "==========================================================="
-                << endl << "test" << myrank << " KO" << endl 
+                << endl << "test" << myrank << " KO" << endl
                 << "==========================================================="
                 << endl ;
       debugStream << strstream.str() << endl ;
@@ -181,7 +181,7 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length_1() {
       ostringstream strstream ;
       strstream << "==========================================================="
                 << endl << "test" << myrank << " KO" << " maxirecv " << maxirecv
-                << " != maxreq " << maxreq << endl 
+                << " != maxreq " << maxreq << endl
                 << "==========================================================="
                 << endl ;
       debugStream << strstream.str() << endl ;

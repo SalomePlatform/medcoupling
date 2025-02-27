@@ -56,7 +56,7 @@ class RenumberingTest(unittest.TestCase):
         connectivite=[12,14,10,4,2,6,13,11,11,13,14,12,16,8,3,9,5,1,7,15,15,7,8,16,14,16,9,10,6,5,15,13,13,15,16,14]
         connectivite_index=[1,5,9,13,17,21,25,29,33,37]
         conn=m.getConnectivity(MED_NODAL,MED_CELL,MED_QUAD4)
-        conn_index=m.getConnectivityIndex(MED_NODAL,MED_CELL);
+        conn_index=m.getConnectivityIndex(MED_NODAL,MED_CELL)
         conn2dmetis=(list(conn)==connectivite)
         conn_index2dmetis=(list(conn_index)==connectivite_index)
         Metis2D=conn2dmetis and conn_index2dmetis and (nbcell2dmetis==9)
@@ -134,7 +134,7 @@ class RenumberingTest(unittest.TestCase):
         connectivite=[12,25,27,21,4,19,24,11,27,22,14,26,24,15,7,20,17,6,13,23,25,16,22,27,9,23,18,1,21,27,26,10,23,13,5,18,27,22,14,26,25,16,22,27,19,8,15,24,2,17,23,9,12,25,27,21,21,27,26,10,11,24,20,3]
         connectivite_index=[1,9,17,25,33,41,49,57,65]
         conn=m.getConnectivity(MED_NODAL,MED_CELL,MED_HEXA8)
-        conn_index=m.getConnectivityIndex(MED_NODAL,MED_CELL);
+        conn_index=m.getConnectivityIndex(MED_NODAL,MED_CELL)
         conn3dmetis=(list(conn)==connectivite)
         conn_index3dmetis=(list(conn_index)==connectivite_index)
         Metis3D=conn3dmetis&conn_index3dmetis&(nbcell3dmetis==8)
@@ -180,7 +180,7 @@ class RenumberingTest(unittest.TestCase):
                       21,27,26,10,-1,11,3,20,24,-1,21,11,24,27,-1,27,24,20,26,-1,26,20,3,10,-1,10,3,11,21]
         connectivite_index=[1, 30, 59, 88, 117, 146, 175, 204, 233]
         conn=m.getConnectivity(MED_NODAL,MED_CELL,MED_POLYHEDRA)
-        conn_index=m.getConnectivityIndex(MED_NODAL,MED_CELL);
+        conn_index=m.getConnectivityIndex(MED_NODAL,MED_CELL)
         conn3dpolymetis=(list(conn)==connectivite)
         conn_index3dpolymetis=(list(conn_index)==connectivite_index)
         PolyMetis3D=(conn3dpolymetis and conn_index3dpolymetis and (nbcell3dpolymetis==8))

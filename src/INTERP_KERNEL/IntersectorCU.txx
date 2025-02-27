@@ -99,7 +99,7 @@ namespace INTERP_KERNEL
         //const double* coord_node=_coordsU+SPACEDIM*(OTT<ConnType,numPol>::coo2C(conn[OTT<ConnType,numPol>::conn2C(conn_index[OTT<ConnType,numPol>::ind2C(iP)]+i)]));
         const double* coord_node=_coordsU+SPACEDIM*(_FMCOO( _connectU[_FMCON (_connIndexU[_FMIU(icell)]+i)]));
         for(int idim=0; idim<SPACEDIM; idim++)
-          {            
+          {
             double x = *(coord_node+idim);
             bb[2*idim  ] = (x<bb[2*idim  ])?x:bb[2*idim  ];
             bb[2*idim+1] = (x>bb[2*idim+1])?x:bb[2*idim+1];

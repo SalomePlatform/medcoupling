@@ -267,7 +267,7 @@ double ComposedEdge::normalize(ComposedEdge *other, double& xBary, double& yBary
 {
   Bounds b;
   b.prepareForAggregation();
-  fillBounds(b); 
+  fillBounds(b);
   other->fillBounds(b);
   double dimChar=b.getCaracteristicDim();
   b.getBarycenter(xBary,yBary);
@@ -295,7 +295,7 @@ double ComposedEdge::normalizeExt(ComposedEdge *other, double& xBary, double& yB
 {
   Bounds b;
   b.prepareForAggregation();
-  fillBounds(b); 
+  fillBounds(b);
   other->fillBounds(b);
   double dimChar=b.getCaracteristicDim();
   b.getBarycenter(xBary,yBary);
@@ -510,7 +510,7 @@ void ComposedEdge::getBarycenter(double *bary, double& weigh) const
 
 /*!
  * This method makes the hypothesis that \a nodeToTest can be either IN or OUT.
- * 
+ *
  * \sa ComposedEdge::isInOrOut2
  */
 bool ComposedEdge::isInOrOut(Node *nodeToTest) const

@@ -608,7 +608,7 @@ void MEDCouplingDefinitionTime::unserialize(const std::vector<int>& tinyInfoI, c
   int offset2=1;
   for(int i=0;i<sz;i++)
     {
-      TypeOfTimeDiscretization ty=(TypeOfTimeDiscretization) tinyInfoI[i+2];  
+      TypeOfTimeDiscretization ty=(TypeOfTimeDiscretization) tinyInfoI[i+2];
       int sz1=tinyInfoI[i+sz+2];
       int sz2=tinyInfoI[i+2*sz+2];
       std::vector<int> tmp1(tinyInfoI.begin()+3*sz+2+offset1,tinyInfoI.begin()+3*sz+2+offset1+sz1);

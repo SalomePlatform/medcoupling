@@ -32,7 +32,7 @@ from sys import getrefcount
 import os,gc,weakref,unittest
 
 class MEDCouplingNumPyTest(unittest.TestCase):
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test1(self):
         sz=20
@@ -52,7 +52,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         a[:]=4 ; e.fillWithValue(4)
         self.assertTrue(d.isEqual(e))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test2(self):
         sz=20
@@ -68,7 +68,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         e=DataArrayInt32(sz*2) ; e.fillWithValue(5)
         self.assertTrue(d.isEqual(e))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test3(self):
         sz=10
@@ -89,14 +89,14 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         d=DataArrayInt32(a)
         self.assertTrue(d.isEqual(DataArrayInt32([0,0,0,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10])))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test4(self):
         a=zeros(20,dtype=int32)
         b = a[::-1]
         self.assertRaises(InterpKernelException,DataArrayInt.New,b) # b is not contiguous in memory
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test5(self):
         a=arange(20,dtype=int32)
@@ -108,26 +108,26 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         a[:]=2 # modifying a and d because a and d share the same chunk of data
         self.assertTrue(d.isUniform(2))
         del d # d is destroyed, a retrieves its ownership of its initial chunk of data
-        ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called 
+        ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called
         import gc
         gc.collect()
         self.assertTrue(a.flags["OWNDATA"])
         a[:]=4 # a can be used has usual
         self.assertTrue(DataArrayInt32(a).isUniform(4))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test6(self):
         a=arange(20,dtype=int32)
         d=DataArrayInt32(a) # d owns data of a
-        e=DataArrayInt32(a) # a not owned -> e only an access to chunk of a 
+        e=DataArrayInt32(a) # a not owned -> e only an access to chunk of a
         self.assertTrue(d.isIota(d.getNumberOfTuples()))
         self.assertTrue(e.isIota(e.getNumberOfTuples()))
         a[:]=6
         self.assertTrue(d.isUniform(6))
         self.assertTrue(e.isUniform(6))
         del a # a destroyed -> d no change because owned and e array is has no more data set
-        ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called 
+        ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called
         import gc
         gc.collect()
         self.assertTrue(d.isUniform(6))
@@ -143,7 +143,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         e=DataArrayInt32(b) # a not owned -> e only an access to chunk of a
         f=DataArrayInt32(b) # a not owned -> e only an access to chunk of a
         del d # d removed -> a ownes again data
-        ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called 
+        ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called
         import gc
         gc.collect()
         self.assertTrue(e.isUniform(0))
@@ -165,7 +165,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertTrue(e.isIota(e.getNumberOfTuples()))
         del c # c killed -> a killed -> e and d are put into not allocated state
         ##@@ Ensure a pass of the garbage collector so that the de-allocator of d is called
-        gc.collect()        
+        gc.collect()
         self.assertTrue(not e.isAllocated())
         self.assertTrue(not f.isAllocated())
         pass
@@ -200,7 +200,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         a[:]=4 ; e.fillWithValue(4)
         self.assertTrue(d.isEqual(e,1e-14))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test10(self):
         sz=20
@@ -216,7 +216,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         e=DataArrayDouble(sz*2) ; e.fillWithValue(5)
         self.assertTrue(d.isEqual(e,1e-14))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test11(self):
         sz=10
@@ -237,14 +237,14 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         d=DataArrayDouble(a)
         self.assertTrue(d.isEqual(DataArrayDouble([0,0,0,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]),1e-14))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test12(self):
         a=zeros(20,dtype=float64)
         b = a[::-1]
         self.assertRaises(InterpKernelException,DataArrayDouble.New,b) # b is not contiguous in memory
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test13(self):
         a=arange(20,dtype=float64)
@@ -264,12 +264,12 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         a[:]=4 # a can be used has usual
         self.assertTrue(DataArrayDouble(a).isUniform(4,1e-14))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test14(self):
         a=arange(20,dtype=float64)
         d=DataArrayDouble(a) # d owns data of a
-        e=DataArrayDouble(a) # a not owned -> e only an access to chunk of a 
+        e=DataArrayDouble(a) # a not owned -> e only an access to chunk of a
         self.assertTrue(d.isEqual(DataArrayDouble([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]),1e-14))
         self.assertTrue(e.isEqual(DataArrayDouble([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]),1e-14))
         a[:]=6
@@ -557,7 +557,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertEqual(b.tolist(),[0.,1.,2.,3.,4.,5.,6.,7.,8.,9.])
         self.assertTrue(not b.flags["OWNDATA"])
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test25(self):
         a=arange(10,dtype=int32)
@@ -777,7 +777,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         a[:]=4 ; e.fillWithValue(4)
         self.assertTrue(d.isEqual(e,1e-7))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test30(self):
         """Same as test10 with float32"""
@@ -794,7 +794,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         e=DataArrayFloat(sz*2) ; e.fillWithValue(5)
         self.assertTrue(d.isEqual(e,1e-7))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test31(self):
         """Same as test11 with float32"""
@@ -816,7 +816,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         d=DataArrayFloat(a)
         self.assertTrue(d.isEqual(DataArrayFloat([0,0,0,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]),1e-7))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test32(self):
         """Same as test12 with float32"""
@@ -825,7 +825,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         self.assertRaises(InterpKernelException,DataArrayFloat.New,b) # b is not contiguous in memory
         DataArrayFloat.New( ravel(b) )
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test33(self):
         """Same as test13 with float32"""
@@ -846,13 +846,13 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         a[:]=4 # a can be used has usual
         self.assertTrue(DataArrayFloat(a).isUniform(4,1e-7))
         pass
-    
+
     @unittest.skipUnless(MEDCouplingHasNumPyBindings(),"requires numpy")
     def test34(self):
         """Same as test14 with float32"""
         a=arange(20,dtype=float32)
         d=DataArrayFloat(a) # d owns data of a
-        e=DataArrayFloat(a) # a not owned -> e only an access to chunk of a 
+        e=DataArrayFloat(a) # a not owned -> e only an access to chunk of a
         self.assertTrue(d.isEqual(DataArrayFloat([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]),1e-7))
         self.assertTrue(e.isEqual(DataArrayFloat([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]),1e-7))
         a[:]=6
@@ -1064,7 +1064,7 @@ class MEDCouplingNumPyTest(unittest.TestCase):
     def test41(self):
         """ This non regression test is focused on a numpy subarray of a bigger numpy array. Typically a 1D array coming from a 2D array. When medcoupling takes the ownership, medcoupling must store an offset to deallocate correctly the pointer. The pointer of medcoupling array is NOT the pointer to be transmited to free. The offset is typically the distance between the start of the main 2D array and the start of 1D array medcouplingized."""
         import numpy as np
-        array = np.array([[1,2,3,10],[4,5,6,20],[7,8,9,30]],dtype=np.float64) # create a 2D array 
+        array = np.array([[1,2,3,10],[4,5,6,20],[7,8,9,30]],dtype=np.float64) # create a 2D array
         b = array[2] # b data pointer starts at array+2*4*sizeof(float64) so offset is expected to be equal to -2*4*sizeof(float64)=-64
         self.assertTrue(array.flags["OWNDATA"])
         self.assertTrue(not b.flags["OWNDATA"])

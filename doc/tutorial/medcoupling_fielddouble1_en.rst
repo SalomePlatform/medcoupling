@@ -9,7 +9,7 @@ Fields instances are well suited:
   * for high level services where an interaction with the mesh is requested as in getValueOn(), getValueOnMulti(), integral(), normL1(), normL2(), fillFromAnalytic(), changeUnderlyingMesh(), ...
   * to precisely transmit information between components when coupling codes.
 
-For information, the MEDCouplingFieldDouble implementation is tiny since 
+For information, the MEDCouplingFieldDouble implementation is tiny since
 it delegates most of its work to MEDCouplingMesh, DataArrayDouble, MEDCouplingSpatialDiscretization classes.
 MEDCouplingFieldDouble insure the coherency in this model.
 It is often possible and even advised to manipulate the array and mesh of a MEDCouplingFieldDouble directly.
@@ -25,7 +25,7 @@ This exercise focuses on the relationship between a mesh and the values of a fie
 * Renumbering a field
 * Compare two fields coming from 2 sources
 * Evaluation of a field on a point set
-* Explode a field 
+* Explode a field
 
 Implementation start
 ~~~~~~~~~~~~~~~~~~~~
@@ -102,8 +102,8 @@ Check that fPart1Cpy and fPart1 are the same (discarding any permutation): ::
 	fPart1Cpy.getArray().abs()
 	print("Fields are the same? %s"%(fPart1Cpy.getArray().accumulate()[0]<1e-12))
 
-.. note:: This is in fact a very special case of interpolation. Except that here 
-	we assume that the supports of "fPart1" and "fPart1Cpy" are equal, discarding any 
+.. note:: This is in fact a very special case of interpolation. Except that here
+	we assume that the supports of "fPart1" and "fPart1Cpy" are equal, discarding any
 	cell and/or node permutation.
 
 Aggregate Fields
@@ -115,7 +115,7 @@ Aggregate fields "fPart1" and "fPart2". The result is stored in "fPart12". ::
 
 .. image:: images/FieldDouble1_2.png
 
-.. note:: Apologies for the name MEDCouplingFieldDouble.MergeFields instead of 
+.. note:: Apologies for the name MEDCouplingFieldDouble.MergeFields instead of
 		AggregateFields.
 
 Evaluation of a MEDCouplingFieldDouble on given space points
@@ -138,7 +138,7 @@ Operations on a field
 ~~~~~~~~~~~~~~~~~~~~~
 
 Compute the integral of the field "fPart12" and compute it a second time by using
-DataArrayDouble.accumulate on the underlying DataArrayDouble of this "fPart12" (remember that the cell volumes are all 1.0). 
+DataArrayDouble.accumulate on the underlying DataArrayDouble of this "fPart12" (remember that the cell volumes are all 1.0).
 To show the link with the underlying mesh, scale the underlying mesh (fPart12.getMesh()) by 1.2 and centered at [0.,0.,0.].
 Recompute the integral.
 ::

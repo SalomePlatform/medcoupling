@@ -32,7 +32,7 @@
 
 
 namespace MEDCoupling {
-  
+
 MeshFormatWriter::MeshFormatWriter()
 {}
 MeshFormatWriter::MeshFormatWriter(const std::string& meshFileName,
@@ -395,14 +395,14 @@ MeshFormat::Status MeshFormatWriter::setFieldOnNodes(MEDCoupling::MEDFileFieldMu
 
         for ( size_t j = 0; j < compSize; ++j )
             valTab0[j] = valsArray->getIJ( i, j );
-            
+
     if (compSize == 9 || compSize == 4){ // full matrix ==>uper triangular matrix
       extractSymetricTensor(valTab0, valTab);
       _writer.GmfSetLin( _myCurrentFileId, MeshFormat::GmfSolAtVertices, valTab);
       delete [] valTab;
-      
+
     }
-    else  
+    else
         _writer.GmfSetLin( _myCurrentFileId, MeshFormat::GmfSolAtVertices, valTab0);
 
     }
@@ -484,8 +484,8 @@ MeshFormat::Status MeshFormatWriter::setFieldOnCells(MEDCoupling::MEDFileFieldMu
  /*\
  |*| extract the upper triangular matrix  of fullTensor
  |*| if _dim == 2 fill symTensor with values at index 0, 1 & 3 of fullTensor
- |*| |x0 x1|   
- |*| |x2 x3|  
+ |*| |x0 x1|
+ |*| |x2 x3|
  |*| if _dim == 3 fill symTensor with values at index 0, 1, 2, 4, 5 & 8 of fullTensor
  |*| |x0 x1 x2|
  |*| |x3 x4 x5|
@@ -499,7 +499,7 @@ void MeshFormatWriter::extractSymetricTensor(double fullTensor[], double*& symTe
     {
       int kk = _dim*(_dim-1)/2- (_dim-ii)*(_dim-ii-1)/2+jj;
       symTensor[kk] = fullTensor[ii+jj*_dim];
-    }  
+    }
 }
 int MeshFormatWriter::getGmfSolKwd(const int nbComp, const int dim)
 {

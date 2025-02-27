@@ -498,7 +498,7 @@ bool MEDFileEquivalenceData::isEqual(const MEDFileEquivalenceData *other, std::s
 
 void MEDFileEquivalenceData::writeAdvanced(med_idt fid, med_entity_type medtype, med_geometry_type medgt) const
 {
-  
+
   const DataArrayInt *da(getArray());
   if(!da)
     return ;

@@ -60,7 +60,7 @@ namespace MEDCoupling
 
   class MEDFileFieldsIterator;
   class MEDFileStructureElements;
-  
+
   /*!
    * Use class.
    */

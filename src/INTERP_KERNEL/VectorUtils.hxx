@@ -33,10 +33,10 @@ namespace INTERP_KERNEL
 {
   /// Precision used for tests of 3D part of INTERP_KERNEL
   const double VOL_PREC = 1.0e-6;
-  
+
   /// Default relative tolerance in epsilonEqualRelative
   const double DEFAULT_REL_TOL = 1.0e-6;
-  
+
   /// Default absolute tolerance in epsilonEqual and epsilonEqualRelative
   const double DEFAULT_ABS_TOL = 5.0e-12;
 
@@ -54,9 +54,9 @@ namespace INTERP_KERNEL
   }
 
   // -------------------------------------------------------------------
-  // Math operations for vectors represented by double[3] - arrays  
+  // Math operations for vectors represented by double[3] - arrays
   // -------------------------------------------------------------------
-  
+
   /**
    * Copies a double[3] vector from src to dest
    *
@@ -69,7 +69,7 @@ namespace INTERP_KERNEL
     for(int i = 0 ; i < 3 ; ++i)
       dest[i] = src[i];
   }
-  
+
   /**
    * Creates a string representation of a double[3] vector
    *
@@ -95,7 +95,7 @@ namespace INTERP_KERNEL
     res[1] += v[1];
     res[2] += v[2];
   }
-  
+
   inline void scaleVector(double v[3], double factor)
   {
     v[0] *= factor;
@@ -143,7 +143,7 @@ namespace INTERP_KERNEL
   /**
    * Compares doubles using an absolute tolerance
    * This is suitable mainly for comparisons with 0.0
-   * 
+   *
    * @param x         first value
    * @param y         second value
    * @param errTol    maximum allowed absolute difference that is to be treated as equality
@@ -198,7 +198,7 @@ namespace INTERP_KERNEL
    * Compares doubles using a relative tolerance
    * This is suitable mainly for comparing larger values to each other. Before performing the relative test,
    * an absolute test is performed to guard from problems when comparing to 0.0
-   * 
+   *
    * @param x         first value
    * @param y         second value
    * @param relTol    maximum allowed relative difference that is to be treated as equality

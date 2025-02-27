@@ -4,7 +4,7 @@ Lecture, écriture d'un fichier MED grâce à l'API basique de MEDLoader
 
 L'API basique de MEDLoader est contenue dans la classe ``MEDLoader``.
 Toutes les méthodes de cette classe sont *statiques* (elles ne dépendent pas d'une instance particulière de la
-classe), leurs noms commencent par une majuscule. 
+classe), leurs noms commencent par une majuscule.
 L'ensemble des lectures/écritures sont exécutées à chaque appel de méthode et aucun état interne à la classe n'est
 enregistré.
 
@@ -21,7 +21,7 @@ Points abordés: en utilisant l'API basique de ``MEDLoader``
 Début d'implémentation
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Cet exercice repose comme tous les autres sur le language de script Python. On charge 
+Cet exercice repose comme tous les autres sur le language de script Python. On charge
 le module Python ``medcoupling``.::
 
 	import medcoupling as mc
@@ -58,14 +58,14 @@ Le maillage peut alors directement être écrit ... ::
 Lire/Ecrire un champ sur un pas de temps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Nous créons maintenant un champ de vecteurs ``f`` aux cellules (P0) avec ``targetMesh`` comme support. 
-Ce champ correspond par exemple au temps physique 5.6, repéré par l'itération 7 et la sous-itération 8. 
+Nous créons maintenant un champ de vecteurs ``f`` aux cellules (P0) avec ``targetMesh`` comme support.
+Ce champ correspond par exemple au temps physique 5.6, repéré par l'itération 7 et la sous-itération 8.
 Nous en profitons pour rappeler
 que dans les champs MEDCoupling, le temps physique est donné pour information seulement, le stockage et la plupart des
 fonctions de l'API se basent sur les deux derniers entiers. ::
 
 	f = mc.MEDCouplingFieldDouble.New(mc.ON_CELLS, mc.ONE_TIME)
-	f.setTime(5.6,7,8)                              # Declare the timestep associated to the field 
+	f.setTime(5.6,7,8)                              # Declare the timestep associated to the field
 	f.setArray(targetMesh.computeCellCenterOfMass())
 	f.setMesh(targetMesh)
 	f.setName("AFieldName")
@@ -81,11 +81,11 @@ Nous relisons ensuite MyFirstField.med : ::
 	print("Is the read field identical to 'f' ?", f2.isEqual(f,1e-12,1e-12))
 	
 .. note:: Lors de la lecture du champ, on doit donc connaître: son nom, le nom de sa mesh de support
-	et le pas de temps voulu. Des fonctions du type ``MEDFileFields.getFieldsNames()`` ou encore 
+	et le pas de temps voulu. Des fonctions du type ``MEDFileFields.getFieldsNames()`` ou encore
 	``MEDFileMeshes.getMeshesNames()`` aident à cela.
 	
-.. note:: Le nom ``ReadFieldCell()`` rappelle que le champ doit être lu aux cellules. Souvenez-vous que suivant la 
-	norme MED fichier, un même champ peut avoir une partie de ses données stockées aux cellules, mais aussi 
+.. note:: Le nom ``ReadFieldCell()`` rappelle que le champ doit être lu aux cellules. Souvenez-vous que suivant la
+	norme MED fichier, un même champ peut avoir une partie de ses données stockées aux cellules, mais aussi
 	simultanément aux noeuds, aux points de Gauss, etc ... même si ce genre de mélange exotique n'est généralement
 	pas conseillé.
 
@@ -104,7 +104,7 @@ Ensuite, nous écrivons seulement les informations relatives au champ (principal
 	
 Nous rajoutons ensuite un second pas de temps sur le *même* maillage. ::
 
-	f2 = f.clone(True)         # 'True' means that we need a deep copy  
+	f2 = f.clone(True)         # 'True' means that we need a deep copy
 	f2.getArray()[:] = 2.0
 	f2.setTime(7.8,9,10)
 	mc.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f2)

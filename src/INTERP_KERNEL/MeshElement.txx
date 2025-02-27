@@ -73,7 +73,7 @@ namespace INTERP_KERNEL
   /**
    * Comparison operator based on the bounding boxes of the elements
    *
-   * @return true if the coordinate _coord of the bounding box of elem1 is 
+   * @return true if the coordinate _coord of the bounding box of elem1 is
    *          strictly smaller than that of the bounding box of elem2
    */
   template<class ConnType>
@@ -86,10 +86,10 @@ namespace INTERP_KERNEL
     assert(elem2 != 0);
     assert(box1 != 0);
     assert(box2 != 0);
-    
+
     const double coord1 = box1->getCoordinate(_coord);
     const double coord2 = box2->getCoordinate(_coord);
-    
+
     return coord1 < coord2;
   }
 

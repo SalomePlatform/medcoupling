@@ -69,13 +69,13 @@ namespace MEDCoupling
        auto fct = [](MEDCouplingSkyLineArray *ska) { return ska->getIndexArray(); };
        return RetrieveVecOfSkyLineArrayGen(vecSka,fct);
     }
-    
+
     static std::vector< MCAuto<DataArrayIdType> > RetrieveVecValues(const std::vector< MCAuto<MEDCouplingSkyLineArray> >& vecSka)
     {
        auto fct = [](MEDCouplingSkyLineArray *ska) { return ska->getValuesArray(); };
        return RetrieveVecOfSkyLineArrayGen(vecSka,fct);
     }
-    
+
     static std::vector< MCAuto<DataArrayIdType> > RetrieveVecOfSkyLineArrayGen(const std::vector< MCAuto<MEDCouplingSkyLineArray> >& vecSka, std::function<DataArrayIdType *(MEDCouplingSkyLineArray *)> fct)
     {
        std::size_t sz(vecSka.size());
@@ -128,7 +128,7 @@ namespace MEDCoupling
 
     void deleteSimplePacks(const DataArrayIdType* idx);
     void replaceSimplePacks(const DataArrayIdType* idx, const std::vector<const DataArrayIdType*>& packs);
-    
+
     void convertToPolyhedronConn( MCAuto<DataArrayIdType>& c,  MCAuto<DataArrayIdType>& cI) const;
 
   private:
@@ -169,7 +169,7 @@ namespace MEDCoupling
   struct SkyLineArrayIndexPtrFunctor { const mcIdType *operator()(const MEDCouplingSkyLineArray *ska) { return ska->getIndex(); } };
 
   using SkyLineArrayIndexIterator = SkyLineArrayGenIterator<SkyLineArrayIndexPtrFunctor>;
-  
+
   struct SkyLineArrayValuesPtrFunctor { const mcIdType *operator()(const MEDCouplingSkyLineArray *ska) { return ska->getValues(); } };
 
   using SkyLineArrayValuesIterator = SkyLineArrayGenIterator<SkyLineArrayValuesPtrFunctor>;

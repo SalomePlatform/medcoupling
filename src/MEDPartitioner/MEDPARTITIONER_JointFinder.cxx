@@ -42,7 +42,7 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
   int nbdomain=_topology->nbDomain();
   _distant_node_cell.resize(nbdomain);
   _node_node.resize(nbdomain);
-  for (int i=0; i<nbdomain; i++) 
+  for (int i=0; i<nbdomain; i++)
     {
       _distant_node_cell[i].resize(nbdomain);
       _node_node[i].resize(nbdomain);
@@ -103,7 +103,7 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
                 {
                   _distant_node_cell[isource][itarget].insert(std::make_pair(localCorrespondency[2*i],localCorrespondency[2*i+1]));
                 }
-    
+
             }
 
           if (_domain_selector->isMyDomain(itarget))
@@ -124,12 +124,12 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
                   std::vector<mcIdType> inodes;
                   bbtree[itarget]->getIntersectingElems(bbox,inodes);
                   delete [] bbox;
-      
-                  if (inodes.size()>0) 
+
+                  if (inodes.size()>0)
                     {
                       commonNodes.insert(std::make_pair(inodes[0],inode));
                     }
-          
+
                 }
               std::vector<mcIdType> nodeCellCorrespondency;
               for (std::map<mcIdType,mcIdType>::iterator iter=commonNodes.begin(); iter!=commonNodes.end(); iter++)
@@ -148,7 +148,7 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
             }
         }
     }
-    
+
   //free  rev(nbdomain) revIndx(nbdomain) bbtree(nbdomain) bbxi(nbdomain)
   for (int i=0; i<nbdomain; i++)
     {
@@ -162,7 +162,7 @@ void MEDPARTITIONER::JointFinder::findCommonDistantNodes()
         delete [] bbxi[i];
     }
 
-  if (MyGlobals::_Verbose>100) 
+  if (MyGlobals::_Verbose>100)
     std::cout << "proc " << _domain_selector->rank() << " : end JointFinder::findCommonDistantNodes" << std::endl;
 }
 
@@ -181,7 +181,7 @@ void MEDPARTITIONER::JointFinder::print()
 {
   int nbdomain=_topology->nbDomain();
   //MPI_Barrier(MPI_COMM_WORLD);
-  if (MyGlobals::_Is0verbose>0) 
+  if (MyGlobals::_Is0verbose>0)
     std::cout << "\nJointFinder print node-node (nn)iproc|itarget|isource|i|inodefirst-inodesecond\n\n" <<
       "JointFinder print distantNode=cell (nc)iproc|itarget|isource|inode=icell\n\n";
   for (int isource=0; isource<nbdomain; isource++)

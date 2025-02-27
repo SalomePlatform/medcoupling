@@ -189,7 +189,7 @@ INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> MEDFileMeshL2::GetMeshIdFromName(
     {
       med_int naxis(MEDmeshnAxis(fid,i+1));
       INTERP_KERNEL::AutoPtr<char> axisname(MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE)),axisunit(MEDLoaderBase::buildEmptyString(naxis*MED_SNAME_SIZE));
-      MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,i+1,nommaa,&spaceDim,&dim,&type_maillage,maillage_description,dtunit,&stype,&nstep,&axistype,axisname,axisunit));      
+      MEDFILESAFECALLERRD0(MEDmeshInfo,(fid,i+1,nommaa,&spaceDim,&dim,&type_maillage,maillage_description,dtunit,&stype,&nstep,&axistype,axisname,axisunit));
       dtunit1=MEDLoaderBase::buildStringFromFortran(dtunit,sizeof(dtunit));
       std::string cur(MEDLoaderBase::buildStringFromFortran(nommaa,sizeof(nommaa)));
       ms.push_back(cur);
@@ -271,7 +271,7 @@ INTERP_KERNEL::AutoCppPtr<MeshOrStructMeshCls> MEDFileMeshL2::GetMeshIdFromName(
         throw INTERP_KERNEL::Exception(oss.str().c_str());
       }
     }
-  
+
 }
 
 /*!
@@ -449,7 +449,7 @@ bool MEDFileMeshL2::RenameFamiliesFromMemToFile(std::vector< std::string >& famN
       std::map<std::string,std::string>::iterator it1(zeMap.find(*it));
       if(it1!=zeMap.end())
         *it=(*it1).second;
-    }    
+    }
   return true;
 }
 
@@ -643,7 +643,7 @@ void MEDFileUMeshL2::loadPartFromUserDistrib(med_idt fid, const MeshOrStructMesh
       // loading coordinates of fetched nodes
       std::vector<mcIdType> distribNodes;
       for(std::map<mcIdType,mcIdType>::const_iterator mapIter = o2n->data().begin(); mapIter != o2n->data().end(); ++mapIter)
-          distribNodes.push_back(mapIter->first);      
+          distribNodes.push_back(mapIter->first);
       if(distribNodes.size() != 0)
     	  this->loadPartCoords(fid,infosOnComp,mName,dt,it,distribNodes);
     }
@@ -702,7 +702,7 @@ void MEDFileUMeshL2::loadPartOfConnectivityFromUserDistrib(med_idt fid, int mdim
 	{
 	  MCAuto<MEDFileUMeshPerType> tmp(MEDFileUMeshPerType::NewPart(fid,mName.c_str(),dt,it,mdim,MCGeoType,geoElt,whichEntity,iter->second/*distrib over the current type*/,mrs));
 	  _per_type_mesh[0].push_back(tmp);
-	}	  
+	}	
     }
   sortTypes();
 }
@@ -1752,7 +1752,7 @@ void MEDFileUMeshSplitL1::computeRevNum() const
     _rev_num = DataArrayIdType::New();
     _rev_num->alloc(0,1);
   }
-  
+
 }
 
 //=

@@ -38,7 +38,7 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType> 
+  template<class MyMeshType>
   const double SplitterTetra<MyMeshType>::SPARSE_TRUNCATION_LIMIT=1.0e-14;
 
   /*!
@@ -59,13 +59,13 @@ namespace INTERP_KERNEL
   }
 
   /**
-   * SplitterTetra class computes for a list of cell ids of a given mesh \a srcMesh (badly named) the intersection with a 
+   * SplitterTetra class computes for a list of cell ids of a given mesh \a srcMesh (badly named) the intersection with a
    * single TETRA4 cell given by \a tetraCorners (of length 4) and \a nodesId (of length 4 too). \a nodedIds is given only to establish
    * if a partial computation of a triangle has already been performed (to increase performance).
    *
    * The \a srcMesh can contain polyhedron cells.
-   * 
-   * 
+   *
+   *
    * Constructor creating object from the four corners of the tetrahedron.
    *
    * @param srcMesh       mesh containing the source elements
@@ -86,13 +86,13 @@ namespace INTERP_KERNEL
   }
 
   /**
-   * SplitterTetra class computes for a list of cell ids of a given mesh \a srcMesh (badly named) the intersection with a 
+   * SplitterTetra class computes for a list of cell ids of a given mesh \a srcMesh (badly named) the intersection with a
    * single TETRA4 cell given by \a tetraCorners (of length 4) and \a nodesId (of length 4 too). \a nodedIds is given only to establish
    * if a partial computation of a triangle has already been performed (to increase performance).
    *
    * The \a srcMesh can contain polyhedron cells.
-   * 
-   * 
+   *
+   *
    * Constructor creating object from the four corners of the tetrahedron.
    *
    * \param [in] srcMesh       mesh containing the source elements
@@ -110,7 +110,7 @@ namespace INTERP_KERNEL
     // create the affine transform
     _t=new TetraAffineTransform(_coords);
   }
-  
+
   /**
    * Destructor
    *
@@ -159,16 +159,16 @@ namespace INTERP_KERNEL
     std::copy(pt2,pt2+3,output+2*3);
     std::copy(tmp[0],tmp[0]+3,output+3*3);
   }
-  
+
   /**
    * Calculates the volume of intersection of an element in the source mesh and the target element.
-   * It first calculates the transformation that takes the target tetrahedron into the unit tetrahedron. After that, the 
-   * faces of the source element are triangulated and the calculated transformation is applied 
+   * It first calculates the transformation that takes the target tetrahedron into the unit tetrahedron. After that, the
+   * faces of the source element are triangulated and the calculated transformation is applied
    * to each triangle. The algorithm of Grandy, implemented in INTERP_KERNEL::TransformedTriangle is used
    * to calculate the contribution to the volume from each triangle. The volume returned is the sum of these contributions
    * divided by the determinant of the transformation.
    *
-   * The class will cache the intermediary calculations of transformed nodes of source cells and volumes associated 
+   * The class will cache the intermediary calculations of transformed nodes of source cells and volumes associated
    * with triangulated faces to avoid having to recalculate these.
    *
    * @param element      global number of the source element in C mode.
@@ -203,14 +203,14 @@ namespace INTERP_KERNEL
         // we could store mapping local -> global numbers too, but not sure it is worth it
         const ConnType globalNodeNum = getGlobalNumberOfNode(i, OTT<ConnType,numPol>::indFC(element), _src_mesh);
         cellNodes[i]=globalNodeNum;
-        if(_nodes.find(globalNodeNum) == _nodes.end()) 
+        if(_nodes.find(globalNodeNum) == _nodes.end())
           {
             //for(HashMap< int , double* >::iterator iter3=_nodes.begin();iter3!=_nodes.end();iter3++)
             //  std::cout << (*iter3).first << " ";
             //std::cout << std::endl << "*** " << globalNodeNum << std::endl;
             calculateNode(globalNodeNum);
           }
-        CheckIsOutside(_nodes[globalNodeNum], isOutside);       
+        CheckIsOutside(_nodes[globalNodeNum], isOutside);
       }
 
     // halfspace filtering check
@@ -267,7 +267,7 @@ namespace INTERP_KERNEL
                       totalVolume += _volumes[key];
                       if ( baryCentre )
                         baryCalculator.addSide( tri );
-                    } else {    
+                    } else {
                       // count negative as face has reversed orientation
                       totalVolume -= _volumes[key];
                     }
@@ -287,7 +287,7 @@ namespace INTERP_KERNEL
                 // | /      |
                 // 1 ------ 4
                 //
-                //? not sure if this always works 
+                //? not sure if this always works
                 {
                   // calculate the triangles if needed
 
@@ -312,7 +312,7 @@ namespace INTERP_KERNEL
                       totalVolume += _volumes[key2];
                     }
                   else
-                    { 
+                    {
                       // count negative as face has reversed orientation
                       totalVolume -= _volumes[key2];
                     }
@@ -812,7 +812,7 @@ namespace INTERP_KERNEL
       {
         totalSurface = 0.0;
       }
-    
+
     LOG(2, "Volume = " << totalSurface << ", det= " << _t->determinant());
 
     return totalSurface;
@@ -866,13 +866,13 @@ namespace INTERP_KERNEL
       for(unsigned ii = 0 ; ii < 4 ; ++ii)
       {
         cellModelCell.fillSonCellNodalConnectivity(ii,cellNodes,faceNodes);
-        
+
         TransformedTriangle tri(nodes[faceNodes[0]], nodes[faceNodes[1]], nodes[faceNodes[2]]);
         double vol = tri.calculateIntersectionVolume();
         LOG(1, "ii = " << ii << " Volume=" << vol)
         totalVolume += vol;
       }
-      
+
       // reset if it is very small to keep the matrix sparse
       // is this a good idea?
       if(epsilonEqual(totalVolume, 0.0, SPARSE_TRUNCATION_LIMIT))
@@ -882,7 +882,7 @@ namespace INTERP_KERNEL
     }
     LOG(2, "Volume = " << totalVolume << ", det= " << _t->determinant());
 
-    // NB : fault in article, Grandy, [8] : it is the determinant of the inverse transformation 
+    // NB : fault in article, Grandy, [8] : it is the determinant of the inverse transformation
     // that should be used (which is equivalent to dividing by the determinant)
     return std::fabs(1.0 / _t->determinant() * totalVolume) ;
   }
@@ -917,7 +917,7 @@ namespace INTERP_KERNEL
       }
     _nodes.clear();
   }
-  
+
   /*!
    * \param [in] targetCell in C mode.
    * \param [out] tetra is the output result tetra containers.
@@ -1046,14 +1046,14 @@ namespace INTERP_KERNEL
 
   /**
    * Splits the hexahedron into five tetrahedra.
-   * This method adds five SplitterTetra objects to the vector tetra. 
+   * This method adds five SplitterTetra objects to the vector tetra.
    *
-   * @param subZone  the local node numbers corresponding to the hexahedron corners - these are mapped onto {0,..,7}. Providing this allows the 
+   * @param subZone  the local node numbers corresponding to the hexahedron corners - these are mapped onto {0,..,7}. Providing this allows the
    *                 splitting to be reused on the subzones of the GENERAL_* types of splitting
    */
   template<class MyMeshTypeT, class MyMeshTypeS>
   void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::fiveSplit(const int* const subZone, typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
-  { 
+  {
     // create tetrahedra
     for(int i = 0; i < 5; ++i)
       {
@@ -1081,12 +1081,12 @@ namespace INTERP_KERNEL
       conn = realConn;
     });
   }
-  
+
   /**
    * Splits the hexahedron into six tetrahedra.
-   * This method adds six SplitterTetra objects to the vector tetra. 
+   * This method adds six SplitterTetra objects to the vector tetra.
    *
-   * @param subZone  the local node numbers corresponding to the hexahedron corners - these are mapped onto {0,..,7}. Providing this allows the 
+   * @param subZone  the local node numbers corresponding to the hexahedron corners - these are mapped onto {0,..,7}. Providing this allows the
    *                 splitting to be reused on the subzones of the GENERAL_* types of splitting
    */
   template<class MyMeshTypeT, class MyMeshTypeS>
@@ -1130,10 +1130,10 @@ namespace INTERP_KERNEL
       nodes[3] = obj.getCoordsOfSubNode(conn[3]);
     });
   }
-  
+
   /**
    * Splits the hexahedron into 24 tetrahedra.
-   * The splitting is done by combining the barycenter of the tetrahedron, the barycenter of each face 
+   * The splitting is done by combining the barycenter of the tetrahedron, the barycenter of each face
    * and the nodes of each edge of the face. This creates 6 faces * 4 edges / face = 24 tetrahedra.
    * The submesh nodes introduced are the barycenters of the faces and the barycenter of the cell.
    */
@@ -1143,13 +1143,13 @@ namespace INTERP_KERNEL
     // The two nodes of the original mesh cell used in each tetrahedron.
     // The tetrahedra all have nodes (cellCenter, faceCenter, edgeNode1, edgeNode2)
     // For the correspondence of the nodes, see the GENERAL_48_SUB_NODES table in calculateSubNodes
-    
+
     // nodes to use for tetrahedron
     const double* nodes[4];
     typename MyMeshTypeS::MyConnType conn[4];
     // get the cell center
     conn[0] = 14;
-    nodes[0] = getCoordsOfSubNode(conn[0]); 
+    nodes[0] = getCoordsOfSubNode(conn[0]);
 
     for(int faceCenterNode = 8; faceCenterNode < 14; ++faceCenterNode)
       {
@@ -1170,15 +1170,15 @@ namespace INTERP_KERNEL
 
   /**
    * Splits the hexahedron into 48 tetrahedra.
-   * The splitting is done by introducing the midpoints of all the edges 
+   * The splitting is done by introducing the midpoints of all the edges
    * and the barycenter of the element as submesh nodes. The 8 hexahedral subzones thus defined
-   * are then split into 6 tetrahedra each, as in Grandy, p. 449. The division of the subzones 
+   * are then split into 6 tetrahedra each, as in Grandy, p. 449. The division of the subzones
    * is done by calling sixSplit().
-   * 
+   *
    */
   template<class MyMeshTypeT, class MyMeshTypeS>
   void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calculateGeneral48Tetra(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
-  { 
+  {
     for(int i = 0; i < 8; ++i)
       {
         sixSplitGen(GENERAL_48_SUBZONES+8*i,tetra,[](SplitterTetra2& obj, typename MyMeshTypeS::MyConnType& conn, const double *&coords){
@@ -1186,14 +1186,14 @@ namespace INTERP_KERNEL
         });
       }
   }
-  
+
   /**
    * Splits the NORM_PYRA5 into 2 tetrahedra.
    */
   template<class MyMeshTypeT, class MyMeshTypeS>
   void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::splitPyram5(typename std::vector< SplitterTetra<MyMeshTypeS>* >& tetra)
   {
-    static const int SPLIT_PYPA5[2][4] = 
+    static const int SPLIT_PYPA5[2][4] =
       {
         {
           0, 1, 2, 4
@@ -1202,7 +1202,7 @@ namespace INTERP_KERNEL
           0, 2, 3, 4
         }
       };
-    
+
     // create tetrahedra
     const double* nodes[4];
     typename MyMeshTypeS::MyConnType conn[4];
@@ -1214,7 +1214,7 @@ namespace INTERP_KERNEL
         tetra.push_back(t);
       }
   }
-  
+
   /**
    * Splits a convex cell into tetrahedra.
    */
@@ -1255,7 +1255,7 @@ namespace INTERP_KERNEL
     for(unsigned ii = 0 ; ii < nbOfSons; ++ii)
       {
         // get indices of son's nodes: it's just next portion of allNodeIndices for polyhedron
-        // and some of allNodeIndices accodring to cell model for a classsic cell 
+        // and some of allNodeIndices accodring to cell model for a classsic cell
         unsigned nbFaceNodes = cellModelCell.getNumberOfNodesConstituentTheSon2(ii, rawCellConn, rawNbCellNodes);
         if ( normCellType != NORM_POLYHED )
           cellModelCell.fillSonCellNodalConnectivity(ii,&allNodeIndices[0],faceNodes);
@@ -1276,10 +1276,10 @@ namespace INTERP_KERNEL
           faceNodes += nbFaceNodes; // go to the next face
       }
   }
-  
+
   /**
    * Precalculates all the nodes.
-   * Retrieves the mesh nodes and allocates the necessary sub-mesh 
+   * Retrieves the mesh nodes and allocates the necessary sub-mesh
    * nodes according to the splitting policy used.
    * This method is meant to be called once by the constructor.
    *
@@ -1291,7 +1291,7 @@ namespace INTERP_KERNEL
   void SplitterTetra2<MyMeshTypeT, MyMeshTypeS>::calculateSubNodes(const MyMeshTypeT& targetMesh, typename MyMeshTypeT::MyConnType targetCell)
   {
     // retrieve real mesh nodes
-    
+
     typename MyMeshTypeT::MyConnType nbOfNodesT = static_cast<typename MyMeshTypeT::MyConnType>(_node_ids.size());// Issue 0020634. _node_ids.resize(8);
     for(int node = 0; node < nbOfNodesT ; ++node)
       {

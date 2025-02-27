@@ -80,7 +80,7 @@ namespace MEDCoupling
    */
   void MEDFileMesh::setTimeValue(double time) {}
   /*!
-   * Sets time, the number of iteration and the order number of iteration 
+   * Sets time, the number of iteration and the order number of iteration
    * of \a this mesh state.
    *  \param [in] val - the time value.
    *  \param [in] iteration - the iteration number.
@@ -88,7 +88,7 @@ namespace MEDCoupling
    */
   void MEDFileMesh::setTime(int dt, int it, double time) {}
   /*!
-   * Returns time, the number of iteration and the order number of iteration 
+   * Returns time, the number of iteration and the order number of iteration
    * of \a this mesh state.
    *  \param [out] iteration - the iteration number.
    *  \param [out] order - the order number.
@@ -117,7 +117,7 @@ namespace MEDCoupling
   const std::map<std::string,int>& MEDFileMesh::getFamilyInfo() const {}
   /*!
    * Returns names of all groups and families constituting them in \a this mesh.
-   *  \return const std::map<std::string, std::vector<std::string> >& - 
+   *  \return const std::map<std::string, std::vector<std::string> >& -
    *  a map of a group name to a vector of names of families constituting the group.
    */
   const std::map<std::string, std::vector<std::string> >& MEDFileMesh::getGroupInfo() const {}
@@ -144,7 +144,7 @@ namespace MEDCoupling
    *  \param [in] renum - if \c true, the returned mesh is permuted according to the
    *          optional numbers of mesh entities.
    *  \return MEDCouplingMesh * - a pointer to MEDCouplingMesh that the caller is to
-   *          delete using decrRef() as it is no more needed. 
+   *          delete using decrRef() as it is no more needed.
    *  \throw If there are no mesh entities of \a meshDimRelToMaxExt dimension in \a this mesh.
    *  \throw If \a renum == \c true but permutation is impossible.
    */
@@ -209,7 +209,7 @@ namespace MEDCoupling
    *          returned instead of ids.
    *  \return DataArrayInt * - a new instance of DataArrayInt holding either ids or
    *          numbers, if available and required, of mesh entities of the families. The caller
-   *          is to delete this array using decrRef() as it is no more needed. 
+   *          is to delete this array using decrRef() as it is no more needed.
    *  \throw If the family field is missing for \a meshDimRelToMaxExt.
    */
   DataArrayInt *MEDFileMesh::getFamiliesArr(int meshDimRelToMaxExt, const std::vector<std::string>& fams, bool renum=false) const throw(INTERP_KERNEL::Exception) {}
@@ -303,7 +303,7 @@ MEDFileMesh::write(med_idt fid) const;
 /*! \name   Advanced API   */
 ///@{
 MEDFileMesh::clearNonDiscrAttributes() const;
-///@} 
+///@}
 
 /*! \name Others... */
 ///@{
@@ -348,6 +348,6 @@ std::string MEDFileMesh::_desc_name;
 std::map<std::string, std::vector<std::string> > MEDFileMesh::_groups;
 std::map<std::string,int> MEDFileMesh::_families;
 static const char MEDFileMesh::DFT_FAM_NAME[];
-///@} 
+///@}
 }
 

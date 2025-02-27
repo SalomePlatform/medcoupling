@@ -32,7 +32,7 @@ namespace MEDCoupling
   class MEDFileStructureElement;
   class MEDFileMeshSupports;
   class MEDFileUMesh;
-  
+
   class MEDFileSEHolder
   {
   public:
@@ -46,7 +46,7 @@ namespace MEDCoupling
     MEDFileStructureElement *_father;
     std::string _name;
   };
-  
+
 class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlone, public MEDFileSEHolder
   {
   public:
@@ -65,7 +65,7 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     TypeOfField _tof;
     MCAuto<DataArray> _val;
   };
-  
+
   class MEDFileSEVarAtt : public RefCountObject, public MEDFileWritableStandAlone, public MEDFileSEHolder
   {
   public:
@@ -83,7 +83,7 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     int _nb_compo;
     MCAuto<DataArray> _gen;
   };
-  
+
   class MEDFileStructureElement : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:
@@ -115,7 +115,7 @@ class MEDFileSEConstAtt : public RefCountObject, public MEDFileWritableStandAlon
     std::vector< MCAuto<MEDFileSEConstAtt> > _cst_att;
     std::vector< MCAuto<MEDFileSEVarAtt> > _var_att;
   };
-  
+
   class MEDFileStructureElements : public RefCountObject, public MEDFileWritableStandAlone
   {
   public:

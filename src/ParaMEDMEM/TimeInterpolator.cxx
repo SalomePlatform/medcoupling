@@ -30,5 +30,5 @@ namespace MEDCoupling
 
   TimeInterpolator::~TimeInterpolator()
   {
-  } 
+  }
 }

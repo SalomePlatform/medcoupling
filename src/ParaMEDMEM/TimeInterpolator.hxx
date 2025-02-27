@@ -35,7 +35,7 @@ namespace MEDCoupling
    */
   class TimeInterpolator
   {
-  public:  
+  public:
     TimeInterpolator( double InterpPrecision, int nStepBefore=1, int nStepAfter=1 );
     virtual ~TimeInterpolator();
 

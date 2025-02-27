@@ -24,7 +24,7 @@
 
 #include "InterpKernelTestExport.hxx"
 
-namespace INTERP_TEST 
+namespace INTERP_TEST
 {
   /**
    * \brief Class dedicated of the test of the preprocessing of 3D surf cells before performing invoking 2D algorithms.

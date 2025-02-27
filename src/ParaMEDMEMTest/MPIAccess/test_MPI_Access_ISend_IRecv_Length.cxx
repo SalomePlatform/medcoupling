@@ -44,7 +44,7 @@ void MPIAccessTest::test_MPI_Access_ISend_IRecv_Length() {
 
   debugStream << "test_MPI_Access_ISend_IRecv_Length" << endl ;
 
-  //  MPI_Init(&argc, &argv) ; 
+  //  MPI_Init(&argc, &argv) ;
 
   int size ;
   int myrank ;

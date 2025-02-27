@@ -30,7 +30,7 @@
 
 namespace MEDCoupling {
 MeshFormatReader::MeshFormatReader():_myMeshName("MESH")
-{}  
+{}
 MeshFormatReader::MeshFormatReader(const std::string& meshFileName,
                                    const std::vector<std::string>& fieldFileName):_myFile(meshFileName),
                                    _myFieldFileNames(fieldFileName),
@@ -293,8 +293,8 @@ MeshFormat::Status MeshFormatReader::performFields()
 
         }
 
-  
-    
+
+
         _reader.GmfCloseMesh(_myCurrentFileId);
         _myCurrentFileId = -1;
         _myCurrentOpenFile ="";
@@ -949,7 +949,7 @@ void MeshFormatReader::buildCellsFamilies()
         cellIds->decrRef();
 
 
-    }  
+    }
 }
 
 void MeshFormatReader::buildNodesFamilies()
@@ -966,22 +966,22 @@ void MeshFormatReader::buildNodesFamilies()
   for(; _meshFormatFamsIt!= famDim.end(); ++_meshFormatFamsIt)
   {
     const int famId = _meshFormatFamsIt->first;
-    if (!famId) continue; 
+    if (!famId) continue;
     bool thisIsACellFamily = false;
-    
+
     for (size_t iDim = 0; iDim<levs.size(); iDim++ )
     {
       int dimMesh = levs[iDim];
-      std::map <int, std::vector<MeshFormatElement>* > famDimAtLevel = _fams.getMapAtLevel(dimMesh);  
-      std::map <int, std::vector<MeshFormatElement>* >::iterator famDimAtLevelId = famDimAtLevel.find(famId);  
+      std::map <int, std::vector<MeshFormatElement>* > famDimAtLevel = _fams.getMapAtLevel(dimMesh);
+      std::map <int, std::vector<MeshFormatElement>* >::iterator famDimAtLevelId = famDimAtLevel.find(famId);
       if (famDimAtLevelId != famDimAtLevel.end())
       {
         thisIsACellFamily = true;
         break;
       }
-      
+
     }
-    
+
     if (thisIsACellFamily) continue;
     std::string famName ="FromMeshGemsFormatAttributFamily_"+std::to_string(famId);
     std::vector <MeshFormatElement>* cellsInFam = _meshFormatFamsIt->second;

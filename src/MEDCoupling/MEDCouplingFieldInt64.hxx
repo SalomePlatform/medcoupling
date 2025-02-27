@@ -30,7 +30,7 @@ namespace MEDCoupling
 {
   class MEDCouplingFieldDouble;
   class MEDCouplingFieldTemplate;
-  
+
   class MEDCouplingFieldInt64 : public MEDCouplingFieldT<Int64>
   {
   public:

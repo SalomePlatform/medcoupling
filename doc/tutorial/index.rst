@@ -5,12 +5,12 @@
 MEDCoupling/MEDLoader Tutorial
 ==============================
 
-MEDCoupling is a powerful library to manipulate meshes and fields. 
+MEDCoupling is a powerful library to manipulate meshes and fields.
 
 This tutorial presents the most wanted functionalities of the MEDCoupling/MEDLoader
-library through a series of small exercises in Python. 
+library through a series of small exercises in Python.
 Both the French and English versions are provided, but the French version
-is better maintained ...  
+is better maintained ...
 
 (Jump to the English version below :ref:`english-toc`)
 

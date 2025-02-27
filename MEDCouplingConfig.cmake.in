@@ -1,5 +1,5 @@
 # - Config file for the @PROJECT_NAME@ package
-# It defines the following variables. 
+# It defines the following variables.
 # Specific to the package @PROJECT_NAME@ itself:
 #  @PROJECT_NAME_UC@_ROOT_DIR_EXP - the root path of the installation providing this CMake file
 #
@@ -27,12 +27,12 @@
 ### Initialisation performed by CONFIGURE_PACKAGE_CONFIG_FILE:
 @PACKAGE_INIT@
 
-# Load the dependencies for the libraries of @PROJECT_NAME@ 
-# (contains definitions for IMPORTED targets). This is only 
+# Load the dependencies for the libraries of @PROJECT_NAME@
+# (contains definitions for IMPORTED targets). This is only
 # imported if we are not built as a subproject (in this case targets are already there)
 IF(NOT TARGET medcouplingcpp AND NOT @PROJECT_NAME@_BINARY_DIR)
   INCLUDE("@PACKAGE_MEDCOUPLING_INSTALL_CMAKE_LOCAL@/@PROJECT_NAME@Targets.cmake")
-ENDIF()   
+ENDIF()
 
 # Package root dir:
 SET_AND_CHECK(MEDCOUPLING_ROOT_DIR_EXP "@PACKAGE_CMAKE_INSTALL_PREFIX@")

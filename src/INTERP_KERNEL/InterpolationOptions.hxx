@@ -29,11 +29,11 @@
 namespace INTERP_KERNEL
 {
   typedef enum { Triangulation, Convex, Geometric2D, PointLocator, Barycentric, BarycentricGeo2D, MappedBarycentric } IntersectionType;
-  
+
   /*!
    * Class defining the options for all interpolation algorithms used in the \ref remapper "remapper" and
    * in some of the \ref para-dec "DECs".
-   * 
+   *
    * List of options, possible values and default values can be found on this page:
    * \ref InterpKerIntersectors
    */
@@ -68,16 +68,16 @@ namespace INTERP_KERNEL
 
     double getMedianPlane() const { return _median_plane; }
     void setMedianPlane(double mp) { _median_plane=mp; }
-    
+
     bool getDoRotate() const { return _do_rotate; }
     void setDoRotate( bool dr) { _do_rotate = dr; }
-    
+
     double getBoundingBoxAdjustment() const { return _bounding_box_adjustment; }
     void setBoundingBoxAdjustment(double bba) { _bounding_box_adjustment=bba; }
 
     double getBoundingBoxAdjustmentAbs() const { return _bounding_box_adjustment_abs; }
     void setBoundingBoxAdjustmentAbs(double bba) { _bounding_box_adjustment_abs=bba; }
-    
+
     double getMaxDistance3DSurfIntersect() const { return _max_distance_for_3Dsurf_intersect; }
     void setMaxDistance3DSurfIntersect(double bba) { _max_distance_for_3Dsurf_intersect=bba; }
 
@@ -89,7 +89,7 @@ namespace INTERP_KERNEL
 
     bool getMeasureAbsStatus() const { return _measure_abs; }
     void setMeasureAbsStatus(bool newStatus) { _measure_abs=newStatus; }
-    
+
     SplittingPolicy getSplittingPolicy() const { return _splitting_policy; }
     void setSplittingPolicy(SplittingPolicy sp) { _splitting_policy=sp; }
     std::string getSplittingPolicyRepr() const;
@@ -97,7 +97,7 @@ namespace INTERP_KERNEL
     std::string filterInterpolationMethod(const std::string& meth) const;
 
     void init();
-    
+
     bool setInterpolationOptions(int print_level,
                                  std::string intersection_type,
                                  double precision,

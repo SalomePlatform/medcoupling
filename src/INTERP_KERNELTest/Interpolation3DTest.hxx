@@ -42,7 +42,7 @@ public:
 
 protected:
 
-  MeshToolkit* _testTools; 
+  MeshToolkit* _testTools;
 
 };
 

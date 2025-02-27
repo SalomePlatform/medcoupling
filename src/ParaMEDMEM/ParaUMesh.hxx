@@ -100,7 +100,7 @@ namespace MEDCoupling
       MCAuto<DataArrayT> ret(fieldAggregated->selectByTupleIdSafe(n2o_cells->begin(),n2o_cells->end()));
       return ret.retn();
     }
-    
+
     template<class T>
     typename Traits<T>::ArrayType *redistributeNodeFieldT(const DataArrayIdType *globalCellIds, const typename Traits<T>::ArrayType *fieldValueToRed) const
     {

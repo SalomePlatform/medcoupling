@@ -91,15 +91,15 @@ conn=[0,11,1,3,15,26,16,18,   1,2,4,7,13,6,-1,1,16,21,6,-1,6,21,28,13,-1,13,7,22
       22,27,29,28,37,42,44,43, 30,41,31,33,45,56,46,48,  31,32,34,37,43,36,-1,31,46,51,36,-1,36,51,58,43,-1,43,37,52,58,-1,37,34,49,52,-1,34,32,47,49,-1,32,31,46,47,-1,46,51,58,52,49,47,
       31,36,35,33,46,51,50,48,  43,40,39,36,58,55,54,51, 41,38,37,34,32,31,-1,41,56,46,31,-1,31,46,47,32,-1,32,47,49,34,-1,34,49,52,37,-1,37,38,53,52,-1,38,41,56,53,-1,56,46,47,49,52,53,
       37,42,44,43,52,57,59,58]
-mesh3D=MEDCouplingUMesh.New("mesh3D",3);
-mesh3D.allocateCells(18);
-mesh3D.insertNextCell(NORM_HEXA8,conn[0:8]); mesh3D.insertNextCell(NORM_POLYHED,conn[8:51]); mesh3D.insertNextCell(NORM_HEXA8,conn[51:59]); mesh3D.insertNextCell(NORM_HEXA8,conn[59:67]); mesh3D.insertNextCell(NORM_POLYHED,conn[67:110]); mesh3D.insertNextCell(NORM_HEXA8,conn[110:118]);
-mesh3D.insertNextCell(NORM_HEXA8,conn[118:126]); mesh3D.insertNextCell(NORM_POLYHED,conn[126:169]); mesh3D.insertNextCell(NORM_HEXA8,conn[169:177]); mesh3D.insertNextCell(NORM_HEXA8,conn[177:185]); mesh3D.insertNextCell(NORM_POLYHED,conn[185:228]); mesh3D.insertNextCell(NORM_HEXA8,conn[228:236]);
-mesh3D.insertNextCell(NORM_HEXA8,conn[236:244]); mesh3D.insertNextCell(NORM_POLYHED,conn[244:287]); mesh3D.insertNextCell(NORM_HEXA8,conn[287:295]); mesh3D.insertNextCell(NORM_HEXA8,conn[295:303]); mesh3D.insertNextCell(NORM_POLYHED,conn[303:346]); mesh3D.insertNextCell(NORM_HEXA8,conn[346:354]);
-mesh3D.finishInsertingCells();
-myCoords=DataArrayDouble.New(coords,60,3);
+mesh3D=MEDCouplingUMesh.New("mesh3D",3)
+mesh3D.allocateCells(18)
+mesh3D.insertNextCell(NORM_HEXA8,conn[0:8]); mesh3D.insertNextCell(NORM_POLYHED,conn[8:51]); mesh3D.insertNextCell(NORM_HEXA8,conn[51:59]); mesh3D.insertNextCell(NORM_HEXA8,conn[59:67]); mesh3D.insertNextCell(NORM_POLYHED,conn[67:110]); mesh3D.insertNextCell(NORM_HEXA8,conn[110:118])
+mesh3D.insertNextCell(NORM_HEXA8,conn[118:126]); mesh3D.insertNextCell(NORM_POLYHED,conn[126:169]); mesh3D.insertNextCell(NORM_HEXA8,conn[169:177]); mesh3D.insertNextCell(NORM_HEXA8,conn[177:185]); mesh3D.insertNextCell(NORM_POLYHED,conn[185:228]); mesh3D.insertNextCell(NORM_HEXA8,conn[228:236])
+mesh3D.insertNextCell(NORM_HEXA8,conn[236:244]); mesh3D.insertNextCell(NORM_POLYHED,conn[244:287]); mesh3D.insertNextCell(NORM_HEXA8,conn[287:295]); mesh3D.insertNextCell(NORM_HEXA8,conn[295:303]); mesh3D.insertNextCell(NORM_POLYHED,conn[303:346]); mesh3D.insertNextCell(NORM_HEXA8,conn[346:354])
+mesh3D.finishInsertingCells()
+myCoords=DataArrayDouble.New(coords,60,3)
 myCoords.setInfoOnComponents(["X [m]","Y [m]","Z [m]"])
-mesh3D.setCoords(myCoords);
+mesh3D.setCoords(myCoords)
 mesh3D.orientCorrectlyPolyhedrons()
 mesh3D.sortCellsInMEDFileFrmt()
 mesh3D.checkConsistencyLight()
@@ -216,19 +216,19 @@ fPart1.setMesh(meshFVecPart1Exploded)
 
 ####
 
-targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
-targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
-targetMesh=MEDCouplingUMesh.New("MyMesh",2);
-targetMesh.allocateCells(5);
-targetMesh.insertNextCell(NORM_TRI3,3,targetConn[4:7]);
-targetMesh.insertNextCell(NORM_TRI3,3,targetConn[7:10]);
-targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[0:4]);
-targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[10:14]);
-targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[14:18]);
-targetMesh.finishInsertingCells();
-myCoords=DataArrayDouble.New(targetCoords,9,2);
+targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ]
+targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
+targetMesh=MEDCouplingUMesh.New("MyMesh",2)
+targetMesh.allocateCells(5)
+targetMesh.insertNextCell(NORM_TRI3,3,targetConn[4:7])
+targetMesh.insertNextCell(NORM_TRI3,3,targetConn[7:10])
+targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
+targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[10:14])
+targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[14:18])
+targetMesh.finishInsertingCells()
+myCoords=DataArrayDouble.New(targetCoords,9,2)
 myCoords.setInfoOnComponents(["X [km]","YY [mm]"])
-targetMesh.setCoords(myCoords);
+targetMesh.setCoords(myCoords)
 #
 WriteUMesh("TargetMesh.med",targetMesh,True)
 #
@@ -260,19 +260,19 @@ print("Is the field read in file equals f ? %s"%(f2.isEqual(f4,1e-12,1e-12))) ; 
 
 #####
 
-targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ];
-targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4];
-targetMesh=MEDCouplingUMesh.New("MyMesh",2);
-targetMesh.allocateCells(5);
-targetMesh.insertNextCell(NORM_TRI3,3,targetConn[4:7]);
-targetMesh.insertNextCell(NORM_TRI3,3,targetConn[7:10]);
-targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[0:4]);
-targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[10:14]);
-targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[14:18]);
-targetMesh.finishInsertingCells();
-myCoords=DataArrayDouble.New(targetCoords,9,2);
+targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7 ]
+targetConn=[0,3,4,1, 1,4,2, 4,5,2, 6,7,4,3, 7,8,5,4]
+targetMesh=MEDCouplingUMesh.New("MyMesh",2)
+targetMesh.allocateCells(5)
+targetMesh.insertNextCell(NORM_TRI3,3,targetConn[4:7])
+targetMesh.insertNextCell(NORM_TRI3,3,targetConn[7:10])
+targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[0:4])
+targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[10:14])
+targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[14:18])
+targetMesh.finishInsertingCells()
+myCoords=DataArrayDouble.New(targetCoords,9,2)
 myCoords.setInfoOnComponents(["X [km]","YY [mm]"])
-targetMesh.setCoords(myCoords);
+targetMesh.setCoords(myCoords)
 #
 targetMeshConsti=targetMesh.buildDescendingConnectivity()[0]
 targetMesh1=targetMeshConsti[[3,4,7,8]]

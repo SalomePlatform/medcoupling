@@ -55,7 +55,7 @@ namespace INTERP_KERNEL
         return sqrt(ret);
       }
   }
-  
+
   inline double calculateLgthForSeg3(const double *begin, const double *end, const double *middle, int spaceDim)
   {
     if(spaceDim==2)
@@ -222,7 +222,7 @@ namespace INTERP_KERNEL
 
   double calculateAreaForQPolyg(const double **coords, mcIdType nbOfPtsInPolygs, int spaceDim)
   {
-    
+
     if(nbOfPtsInPolygs%2==0)
       {
         if(spaceDim==2)
@@ -584,7 +584,7 @@ namespace INTERP_KERNEL
 
   inline double integrationOverA3DLine(double u1, double v1, double u2, double v2, double A, double B, double C)
   {
-    return (u1-u2)*(6.*C*C*(v1+v2)+B*B*(v1*v1*v1+v1*v1*v2+v1*v2*v2+v2*v2*v2)+A*A*(2.*u1*u2*(v1+v2)+u1*u1*(3.*v1+v2)+u2*u2*(v1+3.*v2))+ 
+    return (u1-u2)*(6.*C*C*(v1+v2)+B*B*(v1*v1*v1+v1*v1*v2+v1*v2*v2+v2*v2*v2)+A*A*(2.*u1*u2*(v1+v2)+u1*u1*(3.*v1+v2)+u2*u2*(v1+3.*v2))+
                     4.*C*(A*(2*u1*v1+u2*v1+u1*v2+2.*u2*v2)+B*(v1*v1+v1*v2+v2*v2))+A*B*(u1*(3.*v1*v1+2.*v1*v2+v2*v2)+u2*(v1*v1+2.*v1*v2+3.*v2*v2)))/24.;
   }
 
@@ -687,7 +687,7 @@ namespace INTERP_KERNEL
                                            const double *bary)
   {
     double volume=0.;
-    
+
     for ( int i=0; i<nbOfFaces; i++ )
       {
         double normal[3];
@@ -725,32 +725,32 @@ namespace INTERP_KERNEL
   inline void calculateBarycenter<2,0>(const double ** /*pts*/, double * /*bary*/)
   {
   }
-  
+
   template<>
   inline void calculateBarycenter<3,0>(const double ** /*pts*/, double * /*bary*/)
   {
   }
-  
+
   template<>
   inline void calculateBarycenter<4,0>(const double ** /*pts*/, double * /*bary*/)
   {
   }
-  
+
   template<>
   inline void calculateBarycenter<5,0>(const double ** /*pts*/, double * /*bary*/)
   {
   }
-  
+
   template<>
   inline void calculateBarycenter<6,0>(const double ** /*pts*/, double * /*bary*/)
   {
   }
-  
+
   template<>
   inline void calculateBarycenter<7,0>(const double ** /*pts*/, double * /*bary*/)
   {
   }
-  
+
   template<>
   inline void calculateBarycenter<8,0>(const double ** /*pts*/, double * /*bary*/)
   {
@@ -808,7 +808,7 @@ namespace INTERP_KERNEL
     computePolygonBarycenter2DEngine(coords2,lgth,res);
     delete [] coords2;
   }
-  
+
   inline void computeQPolygonBarycenter2D(double **coords, mcIdType nbOfPtsInPolygs, int spaceDim, double *res)
   {
     if(nbOfPtsInPolygs%2==0)

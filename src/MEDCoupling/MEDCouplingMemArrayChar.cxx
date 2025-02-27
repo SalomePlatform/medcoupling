@@ -69,7 +69,7 @@ bool DataArrayChar::isEqual(const DataArrayChar& other) const
 /*!
  * Equivalent to DataArrayChar::isEqual except that if false the reason of
  * mismatch is given.
- * 
+ *
  * \param [in] other the instance to be compared with \a this
  * \param [out] reason In case of inequality returns the reason.
  * \sa DataArrayChar::isEqual
@@ -153,7 +153,7 @@ bool DataArrayChar::isUniform(char val) const
 
 /*!
  * Appends components of another array to components of \a this one, tuple by tuple.
- * So that the number of tuples of \a this array remains the same and the number of 
+ * So that the number of tuples of \a this array remains the same and the number of
  * components increases.
  *  \param [in] other - the DataArrayChar to append to \a this one.
  *  \throw If \a this is not allocated.
@@ -217,7 +217,7 @@ DataArrayIdType *DataArrayChar::findIdsEqual(char val) const
 
 /*!
  * Creates a new DataArrayIdType containing IDs (indices) of tuples holding value \b not
- * equal to a given one. 
+ * equal to a given one.
  *  \param [in] val - the value to ignore within \a this.
  *  \return DataArrayChar * - a new instance of DataArrayChar. The caller is to delete this
  *          array using decrRef() as it is no more needed.
@@ -262,7 +262,7 @@ mcIdType DataArrayChar::findIdSequence(const std::vector<char>& vals) const
  * any number of components excepted 0 (an INTERP_KERNEL::Exception is thrown in this case).
  * This method searches in \b this is there is a tuple that matched the input parameter \b tupl.
  * If any the tuple id is returned. If not -1 is returned.
- * 
+ *
  * This method throws an INTERP_KERNEL::Exception if the number of components in \b this mismatches with the size of
  * the input vector. An INTERP_KERNEL::Exception is thrown too if \b this is not allocated.
  *
@@ -376,7 +376,7 @@ mcIdType DataArrayChar::findIdFirstEqual(const std::vector<char>& vals) const
  * This method works only on data array with one component.
  * This method returns a newly allocated array storing stored ascendantly tuple ids in \b this so that
  * this[*id] in [\b vmin,\b vmax)
- * 
+ *
  * \param [in] vmin begin of range. This value is included in range.
  * \param [in] vmax end of range. This value is \b not included in range.
  * \return a newly allocated data array that the caller should deal with.
@@ -537,7 +537,7 @@ DataArrayChar *DataArrayChar::Meld(const std::vector<const DataArrayChar *>& arr
 
 /*!
  * Returns a new instance of DataArrayByte. The caller is to delete this array
- * using decrRef() as it is no more needed. 
+ * using decrRef() as it is no more needed.
  */
 DataArrayByte *DataArrayByte::New()
 {
@@ -818,7 +818,7 @@ DataArrayByte *DataArrayByteTuple::buildDAByte(std::size_t nbOfTuples, std::size
 
 /*!
  * Returns a new instance of DataArrayAsciiChar. The caller is to delete this array
- * using decrRef() as it is no more needed. 
+ * using decrRef() as it is no more needed.
  */
 DataArrayAsciiChar *DataArrayAsciiChar::New()
 {
@@ -827,7 +827,7 @@ DataArrayAsciiChar *DataArrayAsciiChar::New()
 
 /*!
  * Returns a new instance of DataArrayAsciiChar. The caller is to delete this array
- * using decrRef() as it is no more needed. 
+ * using decrRef() as it is no more needed.
  * \param [in] st the string. This input string should have a length greater than 0. If not an excpetion will be thrown.
  */
 DataArrayAsciiChar *DataArrayAsciiChar::New(const std::string& st)
@@ -849,7 +849,7 @@ DataArrayAsciiChar::DataArrayAsciiChar(const std::string& st)
 
 /*!
  * Returns a new instance of DataArrayAsciiChar. The caller is to delete this array
- * using decrRef() as it is no more needed. 
+ * using decrRef() as it is no more needed.
  * This constructor uses \a vst input vector of strings to initialize itself. For all strings whose length is lower than max length of strings in
  * \a vst the remaining locations in memory will be set to character \a defaultChar.
  *

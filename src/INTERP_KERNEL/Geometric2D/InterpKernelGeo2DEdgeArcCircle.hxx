@@ -111,7 +111,7 @@ namespace INTERP_KERNEL
     static EdgeArcCircle *BuildFromNodes(Node *start, Node *middle, Node *end);
     static double GetAbsoluteAngle(const double *vect, double& normVect);
     static double GetAbsoluteAngleOfNormalizedVect(double ux, double uy);
-    static void GetArcOfCirclePassingThru(const double *start, const double *middle, const double *end, 
+    static void GetArcOfCirclePassingThru(const double *start, const double *middle, const double *end,
                                           double *center, double& radius, double& angleInRad, double& angleInRad0);
     //! To avoid in aggressive optimizations nan.
     static double SafeSqrt(double val) { double ret=std::max(val,0.); return sqrt(ret); }

@@ -42,14 +42,14 @@ namespace INTERP_TEST
   }
 
   /**
-   * Test that creates a tree in 2D and check that 
+   * Test that creates a tree in 2D and check that
    * the results are correct in three
    * cases :
    * a non matching search
    * a standard case
    * a bbox overlapping the bboxes of the tree
    */
-  void InterpolationOptionsTest::test_InterpolationOptions() 
+  void InterpolationOptionsTest::test_InterpolationOptions()
   {
     std::string sourcename=INTERP_TEST::getResourceFile("square1.med");
     MEDFileUMesh *source_mesh=MEDFileUMesh::New(sourcename.c_str(),"Mesh_2");

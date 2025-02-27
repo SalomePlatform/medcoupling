@@ -27,7 +27,7 @@
 #endif
 
 
-#ifdef OMPI_MAJOR_VERSION 
+#ifdef OMPI_MAJOR_VERSION
 #   if OMPI_MAJOR_VERSION >= 4
 #      define MPI_ERROR_HANDLER(var) MPI_Comm_set_errhandler(MPI_COMM_WORLD, var)
 #   else
@@ -67,9 +67,9 @@ MPI_Comm MPI2Connector::remoteMPI2Connect(const std::string& service)
   MPI_Barrier(MPI_COMM_WORLD);
   MPI_ERROR_HANDLER(MPI_ERRORS_RETURN);
   if( _num_proc == 0 )
-    { 
+    {
       /* rank 0 try to be a server. If service is already published, try to be a cient */
-      MPI_Open_port(MPI_INFO_NULL, port_name); 
+      MPI_Open_port(MPI_INFO_NULL, port_name);
       if ( MPI_Lookup_name((char*)service.c_str(), MPI_INFO_NULL, port_name_clt) == MPI_SUCCESS )
         {
           std::cerr << "[" << _num_proc << "] I get the connection with " << service << " at " << port_name_clt << std::endl;
@@ -80,7 +80,7 @@ MPI_Comm MPI2Connector::remoteMPI2Connect(const std::string& service)
           _srv = true;
           _port_name = port_name;
           std::cerr << "[" << _num_proc << "] service " << service << " available at " << port_name << std::endl;
-        }      
+        }
       else if ( MPI_Lookup_name((char*)service.c_str(), MPI_INFO_NULL, port_name_clt) == MPI_SUCCESS )
         {
           std::cerr << "[" << _num_proc << "] I get the connection with " << service << " at " << port_name_clt << std::endl;
@@ -97,7 +97,7 @@ MPI_Comm MPI2Connector::remoteMPI2Connect(const std::string& service)
     {
       i=0;
       /* Waiting rank 0 publish name and try to be a client */
-      while ( i != TIMEOUT  ) 
+      while ( i != TIMEOUT  )
         {
           sleep(1);
           if ( MPI_Lookup_name((char*)service.c_str(), MPI_INFO_NULL, port_name_clt) == MPI_SUCCESS )
@@ -115,7 +115,7 @@ MPI_Comm MPI2Connector::remoteMPI2Connect(const std::string& service)
         }
     }
   MPI_ERROR_HANDLER(MPI_ERRORS_ARE_FATAL);
-  
+
   /* If rank 0 is server, all processes call MPI_Comm_accept */
   /* If rank 0 is not server, all processes call MPI_Comm_connect */
   int srv = (int)_srv;
@@ -147,17 +147,17 @@ void MPI2Connector::remoteMPI2Disconnect(const std::string& service)
       throw std::exception();
     }
 
-  MPI_Comm_disconnect( &_gcom ); 
+  MPI_Comm_disconnect( &_gcom );
   if ( _srv )
     {
 
       char port_name[MPI_MAX_PORT_NAME];
       strcpy(port_name,_port_name.c_str());
 
-      MPI_Unpublish_name((char*)service.c_str(), MPI_INFO_NULL, port_name); 
+      MPI_Unpublish_name((char*)service.c_str(), MPI_INFO_NULL, port_name);
       std::cerr << "[" << _num_proc << "] " << service << ": close port " << _port_name << std::endl;
-      MPI_Close_port( port_name ); 
+      MPI_Close_port( port_name );
     }
-  
+
 }
 

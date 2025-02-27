@@ -76,7 +76,7 @@ FOREACH(bintest ${TESTSMPIAccess})
   TARGET_LINK_LIBRARIES(${bintest} MPIAccessTest)
 ENDFOREACH()
 
-# Now add CMake tests 
+# Now add CMake tests
 SALOME_GENERATE_TESTS_ENVIRONMENT(tests_env)
 
 #  -- some tests require 2, 3, 4 or 5 procs --

@@ -63,8 +63,8 @@ namespace INTERP_KERNEL
     bool is_tgt_quad = CellModel::GetCellModel(tT).isQuadratic();
 
     double quad[8] = { INTER_CU::_coordsC[0][icellS[0]],   INTER_CU::_coordsC[1][icellS[1]],
-                       INTER_CU::_coordsC[0][icellS[0]+1], INTER_CU::_coordsC[1][icellS[1]], 
-                       INTER_CU::_coordsC[0][icellS[0]+1], INTER_CU::_coordsC[1][icellS[1]+1], 
+                       INTER_CU::_coordsC[0][icellS[0]+1], INTER_CU::_coordsC[1][icellS[1]],
+                       INTER_CU::_coordsC[0][icellS[0]+1], INTER_CU::_coordsC[1][icellS[1]+1],
                        INTER_CU::_coordsC[0][icellS[0]],   INTER_CU::_coordsC[1][icellS[1]+1] };
 
     double surf = _intersector.intersectGeometryWithQuadrangle( quad,

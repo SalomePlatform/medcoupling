@@ -25,10 +25,10 @@
 namespace INTERP_TEST
 {
   /**
-   * \brief Class testing algorithm by intersecting meshes of several 
-   * elements (all tetrahedra) - up to a few thousand. This serves to check the 
+   * \brief Class testing algorithm by intersecting meshes of several
+   * elements (all tetrahedra) - up to a few thousand. This serves to check the
    * filtering methods and the matrix assemblage, as well as verifying
-   * that computation errors do not become unmanageable. It uses mehes of 
+   * that computation errors do not become unmanageable. It uses mehes of
    * different geometries : tetrahedra, boxes and cylinders.
    *
    */
@@ -138,7 +138,7 @@ namespace INTERP_TEST
     {
       _testTools->intersectMeshes("Box1", "Box2", 124.197);
     }
-    
+
     /// Two intersecting boxes in general position with 430 and 544 elements
     /// \brief Status : pass
     void moderateBoxesSmaller()

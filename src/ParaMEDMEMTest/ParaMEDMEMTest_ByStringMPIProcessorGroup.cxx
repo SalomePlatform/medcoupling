@@ -34,7 +34,7 @@
 
 using namespace std;
 using namespace MEDCoupling;
- 
+
 /*
  * Check methods defined in MPPIProcessorGroup.hxx
  *
@@ -42,7 +42,7 @@ using namespace MEDCoupling;
  (+) ByStringMPIProcessorGroup(const CommInterface& interface, std::string& codeTag, const MPI_Comm& world_comm );
  (+) ByStringMPIProcessorGroup(ByStringMPIProcessorGroup& other );
 */
- 
+
 void ParaMEDMEMTest::testByStringMPIProcessorGroup_constructor()
 {
   CommInterface comm_interface;
@@ -54,9 +54,9 @@ void ParaMEDMEMTest::testByStringMPIProcessorGroup_constructor()
   const MPI_Comm* communicator=group->getComm();
   MPI_Comm_size(*communicator, &size2);
   CPPUNIT_ASSERT_EQUAL(size,size2);
-  delete group;  
+  delete group;
 }
- 
+
 void ParaMEDMEMTest::testByStringMPIProcessorGroup_stringconstructor()
 {
   int size, rankId;
@@ -65,9 +65,9 @@ void ParaMEDMEMTest::testByStringMPIProcessorGroup_stringconstructor()
 
   if (size != 3)
     return;
-  
+
   std::string myTag;
-  if ( rankId == 0 || rankId == 2 ) 
+  if ( rankId == 0 || rankId == 2 )
     myTag = "group0";
   else
     myTag = "gr1";
@@ -80,7 +80,7 @@ void ParaMEDMEMTest::testByStringMPIProcessorGroup_stringconstructor()
 
   std::set<int> ranksInGroup = group->getProcIDs();
   std::set<int> ranksInCopiedGroup = group->getProcIDs();
-  if ( rankId == 0 || rankId == 2 )  
+  if ( rankId == 0 || rankId == 2 )
   {
     CPPUNIT_ASSERT_EQUAL( (int)ranksInGroup.size(), 2 );
     CPPUNIT_ASSERT_EQUAL( (int)ranksInCopiedGroup.size(), 2 );
@@ -89,7 +89,7 @@ void ParaMEDMEMTest::testByStringMPIProcessorGroup_stringconstructor()
   {
     CPPUNIT_ASSERT_EQUAL( (int)ranksInGroup.size(), 1 );
     CPPUNIT_ASSERT_EQUAL( (int)ranksInCopiedGroup.size(), 1 );
-  }  
+  }
   CPPUNIT_ASSERT( group->contains(rankId) );
   CPPUNIT_ASSERT( copygroup->contains(rankId) );
   delete group;

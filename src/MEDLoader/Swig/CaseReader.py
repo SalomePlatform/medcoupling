@@ -407,7 +407,7 @@ class CaseReader(CaseIO):
             i=0
             for field in fieldsInfo:
                 if typeOfFile:
-                    self.__convertField(mlfields,m1,field[3],field[0],field[1],field[2],i,curIt);
+                    self.__convertField(mlfields,m1,field[3],field[0],field[1],field[2],i,curIt)
                 else:
                     self.__convertFieldFortran(mlfields,m1,field[3],field[0],field[1],field[2],i,curIt)
                     pass

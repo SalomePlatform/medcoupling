@@ -40,83 +40,83 @@ class MEDLoaderDataForTest:
     def build1DMesh_1(cls):
         coords=[ 0.0, 0.3, 0.75, 1.0, 1.4, 1.3 ]
         conn=[ 0,1, 1,2, 2,3 , 3,4,5]
-        mesh=MEDCouplingUMesh.New();
-        mesh.setName("1DMesh_1");
-        mesh.setMeshDimension(1);
-        mesh.allocateCells(4);
+        mesh=MEDCouplingUMesh.New()
+        mesh.setName("1DMesh_1")
+        mesh.setMeshDimension(1)
+        mesh.allocateCells(4)
         mesh.insertNextCell(NORM_SEG2,2,conn[0:2])
         mesh.insertNextCell(NORM_SEG2,2,conn[2:4])
         mesh.insertNextCell(NORM_SEG2,2,conn[4:6])
         mesh.insertNextCell(NORM_SEG3,3,conn[6:9])
-        mesh.finishInsertingCells();
-        myCoords=DataArrayDouble.New();
-        myCoords.setValues(coords,6,1);
-        myCoords.setInfoOnComponent(0,"tototototototot [m*m*m*m*m*m*m*m]");
-        mesh.setCoords(myCoords);
-        return mesh;
+        mesh.finishInsertingCells()
+        myCoords=DataArrayDouble.New()
+        myCoords.setValues(coords,6,1)
+        myCoords.setInfoOnComponent(0,"tototototototot [m*m*m*m*m*m*m*m]")
+        mesh.setCoords(myCoords)
+        return mesh
 
     @classmethod
     def build2DCurveMesh_1(cls):
         coords=[ 0.0,0.0, 0.3,0.3, 0.75,0.75, 1.0,1.0, 1.4,1.4, 1.3,1.3 ]
         conn=[ 0,1, 1,2, 2,3 , 3,4,5]
-        mesh=MEDCouplingUMesh.New();
-        mesh.setName("2DCurveMesh_1");
-        mesh.setMeshDimension(1);
-        mesh.allocateCells(4);
+        mesh=MEDCouplingUMesh.New()
+        mesh.setName("2DCurveMesh_1")
+        mesh.setMeshDimension(1)
+        mesh.allocateCells(4)
         mesh.insertNextCell(NORM_SEG2,2,conn[0:2])
         mesh.insertNextCell(NORM_SEG2,2,conn[2:4])
         mesh.insertNextCell(NORM_SEG2,2,conn[4:6])
         mesh.insertNextCell(NORM_SEG3,3,conn[6:9])
-        mesh.finishInsertingCells();
-        myCoords=DataArrayDouble.New();
-        myCoords.setValues(coords,6,2);
-        mesh.setCoords(myCoords);
-        return mesh;
+        mesh.finishInsertingCells()
+        myCoords=DataArrayDouble.New()
+        myCoords.setValues(coords,6,2)
+        mesh.setCoords(myCoords)
+        return mesh
 
     @classmethod
     def build2DMesh_1(cls):
         targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7,
                       -0.05,0.95, 0.2,1.2, 0.45,0.95]
         targetConn=[1,4,2, 4,5,2, 6,10,8,9,11,7, 0,3,4,1, 6,7,4,3, 7,8,5,4]
-        targetMesh=MEDCouplingUMesh.New();
-        targetMesh.setMeshDimension(2);
-        targetMesh.allocateCells(6);
-        targetMesh.setName("2DMesh_1");
+        targetMesh=MEDCouplingUMesh.New()
+        targetMesh.setMeshDimension(2)
+        targetMesh.allocateCells(6)
+        targetMesh.setName("2DMesh_1")
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[0:3])
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[3:6])
         targetMesh.insertNextCell(NORM_TRI6,6,targetConn[6:12])
         targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[12:16])
         targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[16:20])
         targetMesh.insertNextCell(NORM_POLYGON,4,targetConn[20:24])
-        targetMesh.finishInsertingCells();
-        myCoords=DataArrayDouble.New();
-        myCoords.setValues(targetCoords,12,2);
-        myCoords.setInfoOnComponent(0,"tototototototot [m]");
-        myCoords.setInfoOnComponent(1,"energie [kW]");
+        targetMesh.finishInsertingCells()
+        myCoords=DataArrayDouble.New()
+        myCoords.setValues(targetCoords,12,2)
+        myCoords.setInfoOnComponent(0,"tototototototot [m]")
+        myCoords.setInfoOnComponent(1,"energie [kW]")
         targetMesh.setCoords(myCoords)
-        return targetMesh;
+        return targetMesh
 
     @classmethod
     def build2DMesh_2(cls):
         targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7,
                       -0.05,0.95, 0.2,1.2, 0.45,0.95]
         targetConn=[1,4,2, 4,5,2, 6,10,8,9,11,7, 0,3,4,1, 6,7,4,3, 7,8,5,4]
-        targetMesh=MEDCouplingUMesh.New();
-        targetMesh.setMeshDimension(2);
-        targetMesh.allocateCells(5);
-        targetMesh.setName("2DMesh_2");
+        targetMesh=MEDCouplingUMesh.New()
+        targetMesh.setMeshDimension(2)
+        targetMesh.allocateCells(5)
+        targetMesh.setName("2DMesh_2")
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[0:3])
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[3:6])
         targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[12:16])
         targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[16:20])
         targetMesh.insertNextCell(NORM_TRI6,6,targetConn[6:12])
-        targetMesh.finishInsertingCells();
-        myCoords=DataArrayDouble.New();
-        myCoords.setValues(targetCoords,12,2);
-        myCoords.setInfoOnComponent(0,"toto [m]");
-        myCoords.setInfoOnComponent(1,"energie [kW]");
-        targetMesh.setCoords(myCoords);
-        return targetMesh;
+        targetMesh.finishInsertingCells()
+        myCoords=DataArrayDouble.New()
+        myCoords.setValues(targetCoords,12,2)
+        myCoords.setInfoOnComponent(0,"toto [m]")
+        myCoords.setInfoOnComponent(1,"energie [kW]")
+        targetMesh.setCoords(myCoords)
+        return targetMesh
 
     #this mesh has several cells duplicated ! it is not beautiful but efficient to test file WR.
     @classmethod
@@ -124,10 +124,10 @@ class MEDLoaderDataForTest:
         targetCoords=[-0.3,-0.3, 0.2,-0.3, 0.7,-0.3, -0.3,0.2, 0.2,0.2, 0.7,0.2, -0.3,0.7, 0.2,0.7, 0.7,0.7,
                       -0.05,0.95, 0.2,1.2, 0.45,0.95]
         targetConn=[1,4,2, 4,5,2, 6,10,8,9,11,7, 0,3,4,1, 6,7,4,3, 7,8,5,4]
-        targetMesh=MEDCouplingUMesh.New();
-        targetMesh.setMeshDimension(2);
-        targetMesh.allocateCells(13);
-        targetMesh.setName("2DMesh_3");
+        targetMesh=MEDCouplingUMesh.New()
+        targetMesh.setMeshDimension(2)
+        targetMesh.allocateCells(13)
+        targetMesh.setName("2DMesh_3")
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[0:3])
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[3:6])
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[0:3])
@@ -141,13 +141,13 @@ class MEDLoaderDataForTest:
         targetMesh.insertNextCell(NORM_TRI6,6,targetConn[6:12])
         targetMesh.insertNextCell(NORM_TRI6,6,targetConn[6:12])
         targetMesh.insertNextCell(NORM_TRI6,6,targetConn[6:12])
-        targetMesh.finishInsertingCells();
-        myCoords=DataArrayDouble.New();
-        myCoords.setValues(targetCoords,12,2);
-        myCoords.setInfoOnComponent(0,"toto [m]");
-        myCoords.setInfoOnComponent(1,"energie [kW]");
-        targetMesh.setCoords(myCoords);
-        return targetMesh;
+        targetMesh.finishInsertingCells()
+        myCoords=DataArrayDouble.New()
+        myCoords.setValues(targetCoords,12,2)
+        myCoords.setInfoOnComponent(0,"toto [m]")
+        myCoords.setInfoOnComponent(1,"energie [kW]")
+        targetMesh.setCoords(myCoords)
+        return targetMesh
 
     @classmethod
     def build3DMesh_1(cls):
@@ -176,10 +176,10 @@ class MEDLoaderDataForTest:
             41,38,37,34,32,31,-1,41,56,46,31,-1,31,46,47,32,-1,32,47,49,34,-1,34,49,52,37,-1,37,38,53,52,-1,38,41,56,53,-1,56,46,47,49,52,53,
             37,42,44,43,52,57,59,58]
         #
-        ret=MEDCouplingUMesh.New();
-        ret.setName("3DMesh_1");
-        ret.setMeshDimension(3);
-        ret.allocateCells(18);
+        ret=MEDCouplingUMesh.New()
+        ret.setName("3DMesh_1")
+        ret.setMeshDimension(3)
+        ret.allocateCells(18)
         #
         ret.insertNextCell(NORM_HEXA8,8,conn[0:8])
         ret.insertNextCell(NORM_HEXA8,8,conn[51:59])
@@ -203,52 +203,52 @@ class MEDLoaderDataForTest:
         ret.insertNextCell(NORM_POLYHED,43,conn[244:287])
         ret.insertNextCell(NORM_POLYHED,43,conn[303:346])
         #
-        ret.finishInsertingCells();
-        myCoords=DataArrayDouble.New();
-        myCoords.setValues(coords,60,3);
-        myCoords.setInfoOnComponent(0,"titi [m]");
-        myCoords.setInfoOnComponent(1,"density power [MW/m^3]");
-        myCoords.setInfoOnComponent(2,"t [kW]");
-        ret.setCoords(myCoords);
-        return ret;
+        ret.finishInsertingCells()
+        myCoords=DataArrayDouble.New()
+        myCoords.setValues(coords,60,3)
+        myCoords.setInfoOnComponent(0,"titi [m]")
+        myCoords.setInfoOnComponent(1,"density power [MW/m^3]")
+        myCoords.setInfoOnComponent(2,"t [kW]")
+        ret.setCoords(myCoords)
+        return ret
 
     @classmethod
     def build3DSurfMesh_1(cls):
         targetCoords=[-0.3,-0.3,-0.3, 0.2,-0.3,-0.3, 0.7,-0.3,-0.3, -0.3,0.2,-0.3, 0.2,0.2,-0.3, 0.7,0.2,-0.3, -0.3,0.7,-0.3, 0.2,0.7,-0.3, 0.7,0.7,-0.3
                       ,-0.05,0.95,-0.3, 0.2,1.2,-0.3, 0.45,0.95,-0.3]
         targetConn=[1,4,2, 4,5,2, 6,10,8,9,11,7, 0,3,4,1, 6,7,4,3, 7,8,5,4]
-        targetMesh=MEDCouplingUMesh.New();
-        targetMesh.setMeshDimension(2);
-        targetMesh.allocateCells(6);
-        targetMesh.setName("3DSurfMesh_1");
+        targetMesh=MEDCouplingUMesh.New()
+        targetMesh.setMeshDimension(2)
+        targetMesh.allocateCells(6)
+        targetMesh.setName("3DSurfMesh_1")
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[0:3])
         targetMesh.insertNextCell(NORM_TRI3,3,targetConn[3:6])
         targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[12:16])
         targetMesh.insertNextCell(NORM_QUAD4,4,targetConn[16:20])
         targetMesh.insertNextCell(NORM_TRI6,6,targetConn[6:12])
         targetMesh.insertNextCell(NORM_POLYGON,4,targetConn[20:24])
-        targetMesh.finishInsertingCells();
-        myCoords=DataArrayDouble.New();
-        myCoords.setValues(targetCoords,12,3);
-        myCoords.setInfoOnComponent(0,"toto [m]");
+        targetMesh.finishInsertingCells()
+        myCoords=DataArrayDouble.New()
+        myCoords.setValues(targetCoords,12,3)
+        myCoords.setInfoOnComponent(0,"toto [m]")
         myCoords.setInfoOnComponent(2,"ff [km]");#component 1 is not set for test
-        targetMesh.setCoords(myCoords);
-        return targetMesh;
+        targetMesh.setCoords(myCoords)
+        return targetMesh
 
     @classmethod
     def build3DMesh_2(cls):
-        m3dsurfBase=MEDLoaderDataForTest.build3DSurfMesh_1();
+        m3dsurfBase=MEDLoaderDataForTest.build3DSurfMesh_1()
         numbers=[0,1,2,3,5]
-        m3dsurf=m3dsurfBase.buildPartOfMySelf(numbers,False);
-        m1dBase=MEDLoaderDataForTest.build1DMesh_1();
+        m3dsurf=m3dsurfBase.buildPartOfMySelf(numbers,False)
+        m1dBase=MEDLoaderDataForTest.build1DMesh_1()
         numbers2=[0,1,2,3]
-        m1d=m1dBase.buildPartOfMySelf(numbers2,False);
-        m1d.changeSpaceDimension(3);
+        m1d=m1dBase.buildPartOfMySelf(numbers2,False)
+        m1d.changeSpaceDimension(3)
         vec=[0.,1.,0.]
         pt=[0.,0.,0.]
-        m1d.rotate(pt,vec,-pi/2.);
-        ret=m3dsurf.buildExtrudedMesh(m1d,0);
-        return ret;
+        m1d.rotate(pt,vec,-pi/2.)
+        ret=m3dsurf.buildExtrudedMesh(m1d,0)
+        return ret
 
     @classmethod
     def buildMultiLevelMesh_1(cls):
@@ -351,7 +351,7 @@ class MEDLoaderDataForTest:
         conn0=[[0,1,2,3],[4,5,6,7], [8,9,10,11,12,13],[14,15,16,17,18,19],[20,21,22,23,24,25], [26,27,28,-1,26,29,27,-1,27,29,28,-1,28,29,26],[30,31,32,33,-1,34,37,36,35,-1,30,34,35,31,-1,31,35,36,32,-1,32,36,37,33,-1,33,37,34,30]]
         mesh0.allocateCells(len(type0))
         for typ,nodalConn in zip(type0,conn0):
-            mesh0.insertNextCell(typ,nodalConn);
+            mesh0.insertNextCell(typ,nodalConn)
             pass
         mesh0.finishInsertingCells()
         mesh0.setCoords(coords)
@@ -361,7 +361,7 @@ class MEDLoaderDataForTest:
         connM1=[[0,1,2],[3,4,5], [6,7,8,9],[10,11,12,13],[14,15,16,17], [18,19,20,21,22],[23,24,25,26,27],[28,29,30],[31,32,33,34,35,36,37]]
         meshM1.allocateCells(len(typeM1))
         for typ,nodalConn in zip(typeM1,connM1):
-            meshM1.insertNextCell(typ,nodalConn);
+            meshM1.insertNextCell(typ,nodalConn)
             pass
         meshM1.finishInsertingCells()
         meshM1.setCoords(coords)
@@ -394,233 +394,233 @@ class MEDLoaderDataForTest:
 
     @classmethod
     def buildVecFieldOnCells_1(cls):
-        mesh=MEDLoaderDataForTest.build3DSurfMesh_1();
-        nbOfCells=mesh.getNumberOfCells();
-        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
-        f1.setName("VectorFieldOnCells");
-        f1.setMesh(mesh);
-        array=DataArrayDouble.New();
+        mesh=MEDLoaderDataForTest.build3DSurfMesh_1()
+        nbOfCells=mesh.getNumberOfCells()
+        f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME)
+        f1.setName("VectorFieldOnCells")
+        f1.setMesh(mesh)
+        array=DataArrayDouble.New()
         arr1=[0.,10.,20.,1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.,5.,15.,25.]
-        array.setValues(arr1,nbOfCells,3);
-        array.setInfoOnComponent(0,"power [MW/m^3]");
-        array.setInfoOnComponent(1,"density [g/cm^3]");
-        array.setInfoOnComponent(2,"temperature [K]");
-        f1.setArray(array);
-        f1.setTime(2.,0,1);
-        f1.checkConsistencyLight();
-        return f1;
+        array.setValues(arr1,nbOfCells,3)
+        array.setInfoOnComponent(0,"power [MW/m^3]")
+        array.setInfoOnComponent(1,"density [g/cm^3]")
+        array.setInfoOnComponent(2,"temperature [K]")
+        f1.setArray(array)
+        f1.setTime(2.,0,1)
+        f1.checkConsistencyLight()
+        return f1
 
     @classmethod
     def buildIntVecFieldOnCells_1(cls):
-        mesh=MEDLoaderDataForTest.build3DSurfMesh_1();
-        nbOfCells=mesh.getNumberOfCells();
-        f1=MEDCouplingFieldInt.New(ON_CELLS,ONE_TIME);
-        f1.setName("IntVectorFieldOnCells");
-        f1.setMesh(mesh);
+        mesh=MEDLoaderDataForTest.build3DSurfMesh_1()
+        nbOfCells=mesh.getNumberOfCells()
+        f1=MEDCouplingFieldInt.New(ON_CELLS,ONE_TIME)
+        f1.setName("IntVectorFieldOnCells")
+        f1.setMesh(mesh)
         array=DataArrayInt32([0,10,20,1,11,21,2,12,22,3,13,23,4,14,24,5,15,25],nbOfCells ,3)
-        array.setInfoOnComponent(0,"va1 [MW/m^3]");
-        array.setInfoOnComponent(1,"va2 [g/cm^3]");
-        array.setInfoOnComponent(2,"val3 [K]");
-        f1.setArray(array);
-        f1.setTime(2.,0,1);
-        f1.checkConsistencyLight();
-        return f1;
+        array.setInfoOnComponent(0,"va1 [MW/m^3]")
+        array.setInfoOnComponent(1,"va2 [g/cm^3]")
+        array.setInfoOnComponent(2,"val3 [K]")
+        f1.setArray(array)
+        f1.setTime(2.,0,1)
+        f1.checkConsistencyLight()
+        return f1
 
     @classmethod
     def buildFloatVecFieldOnCells_1(cls):
-        mesh=MEDLoaderDataForTest.build3DSurfMesh_1();
-        nbOfCells=mesh.getNumberOfCells();
-        f1=MEDCouplingFieldFloat.New(ON_CELLS,ONE_TIME);
-        f1.setName("FloatVectorFieldOnCells");
-        f1.setMesh(mesh);
-        array=DataArrayFloat([0.,10.,20.,1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.,5.,15.,25.], nbOfCells, 3);
-        array.setInfoOnComponent(0,"power [MW/m^3]");
-        array.setInfoOnComponent(1,"density [g/cm^3]");
-        array.setInfoOnComponent(2,"temperature [K]");
-        f1.setArray(array);
-        f1.setTime(2.,0,1);
-        f1.checkConsistencyLight();
-        return f1;
+        mesh=MEDLoaderDataForTest.build3DSurfMesh_1()
+        nbOfCells=mesh.getNumberOfCells()
+        f1=MEDCouplingFieldFloat.New(ON_CELLS,ONE_TIME)
+        f1.setName("FloatVectorFieldOnCells")
+        f1.setMesh(mesh)
+        array=DataArrayFloat([0.,10.,20.,1.,11.,21.,2.,12.,22.,3.,13.,23.,4.,14.,24.,5.,15.,25.], nbOfCells, 3)
+        array.setInfoOnComponent(0,"power [MW/m^3]")
+        array.setInfoOnComponent(1,"density [g/cm^3]")
+        array.setInfoOnComponent(2,"temperature [K]")
+        f1.setArray(array)
+        f1.setTime(2.,0,1)
+        f1.checkConsistencyLight()
+        return f1
 
     @classmethod
     def buildVecFieldOnNodes_1(cls):
-        mesh=MEDLoaderDataForTest.build3DSurfMesh_1();
-        nbOfNodes=mesh.getNumberOfNodes();
-        f1=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME);
-        f1.setName("VectorFieldOnNodes");
-        f1.setMesh(mesh);
-        array=DataArrayDouble.New();
-        f1.setArray(array);
+        mesh=MEDLoaderDataForTest.build3DSurfMesh_1()
+        nbOfNodes=mesh.getNumberOfNodes()
+        f1=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME)
+        f1.setName("VectorFieldOnNodes")
+        f1.setMesh(mesh)
+        array=DataArrayDouble.New()
+        f1.setArray(array)
         arr1=[70.,80.,90.,71.,81.,91.,72.,82.,92.,73.,83.,93.,74.,84.,94.,75.,85.,95.,
         1000.,10010.,10020.,1001.,10011.,10021.,1002.,10012.,10022.,1003.,10013.,10023.,1004.,10014.,10024.,1005.,10015.,10025.]
-        array.setValues(arr1,nbOfNodes,3);
-        array.setInfoOnComponent(0,"power [MW/m^3]");
-        array.setInfoOnComponent(1,"density [g/cm^3]");
-        array.setInfoOnComponent(2,"temperature [K]");
-        f1.setTime(2.12,2,3);
-        f1.checkConsistencyLight();
-        return f1;
+        array.setValues(arr1,nbOfNodes,3)
+        array.setInfoOnComponent(0,"power [MW/m^3]")
+        array.setInfoOnComponent(1,"density [g/cm^3]")
+        array.setInfoOnComponent(2,"temperature [K]")
+        f1.setTime(2.12,2,3)
+        f1.checkConsistencyLight()
+        return f1
 
     @classmethod
     def buildVecFieldOnGauss_1(cls):
-        _a=0.446948490915965;
-        _b=0.091576213509771;
-        _p1=0.11169079483905;
-        _p2=0.0549758718227661;
+        _a=0.446948490915965
+        _b=0.091576213509771
+        _p1=0.11169079483905
+        _p2=0.0549758718227661
         refCoo1=[ 0.,0., 1.,0., 0.,1. ]
         gsCoo1=[ 2*_b-1, 1-4*_b, 2*_b-1, 2.07*_b-1, 1-4*_b,
-                 2*_b-1, 1-4*_a, 2*_a-1, 2*_a-1, 1-4*_a, 2*_a-1, 2*_a-1 ];
+                 2*_b-1, 1-4*_a, 2*_a-1, 2*_a-1, 1-4*_a, 2*_a-1, 2*_a-1 ]
         wg1=[ 4*_p2, 4*_p2, 4*_p2, 4*_p1, 4*_p1, 4*_p1 ]
-        _refCoo1=refCoo1;
-        _gsCoo1=gsCoo1;
-        _wg1=wg1;
-        m=MEDLoaderDataForTest.build2DMesh_2();
-        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME);
-        f.setTime(3.14,1,5);
-        f.setMesh(m);
-        f.setGaussLocalizationOnType(NORM_TRI3,_refCoo1,_gsCoo1,_wg1);
+        _refCoo1=refCoo1
+        _gsCoo1=gsCoo1
+        _wg1=wg1
+        m=MEDLoaderDataForTest.build2DMesh_2()
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME)
+        f.setTime(3.14,1,5)
+        f.setMesh(m)
+        f.setGaussLocalizationOnType(NORM_TRI3,_refCoo1,_gsCoo1,_wg1)
         refCoo2=[-1.0,1.0, -1.0,-1.0, 1.0,-1.0, -1.0,0.0, 0.0,-1.0, 0.0,0.0 ]
-        _refCoo2=refCoo2;
-        _gsCoo1=_gsCoo1[0:6];
+        _refCoo2=refCoo2
+        _gsCoo1=_gsCoo1[0:6]
         _gsCoo2=_gsCoo1
-        _wg1=_wg1[0:3];
+        _wg1=_wg1[0:3]
         _wg2=_wg1
         refCoo3=[ 0.,0., 1.,0., 1.,1., 0.,1. ]
-        _refCoo3=refCoo3;
-        _gsCoo1=_gsCoo1[0:4];
-        _wg1=_wg1[0:2];
-        f.setGaussLocalizationOnType(NORM_QUAD4,_refCoo3,_gsCoo1,_wg1);
-        f.setGaussLocalizationOnType(NORM_TRI6,_refCoo2,_gsCoo2,_wg2);
-        array=DataArrayDouble.New();
-        array.alloc(19,2);
-        ptr=array.getPointer();
+        _refCoo3=refCoo3
+        _gsCoo1=_gsCoo1[0:4]
+        _wg1=_wg1[0:2]
+        f.setGaussLocalizationOnType(NORM_QUAD4,_refCoo3,_gsCoo1,_wg1)
+        f.setGaussLocalizationOnType(NORM_TRI6,_refCoo2,_gsCoo2,_wg2)
+        array=DataArrayDouble.New()
+        array.alloc(19,2)
+        ptr=array.getPointer()
         for i in range(19 * 2):
-            array.setIJ(0,i,float(i+7));
+            array.setIJ(0,i,float(i+7))
             pass
-        f.setArray(array);
-        f.setName("MyFirstFieldOnGaussPoint");
-        array.setInfoOnComponent(0,"power [MW/m^3]");
-        array.setInfoOnComponent(1,"density");
-        f.checkConsistencyLight();
-        return f;
+        f.setArray(array)
+        f.setName("MyFirstFieldOnGaussPoint")
+        array.setInfoOnComponent(0,"power [MW/m^3]")
+        array.setInfoOnComponent(1,"density")
+        f.checkConsistencyLight()
+        return f
 
     @classmethod
     def buildVecFieldOnGauss_2(cls):
-        _a=0.446948490915965;
-        _b=0.091576213509771;
-        _p1=0.11169079483905;
-        _p2=0.0549758718227661;
+        _a=0.446948490915965
+        _b=0.091576213509771
+        _p1=0.11169079483905
+        _p2=0.0549758718227661
         refCoo1=[ 0.,0., 1.,0., 0.,1. ]
         gsCoo1=[ 2*_b-1, 1-4*_b, 2*_b-1, 2.07*_b-1, 1-4*_b,
-                 2*_b-1, 1-4*_a, 2*_a-1, 2*_a-1, 1-4*_a, 2*_a-1, 2*_a-1 ];
+                 2*_b-1, 1-4*_a, 2*_a-1, 2*_a-1, 1-4*_a, 2*_a-1, 2*_a-1 ]
         wg1=[ 4*_p2, 4*_p2, 4*_p2, 4*_p1, 4*_p1, 4*_p1 ]
-        _refCoo1=refCoo1;
-        _gsCoo1=gsCoo1;
-        _wg1=wg1;
-        m=MEDLoaderDataForTest.build2DMesh_3();
-        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME);
-        f.setTime(3.14,1,5);
-        f.setMesh(m);
+        _refCoo1=refCoo1
+        _gsCoo1=gsCoo1
+        _wg1=wg1
+        m=MEDLoaderDataForTest.build2DMesh_3()
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME)
+        f.setTime(3.14,1,5)
+        f.setMesh(m)
         di=DataArrayInt.New(); di.setValues([0,2,3],3,1)
         f.setGaussLocalizationOnCells(di,_refCoo1,_gsCoo1,_wg1)
         _wg1[-1]*=2
-        f.setGaussLocalizationOnCells([1,5],_refCoo1,_gsCoo1,_wg1);
+        f.setGaussLocalizationOnCells([1,5],_refCoo1,_gsCoo1,_wg1)
         _wg1[-1]*=2
-        f.setGaussLocalizationOnCells([4],_refCoo1,_gsCoo1,_wg1);
+        f.setGaussLocalizationOnCells([4],_refCoo1,_gsCoo1,_wg1)
         refCoo2=[-1.0,1.0, -1.0,-1.0, 1.0,-1.0, -1.0,0.0, 0.0,-1.0, 0.0,0.0 ]
-        _refCoo2=refCoo2;
-        _gsCoo1=_gsCoo1[0:6];
+        _refCoo2=refCoo2
+        _gsCoo1=_gsCoo1[0:6]
         _gsCoo2=_gsCoo1
-        _wg1=_wg1[0:3];
+        _wg1=_wg1[0:3]
         _wg2=_wg1
         refCoo3=[ 0.,0., 1.,0., 1.,1., 0.,1. ]
-        _refCoo3=refCoo3;
-        _gsCoo1=_gsCoo1[0:4];
-        _wg1=_wg1[0:2];
-        f.setGaussLocalizationOnCells([6,7,8],_refCoo3,_gsCoo1,_wg1);
+        _refCoo3=refCoo3
+        _gsCoo1=_gsCoo1[0:4]
+        _wg1=_wg1[0:2]
+        f.setGaussLocalizationOnCells([6,7,8],_refCoo3,_gsCoo1,_wg1)
         _wg1[-1]*=2
-        f.setGaussLocalizationOnCells([9],_refCoo3,_gsCoo1,_wg1);
-        f.setGaussLocalizationOnType(NORM_TRI6,_refCoo2,_gsCoo2,_wg2);
-        array=DataArrayDouble.New();
-        array.alloc(53,2);
-        ptr=array.getPointer();
+        f.setGaussLocalizationOnCells([9],_refCoo3,_gsCoo1,_wg1)
+        f.setGaussLocalizationOnType(NORM_TRI6,_refCoo2,_gsCoo2,_wg2)
+        array=DataArrayDouble.New()
+        array.alloc(53,2)
+        ptr=array.getPointer()
         for i in range(53 * 2):
-            array.setIJ(0,i,float(i+7));
+            array.setIJ(0,i,float(i+7))
             pass
-        f.setArray(array);
-        f.setName("MyFirstFieldOnGaussPoint");
-        array.setInfoOnComponent(0,"power [MW/m^3]");
-        array.setInfoOnComponent(1,"density");
-        f.checkConsistencyLight();
-        return f;
+        f.setArray(array)
+        f.setName("MyFirstFieldOnGaussPoint")
+        array.setInfoOnComponent(0,"power [MW/m^3]")
+        array.setInfoOnComponent(1,"density")
+        f.checkConsistencyLight()
+        return f
 
     # idem buildVecFieldOnGauss_2 except that different discretizations are sorted inside one type
     @classmethod
     def buildVecFieldOnGauss_2_Simpler(cls):
-        _a=0.446948490915965;
-        _b=0.091576213509771;
-        _p1=0.11169079483905;
-        _p2=0.0549758718227661;
+        _a=0.446948490915965
+        _b=0.091576213509771
+        _p1=0.11169079483905
+        _p2=0.0549758718227661
         refCoo1=[ 0.,0., 1.,0., 0.,1. ]
         gsCoo1=[ 2*_b-1, 1-4*_b, 2*_b-1, 2.07*_b-1, 1-4*_b,
-                 2*_b-1, 1-4*_a, 2*_a-1, 2*_a-1, 1-4*_a, 2*_a-1, 2*_a-1 ];
+                 2*_b-1, 1-4*_a, 2*_a-1, 2*_a-1, 1-4*_a, 2*_a-1, 2*_a-1 ]
         wg1=[ 4*_p2, 4*_p2, 4*_p2, 4*_p1, 4*_p1, 4*_p1 ]
-        _refCoo1=refCoo1;
-        _gsCoo1=gsCoo1;
-        _wg1=wg1;
-        m=MEDLoaderDataForTest.build2DMesh_3();
-        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME);
-        f.setTime(3.14,1,5);
-        f.setMesh(m);
+        _refCoo1=refCoo1
+        _gsCoo1=gsCoo1
+        _wg1=wg1
+        m=MEDLoaderDataForTest.build2DMesh_3()
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_PT,ONE_TIME)
+        f.setTime(3.14,1,5)
+        f.setMesh(m)
         di=DataArrayInt.New(); di.setValues([0,1,2],3,1)
         f.setGaussLocalizationOnCells(di,_refCoo1,_gsCoo1,_wg1)
         _wg1[-1]*=2
-        f.setGaussLocalizationOnCells([3,4],_refCoo1,_gsCoo1,_wg1);
+        f.setGaussLocalizationOnCells([3,4],_refCoo1,_gsCoo1,_wg1)
         _wg1[-1]*=2
-        f.setGaussLocalizationOnCells([5],_refCoo1,_gsCoo1,_wg1);
+        f.setGaussLocalizationOnCells([5],_refCoo1,_gsCoo1,_wg1)
         refCoo2=[-1.0,1.0, -1.0,-1.0, 1.0,-1.0, -1.0,0.0, 0.0,-1.0, 0.0,0.0 ]
-        _refCoo2=refCoo2;
-        _gsCoo1=_gsCoo1[0:6];
+        _refCoo2=refCoo2
+        _gsCoo1=_gsCoo1[0:6]
         _gsCoo2=_gsCoo1
-        _wg1=_wg1[0:3];
+        _wg1=_wg1[0:3]
         _wg2=_wg1
         refCoo3=[ 0.,0., 1.,0., 1.,1., 0.,1. ]
-        _refCoo3=refCoo3;
-        _gsCoo1=_gsCoo1[0:4];
-        _wg1=_wg1[0:2];
-        f.setGaussLocalizationOnCells([6,7,8],_refCoo3,_gsCoo1,_wg1);
+        _refCoo3=refCoo3
+        _gsCoo1=_gsCoo1[0:4]
+        _wg1=_wg1[0:2]
+        f.setGaussLocalizationOnCells([6,7,8],_refCoo3,_gsCoo1,_wg1)
         _wg1[-1]*=2
-        f.setGaussLocalizationOnCells([9],_refCoo3,_gsCoo1,_wg1);
-        f.setGaussLocalizationOnType(NORM_TRI6,_refCoo2,_gsCoo2,_wg2);
-        array=DataArrayDouble.New();
-        array.alloc(53,2);
-        ptr=array.getPointer();
+        f.setGaussLocalizationOnCells([9],_refCoo3,_gsCoo1,_wg1)
+        f.setGaussLocalizationOnType(NORM_TRI6,_refCoo2,_gsCoo2,_wg2)
+        array=DataArrayDouble.New()
+        array.alloc(53,2)
+        ptr=array.getPointer()
         for i in range(53 * 2):
-            array.setIJ(0,i,float(i+7));
+            array.setIJ(0,i,float(i+7))
             pass
-        f.setArray(array);
-        f.setName("MyFirstFieldOnGaussPoint");
-        array.setInfoOnComponent(0,"power [MW/m^3]");
-        array.setInfoOnComponent(1,"density");
-        f.checkConsistencyLight();
-        return f;
+        f.setArray(array)
+        f.setName("MyFirstFieldOnGaussPoint")
+        array.setInfoOnComponent(0,"power [MW/m^3]")
+        array.setInfoOnComponent(1,"density")
+        f.checkConsistencyLight()
+        return f
 
     @classmethod
     def buildVecFieldOnGaussNE_1(cls):
-        m=MEDLoaderDataForTest.build2DMesh_2();
-        f=MEDCouplingFieldDouble.New(ON_GAUSS_NE,ONE_TIME);
-        f.setTime(3.14,1,5);
-        f.setMesh(m);
-        array=DataArrayDouble.New();
-        array.alloc(20,2);
+        m=MEDLoaderDataForTest.build2DMesh_2()
+        f=MEDCouplingFieldDouble.New(ON_GAUSS_NE,ONE_TIME)
+        f.setTime(3.14,1,5)
+        f.setMesh(m)
+        array=DataArrayDouble.New()
+        array.alloc(20,2)
         for i in range(2 * 20):
-            array.setIJ(0,i,float(i+8));
-        f.setArray(array);
-        array.setInfoOnComponent(0,"power [W]");
-        array.setInfoOnComponent(1,"temperature");
-        f.setName("MyFieldOnGaussNE");
-        f.checkConsistencyLight();
-        return f;
+            array.setIJ(0,i,float(i+8))
+        f.setArray(array)
+        array.setInfoOnComponent(0,"power [W]")
+        array.setInfoOnComponent(1,"temperature")
+        f.setName("MyFieldOnGaussNE")
+        f.checkConsistencyLight()
+        return f
 
     @classmethod
     def buildACompleteMEDDataStructureWithFieldsOnCells_1(cls):
@@ -772,267 +772,267 @@ class MEDLoaderDataForTest:
     pass
 
 def TestWriteUMeshesRW1(tester):
-    fileName="Pyfile18.med";
-    m3d=MEDLoaderDataForTest.build3DMesh_2();
+    fileName="Pyfile18.med"
+    m3d=MEDLoaderDataForTest.build3DMesh_2()
     pt=[0.,0.,-0.3]
     vec=[0.,0.,1.]
-    nodes=m3d.findNodesOnPlane(pt,vec,1e-12);
-    m2d=m3d.buildFacePartOfMySelfNode(nodes,True);
+    nodes=m3d.findNodesOnPlane(pt,vec,1e-12)
+    m2d=m3d.buildFacePartOfMySelfNode(nodes,True)
     renumber=[1,2,0,4,3]
-    m2d.renumberCells(renumber,False);
-    m2d.setName("ExampleOfMultiDimW");
+    m2d.renumberCells(renumber,False)
+    m2d.setName("ExampleOfMultiDimW")
     meshes=[m2d,m3d]
-    WriteUMeshes(fileName,meshes,False);
-    m3d_bis=ReadUMeshFromFile(fileName,m2d.getName(),0);
-    tester.assertTrue(not m3d_bis.isEqual(m3d,1e-12));
-    m3d_bis.setName(m3d.getName());
-    tester.assertTrue(m3d_bis.isEqual(m3d,1e-12));
+    WriteUMeshes(fileName,meshes,False)
+    m3d_bis=ReadUMeshFromFile(fileName,m2d.getName(),0)
+    tester.assertTrue(not m3d_bis.isEqual(m3d,1e-12))
+    m3d_bis.setName(m3d.getName())
+    tester.assertTrue(m3d_bis.isEqual(m3d,1e-12))
     m2d_bis=ReadUMeshFromFile(fileName,m2d.getName(),-1);#-1 for faces
-    tester.assertTrue(m2d_bis.isEqual(m2d,1e-12));
+    tester.assertTrue(m2d_bis.isEqual(m2d,1e-12))
     # Creation of a field on faces.
-    f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
-    f1.setName("FieldOnFacesShuffle");
-    f1.setMesh(m2d);
-    array=DataArrayDouble.New();
+    f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME)
+    f1.setName("FieldOnFacesShuffle")
+    f1.setMesh(m2d)
+    array=DataArrayDouble.New()
     arr1=[71.,171.,10.,110.,20.,120.,30.,130.,40.,140.]
-    array.setValues(arr1,m2d.getNumberOfCells(),2);
-    array.setInfoOnComponent(0,"plkj [mm]");
-    array.setInfoOnComponent(1,"pqqqss [mm]");
-    f1.setArray(array);
-    tmp=array.setValues(arr1,m2d.getNumberOfCells(),2);
-    f1.setTime(3.14,2,7);
-    f1.checkConsistencyLight();
-    WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
-    f2=ReadFieldCell(fileName,f1.getMesh().getName(),-1,f1.getName(),2,7);
-    tester.assertTrue(f2.isEqual(f1,1e-12,1e-12));
+    array.setValues(arr1,m2d.getNumberOfCells(),2)
+    array.setInfoOnComponent(0,"plkj [mm]")
+    array.setInfoOnComponent(1,"pqqqss [mm]")
+    f1.setArray(array)
+    tmp=array.setValues(arr1,m2d.getNumberOfCells(),2)
+    f1.setTime(3.14,2,7)
+    f1.checkConsistencyLight()
+    WriteFieldUsingAlreadyWrittenMesh(fileName,f1)
+    f2=ReadFieldCell(fileName,f1.getMesh().getName(),-1,f1.getName(),2,7)
+    tester.assertTrue(f2.isEqual(f1,1e-12,1e-12))
     pass
 
 def TestMultiFieldShuffleRW1(tester):
-    fileName="Pyfile17.med";
-    m=MEDLoaderDataForTest.build3DMesh_2();
-    tester.assertEqual(20,m.getNumberOfCells());
-    tester.assertEqual(45,m.getNumberOfNodes());
+    fileName="Pyfile17.med"
+    m=MEDLoaderDataForTest.build3DMesh_2()
+    tester.assertEqual(20,m.getNumberOfCells())
+    tester.assertEqual(45,m.getNumberOfNodes())
     polys=[1,4,6]
-    m.convertToPolyTypes(polys);
+    m.convertToPolyTypes(polys)
     renum=[1,3,2,8,9,12,13,16,19,0,4,7,5,15,14,17,10,18,6,11]
-    m.renumberCells(renum,False);
-    m.orientCorrectlyPolyhedrons();
+    m.renumberCells(renum,False)
+    m.orientCorrectlyPolyhedrons()
     # Writing
-    WriteUMeshDep(fileName,m,False);
-    f1Tmp=m.getMeasureField(False);
-    f1=f1Tmp.buildNewTimeReprFromThis(ONE_TIME,False);
-    f1.setTime(0.,1,2);
-    f_1=f1.cloneWithMesh(True);
-    WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
-    f1.applyFunc("2*x");
-    f1.setTime(0.01,3,4);
-    f_2=f1.cloneWithMesh(True);
-    WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
-    f1.applyFunc("2*x/3");
-    f1.setTime(0.02,5,6);
-    f_3=f1.cloneWithMesh(True);
-    WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
+    WriteUMeshDep(fileName,m,False)
+    f1Tmp=m.getMeasureField(False)
+    f1=f1Tmp.buildNewTimeReprFromThis(ONE_TIME,False)
+    f1.setTime(0.,1,2)
+    f_1=f1.cloneWithMesh(True)
+    WriteFieldUsingAlreadyWrittenMesh(fileName,f1)
+    f1.applyFunc("2*x")
+    f1.setTime(0.01,3,4)
+    f_2=f1.cloneWithMesh(True)
+    WriteFieldUsingAlreadyWrittenMesh(fileName,f1)
+    f1.applyFunc("2*x/3")
+    f1.setTime(0.02,5,6)
+    f_3=f1.cloneWithMesh(True)
+    WriteFieldUsingAlreadyWrittenMesh(fileName,f1)
     # Reading
-    its=[(1,2),(3,4),(5,6)];
-    fs=ReadFieldsOnSameMesh(ON_CELLS,fileName,f_1.getMesh().getName(),0,f_1.getName(),its);
-    tester.assertEqual(3,len(fs));
-    tester.assertTrue(fs[0].isEqual(f_1,1e-12,1e-12));
-    tester.assertTrue(fs[1].isEqual(f_2,1e-12,1e-12));
-    tester.assertTrue(fs[2].isEqual(f_3,1e-12,1e-12));
+    its=[(1,2),(3,4),(5,6)]
+    fs=ReadFieldsOnSameMesh(ON_CELLS,fileName,f_1.getMesh().getName(),0,f_1.getName(),its)
+    tester.assertEqual(3,len(fs))
+    tester.assertTrue(fs[0].isEqual(f_1,1e-12,1e-12))
+    tester.assertTrue(fs[1].isEqual(f_2,1e-12,1e-12))
+    tester.assertTrue(fs[2].isEqual(f_3,1e-12,1e-12))
 
 def GeneratePyfile13(tester):
-    fileName="Pyfile13.med";
-    f1=MEDLoaderDataForTest.buildVecFieldOnGauss_1();
-    WriteField(fileName,f1,True);
-    f2=ReadField(ON_GAUSS_PT,fileName,f1.getMesh().getName(),0,f1.getName(),1,5);
-    tester.assertTrue(f1.isEqual(f2,1e-12,1e-12));
+    fileName="Pyfile13.med"
+    f1=MEDLoaderDataForTest.buildVecFieldOnGauss_1()
+    WriteField(fileName,f1,True)
+    f2=ReadField(ON_GAUSS_PT,fileName,f1.getMesh().getName(),0,f1.getName(),1,5)
+    tester.assertTrue(f1.isEqual(f2,1e-12,1e-12))
     pass
 
 def GeneratePyfile14(tester):
-    fileName="Pyfile14.med";
-    f1=MEDLoaderDataForTest.buildVecFieldOnGaussNE_1();
-    WriteField(fileName,f1,True);
+    fileName="Pyfile14.med"
+    f1=MEDLoaderDataForTest.buildVecFieldOnGaussNE_1()
+    WriteField(fileName,f1,True)
     tester.assertEqual([ON_GAUSS_NE],GetTypesOfField(fileName,'2DMesh_2','MyFieldOnGaussNE')) #Bug 22/5/2014
-    f2=ReadField(ON_GAUSS_NE,fileName,f1.getMesh().getName(),0,f1.getName(),1,5);
-    tester.assertTrue(f1.isEqual(f2,1e-12,1e-12));
+    f2=ReadField(ON_GAUSS_NE,fileName,f1.getMesh().getName(),0,f1.getName(),1,5)
+    tester.assertTrue(f1.isEqual(f2,1e-12,1e-12))
 
 
 def GeneratePyfile18(tester):
-    fileName="Pyfile18.med";
-    m3d=MEDLoaderDataForTest.build3DMesh_2();
+    fileName="Pyfile18.med"
+    m3d=MEDLoaderDataForTest.build3DMesh_2()
     pt=[0.,0.,-0.3]
     vec=[0.,0.,1.]
-    nodes=m3d.findNodesOnPlane(pt,vec,1e-12);
-    m2d=m3d.buildFacePartOfMySelfNode(nodes,True);
+    nodes=m3d.findNodesOnPlane(pt,vec,1e-12)
+    m2d=m3d.buildFacePartOfMySelfNode(nodes,True)
     renumber=[1,2,0,4,3]
-    m2d.renumberCells(renumber,False);
-    m2d.setName("ExampleOfMultiDimW");
+    m2d.renumberCells(renumber,False)
+    m2d.setName("ExampleOfMultiDimW")
     meshes=[m2d,m3d]
-    WriteUMeshes(fileName,meshes,True);
-    m3d_bis=ReadUMeshFromFile(fileName,m2d.getName(),0);
-    tester.assertTrue(not m3d_bis.isEqual(m3d,1e-12));
-    m3d_bis.setName(m3d.getName());
-    tester.assertTrue(m3d_bis.isEqual(m3d,1e-12));
+    WriteUMeshes(fileName,meshes,True)
+    m3d_bis=ReadUMeshFromFile(fileName,m2d.getName(),0)
+    tester.assertTrue(not m3d_bis.isEqual(m3d,1e-12))
+    m3d_bis.setName(m3d.getName())
+    tester.assertTrue(m3d_bis.isEqual(m3d,1e-12))
     m2d_bis=ReadUMeshFromFile(fileName,m2d.getName(),-1);#-1 for faces
-    tester.assertTrue(m2d_bis.isEqual(m2d,1e-12));
+    tester.assertTrue(m2d_bis.isEqual(m2d,1e-12))
     # Creation of a field on faces.
-    f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
-    f1.setName("FieldOnFacesShuffle");
-    f1.setMesh(m2d);
-    array=DataArrayDouble.New();
+    f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME)
+    f1.setName("FieldOnFacesShuffle")
+    f1.setMesh(m2d)
+    array=DataArrayDouble.New()
     arr1=[71.,171.,10.,110.,20.,120.,30.,130.,40.,140.]
-    array.setValues(arr1,m2d.getNumberOfCells(),2);
-    array.setInfoOnComponent(0,"plkj [mm]");
-    array.setInfoOnComponent(1,"pqqqss [mm]");
-    f1.setArray(array);
-    tmp=array.setValues(arr1,m2d.getNumberOfCells(),2);
-    f1.setTime(3.14,2,7);
-    f1.checkConsistencyLight();
-    WriteFieldUsingAlreadyWrittenMesh(fileName,f1);
-    f2=ReadFieldCell(fileName,f1.getMesh().getName(),-1,f1.getName(),2,7);
-    tester.assertTrue(f2.isEqual(f1,1e-12,1e-12));
+    array.setValues(arr1,m2d.getNumberOfCells(),2)
+    array.setInfoOnComponent(0,"plkj [mm]")
+    array.setInfoOnComponent(1,"pqqqss [mm]")
+    f1.setArray(array)
+    tmp=array.setValues(arr1,m2d.getNumberOfCells(),2)
+    f1.setTime(3.14,2,7)
+    f1.checkConsistencyLight()
+    WriteFieldUsingAlreadyWrittenMesh(fileName,f1)
+    f2=ReadFieldCell(fileName,f1.getMesh().getName(),-1,f1.getName(),2,7)
+    tester.assertTrue(f2.isEqual(f1,1e-12,1e-12))
 
 def GeneratePyfile19(tester):
-    fileName="Pyfile19.med";
-    fileName2="Pyfile20.med";
-    m=MEDLoaderDataForTest.build2DMesh_1();
-    nbOfNodes=m.getNumberOfNodes();
-    WriteUMesh(fileName,m,True);
-    f1=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME);
-    f1.setName("VFieldOnNodes");
-    f1.setMesh(m);
-    array=DataArrayDouble.New();
+    fileName="Pyfile19.med"
+    fileName2="Pyfile20.med"
+    m=MEDLoaderDataForTest.build2DMesh_1()
+    nbOfNodes=m.getNumberOfNodes()
+    WriteUMesh(fileName,m,True)
+    f1=MEDCouplingFieldDouble.New(ON_NODES,ONE_TIME)
+    f1.setName("VFieldOnNodes")
+    f1.setMesh(m)
+    array=DataArrayDouble.New()
     arr1=[1.,101.,2.,102.,3.,103.,4.,104.,5.,105.,6.,106.,7.,107.,8.,108.,9.,109.,10.,110.,11.,111.,12.,112.]
-    array.setValues(arr1,nbOfNodes,2);
-    f1.setArray(array);
-    array.setInfoOnComponent(0,"tyty [mm]");
-    array.setInfoOnComponent(1,"uiop [MW]");
-    f1.setTime(3.14,2,7);
-    f1.checkConsistencyLight();
+    array.setValues(arr1,nbOfNodes,2)
+    f1.setArray(array)
+    array.setInfoOnComponent(0,"tyty [mm]")
+    array.setInfoOnComponent(1,"uiop [MW]")
+    f1.setTime(3.14,2,7)
+    f1.checkConsistencyLight()
     arr2=[1,4]
-    f2=f1.buildSubPart(arr2);
-    f2.getMesh().setName(f1.getMesh().getName());
+    f2=f1.buildSubPart(arr2)
+    f2.getMesh().setName(f1.getMesh().getName())
     WriteField(fileName,f2,False);#<- False important for the test
     #
-    f3=ReadFieldNode(fileName,f2.getMesh().getName(),0,f2.getName(),2,7);
-    f3.checkConsistencyLight();
-    tester.assertTrue(f3.isEqual(f2,1e-12,1e-12));
+    f3=ReadFieldNode(fileName,f2.getMesh().getName(),0,f2.getName(),2,7)
+    f3.checkConsistencyLight()
+    tester.assertTrue(f3.isEqual(f2,1e-12,1e-12))
     #
     arr3=[1,3,0,5,2,4]
-    f2.renumberNodes(arr3);
-    WriteUMesh(fileName2,m,True);
+    f2.renumberNodes(arr3)
+    WriteUMesh(fileName2,m,True)
     WriteField(fileName2,f2,False);#<- False important for the test
-    f3=ReadFieldNode(fileName2,f2.getMesh().getName(),0,f2.getName(),2,7);
-    f3.checkConsistencyLight();
-    tester.assertTrue(f3.isEqual(f2,1e-12,1e-12));
+    f3=ReadFieldNode(fileName2,f2.getMesh().getName(),0,f2.getName(),2,7)
+    f3.checkConsistencyLight()
+    tester.assertTrue(f3.isEqual(f2,1e-12,1e-12))
     #
     pass
 
 def GeneratePyfile7(tester):
-    f1=MEDLoaderDataForTest.buildVecFieldOnCells_1();
-    WriteField("Pyfile6.med",f1,True);
-    f2=ReadFieldCell("Pyfile6.med",f1.getMesh().getName(),0,f1.getName(),0,1);
-    tester.assertTrue(f1.isEqual(f2,1e-12,1e-12));
+    f1=MEDLoaderDataForTest.buildVecFieldOnCells_1()
+    WriteField("Pyfile6.med",f1,True)
+    f2=ReadFieldCell("Pyfile6.med",f1.getMesh().getName(),0,f1.getName(),0,1)
+    tester.assertTrue(f1.isEqual(f2,1e-12,1e-12))
     #
-    f1=MEDLoaderDataForTest.buildVecFieldOnNodes_1();
-    WriteField("Pyfile7.med",f1,True);
-    f2=ReadFieldNode("Pyfile7.med",f1.getMesh().getName(),0,f1.getName(),2,3);
-    tester.assertTrue(f1.isEqual(f2,1e-12,1e-12));
-    tester.assertRaises(Exception,ReadFieldCell,"Pyfile7.med",f1.getMesh().getName(),0,f1.getName(),2,3);
+    f1=MEDLoaderDataForTest.buildVecFieldOnNodes_1()
+    WriteField("Pyfile7.med",f1,True)
+    f2=ReadFieldNode("Pyfile7.med",f1.getMesh().getName(),0,f1.getName(),2,3)
+    tester.assertTrue(f1.isEqual(f2,1e-12,1e-12))
+    tester.assertRaises(Exception,ReadFieldCell,"Pyfile7.med",f1.getMesh().getName(),0,f1.getName(),2,3)
     pass
 
 def GeneratePyfile12(tester):
-    fileName="Pyfile12.med";
-    mesh1=MEDLoaderDataForTest.build3DMesh_1();
-    da,b,newNbOfNodes=mesh1.mergeNodes(1e-12);
-    WriteUMesh(fileName,mesh1,True);
+    fileName="Pyfile12.med"
+    mesh1=MEDLoaderDataForTest.build3DMesh_1()
+    da,b,newNbOfNodes=mesh1.mergeNodes(1e-12)
+    WriteUMesh(fileName,mesh1,True)
     part1=[1,2,4,13,15]
-    mesh2=mesh1.buildPartOfMySelf(part1,True);
+    mesh2=mesh1.buildPartOfMySelf(part1,True)
     mesh2.setName(mesh1.getName());#<- important for the test
     #
-    nbOfCells=mesh2.getNumberOfCells();
-    tester.assertEqual(5,nbOfCells);
-    f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME);
-    f1.setName("VectorFieldOnCells");
-    f1.setMesh(mesh2);
-    array=DataArrayDouble.New();
-    array.alloc(nbOfCells,2);
-    f1.setArray(array);
+    nbOfCells=mesh2.getNumberOfCells()
+    tester.assertEqual(5,nbOfCells)
+    f1=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME)
+    f1.setName("VectorFieldOnCells")
+    f1.setMesh(mesh2)
+    array=DataArrayDouble.New()
+    array.alloc(nbOfCells,2)
+    f1.setArray(array)
     arr1=[71.,171.,10.,110.,20.,120.,30.,130.,40.,140.]
-    array.setValues(arr1,nbOfCells,2);
-    f1.setTime(3.14,2,7);
-    f1.checkConsistencyLight();
+    array.setValues(arr1,nbOfCells,2)
+    f1.setTime(3.14,2,7)
+    f1.checkConsistencyLight()
     #
     WriteField(fileName,f1,False);#<- False important for the test
     #
-    f2=ReadFieldCell(fileName,f1.getMesh().getName(),0,f1.getName(),2,7);
-    tt=GetTypesOfField(fileName,f1.getMesh().getName(),f1.getName());
-    tester.assertEqual(tt,[ON_CELLS]);
-    f2.checkConsistencyLight();
-    tester.assertTrue(f1.isEqual(f2,1e-12,1e-12));
+    f2=ReadFieldCell(fileName,f1.getMesh().getName(),0,f1.getName(),2,7)
+    tt=GetTypesOfField(fileName,f1.getMesh().getName(),f1.getName())
+    tester.assertEqual(tt,[ON_CELLS])
+    f2.checkConsistencyLight()
+    tester.assertTrue(f1.isEqual(f2,1e-12,1e-12))
 
 def GeneratePyfile10(tester):
-    fileName="Pyfile10.med";
-    mesh1=MEDLoaderDataForTest.build3DMesh_1();
+    fileName="Pyfile10.med"
+    mesh1=MEDLoaderDataForTest.build3DMesh_1()
     part1=[1,2,4,13,15]
-    mesh2=mesh1.buildPartOfMySelf(part1,True);
-    mesh2.setName("mesh2");
+    mesh2=mesh1.buildPartOfMySelf(part1,True)
+    mesh2.setName("mesh2")
     part2=[3,4,13,14]
-    mesh3=mesh1.buildPartOfMySelf(part2,True);
-    mesh3.setName("mesh3");
-    mesh4=MEDCouplingUMesh.New();
-    mesh4.setName("mesh4");
-    mesh4.setMeshDimension(3);
-    mesh4.allocateCells(1);
+    mesh3=mesh1.buildPartOfMySelf(part2,True)
+    mesh3.setName("mesh3")
+    mesh4=MEDCouplingUMesh.New()
+    mesh4.setName("mesh4")
+    mesh4.setMeshDimension(3)
+    mesh4.allocateCells(1)
     conn=[0,11,1,3]
     mesh4.insertNextCell(NORM_TETRA4,4,conn[0:4])
-    mesh4.finishInsertingCells();
-    mesh4.setCoords(mesh1.getCoords());
+    mesh4.finishInsertingCells()
+    mesh4.setCoords(mesh1.getCoords())
     meshes=[mesh1,mesh2,mesh3,mesh4]
-    mnane="3DToto";
-    WriteUMeshesPartition(fileName,mnane,meshes,True);
+    mnane="3DToto"
+    WriteUMeshesPartition(fileName,mnane,meshes,True)
     #
-    mesh5=ReadUMeshFromFile(fileName,mnane);
-    mesh1.setName(mnane);
+    mesh5=ReadUMeshFromFile(fileName,mnane)
+    mesh1.setName(mnane)
     part3=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
-    mesh6=mesh5.buildPartOfMySelf(part3,True);
-    mesh6.setName(mnane);
-    tester.assertTrue(mesh6.isEqual(mesh1,1e-12));
-    grps=GetMeshGroupsNames(fileName,mnane);
-    tester.assertEqual(4,len(grps));
-    grps.index("mesh2");
-    grps.index("mesh3");
-    grps.index("mesh4");
-    grps.index("3DMesh_1");
+    mesh6=mesh5.buildPartOfMySelf(part3,True)
+    mesh6.setName(mnane)
+    tester.assertTrue(mesh6.isEqual(mesh1,1e-12))
+    grps=GetMeshGroupsNames(fileName,mnane)
+    tester.assertEqual(4,len(grps))
+    grps.index("mesh2")
+    grps.index("mesh3")
+    grps.index("mesh4")
+    grps.index("3DMesh_1")
     #
-    vec=("mesh2",);
-    mesh2_2=ReadUMeshFromGroups(fileName,mnane,0,vec);
-    tester.assertTrue(mesh2_2.isEqual(mesh2,1e-12));
-    vec=["mesh3"];
-    mesh3_2=ReadUMeshFromGroups(fileName,mnane,0,vec);
-    tester.assertTrue(mesh3_2.isEqual(mesh3,1e-12));
-    vec=["mesh4"];
-    mesh4_2=ReadUMeshFromGroups(fileName,mnane,0,vec);
-    tester.assertTrue(mesh4_2.isEqual(mesh4,1e-12));
-    vec="3DMesh_1";
-    mesh1_2=ReadUMeshFromGroups(fileName,mnane,0,vec);
-    mesh1.setName("3DMesh_1");
-    tester.assertTrue(mesh1_2.isEqual(mesh1,1e-12));
+    vec=("mesh2",)
+    mesh2_2=ReadUMeshFromGroups(fileName,mnane,0,vec)
+    tester.assertTrue(mesh2_2.isEqual(mesh2,1e-12))
+    vec=["mesh3"]
+    mesh3_2=ReadUMeshFromGroups(fileName,mnane,0,vec)
+    tester.assertTrue(mesh3_2.isEqual(mesh3,1e-12))
+    vec=["mesh4"]
+    mesh4_2=ReadUMeshFromGroups(fileName,mnane,0,vec)
+    tester.assertTrue(mesh4_2.isEqual(mesh4,1e-12))
+    vec="3DMesh_1"
+    mesh1_2=ReadUMeshFromGroups(fileName,mnane,0,vec)
+    mesh1.setName("3DMesh_1")
+    tester.assertTrue(mesh1_2.isEqual(mesh1,1e-12))
     #
-    vec=["Family_-3","Family_-5"];
-    mesh2_2=ReadUMeshFromFamilies(fileName,mnane,0,vec);
-    mesh2_2.setName("mesh2");
-    tester.assertTrue(mesh2_2.isEqual(mesh2,1e-12));
+    vec=["Family_-3","Family_-5"]
+    mesh2_2=ReadUMeshFromFamilies(fileName,mnane,0,vec)
+    mesh2_2.setName("mesh2")
+    tester.assertTrue(mesh2_2.isEqual(mesh2,1e-12))
     #
-    ret=GetMeshFamiliesNamesOnGroup(fileName,"3DToto","3DMesh_1");
-    tester.assertEqual(4,len(ret));
+    ret=GetMeshFamiliesNamesOnGroup(fileName,"3DToto","3DMesh_1")
+    tester.assertEqual(4,len(ret))
     ref=['Family_-3','Family_-4','Family_-2','Family_-5']
-    tester.assertIn(ref[0],ret);
-    tester.assertIn(ref[1],ret);
-    tester.assertIn(ref[2],ret);
-    tester.assertIn(ref[3],ret);
+    tester.assertIn(ref[0],ret)
+    tester.assertIn(ref[1],ret)
+    tester.assertIn(ref[2],ret)
+    tester.assertIn(ref[3],ret)
     #
-    ret1=GetMeshGroupsNamesOnFamily(fileName,"3DToto","Family_-3");
-    tester.assertEqual(2,len(ret1));
-    tester.assertEqual(ret1[0],"3DMesh_1");
-    tester.assertEqual(ret1[1],"mesh2");
+    ret1=GetMeshGroupsNamesOnFamily(fileName,"3DToto","Family_-3")
+    tester.assertEqual(2,len(ret1))
+    tester.assertEqual(ret1[0],"3DMesh_1")
+    tester.assertEqual(ret1[1],"mesh2")

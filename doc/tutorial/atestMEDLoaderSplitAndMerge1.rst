@@ -13,20 +13,20 @@ Splitting and Merging a MED file using MEDLoader
 	m0.setCoords(arr,arr)
 	m0 = m0.buildUnstructured()
 	m00 = m0[::2]      # Extract even cells
-	m00.simplexize(0) 
+	m00.simplexize(0)
 	m01 = m0[1::2]
 	m0 = mc.MEDCouplingUMesh.MergeUMeshes([m00,m01])
 	m0.getCoords()[:] *= 1/15.
 	m0.setName("mesh")
 	# Cell field
-	cellField = mc.MEDCouplingFieldDouble(mc.ON_CELLS, mc.ONE_TIME) 
+	cellField = mc.MEDCouplingFieldDouble(mc.ON_CELLS, mc.ONE_TIME)
 	cellField.setTime(5.6,5,6)
 	cellField.setMesh(m0)
 	cellField.setName("CellField")
 	cellField.fillFromAnalytic(1,"exp(-((x-1)*(x-1)+(y-1)*(y-1)))")
 	cellField.getArray().setInfoOnComponent(0,"powercell [W]")
 	# Node field
-	nodeField = mc.MEDCouplingFieldDouble(mc.ON_NODES,mc.ONE_TIME) 
+	nodeField = mc.MEDCouplingFieldDouble(mc.ON_NODES,mc.ONE_TIME)
 	nodeField.setTime(5.6,5,6)
 	nodeField.setMesh(m0)
 	nodeField.setName("NodeField")

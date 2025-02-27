@@ -2,16 +2,16 @@
 
 \page icoco The ICoCo API
 
-ICoCo stands for <b>Interface for COde COupling</b>. 
+ICoCo stands for <b>Interface for COde COupling</b>.
 
-It is a pure abstract API defining a standard way for two physical codes to exchange 
+It is a pure abstract API defining a standard way for two physical codes to exchange
 information between them.
 
-The full definition of this interface is held in the opensource TRUST plaform repository 
-(sub-folder Outils/src/LIBICOCOAPI) that can be found here: 
+The full definition of this interface is held in the opensource TRUST plaform repository
+(sub-folder Outils/src/LIBICOCOAPI) that can be found here:
 https://sourceforge.net/projects/trust-platform
 
-The MEDCoupling library provides the implementation of the <b>ICoCo::MEDDoubleField</b> and 
+The MEDCoupling library provides the implementation of the <b>ICoCo::MEDDoubleField</b> and
 <b>ICoCo::MEDIntField</b> classes used in some of the field exchange methods. We also provide
 the sequential and parallel interpolation tools which are often needed in such coupling (see
 \ref interpolation and \ref para-dec respectively)
@@ -19,5 +19,5 @@ the sequential and parallel interpolation tools which are often needed in such c
 <b>WARNING: currently, no implementation of the ICoCo::MEDStringField object is provided yet, you are welcome
 to propose one if you need it.</b>
 
-<b>Note:</b> some class names have been changed in version 9.7, take a look at \ref porting_icoco 
+<b>Note:</b> some class names have been changed in version 9.7, take a look at \ref porting_icoco
 */

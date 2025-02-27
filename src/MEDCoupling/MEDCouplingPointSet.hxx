@@ -37,7 +37,7 @@ namespace MEDCoupling
 {
   class DataArrayIdType;
   class DataArrayDouble;
-  
+
   /*!
    * This class is abstract and not instanciable.
    * MEDCoupling::MEDCouplingUMesh class inherits from this class.

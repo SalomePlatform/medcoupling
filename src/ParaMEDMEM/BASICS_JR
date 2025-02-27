@@ -152,7 +152,7 @@ MPI_AccessDEC et la gestion des SendBuffers :
 =============================================
 
 . Comme dans les communications collectives on n'envoie que des
-  parties du meme buffer à chaque process "target", il faut s'assurer
+  parties du meme buffer ï¿½ chaque process "target", il faut s'assurer
   en asynchrone que toutes ces parties sont disponibles pour
   pouvoir liberer le buffer.
 
@@ -212,7 +212,7 @@ AllToAll[v] : Les arguments sont les memes que dans MPI sauf MPI_Comm
                 asynchrones (voir ci-apres) et on appelle SendRecv
                 pour chaque "target".
 
-AllToAll[v]Time : 
+AllToAll[v]Time :
 -----------------
 
 . CheckSent() :
@@ -327,7 +327,7 @@ Presentation-ParaMEDMEM :
     SetTime(time) de MPI_AccessDEC et
     recvData()
   + void InterpKernelDEC::sendData( double time , double deltatime )
-    qui appelle 
+    qui appelle
     SetTime(time,deltatime) de MPI_AccessDEC et
     sendData()
 

@@ -108,7 +108,7 @@ namespace INTERP_KERNEL
       }
     barycentric_coords( nodes, point, barycentricCoords );
   }
-    
+
 }
 
 #endif

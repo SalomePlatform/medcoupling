@@ -126,7 +126,7 @@ MCAuto<DataArrayIdType> ParaUMesh::getCellIdsLyingOnNodesTrue(const DataArrayIdT
     MCAuto<DataArrayIdType> localCellCapturedGlob(_cell_global->selectByTupleIdSafe(localCellCaptured->begin(),localCellCaptured->end()));
     tabs[curRk] = localCellCapturedGlob;
   }
-  
+
   for(int curRk = 0 ; curRk < size ; ++curRk)
   {
     tabs[curRk] = tabs[curRk]->buildUniqueNotSorted();
@@ -311,7 +311,7 @@ ParaUMesh *ParaUMesh::redistributeCells(const DataArrayIdType *globalCellIds) co
   MCAuto<DataArrayIdType> connSorted,indicesSorted;
   {
     MCAuto<DataArrayIdType> conn(DataArrayIdType::Aggregate(FromVecAutoToVecOfConst<DataArrayIdType>(connectivityReceived)));
-    MCAuto<DataArrayIdType> connIndex(DataArrayIdType::AggregateIndexes(FromVecAutoToVecOfConst<DataArrayIdType>(connectivityIndexReceived))); 
+    MCAuto<DataArrayIdType> connIndex(DataArrayIdType::AggregateIndexes(FromVecAutoToVecOfConst<DataArrayIdType>(connectivityIndexReceived)));
     {
       DataArrayIdType *indicesSortedTmp(nullptr),*valuesSortedTmp(nullptr);
       DataArrayIdType::ExtractFromIndexedArrays(n2o_cells->begin(),n2o_cells->end(),conn,connIndex,valuesSortedTmp,indicesSortedTmp);

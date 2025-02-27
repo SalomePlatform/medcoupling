@@ -29,14 +29,14 @@ namespace INTERP_KERNEL
 {
 
 
-  /** 
-   * \brief Class responsible for calculating intersection between a hexahedron target element and  
+  /**
+   * \brief Class responsible for calculating intersection between a hexahedron target element and
    * the source elements.
    *
    */
   template<class MyMeshType, class MyMatrix>
   class PolyhedronIntersectorP1P1 : public Intersector3DP1P1<MyMeshType,MyMatrix>
-  { 
+  {
   public:
     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
     static const int MESHDIM=MyMeshType::MY_MESHDIM;
@@ -49,7 +49,7 @@ namespace INTERP_KERNEL
     ~PolyhedronIntersectorP1P1();
 
     void intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res);
-    
+
   };
 }
 

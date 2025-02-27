@@ -26,7 +26,7 @@ is too far from an another cell in the target mesh each.
 So for a given type of interpolation, the computation of W is
 performed in two steps :
 
--# A filtering process reduces the number of pairs of elements for which the calculation 
+-# A filtering process reduces the number of pairs of elements for which the calculation
 must be carried out by eliminating the pairs whose bounding boxes do not intersect.
 -# For all remaining pairs, call the appropriate \ref InterpKerIntersectors "cell intersector"
 

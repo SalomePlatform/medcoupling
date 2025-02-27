@@ -40,16 +40,16 @@ namespace INTERP_KERNEL
     using nbnodesincelltype = std::uint32_t;
     template<class MyMeshType>
     MeshElement(const ConnType index, const MyMeshType& mesh);
-    
+
     MeshElement() = default;
 
     template<class MyMeshType>
     void assign(const ConnType index, const MyMeshType& mesh);
 
     ~MeshElement() { }
-    
+
     nbnodesincelltype getNumberOfNodes() const { return _number; }
-    
+
     const BoundingBox *getBoundingBox() const { return &_box; }
 
     MeshElement& operator=(const MeshElement& elem) = delete;
@@ -59,29 +59,29 @@ namespace INTERP_KERNEL
     MeshElement(const MeshElement& elem);
 
     nbnodesincelltype _number;
-    
+
     /// bounding box of the element - does not change after having been initialised
     BoundingBox _box;
   };
 
   /**
    * \brief Class defining an order for MeshElements based on their bounding boxes.
-   * The order defined between two elements is that between a given coordinate of 
+   * The order defined between two elements is that between a given coordinate of
    * their bounding boxes. For instance, if the order is based on YMIN, an element whose boxes
    * has a smaller YMIN is sorted before one with a larger YMIN.
    *
    */
   class ElementBBoxOrder
   {
-  public : 
-    
+  public :
+
     ElementBBoxOrder(BoundingBox::BoxCoord coord);
     template<class ConnType>
     bool operator()(MeshElement<ConnType>* elem1, MeshElement<ConnType>* elem2);
-    
+
   private :
     /// BoundingBox coordinate (XMIN, XMAX, etc) on which to base the ordering
-    BoundingBox::BoxCoord _coord;  
+    BoundingBox::BoxCoord _coord;
   };
 
 }

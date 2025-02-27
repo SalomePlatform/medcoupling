@@ -451,7 +451,7 @@ void convertToMapIntDataArrayInt(PyObject *pyMap, std::map<int, MCAuto<DataArray
 }
 
 template<class T>
-PyObject *MEDFileField1TS_getFieldWithProfile(const typename MLFieldTraits<T>::F1TSType *self, TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh) 
+PyObject *MEDFileField1TS_getFieldWithProfile(const typename MLFieldTraits<T>::F1TSType *self, TypeOfField type, int meshDimRelToMax, const MEDFileMesh *mesh)
 {
   DataArrayIdType *ret1(NULL);
   typename MEDCoupling::Traits<T>::ArrayType *ret0(self->getFieldWithProfile(type,meshDimRelToMax,mesh,ret1));

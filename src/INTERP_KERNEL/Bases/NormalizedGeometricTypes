@@ -58,9 +58,9 @@ namespace INTERP_KERNEL
    * The PLANAR_* policies persume that each face is to be considered planar, while the general
    * policies make no such hypothesis. The integer at the end gives the number of tetrahedra
    * that result from the split.
-   * 
+   *
    * The images below illustrates the policies in their respective order.
-   * 
+   *
    * \image html tetra_simplexize_5_6.jpg
    * \image html tetra_simplexize_24_48.jpg
    */

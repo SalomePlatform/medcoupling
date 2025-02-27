@@ -58,7 +58,7 @@ MEDCouplingRemapper::~MEDCouplingRemapper()
  * - Set remapping options appropriately
  * - The computation of remapping matrix
  * - Apply the matrix vector multiply to obtain the result of the remapping
- * 
+ *
  * This method performs the second step (computation of remapping matrix) which may be CPU-time consuming. This phase is also the most critical (where the most tricky algorithm) in the remapping process.
  * Strictly speaking to perform the computation of the remapping matrix the field templates source-side and target-side is required (which is the case of MEDCouplingRemapper::prepareEx).
  * So this method is less precise but a more user friendly way to compute a remapping matrix.
@@ -192,7 +192,7 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnly()
 /*!
  * This method performs the operation source to target using matrix computed in MEDCoupling::MEDCouplingRemapper::prepare method.
  * If meshes of \b srcField and \b targetField do not match exactly those given into \ref MEDCoupling::MEDCouplingRemapper::prepare "prepare method" an exception will be thrown.
- * 
+ *
  * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on MEDCoupling::MEDCouplingRemapper::prepare.
  * \param [in,out] targetField the destination field with the allocated array in which all tuples will be overwritten.
  * \param [in] dftValue is the value that will be assigned in the targetField to each entity of target mesh (entity depending on the method selected on prepare invocation) that is not intercepted by any entity of source mesh.
@@ -214,7 +214,7 @@ void MEDCouplingRemapper::transfer(const MEDCouplingFieldDouble *srcField, MEDCo
  * If an entity (cell for example) in targetField is not fetched by any entity (cell for example) of \b srcField, the value in targetField is
  * let unchanged.
  * This method requires that \b targetField was fully defined and allocated. If the array is not allocated an exception will be thrown.
- * 
+ *
  * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on MEDCoupling::MEDCouplingRemapper::prepare.
  * \param [in,out] targetField the destination field with the allocated array in which only tuples whose entities are fetched by interpolation will be overwritten only.
  */
@@ -267,7 +267,7 @@ void MEDCouplingRemapper::reverseTransfer(MEDCouplingFieldDouble *srcField, cons
 /*!
  * This method performs the operation source to target using matrix computed in MEDCoupling::MEDCouplingRemapper::prepare method.
  * If mesh of \b srcField does not match exactly those given into \ref MEDCoupling::MEDCouplingRemapper::prepare "prepare method" an exception will be thrown.
- * 
+ *
  * \param [in] srcField is the source field from which the interpolation will be done. The mesh into \b srcField should be the same than those specified on MEDCoupling::MEDCouplingRemapper::prepare.
  * \param [in] dftValue is the value that will be assigned in the targetField to each entity of target mesh (entity depending on the method selected on prepare invocation) that is not intercepted by any entity of source mesh.
  *             For example in "P0P0" case (cell-cell) if a cell in target mesh is not overlapped by any source cell the \a dftValue value will be attached on that cell in the returned \a targetField. In some cases a target
@@ -341,15 +341,15 @@ bool MEDCouplingRemapper::setOptionString(const std::string& key, const std::str
  * - set to IK_ONLY_PREFERED (0) (the default) : the INTERP_KERNEL only method is preferred. That is to say, if it is possible to treat the case
  *   regarding spatial discretization of source and target with INTERP_KERNEL only method, INTERP_KERNEL only method will be performed.
  *   If not, the \b not only INTERP_KERNEL method will be attempt.
- * 
+ *
  * - set to NOT_IK_ONLY_PREFERED (1) : the \b NOT only INTERP_KERNEL method is preferred. That is to say, if it is possible to treat the case
  *   regarding spatial discretization of source and target with \b NOT only INTERP_KERNEL method, \b NOT only INTERP_KERNEL method, will be performed.
  *   If not, the INTERP_KERNEL only method will be attempt.
- * 
+ *
  * - IK_ONLY_FORCED (2) : Only INTERP_KERNEL only method will be launched.
  *
  * - NOT_IK_ONLY_FORCED (3) : Only \b NOT INTERP_KERNEL only method will be launched.
- * 
+ *
  * \sa MEDCouplingRemapper::setInterpolationMatrixPolicy
  */
 int MEDCouplingRemapper::getInterpolationMatrixPolicy() const
@@ -367,18 +367,18 @@ int MEDCouplingRemapper::getInterpolationMatrixPolicy() const
  * - set to IK_ONLY_PREFERED (0) (the default) : the INTERP_KERNEL only method is preferred. That is to say, if it is possible to treat the case
  *   regarding spatial discretization of source and target with INTERP_KERNEL only method, INTERP_KERNEL only method will be performed.
  *   If not, the \b not only INTERP_KERNEL method will be attempt.
- * 
+ *
  * - set to NOT_IK_ONLY_PREFERED (1) : the \b NOT only INTERP_KERNEL method is preferred. That is to say, if it is possible to treat the case
  *   regarding spatial discretization of source and target with \b NOT only INTERP_KERNEL method, \b NOT only INTERP_KERNEL method, will be performed.
  *   If not, the INTERP_KERNEL only method will be attempt.
- * 
+ *
  * - IK_ONLY_FORCED (2) : Only INTERP_KERNEL only method will be launched.
  *
  * - NOT_IK_ONLY_FORCED (3) : Only \b NOT INTERP_KERNEL only method will be launched.
- * 
+ *
  * \input newInterpMatPol the new interpolation matrix method policy. This parameter is of type \c int and not of type \c MEDCoupling::InterpolationMatrixPolicy
  *                        for automatic generation of CORBA component.
- * 
+ *
  * \sa MEDCouplingRemapper::getInterpolationMatrixPolicy
  */
 void MEDCouplingRemapper::setInterpolationMatrixPolicy(int newInterpMatPol)
@@ -1062,7 +1062,7 @@ void MEDCouplingRemapper::synchronizeSizeOfSideMatricesAfterMatrixComputation(mc
 /*!
  * This method builds a code considering already set field discretization int \a this : \a _src_ft and \a _target_ft.
  * This method returns 3 information (2 in output parameters and 1 in return).
- * 
+ *
  * \param [out] srcMeth the string code of the discretization of source field template
  * \param [out] trgMeth the string code of the discretization of target field template
  * \return the standardized string code (compatible with INTERP_KERNEL) for matrix of numerators (in \a _matrix)

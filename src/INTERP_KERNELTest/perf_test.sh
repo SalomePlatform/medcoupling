@@ -18,7 +18,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# should be run from the build directory, so that ./PerfTest is available 
+# should be run from the build directory, so that ./PerfTest is available
 # output file
 #
 RES_FILE=perf_OPTIMIZE
@@ -30,7 +30,7 @@ function test_pair {
     echo -n " " >> $RES_FILE
     echo -n $2 | sed 's/\(PerfCyl\)\([0-9]*\)/\2/' | sed 's/\(PerfBoxT\)\([0-9]*\)/\2/' | sed 's/\(PerfBox\)\([0-9]*\)/\2/' >> $RES_FILE
     echo -n " " >> $RES_FILE
-    time -o $RES_FILE --append -f"%U" ./PerfTest $1 $2 
+    time -o $RES_FILE --append -f"%U" ./PerfTest $1 $2
     echo
 }
 
@@ -106,7 +106,7 @@ function test_box_cyl {
     test_pair PerfBox1495 PerfCyl9766
     test_pair PerfBox1495 PerfCyl25745
     test_pair PerfBox1495 PerfCyl47601
-    
+
     test_pair PerfBox2506 PerfCyl1047
     test_pair PerfBox2506 PerfCyl3020
     test_pair PerfBox2506 PerfCyl6556
@@ -134,7 +134,7 @@ function test_box_cyl {
     test_pair PerfBox30808 PerfCyl9766
     test_pair PerfBox30808 PerfCyl25745
     test_pair PerfBox30808 PerfCyl47601
-    
+
     test_pair PerfBox47176 PerfCyl1047
     test_pair PerfBox47176 PerfCyl3020
     test_pair PerfBox47176 PerfCyl6556
@@ -152,10 +152,10 @@ function test_box_transbox {
     test_pair PerfBox30808 PerfBoxT29019
     test_pair PerfBox47176 PerfBoxT47278
 }
-    
 
-    
-#functions to execute :     
+
+
+#functions to execute :
 
 echo PerfTest execution on `date` > $RES_FILE
 test_box_cyl

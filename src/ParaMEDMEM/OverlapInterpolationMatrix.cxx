@@ -146,7 +146,7 @@ namespace MEDCoupling
       {
         MEDCouplingNormalizedUnstructuredMesh<3,3> target_wrapper(trgC);
         MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(srcC);
-        
+
         INTERP_KERNEL::Interpolation2D3D interpolator (*this);
         colSize=interpolator.interpolateMeshes(source_wrapper,target_wrapper,sparse_matrix_part,interpMethod);
       }
@@ -155,7 +155,7 @@ namespace MEDCoupling
       {
         MEDCouplingNormalizedUnstructuredMesh<3,3> target_wrapper(trgC);
         MEDCouplingNormalizedUnstructuredMesh<3,3> source_wrapper(srcC);
-        
+
         INTERP_KERNEL::Interpolation2D3D interpolator (*this);
         vector<SparseDoubleVec > matrixTranspose;
         colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,sparse_matrix_part,interpMethod);//not a bug target in source.
@@ -167,7 +167,7 @@ namespace MEDCoupling
       {
         MEDCouplingNormalizedUnstructuredMesh<2,2> target_wrapper(trgC);
         MEDCouplingNormalizedUnstructuredMesh<2,2> source_wrapper(srcC);
-        
+
         INTERP_KERNEL::Interpolation2D1D interpolator (*this);
         colSize=interpolator.interpolateMeshes(source_wrapper,target_wrapper,sparse_matrix_part,interpMethod);
       }
@@ -176,7 +176,7 @@ namespace MEDCoupling
       {
         MEDCouplingNormalizedUnstructuredMesh<2,2> target_wrapper(trgC);
         MEDCouplingNormalizedUnstructuredMesh<2,2> source_wrapper(srcC);
-        
+
         INTERP_KERNEL::Interpolation2D1D interpolator (*this);
         vector<SparseDoubleVec > matrixTranspose;
         colSize=interpolator.interpolateMeshes(target_wrapper,source_wrapper,matrixTranspose,interpMethod);//not a bug target in source.
@@ -289,7 +289,7 @@ namespace MEDCoupling
   {
     _mapping.transposeMultiply(_target_field->getField(),_source_field->getField());
   }
-  
+
   void OverlapInterpolationMatrix::TransposeMatrix(const std::vector<SparseDoubleVec >& matIn,
                                                    mcIdType nbColsMatIn, std::vector<SparseDoubleVec >& matOut)
   {

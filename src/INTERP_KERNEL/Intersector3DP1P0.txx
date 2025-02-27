@@ -35,7 +35,7 @@ namespace INTERP_KERNEL
   {
     return Intersector3D<MyMeshType,MyMatrix>::_target_mesh.getNumberOfElements();
   }
-  
+
   template<class MyMeshType, class MyMatrix>
   typename MyMeshType::MyConnType Intersector3DP1P0<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
   {

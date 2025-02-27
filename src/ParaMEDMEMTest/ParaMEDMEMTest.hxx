@@ -96,9 +96,9 @@ class ParaMEDMEMTest : public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE_END();
 
 public:
- 
+
   ParaMEDMEMTest():CppUnit::TestFixture(){}
-  ~ParaMEDMEMTest(){}  
+  ~ParaMEDMEMTest(){}
   void setUp(){}
   void tearDown(){}
   void testMPIProcessorGroup_constructor();
@@ -171,13 +171,13 @@ public:
 
 private:
 #ifdef MED_ENABLE_FVM
-  void testNonCoincidentDEC(const std::string& filename1, 
-                            const std::string& meshname1, 
-                            const std::string& filename2, 
+  void testNonCoincidentDEC(const std::string& filename1,
+                            const std::string& meshname1,
+                            const std::string& filename2,
                             const std::string& meshname2,
                             int nbprocsource, double epsilon);
 #endif
-  void testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA, 
+  void testAsynchronousInterpKernelDEC_2D(double dtA, double tmaxA,
                                           double dtB, double tmaxB,
                                           bool WithPointToPoint, bool Asynchronous, bool WithInterp, const char *srcMeth, const char *targetMeth);
   void testInterpKernelDEC_2D_(const char *srcMeth, const char *targetMeth);

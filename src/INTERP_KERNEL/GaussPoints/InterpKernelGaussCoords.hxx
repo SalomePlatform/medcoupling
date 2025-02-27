@@ -27,13 +27,13 @@
 
 #include <vector>
 
-namespace INTERP_KERNEL 
+namespace INTERP_KERNEL
 {
   typedef std::vector<double> DataVector;
   typedef std::vector<int>    IndexVector;
 
   //Class to store Gauss Points information
-  class GaussInfo 
+  class GaussInfo
   {
   public:
     INTERPKERNEL_EXPORT GaussInfo( NormalizedCellType theGeometry,
@@ -44,7 +44,7 @@ namespace INTERP_KERNEL
                                    );
     INTERPKERNEL_EXPORT ~GaussInfo();
 
-    INTERPKERNEL_EXPORT NormalizedCellType getCellType() const;    
+    INTERPKERNEL_EXPORT NormalizedCellType getCellType() const;
 
     INTERPKERNEL_EXPORT int getGaussCoordDim() const;
     INTERPKERNEL_EXPORT int getReferenceCoordDim() const;
@@ -61,7 +61,7 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT const double *getDerivativeOfShapeFunctionAt( const int theGaussId ) const;
 
     INTERPKERNEL_EXPORT void initLocalInfo();
-    
+
     INTERPKERNEL_EXPORT static std::vector<double> NormalizeCoordinatesIfNecessary(NormalizedCellType ct, int inputDim, const std::vector<double>& inputArray);
     INTERPKERNEL_EXPORT static std::vector<double> GetDefaultReferenceCoordinatesOf(NormalizedCellType ct);
     INTERPKERNEL_EXPORT static bool IsInOrOutForReference(NormalizedCellType ct, const double *ptInRefCoo, double eps);
@@ -103,9 +103,9 @@ namespace INTERP_KERNEL
   protected:
     static bool IsSatisfy(const std::vector<double>& ref1, const std::vector<double>& ref2);
     bool isSatisfy();
-    
+
     void point1Init();
-    
+
     //1D
     void seg2aInit();
     void seg2bInit();
@@ -150,7 +150,7 @@ namespace INTERP_KERNEL
     static void Penta6DegTria3aInit(GaussInfo& obj) { obj.penta6DegTria3aInit(); }
     void penta6DegTria3bInit();
     static void Penta6DegTria3bInit(GaussInfo& obj) { obj.penta6DegTria3bInit(); }
-    
+
     void penta15aInit();
     static void Penta15aInit(GaussInfo& obj) { obj.penta15aInit(); }
     void penta15bInit();
@@ -202,8 +202,8 @@ namespace INTERP_KERNEL
   };
 
 
-  //Class for calculation of the coordinates of the gauss points 
-  class GaussCoords 
+  //Class for calculation of the coordinates of the gauss points
+  class GaussCoords
   {
   public:
 
@@ -217,13 +217,13 @@ namespace INTERP_KERNEL
                                            const double* theReferenceCoord,
                                            mcIdType theNbRef);
 
-    INTERPKERNEL_EXPORT double* calculateCoords( NormalizedCellType theGeometry, 
-                                                 const double* theNodeCoords, 
+    INTERPKERNEL_EXPORT double* calculateCoords( NormalizedCellType theGeometry,
+                                                 const double* theNodeCoords,
                                                  const int theSpaceDim,
                                                  const mcIdType* theIndex);
 
-    INTERPKERNEL_EXPORT void calculateCoords( NormalizedCellType theGeometry, 
-                                              const double* theNodeCoords, 
+    INTERPKERNEL_EXPORT void calculateCoords( NormalizedCellType theGeometry,
+                                              const double* theNodeCoords,
                                               const int theSpaceDim,
                                               const mcIdType* theIndex,
                                               double *result);

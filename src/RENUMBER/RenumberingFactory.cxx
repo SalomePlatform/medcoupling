@@ -38,7 +38,7 @@ namespace MED_RENUMBER
     std::transform(ss2.begin(), ss2.end(), ss2.begin(), ::tolower);
     return ss1==ss2;
   }
-  
+
   Renumbering* RenumberingFactory(const std::string &s)
   {
 #ifdef MED_ENABLE_METIS
@@ -51,7 +51,7 @@ namespace MED_RENUMBER
       {
         return new BOOSTRenumbering;
       }
-    else 
+    else
       {
         std::cerr << "The method has to be METIS or BOOST" << std::endl;
         return 0;
@@ -95,7 +95,7 @@ namespace MED_RENUMBER
     ret.push_back(std::string(METIS_ALG));
     return ret;
   }
-  
+
   std::vector<std::string> RenumberAvailableMethods()
   {
     std::vector<std::string> ret;

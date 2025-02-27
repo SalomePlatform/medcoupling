@@ -32,7 +32,7 @@ namespace INTERP_KERNEL
   public:
 
     TranslationRotationMatrix()
-    { 
+    {
       unsigned i;
       for(i=0;i<TRANSL_SIZE;i++)
         _translation_coeffs[i]=0.;
@@ -51,22 +51,22 @@ namespace INTERP_KERNEL
         for (int j=0; j<3; j++)
           for (int k=0; k<3; k++)
             result._rotation_coeffs[j+i*3]+=A._rotation_coeffs[3*i+k]*_rotation_coeffs[j+k*3];
-    
+
       for (int i=0;i<9; i++)
         _rotation_coeffs[i]=result._rotation_coeffs[i];
     }
-  
+
     void rotate_vector(double* P)
     {
       double temp[3]={0.0, 0.0, 0.0};
-    
+
       for (int i=0; i<3;i++)
         for (int j=0; j<3; j++)
           temp[i] +=_rotation_coeffs[3*i+j]*P[j];
-       
+
       P[0]=temp[0];P[1]=temp[1];P[2]=temp[2];
     }
- 
+
     void transform_vector(double*P)
     {
       P[0]+=_translation_coeffs[0];
@@ -81,7 +81,7 @@ namespace INTERP_KERNEL
       _translation_coeffs[1]=P[1];
       _translation_coeffs[2]=P[2];
     }
-  
+
     void  rotate_x (double* P)
     {
       _rotation_coeffs[0]=1.0;
@@ -110,15 +110,15 @@ namespace INTERP_KERNEL
       double r = sqrt(r_sqr);
       double cos =P[0]/r;
       double sin =P[1]/r;
-    
+
       _rotation_coeffs[0]=cos;
-      _rotation_coeffs[1]=sin; 
+      _rotation_coeffs[1]=sin;
       _rotation_coeffs[3]=-sin;
       _rotation_coeffs[4]=cos;
-    
+
       rotate_vector(P);
     }
-                     
+
     /**
      * Fills in rotation_matrix so that the triangle PP1, PP2, PP3 is in the plane Oxy, with PP1 at the origin and PP2 on Ox.
      */

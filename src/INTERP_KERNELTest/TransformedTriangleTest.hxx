@@ -56,7 +56,7 @@ namespace INTERP_TEST
     // tests
     void test_constructor();
 
-    void test_calcUnstableC(); 
+    void test_calcUnstableC();
 
     void test_calcUnstableT();
 
@@ -71,7 +71,7 @@ namespace INTERP_TEST
     double Hp2, Hq2, Hr2;
 
     double stable_c2[24];
-  
+
   private:
     INTERP_KERNEL::TransformedTriangle* tri1;
     INTERP_KERNEL::TransformedTriangle* tri2;

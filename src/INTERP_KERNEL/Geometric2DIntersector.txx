@@ -48,7 +48,7 @@ namespace INTERP_KERNEL
     _precision(precision)
   {
   }
-  
+
   INTERSECTOR_TEMPLATE
   double GEO2D_INTERSECTOR::intersectGeometry(ConnType icellT,   ConnType icellS,
                                               ConnType nbNodesT, ConnType nbNodesS)

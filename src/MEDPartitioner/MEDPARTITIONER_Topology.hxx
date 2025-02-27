@@ -37,14 +37,14 @@ namespace MEDPARTITIONER
   class ConnectZone;
   class MeshCollection;
   class MEDPARTITIONER_FaceModel;
-    
+
   class MEDPARTITIONER_EXPORT Topology
   {
   public:
     Topology() { }
     Topology(std::vector<MEDCoupling::MEDCouplingUMesh*>, std::vector<MEDPARTITIONER::ConnectZone*>) { }
     virtual ~Topology() { }
-    
+
     /*! converts a list of global cell numbers
      *  to a distributed array with local cell numbers
      */
@@ -53,7 +53,7 @@ namespace MEDPARTITIONER
     //converts a list of global node numbers
     /*! to a distributed array with local cell numbers */
     virtual void convertGlobalCellList(const mcIdType*list , mcIdType nb, mcIdType *local, int*ip) = 0;
-    
+
     /*! converts a list of global face numbers
      *  to a distributed array with local face numbers
      */

@@ -26,13 +26,13 @@ If *m* is a mesh (MEDCouplingUMesh) and *Ids* a list of cell ids, you can extrac
 
 .. figure:: ../images/extract_mesh_ids.png
    :align: center
-   
+
    *m* (to the left) and *part* extracted by calling m[1,2,4,5,7,8] (to the right)
 
 .. note:: in medcoupling ids count from zero unlike SMESH where they count from one.
 
 *part* is also a MEDCouplingUMesh with same coordinates than *m*. Reason is that medcoupling tries to reduce memory effort.
-                 
+
 But it's highly likely that some nodes in part will be not fetched by part.
 
 It can be interesting to locate the fetched nodes.
@@ -43,7 +43,7 @@ It can be interesting to locate the fetched nodes.
 
 .. figure:: ../images/extract_mesh_fetched_nodes.png
    :align: center
-   
+
    part.computeFetchedNodeIds() returns [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]. Ids 0 and 17 are not fetched
 
 To extract coordinates, simply invoke
@@ -66,7 +66,7 @@ Or it can be interesting for further data handling to have both reduction and ar
 
 To have more information about *o2n* read renumbering_ section.
 
-.. _renumbering: ../../developer/numbering.html                 
+.. _renumbering: ../../developer/numbering.html
 
 Extraction in meshes often leads to locate cells/nodes regarding their neighborhood.
 
@@ -90,7 +90,7 @@ If a mesh consists of several contiguous zones of cells, it is possible to retri
    :align: center
 
    A mesh with two zones
-   
+
 .. literalinclude:: ../../../src/MEDCoupling_Swig/UsersGuideExamplesTest.py
    :start-after: UG_ExtractForMeshes_20
    :end-before:  UG_ExtractForMeshes_20
@@ -134,7 +134,7 @@ If *field4* is a MEDCouplingFieldDouble, you can extract a sub-part of *field4* 
 
 .. figure:: ../images/extract_fields.png
    :align: center
-   
+
    A field on nodes (to the left) and its sub-field on a half of nodes (to the right)
 
 You can extract a field on plane by cutting *field5* like this:
@@ -149,7 +149,7 @@ The plane is defined by its *origin* and its normal vector *normvec*. The last a
 
 .. figure:: ../images/extractSlice3D.png
    :align: center
-   
+
    A field on cells (to the left) and a sub-field on a plane (to the right)
 
 
@@ -376,8 +376,8 @@ tetrahedrize method is dedicated to simplexization of 3D meshes only. It can cre
    :start-after: UG_CommonHandlingMesh_15
    :end-before:  UG_CommonHandlingMesh_15
 
-The argument specifies how to split hexahedral cells. it must be in (PLANAR_FACE_5, PLANAR_FACE_6, GENERAL_24, GENERAL_48). 
-*n2ocells* is a DataArrayInt holding, for each new cell, an id of old cell producing it. 
+The argument specifies how to split hexahedral cells. it must be in (PLANAR_FACE_5, PLANAR_FACE_6, GENERAL_24, GENERAL_48).
+*n2ocells* is a DataArrayInt holding, for each new cell, an id of old cell producing it.
 *np* is a number of new points.
 
 Using medcoupling you can create a 3D extruded mesh. To do that you need a 2D mesh and a 1D mesh, which defines the vector of extrusion and the number of steps. The both meshes must be in 3D space. To extrude a 2D mesh *m2* along a 1D mesh *m1*, call
@@ -388,7 +388,7 @@ Using medcoupling you can create a 3D extruded mesh. To do that you need a 2D me
 
 The last argument is a policy defining the type of extrusion:
 
-* 0 means "translation only": the cells of the 1D mesh represent the vectors along which the 2D mesh will be repeated to build each level. 
+* 0 means "translation only": the cells of the 1D mesh represent the vectors along which the 2D mesh will be repeated to build each level.
 * 1 means "translation and rotation": the translation is done as above. For each level, an arc of circle is fitted on the 3 preceding points of the 1D mesh. The center of the arc is the center of rotation for each level, the rotation is done along an axis normal to the plane containing the arc, and finally the angle of rotation is defined by the first two points on the arc.
 
 
@@ -484,7 +484,7 @@ If your 2D mesh in 3D space includes incorrectly oriented cells, you can fix the
    :start-after: UG_CommonHandlingMesh_11
    :end-before:  UG_CommonHandlingMesh_11
 
-The last argument if True, only polygons are checked, else, all cells are checked. 
+The last argument if True, only polygons are checked, else, all cells are checked.
 
 .. figure:: ../images/orient_2d.png
    :align: center
@@ -541,7 +541,7 @@ It is also possible to rearrange, and even remove, nodes by calling renumberNode
    :start-after: UG_CommonHandlingMesh_14
    :end-before:  UG_CommonHandlingMesh_14
 
-The code above rearranges a mesh  with 4 nodes so that old node #0 becomes #2, old node #1 remains #1, old node #2 becomes #0, old node #3 is removed. The last argument 3 means that number of nodes becomes 3. 
+The code above rearranges a mesh  with 4 nodes so that old node #0 becomes #2, old node #1 remains #1, old node #2 becomes #0, old node #3 is removed. The last argument 3 means that number of nodes becomes 3.
 
 .. figure:: ../images/renumber_nodes.png
    :align: center
@@ -589,4 +589,4 @@ on the fly according to these generated parameters combinations.
 .. literalinclude:: ../../../src/Stat/Test/TestMEDCouplingIterativeStatistics.py
    :start-after: UG_MEDCouplingIterativeStatistics_2
    :end-before:  UG_MEDCouplingIterativeStatistics_2
-   
+

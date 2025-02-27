@@ -27,7 +27,7 @@
 namespace MEDCoupling
 {
   class MEDCouplingCurveLinearMesh;
-  
+
   class MEDCouplingCMesh : public MEDCouplingStructuredMesh
   {
   public:

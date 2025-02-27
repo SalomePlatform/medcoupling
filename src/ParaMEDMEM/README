@@ -1,4 +1,4 @@
-Tests avec CPPUNIT 
+Tests avec CPPUNIT
 ==================
 
 L'appel a MPI_Init n'est fait qu'une seule fois pour chaque suite de test

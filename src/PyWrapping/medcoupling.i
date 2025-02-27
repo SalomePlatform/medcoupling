@@ -109,7 +109,7 @@
     return MEDPartitioner::HasScotchAlg();
 #else
     return false;
-#endif    
+#endif
   }
 
   bool HasPTScotchPartitionerAlg()
@@ -118,7 +118,7 @@
     return MEDPartitioner::HasPTScotchAlg();
 #else
     return false;
-#endif    
+#endif
   }
 
   bool HasMetisPartitionerAlg()
@@ -127,9 +127,9 @@
     return MEDPartitioner::HasMetisAlg();
 #else
     return false;
-#endif    
+#endif
   }
-  
+
   bool HasParallelInterpolatorExt()
   {
 #ifdef WITH_PARALLEL_INTERPOLATOR
@@ -138,7 +138,7 @@
     return false;
 #endif
   }
-  
+
   bool HasIterativeStatisticsExt()
   {
 #ifdef WITH_ITERATIVE_STATISTICS
@@ -156,7 +156,7 @@
     return false;
 #endif
   }
-  
+
   std::vector<std::string> ActiveExtensions()
   {
     std::vector<std::string> ret;

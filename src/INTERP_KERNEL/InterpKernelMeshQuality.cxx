@@ -94,7 +94,7 @@ double INTERP_KERNEL::quadWarp(const double *coo)
   double e1[3]={coo[6]-coo[3],coo[7]-coo[4],coo[8]-coo[5]};
   double e2[3]={coo[9]-coo[6],coo[10]-coo[7],coo[11]-coo[8]};
   double e3[3]={coo[0]-coo[9],coo[1]-coo[10],coo[2]-coo[11]};
-  
+
   double n0[3]={e3[1]*e0[2]-e3[2]*e0[1],e3[2]*e0[0]-e3[0]*e0[2],e3[0]*e0[1]-e3[1]*e0[0]};
   double n1[3]={e0[1]*e1[2]-e0[2]*e1[1],e0[2]*e1[0]-e0[0]*e1[2],e0[0]*e1[1]-e0[1]*e1[0]};
   double n2[3]={e1[1]*e2[2]-e1[2]*e2[1],e1[2]*e2[0]-e1[0]*e2[2],e1[0]*e2[1]-e1[1]*e2[0]};
@@ -132,7 +132,7 @@ double INTERP_KERNEL::triAspectRatio(const double *coo)
   double a=sqrt((coo[3]-coo[0])*(coo[3]-coo[0])+(coo[4]-coo[1])*(coo[4]-coo[1])+(coo[5]-coo[2])*(coo[5]-coo[2]));
   double b=sqrt((coo[6]-coo[3])*(coo[6]-coo[3])+(coo[7]-coo[4])*(coo[7]-coo[4])+(coo[8]-coo[5])*(coo[8]-coo[5]));
   double c=sqrt((coo[0]-coo[6])*(coo[0]-coo[6])+(coo[1]-coo[7])*(coo[1]-coo[7])+(coo[2]-coo[8])*(coo[2]-coo[8]));
- 
+
   double hm=a>b?a:b;
   hm=hm>c?hm:c;
 
@@ -141,7 +141,7 @@ double INTERP_KERNEL::triAspectRatio(const double *coo)
                 (coo[3]-coo[0])*(coo[7]-coo[4])-(coo[4]-coo[1])*(coo[6]-coo[3])};
   double d=sqrt(ab[0]*ab[0]+ab[1]*ab[1]+ab[2]*ab[2]);
   static const double normalizeCoeff=sqrt(3.)/6.;
-  if(d>1.e-15) 
+  if(d>1.e-15)
     return normalizeCoeff*hm*(a+b+c)/d;
   else
     return std::numeric_limits<double>::max();
@@ -155,7 +155,7 @@ double INTERP_KERNEL::tetraEdgeRatio(const double *coo)
   double d[3]={coo[9]-coo[0],coo[10]-coo[1],coo[11]-coo[2]};
   double e[3]={coo[9]-coo[3],coo[10]-coo[4],coo[11]-coo[5]};
   double f[3]={coo[9]-coo[6],coo[10]-coo[7],coo[11]-coo[8]};
-  
+
   double l2[6]=
     {a[0]*a[0]+a[1]*a[1]+a[2]*a[2],
      b[0]*b[0]+b[1]*b[1]+b[2]*b[2],

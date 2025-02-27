@@ -57,14 +57,14 @@ namespace INTERP_TEST
     INTERP_KERNEL::IntersectionType _intersectionType;//Used only in the case MESHDIM==2 (planar intersections)
 
     MeshTestToolkit():_precision(1.e-6),_intersectionType(INTERP_KERNEL::Triangulation)  {}
-  
+
     ~MeshTestToolkit() {}
 
     void intersectMeshes(const char* mesh1, const char* mesh2, const double correctVol, const double prec = 1.0e-5, bool doubleTest = true) const;
 
     // 1.0e-5 here is due to limited precision of "correct" volumes calculated in Salome
     void intersectMeshes(const char* mesh1path, const char* mesh1, const char* mesh2path, const char* mesh2, const double correctVol, const double prec = 1.0e-5, bool doubleTest = true) const;
-  
+
     void dumpIntersectionMatrix(const IntersectionMatrix& m) const;
 
     double sumRow(const IntersectionMatrix& m, int i) const;
@@ -82,9 +82,9 @@ namespace INTERP_TEST
     bool testTranspose(const IntersectionMatrix& m1, const IntersectionMatrix& m2) const;
 
     bool testDiagonal(const IntersectionMatrix& m) const;
-  
+
     void calcIntersectionMatrix(const char* mesh1path, const char* mesh1, const char* mesh2path, const char* mesh2, IntersectionMatrix& m) const;
-  
+
   };
 }
 #endif
