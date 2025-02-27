@@ -4717,7 +4717,7 @@ void MEDCouplingUMesh::convertQuadraticCellsToLinear()
  *
  * \throw if \a this is not fully defined. It throws too if \a conversionType is not in [0,1].
  *
- * \sa MEDCouplingUMesh::convertQuadraticCellsToLinear
+ * \sa MEDCouplingUMesh::convertQuadraticCellsToLinear, MEDCouplingUMesh::convertToQuadraticBasedOnSeg3
  */
 DataArrayIdType *MEDCouplingUMesh::convertLinearCellsToQuadratic(int conversionType)
 {
@@ -4777,6 +4777,104 @@ DataArrayIdType *MEDCouplingUMesh::convertLinearCellsToQuadratic(int conversionT
   _types=types;
   setCoords(coordsSafe);
   return ret.retn();
+}
+
+/*!
+ * This is expected to be mesh containing only linear static cells with meshdim equal to 2 or 3.
+ * This method convert linear cells to quadratic by allowing to pilot middle points of output mesh given seg3 as input.
+ *
+ * \param [in] seg3 mesh of NORM_SEG3 lying on same coordinates than \a this for linear part.
+ * 
+ * \sa MEDCouplingUMesh::convertLinearCellsToQuadratic
+ */
+MCAuto<MEDCouplingUMesh> MEDCouplingUMesh::convertToQuadraticBasedOnSeg3(const MEDCoupling1SGTUMesh *seg3) const
+{
+  this->checkFullyDefined();
+  seg3->checkFullyDefined();
+  {
+    int mdim( getMeshDimension() );
+    if( mdim !=2 && mdim !=3 )
+      THROW_IK_EXCEPTION("This is expected of dimension 2 or 3");
+  }
+  if( seg3->getCellModelEnum() != INTERP_KERNEL::NORM_SEG3 )
+    THROW_IK_EXCEPTION("Input mesh must contain NORM_SEG3 cells");
+  MCAuto<MEDCouplingUMesh> m1D_seg2( seg3->buildUnstructured() );
+  m1D_seg2->convertQuadraticCellsToLinear();
+  {
+    MCAuto<DataArrayIdType> nodeInUse( m1D_seg2->computeFetchedNodeIds() );
+    if( nodeInUse->getMaxAbsValueInArray() >= this->getNumberOfNodes() )
+      THROW_IK_EXCEPTION("Some points of linear part of input seg3 lies outside this coordinates.");
+  }
+  MCAuto<MEDCouplingUMesh> m3DCpy( deepCopyConnectivityOnly() );
+  MCAuto<DataArrayIdType> n2o( m3DCpy->sortCellsInMEDFileFrmt() );
+  MCAuto<MEDCouplingUMesh> edges_on_3d;
+  MCAuto<DataArrayIdType> d,di;
+  {
+    MCAuto<DataArrayIdType> rd,rdi;
+    edges_on_3d = m3DCpy->explodeMeshTo( 1 - this->getMeshDimension(), d, di, rd, rdi);
+  }
+  m1D_seg2->setCoords( this->getCoords() );
+  MCAuto<DataArrayIdType> o2n;
+  {
+    DataArrayIdType *cellCorTmp(nullptr),*nodeCorTmp(nullptr);
+    MCAuto<DataArrayIdType> nodeCorTmpSafe;
+    m1D_seg2->checkGeoEquivalWith(edges_on_3d,22,0.,cellCorTmp,nodeCorTmp);
+    o2n = cellCorTmp; nodeCorTmpSafe = nodeCorTmp;
+  }
+  d->transformWithIndArr(o2n->begin(), o2n->end() );
+  mcIdType offset( 0 );
+  std::vector<MCAuto<MEDCouplingUMesh> > types;
+  {
+    std::vector< MEDCouplingUMesh *> typesTmp( m3DCpy->splitByType() );
+    types = FromVecToVecAutoStealRef( typesTmp );
+  }
+  std::vector< MCAuto<MEDCouplingUMesh> > retVec;
+  for( auto type : types )
+  {
+    MCAuto< MEDCoupling1SGTUMesh > mt( MEDCoupling1SGTUMesh::New(type) );
+    const INTERP_KERNEL::CellModel& cm( mt->getCellModel() );
+    mcIdType nbCellsOfType( mt->getNumberOfCells() );
+    unsigned int nbNodePerCell( cm.getNumberOfNodes() );
+    unsigned nbEdgesPerCell( cm.getNumberOfEdges() );
+    DataArrayIdType *conn( mt->getNodalConnectivity() );
+    const INTERP_KERNEL::CellModel& cmq( INTERP_KERNEL::CellModel::GetCellModel( cm.getQuadraticType() ) );
+    unsigned int nbNodePerCellQ( cmq.getNumberOfNodes() );
+    conn->rearrange( nbNodePerCell );
+    MCAuto<DataArrayIdType> dd,ddi;
+    {
+      DataArrayIdType *ddTmp(nullptr), *ddiTmp(nullptr);
+      DataArrayIdType::ExtractFromIndexedArraysSlice(offset, offset + nbCellsOfType, 1, d, di, ddTmp, ddiTmp);
+      dd = ddTmp; ddi = ddiTmp;
+    }
+    if( nbNodePerCellQ != nbNodePerCell + nbEdgesPerCell )
+      THROW_IK_EXCEPTION( "number of nodes of quadratic cell is supposed to be equal to nb of nodes of linear cell associated and number of edges !" );
+    MCAuto<DataArrayIdType> conn_seg3( seg3->getNodalConnectivity()->deepCopy() );
+    conn_seg3->rearrange( 3 );    
+    {
+      MCAuto<DataArrayIdType> tmpArr( conn_seg3->keepSelectedComponents( {2}) );
+      dd->transformWithIndArr(tmpArr->begin(), tmpArr->end());
+    }
+    dd->rearrange( nbEdgesPerCell );
+    MCAuto<DataArrayIdType> connQ( DataArrayIdType::Meld( {conn,dd} ) );
+    connQ->rearrange(1);
+    MCAuto<MEDCoupling1SGTUMesh> mOut( MEDCoupling1SGTUMesh::New(this->getName(), cmq.getEnum()) );
+    mOut->setCoords( seg3->getCoords() );
+    mOut->setNodalConnectivity( connQ );
+    MCAuto<MEDCouplingUMesh> mOut2( mOut->buildUnstructured() );
+    retVec.push_back( mOut2 );
+    offset += nbCellsOfType;
+  }
+  MCAuto<MEDCouplingUMesh> ret;
+  {
+    std::vector< const MEDCouplingUMesh *> retVecTmp( ToConstVect(retVec) );
+    ret = MEDCouplingUMesh::MergeUMeshesOnSameCoords(retVecTmp);
+  }
+  {
+    MCAuto<DataArrayIdType> o2nTmp( n2o->invertArrayO2N2N2O(n2o->getNumberOfTuples()) );
+    ret->renumberCells(o2nTmp->begin());
+  }
+  ret->copyTinyInfoFrom( this );
+  return ret;
 }
 
 /*!

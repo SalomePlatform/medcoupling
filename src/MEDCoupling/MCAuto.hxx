@@ -82,6 +82,16 @@ namespace MEDCoupling
   }
 
   template<class T>
+  std::vector<MCAuto<T>> FromVecToVecAutoStealRef(const std::vector<T*>& inputVec)
+  {
+    std::size_t size(inputVec.size());
+    std::vector<MCAuto<T>> ret(size);
+    typename std::vector<MCAuto<T>>::iterator itArrays(ret.begin());
+    std::for_each(inputVec.begin(),inputVec.end(),[&itArrays](T *elt) { *itArrays =  elt; itArrays++; });
+    return ret;
+  }
+
+  template<class T>
   std::vector<MCAuto<T>> FromVecConstToVecAuto(const std::vector<const T*>& inputVec)
   {
     std::size_t size(inputVec.size());

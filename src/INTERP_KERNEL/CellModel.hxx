@@ -61,6 +61,7 @@ namespace INTERP_KERNEL
     bool isQuadratic() const { return _quadratic; }
     unsigned getDimension() const { return _dim; }
     INTERPKERNEL_EXPORT bool isCompatibleWith(NormalizedCellType type) const;
+    INTERPKERNEL_EXPORT bool isSimplyQuadratic() const;
     bool isSimplex() const { return _is_simplex; }
     //! sonId is in C format.
     const unsigned *getNodesConstituentTheSon(unsigned sonId) const { return _sons_con[sonId]; }
@@ -68,6 +69,8 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT bool getOrientationStatus(mcIdType lgth, const mcIdType *conn1, const mcIdType *conn2) const;
     unsigned getNumberOfNodes() const { return _nb_of_pts; }
     unsigned getNumberOfSons() const { return _nb_of_sons; }
+    unsigned getNumberOfLittleSons() const { return _nb_of_little_sons; }
+    INTERPKERNEL_EXPORT unsigned getNumberOfEdges() const;
     INTERPKERNEL_EXPORT unsigned getNumberOfSons2(const mcIdType *conn, mcIdType lgth) const;
     INTERPKERNEL_EXPORT unsigned getNumberOfEdgesIn3D(const mcIdType *conn, mcIdType lgth) const;
     INTERPKERNEL_EXPORT unsigned getNumberOfMicroEdges() const;

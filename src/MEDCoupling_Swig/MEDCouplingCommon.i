@@ -374,6 +374,7 @@ typedef long mcPyPtrType;
 %newobject MEDCoupling::MEDCouplingUMesh::findNodesToDuplicate;
 %newobject MEDCoupling::MEDCouplingUMesh::buildDirectionVectorField;
 %newobject MEDCoupling::MEDCouplingUMesh::convertLinearCellsToQuadratic;
+%newobject MEDCoupling::MEDCouplingUMesh::convertToQuadraticBasedOnSeg3;
 %newobject MEDCoupling::MEDCouplingUMesh::getEdgeRatioField;
 %newobject MEDCoupling::MEDCouplingUMesh::getAspectRatioField;
 %newobject MEDCoupling::MEDCouplingUMesh::getWarpField;
@@ -2195,6 +2196,12 @@ namespace MEDCoupling
       static MEDCouplingUMesh *Build1DMeshFromCoords(DataArrayDouble *da)
       {
         MCAuto<MEDCouplingUMesh> ret(MEDCouplingUMesh::Build1DMeshFromCoords(da));
+        return ret.retn();
+      }
+
+      MEDCouplingUMesh *convertToQuadraticBasedOnSeg3(MEDCoupling1SGTUMesh *seg3) const
+      {
+        MCAuto<MEDCouplingUMesh> ret( self->convertToQuadraticBasedOnSeg3(seg3) );
         return ret.retn();
       }
 

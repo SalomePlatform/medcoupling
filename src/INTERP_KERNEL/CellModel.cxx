@@ -33,6 +33,10 @@ unsigned char MEDCOUPLING2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE+1]={1,3,21
 
 namespace INTERP_KERNEL
 {
+  constexpr char SIZE_OF_SIMPLY_QUADRATIC_CELLS = 6;
+
+  constexpr NormalizedCellType LIST_OF_SIMPLY_QUADRATIC_CELLS[SIZE_OF_SIMPLY_QUADRATIC_CELLS] = { NORM_TRI6, NORM_QUAD8, NORM_TETRA10, NORM_PENTA15, NORM_PYRA13, NORM_HEXA20 };
+
   const char *CellModel::CELL_TYPES_REPR[]={"NORM_POINT1", "NORM_SEG2", "NORM_SEG3", "NORM_TRI3", "NORM_QUAD4",// 0->4
                                             "NORM_POLYGON", "NORM_TRI6", "NORM_TRI7" , "NORM_QUAD8", "NORM_QUAD9",//5->9
                                             "NORM_SEG4", "", "", "", "NORM_TETRA4",//10->14
@@ -85,6 +89,14 @@ namespace INTERP_KERNEL
     b1=isDynamic();
     b2=other.isDynamic();
     return b1 || b2;
+  }
+
+  /*!
+   * Simply quadratic stands for element where ALL additionnal points to the associated linear cell are in the middle of edges.
+   */
+  bool CellModel::isSimplyQuadratic() const
+  {
+    return std::find( LIST_OF_SIMPLY_QUADRATIC_CELLS, LIST_OF_SIMPLY_QUADRATIC_CELLS + SIZE_OF_SIMPLY_QUADRATIC_CELLS, _type ) != LIST_OF_SIMPLY_QUADRATIC_CELLS + SIZE_OF_SIMPLY_QUADRATIC_CELLS;
   }
 
   void CellModel::BuildUniqueInstance(std::map<NormalizedCellType,CellModel>& map_unique)
@@ -471,6 +483,24 @@ namespace INTERP_KERNEL
       return FromIdType<unsigned>(lgth);//NORM_POLYL
     else
       return (unsigned)std::count(conn,conn+lgth,-1)+1;
+  }
+
+  unsigned CellModel::getNumberOfEdges() const
+  {
+    if(!isDynamic())
+    {
+      switch(getDimension())
+      {
+        case 2:
+          return getNumberOfSons();
+        case 3:
+          return getNumberOfLittleSons();
+        default:
+          THROW_IK_EXCEPTION("getNumberOfEdges defined only for 2D and 3D cells !");
+      }
+    }
+    else
+      THROW_IK_EXCEPTION("getNumberOfEdges defined only static types !");
   }
 
   unsigned CellModel::getNumberOfEdgesIn3D(const mcIdType *conn, mcIdType lgth) const

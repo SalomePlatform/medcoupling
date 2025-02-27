@@ -985,7 +985,7 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         m.allocateCells()
         m.insertNextCell(NORM_PENTA15,list(range(15)))
         bm = m.buildBoundaryMesh(True)
-        bm.writeVTK("boundary.vtu")
+        #bm.writeVTK("boundary.vtu")
         conn_expected = [
             [6, 0, 1, 2, 6, 7, 8],
             [6, 3, 5, 4, 11, 10, 9],
@@ -1616,6 +1616,72 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
           assert( arrFloat.isEqual(arrFloat_2, 1e-8) )
           self.assertRaises(InterpKernelException, DataArrayDouble.LoadForDbg, f"{p}" )
           pass
+      
+    def testUMeshConvertToQuadraticBasedOnSeg3_0(self):
+        """
+        [EDF32060] : pilot nodes in middle position during linear to quadratic transformation
+        """
+        coo = DataArrayDouble([
+            (0,0),
+            (0,1),
+            (0,2),
+            (1,0),
+            (1,1),
+            (1,2),
+            (1,3),
+            (2,0),
+            (2,1),
+            (2,2),
+            (2,3),
+            (3,0),
+            (3,1),
+            (3,2)
+        ]
+        )
+        m = MEDCouplingUMesh("mesh",2)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(NORM_QUAD4,[0,1,4,3])
+        m.insertNextCell(NORM_TRI3,[3,4,7])
+        m.insertNextCell(NORM_QUAD4,[4,5,9,8])
+        m.insertNextCell(NORM_QUAD4,[1,2,5,4])
+        m.insertNextCell(NORM_QUAD4,[5,6,10,9])
+        m.insertNextCell(NORM_TRI3,[4,8,7])
+        m.insertNextCell(NORM_QUAD4,[7,8,12,11])
+        m.insertNextCell(NORM_QUAD4,[8,9,13,12])
+        m.changeSpaceDimension(3,0.)
+        coords1D = DataArrayDouble([(0,0,0),(0,0,1),(0,0,2),(0,0,3)])
+        m1D = MEDCouplingUMesh.Build1DMeshFromCoords( coords1D )
+        m3D = m.buildExtrudedMesh(m1D,0)
+        #
+        shufflingArr = DataArrayInt( [110, 119,  54, 100,  82,  48,  17,  95,  24,  12,  49, 125,  34, 35,  92,  75,  96,   5,  51,  55,  68,  99,  80,  39,  57,   0, 46, 124,  27, 109, 117,  42, 103,  83,  15,  86,  63,  76,  98, 45,  52, 115,  18,  87,  44,  11, 104,  28,  93,  79,  13,   3, 114,  65,  38,  31,  94,   7,  20, 120,  72,  62,  32,  56,  37, 122,   9,  47, 107, 102,  10,  22,  58,  25,  50,  33,  19,  64, 106,  43,  71,  26, 116, 111,  88,  21,  74,  91,  30,   1, 121, 78,  16,  14,   2,  40,   8,  41,  61,  36,  69,  70, 123,  60,  118, 108, 101,  84,  67, 112,  89,  97, 105,  66,  90,  77,  85, 81, 113,   6,  59,  23,  53,  29,  73,   4] )
+        edges,_,_,_,_ = m3D.explode3DMeshTo1D()
+        edges.renumberCells( shufflingArr )
+        coo_of_middles = edges.computeCellCenterOfMass()
+        edges_1gt = MEDCoupling1GTUMesh.New(edges)
+        conn = edges_1gt.getNodalConnectivity()
+        conn_seg3 = DataArrayInt( edges_1gt.getNumberOfCells(), 3 )
+        conn.rearrange(2)
+        conn_seg3[:,(0,1)] = conn
+        conn.rearrange(1)
+        mid_conn = DataArrayInt( len(coo_of_middles) ) ; mid_conn.iota() ; mid_conn += m3D.getNumberOfNodes()
+        #
+        conn_seg3[:,2] = mid_conn
+        m1D_seg3 = MEDCoupling1SGTUMesh("seg3",NORM_SEG3)
+        conn_seg3.rearrange(1)
+        coo_with_middles = DataArrayDouble.Aggregate([m3D.getCoords(),coo_of_middles])
+        m1D_seg3.setCoords( coo_with_middles )
+        m1D_seg3.setNodalConnectivity( conn_seg3 )
+        ref = m1D_seg3.getCoords().getHiddenCppPointer()
+        #
+        zeRet = m3D.convertToQuadraticBasedOnSeg3( m1D_seg3 ) # <- interesting call is here
+        self.assertEqual( zeRet.getCoords().getHiddenCppPointer(), ref )
+        self.assertEqual( zeRet.getAllGeoTypes(), [NORM_PENTA15, NORM_HEXA20] )
+        candidate = zeRet.explode3DMeshTo1D()[0]
+        candidate.checkGeoEquivalWith(m1D_seg3.buildUnstructured(),22,0.) # <- important test is here
+        zeRet.convertQuadraticCellsToLinear()
+        zeRet.zipCoords()
+        self.assertTrue( zeRet.isEqual( m3D, 1e-12 ) ) # <- less but important test is here
 
 if __name__ == '__main__':
     unittest.main()
