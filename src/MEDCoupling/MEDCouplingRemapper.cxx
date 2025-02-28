@@ -946,32 +946,22 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnlyFEFE()
     throw INTERP_KERNEL::Exception("MEDCouplingRemapper::prepareNotInterpKernelOnlyFEFE : The intersection type is not supported ! Only PointLocator is supported for FE->FE interpolation ! Please invoke setIntersectionType(PointLocator) on the MEDCouplingRemapper instance !");
   MCAuto<DataArrayDouble> trgLoc=_target_ft->getLocalizationOfDiscr();
   mcIdType trgSpaceDim=ToIdType(trgLoc->getNumberOfComponents());
-  if(trgSpaceDim!=3)
-    THROW_IK_EXCEPTION("prepareNotInterpKernelOnlyFEFE : only spacedim 3 supported for target !")
-  if(_src_ft->getMesh()->getSpaceDimension() != 3)
-    THROW_IK_EXCEPTION("prepareNotInterpKernelOnlyFEFE : only spacedim 3 supported for source !")
+  if (_src_ft->getMesh()->getSpaceDimension() != trgSpaceDim) {
+    THROW_IK_EXCEPTION("prepareNotInterpKernelOnlyFEFE : source and target has a different dimension !")
+  }
+
   const MEDCouplingUMesh *srcUMesh( dynamic_cast<const MEDCouplingUMesh *>(_src_ft->getMesh()) );
   const MEDCouplingPointSet *trgMesh( dynamic_cast<const MEDCouplingPointSet *>(_target_ft->getMesh()) );
   if( !srcUMesh )
-    THROW_IK_EXCEPTION("prepareNotInterpKernelOnlyFEFE : only 3D UMesh supported as source !");
+    THROW_IK_EXCEPTION("prepareNotInterpKernelOnlyFEFE : only UMesh supported as source !");
   if( !trgMesh )
-    THROW_IK_EXCEPTION("prepareNotInterpKernelOnlyFEFE : only 3D PointSet mesh supported as target !");
+    THROW_IK_EXCEPTION("prepareNotInterpKernelOnlyFEFE : only PointSet mesh supported as target !");
 
-  _matrix.clear();
-  _matrix.resize(trgMesh->getNumberOfNodes());
-  mcIdType rowId(0);
+  // Could be more generic than PointSet since only need coordinates.
+  const double *coordsOfTrgMesh = trgMesh->getCoords()->begin();
+  const mcIdType nbOfTrgPts = trgMesh->getNumberOfNodes();
 
-  auto matrixFeeder = [this,&rowId](const MEDCouplingGaussLocalization& gl, const std::vector<mcIdType>& conn)
-  {
-    auto& row = this->_matrix[rowId++];
-    MCAuto<DataArrayDouble> resVector( gl.getShapeFunctionValues() );
-    for(int iPt = 0 ; iPt < gl.getNumberOfPtsInRefCell(); ++iPt)
-    {
-      row[ conn[iPt] ] = resVector->getIJ(0,iPt);
-    }
-  };
-
-  MEDCouplingFieldDiscretizationOnNodesFE::GetRefCoordOfListOf3DPtsIn3D(srcUMesh,trgMesh->getCoords()->begin(),trgMesh->getNumberOfNodes(),matrixFeeder);
+  MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrix(srcUMesh, coordsOfTrgMesh, nbOfTrgPts, this->_matrix);
   synchronizeSizeOfSideMatricesAfterMatrixComputation( srcUMesh->getNumberOfNodes() );
   return 1;
 }

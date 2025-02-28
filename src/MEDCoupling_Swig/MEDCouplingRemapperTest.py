@@ -1587,6 +1587,211 @@ class MEDCouplingBasicsTest(unittest.TestCase):
             delta = abs(csr_new[0,0]-ref_value)/ref_value
             self.assertTrue(delta < 1e-3)
 
+    def testFEFE_QUAD(self):
+        """
+        [EDF31187] : Test to stress localisation of target points into a source mesh using standard reference FE elements.
+
+        Test for QUAD4, QUAD8 and QUAD9 with non-planar faces
+        """
+
+        coo = DataArrayDouble(
+            [
+                (9.0, 18.0),
+                (11.0, 18.0),
+                (11.0, 22.0),
+                (9.0, 22.0),
+                (10, 18.1),
+                (11.0, 20.0),
+                (10, 21.9),
+                (9.0, 20.0),
+                (10.0, 20.0),
+            ]
+        )
+
+        eps = 1e-8
+
+        ref_val0_all = {
+            NORM_QUAD4: DataArrayDouble(
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    1.5,
+                ]
+            ),
+            NORM_QUAD8: DataArrayDouble(
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    6.0,
+                    7.0,
+                    9.5,
+                ]
+            ),
+            NORM_QUAD9: DataArrayDouble(
+                [
+                    0.0,
+                    1.0,
+                    2.0,
+                    3.0,
+                    4.0,
+                    5.0,
+                    6.0,
+                    7.0,
+                    8.0,
+                ]
+            ),
+        }
+
+        inPts_all = {
+            NORM_QUAD4: DataArrayDouble(
+                [
+                    (9.0, 18.0),
+                    (11.0, 18.0),
+                    (11.0, 22.0),
+                    (9.0, 22.0),
+                    (10.0, 20.0),
+                ]
+            ),
+            NORM_QUAD8: DataArrayDouble(
+                [
+                    (9.0, 18.0),
+                    (11.0, 18.0),
+                    (11.0, 22.0),
+                    (9.0, 22.0),
+                    (10, 18.1),
+                    (11.0, 20.0),
+                    (10, 21.9),
+                    (9.0, 20.0),
+                    (10.0, 20.0),
+                ]
+            ),
+            NORM_QUAD9: DataArrayDouble(
+                [
+                    (9.0, 18.0),
+                    (11.0, 18.0),
+                    (11.0, 22.0),
+                    (9.0, 22.0),
+                    (10, 18.1),
+                    (11.0, 20.0),
+                    (10, 21.9),
+                    (9.0, 20.0),
+                    (10.0, 20.0),
+                ]
+            ),
+        }
+
+        outPts_all = {
+            NORM_QUAD4: DataArrayDouble(
+                [
+                    (10.0, 17.99999),
+                    (0.0, 0.0),
+                    (8.999999, 20.0),
+                ]
+            ),
+            NORM_QUAD8: DataArrayDouble(
+                [
+                    (10.0, 17.99999),
+                    (10.0, 18.09999),
+                    (0.0, 0.0),
+                    (8.999999, 20.0),
+                ]
+            ),
+            NORM_QUAD9: DataArrayDouble(
+                [
+                    (10.0, 17.99999),
+                    (10.0, 18.09999),
+                    (0.0, 0.0),
+                    (8.999999, 20.0),
+                ]
+            ),
+        }
+
+        for gt in [NORM_QUAD4, NORM_QUAD8, NORM_QUAD9]:
+            nbPtsInCell = MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(gt)
+            m = MEDCouplingUMesh("mesh", 2)
+            m.setCoords(coo)
+            m.allocateCells()
+            m.insertNextCell(gt, list(range(nbPtsInCell)))
+            m.finishInsertingCells()
+
+            srcField = MEDCouplingFieldDouble(ON_NODES_FE)
+            srcField.setMesh(m)
+            arr = DataArrayDouble(nbPtsInCell)
+            arr.iota()
+            srcField.setArray(arr)
+
+            inPts = inPts_all[gt]
+            outPts = outPts_all[gt]
+            ref_val0 = ref_val0_all[gt]
+            nbInPts = len(inPts)
+
+            for i in range(nbInPts):
+                self.assertTrue(
+                    abs(srcField.getValueOn(inPts[i])[0] - ref_val0[i]) < eps
+                )
+
+            self.assertTrue(srcField.getValueOnMulti(inPts).isEqual(ref_val0, eps))
+
+            srcFt = MEDCouplingFieldTemplate(srcField)
+            trgFt = MEDCouplingFieldTemplate(ON_NODES_FE)
+            trgMesh = MEDCouplingUMesh.Build0DMeshFromCoords(inPts)
+            trgFt.setMesh(trgMesh)
+            rem = MEDCouplingRemapper()
+            rem.setIntersectionType(PointLocator)
+            rem.prepareEx(srcFt, trgFt)
+            # scan content of matrix computed by remapper
+            mat = rem.getCrudeMatrix()
+            self.assertEqual(len(mat), nbInPts)
+            for irow, row in enumerate(mat):
+                self.assertTrue(abs(sum([y for x, y in row.items()]) - 1.0) < eps)
+
+            # ask for MEDCouplingFieldDiscretizationOnNodesFE instance to compute coordination into ref element
+            sd = srcField.getDiscretization()
+            coosInRefElemFoundByNewton = sd.getCooInRefElement(
+                srcField.getMesh(), inPts
+            )
+
+            for zePt, cooInRefElemFoundByNewton in zip(
+                inPts, coosInRefElemFoundByNewton
+            ):
+                # now check by performing refCoo -> realCoo
+                ftest = MEDCouplingFieldDouble(ON_GAUSS_PT)
+                ftest.setMesh(srcField.getMesh())
+                ftest.setGaussLocalizationOnType(
+                    gt,
+                    sum(
+                        [
+                            list(elt)
+                            for elt in MEDCouplingGaussLocalization.GetDefaultReferenceCoordinatesOf(
+                                gt
+                            ).getValuesAsTuple()
+                        ],
+                        [],
+                    ),
+                    list(cooInRefElemFoundByNewton),
+                    [1],
+                )
+                self.assertTrue(
+                    float((ftest.getLocalizationOfDiscr() - zePt).magnitude()) < 1e-4
+                )
+
+            # testing with outside point
+            for zePt in outPts:
+                # safer than
+                # self.assertRaises(InterpKernelException,sd.getCooInRefElement,srcField.getMesh(),zePt.buildDADouble())
+                try:
+                    sd.getCooInRefElement(srcField.getMesh(), zePt.buildDADouble())
+                except InterpKernelException as e:
+                    self.assertTrue("fail to locate point" in e.what())
+                else:
+                    self.assertTrue(False, f"{zePt}")
+
     def testFEFE_HEXA(self):
         """
         [EDF31887] : Test to stress localisation of target points into a source mesh using standard reference FE elements.
@@ -2691,6 +2896,407 @@ class MEDCouplingBasicsTest(unittest.TestCase):
                     self.assertTrue("fail to locate point" in e.what())
                 else:
                     self.assertTrue(False, "")
+
+    def testFEFE_PROJ2D(self):
+        """
+        [EDF31187] : Test to project a field using standard reference FE elements.
+        """
+
+        eps = 1e-8
+
+        # Source mesh
+        srcCoo = DataArrayDouble(
+            [
+                (9.0, 18.0),
+                (11.0, 18.0),
+                (11.0, 22.0),
+                (9.0, 22.0),
+                (10, 18.1),
+                (11.0, 20.0),
+                (10, 21.9),
+                (9.0, 20.0),
+                (10.0, 20.0),
+            ]
+        )
+
+        srcMesh = MEDCouplingUMesh("srcMesh", 2)
+        srcMesh.setCoords(srcCoo)
+        srcMesh.allocateCells()
+        srcMesh.insertNextCell(NORM_QUAD4, (0, 4, 8, 7))
+        srcMesh.insertNextCell(NORM_QUAD4, (4, 1, 5, 8))
+        srcMesh.insertNextCell(NORM_QUAD4, (8, 5, 2, 6))
+        srcMesh.insertNextCell(NORM_QUAD4, (7, 8, 6, 3))
+        srcMesh.finishInsertingCells()
+
+        # Target mesh
+        trgCoo = DataArrayDouble(
+            [
+                (10.0, 20.0),
+                (11.0, 20.0),
+                (10.0, 22.5),
+                (10.5, 20.0),
+                (10.55, 21.26),
+                (9.99, 21.25),
+            ]
+        )
+
+        trgMesh = MEDCouplingUMesh("trgMesh", 2)
+        trgMesh.setCoords(trgCoo)
+        trgMesh.allocateCells()
+        trgMesh.insertNextCell(NORM_TRI6, list(range(6)))
+        trgMesh.finishInsertingCells()
+
+        # Source Field
+        srcField = MEDCouplingFieldDouble(ON_NODES_FE)
+        srcField.setMesh(srcMesh)
+        srcField.fillFromAnalytic(1, "x+y")
+        srcField.setNature(IntensiveMaximum)
+
+        # Target Field
+        trgField = MEDCouplingFieldDouble(ON_NODES_FE)
+        trgField.setMesh(trgMesh)
+        trgField.fillFromAnalytic(1, "x+y")
+        trgField.setNature(IntensiveMaximum)
+
+        # Interpolate nodes to nodes using FEM interpolation
+        remap = MEDCouplingRemapper()
+        remap.setIntersectionType(PointLocator)
+
+        # Workaround since "FEFE" interpolation does not exist yet
+        srcFt = MEDCouplingFieldTemplate(srcField)
+        trgFt = MEDCouplingFieldTemplate(ON_NODES_FE)
+        trgFt.setMesh(trgMesh)
+
+        remap.prepareEx(srcFt, trgFt)
+        # remap.prepare(srcMesh, trgMesh, "FEFE")
+
+        # Check matrix
+        myMatrix = remap.getCrudeMatrix()
+        self.assertEqual(len(myMatrix), 6)
+        # tested values are constructed for this test
+        for irow, row in enumerate(myMatrix):
+            if irow != 2:
+                self.assertTrue(abs(sum([y for x, y in row.items()]) - 1.0) < eps)
+            else:
+                self.assertTrue(len(row) == 0)
+
+        # Transfer field src -> trg
+        trgFieldCV = remap.transferField(srcField, 1e300)
+        trgFieldAN = trgField.deepCopy()
+
+        # Projection of a linear field hence no interpolation error
+        trgFieldAN.getArray()[2] = 1e300
+        self.assertTrue(trgFieldCV.getArray().isEqual(trgFieldAN.getArray(), eps))
+
+        # Transfer field trg -> src (should not work since need two matrices)
+        try:
+            srcFieldCV = remap.transferField(trgField, 2e300)
+        except InterpKernelException as e:
+            self.assertTrue("MEDCouplingRemapper::transferUnderground" in e.what())
+        else:
+            self.assertTrue(False, "")
+
+    def testFEFE_PROJ3D(self):
+        """
+        [EDF31187] : Test to project a 3D field using standard reference FE elements.
+        """
+
+        eps = 1e-8
+
+        # Source mesh
+        srcCoo = DataArrayDouble(
+            [
+                (9.0, 18.0, 0.0),
+                (11.0, 18.0, 0.0),
+                (11.0, 22.0, 0.0),
+                (9.0, 22.0, 0.0),
+                (10, 18.1, 0.0),
+                (11.0, 20.0, 0.0),
+                (10, 21.9, 0.0),
+                (9.0, 20.0, 0.0),
+                (10.0, 20.0, 0.0),
+                (9.0, 18.0, 2.0),
+                (11.0, 18.0, 2.0),
+                (11.0, 22.0, 2.0),
+                (9.0, 22.0, 2.0),
+                (10, 18.1, 2.0),
+                (11.0, 20.0, 2.0),
+                (10, 21.9, 2.0),
+                (9.0, 20.0, 2.0),
+                (10.0, 20.0, 2.0),
+            ]
+        )
+
+        srcMesh = MEDCouplingUMesh("srcMesh", 3)
+        srcMesh.setCoords(srcCoo)
+        srcMesh.allocateCells(4)
+        srcMesh.insertNextCell(NORM_HEXA8, (0, 7, 8, 4, 9, 16, 17, 13))
+        srcMesh.insertNextCell(NORM_HEXA8, (4, 8, 5, 1, 13, 17, 14, 10))
+        srcMesh.insertNextCell(NORM_HEXA8, (8, 6, 2, 5, 17, 15, 11, 14))
+        srcMesh.insertNextCell(NORM_HEXA8, (7, 3, 6, 8, 16, 12, 15, 17))
+        srcMesh.finishInsertingCells()
+
+        # Target mesh
+        trgCoo = DataArrayDouble(
+            [
+                (10.0, 20.0, 0.0),
+                (11.0, 20.0, 0.0),
+                (10.0, 22.5, 0.0),
+                (10.0, 20.0, 1.0),
+                (10.9, 19.9, 1.0),
+                (10.0, 21.9, 1.0),
+            ]
+        )
+
+        trgMesh = MEDCouplingUMesh("trgMesh", 3)
+        trgMesh.setCoords(trgCoo)
+        trgMesh.allocateCells(1)
+        trgMesh.insertNextCell(NORM_PENTA6, list(range(6)))
+        trgMesh.finishInsertingCells()
+
+        # Source Field
+        srcField = MEDCouplingFieldDouble(ON_NODES_FE)
+        srcField.setMesh(srcMesh)
+        srcField.fillFromAnalytic(1, "x+y+z")
+        srcField.setNature(IntensiveMaximum)
+
+        # Target Field
+        trgField = MEDCouplingFieldDouble(ON_NODES_FE)
+        trgField.setMesh(trgMesh)
+        trgField.fillFromAnalytic(1, "x+y+z")
+        trgField.setNature(IntensiveMaximum)
+
+        # Interpolate nodes to nodes using FEM interpolation
+        remap = MEDCouplingRemapper()
+        remap.setIntersectionType(PointLocator)
+
+        # Workaround since "FEFE" interpolation does not exist yet
+        srcFt = MEDCouplingFieldTemplate(srcField)
+        trgFt = MEDCouplingFieldTemplate(ON_NODES_FE)
+        trgFt.setMesh(trgMesh)
+
+        remap.prepareEx(srcFt, trgFt)
+        # remap.prepare(srcMesh, trgMesh, "FEFE")
+
+        # Check matrix
+        myMatrix = remap.getCrudeMatrix()
+        self.assertEqual(len(myMatrix), 6)
+        # tested values are constructed for this test
+        for irow, row in enumerate(myMatrix):
+            if irow not in (2,):
+                self.assertTrue(abs(sum([abs(y) for x, y in row.items()]) - 1.0) < eps)
+            else:
+                self.assertTrue(len(row) == 0)
+
+        # test specific values
+        self.assertTrue(abs(myMatrix[0][8] - 1.0) < eps)
+        self.assertTrue(abs(myMatrix[1][5] - 1.0) < eps)
+        self.assertTrue(abs(myMatrix[3][8] - 0.5) < eps)
+        self.assertTrue(abs(myMatrix[3][17] - 0.5) < eps)
+        for i in (4, 1, 5, 8, 15, 10, 14, 17):
+            self.assertTrue(myMatrix[4][17] > eps)
+        self.assertTrue(abs(myMatrix[5][6] - 0.5) < eps)
+        self.assertTrue(abs(myMatrix[5][15] - 0.5) < eps)
+
+        # Transfer field src -> trg
+        trgFieldCV = remap.transferField(srcField, 1e300)
+        trgFieldAN = trgField.deepCopy()
+
+        # Projection of a linear field hence no interpolation error
+        trgFieldAN.getArray()[2] = 1e300
+        for i in range(6):
+            self.assertTrue((trgFieldCV.getArray()[i] - trgFieldAN.getArray()[i]) < eps)
+
+        # Transfer field trg -> src (should not work since need two matrices)
+        try:
+            srcFieldCV = remap.transferField(trgField, 2e300)
+        except InterpKernelException as e:
+            self.assertTrue("MEDCouplingRemapper::transferUnderground" in e.what())
+        else:
+            self.assertTrue(False, "")
+
+    def testFEFE_HEXA_SURF(self):
+        """
+        [EDF31887] : Test to stress localisation of target points into a source mesh using standard reference FE elements.
+
+        Test for HEXA8, HEXA20 and HEXA27 with non-planar faces
+        """
+
+        coo = DataArrayDouble(
+            [
+                (9.0, 18.0, 27.0),
+                (9.0, 22.0, 27.0),
+                (11.0, 22.0, 27.0),
+                (11.0, 18.0, 27.0),
+                (9.0, 18.0, 33.0),
+                (9.0, 22.0, 33.0),
+                (11.0, 22.0, 33.0),
+                (11.0, 18.0, 33.0),
+                (8.8, 20.0, 26.4),
+                (10.0, 21.6, 27.6),
+                (11.2, 20.0, 26.4),
+                (10.0, 18.4, 27.6),
+                (8.8, 20.0, 33.6),
+                (10.0, 21.6, 32.4),
+                (11.2, 20.0, 33.6),
+                (10.0, 18.4, 32.4),
+                (8.8, 17.6, 30.0),
+                (9.2, 21.6, 30.0),
+                (11.2, 22.4, 30.0),
+                (10.8, 18.4, 30.0),
+                (10.0, 20.0, 26.4),
+                (9.2, 20.0, 30.0),
+                (10.0, 22.4, 30.0),
+                (10.8, 20.0, 30.0),
+                (10.0, 17.6, 30.0),
+                (10.0, 20.0, 32.4),
+                (10.0, 20.0, 30.0),
+            ]
+        )
+
+        eps = 1e-8
+
+        ref_val0_all = {
+            NORM_HEXA8: DataArrayDouble(
+                [
+                    (0.0, 0.0),
+                    (0.0, 0.0),
+                    (-1.0, 1.0),
+                    (-2.0 / 3.0, 1.0),
+                ]
+            ),
+        }
+
+        outPts_all = {
+            NORM_HEXA8: DataArrayDouble(
+                [
+                    (12.0, 20.0, 30.0),
+                    (10.8, 20.0, 30.0),
+                    (8.0, 18.0, 27.0),
+                    (8.0, 17.0, 28.0),
+                ]
+            ),
+        }
+
+        for gt in [
+            NORM_HEXA8,
+        ]:
+            m = MEDCouplingUMesh("mesh", 2)
+            m.setCoords(coo)
+            m.allocateCells(6)
+            m.insertNextCell(NORM_QUAD4, (0, 1, 2, 3))
+            m.insertNextCell(NORM_QUAD4, (4, 5, 6, 7))
+            m.insertNextCell(NORM_QUAD4, (0, 1, 5, 4))
+            m.insertNextCell(NORM_QUAD4, (1, 2, 6, 5))
+            m.insertNextCell(NORM_QUAD4, (2, 3, 7, 6))
+            m.insertNextCell(NORM_QUAD4, (0, 3, 7, 4))
+            m.finishInsertingCells()
+
+            srcField = MEDCouplingFieldDouble(ON_NODES_FE)
+            srcField.setMesh(m)
+            sd = srcField.getDiscretization()
+
+            # testing with outside point
+            coosInRefElemFoundByNewton = sd.getClosestCooInRefElement(
+                srcField.getMesh(), outPts_all[gt]
+            )
+
+            self.assertTrue(coosInRefElemFoundByNewton.isEqual(ref_val0_all[gt], eps))
+
+    def testFEFE_PROJ3DSurf(self):
+        """
+        [EDF31187] : Test to project a 3D field using standard reference FE elements.
+        """
+
+        def cylinder(nbPt, quadratic=False):
+            # base
+            baseCoo = DataArrayDouble(
+                [
+                    (1.0, 0.0),
+                    (2.0, 0.0),
+                ]
+            )
+
+            baseMesh = MEDCouplingUMesh("baseMesh", 1)
+            baseMesh.setCoords(baseCoo)
+            baseMesh.allocateCells(1)
+            baseMesh.insertNextCell(NORM_SEG2, (0, 1))
+            baseMesh.finishInsertingCells()
+
+            lineCoo = []
+            for i in range(nbPt + 1):
+                angle = i * (pi / nbPt)
+                x = cos(angle)
+                y = sin(angle)
+                lineCoo.append((x, y))
+
+            lineCoo = DataArrayDouble(lineCoo)
+            lineMesh = MEDCouplingUMesh("lineMesh", 1)
+            lineMesh.setCoords(lineCoo)
+            lineMesh.allocateCells(nbPt)
+            for i in range(nbPt):
+                lineMesh.insertNextCell(NORM_SEG2, (i, i + 1))
+            lineMesh.finishInsertingCells()
+
+            extrudedMesh = baseMesh.buildExtrudedMesh(lineMesh, 1)
+
+            skin = extrudedMesh.computeSkin()
+            if quadratic:
+                skin.convertLinearCellsToQuadratic(1)
+            return skin
+
+        for quadratic in [False, True]:
+            # Source mesh
+            srcSkinMesh = cylinder(9, quadratic)
+
+            # Target mesh
+            trgSkinMesh = cylinder(5)
+
+            # Source Field
+            srcField = MEDCouplingFieldDouble(ON_NODES_FE)
+            srcField.setMesh(srcSkinMesh)
+            srcField.fillFromAnalytic(1, "x+y")
+            srcField.setNature(IntensiveMaximum)
+
+            # Target Field
+            trgField = MEDCouplingFieldDouble(ON_NODES_FE)
+            trgField.setMesh(trgSkinMesh)
+            trgField.fillFromAnalytic(1, "x+y")
+            trgField.setNature(IntensiveMaximum)
+
+            # Interpolate nodes to nodes using FEM interpolation
+            remap = MEDCouplingRemapper()
+            remap.setIntersectionType(PointLocator)
+
+            # Workaround since "FEFE" interpolation does not exist yet
+            srcFt = MEDCouplingFieldTemplate(srcField)
+            trgFt = MEDCouplingFieldTemplate(ON_NODES_FE)
+            trgFt.setMesh(trgSkinMesh)
+
+            remap.prepareEx(srcFt, trgFt)
+            # remap.prepare(srcMesh, trgMesh, "FEFE")
+
+            # Check matrix
+            myMatrix = remap.getCrudeMatrix()
+            self.assertEqual(len(myMatrix), trgSkinMesh.getNumberOfNodes())
+            # tested values are constructed for this test
+            for irow, row in enumerate(myMatrix):
+                self.assertTrue(
+                    abs(sum([y for x, y in row.items()]) - 1.0) < 1e-8,
+                    f"{irow}: {row}",
+                )
+
+            # Transfer field src -> trg
+            trgFieldCV = remap.transferField(srcField, 1e300)
+            self.assertTrue(trgFieldCV.getArray().isEqual(trgField.getArray(), 0.04))
+
+            # Transfer field trg -> src (should not work since need two matrices)
+            try:
+                srcFieldCV = remap.transferField(trgField, 2e300)
+            except InterpKernelException as e:
+                self.assertTrue("MEDCouplingRemapper::transferUnderground" in e.what())
+            else:
+                self.assertTrue(False, "")
 
     def testP1P0OnHexa_1(self):
         """

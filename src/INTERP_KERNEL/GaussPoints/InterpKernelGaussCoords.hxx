@@ -64,8 +64,10 @@ namespace INTERP_KERNEL
 
     INTERPKERNEL_EXPORT static std::vector<double> NormalizeCoordinatesIfNecessary(NormalizedCellType ct, int inputDim, const std::vector<double>& inputArray);
     INTERPKERNEL_EXPORT static std::vector<double> GetDefaultReferenceCoordinatesOf(NormalizedCellType ct);
-    INTERPKERNEL_EXPORT static bool IsInOrOutForReference(NormalizedCellType ct, const double *ptInRefCoo, double eps);
-    INTERPKERNEL_EXPORT static std::vector<double> GetReferenceCoordinatesOfBarycenterOf(NormalizedCellType ct);
+    INTERPKERNEL_EXPORT static bool IsInOrOutForReference(NormalizedCellType ct, const double *refCoo, const double *ptInRefCoo, double eps);
+    INTERPKERNEL_EXPORT static void AdapatCoorForReference(NormalizedCellType ct, const double *refCoo, double *ptInRefCoo);
+    INTERPKERNEL_EXPORT static std::vector<double> GetReferenceCoordinatesOfBarycenterOf(NormalizedCellType ct, const double *refCoo);
+
   public:
     static const double SEG2A_REF[2];
     static const double SEG2B_REF[2];

@@ -219,6 +219,7 @@ typedef long mcPyPtrType;
 %feature("docstring");
 
 %newobject MEDCoupling::MEDCouplingFieldDiscretizationOnNodesFE::getCooInRefElement;
+%newobject MEDCoupling::MEDCouplingFieldDiscretizationOnNodesFE::getClosestCooInRefElement;
 %newobject MEDCoupling::MEDCouplingField::buildMeasureField;
 %newobject MEDCoupling::MEDCouplingField::getLocalizationOfDiscr;
 %newobject MEDCoupling::MEDCouplingField::computeTupleIdsToSelectFromCellIds;

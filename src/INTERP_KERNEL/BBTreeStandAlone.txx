@@ -32,7 +32,9 @@ private:
   std::unique_ptr<double[]> _bbox;
   BBTree<dim,ConnType> _effective;
 public:
-  BBTreeStandAlone(std::unique_ptr<double[]>&& bbs, ConnType nbelems, double epsilon=BBTREE_DFT_EPSILON):_bbox(std::move(bbs)),_effective(_bbox.get(),nullptr,0,nbelems,epsilon) { }
+  const static int dimension = dim;
+  BBTreeStandAlone(std::unique_ptr<double[]> &&bbs, ConnType nbelems, double epsilon = BBTREE_DFT_EPSILON)
+      : _bbox(std::move(bbs)), _effective(_bbox.get(), nullptr, 0, nbelems, epsilon) {}
   void getIntersectingElems(const double* bb, std::vector<ConnType>& elems) const { _effective.getIntersectingElems(bb,elems); }
   void getElementsAroundPoint(const double* xx, std::vector<ConnType>& elems) const { _effective.getElementsAroundPoint(xx,elems); }
 };

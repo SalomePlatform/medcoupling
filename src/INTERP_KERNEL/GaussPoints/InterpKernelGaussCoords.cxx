@@ -515,15 +515,23 @@ std::vector<double> GaussInfo::GetDefaultReferenceCoordinatesOf(NormalizedCellTy
 /*!
  * Returns the reference coordinates of the barycenter.
  */
-std::vector<double> GaussInfo::GetReferenceCoordinatesOfBarycenterOf(NormalizedCellType ct) {
+std::vector<double>
+GaussInfo::GetReferenceCoordinatesOfBarycenterOf(NormalizedCellType ct, const double *refCoo) {
   switch (ct) {
   case INTERP_KERNEL::NORM_SEG2:
-  case INTERP_KERNEL::NORM_SEG3: {
-    return std::vector<double>({0.0});
+  case INTERP_KERNEL::NORM_SEG3:
+  case INTERP_KERNEL::NORM_SEG4: {
+    if (refCoo[0] < -0.5) {
+      return std::vector<double>({0.0});
+    }
+    return std::vector<double>({0.5});
   }
   case INTERP_KERNEL::NORM_TRI3:
   case INTERP_KERNEL::NORM_TRI6:
   case INTERP_KERNEL::NORM_TRI7: {
+    if (refCoo[0] < -0.5) {
+      return std::vector<double>({0.0, 0.0});
+    }
     return std::vector<double>({1.0 / 3.0, 1.0 / 3.0});
   }
   case INTERP_KERNEL::NORM_QUAD4:
@@ -558,61 +566,117 @@ std::vector<double> GaussInfo::GetReferenceCoordinatesOfBarycenterOf(NormalizedC
  * Returns true if \a ptInRefCoo is in reference cell of type \a ct (regarding GetDefaultReferenceCoordinatesOf)
  * \sa GetDefaultReferenceCoordinatesOf
  */
-bool GaussInfo::IsInOrOutForReference(NormalizedCellType ct, const double *ptInRefCoo, double eps)
-{
-  switch(ct)
-  {
-    case INTERP_KERNEL::NORM_SEG2:
-    case INTERP_KERNEL::NORM_SEG3:
-    {
-      return std::fabs(ptInRefCoo[0]) < 1.0+eps;
+bool
+GaussInfo::IsInOrOutForReference(NormalizedCellType ct, const double *refCoo, const double *ptInRefCoo, double eps) {
+  switch (ct) {
+  case INTERP_KERNEL::NORM_SEG2:
+  case INTERP_KERNEL::NORM_SEG3:
+  case INTERP_KERNEL::NORM_SEG4: {
+    const double xi = ptInRefCoo[0];
+    if (refCoo[0] < -0.5) {
+      return std::abs(xi) < 1.0 + eps;
     }
-    case INTERP_KERNEL::NORM_TRI3:
-    case INTERP_KERNEL::NORM_TRI6:
-    case INTERP_KERNEL::NORM_TRI7: {
-      const double xi = ptInRefCoo[0];
-      const double eta = ptInRefCoo[1];
-      return (xi > -eps) && (xi < 1.0 + eps) && (eta > -eps) && (eta < 1.0 + eps) &&
-             (xi + eta < 1.0 + eps);
+    return xi > -eps && xi < 1.0 + eps;
+  }
+  case INTERP_KERNEL::NORM_TRI3:
+  case INTERP_KERNEL::NORM_TRI6:
+  case INTERP_KERNEL::NORM_TRI7: {
+    const double xi = ptInRefCoo[0];
+    const double eta = ptInRefCoo[1];
+    if (refCoo[0] < -0.5) {
+      return (xi > -1.0 - eps) && (xi < 1.0 + eps) && (eta > -1.0 - eps) && (eta < 1.0 + eps) && (xi + eta < 1.0 + eps);
     }
-    case INTERP_KERNEL::NORM_QUAD4:
-    case INTERP_KERNEL::NORM_QUAD8:
-    case INTERP_KERNEL::NORM_QUAD9:
-    {
-      return std::find_if(ptInRefCoo,ptInRefCoo+2,[eps](double v){ return std::fabs(v) > 1.0+eps; }) == ptInRefCoo+2;
+    return (xi > -eps) && (xi < 1.0 + eps) && (eta > -eps) && (eta < 1.0 + eps) && (xi + eta < 1.0 + eps);
+  }
+  case INTERP_KERNEL::NORM_QUAD4:
+  case INTERP_KERNEL::NORM_QUAD8:
+  case INTERP_KERNEL::NORM_QUAD9: {
+    return std::find_if(ptInRefCoo, ptInRefCoo + 2, [eps](double v) { return std::fabs(v) > 1.0 + eps; }) == ptInRefCoo + 2;
+  }
+  case INTERP_KERNEL::NORM_TETRA4:
+  case INTERP_KERNEL::NORM_TETRA10: {
+    const double xi = ptInRefCoo[0];
+    const double eta = ptInRefCoo[1];
+    const double zeta = ptInRefCoo[2];
+    return (xi > -eps) && (xi < 1.0 + eps) && (eta > -eps) && (eta < 1.0 + eps) && (zeta > -eps) && (zeta < 1.0 + eps) &&
+           (xi + eta + zeta < 1.0 + eps);
+  }
+  case INTERP_KERNEL::NORM_HEXA8:
+  case INTERP_KERNEL::NORM_HEXA20:
+  case INTERP_KERNEL::NORM_HEXA27: {
+    return std::find_if(ptInRefCoo, ptInRefCoo + 3, [eps](double v) { return std::fabs(v) > 1.0 + eps; }) == ptInRefCoo + 3;
+  }
+  case INTERP_KERNEL::NORM_PENTA6:
+  case INTERP_KERNEL::NORM_PENTA15:
+  case INTERP_KERNEL::NORM_PENTA18: {
+    const double xi = ptInRefCoo[0];
+    const double eta = ptInRefCoo[1];
+    const double zeta = ptInRefCoo[2];
+    return (std::abs(xi) < 1.0 + eps) && (eta > -eps) && (eta < 1.0 + eps) && (zeta > -eps) && (zeta < 1.0 + eps) && (eta + zeta < 1.0 + eps);
+  }
+  case INTERP_KERNEL::NORM_PYRA5:
+  case INTERP_KERNEL::NORM_PYRA13: {
+    const double xi = ptInRefCoo[0];
+    const double eta = ptInRefCoo[1];
+    const double zeta = ptInRefCoo[2];
+    return (std::abs(xi) + std::abs(eta) + zeta < 1.0 + eps);
+  }
+  default:
+    THROW_IK_EXCEPTION("IsInOrOutForReference : not implemented for this geo type !");
+  }
+}
+
+/*!
+ * Find closest point in the reference coordinates
+ */
+void
+GaussInfo::AdapatCoorForReference(NormalizedCellType ct, const double *refCoo, double *ptInRefCoo) {
+  switch (ct) {
+  case INTERP_KERNEL::NORM_SEG2:
+  case INTERP_KERNEL::NORM_SEG3:
+  case INTERP_KERNEL::NORM_SEG4: {
+    ptInRefCoo[0] = std::max(std::min(ptInRefCoo[0], 1.0), refCoo[0]);
+    return;
+  }
+
+  case INTERP_KERNEL::NORM_TRI3:
+  case INTERP_KERNEL::NORM_TRI6:
+  case INTERP_KERNEL::NORM_TRI7: {
+    const double val_min = refCoo[0];
+    if (ptInRefCoo[0] <= val_min) {
+      ptInRefCoo[0] = val_min;
+      ptInRefCoo[1] = std::max(std::min(ptInRefCoo[1], 1.0), val_min);
+    } else if (ptInRefCoo[1] <= val_min) {
+      ptInRefCoo[1] = val_min;
+      ptInRefCoo[0] = std::max(std::min(ptInRefCoo[0], 1.0), val_min);
+    } else {
+      const double sum = ptInRefCoo[0] + ptInRefCoo[1];
+      if (sum > 1.0) {
+        for (int i = 0; i < 2; ++i) {
+          ptInRefCoo[i] /= sum;
+        }
+      }
     }
-    case INTERP_KERNEL::NORM_TETRA4:
-    case INTERP_KERNEL::NORM_TETRA10: {
-      const double xi = ptInRefCoo[0];
-      const double eta = ptInRefCoo[1];
-      const double zeta = ptInRefCoo[2];
-      return (xi > -eps) && (xi < 1.0 + eps) && (eta > -eps) && (eta < 1.0 + eps) &&
-             (zeta > -eps) && (zeta < 1.0 + eps) && (xi + eta + zeta < 1.0 + eps);
+    return;
+  }
+  case INTERP_KERNEL::NORM_QUAD4:
+  case INTERP_KERNEL::NORM_QUAD8:
+  case INTERP_KERNEL::NORM_QUAD9: {
+    for (int i = 0; i < 2; ++i) {
+      ptInRefCoo[i] = std::max(std::min(ptInRefCoo[i], 1.0), -1.0);
     }
-    case INTERP_KERNEL::NORM_HEXA8:
-    case INTERP_KERNEL::NORM_HEXA20:
-    case INTERP_KERNEL::NORM_HEXA27:
-    {
-      return std::find_if(ptInRefCoo,ptInRefCoo+3,[eps](double v){ return std::fabs(v) > 1.0+eps; }) == ptInRefCoo+3;
+    return;
+  }
+  case INTERP_KERNEL::NORM_HEXA8:
+  case INTERP_KERNEL::NORM_HEXA20:
+  case INTERP_KERNEL::NORM_HEXA27: {
+    for (int i = 0; i < 3; ++i) {
+      ptInRefCoo[i] = std::max(std::min(ptInRefCoo[i], 1.0), -1.0);
     }
-    case INTERP_KERNEL::NORM_PENTA6:
-    case INTERP_KERNEL::NORM_PENTA15:
-    case INTERP_KERNEL::NORM_PENTA18: {
-      const double xi = ptInRefCoo[0];
-      const double eta = ptInRefCoo[1];
-      const double zeta = ptInRefCoo[2];
-      return (std::abs(xi) < 1.0 + eps) && (eta > -eps) && (eta < 1.0 + eps) && (zeta > -eps) &&
-             (zeta < 1.0 + eps) && (eta + zeta < 1.0 + eps);
-    }
-    case INTERP_KERNEL::NORM_PYRA5:
-    case INTERP_KERNEL::NORM_PYRA13: {
-      const double xi = ptInRefCoo[0];
-      const double eta = ptInRefCoo[1];
-      const double zeta = ptInRefCoo[2];
-      return (std::abs(xi) + std::abs(eta) + zeta < 1.0 + eps);
-    }
-    default:
-      THROW_IK_EXCEPTION("IsInOrOutForReference : not implemented for this geo type !");
+    return;
+  }
+  default:
+    THROW_IK_EXCEPTION("AdapatCoorForReference : not implemented for this geo type !");
   }
 }
 

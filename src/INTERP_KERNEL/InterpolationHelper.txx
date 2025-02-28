@@ -29,30 +29,29 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType>
-  BBTreeStandAlone<3,typename MyMeshType::MyConnType> BuildBBTreeWithAdjustment(const MyMeshType& srcMesh, std::function<void(double *,typename MyMeshType::MyConnType)> bboxAdjuster)
-  {
-    using ConnType = typename MyMeshType::MyConnType;
-    const ConnType numSrcElems = srcMesh.getNumberOfElements();
-    LOG(2, "Source mesh has " << numSrcElems << " elements");
-    // create BBTree structure
-    // - get bounding boxes
-    const ConnType nbElts = 6 * numSrcElems;
-    std::unique_ptr<double[]> bboxes( new double[nbElts] );
-    for(ConnType i = 0; i < numSrcElems ; ++i)
-      {
-        MeshElement<ConnType> srcElem(i,srcMesh);
-        // get source bboxes in right order
-        const BoundingBox *box( srcElem.getBoundingBox() );
-        box->fillInXMinXmaxYminYmaxZminZmaxFormat(bboxes.get()+6*i);
-      }
-    bboxAdjuster(bboxes.get(),nbElts);
-    return BBTreeStandAlone<3,ConnType>(std::move(bboxes),numSrcElems);
+template <class MyMeshType, int dim = 3>
+BBTreeStandAlone<dim, typename MyMeshType::MyConnType>
+BuildBBTreeWithAdjustment(const MyMeshType &srcMesh, std::function<void(double *, typename MyMeshType::MyConnType)> bboxAdjuster) {
+  using ConnType = typename MyMeshType::MyConnType;
+  const ConnType numSrcElems = srcMesh.getNumberOfElements();
+  LOG(2, "Source mesh has " << numSrcElems << " elements");
+  // create BBTree structure
+  // - get bounding boxes
+  const ConnType nbElts = 6 * numSrcElems;
+  std::unique_ptr<double[]> bboxes(new double[nbElts]);
+  for (ConnType i = 0; i < numSrcElems; ++i) {
+    MeshElement<ConnType> srcElem(i, srcMesh);
+    // get source bboxes in right order
+    const BoundingBox *box(srcElem.getBoundingBox());
+    box->fillInXMinXmaxYminYmaxZminZmaxFormat(bboxes.get() + 6 * i);
   }
+  bboxAdjuster(bboxes.get(), nbElts);
+  return BBTreeStandAlone<dim, ConnType>(std::move(bboxes), numSrcElems);
+}
 
-  template<class MyMeshType>
-  BBTreeStandAlone<3,typename MyMeshType::MyConnType> BuildBBTree(const MyMeshType& srcMesh)
-  {
-    return BuildBBTreeWithAdjustment(srcMesh,[](double *,typename MyMeshType::MyConnType){});
-  }
+template <class MyMeshType, int dim = 3>
+BBTreeStandAlone<dim, typename MyMeshType::MyConnType>
+BuildBBTree(const MyMeshType &srcMesh) {
+  return BuildBBTreeWithAdjustment<MyMeshType, dim>(srcMesh, [](double *, typename MyMeshType::MyConnType) {});
+}
 }
