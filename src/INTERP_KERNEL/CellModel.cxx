@@ -388,7 +388,7 @@ namespace INTERP_KERNEL
           _sons_con[1][0]=3; _sons_con[1][1]=5; _sons_con[1][2]=4; _sons_con[1][3]=11; _sons_con[1][4]=10; _sons_con[1][5]=9; _nb_of_sons_con[1]=6;
           _sons_con[2][0]=0; _sons_con[2][1]=3; _sons_con[2][2]=4; _sons_con[2][3]=1; _sons_con[2][4]=12; _sons_con[2][5]=9; _sons_con[2][6]=13; _sons_con[2][7]=6; _sons_con[2][8]=15; _nb_of_sons_con[2]=9;
           _sons_con[3][0]=1; _sons_con[3][1]=4; _sons_con[3][2]=5; _sons_con[3][3]=2; _sons_con[3][4]=13; _sons_con[3][5]=10; _sons_con[3][6]=14; _sons_con[3][7]=7; _sons_con[3][8]=16; _nb_of_sons_con[3]=9;
-          _sons_con[4][0]=2; _sons_con[4][1]=4; _sons_con[4][2]=5; _sons_con[4][3]=0; _sons_con[4][4]=14; _sons_con[4][5]=11; _sons_con[4][6]=12; _sons_con[4][7]=8; _sons_con[4][8]=17; _nb_of_sons_con[4]=9; _quadratic=true;
+          _sons_con[4][0]=2; _sons_con[4][1]=5; _sons_con[4][2]=3; _sons_con[4][3]=0; _sons_con[4][4]=14; _sons_con[4][5]=11; _sons_con[4][6]=12; _sons_con[4][7]=8; _sons_con[4][8]=17; _nb_of_sons_con[4]=9; _quadratic=true;
           _little_sons_con[0][0]=0; _little_sons_con[0][1]=1; _little_sons_con[0][2]=6;  _nb_of_little_sons=9;
           _little_sons_con[1][0]=1; _little_sons_con[1][1]=2; _little_sons_con[1][2]=7;
           _little_sons_con[2][0]=2; _little_sons_con[2][1]=0; _little_sons_con[2][2]=8;
