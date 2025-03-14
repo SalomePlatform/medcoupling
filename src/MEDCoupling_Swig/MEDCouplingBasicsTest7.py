@@ -1683,5 +1683,167 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         zeRet.zipCoords()
         self.assertTrue( zeRet.isEqual( m3D, 1e-12 ) ) # <- less but important test is here
 
+    def testUMeshExtrudeConnectivity_quadratic0(self):
+        """
+        [EDF32060] : test quadratic case
+        """
+        coo = DataArrayDouble([
+    (0,0),
+    (0,1),
+    (0,2),
+    (1,0),
+    (1,1),
+    (1,2),
+    (1,3),
+    (2,0),
+    (2,1),
+    (2,2),
+    (2,3),
+    (3,0),
+    (3,1),
+    (3,2)
+]
+)
+        m = MEDCouplingUMesh("mesh",2)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(NORM_QUAD4,[0,1,4,3])
+        m.insertNextCell(NORM_TRI3,[3,4,7])
+        m.insertNextCell(NORM_QUAD4,[4,5,9,8])
+        m.insertNextCell(NORM_QUAD4,[1,2,5,4])
+        m.insertNextCell(NORM_QUAD4,[5,6,10,9])
+        m.insertNextCell(NORM_TRI3,[4,8,7])
+        m.insertNextCell(NORM_QUAD4,[7,8,12,11])
+        m.insertNextCell(NORM_QUAD4,[8,9,13,12])
+        m.changeSpaceDimension(3,0.)
+        m.convertLinearCellsToQuadratic()
+        #
+        nbExtrusions = 3
+        ret = m.extrudeConnectivity( nbExtrusions )
+        connExp = DataArrayInt( [30, 0, 1, 4, 3, 70, 71, 74, 73, 14, 15, 16, 17, 84, 85, 86, 87, 35, 36, 39, 38, 25, 3, 4, 7, 73, 74, 77, 16, 18, 19, 86, 88, 89, 38, 39, 42, 30, 4, 5, 9, 8, 74, 75, 79, 78, 20, 21, 22, 23, 90, 91, 92, 93, 39, 40, 44, 43, 30, 1, 2, 5, 4, 71, 72, 75, 74, 24, 25, 20, 15, 94, 95, 90, 85, 36, 37, 40, 39, 30, 5, 6, 10, 9, 75, 76, 80, 79, 26, 27, 28, 21, 96, 97, 98, 91, 40, 41, 45, 44, 25, 4, 8, 7, 74, 78, 77, 23, 29, 18, 93, 99, 88, 39, 43, 42, 30, 7, 8, 12, 11, 77, 78, 82, 81, 29, 30, 31, 32, 99, 100, 101, 102, 42, 43, 47, 46, 30, 8, 9, 13, 12, 78, 79, 83, 82, 22, 33, 34, 30, 92, 103, 104, 100, 43, 44, 48, 47, 30, 70, 71, 74, 73, 140, 141, 144, 143, 84, 85, 86, 87, 154, 155, 156, 157, 105, 106, 109, 108, 25, 73, 74, 77, 143, 144, 147, 86, 88, 89, 156, 158, 159, 108, 109, 112, 30, 74, 75, 79, 78, 144, 145, 149, 148, 90, 91, 92, 93, 160, 161, 162, 163, 109, 110, 114, 113, 30, 71, 72, 75, 74, 141, 142, 145, 144, 94, 95, 90, 85, 164, 165, 160, 155, 106, 107, 110, 109, 30, 75, 76, 80, 79, 145, 146, 150, 149, 96, 97, 98, 91, 166, 167, 168, 161, 110, 111, 115, 114, 25, 74, 78, 77, 144, 148, 147, 93, 99, 88, 163, 169, 158, 109, 113, 112, 30, 77, 78, 82, 81, 147, 148, 152, 151, 99, 100, 101, 102, 169, 170, 171, 172, 112, 113, 117, 116, 30, 78, 79, 83, 82, 148, 149, 153, 152, 92, 103, 104, 100, 162, 173, 174, 170, 113, 114, 118, 117, 30, 140, 141, 144, 143, 210, 211, 214, 213, 154, 155, 156, 157, 224, 225, 226, 227, 175, 176, 179, 178, 25, 143, 144, 147, 213, 214, 217, 156, 158, 159, 226, 228, 229, 178, 179, 182, 30, 144, 145, 149, 148, 214, 215, 219, 218, 160, 161, 162, 163, 230, 231, 232, 233, 179, 180, 184, 183, 30, 141, 142, 145, 144, 211, 212, 215, 214, 164, 165, 160, 155, 234, 235, 230, 225, 176, 177, 180, 179, 30, 145, 146, 150, 149, 215, 216, 220, 219, 166, 167, 168, 161, 236, 237, 238, 231, 180, 181, 185, 184, 25, 144, 148, 147, 214, 218, 217, 163, 169, 158, 233, 239, 228, 179, 183, 182, 30, 147, 148, 152, 151, 217, 218, 222, 221, 169, 170, 171, 172, 239, 240, 241, 242, 182, 183, 187, 186, 30, 148, 149, 153, 152, 218, 219, 223, 222, 162, 173, 174, 170, 232, 243, 244, 240, 183, 184, 188, 187] )
+        connIExp = DataArrayInt( [0, 21, 37, 58, 79, 100, 116, 137, 158, 179, 195, 216, 237, 258, 274, 295, 316, 337, 353, 374, 395, 416, 432, 453, 474] )
+        ret.checkConsistency()
+        self.assertTrue( ret.getNodalConnectivity().isEqual(connExp) )
+        self.assertTrue( ret.getNodalConnectivityIndex().isEqual(connIExp) )
+        self.assertEqual( ret.getNumberOfNodes(), ( 2*nbExtrusions+1 ) * m.getNumberOfNodes() )
+        for i in range( ( 2*nbExtrusions+1 ) ):
+            self.assertTrue( ret.getCoords()[i*m.getNumberOfNodes():(i+1)*m.getNumberOfNodes()].isEqual(  m.getCoords() , 1e-12 ) )
+        pass
+    
+    def testUMeshExtrudeConnectivity_linear0(self):
+        """
+        [EDF32060] : test linear case
+        """
+        coo = DataArrayDouble([
+    (0,0),
+    (0,1),
+    (0,2),
+    (1,0),
+    (1,1),
+    (1,2),
+    (1,3),
+    (2,0),
+    (2,1),
+    (2,2),
+    (2,3),
+    (3,0),
+    (3,1),
+    (3,2)
+]
+)
+        m = MEDCouplingUMesh("mesh",2)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(NORM_QUAD4,[0,1,4,3])
+        m.insertNextCell(NORM_TRI3,[3,4,7])
+        m.insertNextCell(NORM_QUAD4,[4,5,9,8])
+        m.insertNextCell(NORM_QUAD4,[1,2,5,4])
+        m.insertNextCell(NORM_QUAD4,[5,6,10,9])
+        m.insertNextCell(NORM_TRI3,[4,8,7])
+        m.insertNextCell(NORM_QUAD4,[7,8,12,11])
+        m.insertNextCell(NORM_QUAD4,[8,9,13,12])
+        m.changeSpaceDimension(3,0.)
+        connExp = DataArrayInt( [18, 0, 1, 4, 3, 14, 15, 18, 17, 16, 3, 4, 7, 17, 18, 21, 18, 4, 5, 9, 8, 18, 19, 23, 22, 18, 1, 2, 5, 4, 15, 16, 19, 18, 18, 5, 6, 10, 9, 19, 20, 24, 23, 16, 4, 8, 7, 18, 22, 21, 18, 7, 8, 12, 11, 21, 22, 26, 25, 18, 8, 9, 13, 12, 22, 23, 27, 26, 18, 14, 15, 18, 17, 28, 29, 32, 31, 16, 17, 18, 21, 31, 32, 35, 18, 18, 19, 23, 22, 32, 33, 37, 36, 18, 15, 16, 19, 18, 29, 30, 33, 32, 18, 19, 20, 24, 23, 33, 34, 38, 37, 16, 18, 22, 21, 32, 36, 35, 18, 21, 22, 26, 25, 35, 36, 40, 39, 18, 22, 23, 27, 26, 36, 37, 41, 40, 18, 28, 29, 32, 31, 42, 43, 46, 45, 16, 31, 32, 35, 45, 46, 49, 18, 32, 33, 37, 36, 46, 47, 51, 50, 18, 29, 30, 33, 32, 43, 44, 47, 46, 18, 33, 34, 38, 37, 47, 48, 52, 51, 16, 32, 36, 35, 46, 50, 49, 18, 35, 36, 40, 39, 49, 50, 54, 53, 18, 36, 37, 41, 40, 50, 51, 55, 54] )
+        connIExp = DataArrayInt( [0, 9, 16, 25, 34, 43, 50, 59, 68, 77, 84, 93, 102, 111, 118, 127, 136, 145, 152, 161, 170, 179, 186, 195, 204] )
+        nbExtrusions = 3
+        ret = m.extrudeConnectivity( nbExtrusions )
+        ret.checkConsistency()
+        self.assertEqual( ret.getNumberOfNodes(), ( nbExtrusions+1 ) * m.getNumberOfNodes() )
+        self.assertTrue( ret.getNodalConnectivity().isEqual(connExp) )
+        self.assertTrue( ret.getNodalConnectivityIndex().isEqual(connIExp) )
+        for i in range( ( nbExtrusions+1 ) ):
+            self.assertEqual( ret.getNumberOfNodes(), ( nbExtrusions+1 ) * m.getNumberOfNodes() )
+
+    def testUMeshExtrudeConnectivity_biquadratic0(self):
+        """
+        [EDF32060] : test biquadratic case
+        """
+        coo = DataArrayDouble([
+            (0,0),
+            (0,1),
+            (0,2),
+            (1,0),
+            (1,1),
+            (1,2),
+            (1,3),
+            (2,0),
+            (2,1),
+            (2,2),
+            (2,3),
+            (3,0),
+            (3,1),
+            (3,2)
+        ]
+        )
+        m = MEDCouplingUMesh("mesh",2)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(NORM_QUAD4,[0,1,4,3])
+        m.insertNextCell(NORM_TRI3,[3,4,7])
+        m.insertNextCell(NORM_QUAD4,[4,5,9,8])
+        m.insertNextCell(NORM_QUAD4,[1,2,5,4])
+        m.insertNextCell(NORM_QUAD4,[5,6,10,9])
+        m.insertNextCell(NORM_TRI3,[4,8,7])
+        m.insertNextCell(NORM_QUAD4,[7,8,12,11])
+        m.insertNextCell(NORM_QUAD4,[8,9,13,12])
+
+        m.changeSpaceDimension(3,0.)
+        # conversion quadratic to bi-quadratic
+        mapTrad = { NORM_TRI6 : NORM_TRI7, NORM_QUAD8 : NORM_QUAD9 }
+        m.convertLinearCellsToQuadratic()
+        offset = m.getNumberOfNodes()
+        m.setCoords( DataArrayDouble.Aggregate([m.getCoords(),m.computeCellCenterOfMass()]) )
+        o2n = m.sortCellsInMEDFileFrmt()
+        n2o = o2n.invertArrayO2N2N2O( len(o2n)  )
+        types = m.splitByType()
+        ret = []
+        offsetCell = 0
+        for type in types:
+            mt = MEDCoupling1SGTUMesh(type)
+            conn = mt.getNodalConnectivity()
+            conn.rearrange( mt.getNumberOfNodesPerCell() )
+            connOut = DataArrayInt.Meld( conn, n2o[offsetCell:offsetCell+type.getNumberOfCells()]+offset )
+            connOut.rearrange(1)
+            mtOut = MEDCoupling1SGTUMesh("",mapTrad[mt.getCellModelEnum()])
+            mtOut.setNodalConnectivity( connOut )
+            mtOut.setCoords( m.getCoords() )
+            ret.append( mtOut.buildUnstructured() )
+            offsetCell += type.getNumberOfCells()
+        m = MEDCouplingUMesh.MergeUMeshesOnSameCoords( ret )
+        m.renumberCells(n2o)
+        # conversion quadratic to bi-quadratic
+        connExp = DataArrayInt([27, 0, 1, 4, 3, 86, 87, 90, 89, 14, 15, 16, 17, 100, 101, 102, 103, 43, 44, 47, 46, 35, 57, 58, 59, 60, 121, 78, 28, 3, 4, 7, 89, 90, 93, 16, 18, 19, 102, 104, 105, 46, 47, 50, 59, 61, 62, 27, 4, 5, 9, 8, 90, 91, 95, 94, 20, 21, 22, 23, 106, 107, 108, 109, 47, 48, 52, 51, 37, 63, 64, 65, 66, 123, 80, 27, 1, 2, 5, 4, 87, 88, 91, 90, 24, 25, 20, 15, 110, 111, 106, 101, 44, 45, 48, 47, 38, 67, 68, 63, 58, 124, 81, 27, 5, 6, 10, 9, 91, 92, 96, 95, 26, 27, 28, 21, 112, 113, 114, 107, 48, 49, 53, 52, 39, 69, 70, 71, 64, 125, 82, 28, 4, 8, 7, 90, 94, 93, 23, 29, 18, 109, 115, 104, 47, 51, 50, 66, 72, 61, 27, 7, 8, 12, 11, 93, 94, 98, 97, 29, 30, 31, 32, 115, 116, 117, 118, 50, 51, 55, 54, 41, 72, 73, 74, 75, 127, 84, 27, 8, 9, 13, 12, 94, 95, 99, 98, 22, 33, 34, 30, 108, 119, 120, 116, 51, 52, 56, 55, 42, 65, 76, 77, 73, 128, 85, 27, 86, 87, 90, 89, 172, 173, 176, 175, 100, 101, 102, 103, 186, 187, 188, 189, 129, 130, 133, 132, 121, 143, 144, 145, 146, 207, 164, 28, 89, 90, 93, 175, 176, 179, 102, 104, 105, 188, 190, 191, 132, 133, 136, 145, 147, 148, 27, 90, 91, 95, 94, 176, 177, 181, 180, 106, 107, 108, 109, 192, 193, 194, 195, 133, 134, 138, 137, 123, 149, 150, 151, 152, 209, 166, 27, 87, 88, 91, 90, 173, 174, 177, 176, 110, 111, 106, 101, 196, 197, 192, 187, 130, 131, 134, 133, 124, 153, 154, 149, 144, 210, 167, 27, 91, 92, 96, 95, 177, 178, 182, 181, 112, 113, 114, 107, 198, 199, 200, 193, 134, 135, 139, 138, 125, 155, 156, 157, 150, 211, 168, 28, 90, 94, 93, 176, 180, 179, 109, 115, 104, 195, 201, 190, 133, 137, 136, 152, 158, 147, 27, 93, 94, 98, 97, 179, 180, 184, 183, 115, 116, 117, 118, 201, 202, 203, 204, 136, 137, 141, 140, 127, 158, 159, 160, 161, 213, 170, 27, 94, 95, 99, 98, 180, 181, 185, 184, 108, 119, 120, 116, 194, 205, 206, 202, 137, 138, 142, 141, 128, 151, 162, 163, 159, 214, 171])
+        connIExp = DataArrayInt( [0, 28, 47, 75, 103, 131, 150, 178, 206, 234, 253, 281, 309, 337, 356, 384, 412] )
+        #
+        offset = m.getNumberOfNodes()
+        nbExtrusions = 2
+        ret = m.extrudeConnectivity( nbExtrusions )
+        ret.checkConsistency()
+        self.assertEqual( ret.getNumberOfNodes(), ( 2*nbExtrusions+1 ) * m.getNumberOfNodes() )
+        self.assertTrue( ret.getNodalConnectivity().isEqual(connExp) )
+        self.assertTrue( ret.getNodalConnectivityIndex().isEqual(connIExp) )
+        for i in range( ( 2*nbExtrusions+1 ) ):
+            self.assertTrue( ret.getCoords()[i*m.getNumberOfNodes():(i+1)*m.getNumberOfNodes()].isEqual(  m.getCoords() , 1e-12 ) )
+
 if __name__ == '__main__':
     unittest.main()

@@ -367,6 +367,7 @@ namespace MEDCoupling
     typename Traits<T>::ArrayType *toNoInterlace() const;
     void meldWith(const typename Traits<T>::ArrayType *other);
     typename Traits<T>::ArrayType *duplicateEachTupleNTimes(mcIdType nbTimes) const;
+    MCAuto<typename Traits<T>::ArrayType> duplicateNTimes(mcIdType nbTimes) const;
     void aggregate(const typename Traits<T>::ArrayType *other);
     void abs();
     typename Traits<T>::ArrayType *computeAbs() const;

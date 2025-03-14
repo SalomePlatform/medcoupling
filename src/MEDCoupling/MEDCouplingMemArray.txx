@@ -3437,6 +3437,23 @@ struct NotInRange
   }
 
   template<class T>
+  MCAuto<typename Traits<T>::ArrayType> DataArrayTemplateClassic<T>::duplicateNTimes(mcIdType nbTimes) const
+  {
+    this->checkAllocated();
+    std::size_t nbCompo(this->getNumberOfComponents());
+    mcIdType nbElems(this->getNbOfElems()),nbTuples(this->getNumberOfTuples());
+    MCAuto<typename Traits<T>::ArrayType> ret(Traits<T>::ArrayType::New()); ret->alloc(nbTimes*nbTuples,nbCompo);
+    ret->copyStringInfoFrom(*this);
+    T *retPtr(ret->getPointer());
+    const T *inPtr(this->begin());
+    for(mcIdType i=0;i<nbTimes;i++)
+    {
+      retPtr = std::copy(inPtr,inPtr+nbElems,retPtr);
+    }
+    return ret;
+  }
+
+  template<class T>
   void DataArrayTemplateClassic<T>::aggregate(const typename Traits<T>::ArrayType *other)
   {
     if(!other)

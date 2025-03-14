@@ -83,6 +83,7 @@ namespace INTERP_KERNEL
     NormalizedCellType getQuadraticType() const { return _quadratic_type; }
     NormalizedCellType getQuadraticType2() const { return _quadratic_type2; }
     NormalizedCellType getSonType(unsigned sonId) const { return _sons_type[sonId]; }
+    INTERPKERNEL_EXPORT void buildExtruded(const mcIdType *nodalConn, mcIdType offset, mcIdType *nodalConnExtruded) const;
     INTERPKERNEL_EXPORT NormalizedCellType getSonType2(unsigned sonId) const;
     INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity(int sonId, const mcIdType *nodalConn, mcIdType *sonNodalConn) const;
     INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity2(int sonId, const mcIdType *nodalConn, mcIdType lgth, mcIdType *sonNodalConn, NormalizedCellType& typeOfSon) const;
@@ -111,6 +112,7 @@ namespace INTERP_KERNEL
     unsigned _sons_con[MAX_NB_OF_SONS][MAX_NB_OF_NODES_PER_ELEM];
     unsigned _little_sons_con[MAX_NB_OF_LITTLE_SONS][3];
     unsigned _nb_of_sons_con[MAX_NB_OF_SONS];
+    unsigned _extrude_con[MAX_NB_OF_NODES_PER_ELEM];
     NormalizedCellType _sons_type[MAX_NB_OF_SONS];
     static const char *CELL_TYPES_REPR[];
   };

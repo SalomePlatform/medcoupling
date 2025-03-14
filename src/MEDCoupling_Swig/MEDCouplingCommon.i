@@ -375,6 +375,7 @@ typedef long mcPyPtrType;
 %newobject MEDCoupling::MEDCouplingUMesh::buildDirectionVectorField;
 %newobject MEDCoupling::MEDCouplingUMesh::convertLinearCellsToQuadratic;
 %newobject MEDCoupling::MEDCouplingUMesh::convertToQuadraticBasedOnSeg3;
+%newobject MEDCoupling::MEDCouplingUMesh::extrudeConnectivity;
 %newobject MEDCoupling::MEDCouplingUMesh::getEdgeRatioField;
 %newobject MEDCoupling::MEDCouplingUMesh::getAspectRatioField;
 %newobject MEDCoupling::MEDCouplingUMesh::getWarpField;
@@ -2202,6 +2203,12 @@ namespace MEDCoupling
       MEDCouplingUMesh *convertToQuadraticBasedOnSeg3(MEDCoupling1SGTUMesh *seg3) const
       {
         MCAuto<MEDCouplingUMesh> ret( self->convertToQuadraticBasedOnSeg3(seg3) );
+        return ret.retn();
+      }
+      
+      MEDCouplingUMesh *extrudeConnectivity(mcIdType nbOfCellsToExtrude) const
+      {
+        MCAuto<MEDCouplingUMesh> ret( self->extrudeConnectivity(nbOfCellsToExtrude) );
         return ret.retn();
       }
 

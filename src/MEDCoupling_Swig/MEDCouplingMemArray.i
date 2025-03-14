@@ -1017,6 +1017,7 @@ typedef DataArrayInt64 DataArrayIdType;
     DataArrayDouble *changeNbOfComponents(std::size_t newNbOfComp, double dftValue) const;
     void meldWith(const DataArrayDouble *other);
     DataArrayDouble *duplicateEachTupleNTimes(int nbTimes) const;
+    MCAuto<DataArrayDouble> duplicateNTimes(mcIdType nbTimes) const;
     DataArrayDouble *getDifferentValues(double prec, int limitTupleId=-1) const;
     DataArrayIdType *findClosestTupleId(const DataArrayDouble *other) const;
     DataArrayIdType *computeNbOfInteractionsWith(const DataArrayDouble *otherBBoxFrmt, double eps) const;

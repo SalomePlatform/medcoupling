@@ -146,6 +146,7 @@
     void sortEachPairToMakeALinkedList();
     void sortToHaveConsecutivePairs();
     ARRAY *duplicateEachTupleNTimes(mcIdType nbTimes) const;
+    MCAuto<ARRAY> duplicateNTimes(mcIdType nbTimes) const;
     ARRAY *getDifferentValues() const;
     static ARRAY *Add(const ARRAY *a1, const ARRAY *a2);
     void addEqual(const ARRAY *other);

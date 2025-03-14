@@ -191,6 +191,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void convertQuadraticCellsToLinear();
     MEDCOUPLING_EXPORT DataArrayIdType *convertLinearCellsToQuadratic(int conversionType=0);
     MEDCOUPLING_EXPORT MCAuto<MEDCouplingUMesh> convertToQuadraticBasedOnSeg3(const MEDCoupling1SGTUMesh *seg3) const;
+    MEDCOUPLING_EXPORT MCAuto<MEDCouplingUMesh> extrudeConnectivity(mcIdType nbOfCellsToExtrude) const;
     MEDCOUPLING_EXPORT void tessellate2D(double eps);
     MEDCOUPLING_EXPORT MEDCoupling1SGTUMesh *tetrahedrize(int policy, DataArrayIdType *& n2oCells, mcIdType& nbOfAdditionalPoints) const;
     MEDCOUPLING_EXPORT DataArrayIdType *simplexize(int policy);

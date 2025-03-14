@@ -44,6 +44,7 @@
 #include "OrientationInverter.hxx"
 #include "MEDCouplingUMesh_internal.hxx"
 
+#include <functional>
 #include <sstream>
 #include <fstream>
 #include <numeric>
@@ -4806,7 +4807,7 @@ MCAuto<MEDCouplingUMesh> MEDCouplingUMesh::convertToQuadraticBasedOnSeg3(const M
       THROW_IK_EXCEPTION("Some points of linear part of input seg3 lies outside this coordinates.");
   }
   MCAuto<MEDCouplingUMesh> m3DCpy( deepCopyConnectivityOnly() );
-  MCAuto<DataArrayIdType> n2o( m3DCpy->sortCellsInMEDFileFrmt() );
+  MCAuto<DataArrayIdType> o2nBase( m3DCpy->sortCellsInMEDFileFrmt() );
   MCAuto<MEDCouplingUMesh> edges_on_3d;
   MCAuto<DataArrayIdType> d,di;
   {
@@ -4870,11 +4871,85 @@ MCAuto<MEDCouplingUMesh> MEDCouplingUMesh::convertToQuadraticBasedOnSeg3(const M
     ret = MEDCouplingUMesh::MergeUMeshesOnSameCoords(retVecTmp);
   }
   {
-    MCAuto<DataArrayIdType> o2nTmp( n2o->invertArrayO2N2N2O(n2o->getNumberOfTuples()) );
+    MCAuto<DataArrayIdType> o2nTmp( o2nBase->invertArrayO2N2N2O(o2nBase->getNumberOfTuples()) );
     ret->renumberCells(o2nTmp->begin());
   }
   ret->copyTinyInfoFrom( this );
   return ret;
+}
+
+MCAuto<MEDCouplingUMesh> MEDCouplingUMeshExtrudeConnectivity(const MEDCouplingUMesh *instance, mcIdType nbOfCellsToExtrude, std::function<mcIdType(mcIdType)> func)
+{
+  mcIdType offset( instance->getNumberOfNodes() ), nbOfCells( instance->getNumberOfCells() ),offsetCell(0);
+  MCAuto<MEDCouplingUMesh> m3DCpy( instance->deepCopyConnectivityOnly() );
+  MCAuto<DataArrayIdType> o2n( m3DCpy->sortCellsInMEDFileFrmt() );
+  MCAuto<DataArrayIdType> n2o( o2n->invertArrayO2N2N2O(o2n->getNumberOfTuples()) );
+  MCAuto<DataArrayIdType> o2nTmp( DataArrayIdType::New() ); o2nTmp->alloc(nbOfCells*nbOfCellsToExtrude,1);
+  const mcIdType *ptN2o( n2o->begin() );
+  mcIdType *ptO2nFeed( o2nTmp->getPointer() );
+  std::vector<MCAuto<MEDCouplingUMesh> > types;
+  {
+    std::vector< MEDCouplingUMesh *> typesTmp( m3DCpy->splitByType() );
+    types = FromVecToVecAutoStealRef( typesTmp );
+  }
+  std::vector< MCAuto<MEDCouplingUMesh> > retVec;
+  for( auto type : types )
+  {
+    MCAuto< MEDCoupling1SGTUMesh > mt( MEDCoupling1SGTUMesh::New(type) );
+    mcIdType nbCellsOfType( mt->getNumberOfCells() );
+    const INTERP_KERNEL::CellModel& cm( mt->getCellModel() );
+    const INTERP_KERNEL::CellModel& cmq( INTERP_KERNEL::CellModel::GetCellModel( cm.getExtrudedType() ) );
+    auto nbNodesQuad( cmq.getNumberOfNodes() ), nbNodePerCell( cm.getNumberOfNodes() );
+    MCAuto<MEDCoupling1SGTUMesh> mOut( MEDCoupling1SGTUMesh::New(instance->getName(), cmq.getEnum()) );
+    MCAuto<DataArrayIdType> connQ( DataArrayIdType::New() );
+    connQ->alloc( ToIdType( nbNodesQuad ) * nbCellsOfType * nbOfCellsToExtrude,1);
+    mcIdType *ptConnQ( connQ->getPointer() );
+    for( mcIdType iz = 0 ; iz < nbOfCellsToExtrude ; ++iz )
+    {
+      mcIdType baseOffset(func( iz*offset ));
+      const mcIdType *inConn( mt->getNodalConnectivity()->begin() );
+      for( mcIdType i = 0 ; i < nbCellsOfType ; ++i )
+      {
+        cm.buildExtruded(inConn,offset,ptConnQ);
+        std::for_each(ptConnQ,ptConnQ+nbNodesQuad,[baseOffset](mcIdType& val){ val += baseOffset; } );
+        ptConnQ += nbNodesQuad;
+        inConn += nbNodePerCell;
+        *ptO2nFeed++ = ptN2o[i+offsetCell] + iz*nbOfCells;
+      }
+    }
+    mOut->setCoords( instance->getCoords() );
+    mOut->setNodalConnectivity(connQ );
+    MCAuto<MEDCouplingUMesh> mOut2( mOut->buildUnstructured() );
+    retVec.push_back( mOut2 );
+    offsetCell += type->getNumberOfCells();
+  }
+  MCAuto<MEDCouplingUMesh> ret;
+  {
+    std::vector< const MEDCouplingUMesh *> retVecTmp( ToConstVect(retVec) );
+    ret = MEDCouplingUMesh::MergeUMeshesOnSameCoords(retVecTmp);
+  }
+  mcIdType nbOfLayersOfCooOut( func( nbOfCellsToExtrude ) + 1 );
+  MCAuto<DataArrayDouble> newCoords( instance->getCoords()->duplicateNTimes( nbOfLayersOfCooOut ) );
+  ret->setCoords( newCoords );
+  ret->renumberCells(o2nTmp->begin());
+  return ret;
+}
+
+MCAuto<MEDCouplingUMesh> MEDCouplingUMesh::extrudeConnectivity(mcIdType nbOfCellsToExtrude) const
+{
+  this->checkFullyDefined();
+  if( ! this->isPresenceOfQuadratic() )
+  {
+    return MEDCouplingUMeshExtrudeConnectivity(this,nbOfCellsToExtrude,[](mcIdType v) { return v; });
+  }
+  else
+  {
+    if( ! this->isFullyQuadratic() )
+    {
+      THROW_IK_EXCEPTION("Input mesh is expected to be either fully quadratic or fully linear");
+    }
+    return MEDCouplingUMeshExtrudeConnectivity(this,nbOfCellsToExtrude,[](mcIdType v) { return 2 * v; });
+  }
 }
 
 /*!

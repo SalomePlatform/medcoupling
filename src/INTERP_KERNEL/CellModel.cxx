@@ -222,6 +222,8 @@ namespace INTERP_KERNEL
           _sons_con[1][0]=1; _sons_con[1][1]=2; _nb_of_sons_con[1]=2;
           _sons_con[2][0]=2; _sons_con[2][1]=3; _nb_of_sons_con[2]=2;
           _sons_con[3][0]=3; _sons_con[3][1]=0; _nb_of_sons_con[3]=2; _extruded_type=NORM_HEXA8;
+          _extrude_con[0]=0; _extrude_con[1]=1; _extrude_con[2]=2; _extrude_con[3]=3;
+          _extrude_con[4]=MAX_NB_OF_NODES_PER_ELEM+0; _extrude_con[5]=MAX_NB_OF_NODES_PER_ELEM+1; _extrude_con[6]=MAX_NB_OF_NODES_PER_ELEM+2; _extrude_con[7]=MAX_NB_OF_NODES_PER_ELEM+3;
         }
         break;
       case NORM_TRI3:
@@ -231,6 +233,8 @@ namespace INTERP_KERNEL
           _sons_con[0][0]=0; _sons_con[0][1]=1; _nb_of_sons_con[0]=2;
           _sons_con[1][0]=1; _sons_con[1][1]=2; _nb_of_sons_con[1]=2;
           _sons_con[2][0]=2; _sons_con[2][1]=0; _nb_of_sons_con[2]=2; _extruded_type=NORM_PENTA6;
+          _extrude_con[0]=0; _extrude_con[1]=1; _extrude_con[2]=2;
+          _extrude_con[3]=MAX_NB_OF_NODES_PER_ELEM+0; _extrude_con[4]=MAX_NB_OF_NODES_PER_ELEM+1; _extrude_con[5]=MAX_NB_OF_NODES_PER_ELEM+2;
         }
         break;
       case NORM_TRI6:
@@ -240,6 +244,11 @@ namespace INTERP_KERNEL
           _sons_con[0][0]=0; _sons_con[0][1]=1; _sons_con[0][2]=3; _nb_of_sons_con[0]=3;
           _sons_con[1][0]=1; _sons_con[1][1]=2; _sons_con[1][2]=4; _nb_of_sons_con[1]=3;
           _sons_con[2][0]=2; _sons_con[2][1]=0; _sons_con[2][2]=5; _nb_of_sons_con[2]=3; _quadratic=true; _extruded_type=NORM_PENTA15;
+          _extrude_con[0]=0; _extrude_con[1]=1; _extrude_con[2]=2;
+          _extrude_con[3]=2*MAX_NB_OF_NODES_PER_ELEM+0; _extrude_con[4]=2*MAX_NB_OF_NODES_PER_ELEM+1; _extrude_con[5]=2*MAX_NB_OF_NODES_PER_ELEM+2;
+          _extrude_con[6]=3; _extrude_con[7]=4; _extrude_con[8]=5;
+          _extrude_con[9]=2*MAX_NB_OF_NODES_PER_ELEM+3; _extrude_con[10]=2*MAX_NB_OF_NODES_PER_ELEM+4; _extrude_con[11]=2*MAX_NB_OF_NODES_PER_ELEM+5;
+          _extrude_con[12]=MAX_NB_OF_NODES_PER_ELEM+0; _extrude_con[13]=MAX_NB_OF_NODES_PER_ELEM+1; _extrude_con[14]=MAX_NB_OF_NODES_PER_ELEM+2;
         }
         break;
       case NORM_TRI7:
@@ -248,7 +257,13 @@ namespace INTERP_KERNEL
           _sons_type[0]=NORM_SEG3; _sons_type[1]=NORM_SEG3; _sons_type[2]=NORM_SEG3;
           _sons_con[0][0]=0; _sons_con[0][1]=1; _sons_con[0][2]=3; _nb_of_sons_con[0]=3;
           _sons_con[1][0]=1; _sons_con[1][1]=2; _sons_con[1][2]=4; _nb_of_sons_con[1]=3;
-          _sons_con[2][0]=2; _sons_con[2][1]=0; _sons_con[2][2]=5; _nb_of_sons_con[2]=3; _quadratic=true; //no extruded type because no penta20
+          _sons_con[2][0]=2; _sons_con[2][1]=0; _sons_con[2][2]=5; _nb_of_sons_con[2]=3; _quadratic=true; _extruded_type=NORM_PENTA18; //no penta20 -> so use penta18
+          _extrude_con[0]=0; _extrude_con[1]=1; _extrude_con[2]=2;
+          _extrude_con[3]=2*MAX_NB_OF_NODES_PER_ELEM+0; _extrude_con[4]=2*MAX_NB_OF_NODES_PER_ELEM+1; _extrude_con[5]=2*MAX_NB_OF_NODES_PER_ELEM+2;
+          _extrude_con[6]=3; _extrude_con[7]=4; _extrude_con[8]=5;
+          _extrude_con[9]=2*MAX_NB_OF_NODES_PER_ELEM+3; _extrude_con[10]=2*MAX_NB_OF_NODES_PER_ELEM+4; _extrude_con[11]=2*MAX_NB_OF_NODES_PER_ELEM+5;
+          _extrude_con[12]=MAX_NB_OF_NODES_PER_ELEM+0; _extrude_con[13]=MAX_NB_OF_NODES_PER_ELEM+1; _extrude_con[14]=MAX_NB_OF_NODES_PER_ELEM+2;
+          _extrude_con[15]=MAX_NB_OF_NODES_PER_ELEM+3; _extrude_con[16]=MAX_NB_OF_NODES_PER_ELEM+4; _extrude_con[17]=MAX_NB_OF_NODES_PER_ELEM+5;
         }
         break;
       case NORM_QUAD8:
@@ -259,6 +274,11 @@ namespace INTERP_KERNEL
           _sons_con[1][0]=1; _sons_con[1][1]=2; _sons_con[1][2]=5; _nb_of_sons_con[1]=3;
           _sons_con[2][0]=2; _sons_con[2][1]=3; _sons_con[2][2]=6; _nb_of_sons_con[2]=3;
           _sons_con[3][0]=3; _sons_con[3][1]=0; _sons_con[3][2]=7; _nb_of_sons_con[3]=3; _quadratic=true; _extruded_type=NORM_HEXA20;
+          _extrude_con[0]=0; _extrude_con[1]=1; _extrude_con[2]=2; _extrude_con[3]=3;
+          _extrude_con[4]=2*MAX_NB_OF_NODES_PER_ELEM+0; _extrude_con[5]=2*MAX_NB_OF_NODES_PER_ELEM+1; _extrude_con[6]=2*MAX_NB_OF_NODES_PER_ELEM+2; _extrude_con[7]=2*MAX_NB_OF_NODES_PER_ELEM+3;
+          _extrude_con[8]=4; _extrude_con[9]=5; _extrude_con[10]=6; _extrude_con[11]=7;
+          _extrude_con[12]=2*MAX_NB_OF_NODES_PER_ELEM+4; _extrude_con[13]=2*MAX_NB_OF_NODES_PER_ELEM+5; _extrude_con[14]=2*MAX_NB_OF_NODES_PER_ELEM+6; _extrude_con[15]=2*MAX_NB_OF_NODES_PER_ELEM+7;
+          _extrude_con[16]=MAX_NB_OF_NODES_PER_ELEM+0; _extrude_con[17]=MAX_NB_OF_NODES_PER_ELEM+1; _extrude_con[18]=MAX_NB_OF_NODES_PER_ELEM+2; _extrude_con[19]=MAX_NB_OF_NODES_PER_ELEM+3;
         }
         break;
       case NORM_QUAD9:
@@ -269,6 +289,15 @@ namespace INTERP_KERNEL
           _sons_con[1][0]=1; _sons_con[1][1]=2; _sons_con[1][2]=5; _nb_of_sons_con[1]=3;
           _sons_con[2][0]=2; _sons_con[2][1]=3; _sons_con[2][2]=6; _nb_of_sons_con[2]=3;
           _sons_con[3][0]=3; _sons_con[3][1]=0; _sons_con[3][2]=7; _nb_of_sons_con[3]=3; _quadratic=true; _extruded_type=NORM_HEXA27;
+          _extrude_con[0]=0; _extrude_con[1]=1; _extrude_con[2]=2; _extrude_con[3]=3;
+          _extrude_con[4]=2*MAX_NB_OF_NODES_PER_ELEM+0; _extrude_con[5]=2*MAX_NB_OF_NODES_PER_ELEM+1; _extrude_con[6]=2*MAX_NB_OF_NODES_PER_ELEM+2; _extrude_con[7]=2*MAX_NB_OF_NODES_PER_ELEM+3;
+          _extrude_con[8]=4; _extrude_con[9]=5; _extrude_con[10]=6; _extrude_con[11]=7;
+          _extrude_con[12]=2*MAX_NB_OF_NODES_PER_ELEM+4; _extrude_con[13]=2*MAX_NB_OF_NODES_PER_ELEM+5; _extrude_con[14]=2*MAX_NB_OF_NODES_PER_ELEM+6; _extrude_con[15]=2*MAX_NB_OF_NODES_PER_ELEM+7;
+          _extrude_con[16]=MAX_NB_OF_NODES_PER_ELEM+0; _extrude_con[17]=MAX_NB_OF_NODES_PER_ELEM+1; _extrude_con[18]=MAX_NB_OF_NODES_PER_ELEM+2; _extrude_con[19]=MAX_NB_OF_NODES_PER_ELEM+3;
+          _extrude_con[20]=8;
+          _extrude_con[21]=MAX_NB_OF_NODES_PER_ELEM+4; _extrude_con[22]=MAX_NB_OF_NODES_PER_ELEM+5; _extrude_con[23]=MAX_NB_OF_NODES_PER_ELEM+6; _extrude_con[24]=MAX_NB_OF_NODES_PER_ELEM+7;
+          _extrude_con[25]=2*MAX_NB_OF_NODES_PER_ELEM+8;
+          _extrude_con[26]=MAX_NB_OF_NODES_PER_ELEM+8;
         }
         break;
       case NORM_PYRA5:
@@ -561,6 +590,18 @@ namespace INTERP_KERNEL
       default:
         throw INTERP_KERNEL::Exception("CellModel::getPolyType : only dimension 0, 1, 2, 3 are supported !");
       }
+  }
+
+  void CellModel::buildExtruded(const mcIdType *nodalConn, mcIdType offset, mcIdType *nodalConnExtruded) const
+  {
+    const CellModel& extMod( GetCellModel( getExtrudedType() ) );
+    unsigned nbNodesExt( extMod.getNumberOfNodes() );
+    for( unsigned i = 0 ; i < nbNodesExt ; ++i )
+    {
+      unsigned val ( _extrude_con[i] );
+      unsigned lev( val / MAX_NB_OF_NODES_PER_ELEM ), idInLev( val % MAX_NB_OF_NODES_PER_ELEM );
+      nodalConnExtruded[i] = nodalConn[ idInLev ] + lev * offset;
+    }
   }
 
   /*!
