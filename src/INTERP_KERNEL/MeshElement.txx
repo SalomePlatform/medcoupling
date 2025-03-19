@@ -16,8 +16,8 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __MESHELEMENT_TXX__
-#define __MESHELEMENT_TXX__
+
+#pragma once
 
 #include "MeshElement.hxx"
 
@@ -39,16 +39,16 @@ namespace INTERP_KERNEL
    * @param index   global number of element in the mesh in C mode.
    * @param mesh    mesh that the element belongs to
    */
-  template<class ConnType>
+  template<class ConnType, int SPACEDIM>
   template<class MyMeshType>
-  MeshElement<ConnType>::MeshElement(const ConnType index, const MyMeshType& mesh): _number( 0 )
+  MeshElementT<ConnType,SPACEDIM>::MeshElementT(const ConnType index, const MyMeshType& mesh): _number( 0 )
   {
     this->assign(index,mesh);
   }
 
-  template<class ConnType>
+  template<class ConnType, int SPACEDIM>
   template<class MyMeshType>
-  void MeshElement<ConnType>::assign(const ConnType index, const MyMeshType& mesh)
+  void MeshElementT<ConnType,SPACEDIM>::assign(const ConnType index, const MyMeshType& mesh)
   {
     auto numberCore = mesh.getNumberOfNodesOfElement(OTT<typename MyMeshType::MyConnType,MyMeshType::My_numPol>::indFC(index));
     if(numberCore < std::numeric_limits<nbnodesincelltype>::max())
@@ -94,5 +94,3 @@ namespace INTERP_KERNEL
   }
 
 }
-
-#endif

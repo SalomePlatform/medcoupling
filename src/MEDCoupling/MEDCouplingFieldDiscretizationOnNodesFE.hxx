@@ -21,6 +21,7 @@
 #pragma once
 
 #include "MEDCouplingFieldDiscretization.hxx"
+#include "InterpolationOptions.hxx"
 
 #include <functional>
 
@@ -56,7 +57,7 @@ namespace MEDCoupling
       GetClosestRefCoordOfListOfPts(const MEDCouplingUMesh *umesh, const double *ptsCoo, mcIdType nbOfPts,
                                     std::function<void(const MEDCouplingGaussLocalization &, const std::vector<mcIdType> &)> customFunc);
       MEDCOUPLING_EXPORT static void computeCrudeMatrix(const MEDCouplingUMesh *srcMesh, const double *ptsCoo, const mcIdType nbOfPts,
-                                                        std::vector<std::map<mcIdType, double>> &matrix);
+                                                        std::vector<std::map<mcIdType, double>> &matrix, const INTERP_KERNEL::FEInterpolationOptions& option);
 
     private:
       const MEDCouplingUMesh *checkConfig(const MEDCouplingMesh *mesh) const;
@@ -84,7 +85,7 @@ namespace MEDCoupling
 
       template <int SPACEDIM>
       MEDCOUPLING_EXPORT static void computeCrudeMatrixNd(const MEDCouplingUMesh *srcMesh, const double *ptsCoo, const mcIdType nbOfPts,
-                                                          std::vector<std::map<mcIdType, double>> &matrix);
+                                                          std::vector<std::map<mcIdType, double>> &matrix, const INTERP_KERNEL::FEInterpolationOptions& option);
 
     public:
       static const char REPR[];

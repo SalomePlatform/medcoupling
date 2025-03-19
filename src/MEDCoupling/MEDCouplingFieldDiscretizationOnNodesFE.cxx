@@ -393,9 +393,9 @@ MEDCouplingFieldDiscretizationOnNodesFE::GetRefCoordOfListOf1PtInND(
   constexpr int SPACEDIM = BBTree::dimension;
   const double *coordsOfMesh(umesh->getCoords()->begin());
   std::vector<mcIdType> elems;
-  // TODO: fix tree in 2D to use it
   tree.getElementsAroundPoint(ptCoor.data(), elems);
-  for (mcIdType cellId = 0; cellId < umesh->getNumberOfCells(); ++cellId) {
+  for( mcIdType cellId : elems )
+  {
     INTERP_KERNEL::NormalizedCellType gt(umesh->getTypeOfCell(cellId));
     std::vector<mcIdType> conn;
     umesh->getNodeIdsOfCell(cellId, conn);
@@ -448,15 +448,17 @@ MEDCouplingFieldDiscretizationOnNodesFE::GetClosestRefCoordOfListOf1PtInND(
 
   constexpr int SPACEDIM = BBTree::dimension;
   const double *coordsOfMesh(umesh->getCoords()->begin());
-  std::vector<mcIdType> elems;
-  tree.getElementsAroundPoint(ptCoor.data(), elems);
+  // EDF31461 : TODO : An algorithm could be implemented to automatically reduce number of candidates.
+  //std::vector<mcIdType> elems;
+  //tree.getElementsAroundPoint(ptCoor.data(), elems);
   bool found = false;
   double dist_min = std::numeric_limits<double>::max(), dist_loc;
   MEDCouplingGaussLocalization gl_min(INTERP_KERNEL::NORM_SEG2);
   mcIdType cell_id;
 
-  // TODO: use bounding box for better performance
-  for (mcIdType cellId = 0; cellId < umesh->getNumberOfCells(); ++cellId) {
+  //for( mcIdType cellId : elems ) // 
+  for (mcIdType cellId = 0; cellId < umesh->getNumberOfCells(); ++cellId)
+  {
     INTERP_KERNEL::NormalizedCellType gt(umesh->getTypeOfCell(cellId));
     std::vector<mcIdType> conn;
     umesh->getNodeIdsOfCell(cellId, conn);
@@ -593,18 +595,19 @@ MEDCouplingFieldDiscretizationOnNodesFE::getClosestCooInRefElement(const MEDCoup
 
 void
 MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrix(const MEDCouplingUMesh *srcMesh, const double *ptsCoo, const mcIdType nbOfPts,
-                                                            std::vector<std::map<mcIdType, double>> &matrix) {
+                                                            std::vector<std::map<mcIdType, double>> &matrix, const INTERP_KERNEL::FEInterpolationOptions& option)
+{
   switch (srcMesh->getSpaceDimension()) {
   case 1:
-    MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrixNd<1>(srcMesh, ptsCoo, nbOfPts, matrix);
+    MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrixNd<1>(srcMesh, ptsCoo, nbOfPts, matrix, option);
     break;
 
   case 2:
-    MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrixNd<2>(srcMesh, ptsCoo, nbOfPts, matrix);
+    MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrixNd<2>(srcMesh, ptsCoo, nbOfPts, matrix, option);
     break;
 
   case 3:
-    MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrixNd<3>(srcMesh, ptsCoo, nbOfPts, matrix);
+    MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrixNd<3>(srcMesh, ptsCoo, nbOfPts, matrix, option);
     break;
   default:
     THROW_IK_EXCEPTION("computeCrudeMatrix : invalid dimension !")
@@ -615,8 +618,8 @@ MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrix(const MEDCouplingUMe
 template <int SPACEDIM>
 void
 MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrixNd(const MEDCouplingUMesh *srcMesh, const double *ptsCoo, const mcIdType nbOfPts,
-                                                              std::vector<std::map<mcIdType, double>> &matrix) {
-
+                                                              std::vector<std::map<mcIdType, double>> &matrix, const INTERP_KERNEL::FEInterpolationOptions& option)
+{
   // This code is largely duplicated
   if (SPACEDIM != srcMesh->getSpaceDimension()) {
     THROW_IK_EXCEPTION("computeCrudeMatrixNd : mesh and parameter have a different dimension !")
@@ -636,10 +639,8 @@ MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrixNd(const MEDCouplingU
   };
   // This projection is named COLLOCATION in PROJ_CHAMP in code_aster.
 
-  // TODO: add an option to limit the projection if to far - DISTANCE_MAX in code_aster
-  const double dist_max = std::numeric_limits<double>::max();
-  // TODO: add an option to project point also on surface - always true in code_aster
-  const bool projOnSurf = false, use_dist_max = false;
+  const double dist_max = option.getProjectionMaxDistance();
+  const bool projOnSurf( option.getProjectionOnSurfStatus() ), use_dist_max( option.getMaxDistanceStatus() );
 
   if (srcMesh->getMeshDimension() == srcMesh->getSpaceDimension()) {
     // Compute bounding box
@@ -677,7 +678,6 @@ MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrixNd(const MEDCouplingU
     // Compute bounding box
     MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, SPACEDIM - 1> mesh_wrapper(srcMesh);
     auto tree = INTERP_KERNEL::BuildBBTree<MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, SPACEDIM - 1>, SPACEDIM>(mesh_wrapper);
-    // TODO: add maximal distance for projection
     for (mcIdType iPt = 0; iPt < nbOfPts; ++iPt) {
       const std::vector<double> gsCoo(ptsCoo + iPt * SPACEDIM, ptsCoo + (iPt + 1) * SPACEDIM);
       try {

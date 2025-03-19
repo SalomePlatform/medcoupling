@@ -35,19 +35,20 @@ namespace INTERP_KERNEL
    * @param numPts  number of vertices
    *
    */
-  BoundingBox::BoundingBox(const double** pts, const unsigned numPts)
+  template<int SPACEDIM>
+  BoundingBoxT<SPACEDIM>::BoundingBoxT(const double** pts, const unsigned numPts)
   {
     initializeWith(pts,numPts);
   }
 
-  void BoundingBox::fillInXMinXmaxYminYmaxZminZmaxFormat(double data[6]) const
+  template<int SPACEDIM>
+  void BoundingBoxT<SPACEDIM>::fillInXMinXmaxYminYmaxZminZmaxFormat(double data[2*SPACEDIM]) const
   {
-    data[0] = this->getCoordinate(BoundingBox::XMIN);
-    data[1] = this->getCoordinate(BoundingBox::XMAX);
-    data[2] = this->getCoordinate(BoundingBox::YMIN);
-    data[3] = this->getCoordinate(BoundingBox::YMAX);
-    data[4] = this->getCoordinate(BoundingBox::ZMIN);
-    data[5] = this->getCoordinate(BoundingBox::ZMAX);
+    for( int i = 0 ; i < SPACEDIM ; ++i)
+    {
+      data[2*i] = this->getCoordinate(i);
+      data[2*i+1] = this->getCoordinate(i+SPACEDIM);
+    }
   }
 
   /**
@@ -59,15 +60,16 @@ namespace INTERP_KERNEL
    * @param numPts  number of vertices
    *
    */
-  void BoundingBox::initializeWith(const double** pts, const unsigned numPts)
+  template<int SPACEDIM>
+  void BoundingBoxT<SPACEDIM>::initializeWith(const double** pts, const unsigned numPts)
   {
     // initialize with first two points
     const double *pt0(pts[0]);
 
-    for(BoxCoord c = XMIN ; c <= ZMIN ; c = BoxCoord(c + 1))
+    for( int c = 0 ; c < SPACEDIM ; ++c )
       {
         _coords[c] = pt0[c];
-        _coords[c + 3] = pt0[c];
+        _coords[c + SPACEDIM] = pt0[c];
       }
 
     for(unsigned i = 1 ; i < numPts ; ++i)
@@ -84,12 +86,13 @@ namespace INTERP_KERNEL
    * @param  box1  the first box
    * @param  box2  the second box
    */
-  BoundingBox::BoundingBox(const BoundingBox& box1, const BoundingBox& box2)
+  template<int SPACEDIM>
+  BoundingBoxT<SPACEDIM>::BoundingBoxT(const BoundingBoxT<SPACEDIM>& box1, const BoundingBoxT<SPACEDIM>& box2)
   {
-    for(BoxCoord c = XMIN ; c <= ZMIN ; c = BoxCoord(c + 1))
+    for(int c = 0 ; c < SPACEDIM ; ++c)
       {
         _coords[c] = std::min(box1._coords[c], box2._coords[c]);
-        _coords[c + 3] = std::max(box1._coords[c + 3], box2._coords[c + 3]);
+        _coords[c + SPACEDIM] = std::max(box1._coords[c + SPACEDIM], box2._coords[c + SPACEDIM]);
       }
 
     assert(isValid());
@@ -101,12 +104,13 @@ namespace INTERP_KERNEL
    * @param    box   BoundingBox with which intersection is tested
    * @return  true if intersection between boxes is empty, false if not
    */
-  bool BoundingBox::isDisjointWith(const BoundingBox& box) const
+  template<int SPACEDIM>
+  bool BoundingBoxT<SPACEDIM>::isDisjointWith(const BoundingBoxT<SPACEDIM>& box) const
   {
-    for(BoxCoord c = XMIN ; c <= ZMIN ; c = BoxCoord(c + 1))
+    for(int c = 0 ; c < SPACEDIM ; ++c)
       {
         const double otherMinCoord = box.getCoordinate(c);
-        const double otherMaxCoord = box.getCoordinate(BoxCoord(c + 3));
+        const double otherMaxCoord = box.getCoordinate(c + SPACEDIM);
 
         // boxes are disjoint if there exists a direction in which the
         // minimum coordinate of one is greater than the maximum coordinate of the other
@@ -114,16 +118,13 @@ namespace INTERP_KERNEL
         // more stable version ?
         // const double tol = 1.0e-2*_coords[c];
         // if(_coords[c] > otherMaxCoord + tol
-        //   || _coords[c + 3] < otherMinCoord - tol)
+        //   || _coords[c + SPACEDIM] < otherMinCoord - tol)
 
 
-        if(_coords[c] > otherMaxCoord
-           || _coords[c + 3] < otherMinCoord)
-
+        if(_coords[c] > otherMaxCoord || _coords[c + SPACEDIM] < otherMinCoord)
           {
             return true;
           }
-
       }
     return false;
   }
@@ -136,15 +137,16 @@ namespace INTERP_KERNEL
    * @param pt    point to be included
    *
    */
-  void BoundingBox::updateWithPoint(const double* pt)
+  template<int SPACEDIM>
+  void BoundingBoxT<SPACEDIM>::updateWithPoint(const double* pt)
   {
-    for(BoxCoord c = XMIN ; c <= ZMIN ; c = BoxCoord(c + 1))
+    for(int c = 0 ; c < SPACEDIM ; ++c)
       {
         const double ptVal = pt[c];
 
         // update min and max coordinates
         _coords[c] = std::min(_coords[c], ptVal);
-        _coords[c + 3] = std::max(_coords[c + 3], ptVal);
+        _coords[c + SPACEDIM] = std::max(_coords[c + SPACEDIM], ptVal);
 
       }
   }
@@ -155,29 +157,33 @@ namespace INTERP_KERNEL
    *
    * @return  true if the box is valid, false if not
    */
-  bool BoundingBox::isValid() const
+  template<int SPACEDIM>
+  bool BoundingBoxT<SPACEDIM>::isValid() const
   {
     bool valid = true;
-    for(BoxCoord c = XMIN ; c < ZMIN ; c = BoxCoord(c + 1))
+    for(int c = 0 ; c < SPACEDIM ; ++c)
       {
-        if(_coords[c] > _coords[c + 3])
+        if(_coords[c] > _coords[c + SPACEDIM])
           {
             std::cout << "+++ Error in  BoundingBox |: coordinate " << c << " is invalid : "
-                      <<_coords[c] << " > " << _coords[c+3] << std::endl;
+                      <<_coords[c] << " > " << _coords[c+SPACEDIM] << std::endl;
             valid = false;
           }
       }
     return valid;
   }
 
-  void BoundingBox::toCompactData(double data[6]) const
+  template<int SPACEDIM>
+  void BoundingBoxT<SPACEDIM>::toCompactData(double data[2*SPACEDIM]) const
   {
-    data[0]=_coords[XMIN];
-    data[1]=_coords[XMAX];
-    data[2]=_coords[YMIN];
-    data[3]=_coords[YMAX];
-    data[4]=_coords[ZMIN];
-    data[5]=_coords[ZMAX];
+    for( int i = 0 ; i < SPACEDIM ; ++i )
+    {
+      data[2*i] = _coords[i];
+      data[2*i+1] = _coords[i+SPACEDIM];
+    }
   }
-
+  
+  template class INTERPKERNEL_EXPORT BoundingBoxT<3>;
+  template class INTERPKERNEL_EXPORT BoundingBoxT<2>;
+  template class INTERPKERNEL_EXPORT BoundingBoxT<1>;
 }

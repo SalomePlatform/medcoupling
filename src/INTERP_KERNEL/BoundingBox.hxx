@@ -17,8 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __BOUNDINGBOX_HXX__
-#define __BOUNDINGBOX_HXX__
+#pragma once
 
 #include "INTERPKERNELDefines.hxx"
 #include <iostream>
@@ -30,29 +29,30 @@ namespace INTERP_KERNEL
    * \brief Class representing the bounding box of a number of points.
    *
    */
-  class INTERPKERNEL_EXPORT BoundingBox
+  template<int SPACEDIM>
+  class INTERPKERNEL_EXPORT BoundingBoxT
   {
   public:
     /// Enumeration representing the six coordinates that define the bounding box
     enum BoxCoord { XMIN = 0, YMIN = 1, ZMIN = 2, XMAX = 3, YMAX = 4, ZMAX = 5 };
 
-    BoundingBox() { }
+    BoundingBoxT() = default;
 
-    BoundingBox(const double** pts, const unsigned numPts);
+    BoundingBoxT(const double** pts, const unsigned numPts);
 
-    BoundingBox(const BoundingBox& box1, const BoundingBox& box2);
+    BoundingBoxT(const BoundingBoxT<SPACEDIM>& box1, const BoundingBoxT<SPACEDIM>& box2);
 
-    ~BoundingBox() { }
+    ~BoundingBoxT() = default;
 
-    void fillInXMinXmaxYminYmaxZminZmaxFormat(double data[6]) const;
+    void fillInXMinXmaxYminYmaxZminZmaxFormat(double data[2*SPACEDIM]) const;
 
     void initializeWith(const double** pts, const unsigned numPts);
 
-    bool isDisjointWith(const BoundingBox& box) const;
+    bool isDisjointWith(const BoundingBoxT<SPACEDIM>& box) const;
 
-    inline void setCoordinate(const BoxCoord coord, double value);
+    inline void setCoordinate(int coord, double value);
 
-    inline double getCoordinate(const BoxCoord coord) const;
+    inline double getCoordinate(int coord) const;
 
     void updateWithPoint(const double* pt);
 
@@ -60,18 +60,18 @@ namespace INTERP_KERNEL
 
     void toCompactData(double data[6]) const;
 
-    BoundingBox& operator=(const BoundingBox& box) = delete;
+    BoundingBoxT<SPACEDIM>& operator=(const BoundingBoxT<SPACEDIM>& box) = delete;
 
   private:
 
     bool isValid() const;
 
     /// disallow copying
-    BoundingBox(const BoundingBox& box);
+    BoundingBoxT(const BoundingBoxT& box);
 
     /// Vector containing the coordinates of the box
     /// interlaced in the order XMIN, YMIN, ZMIN, XMAX, YMAX, ZMAX
-    double _coords[6];
+    double _coords[2*SPACEDIM];
 
   };
 
@@ -82,7 +82,8 @@ namespace INTERP_KERNEL
    * @param value new value for coordinate
    *
    */
-  inline void BoundingBox::setCoordinate(const BoxCoord coord, double value)
+  template<int SPACEDIM>
+  inline void BoundingBoxT<SPACEDIM>::setCoordinate(int coord, double value)
   {
     _coords[coord] = value;
   }
@@ -94,7 +95,8 @@ namespace INTERP_KERNEL
    * @return value of coordinate
    *
    */
-  inline double BoundingBox::getCoordinate(const BoxCoord coord) const
+  template<int SPACEDIM>
+  inline double BoundingBoxT<SPACEDIM>::getCoordinate(int coord) const
   {
     return _coords[coord];
   }
@@ -103,14 +105,19 @@ namespace INTERP_KERNEL
    * Prints the coordinates of the box to std::cout
    *
    */
-  inline void BoundingBox::dumpCoords() const
+  template<int SPACEDIM>
+  inline void BoundingBoxT<SPACEDIM>::dumpCoords() const
   {
-    std::cout << "[xmin, xmax] = [" << _coords[XMIN] << ", " << _coords[XMAX] << "]" << " | ";
-    std::cout << "[ymin, ymax] = [" << _coords[YMIN] << ", " << _coords[YMAX] << "]" << " | ";
-    std::cout << "[zmin, zmax] = [" << _coords[ZMIN] << ", " << _coords[ZMAX] << "]";
+    if( SPACEDIM>=1 )
+      { std::cout << "[xmin, xmax] = [" << _coords[XMIN] << ", " << _coords[XMIN+SPACEDIM] << "]" << " | "; }
+    if( SPACEDIM>=2 )
+      { std::cout << "[ymin, ymax] = [" << _coords[YMIN] << ", " << _coords[YMIN+SPACEDIM] << "]" << " | "; }
+    if( SPACEDIM>=3 )
+      { std::cout << "[zmin, zmax] = [" << _coords[ZMIN] << ", " << _coords[ZMIN+SPACEDIM] << "]"; }
     std::cout << std::endl;
   }
 
+  using BoundingBox = BoundingBoxT<3>;
+
 }
 
-#endif

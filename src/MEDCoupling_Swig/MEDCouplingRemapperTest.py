@@ -3309,7 +3309,6 @@ class MEDCouplingBasicsTest(unittest.TestCase):
         trgMesh.setCoords( DataArrayDouble.Aggregate(firstPts,trgMesh.getCoords()) ) # this line is important to check that correct ids are taken into account
         trgMesh.allocateCells(1)
         trgMesh.insertNextCell(NORM_HEXA8,[10,11,12,13,14,15,16,17])
-        trgMesh.writeVTK("trgMeshNonReg.vtu")
 
         srcMesh = trgMesh.deepCopy()
         cc = trgMesh.computeCellCenterOfMass()[0]

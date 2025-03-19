@@ -16,13 +16,13 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
 
 #include "InterpolationOptions.hxx"
 #include "InterpKernelGeo2DPrecision.hxx"
 #include "InterpKernelException.hxx"
 
 #include <sstream>
+#include <limits>
 
 const double INTERP_KERNEL::InterpolationOptions::DFT_MEDIAN_PLANE=0.5;
 
@@ -75,6 +75,17 @@ const char INTERP_KERNEL::InterpolationOptions::PLANAR_SPLIT_FACE_6_STR[]="PLANA
 const char INTERP_KERNEL::InterpolationOptions::GENERAL_SPLIT_24_STR[]="GENERAL_24";
 
 const char INTERP_KERNEL::InterpolationOptions::GENERAL_SPLIT_48_STR[]="GENERAL_48";
+
+double INTERP_KERNEL::FEInterpolationOptions::PROJ_DIST_MAX_DFT = std::numeric_limits<double>::max();
+
+bool INTERP_KERNEL::FEInterpolationOptions::PROJ_DIST_ON_SURF_DFT = false;
+
+bool INTERP_KERNEL::FEInterpolationOptions::PROJ_USE_DIST_MAX_DFT = false;
+
+
+INTERP_KERNEL::FEInterpolationOptions::FEInterpolationOptions():_proj_dist_max(PROJ_DIST_MAX_DFT),_proj_on_surf(PROJ_DIST_ON_SURF_DFT),_use_dist_max(PROJ_USE_DIST_MAX_DFT)
+{
+}
 
 void INTERP_KERNEL::InterpolationOptions::init()
 {

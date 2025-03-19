@@ -16,10 +16,8 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
 
-#ifndef __INTERPOLATIONOPTIONS_HXX__
-#define __INTERPOLATIONOPTIONS_HXX__
+#pragma once
 
 #include "INTERPKERNELDefines.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
@@ -30,6 +28,40 @@ namespace INTERP_KERNEL
 {
   typedef enum { Triangulation, Convex, Geometric2D, PointLocator, Barycentric, BarycentricGeo2D, MappedBarycentric } IntersectionType;
 
+  class INTERPKERNEL_EXPORT FEInterpolationOptionsAbstract
+  {
+    public:
+      virtual double getProjectionMaxDistance() const = 0;
+      virtual void setProjectionMaxDistance(double projDistMax) = 0;
+      virtual bool getProjectionOnSurfStatus() const = 0;
+      virtual void setProjectionOnSurfStatus(bool projOnSurfStatus) = 0;
+      virtual bool getMaxDistanceStatus() const = 0;
+      virtual void setMaxDistanceStatus(bool maxDistStatus) = 0;
+  };
+
+  class INTERPKERNEL_EXPORT FEInterpolationOptions : public FEInterpolationOptionsAbstract
+  {
+    public:
+      FEInterpolationOptions();
+      double getProjectionMaxDistance() const override { return _proj_dist_max; }
+      void setProjectionMaxDistance(double projDistMax) override { _proj_dist_max = projDistMax; }
+      bool getProjectionOnSurfStatus() const override { return _proj_on_surf; }
+      void setProjectionOnSurfStatus(bool projOnSurfStatus) override { _proj_on_surf = projOnSurfStatus; }
+      bool getMaxDistanceStatus() const override { return _use_dist_max; }
+      void setMaxDistanceStatus(bool maxDistStatus) override { _use_dist_max = maxDistStatus; }
+    private:
+      //! used if _proj_on_surf and use_dist_max are on. Specify max distance below which the projetction on surface will be computed. Beyond point is not projected.
+      double _proj_dist_max;
+      //! specify if projection on surface is activated
+      bool _proj_on_surf;
+      //! specify if _proj_dist_max is considered or not
+      bool _use_dist_max;
+    public:
+     static double PROJ_DIST_MAX_DFT;
+     static bool PROJ_DIST_ON_SURF_DFT;
+     static bool PROJ_USE_DIST_MAX_DFT;
+  };
+
   /*!
    * Class defining the options for all interpolation algorithms used in the \ref remapper "remapper" and
    * in some of the \ref para-dec "DECs".
@@ -37,7 +69,7 @@ namespace INTERP_KERNEL
    * List of options, possible values and default values can be found on this page:
    * \ref InterpKerIntersectors
    */
-  class INTERPKERNEL_EXPORT InterpolationOptions
+  class INTERPKERNEL_EXPORT InterpolationOptions : public FEInterpolationOptionsAbstract
   {
   private:
     int _print_level ;
@@ -54,8 +86,12 @@ namespace INTERP_KERNEL
     int _orientation ;
     bool _measure_abs;
     SplittingPolicy _splitting_policy ;
+    FEInterpolationOptions _fe_options ;
   public:
     InterpolationOptions() { init(); }
+    InterpolationOptions(const InterpolationOptions& other) = default;
+    ~InterpolationOptions() = default;
+    InterpolationOptions& operator=(const InterpolationOptions& other) = default;
     int getPrintLevel() const { return _print_level; }
     void setPrintLevel(int pl) { _print_level=pl; }
 
@@ -89,6 +125,21 @@ namespace INTERP_KERNEL
 
     bool getMeasureAbsStatus() const { return _measure_abs; }
     void setMeasureAbsStatus(bool newStatus) { _measure_abs=newStatus; }
+
+    // FE part
+
+    const FEInterpolationOptions& getFEOptions() const { return _fe_options; }
+
+    double getProjectionMaxDistance() const override { return _fe_options.getProjectionMaxDistance(); }
+    void setProjectionMaxDistance(double projDistMax) override { _fe_options.setProjectionMaxDistance(projDistMax); }
+
+    bool getProjectionOnSurfStatus() const override { return _fe_options.getProjectionOnSurfStatus(); }
+    void setProjectionOnSurfStatus(bool projOnSurfStatus) override { _fe_options.setProjectionOnSurfStatus(projOnSurfStatus); }
+    
+    bool getMaxDistanceStatus() const override { return _fe_options.getMaxDistanceStatus(); }
+    void setMaxDistanceStatus(bool maxDistStatus) override { _fe_options.setMaxDistanceStatus(maxDistStatus); }
+
+    //
 
     SplittingPolicy getSplittingPolicy() const { return _splitting_policy; }
     void setSplittingPolicy(SplittingPolicy sp) { _splitting_policy=sp; }
@@ -147,4 +198,3 @@ namespace INTERP_KERNEL
   };
 
 }
-#endif

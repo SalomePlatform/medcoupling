@@ -37,13 +37,13 @@ BuildBBTreeWithAdjustment(const MyMeshType &srcMesh, std::function<void(double *
   LOG(2, "Source mesh has " << numSrcElems << " elements");
   // create BBTree structure
   // - get bounding boxes
-  const ConnType nbElts = 6 * numSrcElems;
+  const ConnType nbElts = 2 * dim * numSrcElems;
   std::unique_ptr<double[]> bboxes(new double[nbElts]);
   for (ConnType i = 0; i < numSrcElems; ++i) {
-    MeshElement<ConnType> srcElem(i, srcMesh);
+    MeshElementT<ConnType,dim> srcElem(i, srcMesh);
     // get source bboxes in right order
-    const BoundingBox *box(srcElem.getBoundingBox());
-    box->fillInXMinXmaxYminYmaxZminZmaxFormat(bboxes.get() + 6 * i);
+    const BoundingBoxT<dim> *box(srcElem.getBoundingBox());
+    box->fillInXMinXmaxYminYmaxZminZmaxFormat(bboxes.get() + 2 * dim * i);
   }
   bboxAdjuster(bboxes.get(), nbElts);
   return BBTreeStandAlone<dim, ConnType>(std::move(bboxes), numSrcElems);

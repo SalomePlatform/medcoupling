@@ -17,8 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __MESHELEMENT_HXX__
-#define __MESHELEMENT_HXX__
+#pragma once
 
 #include "BoundingBox.hxx"
 
@@ -32,37 +31,40 @@ namespace INTERP_KERNEL
    * It gives access to the element's global number, type and bounding box and allows
    * easy bounding box intersection tests between MeshElements and collections of MeshElement (MeshRegions)
    */
-  template<class ConnType>
-  class MeshElement
+  template<class ConnType, int SPACEDIM>
+  class MeshElementT
   {
 
   public:
     using nbnodesincelltype = std::uint32_t;
     template<class MyMeshType>
-    MeshElement(const ConnType index, const MyMeshType& mesh);
+    MeshElementT(const ConnType index, const MyMeshType& mesh);
 
-    MeshElement() = default;
+    MeshElementT() = default;
 
     template<class MyMeshType>
     void assign(const ConnType index, const MyMeshType& mesh);
 
-    ~MeshElement() { }
+    ~MeshElementT() = default;
 
     nbnodesincelltype getNumberOfNodes() const { return _number; }
 
-    const BoundingBox *getBoundingBox() const { return &_box; }
+    const BoundingBoxT<SPACEDIM> *getBoundingBox() const { return &_box; }
 
-    MeshElement& operator=(const MeshElement& elem) = delete;
+    MeshElementT& operator=(const MeshElementT& elem) = delete;
 
   private:
     /// disallow copying
-    MeshElement(const MeshElement& elem);
+    MeshElementT(const MeshElementT& elem) = delete;
 
     nbnodesincelltype _number;
 
     /// bounding box of the element - does not change after having been initialised
-    BoundingBox _box;
+    BoundingBoxT<SPACEDIM> _box;
   };
+
+  template<class ConnType>
+  using MeshElement = MeshElementT<ConnType,3>;
 
   /**
    * \brief Class defining an order for MeshElements based on their bounding boxes.
@@ -85,5 +87,3 @@ namespace INTERP_KERNEL
   };
 
 }
-
-#endif

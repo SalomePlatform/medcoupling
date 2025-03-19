@@ -285,11 +285,11 @@ MEDCouplingFieldDouble *MEDCouplingRemapper::transferField(const MEDCouplingFiel
   srcField->checkConsistencyLight();
   if(_src_ft->getDiscretization()->getStringRepr()!=srcField->getDiscretization()->getStringRepr())
     throw INTERP_KERNEL::Exception("Incoherency with prepare call for source field");
-  MEDCouplingFieldDouble *ret=MEDCouplingFieldDouble::New(*_target_ft,srcField->getTimeDiscretization());
+  MCAuto<MEDCouplingFieldDouble> ret( MEDCouplingFieldDouble::New(*_target_ft,srcField->getTimeDiscretization()) );
   ret->setNature(srcField->getNature());
   transfer(srcField,ret,dftValue);
   ret->copyAllTinyAttrFrom(srcField);//perform copy of tiny strings after and not before transfer because the array will be created on transfer
-  return ret;
+  return ret.retn();
 }
 
 MEDCouplingFieldDouble *MEDCouplingRemapper::reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue)
@@ -961,7 +961,7 @@ int MEDCouplingRemapper::prepareNotInterpKernelOnlyFEFE()
   const double *coordsOfTrgMesh = trgMesh->getCoords()->begin();
   const mcIdType nbOfTrgPts = trgMesh->getNumberOfNodes();
 
-  MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrix(srcUMesh, coordsOfTrgMesh, nbOfTrgPts, this->_matrix);
+  MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrix(srcUMesh, coordsOfTrgMesh, nbOfTrgPts, this->_matrix, getFEOptions());
   synchronizeSizeOfSideMatricesAfterMatrixComputation( srcUMesh->getNumberOfNodes() );
   return 1;
 }
