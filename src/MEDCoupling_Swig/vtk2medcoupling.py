@@ -132,8 +132,8 @@ def mesh_convertor_mem_gen( ug, dimRequested, callback_for_polyedrons ):
     coords = mc.DataArrayDouble( np.array( numpy_support.vtk_to_numpy( ug.GetPoints().GetData() ),dtype=np.float64) )
     cells = ug.GetCells()
     offsets = numpy_support.vtk_to_numpy( cells.GetOffsetsArray() )
-    ci=mc.DataArrayInt(offsets)[:]
-    conn = mc.DataArrayInt( numpy_support.vtk_to_numpy( cells.GetConnectivityArray() ) )
+    ci=mc.DataArrayInt( np.array(offsets,dtype=np.int64))[:]
+    conn = mc.DataArrayInt( np.array( numpy_support.vtk_to_numpy( cells.GetConnectivityArray() ), dtype=np.int64))
     types = numpy_support.vtk_to_numpy( ug.GetCellTypesArray() )
     ct=mc.DataArrayInt(np.array(types,dtype="int{}".format(mc.MEDCouplingSizeOfIDs())))[:]
     vtk2med = mc.DataArrayInt(mc.vtk2med_cell_types())
