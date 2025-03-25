@@ -58,7 +58,7 @@ namespace INTERP_KERNEL
 
     inline void dumpCoords() const;
 
-    void toCompactData(double data[6]) const;
+    void toCompactData(double data[2*SPACEDIM]) const;
 
     BoundingBoxT<SPACEDIM>& operator=(const BoundingBoxT<SPACEDIM>& box) = delete;
 

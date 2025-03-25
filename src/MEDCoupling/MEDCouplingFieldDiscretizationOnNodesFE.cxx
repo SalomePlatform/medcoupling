@@ -25,7 +25,7 @@
 #include "InterpolationHelper.txx"
 #include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "MEDCouplingUMesh.hxx"
-
+#include <array>
 #include <sstream>
 
 using namespace MEDCoupling;
@@ -404,7 +404,7 @@ MEDCouplingFieldDiscretizationOnNodesFE::GetRefCoordOfListOf1PtInND(
     MEDCouplingGaussLocalization gl(gt, refCooCpp, std::vector<double>(SPACEDIM, 0.), {1.});
     std::vector<double> ptsInCell;
     ptsInCell.reserve(conn.size() * gl.getDimension());
-    std::for_each(conn.cbegin(), conn.cend(), [coordsOfMesh, &ptsInCell](mcIdType c) {
+    std::for_each(conn.cbegin(), conn.cend(), [SPACEDIM, coordsOfMesh, &ptsInCell](mcIdType c) {
       ptsInCell.insert(ptsInCell.end(), coordsOfMesh + c * SPACEDIM, coordsOfMesh + (c + 1) * SPACEDIM);
     });
     std::vector<double> locInRef(SPACEDIM);
@@ -467,7 +467,7 @@ MEDCouplingFieldDiscretizationOnNodesFE::GetClosestRefCoordOfListOf1PtInND(
     MEDCouplingGaussLocalization gl(gt, refCooCpp, std::vector<double>(SPACEDIM - 1, 0.), {1.});
     std::vector<double> ptsInCell;
     ptsInCell.reserve(conn.size() * SPACEDIM);
-    std::for_each(conn.cbegin(), conn.cend(), [coordsOfMesh, &ptsInCell](mcIdType c) {
+    std::for_each(conn.cbegin(), conn.cend(), [SPACEDIM, coordsOfMesh, &ptsInCell](mcIdType c) {
       ptsInCell.insert(ptsInCell.end(), coordsOfMesh + c * SPACEDIM, coordsOfMesh + (c + 1) * SPACEDIM);
     });
     std::vector<double> locInRef(SPACEDIM - 1);
