@@ -17,7 +17,11 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-set(MPIEXEC @MPIEXEC@)
+if (DEFINED ENV{OPAL_PREFIX} )
+  set(MPIEXEC "$ENV{OPAL_PREFIX}/bin/mpiexec")
+else()
+  set(MPIEXEC @MPIEXEC@)
+endif()
 set(_oversub_opt @_oversub_opt@)
 
 SET(TEST_NAMES ParaMEDMEMTest)
