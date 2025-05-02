@@ -2160,6 +2160,7 @@ namespace MEDCoupling
     DataArrayDouble *getBoundingBoxForBBTree1DQuadratic(double arcDetEps=1e-12) const;
     void changeOrientationOfCells();
     void orientCorrectly2DCells(const MEDCouplingUMesh *refFaces);
+    void orientCorrectly3DCells();
     DataArrayDouble *computeCellCenterOfMassWithPrecision(double eps);
     int split2DCells(const DataArrayIdType *desc, const DataArrayIdType *descI, const DataArrayIdType *subNodesInSeg, const DataArrayIdType *subNodesInSegI, const DataArrayIdType *midOpt=0, const DataArrayIdType *midOptI=0);
     static MEDCouplingUMesh *Build0DMeshFromCoords(DataArrayDouble *da);

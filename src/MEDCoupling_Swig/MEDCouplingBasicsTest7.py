@@ -1497,36 +1497,36 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
 
       c = DataArrayInt([]) ; ci = DataArrayInt([0])
       #### Case 0 : simplest
-      assert( ci.deltaShiftIndex().empty() ) # EDF30179 : extension of deltaShiftIndex to single elt
+      self.assertTrue( ci.deltaShiftIndex().empty() ) # EDF30179 : extension of deltaShiftIndex to single elt
       a,b,f = d.forThisAsPartitionBuildReduction(c,ci)
-      assert( a.isEqual( d ) )
-      assert( b.empty() )
-      assert( f.isEqual(DataArrayInt([0])) )
+      self.assertTrue( a.isEqual( d ) )
+      self.assertTrue( b.empty() )
+      self.assertTrue( f.isEqual(DataArrayInt([0])) )
       #### Case 1 : single fusion
       c = DataArrayInt([3,6]) ; ci = DataArrayInt([0,2])
       a,b,f = d.forThisAsPartitionBuildReduction(c,ci)
-      assert( a.isEqual( DataArrayInt([2,2,2,4,2,3,3,3,1,1,1,1,1,1]) ) )
-      assert( b.isEqual( DataArrayInt([4,2,3]) ) )
-      assert( f.isEqual( DataArrayInt([0,3]) ) )
+      self.assertTrue( a.isEqual( DataArrayInt([2,2,2,4,2,3,3,3,1,1,1,1,1,1]) ) )
+      self.assertTrue( b.isEqual( DataArrayInt([4,2,3]) ) )
+      self.assertTrue( f.isEqual( DataArrayInt([0,3]) ) )
       #### Case 2 : single fusion - same partition id
       c = DataArrayInt([6,7]) ; ci = DataArrayInt([0,2])
       a,b,f = d.forThisAsPartitionBuildReduction(c,ci)
-      assert( a.isEqual( DataArrayInt([2,2,2,2,2,3,4,3,1,1,1,1,1,1]) ) )
-      assert( b.isEqual( DataArrayInt([4,3]) ) )
-      assert( f.isEqual( DataArrayInt([0,2]) ) )
+      self.assertTrue( a.isEqual( DataArrayInt([2,2,2,2,2,3,4,3,1,1,1,1,1,1]) ) )
+      self.assertTrue( b.isEqual( DataArrayInt([4,3]) ) )
+      self.assertTrue( f.isEqual( DataArrayInt([0,2]) ) )
       #### Case 3 : multi fusion single tuple
       c = DataArrayInt([2,7,3,6]) ; ci = DataArrayInt([0,2,4]) # elts (2,7) and (3,6) to merge. These 2 couples refers to partitionIDs (2,3)
       a,b,f = d.forThisAsPartitionBuildReduction(c,ci)
-      assert( a.isEqual( DataArrayInt([2,2,4,4,2,3,3,1,1,1,1,1,1]) ) )
-      assert( b.isEqual( DataArrayInt([4,2,3]) ) ) # Fuse element can be located with ID 4
-      assert( f.isEqual( DataArrayInt([0,3]) ) )
+      self.assertTrue( a.isEqual( DataArrayInt([2,2,4,4,2,3,3,1,1,1,1,1,1]) ) )
+      self.assertTrue( b.isEqual( DataArrayInt([4,2,3]) ) ) # Fuse element can be located with ID 4
+      self.assertTrue( f.isEqual( DataArrayInt([0,3]) ) )
 
       #### Case 4 : multi fusion
       c = DataArrayInt([2,7,3,10]) ; ci = DataArrayInt([0,2,4])
       a,b,f = d.forThisAsPartitionBuildReduction(c,ci)
-      assert( a.isEqual( DataArrayInt([2,2,4,5,2,3,3,3,1,1,1,1,1]) ) )
-      assert( b.isEqual( DataArrayInt([4,2,3,5,1,2]) ) )
-      assert( f.isEqual( DataArrayInt([0,3,6]) ) )
+      self.assertTrue( a.isEqual( DataArrayInt([2,2,4,5,2,3,3,3,1,1,1,1,1]) ) )
+      self.assertTrue( b.isEqual( DataArrayInt([4,2,3,5,1,2]) ) )
+      self.assertTrue( f.isEqual( DataArrayInt([0,3,6]) ) )
 
     def testDASortPerTuple1(self):
       """
@@ -1598,22 +1598,22 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
           p = Path( dir ) / "toto.bin"
           arr.writeForDbg( f"{p}" )
           arr2 = DataArrayDouble.LoadForDbg( f"{p}" )
-          assert( arr.isEqual(arr2, 1e-15) )
+          self.assertTrue( arr.isEqual(arr2, 1e-15) )
           self.assertRaises(InterpKernelException, DataArrayInt32.LoadForDbg, f"{p}" )
           p = Path( dir ) / "toto2.bin"
           arrI32.writeForDbg( f"{p}" )
           arrI32_2 = DataArrayInt32.LoadForDbg( f"{p}" )
-          assert( arrI32.isEqual(arrI32_2) )
+          self.assertTrue( arrI32.isEqual(arrI32_2) )
           self.assertRaises(InterpKernelException, DataArrayInt64.LoadForDbg, f"{p}" )
           p = Path( dir ) / "toto3.bin"
           arrI64.writeForDbg( f"{p}" )
           arrI64_2 = DataArrayInt64.LoadForDbg( f"{p}" )
-          assert( arrI64.isEqual(arrI64_2) )
+          self.assertTrue( arrI64.isEqual(arrI64_2) )
           self.assertRaises(InterpKernelException, DataArrayInt32.LoadForDbg, f"{p}" )
           p = Path( dir ) / "toto4.bin"
           arrFloat.writeForDbg( f"{p}" )
           arrFloat_2 = DataArrayFloat.LoadForDbg( f"{p}" )
-          assert( arrFloat.isEqual(arrFloat_2, 1e-8) )
+          self.assertTrue( arrFloat.isEqual(arrFloat_2, 1e-8) )
           self.assertRaises(InterpKernelException, DataArrayDouble.LoadForDbg, f"{p}" )
           pass
       
@@ -1844,6 +1844,37 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertTrue( ret.getNodalConnectivityIndex().isEqual(connIExp) )
         for i in range( ( 2*nbExtrusions+1 ) ):
             self.assertTrue( ret.getCoords()[i*m.getNumberOfNodes():(i+1)*m.getNumberOfNodes()].isEqual(  m.getCoords() , 1e-12 ) )
+
+    def testUMesh_orientCorrectly3DCells(self):
+        """
+        [EDF32603] : MEDCouplingUMesh.orientCorrectly3DCells
+        """
+        connInit = [0, 2, 4, 1, 3, 6, 7, 5, 9, 12, 11, 8, 16, 19, 18, 14, 10, 15, 17, 13] # with negative volume
+        connInverted = [0, 1, 4, 2, 3, 5, 7, 6, 8, 11, 12, 9, 14, 18, 19, 16, 10, 13, 17, 15] # with positive volume
+        cooRef = DataArrayDouble( [-14.1150768258072, 13.715, 0.0, -14.115076825807153, 13.715, 0.25, -14.135716805787013, 13.084513834221452, 0.0, -14.6600768258072, 13.715, 0.0, -14.135716805786988, 13.08451383422145, 0.25, -14.660076825807154, 13.715,  0.25, -14.679633820990539, 13.118881371469758, 0.0, -14.679633820990517, 13.11888137146976, 0.25, -14.115076825807165, 13.714999999999998, 0.125, -14.120247868747509, 13.399419437291247, 0.0, -14.3875768258072, 13.714999999999998, 0.0, -14.120247868747473, 13.399419437291245, 0.25, -14.135716805786995, 13.08451383422145, 0.125, -14.387576825807155, 13.714999999999998, 0.25, -14.660076825807167, 13.714999999999998, 0.125, -14.407675313388776, 13.101697602845606, 0.0, -14.66497658818184, 13.41662022366878, 0.0, -14.407675313388753, 13.101697602845604, 0.25, -14.669855323398835, 13.416940685734879, 0.25, -14.679633820990528, 13.118881371469758, 0.125], 20, 3)
+        #-14.6796 to -14.1151
+        def func(i):
+            cell = MEDCouplingUMesh("",3)
+            cell.allocateCells()
+            cell.insertNextCell(NORM_HEXA20,connInit if i%2 == 0 else connInverted)
+            cell.setCoords( cooRef )
+            cell.translate( [ i* 0.8 , 0, 0] )
+            return cell
+            
+        cells = MEDCouplingUMesh.MergeUMeshes( [ func(i) for i in range(6) ] )
+        self.assertTrue( cells.getMeasureField(False).getArray().findIdsLowerThan(0.).isEqual( DataArrayInt([0,2,4])) ) # False is very important !
+        refCoords0 = cells.getCoords().getHiddenCppPointer()
+        refCoords1 = cells.getCoords().deepCopy()
+        cells.orientCorrectly3DCells() # key point is here !
+        cellsCopy = cells.deepCopy()
+        self.assertTrue( cells.getMeasureField(False).getArray().findIdsLowerThan(0.).empty() ) # the aim of previous line !
+        connToTest = MEDCoupling1SGTUMesh( cells ).getNodalConnectivity()
+        self.assertTrue( connToTest.isEqual( DataArrayInt.Aggregate( [DataArrayInt(connInverted) + 20*i for i in range(6)] ) ) )
+        self.assertEqual( cells.getCoords().getHiddenCppPointer(), refCoords0 )
+        self.assertTrue( cells.getCoords().isEqual( refCoords1, 1e-12) )
+        # check that additionnal call does nothing
+        cells.orientCorrectly3DCells()
+        self.assertTrue( cells.isEqual(cellsCopy,1e-12) )
 
 if __name__ == '__main__':
     unittest.main()

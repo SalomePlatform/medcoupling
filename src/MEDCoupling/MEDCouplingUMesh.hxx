@@ -202,6 +202,7 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void are2DCellsNotCorrectlyOriented(const double *vec, bool polyOnly, std::vector<mcIdType>& cells) const;
     MEDCOUPLING_EXPORT void orientCorrectly2DCells(const double *vec, bool polyOnly);
     MEDCOUPLING_EXPORT void orientCorrectly2DCells(const MEDCouplingUMesh* refFaces = nullptr);
+    MEDCOUPLING_EXPORT void orientCorrectly3DCells();
     MEDCOUPLING_EXPORT void changeOrientationOfCells();
     MEDCOUPLING_EXPORT void arePolyhedronsNotCorrectlyOriented(std::vector<mcIdType>& cells) const;
     MEDCOUPLING_EXPORT void orientCorrectlyPolyhedrons();

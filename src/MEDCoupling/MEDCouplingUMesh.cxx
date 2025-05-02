@@ -5440,6 +5440,8 @@ void MEDCouplingUMesh::orientCorrectlyPolyhedrons()
  * This method invert orientation of all cells in \a this.
  * After calling this method the absolute value of measure of cells in \a this are the same than before calling.
  * This method only operates on the connectivity so coordinates are not touched at all.
+ * 
+ * \sa MEDCouplingUMesh::orientCorrectly3DCells
  */
 void MEDCouplingUMesh::invertOrientationOfAllCells()
 {
@@ -9138,4 +9140,19 @@ void MEDCouplingUMesh::orientCorrectly2DCells(const MEDCouplingUMesh* refFaces)
     } // while() until all faces checked
 
   return;
+}
+
+/*!
+ * This method modifies in place connectivities in \a this so that after invocation of this method
+ * this->getMeasureField( false ) returns no cells with negative volume.
+ * 
+ * \sa MEDCouplingUMesh::invertOrientationOfAllCells
+ */
+void MEDCouplingUMesh::orientCorrectly3DCells()
+{
+  MCAuto<MEDCouplingFieldDouble> measure = this->getMeasureField(false);
+  MCAuto<DataArrayIdType> idsOfCellToInvert = measure->getArray()->findIdsLowerThan(0.);
+  MCAuto<MEDCouplingUMesh> meshToInvert = this->buildPartOfMySelf(idsOfCellToInvert->begin(),idsOfCellToInvert->end(),true);
+  meshToInvert->invertOrientationOfAllCells();
+  this->setPartOfMySelf(idsOfCellToInvert->begin(),idsOfCellToInvert->end(),*meshToInvert);
 }
