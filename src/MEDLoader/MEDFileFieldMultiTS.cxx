@@ -588,6 +588,18 @@ void MEDFileAnyTypeFieldMultiTSWithoutSDA::writeLL(med_idt fid, const MEDFileWri
     _time_steps[i]->writeLL(fid,opts,*this);
 }
 
+void MEDFileAnyTypeFieldMultiTSWithoutSDA::readDescription(med_idt fid, const MEDFileWritable& opts)
+{
+  for(std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> >::iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    (*it)->readDescription(fid,opts);
+}
+
+void MEDFileAnyTypeFieldMultiTSWithoutSDA::writeDescription(med_idt fid, const MEDFileWritable& opts) const
+{
+  for(std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> >::const_iterator it=_time_steps.begin();it!=_time_steps.end();it++)
+    (*it)->writeDescription(fid,opts);
+}
+
 void MEDFileAnyTypeFieldMultiTSWithoutSDA::loadBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc)
 {
   for(std::vector< MCAuto<MEDFileAnyTypeField1TSWithoutSDA> >::iterator it=_time_steps.begin();it!=_time_steps.end();it++)
@@ -1197,6 +1209,7 @@ MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS(med_idt fid, bool loadAll
 try:MEDFileFieldGlobsReal(fid)
 {
   _content=BuildContentFrom(fid,loadAll,ms);
+  contentNotNullBase()->readDescription(fid,*this);
   loadGlobals(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -1346,6 +1359,7 @@ MEDFileAnyTypeFieldMultiTS::MEDFileAnyTypeFieldMultiTS(med_idt fid, const std::s
 try:MEDFileFieldGlobsReal(fid)
 {
   _content=BuildContentFrom(fid,fieldName,loadAll,ms,entities);
+  contentNotNullBase()->readDescription(fid,*this);
   loadGlobals(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -1642,6 +1656,7 @@ void MEDFileAnyTypeFieldMultiTS::writeLL(med_idt fid) const
 {
   writeGlobals(fid,*this);
   contentNotNullBase()->writeLL(fid,*this);
+  contentNotNullBase()->writeDescription(fid,*this);
 }
 
 /*!

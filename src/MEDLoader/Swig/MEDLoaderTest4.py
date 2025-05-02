@@ -5879,7 +5879,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue( mm.getFamilyFieldAtLevel(0).getDifferentValues().isEqual( mmOut.getFamilyFieldAtLevel(0).getDifferentValues() ) )
         self.assertTrue( mm.getFamilyFieldAtLevel(-1).getDifferentValues().isEqual( mmOut.getFamilyFieldAtLevel(-1).getDifferentValues() ) )
 
-    #@WriteInTmpDir
+    @WriteInTmpDir
     def test51(self):
         """
         [EDF31786] : non propagated field description
@@ -5901,7 +5901,7 @@ class MEDLoaderTest4(unittest.TestCase):
         field_values[:] = 20.0
         field_values.setInfoOnComponents(["TEMP"])
         field_values.setName("TEMP")
-        zeDescription = "DESC"
+        zeDescription = "ZEEEDESC"
         field_name = "TEMP_R"
         medc_node_field = MEDCouplingFieldDouble(ON_NODES, ONE_TIME)
         medc_node_field.setName(field_name)
@@ -5921,7 +5921,19 @@ class MEDLoaderTest4(unittest.TestCase):
         medfield.write(fname,0)
         #
         medfieldFromFile = MEDFileField1TS(fname,field_name)
-        # self.assertEqual( medfieldFromFile.getDescription(), zeDescription ) # waiting decision
+        self.assertEqual( medfieldFromFile.getDescription(), zeDescription ) # aim of the test is here
+        ## test on multiTS
+        medfield2 = MEDFileFieldMultiTS()
+        medfield2.pushBackTimeStep( medfield )
+        medfield2.write(fname,2)
+        medfieldFromFile2 = MEDFileFieldMultiTS(fname,field_name)
+        self.assertEqual( medfieldFromFile2[0].getDescription(), zeDescription )
+        ## test on fields
+        medfield3 = MEDFileFields()
+        medfield3.pushField( medfield2 )
+        medfield3.write(fname,2)
+        medfieldFromFile3 = MEDFileFields( fname )
+        self.assertEqual( medfieldFromFile3[0][0].getDescription(), zeDescription )
 
     pass
 

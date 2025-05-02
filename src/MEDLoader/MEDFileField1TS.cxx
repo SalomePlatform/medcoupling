@@ -1012,6 +1012,30 @@ mcIdType MEDFileAnyTypeField1TSWithoutSDA::copyTinyInfoFrom(const TimeHolder *th
     }
 }
 
+void MEDFileAnyTypeField1TSWithoutSDA::writeDescription(med_idt fid, const MEDFileWritable& opts) const
+{
+  if( this->getDescription().empty() )
+    return ;
+  INTERP_KERNEL::AutoPtr<char> keyDesc = MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  INTERP_KERNEL::AutoPtr<char> desc = MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE);
+  MEDLoaderBase::safeStrCpy(getName().c_str(),MED_NAME_SIZE,keyDesc,opts.getTooLongStrPolicy());
+  MEDLoaderBase::safeStrCpy(this->getDescription().c_str(),MED_COMMENT_SIZE,desc,opts.getTooLongStrPolicy());
+  MEDFILESAFECALLERWR0(MEDfileObjectDescriptionWr,(fid,MED_FIELD,keyDesc,desc));
+}
+
+void MEDFileAnyTypeField1TSWithoutSDA::readDescription(med_idt fid, const MEDFileWritable& opts)
+{
+  INTERP_KERNEL::AutoPtr<char> keyDesc = MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+  MEDLoaderBase::safeStrCpy(getName().c_str(),MED_NAME_SIZE,keyDesc,opts.getTooLongStrPolicy());
+  med_bool descriptionExist;
+  MEDFILESAFECALLERRD0(MEDfileObjectDescriptionExist,(fid,MED_FIELD,keyDesc,&descriptionExist));
+  if( ! descriptionExist )
+    return ;
+  INTERP_KERNEL::AutoPtr<char> desc = MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE);
+  MEDFILESAFECALLERRD0(MEDfileObjectDescriptionRd,(fid,MED_FIELD,keyDesc,desc));
+  setDescription( MEDLoaderBase::buildStringFromFortran(desc,MED_COMMENT_SIZE) );
+}
+
 /*!
  * Returns number of components in \a this field
  *  \return int - the number of components.
@@ -1932,11 +1956,11 @@ MEDFileAnyTypeField1TSWithoutSDA *MEDFileAnyTypeField1TS::BuildContentFrom(med_i
   return ret.retn();
 }
 
-
 MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(med_idt fid, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities)
 try:MEDFileFieldGlobsReal(fid)
 {
   _content=BuildContentFrom(fid,loadAll,ms,entities);
+  contentNotNullBase()->readDescription(fid,*this);
   loadGlobals(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -1948,6 +1972,7 @@ MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(med_idt fid, const std::string& f
 try:MEDFileFieldGlobsReal(fid)
 {
   _content=BuildContentFrom(fid,fieldName,loadAll,ms,entities);
+  contentNotNullBase()->readDescription(fid,*this);
   loadGlobals(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -1959,6 +1984,7 @@ MEDFileAnyTypeField1TS::MEDFileAnyTypeField1TS(med_idt fid, const std::string& f
 try:MEDFileFieldGlobsReal(fid)
 {
   _content=BuildContentFrom(fid,fieldName,iteration,order,loadAll,ms,entities);
+  contentNotNullBase()->readDescription(fid,*this);
   loadGlobals(fid);
 }
 catch(INTERP_KERNEL::Exception& e)
@@ -2320,6 +2346,7 @@ void MEDFileAnyTypeField1TS::writeLL(med_idt fid) const
   if(getName().empty())
     throw INTERP_KERNEL::Exception("MEDFileField1TS::write : MED file does not accept field with empty name !");
   MEDFILESAFECALLERWR0(MEDfieldCr,(fid,getName().c_str(),getMEDFileFieldType(),ToMedInt(nbComp),comp,unit,getDtUnit().c_str(),getMeshName().c_str()));
+  contentNotNullBase()->writeDescription(fid,*this);
   writeGlobals(fid,*this);
   contentNotNullBase()->writeLL(fid,*this,*contentNotNullBase());
 }

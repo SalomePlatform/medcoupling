@@ -96,6 +96,8 @@ namespace MEDCoupling
     MEDLOADER_EXPORT void accept(MEDFileFieldVisitor& visitor) const;
     MEDLOADER_EXPORT void loadStructureOrStructureAndBigArraysRecursively(med_idt fid, int nbPdt, med_field_type fieldTyp, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities);
     MEDLOADER_EXPORT void writeLL(med_idt fid, const MEDFileWritable& opts) const;
+    void readDescription(med_idt fid, const MEDFileWritable& opts);
+    void writeDescription(med_idt fid, const MEDFileWritable& opts) const;
     MEDLOADER_EXPORT void loadBigArraysRecursively(med_idt fid, const MEDFileFieldNameScope& nasc);
     MEDLOADER_EXPORT void loadBigArraysRecursivelyIfNecessary(med_idt fid, const MEDFileFieldNameScope& nasc);
     MEDLOADER_EXPORT void unloadArrays();

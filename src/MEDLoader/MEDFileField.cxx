@@ -301,6 +301,7 @@ try:MEDFileFieldGlobsReal(fid)
             throw INTERP_KERNEL::Exception(oss.str());
           }
       }
+      _fields[i]->readDescription(fid,*this);
     }
   loadAllGlobals(fid,entities);
 }
@@ -322,6 +323,7 @@ void MEDFileFields::writeLL(med_idt fid) const
           throw INTERP_KERNEL::Exception(oss.str());
         }
       elt->writeLL(fid,*this);
+      elt->writeDescription(fid,*this);
     }
 }
 
