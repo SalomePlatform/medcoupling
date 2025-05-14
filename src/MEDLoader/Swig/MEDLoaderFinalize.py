@@ -20,13 +20,14 @@
 
 import logging
 
-def MEDFileUMeshFuseNodesAndCells(self, compType = 2 , eps = 1e-6, logLev = logging.INFO):
+def MEDFileUMeshFuseNodesAndCells(self, compType = 2 , eps = 1e-6, logLev = logging.INFO, n2oHolder = None):
   """
   [EDF30179] : Method fusing nodes in this, then fusing cells in this. Fusion is done following eps and compType.
 
   :param compType : see MEDCouplingPointSet.zipConnectivityTraducer method for explanations
   :param eps: see DataArrayDouble.findCommonTuples for explanations.
   :param logLev: Integer specifying log level
+  :param n2oHolder: Optional output param storing for each level ext n2o conversions applied during transformation. The storage should follow pydict concept. ket is levelext. Value is n2o array associated.
   :return: MEDFileUMesh instance containing the result of nodes and cells fusion
   """
   import MEDLoader as ml
@@ -35,6 +36,12 @@ def MEDFileUMeshFuseNodesAndCells(self, compType = 2 , eps = 1e-6, logLev = logg
     logging.basicConfig( format = FORMAT, level = level )
     return logging.getLogger()
   logger = getLogger( logLev )
+
+  def n2oHolderManager( n2oHolder, lev, arr):
+     if n2oHolder is None:
+        return
+     n2oHolder[lev] = arr
+
   def updateMap( mm : ml.MEDFileUMesh, lev : int, famMap : ml.DataArrayInt, famMapI : ml.DataArrayInt):
     """
     mm instance to be updated
@@ -51,7 +58,10 @@ def MEDFileUMeshFuseNodesAndCells(self, compType = 2 , eps = 1e-6, logLev = logg
       logger.debug(f"For level {lev} new family : {newFamId}")
       mm.addFamily(newFamName,newFamId)
       for famId in famMap[ famMapI[partSetId]+1 :famMapI[partSetId+1] ]:
-        grpsToBeUpdated = mm.getGroupsOnFamily( mm.getFamilyNameGivenId( famIdManager( lev, int(famId) ) ) )
+        zeFamId = famIdManager( lev, int(famId) )
+        if not mm.existsFamily( zeFamId ):
+          continue
+        grpsToBeUpdated = mm.getGroupsOnFamily( mm.getFamilyNameGivenId( zeFamId ) )
         for grpToBeUpdated in grpsToBeUpdated:
           mm.addFamilyOnGrp( grpToBeUpdated, newFamName )
     pass
@@ -63,6 +73,7 @@ def MEDFileUMeshFuseNodesAndCells(self, compType = 2 , eps = 1e-6, logLev = logg
   o2n,newNbNodes = ml.DataArrayInt.ConvertIndexArrayToO2N(initNbNodes,cc,cci)
   n2oNodes = o2n.invertArrayO2N2N2O( newNbNodes )
   newCoords = self.getCoords()[n2oNodes]
+  n2oHolderManager(n2oHolder,1,n2oNodes)
   # creation of
   mmOut = ml.MEDFileUMesh()
   mmOut.copyFamGrpMapsFrom( self )
@@ -85,6 +96,7 @@ def MEDFileUMeshFuseNodesAndCells(self, compType = 2 , eps = 1e-6, logLev = logg
       famsMergedCell = -famsMergedCell
     o2nCells,newNbCells = ml.DataArrayInt.ConvertIndexArrayToO2N(m1.getNumberOfCells(),cce,ccei)
     n2oCells = o2nCells.invertArrayO2N2N2O( newNbCells )
+    n2oHolderManager(n2oHolder,lev,n2oCells)
     m1 = m1[ n2oCells ]
     m1.setCoords( newCoords )
     m1.setName( self.getName() )
