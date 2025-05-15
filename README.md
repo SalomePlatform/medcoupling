@@ -2,89 +2,161 @@
 
 # MEDCoupling
 
-MEDCoupling is a powerful library to manipulate meshes and fields.
+**MEDCoupling** is a robust and versatile C++/Python library for advanced mesh
+and field manipulation. It is part of the [SALOME platform](https://salome-platform.org)
+and co-developed by **CEA** and **EDF**.
 
-<!-- TABLE OF CONTENTS -->
-<details>
-    <summary>Table of Contents</summary>
-    <ol>
-        <li>
-            <a href="#about-medcoupling">About MEDCoupling</a>
-        </li>
-        <li>
-            <a href="#getting-stated">Getting started</a>
-        </li>
-        <ul>
-            <li><a href="#installation">Installation</a></li>
-            <li><a href="#usage">Usage</a></li>
-        </ul>
-        <li>
-            <a href="#roadmap">Roadmap</a>
-        </li>
-        <li>
-            <a href="#building-from-source">Building from source</a>
-        </li>
-    </ol>
-</details>
+Whether you're performing mesh intersections, transferring fields between
+meshes, or analyzing simulation results, MEDCoupling offers the building blocks
+you need for scientific computing workflows.
 
-<!-- CONTENT -->
+---
+
+## Table of Contents
+
+- [About MEDCoupling](#about-medcoupling)
+- [Getting Started](#getting-started)
+  - [Installation](#installation)
+  - [Usage Highlights](#usage-highlights)
+  - [Resources](#resources)
+- [Developer Guide](#developer-guide)
+  - [Building from Source](#building-from-source)
+  - [Contributing](#contributing)
+  - [Roadmap](#roadmap)
+
+---
 
 ## About MEDCoupling
 
-MEDCoupling is part of the Salome project. It is a powerfull mesh and field
-library able to compute mesh intersections, volumes, ...
-The library is co-developed between the CEA and EDF.
+**MEDCoupling** is a powerful library designed for the manipulation and
+analysis of structured and unstructured meshes, as well as associated field
+data. It supports:
 
-## Getting started
+- Mesh intersection, node merging, extraction, and more
+- Field creation and transformation
+- Data transfer between non-conforming meshes
+- I/O in the `.med` (MEDFile) format
+
+The library handles complex geometries with hybrid cell types (tetrahedra,
+hexahedra, higher-order elements, etc.), and supports fields defined on nodes,
+cells, or Gauss points.
+
+---
+
+## Getting Started
 
 ### Installation
 
-You can find MEDCoupling binaries for multiple platforms on the
-[Salome website](https://salome-platform.org). It is available under Windows
-and a few Linux distributions.
+Precompiled binaries for multiple platforms (Windows, Linux) are available on
+the [SALOME platform website](https://salome-platform.org).
 
-### Usage
+For more flexibility, you can also build MEDCoupling from source—see the
+[Developer Guide](#building-from-source) section below.
 
-MEDCoupling can be used to:
-- create structured/unstructured meshes by hand (no geometrical auto-tetra meshing)
-- intersecting meshes, merging nodes, extracting part of a mesh, ...
-- creating custom fields on meshes (by constant, expression, measure, ...)
-- load and write mesh in the `medfile` file format (`.med` extension)
-- coupling codes by transfering fields from one mesh to another
-- post-processing fields and mesh informations
+### Usage Highlights
 
-The MEDCoupling format is quite versatile and allows to manage mesh with different kind of cells (tetra, hexa, higher order, ...) and fields on cells, on nodes, or on gauss points.
+MEDCoupling provides a rich set of tools for building, analyzing, and
+processing meshes and fields in scientific computing workflows:
 
-## Roadmap
+#### 🔨 Mesh Creation & Editing
+- Create structured and unstructured meshes programmatically.
+- Build hybrid meshes with mixed element types (e.g., triangles and quads).
+- Modify connectivity or extract sub-meshes.
 
-The MEDCoupling library is under a major refactoring for the v10. It will allow to:
-- Make usage easier
-    - Better documentation
-        - [ ] Build a new unified documentation with Sphinx and its amazing elastic
-          search integration
-        - [ ] Take advantage of `breathe` to integrate `MEDCoupling` API to the doc
-        - [ ] Replace the `.rst` files of the tutorial doc with executable notebooks
-    - Better compilation process
-        - [ ] Usage of modern cmake and clearer targets names
-        - [ ] Allow python native compilation
-        - [ ] Adding `spack` and `conan` recipes
-    - Empowering medcoupling core mesh abililties
-        - [ ] Separate the usefull `MEDFileXXX` objects from the `medfile` dependency
-        - [ ] Make `medfile` one of the mesh backends
-        - [ ] Add a new file format backend (namely CGNS)
-- Make contributions easier
-    - Modular architecture
-        - [ ] Clarify what is part of medcoupling core data structure and what is not
-          with the introduction of `medcoupling_tools`
-        - [ ] Separate the remapper to make it into a tool
-    - Modern and standard C++
-        - [ ] Modernize the whole repository by adding standard tooling (clang-tidy,
-          clang-format, pre-commit, ...)
-    - Public CI/CD
-        - [ ] Taking advantage of GitHub by adding github workflows
+#### 🔁 Mesh Operations
+- Merge or aggregate meshes, with optional node deduplication.
+- Intersect meshes to compute shared domains or regions (in 2d).
+- Compute cell barycenter on any cell type.
 
-## Building from source
+#### 🌡️ Field Definition & Transformation
+- Define scalar/vector fields on nodes, cells, or integration points.
+- Compute measure fields (cell volumes) on any cell type.
+- Use constants, expressions, or interpolated data.
+- Transfer fields between non-matching meshes (remap).
+- Combine or transform fields using arithmetic or geometric logic.
 
-The recommended approach to compile is to use SALOME official package
-manager (SAT). SAT will install MEDCoupling dependencies such as HDF5 and
-MEDFile, depending on the requested configuration (native or not).
+#### 💾 Input/Output & Interoperability
+- Read/write `.med` files (MEDFile format), compatible with SALOME, Code_Saturne, etc.
+- Support for time-dependent data and multi-step simulations.
+- Export data for post-processing in ParaView or SALOME.
+- Used a main `ICoCo` mesh and field transfer format for code coupling.
+
+#### 🐍 Python Integration
+- Access full functionality via Python bindings.
+- Interact easily with NumPy arrays.
+- Script mesh operations and field processing in notebooks or automation pipelines.
+
+
+### Resources
+
+- 📘 **Tutorials**: [MEDCoupling Tutorials on GitHub](https://github.com/SalomePlatform/MEDCoupling_tutos)
+- 📚 **Documentation**: [Official MEDCoupling User & API Docs](https://docs.salome-platform.org/latest/dev/MEDCoupling/developer/index.html)
+  > *Note: Despite the title, this is the main user and API reference documentation.*
+
+---
+
+## Developer Guide
+
+### Building from Source
+
+The recommended way to build MEDCoupling is using SALOME’s official package
+manager, **SAT**, which handles all dependencies (e.g., HDF5, MEDFile) and
+supports both native and custom configurations.
+
+---
+
+### Contributing
+
+We welcome contributions!
+
+To ensure consistency, please install and use
+[`pre-commit`](https://pre-commit.com):
+
+```bash
+pip install pre-commit
+cd $PATH_TO_MEDCOUPLING/
+pre-commit install
+```
+
+This will automatically run code formatters and linters on modified files
+before each commit. If hooks fail, there are two possibilities:
+
+- It was a formatting issue — the formatter applied changes. You need to `git
+  add` the file(s) and retry the commit.
+- It was a linter error — the linter will tell you what to fix. Apply the
+  corrections, then `git add` and commit again.
+
+If you're in a hurry or blocked by linter issues, you can:
+
+- Skip a specific linter hook:
+  ```bash
+  SKIP=linter-name git commit -m "wip: commit bypassing linter"
+  ```
+
+- Skip all hooks (**not recommended**, as formatting won't be applied):
+  ```bash
+  git commit -n -m "wip: commit skipping all pre-commit hooks"
+  ```
+
+---
+
+### Roadmap
+
+We're actively improving MEDCoupling. Upcoming features and goals include:
+
+#### 🔧 Usability Improvements
+- Unified and searchable documentation (via Sphinx + Breathe)
+- Executable notebooks replacing static `.rst` tutorials
+- Modernized CMake targets
+- Native Python builds
+- `spack` and `conan` package support
+
+#### 🛠️ Developer Experience
+- Clearer modular architecture (`medcoupling_tools`)
+- Modern C++ tooling (`clang-tidy`, `clang-format`, etc.)
+- GitHub-based CI/CD workflows
+
+---
+
+> For more information about SALOME and the broader ecosystem, visit [salome-platform.org](https://salome-platform.org).
+> We look forward to your feedback and contributions!
