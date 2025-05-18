@@ -663,6 +663,7 @@ namespace MEDCoupling
     DataArrayType *getDifferentValues() const;
     MCAuto<DataArrayType> forThisAsPartitionBuildReduction(const MCAuto<DataArrayIdType>& commonEntities, const MCAuto<DataArrayIdType>& commonEntitiesIndex,
       MCAuto<DataArrayType>& partitionsToBeModified, MCAuto<DataArrayIdType>& partitionsToBeModifiedIndex) const;
+    void fromListOfPairsToIndexArray(MCAuto<DataArrayType>& arrOut, MCAuto<DataArrayIdType>& arrIndexOut) const;
     std::vector<DataArrayIdType *> partitionByDifferentValues(std::vector<T>& differentIds) const;
     std::vector< std::pair<mcIdType,mcIdType> > splitInBalancedSlices(mcIdType nbOfSlices) const;
     static DataArrayType *Modulus(const DataArrayType *a1, const DataArrayType *a2);

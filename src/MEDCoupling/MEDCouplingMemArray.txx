@@ -6685,6 +6685,73 @@ struct NotInRange
   }
 
   /*!
+   * This method constructs for a list of pairs of ids in this to a pair arr,arrIndex (typically followed by a ConvertIndexArrayToO2N call). This method is useful to 
+   * convert in context of // computing to move to global ids approach.
+   * 
+   * \a this is expected to be a 2 components array.
+   * \b Warning, the pairs are expected to be sorted. (3,5), (0,7), (5,7), (0,3) wil. If not the output can
+   * 
+   * 
+   *\b Example: <br>
+   * - \a this          : [0,3, 5,4, 0,7]
+   * - \a arrOut        : [ 0,3,7, 4,5 ]
+   * - \a arrIndexOut       : [0,3,5]
+   * 
+   * \sa ConvertIndexArrayToO2N
+   */
+  template <class T>
+  void DataArrayDiscrete<T>::fromListOfPairsToIndexArray(MCAuto<DataArrayType>& arrOut, MCAuto<DataArrayIdType>& arrIndexOut) const
+  {
+    this->checkAllocated();
+    if(this->getNumberOfComponents()!=2)
+      throw INTERP_KERNEL::Exception("DataArrayInt::fromListOfPairsToIndexArray : this should have exactly two components !");
+    std::map< T,std::set<T> > workStruct;
+    mcIdType nbTuples( this->getNumberOfTuples() );
+    const T *curTuple( this->begin() );
+    for( mcIdType i = 0 ; i < nbTuples ; ++i )
+    {
+      T zeMin ( std::min(curTuple[0],curTuple[1]) ), zeMax( std::max( curTuple[0],curTuple[1] ) );
+      auto it = workStruct.find( zeMin );
+      if( it != workStruct.end() )
+      {
+        (*it).second.insert( zeMax );
+      }
+      else
+      {
+        auto it2 = workStruct.find( zeMax );
+        if( it2 == workStruct.end() )
+        {
+          workStruct[zeMin] = {zeMin, zeMax};
+        }
+        else
+        {
+          std::set<T> tmp( std::move( (*it2).second ) );
+          tmp.insert( zeMin );
+          workStruct.erase( it2 );
+          workStruct[ zeMin ] = tmp;
+        }
+      }
+      curTuple += 2;
+    }
+    // put result in arrays
+    mcIdType nbOfGroups( ToIdType( workStruct.size() ) );
+    arrIndexOut = DataArrayIdType::New(); arrIndexOut->alloc(nbOfGroups + 1,1);
+    mcIdType *arrIndexOutPt = arrIndexOut->getPointer(); *arrIndexOutPt = 0;
+    for( const auto& it : workStruct )
+    {
+      mcIdType nbElemsInCurGrp( ToIdType( it.second.size() ) );
+      arrIndexOutPt[1] = arrIndexOutPt[0] + nbElemsInCurGrp;
+      arrIndexOutPt++;
+    }
+    arrOut = DataArrayType::New(); arrOut->alloc(*arrIndexOutPt,1);
+    T *arrOutPt( arrOut->getPointer() );
+    for( const auto& it : workStruct )
+    {
+      arrOutPt = std::copy(it.second.begin(),it.second.end(),arrOutPt);
+    }
+  }
+
+  /*!
    * This method is a refinement of DataArrayInt::getDifferentValues because it returns not only different values in \a this but also, for each of
    * them it tells which tuple id have this id.
    * This method works only on arrays with one component (if it is not the case call DataArrayInt::rearrange(1) ).

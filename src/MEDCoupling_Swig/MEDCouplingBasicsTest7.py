@@ -1876,5 +1876,14 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         cells.orientCorrectly3DCells()
         self.assertTrue( cells.isEqual(cellsCopy,1e-12) )
 
+    def test_DAI_fromListOfPairsToIndexArray(self):
+        """
+        [EDF32671] : test of DataArrayInt.fromListOfPairsToIndexArray useful for joints management
+        """
+        arr = DataArrayInt([0,3, 5,4, 0,7],3,2)
+        c,ci = arr.fromListOfPairsToIndexArray()
+        self.assertTrue( c.isEqual( DataArrayInt([0, 3, 7, 4, 5]) ) )
+        self.assertTrue( ci.isEqual( DataArrayInt([0, 3, 5]) ) )
+
 if __name__ == '__main__':
     unittest.main()

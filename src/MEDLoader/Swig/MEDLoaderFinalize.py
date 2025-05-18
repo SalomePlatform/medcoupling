@@ -20,27 +20,33 @@
 
 import logging
 
-def MEDFileUMeshFuseNodesAndCells(self, compType = 2 , eps = 1e-6, logLev = logging.INFO, n2oHolder = None):
+def MEDFileUMeshFuseNodesAndCells(self, compType = 2 , eps = 1e-6, logLev = logging.INFO, infoWrapNodes = None):
   """
-  [EDF30179] : Method fusing nodes in this, then fusing cells in this. Fusion is done following eps and compType.
+  Method fusing nodes in this, then fusing cells in this. Fusion is done following eps and compType.
 
   :param compType : see MEDCouplingPointSet.zipConnectivityTraducer method for explanations
   :param eps: see DataArrayDouble.findCommonTuples for explanations.
   :param logLev: Integer specifying log level
   :param n2oHolder: Optional output param storing for each level ext n2o conversions applied during transformation. The storage should follow pydict concept. ket is levelext. Value is n2o array associated.
+  :param infoWrapNodes: Optional input. If precised contains tuple of size 4 ( cNode, ciNodes, o2nNodes, n2oNodes ) fully defining the merge of nodes.
   :return: MEDFileUMesh instance containing the result of nodes and cells fusion
   """
-  import MEDLoader as ml
-  def getLogger( level = logging.INFO ):
+  mmOut,_ = MEDFileUMeshFuseNodesAndCellsAdv(self, compType, eps, logLev, infoWrapNodes )
+  return mmOut
+
+def getLogger( level = logging.INFO ):
     FORMAT = '%(levelname)s : %(asctime)s : [%(filename)s:%(funcName)s:%(lineno)s] : %(message)s'
     logging.basicConfig( format = FORMAT, level = level )
     return logging.getLogger()
-  logger = getLogger( logLev )
+    logger = getLogger( logLev )
 
-  def n2oHolderManager( n2oHolder, lev, arr):
-     if n2oHolder is None:
-        return
-     n2oHolder[lev] = arr
+def MEDFileUMeshFuseNodesAndCellsAdv(self, compType = 2 , eps = 1e-6, logLev = logging.INFO, infoWrapNodes = None):
+  """
+  Same than MEDFileUMeshfuseNodesAndCells except that 
+
+  :return: a tuple a size 2. First element is MEDFileUMesh instance containing the result of nodes and cells fusion, 2nd element is dict storing for each level ext n2o conversions applied during transformation. key is levelext. Value is n2o array associated.
+  """
+  import MEDLoader as ml
 
   def updateMap( mm : ml.MEDFileUMesh, lev : int, famMap : ml.DataArrayInt, famMapI : ml.DataArrayInt):
     """
@@ -65,15 +71,20 @@ def MEDFileUMeshFuseNodesAndCells(self, compType = 2 , eps = 1e-6, logLev = logg
         for grpToBeUpdated in grpsToBeUpdated:
           mm.addFamilyOnGrp( grpToBeUpdated, newFamName )
     pass
-  getLogger( level = logLev )
+  n2oHolder = {}
+  logger = getLogger( level = logLev )
   initNbNodes = len( self.getCoords() )
-  logger.info(f"Begin merging nodes with eps = {eps}")
-  cc,cci = self.getCoords().findCommonTuples( eps )
-  logger.info(f"End of merging nodes with eps = {eps} : Nb of nodes groups to be merged : {len(cci)-1} / {self.getNumberOfNodes()}")
-  o2n,newNbNodes = ml.DataArrayInt.ConvertIndexArrayToO2N(initNbNodes,cc,cci)
-  n2oNodes = o2n.invertArrayO2N2N2O( newNbNodes )
+  if infoWrapNodes is None:
+    logger.info(f"No n2onodes given. Trying to compute it using given eps = {eps}")
+    logger.info(f"Begin merging nodes with eps = {eps}")
+    cNode, ciNodes = self.getCoords().findCommonTuples( eps )
+    logger.info(f"End of merging nodes with eps = {eps} : Nb of nodes groups to be merged : {len(ciNodes)-1} / {self.getNumberOfNodes()}")
+    o2nNodes,newNbNodes = ml.DataArrayInt.ConvertIndexArrayToO2N(initNbNodes,cNode,ciNodes)
+    n2oNodes = o2nNodes.invertArrayO2N2N2O( newNbNodes )
+  else:
+    cNode, ciNodes, o2nNodes, n2oNodes = infoWrapNodes
   newCoords = self.getCoords()[n2oNodes]
-  n2oHolderManager(n2oHolder,1,n2oNodes)
+  n2oHolder[1] = n2oNodes
   # creation of
   mmOut = ml.MEDFileUMesh()
   mmOut.copyFamGrpMapsFrom( self )
@@ -82,7 +93,7 @@ def MEDFileUMeshFuseNodesAndCells(self, compType = 2 , eps = 1e-6, logLev = logg
     logger.debug(f"Begin level {lev}")
     m1 = self[lev].deepCopy()
     logger.debug(f"Begin renumbering connectivity of level {lev}")
-    m1.renumberNodesInConn( o2n )
+    m1.renumberNodesInConn( o2nNodes )
     logger.debug(f"End renumbering connectivity of level {lev}")
     m1.setCoords( newCoords )
     logger.info(f"Begin of finding of same cells of level {lev}")
@@ -96,7 +107,7 @@ def MEDFileUMeshFuseNodesAndCells(self, compType = 2 , eps = 1e-6, logLev = logg
       famsMergedCell = -famsMergedCell
     o2nCells,newNbCells = ml.DataArrayInt.ConvertIndexArrayToO2N(m1.getNumberOfCells(),cce,ccei)
     n2oCells = o2nCells.invertArrayO2N2N2O( newNbCells )
-    n2oHolderManager(n2oHolder,lev,n2oCells)
+    n2oHolder[lev] = n2oCells
     m1 = m1[ n2oCells ]
     m1.setCoords( newCoords )
     m1.setName( self.getName() )
@@ -106,10 +117,188 @@ def MEDFileUMeshFuseNodesAndCells(self, compType = 2 , eps = 1e-6, logLev = logg
 
   famsNode = self.getFamilyFieldAtLevel(1)
   if famsNode:
-    famsMergedNode,famMap,famMapI = famsNode.forThisAsPartitionBuildReduction(cc,cci)
+    famsMergedNode,famMap,famMapI = famsNode.forThisAsPartitionBuildReduction(cNode, ciNodes)
     updateMap(mmOut,1,famMap,famMapI)
     mmOut.setFamilyFieldArr(1, famsMergedNode)
-  return mmOut
+  return mmOut, n2oHolder
+
+def FindIdFromPathAndPattern( fname, pat ):
+    import re
+    from pathlib import Path
+    patRe = Path(pat).name.replace("*","([\d]+)")
+    patReRe = re.compile( patRe )
+    m = patReRe.match( Path( fname ).name )
+    if not m:
+        raise RuntimeError( "Unrecognized pattern {} in file {}".format(pat,fname) )
+    return int( m.group(1) )
+
+def GetNodesFusionInfoFromJointsOf( pat : str ):
+    """
+    [EDF32671]. This method expects that each MED file fitting pat pattern contains joints with correspondance on NODES. If yes a n2o conversion array will be computed and returned
+    This output may be used by MEDFileUMesh.fuseNodesAndCells.
+
+
+    :param pat : Pattern pointing to MED files candidates of fusion.
+    :return: tuple of size 4 ( cNode, ciNodes, o2nNodes, n2oNodes ) fully defining the merge of nodes ( may be useful for MEDFileUMesh.fuseNodesAndCells )
+    """
+
+    import re
+    from glob import glob
+    import MEDLoader as ml
+    def GetAllCommonNodesRegardingJoints( iPart, fileToMerge ):
+        """
+        [EDF32671] : Return list of 2 components arrays giving correspondances. Name of components returns the rank of proc attached.
+        """
+        def RetriveCorrespondanceForOneJoint( iPart, joint ):
+            """
+            Returns for one joint the
+            """
+            if joint.getNumberOfSteps() != 1:
+                raise NotImplementedError( "Juste single timestep joint supported" )
+            # p0 is for receiving proc. p1 is for sending proc
+            p0, p1 = [int(p) for p in re.split( "[\s]+", joint.getJointName() )]
+            if ( p0 != iPart ) and ( p1 != iPart ):
+                raise RuntimeError( "Unexpected joint name {!r} in proc {}".format( joint.getJointName() , iPart ) )
+            # Find correspondance on NODES. Expected to have exactly one
+            cors = [cor for cor in [joint[0].getCorrespondenceAtPos(i) for i in range(joint[0].getNumberOfCorrespondences())] if cor.getLocalGeometryType() == ml.NORM_ERROR]
+            if len(cors) != 1 :
+                raise RuntimeError( "No correspondances lying on NODES in {}".format( fileToMerge ) )
+            cor = cors[0].getCorrespondence()
+            # put correspondence cor in right shape. 2 components and in C format
+            cor = cor - 1 ; cor.rearrange(2)
+            #
+            if p0 == iPart:
+                # receiving
+                pOther = p1
+            else:
+                # sending
+                pOther = p0
+            if pOther < iPart:
+                return None
+            cor.setInfoOnComponent(0,str(iPart))
+            cor.setInfoOnComponent(1,str(pOther))
+            return cor
+        allMeshNames = ml.GetMeshNames( fileToMerge )
+        if len( allMeshNames ) != 1:
+            raise NotImplementedError( "{} contains not exactly one mesh".format( fileToMerge ) )
+        joints = ml.MEDFileJoints(fileToMerge,allMeshNames[0])
+
+        ret = [ RetriveCorrespondanceForOneJoint( iPart, joints[iJoint] ) for iJoint in range( joints.getNumberOfJoints() ) ]
+        return [ elt for elt in ret if elt is not None ]
+
+    filesToMerge = sorted( glob( pat ), key = lambda x: FindIdFromPathAndPattern(x,pat))
+
+    nbNodesPerProc = []
+    allNodesCorr = []
+
+    for fileToMerge in filesToMerge :
+        iPart = FindIdFromPathAndPattern(fileToMerge,pat)
+        allMeshNames = ml.GetMeshNames( fileToMerge )
+        if len( allMeshNames ) != 1:
+            raise NotImplementedError( "{} contains not exactly one mesh".format( fileToMerge ) )
+        _,_,_,curNbNodes = ml.GetUMeshGlobalInfo( fileToMerge, allMeshNames[0] )
+        curNodeCorr = GetAllCommonNodesRegardingJoints( iPart, fileToMerge )
+        allNodesCorr += curNodeCorr
+        nbNodesPerProc.append( curNbNodes )
+
+    # apply node offsets
+
+    nodeOffsets = ml.DataArrayInt( nbNodesPerProc )
+    nodeOffsets.computeOffsetsFull()
+    for elt in allNodesCorr:
+        elt[:,0] += nodeOffsets[ int( elt.getInfoOnComponent(0) ) ]
+        elt[:,1] += nodeOffsets[ int( elt.getInfoOnComponent(1) ) ]
+    c,ci = ml.DataArrayInt.Aggregate( allNodesCorr ).fromListOfPairsToIndexArray()
+    totalNbOfNodesWithDup = sum( nbNodesPerProc )
+    o2nNodes,newNbNodes = ml.DataArrayInt.ConvertIndexArrayToO2N(totalNbOfNodesWithDup,c,ci)
+    n2oNodes = o2nNodes.invertArrayO2N2N2O( newNbNodes )
+    return c, ci, o2nNodes, n2oNodes
+
+def AggregateMEDFilesNoProfilesNoFusion(pat : str , fnameOut : str, logLev = logging.INFO):
+    """
+    This method is useful to aggregate split MED files into a single one.
+
+    This method fuse content of MED files in pat and put the result into fnameOut. For the moment profiles are not managed. And only one mesh is supported. All MED files 
+    for pat are expected to have the same structure.
+
+    Pay attention nodes and cells may be duplicated by this method. To remove cells/nodes duplication call fuseCellsAndNodes
+
+    :param pat: pattern of MED files to be aggregated
+    :param fnameOut: output file storing the result
+    """
+    import MEDLoader as ml
+    import contextlib
+    from glob import glob
+    logger = getLogger( logLev )
+    filesToMerge = sorted( glob( pat ), key = lambda x: FindIdFromPathAndPattern(x,pat))
+    meshes = [ ml.MEDFileMesh.New(elt) for elt in filesToMerge ]
+    mm = ml.MEDFileUMesh.Aggregate( meshes )
+    mm.write(fnameOut,2)
+    allFields = ml.GetAllFieldNames(filesToMerge[0])
+    ## Trés important on vérifie l'absence de profile
+    for elt in allFields:
+        f1ts = ml.MEDFileField1TS(filesToMerge[0],elt)
+        assert( len(f1ts.getPflsReallyUsed()) == 0 )
+    ##
+
+    fmts = [ [ ml.MEDFileFieldMultiTS(fn,fieldName,False) for fn in filesToMerge ] for fieldName in allFields]
+
+    for iField, listOfFmts in enumerate( fmts ):
+        refField = listOfFmts[0]
+        nbTs = len( refField )
+        for iTs in range( nbTs ):
+            with contextlib.ExitStack() as stack:
+                for iPart in range(len(listOfFmts)):
+                    stack.enter_context( listOfFmts[iPart][iTs] )
+                logger.info( f"Dealing field {refField.getName()!r} time step {listOfFmts[0][iTs].getTime()[2]}" )
+                mcf = [fmts[iTs].field( meshes[iPart] ) for iPart,fmts in enumerate(listOfFmts)]
+            fagg = ml.MEDCouplingFieldDouble.MergeFields( mcf )
+            if fagg.getDiscretization().getEnum() != ml.ON_NODES:
+                m = fagg.getMesh().deepCopy()
+                o2n = m.sortCellsInMEDFileFrmt()
+                n2o = o2n.invertArrayO2N2N2O( m.getNumberOfCells() )
+                fagg = fagg[n2o]
+            f1tsOut = ml.MEDFileField1TS()
+            f1tsOut.setFieldNoProfileSBT(fagg)
+            f1tsOut.write(fnameOut,0)
+
+def FuseCellsAndNodesInMEDFile(fnameIn, fnameOut, compType = 2 , eps = 1e-6, logLev = logging.INFO, infoWrapNodes = None):
+    """
+    This method read fnameIn MED file, perform operation of fusion and write the result back MED fnameOut file.
+
+    Warning : fnameIn and fnameOut are expected to be separate files.
+
+    See MEDFileUMesh.fuseNodesAndCells for doc of other params.
+    """
+    import MEDLoader as ml
+
+    def reduceOnCells( fIn, n2os ):
+        fOut = fIn[ n2os[0] ]
+        return fOut
+    
+    def reduceOnNodes( fIn, n2os ):
+        fIn.setArray( fIn.getArray()[ n2os[1] ] )
+        return fIn
+    logger = getLogger( logLev )
+    mm = ml.MEDFileMesh.New( fnameIn )
+    mm.removeOrphanFamilies()
+    mmOut, n2os = mm.fuseNodesAndCellsAdv(compType, eps, logLev, infoWrapNodes)
+    allFields = ml.GetAllFieldNames( fnameIn )
+    mmOut.write( fnameOut, 2 )
+    logger.info( f"Writing mesh into {fnameOut}" )
+    fmtss = [ ml.MEDFileFieldMultiTS(fnameIn,fieldName,False) for fieldName in allFields]
+    for fmts in fmtss:
+        for f1ts in fmts:
+            with f1ts:
+                logger.info( f"Dealing field {f1ts.getName()!r} time step {f1ts.getTime()[2]}" )
+                fIn = f1ts.field(mm)
+                if fIn.getDiscretization().getEnum() == ml.ON_NODES:
+                    fOut = reduceOnNodes(fIn,n2os)
+                else:
+                    fOut = reduceOnCells(fIn,n2os)
+            f1tsOut = ml.MEDFileField1TS()
+            f1tsOut.setFieldNoProfileSBT(fOut)
+            f1tsOut.write(fnameOut,0)
 
 def MEDFileUMeshTetrahedrize(self, splitType, logLev = logging.INFO):
   """

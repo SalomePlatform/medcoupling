@@ -2053,6 +2053,17 @@
         return pyRet;
       }
 
+      PyObject *fromListOfPairsToIndexArray() const
+      {
+        MCAuto<ARRAY> arrOut;
+        MCAuto<DataArrayIdType> arrIndexOut;
+        self->fromListOfPairsToIndexArray(arrOut,arrIndexOut);
+        PyObject *pyRet( PyTuple_New(2) );
+        PyTuple_SetItem(pyRet,0,SWIG_NewPointerObj(SWIG_as_voidptr(arrOut.retn()),SWIGTITraits<INT>::TI, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(pyRet,1,SWIG_NewPointerObj(SWIG_as_voidptr(arrIndexOut.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        return pyRet;
+      }
+
       PyObject *isRange() const
       {
         INT a(0),b(0),c(0);
