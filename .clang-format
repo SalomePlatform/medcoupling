@@ -1,0 +1,28 @@
+---
+# A clang-format style that approximates Python's PEP 7
+# Useful for IDE integration
+#
+BasedOnStyle: Google
+AlignAfterOpenBracket: BlockIndent
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortEnumsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+AlwaysBreakAfterReturnType: TopLevel
+BinPackArguments: false
+# BinPackLongBracedList: true available on clang-format 21 but still and 20
+BinPackParameters: OnePerLine
+BreakBeforeBraces: Allman
+ColumnLimit: 120
+ContinuationIndentWidth: 4
+DerivePointerAlignment: false
+IndentWidth: 4
+# IncludeBlocks: Regroup
+Language: Cpp
+PointerAlignment: Right
+ReflowComments: true
+SortIncludes: Never
+SpaceBeforeParens: ControlStatements
+SpacesInParentheses: false
+TabWidth: 4
+UseTab: Never
