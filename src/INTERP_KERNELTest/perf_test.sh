@@ -157,7 +157,7 @@ function test_box_transbox {
 
 #functions to execute :
 
-echo PerfTest execution on `date` > $RES_FILE
+echo PerfTest execution on "$(date)" > $RES_FILE
 test_box_cyl
 test_box_box
 test_cyl_cyl

@@ -23,7 +23,7 @@ Topics covered:
 Implementation start
 ~~~~~~~~~~~~~~~~~~~~
 
-To implement this exercise we use the Python scripting language and import the `medcoupling` Python module. ::
+To implement this exercise we use the Python scripting language and import the ``medcoupling`` Python module. ::
 
     import medcoupling as mc
 

@@ -22,7 +22,7 @@ The aim of this exercise is to use MEDCoupling to intersect those two meshes, as
 Implementation start
 ~~~~~~~~~~~~~~~~~~~~
 
-To implement this exercise we use the Python scripting language and import the `medcoupling` Python module. ::
+To implement this exercise we use the Python scripting language and import the ``medcoupling`` Python module. ::
 
     import medcoupling as mc
 

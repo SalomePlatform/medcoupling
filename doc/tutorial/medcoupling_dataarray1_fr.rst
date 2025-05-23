@@ -294,7 +294,7 @@ Constuire un maillage non structuré
 On chercher maintenant à créer le maillage final montré dans la figure. Nous avons déjà construit le tableau
 de coordonnées, il nous reste les cellules à créer.
 
-Créer un maillage non structuré ``m`` avec les coordonnées ``d3``. Le maillage``m`` a une mesh-dimension 2 ::
+Créer un maillage non structuré ``m`` avec les coordonnées ``d3``. Le maillage ``m`` a une mesh-dimension 2 ::
 
 	m = mc.MEDCouplingUMesh("My7hexagons",2)
 	m.setCoords(d3)

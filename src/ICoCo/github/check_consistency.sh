@@ -14,7 +14,7 @@ git clone https://github.com/cea-trust-platform/icoco-coupling.git
 lst="ICoCo_DeclSpec.hxx ICoCoField.h ICoCoField.hxx ICoCoMEDDoubleField.h ICoCoMEDDoubleField.hxx ICoCoMEDIntField.h ICoCoMEDIntField.hxx"
 
 mkdir tmp_compare
-cd tmp_compare
+cd tmp_compare || exit
 for f in $lst; do
     tail -n+4 ../icoco-coupling/include/$f > "${f}_github"
     tail -n+20 ../../$f > "${f}_mc"
