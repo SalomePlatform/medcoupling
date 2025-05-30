@@ -6688,9 +6688,7 @@ struct NotInRange
    * This method constructs for a list of pairs of ids in this to a pair arr,arrIndex (typically followed by a ConvertIndexArrayToO2N call). This method is useful to 
    * convert in context of // computing to move to global ids approach.
    * 
-   * \a this is expected to be a 2 components array.
-   * \b Warning, the pairs are expected to be sorted. (3,5), (0,7), (5,7), (0,3) wil. If not the output can
-   * 
+   * \a this is expected to be a 2 components array. 
    * 
    *\b Example: <br>
    * - \a this          : [0,3, 5,4, 0,7]
@@ -6733,7 +6731,41 @@ struct NotInRange
       }
       curTuple += 2;
     }
-    // put result in arrays
+    // Merge intersecting groups in workStruct if any
+    {
+      std::map<T,T> zeMap;
+      typename std::map<T,std::set<T>>::iterator it( workStruct.begin() );
+      while( it != workStruct.end() )
+      {
+        bool mergeRequested( false );
+        T groupToMerge(std::numeric_limits<T>::max() );
+        for( typename std::set<T>::iterator it2 = it->second.begin() ; it2 != it->second.end() ; ++it2 )
+        {
+          auto it3 = zeMap.find( *it2 );
+          if( it3 != zeMap.end() )
+          {
+            mergeRequested = true;
+            groupToMerge = it3->second;
+            break ;
+          }
+        }
+        if( ! mergeRequested )
+        {
+          for( typename std::set<T>::iterator it2 = it->second.begin() ; it2 != it->second.end() ; ++it2 )
+            zeMap[ *it2 ] = it->first;
+          it++;
+        }
+        else
+        {
+          auto it3 = workStruct.find( groupToMerge );
+          (*it3).second.insert( it->second.begin(), it->second.end() );
+          for( typename std::set<T>::iterator it2 = it->second.begin() ; it2 != it->second.end() ; ++it2 )
+            zeMap[ *it2 ] = groupToMerge;
+          it = workStruct.erase( it );
+        }
+      }
+    }
+    // End merge intersecting groups in workStruct if any
     mcIdType nbOfGroups( ToIdType( workStruct.size() ) );
     arrIndexOut = DataArrayIdType::New(); arrIndexOut->alloc(nbOfGroups + 1,1);
     mcIdType *arrIndexOutPt = arrIndexOut->getPointer(); *arrIndexOutPt = 0;

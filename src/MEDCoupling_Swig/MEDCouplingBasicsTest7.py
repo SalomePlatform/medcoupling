@@ -1876,7 +1876,7 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         cells.orientCorrectly3DCells()
         self.assertTrue( cells.isEqual(cellsCopy,1e-12) )
 
-    def test_DAI_fromListOfPairsToIndexArray(self):
+    def test_DAI_fromListOfPairsToIndexArray_1(self):
         """
         [EDF32671] : test of DataArrayInt.fromListOfPairsToIndexArray useful for joints management
         """
@@ -1884,6 +1884,20 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         c,ci = arr.fromListOfPairsToIndexArray()
         self.assertTrue( c.isEqual( DataArrayInt([0, 3, 7, 4, 5]) ) )
         self.assertTrue( ci.isEqual( DataArrayInt([0, 3, 5]) ) )
+
+    def test_DAI_fromListOfPairsToIndexArray_2(self):
+        """
+        [EDF32671] : Deal with case of where P2 sends to P0 and sends to P1
+        """
+        arr = DataArrayInt([0,7, 2,7], 2, 2)
+        c,ci = arr.fromListOfPairsToIndexArray()
+        self.assertTrue( c.isEqual( DataArrayInt([0, 2, 7]) ) )
+        self.assertTrue( ci.isEqual( DataArrayInt([0, 3]) ) )
+        # even harder case
+        arr = DataArrayInt([0,3, 10,17, 5,4, 12,17, 0,107],5,2)
+        c,ci = arr.fromListOfPairsToIndexArray()
+        self.assertTrue( c.isEqual( DataArrayInt([0,3,107, 4,5, 10,12,17]) ) )
+        self.assertTrue( ci.isEqual( DataArrayInt([0, 3, 5, 8]) ) )
 
 if __name__ == '__main__':
     unittest.main()
