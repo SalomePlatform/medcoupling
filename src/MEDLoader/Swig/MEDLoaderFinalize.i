@@ -29,6 +29,10 @@ FindIdFromPathAndPattern = MEDLoaderFinalize.FindIdFromPathAndPattern
 AggregateMEDFilesNoProfilesNoFusion = MEDLoaderFinalize.AggregateMEDFilesNoProfilesNoFusion
 FuseCellsAndNodesInMEDFile = MEDLoaderFinalize.FuseCellsAndNodesInMEDFile
 del MEDLoaderFinalize
+import MCMailFileReader
+ConvertFromMailToMEDFile = MCMailFileReader.ConvertFromMailToMEDFile
+LoadMailFileInMEDFileUMeshInstance = MCMailFileReader.LoadMailFileInMEDFileUMeshInstance
+del MCMailFileReader
 MEDFileMeshesIterator.__next__ = MEDFileMeshesIterator.next
 MEDFileAnyTypeFieldMultiTSIterator.__next__ = MEDFileAnyTypeFieldMultiTSIterator.next
 MEDFileFieldsIterator.__next__ = MEDFileFieldsIterator.next

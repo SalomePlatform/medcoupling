@@ -24,6 +24,7 @@ SET(BASE_TESTS
   UsersGuideExamplesTest_ML.py
   MeshFormatWriterTest1.py
   CrackAlongTest.py
+  MailFileTest.py
 )
 
 # if numpy is used

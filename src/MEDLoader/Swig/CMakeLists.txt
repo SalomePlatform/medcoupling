@@ -101,10 +101,10 @@ INSTALL(FILES MEDLoader.i MEDLoaderTypemaps.i MEDLoaderCommon.i MEDLoaderFinaliz
 
 SALOME_INSTALL_SCRIPTS(${CMAKE_CURRENT_BINARY_DIR}/MEDLoader.py ${MEDCOUPLING_INSTALL_PYTHON} EXTRA_DPYS "${SWIG_MODULE_MEDLoader_REAL_NAME}")
 
-INSTALL(FILES MEDLoaderSplitter.py MEDLoaderFinalize.py DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
+INSTALL(FILES MEDLoaderSplitter.py MEDLoaderFinalize.py MCMailFileReader.py DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
 
-INSTALL(FILES ${ALL_TESTS} MEDLoaderDataForTest.py MEDLoaderTest1.py MEDLoaderTest2.py MEDLoaderTest3.py CrackAlongTest.py DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_SCRIPTS})
+INSTALL(FILES ${ALL_TESTS} MEDLoaderDataForTest.py MEDLoaderTest1.py MEDLoaderTest2.py MEDLoaderTest3.py CrackAlongTest.py MailFileTest.py DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_SCRIPTS})
 
 INSTALL(FILES CaseIO.py CaseReader.py CaseWriter.py VTKReader.py DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
@@ -144,6 +144,9 @@ SET(MEDLOADER_TEST_FILES
     MEDLoaderTest2.py
     MEDLoaderTest3.py
     CrackAlongTest.py
+    MailFileTest.py
+    FilesForTest/quad9.mail
+    FilesForTest/sslp200b.mail
     CaseIO.py
     CaseReader.py
     CaseWriter.py
