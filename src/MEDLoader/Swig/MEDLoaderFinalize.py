@@ -229,11 +229,13 @@ def AggregateMEDFilesNoProfilesNoFusion(pat : str , fnameOut : str, logLev = log
     import MEDLoader as ml
     import contextlib
     from glob import glob
+    from distutils.version import StrictVersion
     logger = getLogger( logLev )
     filesToMerge = sorted( glob( pat ), key = lambda x: FindIdFromPathAndPattern(x,pat))
+    inpVersion = StrictVersion( ml.MEDFileVersionOfFileStr( filesToMerge[0] ) ).version
     meshes = [ ml.MEDFileMesh.New(elt) for elt in filesToMerge ]
     mm = ml.MEDFileUMesh.Aggregate( meshes )
-    mm.write(fnameOut,2)
+    mm.writeXX(fnameOut,2,*inpVersion)
     allFields = ml.GetAllFieldNames(filesToMerge[0])
     ## Trés important on vérifie l'absence de profile
     for elt in allFields:
@@ -260,7 +262,7 @@ def AggregateMEDFilesNoProfilesNoFusion(pat : str , fnameOut : str, logLev = log
                 fagg = fagg[n2o]
             f1tsOut = ml.MEDFileField1TS()
             f1tsOut.setFieldNoProfileSBT(fagg)
-            f1tsOut.write(fnameOut,0)
+            f1tsOut.writeXX(fnameOut,0,*inpVersion)
 
 def FuseCellsAndNodesInMEDFile(fnameIn, fnameOut, compType = 2 , eps = 1e-6, logLev = logging.INFO, infoWrapNodes = None):
     """
@@ -270,6 +272,7 @@ def FuseCellsAndNodesInMEDFile(fnameIn, fnameOut, compType = 2 , eps = 1e-6, log
 
     See MEDFileUMesh.fuseNodesAndCells for doc of other params.
     """
+    from distutils.version import StrictVersion
     import MEDLoader as ml
 
     def reduceOnCells( fIn, n2os ):
@@ -279,12 +282,13 @@ def FuseCellsAndNodesInMEDFile(fnameIn, fnameOut, compType = 2 , eps = 1e-6, log
     def reduceOnNodes( fIn, n2os ):
         fIn.setArray( fIn.getArray()[ n2os[1] ] )
         return fIn
+    inpVersion = StrictVersion( ml.MEDFileVersionOfFileStr( fnameIn ) ).version
     logger = getLogger( logLev )
     mm = ml.MEDFileMesh.New( fnameIn )
     mm.removeOrphanFamilies()
     mmOut, n2os = mm.fuseNodesAndCellsAdv(compType, eps, logLev, infoWrapNodes)
     allFields = ml.GetAllFieldNames( fnameIn )
-    mmOut.write( fnameOut, 2 )
+    mmOut.writeXX( fnameOut, 2, *inpVersion)
     logger.info( f"Writing mesh into {fnameOut}" )
     fmtss = [ ml.MEDFileFieldMultiTS(fnameIn,fieldName,False) for fieldName in allFields]
     for fmts in fmtss:
@@ -298,7 +302,7 @@ def FuseCellsAndNodesInMEDFile(fnameIn, fnameOut, compType = 2 , eps = 1e-6, log
                     fOut = reduceOnCells(fIn,n2os)
             f1tsOut = ml.MEDFileField1TS()
             f1tsOut.setFieldNoProfileSBT(fOut)
-            f1tsOut.write(fnameOut,0)
+            f1tsOut.writeXX(fnameOut,0,*inpVersion)
 
 def MEDFileUMeshTetrahedrize(self, splitType, logLev = logging.INFO):
   """

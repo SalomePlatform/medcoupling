@@ -658,6 +658,9 @@ namespace MEDCoupling
     void write(const std::string& fileName, int mode) const;
     void write33(const std::string& fileName, int mode) const;
     void write30(const std::string& fileName, int mode) const;
+    void write40(const std::string& fileName, int mode) const;
+    void write41(const std::string& fileName, int mode) const;
+    void writeXX(const std::string& fileName, int mode, int maj, int min, int rel) const;
     %extend
        {
          DataArrayByte *serialize() const
