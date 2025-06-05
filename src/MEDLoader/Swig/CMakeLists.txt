@@ -147,6 +147,7 @@ SET(MEDLOADER_TEST_FILES
     MailFileTest.py
     FilesForTest/quad9.mail
     FilesForTest/sslp200b.mail
+    FilesForTest/WrongGrpName.mail
     CaseIO.py
     CaseReader.py
     CaseWriter.py
