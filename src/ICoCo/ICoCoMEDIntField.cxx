@@ -23,66 +23,68 @@
 namespace ICoCo
 {
 
-  MEDIntField::MEDIntField() : _field(0) {}
+MEDIntField::MEDIntField() : _field(0) {}
 
-  /*! Constructor directly attaching a MEDCouplingFieldInt
-    the object does not take the control the objects pointed by
-    \a field.
-   */
-  MEDIntField::MEDIntField(MEDCoupling::MEDCouplingFieldInt32 *field):_field(field)
-  {
-    if(_field)
-      {
+/*! Constructor directly attaching a MEDCouplingFieldInt
+  the object does not take the control the objects pointed by
+  \a field.
+ */
+MEDIntField::MEDIntField(MEDCoupling::MEDCouplingFieldInt32 *field) : _field(field)
+{
+    if (_field)
+    {
         _field->incrRef();
         setName(_field->getName());
-      }
+    }
     else
-      setName("");
-  }
+        setName("");
+}
 
-  MEDIntField::MEDIntField(const MEDIntField& field):_field(field.getMCField())
-  {
-    if(_field)
-      _field->incrRef();
-    setName(field.getName());
-  }
-
-  MEDIntField::~MEDIntField()
-  {
-    if(_field)
-      _field->decrRef();
-  }
-
-
-  MEDIntField& MEDIntField::operator=(const MEDIntField& field)
-  {
+MEDIntField::MEDIntField(const MEDIntField &field) : _field(field.getMCField())
+{
     if (_field)
-      _field->decrRef();
+        _field->incrRef();
+    setName(field.getName());
+}
 
-    _field=field.getMCField();
-    if(_field)
-      _field->incrRef();
+MEDIntField::~MEDIntField()
+{
+    if (_field)
+        _field->decrRef();
+}
+
+MEDIntField &
+MEDIntField::operator=(const MEDIntField &field)
+{
+    if (_field)
+        _field->decrRef();
+
+    _field = field.getMCField();
+    if (_field)
+        _field->incrRef();
     setName(field.getName());
     return *this;
-  }
+}
 
-  MEDCoupling::MEDCouplingFieldInt32 *MEDIntField::getMCField() const
-  {
+MEDCoupling::MEDCouplingFieldInt32 *
+MEDIntField::getMCField() const
+{
     return _field;
-  }
+}
 
-  void MEDIntField::setMCField(MEDCoupling::MEDCouplingFieldInt32 * f)
-  {
-    if(_field)
-      _field->decrRef();
+void
+MEDIntField::setMCField(MEDCoupling::MEDCouplingFieldInt32 *f)
+{
+    if (_field)
+        _field->decrRef();
     _field = f;
-    if(f != nullptr)
-      {
+    if (f != nullptr)
+    {
         _field->incrRef();
         setName(_field->getName());
-      }
+    }
     else
-      setName("");
-  }
-
+        setName("");
 }
+
+}  // namespace ICoCo

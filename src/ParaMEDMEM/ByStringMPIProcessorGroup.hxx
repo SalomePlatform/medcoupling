@@ -24,18 +24,19 @@
 
 namespace MEDCoupling
 {
-  class CommInterface;
+class CommInterface;
 
-  class ByStringMPIProcessorGroup : public MPIProcessorGroup
-  {
-  public:
-    ByStringMPIProcessorGroup(const CommInterface& interface);
-    ByStringMPIProcessorGroup(const CommInterface& interface, const std::string& simCodeTag, const MPI_Comm& world_comm=MPI_COMM_WORLD);
-    ByStringMPIProcessorGroup(const ByStringMPIProcessorGroup& other);
+class ByStringMPIProcessorGroup : public MPIProcessorGroup
+{
+   public:
+    ByStringMPIProcessorGroup(const CommInterface &interface);
+    ByStringMPIProcessorGroup(
+        const CommInterface &interface, const std::string &simCodeTag, const MPI_Comm &world_comm = MPI_COMM_WORLD
+    );
+    ByStringMPIProcessorGroup(const ByStringMPIProcessorGroup &other);
     virtual ~ByStringMPIProcessorGroup();
     virtual ByStringMPIProcessorGroup *deepCopy() const;
-
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

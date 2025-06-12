@@ -28,24 +28,25 @@
 
 namespace MEDCoupling
 {
-  class MEDCouplingUMesh;
+class MEDCouplingUMesh;
 
-  class MEDCouplingRemapperTest : public CppUnit::TestFixture
-  {
+class MEDCouplingRemapperTest : public CppUnit::TestFixture
+{
     CPPUNIT_TEST_SUITE(MEDCouplingRemapperTest);
-    CPPUNIT_TEST( test2DInterpP0P0_1 );
-    CPPUNIT_TEST( test2DInterpP0P0R_1 );
-    CPPUNIT_TEST( test1DInterp_1 );
-    CPPUNIT_TEST( test2DInterpMultiMethods );
-    CPPUNIT_TEST( testMultiDimCombi );
-    CPPUNIT_TEST( testNatureOfField );
-    CPPUNIT_TEST( testExtruded );
-    CPPUNIT_TEST( testExtruded2 );
-    CPPUNIT_TEST( testPrepareEx1 );
-    CPPUNIT_TEST( testPartialTransfer1 );
-    CPPUNIT_TEST( testBugNonRegression1 );
+    CPPUNIT_TEST(test2DInterpP0P0_1);
+    CPPUNIT_TEST(test2DInterpP0P0R_1);
+    CPPUNIT_TEST(test1DInterp_1);
+    CPPUNIT_TEST(test2DInterpMultiMethods);
+    CPPUNIT_TEST(testMultiDimCombi);
+    CPPUNIT_TEST(testNatureOfField);
+    CPPUNIT_TEST(testExtruded);
+    CPPUNIT_TEST(testExtruded2);
+    CPPUNIT_TEST(testPrepareEx1);
+    CPPUNIT_TEST(testPartialTransfer1);
+    CPPUNIT_TEST(testBugNonRegression1);
     CPPUNIT_TEST_SUITE_END();
-  public:
+
+   public:
     void test2DInterpP0P0_1();
     void test2DInterpP0P0R_1();
     void test1DInterp_1();
@@ -58,11 +59,12 @@ namespace MEDCoupling
     void testPartialTransfer1();
     //
     void testBugNonRegression1();
-  private:
+
+   private:
     static MEDCouplingUMesh *build1DTargetMesh_2();
     static MEDCouplingUMesh *build2DTargetMesh_3();
     static MEDCouplingUMesh *build3DExtrudedUMesh_1(MEDCouplingUMesh *&mesh2D);
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

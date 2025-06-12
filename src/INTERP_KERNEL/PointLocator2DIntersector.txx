@@ -31,144 +31,182 @@
 #include "InterpKernelGeo2DQuadraticPolygon.hxx"
 #include "PointLocatorAlgos.txx"
 
-#define PTLOC2D_INTERSECTOR PointLocator2DIntersector<MyMeshType,MyMatrix,InterpType>
-#define INTERSECTOR_TEMPLATE template<class MyMeshType, class MyMatrix, template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType>
+#define PTLOC2D_INTERSECTOR PointLocator2DIntersector<MyMeshType, MyMatrix, InterpType>
+#define INTERSECTOR_TEMPLATE \
+    template <               \
+        class MyMeshType,    \
+        class MyMatrix,      \
+        template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType>
 
 namespace INTERP_KERNEL
 {
-  INTERSECTOR_TEMPLATE
-  PTLOC2D_INTERSECTOR::PointLocator2DIntersector(const MyMeshType& meshT, const MyMeshType& meshS,
-                                               double dimCaracteristic, double md3DSurf, double minDot3DSurf, double medianPlane,
-                                               double precision, int orientation):
-    InterpType<MyMeshType,MyMatrix,PTLOC2D_INTERSECTOR >(meshT,meshS,dimCaracteristic, precision, md3DSurf, minDot3DSurf, medianPlane, true, orientation, 0)
-  {
-  }
+INTERSECTOR_TEMPLATE
+PTLOC2D_INTERSECTOR::PointLocator2DIntersector(
+    const MyMeshType &meshT,
+    const MyMeshType &meshS,
+    double dimCaracteristic,
+    double md3DSurf,
+    double minDot3DSurf,
+    double medianPlane,
+    double precision,
+    int orientation
+)
+    : InterpType<MyMeshType, MyMatrix, PTLOC2D_INTERSECTOR>(
+          meshT, meshS, dimCaracteristic, precision, md3DSurf, minDot3DSurf, medianPlane, true, orientation, 0
+      )
+{
+}
 
-  INTERSECTOR_TEMPLATE
-  double PTLOC2D_INTERSECTOR::intersectGeometry(ConnType icellT,   ConnType icellS,
-                                                ConnType nbNodesT, ConnType nbNodesS)
-  {
+INTERSECTOR_TEMPLATE
+double
+PTLOC2D_INTERSECTOR::intersectGeometry(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS)
+{
     int orientation = 1;
     std::vector<double> CoordsT;
     std::vector<double> CoordsS;
-    PlanarIntersector<MyMeshType,MyMatrix>::getRealCoordinates(icellT,icellS,nbNodesT,nbNodesS,CoordsT,CoordsS,orientation);
-    NormalizedCellType tT=PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getTypeOfElement(icellT);
-    NormalizedCellType tS=PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getTypeOfElement(icellS);
-    QuadraticPolygon *pT=buildPolygonFrom(CoordsT,tT);
+    PlanarIntersector<MyMeshType, MyMatrix>::getRealCoordinates(
+        icellT, icellS, nbNodesT, nbNodesS, CoordsT, CoordsS, orientation
+    );
+    NormalizedCellType tT = PlanarIntersector<MyMeshType, MyMatrix>::_meshT.getTypeOfElement(icellT);
+    NormalizedCellType tS = PlanarIntersector<MyMeshType, MyMatrix>::_meshS.getTypeOfElement(icellS);
+    QuadraticPolygon *pT = buildPolygonFrom(CoordsT, tT);
     double baryT[SPACEDIM];
     pT->getBarycenterGeneral(baryT);
     delete pT;
     bool ret;
-    double eps = InterpType<MyMeshType,MyMatrix,PTLOC2D_INTERSECTOR >::_precision;
+    double eps = InterpType<MyMeshType, MyMatrix, PTLOC2D_INTERSECTOR>::_precision;
     if (tS != INTERP_KERNEL::NORM_POLYGON && !CellModel::GetCellModel(tS).isQuadratic())
-      ret = PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2DSimple(baryT,&CoordsS[0],nbNodesS,eps);
+        ret = PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2DSimple(baryT, &CoordsS[0], nbNodesS, eps);
     else
-      {
+    {
         std::vector<ConnType> conn_elem(nbNodesS);
         std::iota(conn_elem.begin(), conn_elem.end(), 0);
-        ret = PointLocatorAlgos<MyMeshType>::isElementContainsPointAlgo2DPolygon(baryT, tS, &CoordsS[0], &conn_elem[0], nbNodesS, eps);
-      }
+        ret = PointLocatorAlgos<MyMeshType>::isElementContainsPointAlgo2DPolygon(
+            baryT, tS, &CoordsS[0], &conn_elem[0], nbNodesS, eps
+        );
+    }
     return (ret ? 1. : 0.);
-  }
+}
 
-  INTERSECTOR_TEMPLATE
-  double PTLOC2D_INTERSECTOR::intersectGeometryWithQuadrangle(const double             * quadrangle,
-                                                              const std::vector<double>& sourceCoords,
-                                                              bool                       isSourceQuad)
-  {
-    int nbOfSourceNodes=sourceCoords.size()/SPACEDIM;
+INTERSECTOR_TEMPLATE
+double
+PTLOC2D_INTERSECTOR::intersectGeometryWithQuadrangle(
+    const double *quadrangle, const std::vector<double> &sourceCoords, bool isSourceQuad
+)
+{
+    int nbOfSourceNodes = sourceCoords.size() / SPACEDIM;
     std::vector<Node *> nodes2(nbOfSourceNodes);
-    for(int i=0;i<nbOfSourceNodes;i++)
-      nodes2[i]=new Node(sourceCoords[i*SPACEDIM],sourceCoords[i*SPACEDIM+1]);
+    for (int i = 0; i < nbOfSourceNodes; i++)
+        nodes2[i] = new Node(sourceCoords[i * SPACEDIM], sourceCoords[i * SPACEDIM + 1]);
     QuadraticPolygon *p2;
-    if(!isSourceQuad)
-      p2=QuadraticPolygon::BuildLinearPolygon(nodes2);
+    if (!isSourceQuad)
+        p2 = QuadraticPolygon::BuildLinearPolygon(nodes2);
     else
-      p2=QuadraticPolygon::BuildArcCirclePolygon(nodes2);
+        p2 = QuadraticPolygon::BuildArcCirclePolygon(nodes2);
     double bary[SPACEDIM];
     p2->getBarycenter(bary);
     delete p2;
-    if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(bary,quadrangle,4) )
-      return 1.;
+    if (PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(bary, quadrangle, 4))
+        return 1.;
     return 0.;
-  }
+}
 
-  INTERSECTOR_TEMPLATE
-  double PTLOC2D_INTERSECTOR::intersectGeometryGeneral(const std::vector<double>& targetCoords,
-                                                       const std::vector<double>& sourceCoords)
-  {
-    int nbOfTargetNodes=targetCoords.size()/SPACEDIM;
-    int nbOfSourceNodes=sourceCoords.size()/SPACEDIM;
+INTERSECTOR_TEMPLATE
+double
+PTLOC2D_INTERSECTOR::intersectGeometryGeneral(
+    const std::vector<double> &targetCoords, const std::vector<double> &sourceCoords
+)
+{
+    int nbOfTargetNodes = targetCoords.size() / SPACEDIM;
+    int nbOfSourceNodes = sourceCoords.size() / SPACEDIM;
     std::vector<Node *> nodes2(nbOfSourceNodes);
-    for(int i=0;i<nbOfSourceNodes;i++)
-      nodes2[i]=new Node(sourceCoords[i*SPACEDIM],sourceCoords[i*SPACEDIM+1]);
-    QuadraticPolygon *p=QuadraticPolygon::BuildLinearPolygon(nodes2);
+    for (int i = 0; i < nbOfSourceNodes; i++)
+        nodes2[i] = new Node(sourceCoords[i * SPACEDIM], sourceCoords[i * SPACEDIM + 1]);
+    QuadraticPolygon *p = QuadraticPolygon::BuildLinearPolygon(nodes2);
     double bary[SPACEDIM];
     p->getBarycenterGeneral(bary);
     delete p;
-    if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(bary,&targetCoords[0],nbOfTargetNodes) )
-      return 1.;
+    if (PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2D(bary, &targetCoords[0], nbOfTargetNodes))
+        return 1.;
     return 0.;
-  }
-
-  //================================================================================
-  /*!
-   * \brief Intersect a triangle and a polygon for P1P0 barycentric algorithm
-   *  \param targetCell - list of coordinates of target polygon in full interlace
-   *  \param targetCellQuadratic - specifies if target polygon is quadratic or not
-   *  \param sourceTria - list of coordinates of source triangle
-   *  \param res - coefficients a,b and c associated to nodes of sourceTria
-   */
-  //================================================================================
-
-  INTERSECTOR_TEMPLATE
-  double PTLOC2D_INTERSECTOR::intersectGeoBary(const std::vector<double>& targetCell,
-                                               bool                       targetCellQuadratic,
-                                               const double *             sourceTria,
-                                               std::vector<double>&       res)
-  {
-    throw INTERP_KERNEL::Exception("intersectGeoBary incompatible with PointLocator. Deactivate P1P0Bary to avoid the problem");
-    return 0.;
-  }
-
-  INTERSECTOR_TEMPLATE
-  QuadraticPolygon *PTLOC2D_INTERSECTOR::buildPolygonFrom(const std::vector<double>& coords, NormalizedCellType type)
-  {
-    std::size_t nbNodes=coords.size()/SPACEDIM;
-    std::vector<Node *> nodes(nbNodes);
-    for(std::size_t i=0;i<nbNodes;i++)
-      nodes[i]=new Node(coords[i*SPACEDIM],coords[i*SPACEDIM+1]);
-    if(!CellModel::GetCellModel(type).isQuadratic())
-      return QuadraticPolygon::BuildLinearPolygon(nodes);
-    else
-      return QuadraticPolygon::BuildArcCirclePolygon(nodes);
-  }
-
-  INTERSECTOR_TEMPLATE
-  QuadraticPolygon *PTLOC2D_INTERSECTOR::buildPolygonAFrom(ConnType cell, int nbOfPoints, NormalizedCellType type)
-  {
-    const ConnType *startOfCellNodeConn=PlanarIntersector<MyMeshType,MyMatrix>::_connectT+OTT<ConnType,numPol>::conn2C(PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[OTT<ConnType,numPol>::ind2C(cell)]);
-    std::vector<Node *> nodes(nbOfPoints);
-    for(int i=0;i<nbOfPoints;i++)
-      nodes[i]=new Node(PlanarIntersector<MyMeshType,MyMatrix>::_coordsT+OTT<ConnType,numPol>::coo2C(startOfCellNodeConn[i])*SPACEDIM);
-    if(CellModel::GetCellModel(type).isQuadratic())
-      return QuadraticPolygon::BuildLinearPolygon(nodes);
-    else
-      return QuadraticPolygon::BuildArcCirclePolygon(nodes);
-  }
-
-  INTERSECTOR_TEMPLATE
-  QuadraticPolygon *PTLOC2D_INTERSECTOR::buildPolygonBFrom(ConnType cell, int nbOfPoints, NormalizedCellType type)
-  {
-    const ConnType *startOfCellNodeConn=PlanarIntersector<MyMeshType,MyMatrix>::_connectS+OTT<ConnType,numPol>::conn2C(PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[OTT<ConnType,numPol>::ind2C(cell)]);
-    std::vector<Node *> nodes(nbOfPoints);
-    for(int i=0;i<nbOfPoints;i++)
-      nodes[i]=new Node(PlanarIntersector<MyMeshType,MyMatrix>::_coordsS+OTT<ConnType,numPol>::coo2C(startOfCellNodeConn[i])*SPACEDIM);
-    if(type!=NORM_TRI6 && type!=NORM_QUAD8)
-      return QuadraticPolygon::BuildLinearPolygon(nodes);
-    else
-      return QuadraticPolygon::BuildArcCirclePolygon(nodes);
-  }
 }
+
+//================================================================================
+/*!
+ * \brief Intersect a triangle and a polygon for P1P0 barycentric algorithm
+ *  \param targetCell - list of coordinates of target polygon in full interlace
+ *  \param targetCellQuadratic - specifies if target polygon is quadratic or not
+ *  \param sourceTria - list of coordinates of source triangle
+ *  \param res - coefficients a,b and c associated to nodes of sourceTria
+ */
+//================================================================================
+
+INTERSECTOR_TEMPLATE
+double
+PTLOC2D_INTERSECTOR::intersectGeoBary(
+    const std::vector<double> &targetCell, bool targetCellQuadratic, const double *sourceTria, std::vector<double> &res
+)
+{
+    throw INTERP_KERNEL::Exception(
+        "intersectGeoBary incompatible with PointLocator. Deactivate P1P0Bary to avoid the problem"
+    );
+    return 0.;
+}
+
+INTERSECTOR_TEMPLATE
+QuadraticPolygon *
+PTLOC2D_INTERSECTOR::buildPolygonFrom(const std::vector<double> &coords, NormalizedCellType type)
+{
+    std::size_t nbNodes = coords.size() / SPACEDIM;
+    std::vector<Node *> nodes(nbNodes);
+    for (std::size_t i = 0; i < nbNodes; i++) nodes[i] = new Node(coords[i * SPACEDIM], coords[i * SPACEDIM + 1]);
+    if (!CellModel::GetCellModel(type).isQuadratic())
+        return QuadraticPolygon::BuildLinearPolygon(nodes);
+    else
+        return QuadraticPolygon::BuildArcCirclePolygon(nodes);
+}
+
+INTERSECTOR_TEMPLATE
+QuadraticPolygon *
+PTLOC2D_INTERSECTOR::buildPolygonAFrom(ConnType cell, int nbOfPoints, NormalizedCellType type)
+{
+    const ConnType *startOfCellNodeConn =
+        PlanarIntersector<MyMeshType, MyMatrix>::_connectT +
+        OTT<ConnType, numPol>::conn2C(
+            PlanarIntersector<MyMeshType, MyMatrix>::_connIndexT[OTT<ConnType, numPol>::ind2C(cell)]
+        );
+    std::vector<Node *> nodes(nbOfPoints);
+    for (int i = 0; i < nbOfPoints; i++)
+        nodes[i] = new Node(
+            PlanarIntersector<MyMeshType, MyMatrix>::_coordsT +
+            OTT<ConnType, numPol>::coo2C(startOfCellNodeConn[i]) * SPACEDIM
+        );
+    if (CellModel::GetCellModel(type).isQuadratic())
+        return QuadraticPolygon::BuildLinearPolygon(nodes);
+    else
+        return QuadraticPolygon::BuildArcCirclePolygon(nodes);
+}
+
+INTERSECTOR_TEMPLATE
+QuadraticPolygon *
+PTLOC2D_INTERSECTOR::buildPolygonBFrom(ConnType cell, int nbOfPoints, NormalizedCellType type)
+{
+    const ConnType *startOfCellNodeConn =
+        PlanarIntersector<MyMeshType, MyMatrix>::_connectS +
+        OTT<ConnType, numPol>::conn2C(
+            PlanarIntersector<MyMeshType, MyMatrix>::_connIndexS[OTT<ConnType, numPol>::ind2C(cell)]
+        );
+    std::vector<Node *> nodes(nbOfPoints);
+    for (int i = 0; i < nbOfPoints; i++)
+        nodes[i] = new Node(
+            PlanarIntersector<MyMeshType, MyMatrix>::_coordsS +
+            OTT<ConnType, numPol>::coo2C(startOfCellNodeConn[i]) * SPACEDIM
+        );
+    if (type != NORM_TRI6 && type != NORM_QUAD8)
+        return QuadraticPolygon::BuildLinearPolygon(nodes);
+    else
+        return QuadraticPolygon::BuildArcCirclePolygon(nodes);
+}
+}  // namespace INTERP_KERNEL
 
 #endif

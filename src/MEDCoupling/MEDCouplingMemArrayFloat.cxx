@@ -28,144 +28,159 @@ template class MEDCoupling::DataArrayTemplateClassic<float>;
 template class MEDCoupling::DataArrayTemplateFP<float>;
 template class MEDCoupling::DataArrayIterator<float>;
 
-DataArrayFloat *DataArrayFloat::New()
+DataArrayFloat *
+DataArrayFloat::New()
 {
-  return new DataArrayFloat;
+    return new DataArrayFloat;
 }
 
-DataArrayFloat *DataArrayFloat::deepCopy() const
+DataArrayFloat *
+DataArrayFloat::deepCopy() const
 {
-  return new DataArrayFloat(*this);
+    return new DataArrayFloat(*this);
 }
 
-void DataArrayFloat::reprCppStream(const std::string& varName, std::ostream& stream) const
+void
+DataArrayFloat::reprCppStream(const std::string &varName, std::ostream &stream) const
 {
-  mcIdType nbTuples(getNumberOfTuples());
-  std::size_t nbComp(getNumberOfComponents());
-  const float *data(begin());
-  stream.precision(7);
-  stream << "DataArrayFloat *" << varName << "=DataArrayFloat::New();" << std::endl;
-  if(nbTuples*nbComp>=1)
+    mcIdType nbTuples(getNumberOfTuples());
+    std::size_t nbComp(getNumberOfComponents());
+    const float *data(begin());
+    stream.precision(7);
+    stream << "DataArrayFloat *" << varName << "=DataArrayFloat::New();" << std::endl;
+    if (nbTuples * nbComp >= 1)
     {
-      stream << "const float " << varName << "Data[" << nbTuples*nbComp << "]={";
-      std::copy(data,data+nbTuples*nbComp-1,std::ostream_iterator<float>(stream,","));
-      stream << data[nbTuples*nbComp-1] << "};" << std::endl;
-      stream << varName << "->useArray(" << varName << "Data,false,CPP_DEALLOC," << nbTuples << "," << nbComp << ");" << std::endl;
+        stream << "const float " << varName << "Data[" << nbTuples * nbComp << "]={";
+        std::copy(data, data + nbTuples * nbComp - 1, std::ostream_iterator<float>(stream, ","));
+        stream << data[nbTuples * nbComp - 1] << "};" << std::endl;
+        stream << varName << "->useArray(" << varName << "Data,false,CPP_DEALLOC," << nbTuples << "," << nbComp << ");"
+               << std::endl;
     }
-  else
-    stream << varName << "->alloc(" << nbTuples << "," << nbComp << ");" << std::endl;
-  stream << varName << "->setName(\"" << getName() << "\");" << std::endl;
+    else
+        stream << varName << "->alloc(" << nbTuples << "," << nbComp << ");" << std::endl;
+    stream << varName << "->setName(\"" << getName() << "\");" << std::endl;
 }
 
-void DataArrayFloat::reprQuickOverview(std::ostream& stream) const
+void
+DataArrayFloat::reprQuickOverview(std::ostream &stream) const
 {
-  static const std::size_t MAX_NB_OF_BYTE_IN_REPR=300;
-  stream << "DataArrayFloat C++ instance at " << this << ". ";
-  if(isAllocated())
+    static const std::size_t MAX_NB_OF_BYTE_IN_REPR = 300;
+    stream << "DataArrayFloat C++ instance at " << this << ". ";
+    if (isAllocated())
     {
-      std::size_t nbOfCompo=_info_on_compo.size();
-      if(nbOfCompo>=1)
+        std::size_t nbOfCompo = _info_on_compo.size();
+        if (nbOfCompo >= 1)
         {
-          mcIdType nbOfTuples=getNumberOfTuples();
-          stream << "Number of tuples : " << nbOfTuples << ". Number of components : " << nbOfCompo << "." << std::endl;
-          reprQuickOverviewData(stream,MAX_NB_OF_BYTE_IN_REPR);
+            mcIdType nbOfTuples = getNumberOfTuples();
+            stream << "Number of tuples : " << nbOfTuples << ". Number of components : " << nbOfCompo << "."
+                   << std::endl;
+            reprQuickOverviewData(stream, MAX_NB_OF_BYTE_IN_REPR);
         }
-      else
-        stream << "Number of components : 0.";
+        else
+            stream << "Number of components : 0.";
     }
-  else
-    stream << "*** No data allocated ****";
+    else
+        stream << "*** No data allocated ****";
 }
 
-void DataArrayFloat::reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const
+void
+DataArrayFloat::reprQuickOverviewData(std::ostream &stream, std::size_t maxNbOfByteInRepr) const
 {
-  const float *data(begin());
-  mcIdType nbOfTuples(getNumberOfTuples());
-  std::size_t nbOfCompo=_info_on_compo.size();
-  std::ostringstream oss2; oss2 << "[";
-  oss2.precision(7);
-  std::string oss2Str(oss2.str());
-  bool isFinished=true;
-  for(mcIdType i=0;i<nbOfTuples && isFinished;i++)
+    const float *data(begin());
+    mcIdType nbOfTuples(getNumberOfTuples());
+    std::size_t nbOfCompo = _info_on_compo.size();
+    std::ostringstream oss2;
+    oss2 << "[";
+    oss2.precision(7);
+    std::string oss2Str(oss2.str());
+    bool isFinished = true;
+    for (mcIdType i = 0; i < nbOfTuples && isFinished; i++)
     {
-      if(nbOfCompo>1)
+        if (nbOfCompo > 1)
         {
-          oss2 << "(";
-          for(std::size_t j=0;j<nbOfCompo;j++,data++)
+            oss2 << "(";
+            for (std::size_t j = 0; j < nbOfCompo; j++, data++)
             {
-              oss2 << *data;
-              if(j!=nbOfCompo-1) oss2 << ", ";
+                oss2 << *data;
+                if (j != nbOfCompo - 1)
+                    oss2 << ", ";
             }
-          oss2 << ")";
+            oss2 << ")";
         }
-      else
-        oss2 << *data++;
-      if(i!=nbOfTuples-1) oss2 << ", ";
-      std::string oss3Str(oss2.str());
-      if(oss3Str.length()<maxNbOfByteInRepr)
-        oss2Str=oss3Str;
-      else
-        isFinished=false;
+        else
+            oss2 << *data++;
+        if (i != nbOfTuples - 1)
+            oss2 << ", ";
+        std::string oss3Str(oss2.str());
+        if (oss3Str.length() < maxNbOfByteInRepr)
+            oss2Str = oss3Str;
+        else
+            isFinished = false;
     }
-  stream << oss2Str;
-  if(!isFinished)
-    stream << "... ";
-  stream << "]";
+    stream << oss2Str;
+    if (!isFinished)
+        stream << "... ";
+    stream << "]";
 }
 
-bool DataArrayFloat::isEqualIfNotWhy(const DataArrayFloat& other, float prec, std::string& reason) const
+bool
+DataArrayFloat::isEqualIfNotWhy(const DataArrayFloat &other, float prec, std::string &reason) const
 {
-  if(!areInfoEqualsIfNotWhy(other,reason))
-    return false;
-  return _mem.isEqual(other._mem,prec,reason);
+    if (!areInfoEqualsIfNotWhy(other, reason))
+        return false;
+    return _mem.isEqual(other._mem, prec, reason);
 }
 
-bool DataArrayFloat::isEqual(const DataArrayFloat& other, float prec) const
+bool
+DataArrayFloat::isEqual(const DataArrayFloat &other, float prec) const
 {
-  std::string tmp;
-  return isEqualIfNotWhy(other,prec,tmp);
+    std::string tmp;
+    return isEqualIfNotWhy(other, prec, tmp);
 }
 
-bool DataArrayFloat::isEqualWithoutConsideringStr(const DataArrayFloat& other, float prec) const
+bool
+DataArrayFloat::isEqualWithoutConsideringStr(const DataArrayFloat &other, float prec) const
 {
-  std::string tmp;
-  return _mem.isEqual(other._mem,prec,tmp);
+    std::string tmp;
+    return _mem.isEqual(other._mem, prec, tmp);
 }
 
-DataArrayFloatIterator *DataArrayFloat::iterator()
+DataArrayFloatIterator *
+DataArrayFloat::iterator()
 {
-  return new DataArrayFloatIterator(this);
+    return new DataArrayFloatIterator(this);
 }
 
-DataArrayFloatIterator::DataArrayFloatIterator(DataArrayFloat *da):DataArrayIterator<float>(da)
+DataArrayFloatIterator::DataArrayFloatIterator(DataArrayFloat *da) : DataArrayIterator<float>(da) {}
+
+DataArrayFloatTuple::DataArrayFloatTuple(float *pt, std::size_t nbOfComp) : DataArrayTuple<float>(pt, nbOfComp) {}
+
+std::string
+DataArrayFloatTuple::repr() const
 {
+    std::ostringstream oss;
+    oss.precision(7);
+    oss << "(";
+    for (std::size_t i = 0; i < _nb_of_compo - 1; i++) oss << _pt[i] << ", ";
+    oss << _pt[_nb_of_compo - 1] << ")";
+    return oss.str();
 }
 
-DataArrayFloatTuple::DataArrayFloatTuple(float *pt, std::size_t nbOfComp):DataArrayTuple<float>(pt,nbOfComp)
+float
+DataArrayFloatTuple::floatValue() const
 {
-}
-
-std::string DataArrayFloatTuple::repr() const
-{
-  std::ostringstream oss; oss.precision(7); oss << "(";
-  for(std::size_t i=0;i<_nb_of_compo-1;i++)
-    oss << _pt[i] << ", ";
-  oss << _pt[_nb_of_compo-1] << ")";
-  return oss.str();
-}
-
-float DataArrayFloatTuple::floatValue() const
-{
-  return this->zeValue();
+    return this->zeValue();
 }
 
 /*!
- * This method returns a newly allocated instance the caller should dealed with by a MEDCoupling::DataArrayFloat::decrRef.
- * This method performs \b no copy of data. The content is only referenced using MEDCoupling::DataArrayFloat::useArray with ownership set to \b false.
- * This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
+ * This method returns a newly allocated instance the caller should dealed with by a
+ * MEDCoupling::DataArrayFloat::decrRef. This method performs \b no copy of data. The content is only referenced using
+ * MEDCoupling::DataArrayFloat::useArray with ownership set to \b false. This method throws an INTERP_KERNEL::Exception
+ * is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
  * \b nbOfCompo=1 and \bnbOfTuples==this->_nb_of_elem.
  */
-DataArrayFloat *DataArrayFloatTuple::buildDAFloat(std::size_t nbOfTuples, std::size_t nbOfCompo) const
+DataArrayFloat *
+DataArrayFloatTuple::buildDAFloat(std::size_t nbOfTuples, std::size_t nbOfCompo) const
 {
-  return this->buildDA(nbOfTuples,nbOfCompo);
+    return this->buildDA(nbOfTuples, nbOfCompo);
 }

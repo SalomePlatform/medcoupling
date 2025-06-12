@@ -26,13 +26,13 @@
 #define ICoCo_DeclSpec_included
 
 #ifdef WIN32
-#  if defined medicoco_EXPORTS
-#    define ICOCO_EXPORT __declspec( dllexport )
-#  else
-#    define ICOCO_EXPORT __declspec( dllimport )
-#  endif
+#if defined medicoco_EXPORTS
+#define ICOCO_EXPORT __declspec(dllexport)
 #else
-#  define ICOCO_EXPORT
+#define ICOCO_EXPORT __declspec(dllimport)
+#endif
+#else
+#define ICOCO_EXPORT
 #endif
 
-#endif // ICoCo_DeclSpec_included
+#endif  // ICoCo_DeclSpec_included

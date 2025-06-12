@@ -27,21 +27,22 @@
 
 namespace MEDCoupling
 {
-  class DataArrayInt;
+class DataArrayInt;
 }
 
 namespace MEDPARTITIONER
 {
-  class MEDPARTITIONER_EXPORT PTSCOTCHGraph : public Graph
-  {
-  public:
-    PTSCOTCHGraph() { }
-    PTSCOTCHGraph(MEDCoupling::MEDCouplingSkyLineArray* , int *edgeweight=0, DataArrayIdType *vlbloctab=0);
+class MEDPARTITIONER_EXPORT PTSCOTCHGraph : public Graph
+{
+   public:
+    PTSCOTCHGraph() {}
+    PTSCOTCHGraph(MEDCoupling::MEDCouplingSkyLineArray *, int *edgeweight = 0, DataArrayIdType *vlbloctab = 0);
     virtual ~PTSCOTCHGraph();
-    void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector* sel=0);
-  protected:
+    void partGraph(int ndomain, const std::string &options_string = "", ParaDomainSelector *sel = 0);
+
+   protected:
     MEDCoupling::DataArrayIdType *_vlbloctab;
-  };
-}
+};
+}  // namespace MEDPARTITIONER
 
 #endif

@@ -17,7 +17,6 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-
 #include "NodesBuilder.hxx"
 #include "Nodes.hxx"
 #include "MathOps.hxx"
@@ -25,12 +24,10 @@
 
 using namespace MEDCoupling;
 
-NodesBuilder::NodesBuilder(
-    const MEDCouplingUMesh *mesh) : mesh(mesh)
-{
-}
+NodesBuilder::NodesBuilder(const MEDCouplingUMesh *mesh) : mesh(mesh) {}
 
-Nodes *NodesBuilder::build()
+Nodes *
+NodesBuilder::build()
 {
     DataArrayInt64 *neighbors;
     DataArrayInt64 *neighborsIdx;
@@ -41,7 +38,8 @@ Nodes *NodesBuilder::build()
     return nodes;
 }
 
-void NodesBuilder::computeNormals()
+void
+NodesBuilder::computeNormals()
 {
     mcIdType nbNodes = mesh->getNumberOfNodes();
     mcIdType nbCells = mesh->getNumberOfCells();
@@ -65,30 +63,27 @@ void NodesBuilder::computeNormals()
     mesh->getReverseNodalConnectivity(revNodal, revNodalIdx);
     for (size_t nodeId = 0; nodeId < (size_t)nbNodes; nodeId++)
     {
-        mcIdType nbCells = revNodalIdx->getIJ(nodeId + 1, 0) -
-                           revNodalIdx->getIJ(nodeId, 0);
+        mcIdType nbCells = revNodalIdx->getIJ(nodeId + 1, 0) - revNodalIdx->getIJ(nodeId, 0);
         std::vector<mcIdType> cellIds(nbCells, 0);
         mcIdType start = revNodalIdx->getIJ(nodeId, 0);
-        for (size_t i = 0; i < cellIds.size(); ++i)
-            cellIds[i] = revNodal->getIJ(start + i, 0);
+        for (size_t i = 0; i < cellIds.size(); ++i) cellIds[i] = revNodal->getIJ(start + i, 0);
         double normal = 0.0;
         for (size_t i = 0; i < 3; i++)
         {
             nodes->normals[3 * nodeId + i] = 0.0;
             for (mcIdType j = 0; j < nbCells; j++)
             {
-                nodes->normals[3 * nodeId + i] +=
-                    prodNormalAreaByCell[3 * cellIds[j] + i];
+                nodes->normals[3 * nodeId + i] += prodNormalAreaByCell[3 * cellIds[j] + i];
             }
             nodes->normals[3 * nodeId + i] /= (double)nbCells;
             normal += pow(nodes->normals[3 * nodeId + i], 2);
         }
-        for (size_t i = 0; i < 3; i++)
-            nodes->normals[3 * nodeId + i] /= sqrt(normal);
+        for (size_t i = 0; i < 3; i++) nodes->normals[3 * nodeId + i] /= sqrt(normal);
     }
 }
 
-void NodesBuilder::computeCurvatures(double tol)
+void
+NodesBuilder::computeCurvatures(double tol)
 {
     mcIdType nbNodes = mesh->getNumberOfNodes();
     nodes->k1.resize(nbNodes);
@@ -98,11 +93,11 @@ void NodesBuilder::computeCurvatures(double tol)
     nodes->primitives.resize(nbNodes);
     nodes->weakDirections.resize(3 * nbNodes);
     nodes->mainDirections.resize(3 * nbNodes);
-    for (mcIdType nodeId = 0; nodeId < nbNodes; nodeId++)
-        computeCurvatures(nodeId, tol);
+    for (mcIdType nodeId = 0; nodeId < nbNodes; nodeId++) computeCurvatures(nodeId, tol);
 }
 
-void NodesBuilder::computeCurvatures(mcIdType nodeId, double tol)
+void
+NodesBuilder::computeCurvatures(mcIdType nodeId, double tol)
 {
     std::array<double, 3> normal = nodes->getNormal(nodeId);
     std::vector<mcIdType> neighborIds = nodes->getNeighbors(nodeId);
@@ -119,15 +114,13 @@ void NodesBuilder::computeCurvatures(mcIdType nodeId, double tol)
         std::vector<double> discreteCurvatures = computeDiscreteCurvatures(nodeId, neighborIds);
         std::vector<double> tangents = computeTangentDirections(nodeId, neighborIds);
         mcIdType maxCurvatureId = std::distance(
-            discreteCurvatures.begin(),
-            std::max_element(discreteCurvatures.begin(), discreteCurvatures.end()));
+            discreteCurvatures.begin(), std::max_element(discreteCurvatures.begin(), discreteCurvatures.end())
+        );
         std::array<double, 3> e1{
-            tangents[3 * maxCurvatureId],
-            tangents[3 * maxCurvatureId + 1],
-            tangents[3 * maxCurvatureId + 2]};
+            tangents[3 * maxCurvatureId], tangents[3 * maxCurvatureId + 1], tangents[3 * maxCurvatureId + 2]
+        };
         std::array<double, 3> e2 = MathOps::normalize(MathOps::cross(e1, normal));
-        std::vector<double> coeffs = computeNormalCurvatureCoefficients(
-            discreteCurvatures, tangents, normal, e1);
+        std::vector<double> coeffs = computeNormalCurvatureCoefficients(discreteCurvatures, tangents, normal, e1);
         double a = coeffs[0], b = coeffs[1], c = coeffs[2];
         double h = (a + c) / 2.0;
         double kg = a * c - pow(b, 2) / 4.0;
@@ -175,7 +168,8 @@ void NodesBuilder::computeCurvatures(mcIdType nodeId, double tol)
     nodes->primitives[nodeId] = primitive;
 }
 
-PrimitiveType NodesBuilder::findPrimitiveType(double k1, double k2, double kdiff0, double kis0) const
+PrimitiveType
+NodesBuilder::findPrimitiveType(double k1, double k2, double kdiff0, double kis0) const
 {
     if ((fabs(k1 - k2) < EPSILON_PRIMITIVE) && (fabs((k1 + k2) / 2) < EPSILON_PRIMITIVE))
         return PrimitiveType::Plane;
@@ -189,36 +183,34 @@ PrimitiveType NodesBuilder::findPrimitiveType(double k1, double k2, double kdiff
         return PrimitiveType::Unknown;
 }
 
-PrimitiveType NodesBuilder::findPrimitiveType2(double k1, double k2, double kdiff0, double kis0) const
+PrimitiveType
+NodesBuilder::findPrimitiveType2(double k1, double k2, double kdiff0, double kis0) const
 {
     double epsilon2 = pow(EPSILON_PRIMITIVE, 2);
     double diffCurvature = fabs(k1 - k2);
     double gaussianCurvature = k1 * k2;
     double meanCurvature = (k1 + k2) / 2.0;
-    if (fabs(k1) < EPSILON_PRIMITIVE &&
-        fabs(k2) < EPSILON_PRIMITIVE &&
-        gaussianCurvature < epsilon2 &&
+    if (fabs(k1) < EPSILON_PRIMITIVE && fabs(k2) < EPSILON_PRIMITIVE && gaussianCurvature < epsilon2 &&
         meanCurvature < EPSILON_PRIMITIVE)
         return PrimitiveType::Plane;
     else if (diffCurvature < EPSILON_PRIMITIVE && k1 > EPSILON_PRIMITIVE && k2 > EPSILON_PRIMITIVE)
         return PrimitiveType::Sphere;
-    else if (
-        (fabs(k1) > EPSILON_PRIMITIVE && fabs(k2) < EPSILON_PRIMITIVE) ||
-        (fabs(k1) < EPSILON_PRIMITIVE && fabs(k2) > EPSILON_PRIMITIVE))
+    else if ((fabs(k1) > EPSILON_PRIMITIVE && fabs(k2) < EPSILON_PRIMITIVE) ||
+             (fabs(k1) < EPSILON_PRIMITIVE && fabs(k2) > EPSILON_PRIMITIVE))
         return PrimitiveType::Cylinder;
-    else if (
-        std::signbit(k1) != std::signbit(k2) ||
-        (fabs(k1) < EPSILON_PRIMITIVE && fabs(k2) < EPSILON_PRIMITIVE))
+    else if (std::signbit(k1) != std::signbit(k2) || (fabs(k1) < EPSILON_PRIMITIVE && fabs(k2) < EPSILON_PRIMITIVE))
         return PrimitiveType::Torus;
     else
         return PrimitiveType::Unknown;
 }
 
-std::vector<double> NodesBuilder::computeNormalCurvatureCoefficients(
+std::vector<double>
+NodesBuilder::computeNormalCurvatureCoefficients(
     const std::vector<double> &discreteCurvatures,
     const std::vector<double> &tangents,
     const std::array<double, 3> &normal,
-    const std::array<double, 3> &e1) const
+    const std::array<double, 3> &e1
+) const
 {
     size_t nbNeighbors = discreteCurvatures.size();
     std::vector<double> a(3 * nbNeighbors, 0.0);
@@ -235,9 +227,8 @@ std::vector<double> NodesBuilder::computeNormalCurvatureCoefficients(
     return MathOps::lstsq(a, discreteCurvatures);
 }
 
-void NodesBuilder::computeCellNormal(
-    const std::vector<mcIdType> &nodeIds,
-    std::array<double, 3> &cellNormal) const
+void
+NodesBuilder::computeCellNormal(const std::vector<mcIdType> &nodeIds, std::array<double, 3> &cellNormal) const
 {
     std::vector<double> point1;
     std::vector<double> point2;
@@ -259,25 +250,23 @@ void NodesBuilder::computeCellNormal(
     cellNormal[2] = a[0] * b[1] - a[1] * b[0];
 }
 
-double NodesBuilder::computeAverageDistance(mcIdType nodeId, const std::vector<mcIdType> &neighborIds) const
+double
+NodesBuilder::computeAverageDistance(mcIdType nodeId, const std::vector<mcIdType> &neighborIds) const
 {
     double distance = 0.0;
-    std::array<double, 3>
-        nodeCoords = nodes->getCoordinates(nodeId);
+    std::array<double, 3> nodeCoords = nodes->getCoordinates(nodeId);
     for (size_t i = 0; i < neighborIds.size(); ++i)
     {
         std::array<double, 3> neighborCoords = nodes->getCoordinates(neighborIds[i]);
         double distanceToNeighbor = 0.0;
-        for (size_t j = 0; j < 3; ++j)
-            distanceToNeighbor += pow(neighborCoords[j] - nodeCoords[j], 2);
+        for (size_t j = 0; j < 3; ++j) distanceToNeighbor += pow(neighborCoords[j] - nodeCoords[j], 2);
         distance += sqrt(distanceToNeighbor);
     }
     return distance / (double)neighborIds.size();
 }
 
-std::vector<double> NodesBuilder::computeDiscreteCurvatures(
-    mcIdType nodeId,
-    const std::vector<mcIdType> &neighborIds) const
+std::vector<double>
+NodesBuilder::computeDiscreteCurvatures(mcIdType nodeId, const std::vector<mcIdType> &neighborIds) const
 {
     std::vector<double> discreteCurvatures(neighborIds.size(), 0.0);
     for (size_t i = 0; i < neighborIds.size(); ++i)
@@ -285,9 +274,8 @@ std::vector<double> NodesBuilder::computeDiscreteCurvatures(
     return discreteCurvatures;
 }
 
-double NodesBuilder::computeDiscreteCurvature(
-    mcIdType nodeId,
-    mcIdType neighborId) const
+double
+NodesBuilder::computeDiscreteCurvature(mcIdType nodeId, mcIdType neighborId) const
 {
     double curvature = 0.0;
     double n = 0.0;
@@ -300,9 +288,8 @@ double NodesBuilder::computeDiscreteCurvature(
     return curvature / n;
 }
 
-std::vector<double> NodesBuilder::computeTangentDirections(
-    mcIdType nodeId,
-    const std::vector<mcIdType> &neighborIds) const
+std::vector<double>
+NodesBuilder::computeTangentDirections(mcIdType nodeId, const std::vector<mcIdType> &neighborIds) const
 {
     size_t nbNeighbors = neighborIds.size();
     std::vector<double> tangent(3 * nbNeighbors, 0.0);
@@ -321,8 +308,7 @@ std::vector<double> NodesBuilder::computeTangentDirections(
             tangent[3 * i + j] -= s * nodes->normals[3 * nodeId + j];
             n += tangent[3 * i + j] * tangent[3 * i + j];
         }
-        for (size_t j = 0; j < 3; j++)
-            tangent[3 * i + j] /= sqrt(n);
+        for (size_t j = 0; j < 3; j++) tangent[3 * i + j] /= sqrt(n);
     }
     return tangent;
 }

@@ -28,30 +28,56 @@
 namespace MEDCoupling
 {
 
-  /*!
-   * Internal class, not part of the public API.
-   *
-   * Abstract class for all time-related interpolation in a parallel context.
-   */
-  class TimeInterpolator
-  {
-  public:
-    TimeInterpolator( double InterpPrecision, int nStepBefore=1, int nStepAfter=1 );
+/*!
+ * Internal class, not part of the public API.
+ *
+ * Abstract class for all time-related interpolation in a parallel context.
+ */
+class TimeInterpolator
+{
+   public:
+    TimeInterpolator(double InterpPrecision, int nStepBefore = 1, int nStepAfter = 1);
     virtual ~TimeInterpolator();
 
-    void setInterpParams( double InterpPrecision, int nStepBefore=1, int nStepAfter=1 ) { _interp_precision=InterpPrecision; _n_step_before=nStepBefore; _n_step_after=nStepAfter; }
-    void steps( int &nStepBefore, int &nStepAfter ) { nStepBefore=_n_step_before; nStepAfter=_n_step_after ; }
-    virtual void doInterp( double time0, double time1, double time, int recvcount ,
-                           int nbuff0, int nbuff1,
-                           int **recvbuff0, int **recvbuff1, int *result ) = 0;
-    virtual void doInterp( double time0, double time1, double time, int recvcount ,
-                           int nbuff0, int nbuff1,
-                           double **recvbuff0, double **recvbuff1, double *result ) = 0;
-  protected :
+    void setInterpParams(double InterpPrecision, int nStepBefore = 1, int nStepAfter = 1)
+    {
+        _interp_precision = InterpPrecision;
+        _n_step_before = nStepBefore;
+        _n_step_after = nStepAfter;
+    }
+    void steps(int &nStepBefore, int &nStepAfter)
+    {
+        nStepBefore = _n_step_before;
+        nStepAfter = _n_step_after;
+    }
+    virtual void doInterp(
+        double time0,
+        double time1,
+        double time,
+        int recvcount,
+        int nbuff0,
+        int nbuff1,
+        int **recvbuff0,
+        int **recvbuff1,
+        int *result
+    ) = 0;
+    virtual void doInterp(
+        double time0,
+        double time1,
+        double time,
+        int recvcount,
+        int nbuff0,
+        int nbuff1,
+        double **recvbuff0,
+        double **recvbuff1,
+        double *result
+    ) = 0;
+
+   protected:
     double _interp_precision;
     int _n_step_before;
     int _n_step_after;
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

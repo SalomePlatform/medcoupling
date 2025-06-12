@@ -29,91 +29,92 @@
 
 namespace INTERP_TEST
 {
-  class INTERPKERNELTEST_EXPORT QuadraticPlanarInterpTest : public CppUnit::TestFixture
-  {
-    CPPUNIT_TEST_SUITE( QuadraticPlanarInterpTest );
-    CPPUNIT_TEST( ReadWriteInXfigElementary );
-    CPPUNIT_TEST( ReadWriteInXfigGlobal );
-    CPPUNIT_TEST( BasicGeometricTools );
-    CPPUNIT_TEST( IntersectionBasics );
-    CPPUNIT_TEST( EdgeLinUnitary );
-    CPPUNIT_TEST( IntersectionEdgeOverlapUnitarySegSeg );
-    CPPUNIT_TEST( IntersectionPointOnlyUnitarySegSeg );
-    CPPUNIT_TEST( IntersectArcCircleBase );
-    CPPUNIT_TEST( IntersectArcCircleFull );
-    CPPUNIT_TEST( IntersectArcCircleSegumentBase );
-    CPPUNIT_TEST( checkInOutDetection );
-    CPPUNIT_TEST( checkAssemblingBases1 );
-    CPPUNIT_TEST( checkAssemblingBases2 );
-    CPPUNIT_TEST( checkPolygonsIntersection1 );
-    CPPUNIT_TEST( checkPolygonsIntersection2 );
-    CPPUNIT_TEST( checkAreasCalculations );
-    CPPUNIT_TEST( checkBarycenterCalculations );
-    CPPUNIT_TEST( checkHighLevelFunctionTest1 );
-    CPPUNIT_TEST( check1DInterpLin );
-    CPPUNIT_TEST( checkEpsilonCoherency1 );
-    CPPUNIT_TEST( checkNonRegression1 );
-    CPPUNIT_TEST( checkNonRegression2 );
-    CPPUNIT_TEST( checkNonRegression3 );
-    CPPUNIT_TEST( checkNonRegression4 );
-    CPPUNIT_TEST( checkNonRegression5 );
-    CPPUNIT_TEST( checkNonRegression6 );
-    CPPUNIT_TEST( checkNonRegression7 );
-    CPPUNIT_TEST( checkNonRegression8 );
-    CPPUNIT_TEST( checkNonRegression9 );
-    CPPUNIT_TEST( checkNonRegression10 );
-    CPPUNIT_TEST( checkNonRegression11 );
-    CPPUNIT_TEST( checkNonRegression12 );
-    CPPUNIT_TEST ( checkNonRegression13 );
-    CPPUNIT_TEST ( checkNonRegression14 );
-    CPPUNIT_TEST ( checkNonRegression15 );
-    CPPUNIT_TEST ( checkNonRegression16 );
-    CPPUNIT_TEST ( checkNonRegression17 );
+class INTERPKERNELTEST_EXPORT QuadraticPlanarInterpTest : public CppUnit::TestFixture
+{
+    CPPUNIT_TEST_SUITE(QuadraticPlanarInterpTest);
+    CPPUNIT_TEST(ReadWriteInXfigElementary);
+    CPPUNIT_TEST(ReadWriteInXfigGlobal);
+    CPPUNIT_TEST(BasicGeometricTools);
+    CPPUNIT_TEST(IntersectionBasics);
+    CPPUNIT_TEST(EdgeLinUnitary);
+    CPPUNIT_TEST(IntersectionEdgeOverlapUnitarySegSeg);
+    CPPUNIT_TEST(IntersectionPointOnlyUnitarySegSeg);
+    CPPUNIT_TEST(IntersectArcCircleBase);
+    CPPUNIT_TEST(IntersectArcCircleFull);
+    CPPUNIT_TEST(IntersectArcCircleSegumentBase);
+    CPPUNIT_TEST(checkInOutDetection);
+    CPPUNIT_TEST(checkAssemblingBases1);
+    CPPUNIT_TEST(checkAssemblingBases2);
+    CPPUNIT_TEST(checkPolygonsIntersection1);
+    CPPUNIT_TEST(checkPolygonsIntersection2);
+    CPPUNIT_TEST(checkAreasCalculations);
+    CPPUNIT_TEST(checkBarycenterCalculations);
+    CPPUNIT_TEST(checkHighLevelFunctionTest1);
+    CPPUNIT_TEST(check1DInterpLin);
+    CPPUNIT_TEST(checkEpsilonCoherency1);
+    CPPUNIT_TEST(checkNonRegression1);
+    CPPUNIT_TEST(checkNonRegression2);
+    CPPUNIT_TEST(checkNonRegression3);
+    CPPUNIT_TEST(checkNonRegression4);
+    CPPUNIT_TEST(checkNonRegression5);
+    CPPUNIT_TEST(checkNonRegression6);
+    CPPUNIT_TEST(checkNonRegression7);
+    CPPUNIT_TEST(checkNonRegression8);
+    CPPUNIT_TEST(checkNonRegression9);
+    CPPUNIT_TEST(checkNonRegression10);
+    CPPUNIT_TEST(checkNonRegression11);
+    CPPUNIT_TEST(checkNonRegression12);
+    CPPUNIT_TEST(checkNonRegression13);
+    CPPUNIT_TEST(checkNonRegression14);
+    CPPUNIT_TEST(checkNonRegression15);
+    CPPUNIT_TEST(checkNonRegression16);
+    CPPUNIT_TEST(checkNonRegression17);
     //
-    CPPUNIT_TEST ( checkNonRegressionOmar0000 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0001 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0002 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0003 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0004 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0005 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0006 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0007 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0008 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0009 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0010 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0011 );
-    CPPUNIT_TEST ( checkNonRegressionOmar2511 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0012 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0013 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0014 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0015 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0016 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0017 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0018 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0019 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0020 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0021 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0022 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0023 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0024 );
-    CPPUNIT_TEST ( checkNonRegressionOmar2524 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0025 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0026 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0027 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0028 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0029 );
-    CPPUNIT_TEST ( checkNonRegressionOmar0030 );
+    CPPUNIT_TEST(checkNonRegressionOmar0000);
+    CPPUNIT_TEST(checkNonRegressionOmar0001);
+    CPPUNIT_TEST(checkNonRegressionOmar0002);
+    CPPUNIT_TEST(checkNonRegressionOmar0003);
+    CPPUNIT_TEST(checkNonRegressionOmar0004);
+    CPPUNIT_TEST(checkNonRegressionOmar0005);
+    CPPUNIT_TEST(checkNonRegressionOmar0006);
+    CPPUNIT_TEST(checkNonRegressionOmar0007);
+    CPPUNIT_TEST(checkNonRegressionOmar0008);
+    CPPUNIT_TEST(checkNonRegressionOmar0009);
+    CPPUNIT_TEST(checkNonRegressionOmar0010);
+    CPPUNIT_TEST(checkNonRegressionOmar0011);
+    CPPUNIT_TEST(checkNonRegressionOmar2511);
+    CPPUNIT_TEST(checkNonRegressionOmar0012);
+    CPPUNIT_TEST(checkNonRegressionOmar0013);
+    CPPUNIT_TEST(checkNonRegressionOmar0014);
+    CPPUNIT_TEST(checkNonRegressionOmar0015);
+    CPPUNIT_TEST(checkNonRegressionOmar0016);
+    CPPUNIT_TEST(checkNonRegressionOmar0017);
+    CPPUNIT_TEST(checkNonRegressionOmar0018);
+    CPPUNIT_TEST(checkNonRegressionOmar0019);
+    CPPUNIT_TEST(checkNonRegressionOmar0020);
+    CPPUNIT_TEST(checkNonRegressionOmar0021);
+    CPPUNIT_TEST(checkNonRegressionOmar0022);
+    CPPUNIT_TEST(checkNonRegressionOmar0023);
+    CPPUNIT_TEST(checkNonRegressionOmar0024);
+    CPPUNIT_TEST(checkNonRegressionOmar2524);
+    CPPUNIT_TEST(checkNonRegressionOmar0025);
+    CPPUNIT_TEST(checkNonRegressionOmar0026);
+    CPPUNIT_TEST(checkNonRegressionOmar0027);
+    CPPUNIT_TEST(checkNonRegressionOmar0028);
+    CPPUNIT_TEST(checkNonRegressionOmar0029);
+    CPPUNIT_TEST(checkNonRegressionOmar0030);
     //
-    CPPUNIT_TEST( checkNormalize );
-    CPPUNIT_TEST( checkMakePartitionAbs1 );
+    CPPUNIT_TEST(checkNormalize);
+    CPPUNIT_TEST(checkMakePartitionAbs1);
     //
-    CPPUNIT_TEST( checkIsInOrOut );
-    CPPUNIT_TEST( checkGetMiddleOfPoints );
-    CPPUNIT_TEST( checkGetMiddleOfPointsOriented );
-    CPPUNIT_TEST( checkArcArcIntersection1 );
+    CPPUNIT_TEST(checkIsInOrOut);
+    CPPUNIT_TEST(checkGetMiddleOfPoints);
+    CPPUNIT_TEST(checkGetMiddleOfPointsOriented);
+    CPPUNIT_TEST(checkArcArcIntersection1);
 
     CPPUNIT_TEST_SUITE_END();
-  public:
+
+   public:
     void setUp();
     void tearDown();
     void cleanUp();
@@ -206,12 +207,16 @@ namespace INTERP_TEST
     void checkGetMiddleOfPointsOriented();
     void checkArcArcIntersection1();
 
-  private:
+   private:
     INTERP_KERNEL::QuadraticPolygon *buildQuadraticPolygonCoarseInfo(const double *coords, const int *conn, int lgth);
-    INTERP_KERNEL::EdgeArcCircle *buildArcOfCircle(const double *center, double radius, double alphaStart, double alphaEnd);
-    double btw2NodesAndACenter(const INTERP_KERNEL::Node& n1, const INTERP_KERNEL::Node& n2, const double *center);
-    void checkBasicsOfPolygons(INTERP_KERNEL::QuadraticPolygon& pol1, INTERP_KERNEL::QuadraticPolygon& pol2, bool checkDirection);
-  };
-}
+    INTERP_KERNEL::EdgeArcCircle *buildArcOfCircle(
+        const double *center, double radius, double alphaStart, double alphaEnd
+    );
+    double btw2NodesAndACenter(const INTERP_KERNEL::Node &n1, const INTERP_KERNEL::Node &n2, const double *center);
+    void checkBasicsOfPolygons(
+        INTERP_KERNEL::QuadraticPolygon &pol1, INTERP_KERNEL::QuadraticPolygon &pol2, bool checkDirection
+    );
+};
+}  // namespace INTERP_TEST
 
 #endif

@@ -5,14 +5,14 @@ Playing with NumPy and SciPy
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
-	
+
 	import medcoupling as mc
-	
+
 	#
 	# NumPy
 	#
 	import numpy as np
-	
+
 	# Checking NumPy binding
 	assert(mc.MEDCouplingHasNumPyBindings())
 	# Playing with conversion and shared data

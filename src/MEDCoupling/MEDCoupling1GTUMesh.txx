@@ -23,56 +23,65 @@
 
 #include <sstream>
 
-template<class MAPCLS>
-void MEDCoupling::MEDCoupling1SGTUMesh::renumberNodesInConnT(const MAPCLS& newNodeNumbersO2N)
+template <class MAPCLS>
+void
+MEDCoupling::MEDCoupling1SGTUMesh::renumberNodesInConnT(const MAPCLS &newNodeNumbersO2N)
 {
-  getNumberOfCells();//only to check that all is well defined.
-  mcIdType *begPtr(_conn->getPointer());
-  mcIdType nbElt(_conn->getNumberOfTuples());
-  mcIdType *endPtr(begPtr+nbElt);
-  for(mcIdType *it=begPtr;it!=endPtr;it++)
+    getNumberOfCells();  // only to check that all is well defined.
+    mcIdType *begPtr(_conn->getPointer());
+    mcIdType nbElt(_conn->getNumberOfTuples());
+    mcIdType *endPtr(begPtr + nbElt);
+    for (mcIdType *it = begPtr; it != endPtr; it++)
     {
-      auto it2(newNodeNumbersO2N.find(*it));
-      if(it2!=newNodeNumbersO2N.end())
+        auto it2(newNodeNumbersO2N.find(*it));
+        if (it2 != newNodeNumbersO2N.end())
         {
-          *it=(*it2).second;
+            *it = (*it2).second;
         }
-      else
+        else
         {
-          std::ostringstream oss; oss << "MEDCoupling1SGTUMesh::renumberNodesInConn : At pos #" << std::distance(begPtr,it) << " of nodal connectivity value is " << *it << ". Not in map !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+            std::ostringstream oss;
+            oss << "MEDCoupling1SGTUMesh::renumberNodesInConn : At pos #" << std::distance(begPtr, it)
+                << " of nodal connectivity value is " << *it << ". Not in map !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  updateTime();
+    updateTime();
 }
 
-template<class MAPCLS>
-void MEDCoupling::MEDCoupling1DGTUMesh::renumberNodesInConnT(const MAPCLS& newNodeNumbersO2N)
+template <class MAPCLS>
+void
+MEDCoupling::MEDCoupling1DGTUMesh::renumberNodesInConnT(const MAPCLS &newNodeNumbersO2N)
 {
-  getNumberOfCells();//only to check that all is well defined.
-  //
-  mcIdType nbOfTuples(_conn->getNumberOfTuples());
-  mcIdType *pt(_conn->getPointer());
-  for(mcIdType i=0;i<nbOfTuples;i++,pt++)
+    getNumberOfCells();  // only to check that all is well defined.
+    //
+    mcIdType nbOfTuples(_conn->getNumberOfTuples());
+    mcIdType *pt(_conn->getPointer());
+    for (mcIdType i = 0; i < nbOfTuples; i++, pt++)
     {
-      if(*pt==-1) continue;
-      if(*pt>=0)
+        if (*pt == -1)
+            continue;
+        if (*pt >= 0)
         {
-          auto it(newNodeNumbersO2N.find(*pt));
-          if(it!=newNodeNumbersO2N.end())
-            *pt=(*it).second;
-          else
+            auto it(newNodeNumbersO2N.find(*pt));
+            if (it != newNodeNumbersO2N.end())
+                *pt = (*it).second;
+            else
             {
-              std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::renumberNodesInConn : At pos #" << i << " of connectivity, node id is " << *pt << ". Not in keys of input map !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+                std::ostringstream oss;
+                oss << "MEDCoupling1DGTUMesh::renumberNodesInConn : At pos #" << i << " of connectivity, node id is "
+                    << *pt << ". Not in keys of input map !";
+                throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
         }
-      else
+        else
         {
-          std::ostringstream oss; oss << "MEDCoupling1DGTUMesh::renumberNodesInConn : error on tuple #" << i << " value is " << *pt << " ! Should be >=0 !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+            std::ostringstream oss;
+            oss << "MEDCoupling1DGTUMesh::renumberNodesInConn : error on tuple #" << i << " value is " << *pt
+                << " ! Should be >=0 !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  //
-  updateTime();
+    //
+    updateTime();
 }

@@ -20,15 +20,15 @@
 #ifndef __RENUMBERDEFINES_HXX__
 #define __RENUMBERDEFINES_HXX__
 
-//export symbols
+// export symbols
 #ifdef WIN32
-# if defined RENUMBERCPP_EXPORTS || defined renumbercpp_EXPORTS
-#  define RENUMBER_EXPORT __declspec(dllexport)
-# else
-#  define RENUMBER_EXPORT __declspec(dllimport)
-# endif
+#if defined RENUMBERCPP_EXPORTS || defined renumbercpp_EXPORTS
+#define RENUMBER_EXPORT __declspec(dllexport)
 #else
-# define RENUMBER_EXPORT
+#define RENUMBER_EXPORT __declspec(dllimport)
+#endif
+#else
+#define RENUMBER_EXPORT
 #endif
 
-#endif // __RENUMBERDEFINES_HXX__
+#endif  // __RENUMBERDEFINES_HXX__

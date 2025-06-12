@@ -26,36 +26,42 @@
 
 namespace INTERP_KERNEL
 {
-  class INTERPKERNEL_EXPORT SegSegIntersector : SameTypeEdgeIntersector
-  {
+class INTERPKERNEL_EXPORT SegSegIntersector : SameTypeEdgeIntersector
+{
     friend class Edge;
-  public:
-    SegSegIntersector(const EdgeLin& e1, const EdgeLin& e2);
+
+   public:
+    SegSegIntersector(const EdgeLin &e1, const EdgeLin &e2);
     bool areColinears() const;
     bool haveTheySameDirection() const;
-    void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const;
-    void areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped);
-    std::list< IntersectElement > getIntersectionsCharacteristicVal() const;
-  private:
-    void getCurveAbscisse(Node *node, TypeOfLocInEdge& where, MergePoints& commonNode) const;
-  private:
+    void getPlacements(
+        Node *start, Node *end, TypeOfLocInEdge &whereStart, TypeOfLocInEdge &whereEnd, MergePoints &commonNode
+    ) const;
+    void areOverlappedOrOnlyColinears(bool &obviousNoIntersection, bool &areOverlapped);
+    std::list<IntersectElement> getIntersectionsCharacteristicVal() const;
+
+   private:
+    void getCurveAbscisse(Node *node, TypeOfLocInEdge &where, MergePoints &commonNode) const;
+
+   private:
     //! index on which all single index op will be performed. Filled in case colinearity is equal to true.
     int _ind;
     double _col[2];
-    double _matrix[4];               //SPACEDIM*SPACEDIM  = [e1_x, e1_y, e2_x, e2_y]
+    double _matrix[4];  // SPACEDIM*SPACEDIM  = [e1_x, e1_y, e2_x, e2_y]
     double _determinant;
-  };
+};
 
-  class INTERPKERNEL_EXPORT EdgeLin : public Edge
-  {
+class INTERPKERNEL_EXPORT EdgeLin : public Edge
+{
     friend class SegSegIntersector;
-  public:
-    EdgeLin(std::istream& lineInXfig);
-    EdgeLin(Node *start, Node *end, bool direction=true);
+
+   public:
+    EdgeLin(std::istream &lineInXfig);
+    EdgeLin(Node *start, Node *end, bool direction = true);
     EdgeLin(double sX, double sY, double eX, double eY);
     ~EdgeLin();
     TypeOfFunction getTypeOfFunc() const { return SEG; }
-    void dumpInXfigFile(std::ostream& stream, bool direction, int resolution, const Bounds& box) const;
+    void dumpInXfigFile(std::ostream &stream, bool direction, int resolution, const Bounds &box) const;
     void update(Node *m);
     double getNormSq() const;
     double getAreaOfZone() const;
@@ -65,20 +71,20 @@ namespace INTERP_KERNEL
     void getMiddleOfPoints(const double *p1, const double *p2, double *mid) const;
     bool isIn(double characterVal) const;
     Node *buildRepresentantOfMySelf() const;
-    double getCharactValue(const Node& node) const;
-    double getCharactValueBtw0And1(const Node& node) const;
+    double getCharactValue(const Node &node) const;
+    double getCharactValueBtw0And1(const Node &node) const;
     double getDistanceToPoint(const double *pt) const;
     bool isNodeLyingOn(const double *coordOfNode) const;
-    bool isLower(double val1, double val2) const { return val1<val2; }
+    bool isLower(double val1, double val2) const { return val1 < val2; }
     double getCharactValueEng(const double *node) const;
-    bool doIHaveSameDirectionAs(const Edge& other) const;
-    void dynCastFunction(const EdgeLin * &seg,
-                         const EdgeArcCircle * &arcSeg) const { seg=this; }
-  protected:
-    EdgeLin() { }
+    bool doIHaveSameDirectionAs(const Edge &other) const;
+    void dynCastFunction(const EdgeLin *&seg, const EdgeArcCircle *&arcSeg) const { seg = this; }
+
+   protected:
+    EdgeLin() {}
     void updateBounds();
     Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction) const;
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

@@ -23,7 +23,7 @@
 
 // --- Registers the fixture into the 'registry'
 
-CPPUNIT_TEST_SUITE_REGISTRATION( ParaMEDMEMTest );
+CPPUNIT_TEST_SUITE_REGISTRATION(ParaMEDMEMTest);
 
 // --- generic Main program from KERNEL_SRC/src/Basics/Test
 

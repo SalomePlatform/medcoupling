@@ -28,24 +28,25 @@
 
 namespace INTERP_KERNEL
 {
-  /*!
-   * \brief Interpolator of cartesian/cartesian meshes
-   */
-  class InterpolationCC : public Interpolation<InterpolationCC>
-  {
-//     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-//     static const int MESHDIM=MyMeshType::MY_MESHDIM;
-//     typedef typename MyMeshType::MyConnType ConnType;
-//     static const NumberingPolicy numPol=MyMeshType::My_numPol;
-  public:
+/*!
+ * \brief Interpolator of cartesian/cartesian meshes
+ */
+class InterpolationCC : public Interpolation<InterpolationCC>
+{
+    //     static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
+    //     static const int MESHDIM=MyMeshType::MY_MESHDIM;
+    //     typedef typename MyMeshType::MyConnType ConnType;
+    //     static const NumberingPolicy numPol=MyMeshType::My_numPol;
+   public:
     InterpolationCC();
-    InterpolationCC(const InterpolationOptions& io);
-    template<class MyMeshType, class MatrixType>
-    typename MyMeshType::MyConnType interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const char *method);
+    InterpolationCC(const InterpolationOptions &io);
+    template <class MyMeshType, class MatrixType>
+    typename MyMeshType::MyConnType interpolateMeshes(
+        const MyMeshType &srcMesh, const MyMeshType &targetMesh, MatrixType &result, const char *method
+    );
 
-  private:
-  };
-}
-
+   private:
+};
+}  // namespace INTERP_KERNEL
 
 #endif

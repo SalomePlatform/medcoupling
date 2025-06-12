@@ -25,7 +25,8 @@
 
 namespace INTERP_TEST
 {
-  INTERPKERNELTEST_EXPORT std::string getResourceFile( const std::string& filename, int levelUp=2);
+INTERPKERNELTEST_EXPORT std::string
+getResourceFile(const std::string &filename, int levelUp = 2);
 }
 
-#endif // _TESTINTERPKERNELUTILS_HXX_
+#endif  // _TESTINTERPKERNELUTILS_HXX_

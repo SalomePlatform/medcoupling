@@ -66,4 +66,3 @@ namespace INTERP_KERNEL
    */
   typedef enum  { PLANAR_FACE_5 = 5, PLANAR_FACE_6 = 6, GENERAL_24 = 24, GENERAL_48 = 48 } SplittingPolicy;
 }
-

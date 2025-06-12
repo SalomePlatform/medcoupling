@@ -28,19 +28,17 @@
 namespace INTERP_TEST
 {
 
-  /**
-   * \brief Test suite testing some of the low level methods of TransformedTriangle.
-   *
-   */
-  class INTERPKERNELTEST_EXPORT InterpolationOptionsTest : public CppUnit::TestFixture
-  {
-
-    CPPUNIT_TEST_SUITE( InterpolationOptionsTest );
-    CPPUNIT_TEST( test_InterpolationOptions );
+/**
+ * \brief Test suite testing some of the low level methods of TransformedTriangle.
+ *
+ */
+class INTERPKERNELTEST_EXPORT InterpolationOptionsTest : public CppUnit::TestFixture
+{
+    CPPUNIT_TEST_SUITE(InterpolationOptionsTest);
+    CPPUNIT_TEST(test_InterpolationOptions);
     CPPUNIT_TEST_SUITE_END();
 
-
-  public:
+   public:
     void setUp();
 
     void tearDown();
@@ -48,15 +46,9 @@ namespace INTERP_TEST
     // tests
     void test_InterpolationOptions();
 
-  private:
+   private:
+};
 
-  };
-
-
-
-
-}
-
-
+}  // namespace INTERP_TEST
 
 #endif

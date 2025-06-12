@@ -28,12 +28,14 @@
 
 #include <MCIdType.hxx>
 
-namespace MEDCoupling {
+namespace MEDCoupling
+{
 
 class MEDFileUMesh;
 class MEDCouplingUMesh;
 
-class CrackAlgoTest : public CppUnit::TestFixture {
+class CrackAlgoTest : public CppUnit::TestFixture
+{
     CPPUNIT_TEST_SUITE(CrackAlgoTest);
     CPPUNIT_TEST(test3DHalfCrossCut);
     CPPUNIT_TEST(test3DFullCrossCut);
@@ -47,8 +49,7 @@ class CrackAlgoTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(testInnerCrossCut);
     CPPUNIT_TEST_SUITE_END();
 
- public:
-
+   public:
     void test3DHalfCrossCut();
     void test3DFullCrossCut();
     void test3DAngleCut();
@@ -60,49 +61,33 @@ class CrackAlgoTest : public CppUnit::TestFixture {
     void test1DMesh();
     void testInnerCrossCut();
 
- private:
+   private:
     using Connections = std::vector<std::pair<mcIdType, mcIdType>>;
-    static std::pair<bool, bool>
-    TestCrack(
-        MEDFileUMesh * mm_init,
-        const std::string & grp_name,
-        const std::string & test_name);
+    static std::pair<bool, bool> TestCrack(
+        MEDFileUMesh *mm_init, const std::string &grp_name, const std::string &test_name
+    );
 
-    static bool
-    CheckM0Mesh(
-        const MEDFileUMesh * mm,
-        const Connections& c2cBrokenConnection,
-        const Connections& c2cPreservedConnection);
+    static bool CheckM0Mesh(
+        const MEDFileUMesh *mm, const Connections &c2cBrokenConnection, const Connections &c2cPreservedConnection
+    );
 
-    static bool
-    CheckM1Mesh(
-        const MEDCouplingUMesh * f2dup_before,
-        const MEDCouplingUMesh * f2dup_after);
+    static bool CheckM1Mesh(const MEDCouplingUMesh *f2dup_before, const MEDCouplingUMesh *f2dup_after);
 
-    static Connections
-    GetC2CBroken(
-        const MEDFileUMesh * mm,
-        const std::string & grp_name);
+    static Connections GetC2CBroken(const MEDFileUMesh *mm, const std::string &grp_name);
 
-    static std::vector<std::pair<mcIdType, mcIdType>>
-    GetC2CPreserved(
-        const MEDFileUMesh * mm,
-        const std::string & grp_name);
+    static std::vector<std::pair<mcIdType, mcIdType>> GetC2CPreserved(
+        const MEDFileUMesh *mm, const std::string &grp_name
+    );
 
-    static MEDFileUMesh *
-    make2x2Voxel();
+    static MEDFileUMesh *make2x2Voxel();
 
-    static MEDFileUMesh *
-    make4x4Voxel();
+    static MEDFileUMesh *make4x4Voxel();
 
-    static MEDFileUMesh *
-    make2DMesh();
+    static MEDFileUMesh *make2DMesh();
 
-    static MEDFileUMesh *
-    make2DMesh2();
+    static MEDFileUMesh *make2DMesh2();
 
-    static MEDFileUMesh *
-    make1DMesh();
+    static MEDFileUMesh *make1DMesh();
 };
 }  // namespace MEDCoupling
 #endif  // __CRACKALGOTEST_HXX__

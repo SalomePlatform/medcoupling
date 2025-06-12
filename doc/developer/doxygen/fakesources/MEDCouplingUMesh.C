@@ -320,4 +320,3 @@ DataArrayInt * MEDCouplingUMesh::_nodal_connec;
 DataArrayInt * MEDCouplingUMesh::_nodal_connec_index;
   ///@}
 }
-

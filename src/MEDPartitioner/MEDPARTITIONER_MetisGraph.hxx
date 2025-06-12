@@ -27,14 +27,14 @@
 
 namespace MEDPARTITIONER
 {
-  class MEDPARTITIONER_EXPORT METISGraph : public Graph
-  {
-  public:
+class MEDPARTITIONER_EXPORT METISGraph : public Graph
+{
+   public:
     METISGraph();
-    METISGraph(MEDCoupling::MEDCouplingSkyLineArray*, int *edgeweight=0);
+    METISGraph(MEDCoupling::MEDCouplingSkyLineArray *, int *edgeweight = 0);
     virtual ~METISGraph();
-    void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=0);
-  };
-}
+    void partGraph(int ndomain, const std::string &options_string = "", ParaDomainSelector *sel = 0);
+};
+}  // namespace MEDPARTITIONER
 
 #endif

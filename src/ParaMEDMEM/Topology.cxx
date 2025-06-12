@@ -21,11 +21,7 @@
 
 namespace MEDCoupling
 {
-  Topology::Topology()
-  {
-  }
+Topology::Topology() {}
 
-  Topology::~Topology()
-  {
-  }
-}
+Topology::~Topology() {}
+}  // namespace MEDCoupling

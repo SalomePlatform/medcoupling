@@ -26,27 +26,28 @@
 
 namespace MEDCoupling
 {
-  class CommInterface;
+class CommInterface;
 
-  /*!
-   * DEC stands for Data Exchange Channel. See the page \ref para-dec for more on this.
-   *
-   * This class is purely abstract. See the derivations:
-   * - \ref DisjointDEC-det "DisjointDEC"
-   * - \ref NonCoincidentDEC "NonCoincidentDEC"
-   * - \ref OverlapDEC "OverlapDEC"
-   */
-  class DEC : public DECOptions
-  {
-  public:
+/*!
+ * DEC stands for Data Exchange Channel. See the page \ref para-dec for more on this.
+ *
+ * This class is purely abstract. See the derivations:
+ * - \ref DisjointDEC-det "DisjointDEC"
+ * - \ref NonCoincidentDEC "NonCoincidentDEC"
+ * - \ref OverlapDEC "OverlapDEC"
+ */
+class DEC : public DECOptions
+{
+   public:
     DEC();
-    void copyFrom(const DEC& other);
+    void copyFrom(const DEC &other);
     virtual void synchronize() = 0;
-    virtual void sendRecvData(bool way=true) = 0;
+    virtual void sendRecvData(bool way = true) = 0;
     virtual ~DEC();
-  protected:
-    const CommInterface* _comm_interface;
-  };
-}
+
+   protected:
+    const CommInterface *_comm_interface;
+};
+}  // namespace MEDCoupling
 
 #endif

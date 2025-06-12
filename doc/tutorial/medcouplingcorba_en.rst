@@ -29,7 +29,7 @@ Create a trivial unstructured  mesh "m" which will be sent through CORBA to Para
 	arr.iota(0)
 	m=MEDCouplingCMesh()
 	m.setCoords(arr,arr)
-	m=m.buildUnstructured()	
+	m=m.buildUnstructured()
 
 .. note:: "m" is unstructured but a Cartesian mesh would also work perfectly fine.
 

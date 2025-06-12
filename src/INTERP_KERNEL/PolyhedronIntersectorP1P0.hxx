@@ -28,38 +28,39 @@
 namespace INTERP_KERNEL
 {
 
-
-  /**
-   * \brief Class responsible for calculating intersection between a hexahedron target element and
-   * the source elements.
-   *
-   */
-  template<class MyMeshType, class MyMatrix>
-  class PolyhedronIntersectorP1P0 : public Intersector3DP1P0<MyMeshType,MyMatrix>
-  {
-  public:
-    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+/**
+ * \brief Class responsible for calculating intersection between a hexahedron target element and
+ * the source elements.
+ *
+ */
+template <class MyMeshType, class MyMatrix>
+class PolyhedronIntersectorP1P0 : public Intersector3DP1P0<MyMeshType, MyMatrix>
+{
+   public:
+    static const int SPACEDIM = MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM = MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
-    static const NumberingPolicy numPol=MyMeshType::My_numPol;
-  public:
+    static const NumberingPolicy numPol = MyMeshType::My_numPol;
 
-    PolyhedronIntersectorP1P0(const MyMeshType& targetMesh, const MyMeshType& srcMesh, SplittingPolicy policy = PLANAR_FACE_5);
+   public:
+    PolyhedronIntersectorP1P0(
+        const MyMeshType &targetMesh, const MyMeshType &srcMesh, SplittingPolicy policy = PLANAR_FACE_5
+    );
 
     ~PolyhedronIntersectorP1P0();
 
-    void intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res);
+    void intersectCells(ConnType targetCell, const std::vector<ConnType> &srcCells, MyMatrix &res);
 
-  private:
+   private:
     void releaseArrays();
-  private:
+
+   private:
     /// pointers to the SplitterTetra objects representing the tetrahedra
     /// that result from the splitting of the hexahedron target cell
-    std::vector< SplitterTetra<MyMeshType>* > _tetra;
+    std::vector<SplitterTetra<MyMeshType> *> _tetra;
 
     SplitterTetra2<MyMeshType> _split;
-
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

@@ -27,14 +27,14 @@
 
 namespace INTERP_KERNEL
 {
-  class INTERPKERNEL_EXPORT Value
-  {
-  public:
+class INTERPKERNEL_EXPORT Value
+{
+   public:
     virtual Value *newInstance() const = 0;
-    virtual ~Value() { }
+    virtual ~Value() {}
     virtual void setDouble(double val) = 0;
-    virtual void setVarname(int fastPos, const std::string& var) = 0;
-    //unary
+    virtual void setVarname(int fastPos, const std::string &var) = 0;
+    // unary
     virtual void positive() = 0;
     virtual void negate() = 0;
     virtual void sqrt() = 0;
@@ -51,7 +51,7 @@ namespace INTERP_KERNEL
     virtual void exp() = 0;
     virtual void ln() = 0;
     virtual void log10() = 0;
-    //binary
+    // binary
     virtual Value *plus(const Value *other) const = 0;
     virtual Value *minus(const Value *other) const = 0;
     virtual Value *mult(const Value *other) const = 0;
@@ -61,17 +61,17 @@ namespace INTERP_KERNEL
     virtual Value *min(const Value *other) const = 0;
     virtual Value *greaterThan(const Value *other) const = 0;
     virtual Value *lowerThan(const Value *other) const = 0;
-    //ternary
+    // ternary
     virtual Value *ifFunc(const Value *the, const Value *els) const = 0;
-  };
+};
 
-  class INTERPKERNEL_EXPORT ValueDouble : public Value
-  {
-  public:
+class INTERPKERNEL_EXPORT ValueDouble : public Value
+{
+   public:
     ValueDouble();
     Value *newInstance() const;
     void setDouble(double val);
-    void setVarname(int fastPos, const std::string& var);
+    void setVarname(int fastPos, const std::string &var);
     //
     double getData() const { return _data; }
     void positive();
@@ -102,20 +102,22 @@ namespace INTERP_KERNEL
     Value *lowerThan(const Value *other) const;
     //
     Value *ifFunc(const Value *the, const Value *els) const;
-  private:
+
+   private:
     ValueDouble(double val);
     static const ValueDouble *checkSameType(const Value *val);
-  private:
-    double _data;
-  };
 
-  class ValueUnit : public Value
-  {
-  public:
+   private:
+    double _data;
+};
+
+class ValueUnit : public Value
+{
+   public:
     INTERPKERNEL_EXPORT ValueUnit();
     INTERPKERNEL_EXPORT Value *newInstance() const;
     INTERPKERNEL_EXPORT void setDouble(double val);
-    INTERPKERNEL_EXPORT void setVarname(int fastPos, const std::string& var);
+    INTERPKERNEL_EXPORT void setVarname(int fastPos, const std::string &var);
     //
     INTERPKERNEL_EXPORT DecompositionInUnitBase getData() const { return _data; }
     INTERPKERNEL_EXPORT void positive();
@@ -146,23 +148,25 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT Value *lowerThan(const Value *other) const;
     //
     INTERPKERNEL_EXPORT Value *ifFunc(const Value *the, const Value *els) const;
-  private:
-    ValueUnit(const DecompositionInUnitBase& unit);
+
+   private:
+    ValueUnit(const DecompositionInUnitBase &unit);
     static void unsupportedOp(const char *type);
     static const ValueUnit *checkSameType(const Value *val);
-  private:
-    DecompositionInUnitBase _data;
-  };
 
-  class INTERPKERNEL_EXPORT ValueDoubleExpr : public Value
-  {
-  public:
+   private:
+    DecompositionInUnitBase _data;
+};
+
+class INTERPKERNEL_EXPORT ValueDoubleExpr : public Value
+{
+   public:
     ValueDoubleExpr(int szDestData, const double *srcData);
     ~ValueDoubleExpr();
     double *getData() const { return _dest_data; }
     Value *newInstance() const;
     void setDouble(double val);
-    void setVarname(int fastPos, const std::string& var);
+    void setVarname(int fastPos, const std::string &var);
     //
     void positive();
     void negate();
@@ -192,11 +196,12 @@ namespace INTERP_KERNEL
     Value *lowerThan(const Value *other) const;
     //
     Value *ifFunc(const Value *the, const Value *els) const;
-  private:
+
+   private:
     int _sz_dest_data;
     double *_dest_data;
     const double *_src_data;
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

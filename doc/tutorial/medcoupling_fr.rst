@@ -16,4 +16,3 @@ L'objectif de ces exercices est d'apprendre à manipuler les objets MEDCoupling 
    medcoupling_dataarray1_fr
    medcoupling_umesh1_fr
    medcoupling_fielddouble1_fr
-

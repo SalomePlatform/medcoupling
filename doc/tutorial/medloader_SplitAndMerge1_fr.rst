@@ -21,7 +21,7 @@ Créer un unstructured mesh ``m0`` issu d'un maillage structuré (meshDim=2, spa
 Chacune des cellules paires du maillage sera *simplexisée* (i.e. coupée en triangle - méthode ``MEDCouplingUMesh.simplexize(0)``) ::
 
 	import medcoupling as mc
-	
+
 	m0 = mc.MEDCouplingCMesh()
 	arr = mc.DataArrayDouble(31,1) ; arr.iota(0.)
 	m0.setCoords(arr,arr)
@@ -55,7 +55,7 @@ Créer les champs ``cellField`` et ``nodeField`` au pas de temps identifié à (
 
 On obtient par exemple pour "CellField" ceci :
 
-.. image:: images/SplitAndMergeCell1.jpg	
+.. image:: images/SplitAndMergeCell1.jpg
 
 
 Partitionnement de maillage
@@ -77,11 +77,11 @@ En partant du partitionnement ``proc0`` et ``proc1`` créer 2 fichiers MED appel
 
 	nodeField0 = nodeField[proc0] ; cellField0 = cellField[proc0] ; cellField0.setMesh(nodeField0.getMesh())
 	nodeField1 = nodeField[proc1] ; cellField1 = cellField[proc1] ; cellField1.setMesh(nodeField1.getMesh())
-	
+
 	proc0_fname = "proc0.med"
 	mc.WriteField(proc0_fname, nodeField0, True)
 	mc.WriteFieldUsingAlreadyWrittenMesh(proc0_fname, cellField0)
-	
+
 	proc1_fname = "proc1.med"
 	mc.WriteField(proc1_fname,nodeField1,True)
 	mc.WriteFieldUsingAlreadyWrittenMesh(proc1_fname,cellField1)
@@ -172,7 +172,7 @@ différents types géométriques : ::
 		o2nML[lev] = m.sortCellsInMEDFileFrmt()
 		mergeMLMesh.setMeshAtLevel(lev,m)
 		pass
-	
+
 	for fieldName in fsML[0].getFieldsNames():
 		fmts = [fML[fieldName] for fML in fsML]
 		mergeField = mc.MEDFileFieldMultiTS()

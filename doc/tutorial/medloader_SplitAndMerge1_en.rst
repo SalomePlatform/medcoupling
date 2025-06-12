@@ -52,7 +52,7 @@ Create the fields "CellField" and "NodeField" at the time-stamp (5,6) correspond
 
 "CellField" looks like this:
 
-.. image:: images/SplitAndMergeCell1.jpg	
+.. image:: images/SplitAndMergeCell1.jpg
 
 
 Mesh partitionning

@@ -32,7 +32,6 @@
 // use this define to enable CPPUNIT asserts and fails, showing bugs
 #define ENABLE_FORCED_FAILURES
 
-
 using namespace std;
 using namespace MEDCoupling;
 
@@ -55,95 +54,98 @@ using namespace MEDCoupling;
 
 */
 
-void ParaMEDMEMTest::testMPIProcessorGroup_constructor()
+void
+ParaMEDMEMTest::testMPIProcessorGroup_constructor()
 {
-  CommInterface comm_interface;
-  MPIProcessorGroup* group = new MPIProcessorGroup(comm_interface);;
-  int size;
-  MPI_Comm_size(MPI_COMM_WORLD, &size);
-  CPPUNIT_ASSERT_EQUAL(size,group->size());
-  int size2;
-  const MPI_Comm* communicator=group->getComm();
-  MPI_Comm_size(*communicator, &size2);
-  CPPUNIT_ASSERT_EQUAL(size,size2);
-  delete group;
+    CommInterface comm_interface;
+    MPIProcessorGroup *group = new MPIProcessorGroup(comm_interface);
+    ;
+    int size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    CPPUNIT_ASSERT_EQUAL(size, group->size());
+    int size2;
+    const MPI_Comm *communicator = group->getComm();
+    MPI_Comm_size(*communicator, &size2);
+    CPPUNIT_ASSERT_EQUAL(size, size2);
+    delete group;
 
-  set <int> procs;
+    set<int> procs;
 
-  procs.insert(0);
-  procs.insert(1);
-  if (size==1)
-    CPPUNIT_ASSERT_THROW(group=new MPIProcessorGroup(comm_interface,procs),INTERP_KERNEL::Exception);
-  else
+    procs.insert(0);
+    procs.insert(1);
+    if (size == 1)
+        CPPUNIT_ASSERT_THROW(group = new MPIProcessorGroup(comm_interface, procs), INTERP_KERNEL::Exception);
+    else
     {
-      CPPUNIT_ASSERT_NO_THROW(  group=new MPIProcessorGroup(comm_interface,procs));
-      CPPUNIT_ASSERT_EQUAL (group->size(),2);
-      delete group;
+        CPPUNIT_ASSERT_NO_THROW(group = new MPIProcessorGroup(comm_interface, procs));
+        CPPUNIT_ASSERT_EQUAL(group->size(), 2);
+        delete group;
     }
 
-  //throws because plast<pfirst
-  CPPUNIT_ASSERT_THROW(group=new MPIProcessorGroup(comm_interface,1,0),INTERP_KERNEL::Exception);
-  //throws because plast is beyond size-1
-  CPPUNIT_ASSERT_THROW(group=new MPIProcessorGroup(comm_interface,0,size),INTERP_KERNEL::Exception);
-  if (size>1)
+    // throws because plast<pfirst
+    CPPUNIT_ASSERT_THROW(group = new MPIProcessorGroup(comm_interface, 1, 0), INTERP_KERNEL::Exception);
+    // throws because plast is beyond size-1
+    CPPUNIT_ASSERT_THROW(group = new MPIProcessorGroup(comm_interface, 0, size), INTERP_KERNEL::Exception);
+    if (size > 1)
     {
-      group=new MPIProcessorGroup(comm_interface,0,size-2);
-      CPPUNIT_ASSERT_EQUAL(group->size(),size-1);
-      delete group;
+        group = new MPIProcessorGroup(comm_interface, 0, size - 2);
+        CPPUNIT_ASSERT_EQUAL(group->size(), size - 1);
+        delete group;
     }
-
 }
 
-void ParaMEDMEMTest::testMPIProcessorGroup_boolean()
+void
+ParaMEDMEMTest::testMPIProcessorGroup_boolean()
 {
-  int size;
-  MPI_Comm_size(MPI_COMM_WORLD, &size);
+    int size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-  CommInterface comm_interface;
-  MPIProcessorGroup group(comm_interface,0,0);
-  MPIProcessorGroup group2(comm_interface,size-1,size-1);
-  ProcessorGroup* group_fuse=group.fuse(group2);
-  int group_fuse_size=(size==1)?1:2;
-  CPPUNIT_ASSERT_EQUAL(group_fuse_size,group_fuse->size());
+    CommInterface comm_interface;
+    MPIProcessorGroup group(comm_interface, 0, 0);
+    MPIProcessorGroup group2(comm_interface, size - 1, size - 1);
+    ProcessorGroup *group_fuse = group.fuse(group2);
+    int group_fuse_size = (size == 1) ? 1 : 2;
+    CPPUNIT_ASSERT_EQUAL(group_fuse_size, group_fuse->size());
 
-  ProcessorGroup* group_complement=((MPIProcessorGroup*)group_fuse)->createComplementProcGroup();
-  CPPUNIT_ASSERT_EQUAL(group_complement->size(),size-group_fuse_size);
+    ProcessorGroup *group_complement = ((MPIProcessorGroup *)group_fuse)->createComplementProcGroup();
+    CPPUNIT_ASSERT_EQUAL(group_complement->size(), size - group_fuse_size);
 
-  delete group_fuse;
-  delete group_complement;
+    delete group_fuse;
+    delete group_complement;
 
-  //intersect not implemented yet
-  //   if (size>1)
-  //   {
-  //     MPIProcessorGroup group3(comm_interface,0,size-2);
-  //     MPIProcessorGroup group4(comm_interface,1,size-1);
-  //     group3.intersect(group4);
-  //     CPPUNIT_ASSERT_EQUAL(group3.size(),size-2);
-  //   }
+    // intersect not implemented yet
+    //    if (size>1)
+    //    {
+    //      MPIProcessorGroup group3(comm_interface,0,size-2);
+    //      MPIProcessorGroup group4(comm_interface,1,size-1);
+    //      group3.intersect(group4);
+    //      CPPUNIT_ASSERT_EQUAL(group3.size(),size-2);
+    //    }
 }
 
-void ParaMEDMEMTest::testMPIProcessorGroup_rank()
+void
+ParaMEDMEMTest::testMPIProcessorGroup_rank()
 {
-  int size;
-  MPI_Comm_size(MPI_COMM_WORLD, &size);
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    int size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  CommInterface comm_interface;
-  MPIProcessorGroup group(comm_interface,0,0);
-  MPIProcessorGroup group2(comm_interface,size-1,size-1);
-  ProcessorGroup* group_fuse=group2.fuse(group);
+    CommInterface comm_interface;
+    MPIProcessorGroup group(comm_interface, 0, 0);
+    MPIProcessorGroup group2(comm_interface, size - 1, size - 1);
+    ProcessorGroup *group_fuse = group2.fuse(group);
 
-  if (group.containsMyRank())
-    CPPUNIT_ASSERT_EQUAL (group.myRank(), rank);
+    if (group.containsMyRank())
+        CPPUNIT_ASSERT_EQUAL(group.myRank(), rank);
 
-  if (group2.containsMyRank())
+    if (group2.containsMyRank())
     {
-      int trank=group_fuse->translateRank(&group2,0);
-      if (size==1)
-        CPPUNIT_ASSERT_EQUAL(trank,0);
-      else
-        CPPUNIT_ASSERT_EQUAL(trank,1);
+        int trank = group_fuse->translateRank(&group2, 0);
+        if (size == 1)
+            CPPUNIT_ASSERT_EQUAL(trank, 0);
+        else
+            CPPUNIT_ASSERT_EQUAL(trank, 1);
     }
-  delete group_fuse;
+    delete group_fuse;
 }

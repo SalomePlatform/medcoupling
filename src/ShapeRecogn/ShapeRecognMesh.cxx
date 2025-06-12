@@ -22,19 +22,30 @@
 using namespace MEDCoupling;
 
 ShapeRecognMesh::ShapeRecognMesh()
-    : nodeK1(nullptr), nodeK2(nullptr), nodePrimitiveType(nullptr),
-      nodeNormal(nullptr), areaId(nullptr), areaPrimitiveType(nullptr),
-      areaNormal(nullptr), minorRadius(nullptr), radius(nullptr),
-      angle(nullptr), center(nullptr), axis(nullptr), apex(nullptr)
+    : nodeK1(nullptr),
+      nodeK2(nullptr),
+      nodePrimitiveType(nullptr),
+      nodeNormal(nullptr),
+      areaId(nullptr),
+      areaPrimitiveType(nullptr),
+      areaNormal(nullptr),
+      minorRadius(nullptr),
+      radius(nullptr),
+      angle(nullptr),
+      center(nullptr),
+      axis(nullptr),
+      apex(nullptr)
 {
 }
 
-std::size_t ShapeRecognMesh::getHeapMemorySizeWithoutChildren() const
+std::size_t
+ShapeRecognMesh::getHeapMemorySizeWithoutChildren() const
 {
     return 0;
 }
 
-std::vector<const BigMemoryObject *> ShapeRecognMesh::getDirectChildrenWithNull() const
+std::vector<const BigMemoryObject *>
+ShapeRecognMesh::getDirectChildrenWithNull() const
 {
     std::vector<const BigMemoryObject *> ret;
     ret.push_back(nodeK1);
@@ -53,72 +64,86 @@ std::vector<const BigMemoryObject *> ShapeRecognMesh::getDirectChildrenWithNull(
     return ret;
 }
 
-ShapeRecognMesh *ShapeRecognMesh::New()
+ShapeRecognMesh *
+ShapeRecognMesh::New()
 {
     return new ShapeRecognMesh;
 }
 
-const MEDCouplingFieldDouble *ShapeRecognMesh::getNodeK1() const
+const MEDCouplingFieldDouble *
+ShapeRecognMesh::getNodeK1() const
 {
     return nodeK1;
 }
 
-const MEDCouplingFieldDouble *ShapeRecognMesh::getNodeK2() const
+const MEDCouplingFieldDouble *
+ShapeRecognMesh::getNodeK2() const
 {
     return nodeK2;
 }
 
-const MEDCouplingFieldInt32 *ShapeRecognMesh::getNodePrimitiveType() const
+const MEDCouplingFieldInt32 *
+ShapeRecognMesh::getNodePrimitiveType() const
 {
     return nodePrimitiveType;
 }
 
-const MEDCouplingFieldDouble *ShapeRecognMesh::getNodeNormal() const
+const MEDCouplingFieldDouble *
+ShapeRecognMesh::getNodeNormal() const
 {
     return nodeNormal;
 }
 
-const MEDCouplingFieldInt32 *ShapeRecognMesh::getAreaId() const
+const MEDCouplingFieldInt32 *
+ShapeRecognMesh::getAreaId() const
 {
     return areaId;
 }
 
-const MEDCouplingFieldInt32 *ShapeRecognMesh::getAreaPrimitiveType() const
+const MEDCouplingFieldInt32 *
+ShapeRecognMesh::getAreaPrimitiveType() const
 {
     return areaPrimitiveType;
 }
 
-const MEDCouplingFieldDouble *ShapeRecognMesh::getAreaNormal() const
+const MEDCouplingFieldDouble *
+ShapeRecognMesh::getAreaNormal() const
 {
     return areaNormal;
 }
 
-const MEDCouplingFieldDouble *ShapeRecognMesh::getMinorRadius() const
+const MEDCouplingFieldDouble *
+ShapeRecognMesh::getMinorRadius() const
 {
     return minorRadius;
 }
 
-const MEDCouplingFieldDouble *ShapeRecognMesh::getRadius() const
+const MEDCouplingFieldDouble *
+ShapeRecognMesh::getRadius() const
 {
     return radius;
 }
 
-const MEDCouplingFieldDouble *ShapeRecognMesh::getAngle() const
+const MEDCouplingFieldDouble *
+ShapeRecognMesh::getAngle() const
 {
     return angle;
 }
 
-const MEDCouplingFieldDouble *ShapeRecognMesh::getCenter() const
+const MEDCouplingFieldDouble *
+ShapeRecognMesh::getCenter() const
 {
     return center;
 }
 
-const MEDCouplingFieldDouble *ShapeRecognMesh::getAxis() const
+const MEDCouplingFieldDouble *
+ShapeRecognMesh::getAxis() const
 {
     return axis;
 }
 
-const MEDCouplingFieldDouble *ShapeRecognMesh::getApex() const
+const MEDCouplingFieldDouble *
+ShapeRecognMesh::getApex() const
 {
     return apex;
 }

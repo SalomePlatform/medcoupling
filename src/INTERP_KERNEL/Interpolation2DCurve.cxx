@@ -23,38 +23,37 @@
 
 namespace INTERP_KERNEL
 {
-  Interpolation2DCurve::Interpolation2DCurve()
-  {
+Interpolation2DCurve::Interpolation2DCurve()
+{
     // to have non-zero default thickness of target element
-    InterpolationOptions::setBoundingBoxAdjustmentAbs( InterpolationOptions::getPrecision() );
-  }
+    InterpolationOptions::setBoundingBoxAdjustmentAbs(InterpolationOptions::getPrecision());
+}
 
-  Interpolation2DCurve::Interpolation2DCurve
-    (const InterpolationOptions& io):InterpolationCurve<Interpolation2DCurve>(io)
-  {
+Interpolation2DCurve::Interpolation2DCurve(const InterpolationOptions &io)
+    : InterpolationCurve<Interpolation2DCurve>(io)
+{
     // to have non-zero default thickness of target element
-    InterpolationOptions::setBoundingBoxAdjustmentAbs( InterpolationOptions::getPrecision() );
-  }
+    InterpolationOptions::setBoundingBoxAdjustmentAbs(InterpolationOptions::getPrecision());
+}
 
-  /**
-   *  \brief  Function used to set the options for the intersection calculation
-   * \details The following options can be modified:
-   *  -# Precision: Level of precision of the computations.
-   *   - Values: positive real number.
-   *   - Default: 1.0E-12.
-   *  -# Tolerance: Thickness of target element.
-   *   - Values: positive real number.
-   *   - Default: 1.0E-12.
-   *  -# Median line: Position of the median line where both segments will be projected.
-   *   - Values: real number between 0.0 and 1.0.
-   *   - Default: 0.5
-   */
-  void Interpolation2DCurve::setOptions (double precision,
-                                         double tolerance,
-                                         double medianLine)
-  {
+/**
+ *  \brief  Function used to set the options for the intersection calculation
+ * \details The following options can be modified:
+ *  -# Precision: Level of precision of the computations.
+ *   - Values: positive real number.
+ *   - Default: 1.0E-12.
+ *  -# Tolerance: Thickness of target element.
+ *   - Values: positive real number.
+ *   - Default: 1.0E-12.
+ *  -# Median line: Position of the median line where both segments will be projected.
+ *   - Values: real number between 0.0 and 1.0.
+ *   - Default: 0.5
+ */
+void
+Interpolation2DCurve::setOptions(double precision, double tolerance, double medianLine)
+{
     InterpolationOptions::setPrecision(precision);
     InterpolationOptions::setBoundingBoxAdjustmentAbs(tolerance);
     InterpolationOptions::setMedianPlane(medianLine);
-  }
 }
+}  // namespace INTERP_KERNEL

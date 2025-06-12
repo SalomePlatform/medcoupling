@@ -239,7 +239,7 @@ Et voilà ce que vous devriez obtenir:
 
 .. image:: images/FieldDouble1_1_exploded.png
 	:scale: 120
-	
+
 Solution
 ~~~~~~~~
 

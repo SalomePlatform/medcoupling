@@ -11,19 +11,27 @@ salome.salome_init()
 theStudy = salome.myStudy
 
 import iparameters
-ipar = iparameters.IParameters(salome.myStudy.GetCommonParameters("Interface Applicative", 1), True)
 
-#Set up visual properties:
+ipar = iparameters.IParameters(
+    salome.myStudy.GetCommonParameters("Interface Applicative", 1), True
+)
+
+# Set up visual properties:
 ipar.setProperty("AP_ACTIVE_VIEW", "VTKViewer_0_0")
-ipar.setProperty("AP_WORKSTACK_INFO", "0000000100000000000000020100000001000003a0000000040000000100000001000000080000001a00560054004b005600690065007700650072005f0030005f00300000000102")
+ipar.setProperty(
+    "AP_WORKSTACK_INFO",
+    "0000000100000000000000020100000001000003a0000000040000000100000001000000080000001a00560054004b005600690065007700650072005f0030005f00300000000102",
+)
 ipar.setProperty("AP_ACTIVE_MODULE", "Mesh")
 ipar.setProperty("AP_SAVEPOINT_NAME", "GUI state: 2")
-#Set up lists:
+# Set up lists:
 # fill list AP_VIEWERS_LIST
 ipar.append("AP_VIEWERS_LIST", "VTKViewer_1")
 # fill list VTKViewer_1
 ipar.append("VTKViewer_1", "VTK scene:2 - viewer:1")
-ipar.append("VTKViewer_1", """<?xml version="1.0"?>
+ipar.append(
+    "VTKViewer_1",
+    """<?xml version="1.0"?>
 <ViewState>
     <Position X="-0.215292" Y="0.427652" Z="13.6094"/>
     <FocalPoint X="-0.215292" Y="0.427652" Z="0"/>
@@ -60,11 +68,13 @@ ipar.append("VTKViewer_1", """<?xml version="1.0"?>
     <Trihedron isShown="0" Size="100"/>
     <Background Value="bt=1;fn=;tm=0;ts=false;c1=#ffffff;c2=#000000;gt=-1;gr="/>
 </ViewState>
-""")
+""",
+)
 # fill list AP_MODULES_LIST
 ipar.append("AP_MODULES_LIST", "Mesh")
 
 import sys
+
 if sys.platform == "win32":
     from MEDCouplingCompat import *
 else:
@@ -72,46 +82,58 @@ else:
 
 from MEDLoader import WriteMesh
 
-XCoords=[-0.3,0.,0.1,0.3,0.45,0.47,0.49,1.,1.22] # 9 values along X
-YCoords=[0.,0.1,0.37,0.45,0.47,0.49,1.007] # 7 values along Y
-arrX=DataArrayDouble(XCoords)
-arrX.setInfoOnComponent(0,"X [m]")
-arrY=DataArrayDouble(YCoords)
-arrY.setInfoOnComponent(0,"Y [m]")
-mesh=MEDCouplingCMesh("My2D_CMesh")
-mesh.setCoords(arrX,arrY)
-WriteMesh("mesh1.med",mesh,True)
+XCoords = [-0.3, 0.0, 0.1, 0.3, 0.45, 0.47, 0.49, 1.0, 1.22]  # 9 values along X
+YCoords = [0.0, 0.1, 0.37, 0.45, 0.47, 0.49, 1.007]  # 7 values along Y
+arrX = DataArrayDouble(XCoords)
+arrX.setInfoOnComponent(0, "X [m]")
+arrY = DataArrayDouble(YCoords)
+arrY.setInfoOnComponent(0, "Y [m]")
+mesh = MEDCouplingCMesh("My2D_CMesh")
+mesh.setCoords(arrX, arrY)
+WriteMesh("mesh1.med", mesh, True)
 
 ###
 ### SMESH component
 ###
 
-import  SMESH, SALOMEDS
+import SMESH, SALOMEDS
 from salome.smesh import smeshBuilder
 
 smesh = smeshBuilder.New(salome.myStudy)
-([mesh_1], status) = smesh.CreateMeshesFromMED(r'mesh1.med')
+([mesh_1], status) = smesh.CreateMeshesFromMED(r"mesh1.med")
 
 ### Store presentation parameters of displayed objects
 import iparameters
-ipar = iparameters.IParameters(theStudy.GetModuleParameters("Interface Applicative", "SMESH", 1))
 
-#Set up entries:
+ipar = iparameters.IParameters(
+    theStudy.GetModuleParameters("Interface Applicative", "SMESH", 1)
+)
+
+# Set up entries:
 # set up entry SMESH_3 (mesh) parameters
 ipar.setParameter("SMESH_3", "VTKViewer_0_Visibility", "On")
 ipar.setParameter("SMESH_3", "VTKViewer_0_Representation", "2")
 ipar.setParameter("SMESH_3", "VTKViewer_0_IsShrunk", "0")
 ipar.setParameter("SMESH_3", "VTKViewer_0_Entities", "e:0:f:1:v:0:0d:0:b:0")
-ipar.setParameter("SMESH_3", "VTKViewer_0_Colors", "surface:0:0.666667:1:backsurface:100:volume:1:0:0.666667:-100:edge:0:0.666667:1:node:1:0:0:outline:0:0.27451:0:elem0d:0:1:0:ball:0:0.333333:1:orientation:1:1:1")
-ipar.setParameter("SMESH_3", "VTKViewer_0_Sizes", "line:1:outline:1:elem0d:5:ball:10:1:shrink:0.75:orientation:0.1:0")
+ipar.setParameter(
+    "SMESH_3",
+    "VTKViewer_0_Colors",
+    "surface:0:0.666667:1:backsurface:100:volume:1:0:0.666667:-100:edge:0:0.666667:1:node:1:0:0:outline:0:0.27451:0:elem0d:0:1:0:ball:0:0.333333:1:orientation:1:1:1",
+)
+ipar.setParameter(
+    "SMESH_3",
+    "VTKViewer_0_Sizes",
+    "line:1:outline:1:elem0d:5:ball:10:1:shrink:0.75:orientation:0.1:0",
+)
 ipar.setParameter("SMESH_3", "VTKViewer_0_PointMarker", "std:1:9")
 ipar.setParameter("SMESH_3", "VTKViewer_0_Opacity", "1")
 ipar.setParameter("SMESH_3", "VTKViewer_0_ClippingPlane", "Off")
 
 if salome.sg.hasDesktop():
-  salome.sg.updateObjBrowser(True)
-  iparameters.getSession().restoreVisualState(1)
+    salome.sg.updateObjBrowser(True)
+    iparameters.getSession().restoreVisualState(1)
 
 import libSALOME_Swig
+
 gui = libSALOME_Swig.SALOMEGUI_Swig()
-gui.AddIObject( salome.ObjectToID( mesh_1.GetMesh() ))
+gui.AddIObject(salome.ObjectToID(mesh_1.GetMesh()))

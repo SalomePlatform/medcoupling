@@ -22,18 +22,26 @@
 
 //! DON'T INCLUDE THIS FILE IN .h NOR IN .hxx FILES !!!!!!!!!
 #ifdef _DEBUG_
-# define MESSAGE(chain) {HERE ; cerr << chain << endl ;}
+#define MESSAGE(chain)         \
+    {                          \
+        HERE;                  \
+        cerr << chain << endl; \
+    }
 #else
-# define MESSAGE(chain)
+#define MESSAGE(chain)
 #endif
 
 #ifdef _DEBUG_
-# define HERE {cout<<flush ; cerr << "- Trace " << __FILE__ << " [" << __LINE__ << "] : " << flush ;}
+#define HERE                                                                   \
+    {                                                                          \
+        cout << flush;                                                         \
+        cerr << "- Trace " << __FILE__ << " [" << __LINE__ << "] : " << flush; \
+    }
 #else
-# define HERE
+#define HERE
 #endif
 
-#define LOCALIZED(message) static_cast<const char *> (message) , __FILE__ , __LINE__
+#define LOCALIZED(message) static_cast<const char *>(message), __FILE__, __LINE__
 
 // conversion to mesh connection type
 #define ToConnType(x) static_cast<typename MyMeshType::MyConnType>(x)

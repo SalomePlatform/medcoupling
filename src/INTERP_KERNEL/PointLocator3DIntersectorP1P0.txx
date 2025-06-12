@@ -26,73 +26,95 @@
 
 namespace INTERP_KERNEL
 {
-  /**
-   * @param targetMesh  mesh containing the target elements
-   * @param srcMesh     mesh containing the source elements
-   *
-   * WARNING : in _split attribute, sourceMesh and targetMesh are switched in order to fit intersectCells feature.
-   */
-  template<class MyMeshType, class MyMatrix>
-  PointLocator3DIntersectorP1P0<MyMeshType,MyMatrix>::PointLocator3DIntersectorP1P0(const MyMeshType& targetMesh, const MyMeshType& srcMesh, double precision):Intersector3DP1P0<MyMeshType,MyMatrix>(targetMesh,srcMesh),_precision(precision)
-  {
-  }
+/**
+ * @param targetMesh  mesh containing the target elements
+ * @param srcMesh     mesh containing the source elements
+ *
+ * WARNING : in _split attribute, sourceMesh and targetMesh are switched in order to fit intersectCells feature.
+ */
+template <class MyMeshType, class MyMatrix>
+PointLocator3DIntersectorP1P0<MyMeshType, MyMatrix>::PointLocator3DIntersectorP1P0(
+    const MyMeshType &targetMesh, const MyMeshType &srcMesh, double precision
+)
+    : Intersector3DP1P0<MyMeshType, MyMatrix>(targetMesh, srcMesh), _precision(precision)
+{
+}
 
-  template<class MyMeshType, class MyMatrix>
-  PointLocator3DIntersectorP1P0<MyMeshType,MyMatrix>::~PointLocator3DIntersectorP1P0()
-  {
-  }
+template <class MyMeshType, class MyMatrix>
+PointLocator3DIntersectorP1P0<MyMeshType, MyMatrix>::~PointLocator3DIntersectorP1P0()
+{
+}
 
-  /**
-   * @param targetCell in C mode.
-   * @param srcCells in C mode.
-   *
-   * WARNING : for all methods on _split object source and target are switched !
-   */
-  template<class MyMeshType, class MyMatrix>
-  void PointLocator3DIntersectorP1P0<MyMeshType,MyMatrix>::intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res)
-  {
+/**
+ * @param targetCell in C mode.
+ * @param srcCells in C mode.
+ *
+ * WARNING : for all methods on _split object source and target are switched !
+ */
+template <class MyMeshType, class MyMatrix>
+void
+PointLocator3DIntersectorP1P0<MyMeshType, MyMatrix>::intersectCells(
+    ConnType targetCell, const std::vector<ConnType> &srcCells, MyMatrix &res
+)
+{
     std::vector<double> CoordsT;
-    typename MyMatrix::value_type& resRow=res[targetCell];
-    const double *coordsS=Intersector3DP1P0<MyMeshType,MyMatrix>::_src_mesh.getCoordinatesPtr();
-    Intersector3DP1P0<MyMeshType,MyMatrix>::getRealTargetCoordinates(OTT<ConnType,numPol>::indFC(targetCell),CoordsT);
+    typename MyMatrix::value_type &resRow = res[targetCell];
+    const double *coordsS = Intersector3DP1P0<MyMeshType, MyMatrix>::_src_mesh.getCoordinatesPtr();
+    Intersector3DP1P0<MyMeshType, MyMatrix>::getRealTargetCoordinates(
+        OTT<ConnType, numPol>::indFC(targetCell), CoordsT
+    );
     double baryT[SPACEDIM];
-    calculateBarycenterDyn2<SPACEDIM>(&CoordsT[0],ToConnType(CoordsT.size())/SPACEDIM,baryT);
-    for(typename std::vector<ConnType>::const_iterator iterCellS=srcCells.begin();iterCellS!=srcCells.end();iterCellS++)
-      {
-        NormalizedCellType tS=Intersector3DP1P0<MyMeshType,MyMatrix>::_src_mesh.getTypeOfElement(OTT<ConnType,numPol>::indFC(*iterCellS));
-        if(tS!=NORM_TETRA4)
-          throw INTERP_KERNEL::Exception("Invalid source cell detected for meshdim==3. Only TETRA4 supported !");
-        const CellModel& cmTypeS=CellModel::GetCellModel(tS);
+    calculateBarycenterDyn2<SPACEDIM>(&CoordsT[0], ToConnType(CoordsT.size()) / SPACEDIM, baryT);
+    for (typename std::vector<ConnType>::const_iterator iterCellS = srcCells.begin(); iterCellS != srcCells.end();
+         iterCellS++)
+    {
+        NormalizedCellType tS = Intersector3DP1P0<MyMeshType, MyMatrix>::_src_mesh.getTypeOfElement(
+            OTT<ConnType, numPol>::indFC(*iterCellS)
+        );
+        if (tS != NORM_TETRA4)
+            throw INTERP_KERNEL::Exception("Invalid source cell detected for meshdim==3. Only TETRA4 supported !");
+        const CellModel &cmTypeS = CellModel::GetCellModel(tS);
         std::vector<ConnType> connOfCurCellS;
-        Intersector3DP1P0<MyMeshType,MyMatrix>::getConnOfSourceCell(OTT<ConnType,numPol>::indFC(*iterCellS),connOfCurCellS);
-        if( PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg3D(baryT,&connOfCurCellS[0],ToConnType(connOfCurCellS.size()),coordsS,cmTypeS,_precision) )
-          {
+        Intersector3DP1P0<MyMeshType, MyMatrix>::getConnOfSourceCell(
+            OTT<ConnType, numPol>::indFC(*iterCellS), connOfCurCellS
+        );
+        if (PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg3D(
+                baryT, &connOfCurCellS[0], ToConnType(connOfCurCellS.size()), coordsS, cmTypeS, _precision
+            ))
+        {
             double resLoc[4];
             std::vector<double> srcCell;
-            Intersector3DP1P0<MyMeshType,MyMatrix>::getRealSourceCoordinates(OTT<ConnType,numPol>::indFC(*iterCellS),srcCell);
-            std::vector<const double*> eap(4);
-            eap[0]=&srcCell[0]; eap[1]=&srcCell[3]; eap[2]=&srcCell[6]; eap[3]=&srcCell[9];
-            barycentric_coords(eap,baryT,resLoc);
-            const ConnType *startOfCellNodeConn=Intersector3DP1P0<MyMeshType,MyMatrix>::getStartConnOfSourceCell(*iterCellS);
-            for(int nodeIdS=0;nodeIdS<4;nodeIdS++)
-              {
-                if(fabs(resLoc[nodeIdS])>_precision)
-                  {
-                    ConnType curNodeSInCmode=OTT<ConnType,numPol>::coo2C(startOfCellNodeConn[nodeIdS]);
-                    typename MyMatrix::value_type::const_iterator iterRes=resRow.find(OTT<ConnType,numPol>::indFC(curNodeSInCmode));
-                    if(iterRes==resRow.end())
-                      resRow.insert(std::make_pair(OTT<ConnType,numPol>::indFC(curNodeSInCmode),resLoc[nodeIdS]));
+            Intersector3DP1P0<MyMeshType, MyMatrix>::getRealSourceCoordinates(
+                OTT<ConnType, numPol>::indFC(*iterCellS), srcCell
+            );
+            std::vector<const double *> eap(4);
+            eap[0] = &srcCell[0];
+            eap[1] = &srcCell[3];
+            eap[2] = &srcCell[6];
+            eap[3] = &srcCell[9];
+            barycentric_coords(eap, baryT, resLoc);
+            const ConnType *startOfCellNodeConn =
+                Intersector3DP1P0<MyMeshType, MyMatrix>::getStartConnOfSourceCell(*iterCellS);
+            for (int nodeIdS = 0; nodeIdS < 4; nodeIdS++)
+            {
+                if (fabs(resLoc[nodeIdS]) > _precision)
+                {
+                    ConnType curNodeSInCmode = OTT<ConnType, numPol>::coo2C(startOfCellNodeConn[nodeIdS]);
+                    typename MyMatrix::value_type::const_iterator iterRes =
+                        resRow.find(OTT<ConnType, numPol>::indFC(curNodeSInCmode));
+                    if (iterRes == resRow.end())
+                        resRow.insert(std::make_pair(OTT<ConnType, numPol>::indFC(curNodeSInCmode), resLoc[nodeIdS]));
                     else
-                      {
-                        double val=(*iterRes).second+resLoc[nodeIdS];
-                        resRow.erase(OTT<ConnType,numPol>::indFC(curNodeSInCmode));
-                        resRow.insert(std::make_pair(OTT<ConnType,numPol>::indFC(curNodeSInCmode),val));
-                      }
-                  }
-              }
-          }
-      }
-  }
+                    {
+                        double val = (*iterRes).second + resLoc[nodeIdS];
+                        resRow.erase(OTT<ConnType, numPol>::indFC(curNodeSInCmode));
+                        resRow.insert(std::make_pair(OTT<ConnType, numPol>::indFC(curNodeSInCmode), val));
+                    }
+                }
+            }
+        }
+    }
 }
+}  // namespace INTERP_KERNEL
 
 #endif

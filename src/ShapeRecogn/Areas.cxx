@@ -25,11 +25,10 @@
 
 using namespace MEDCoupling;
 
-Areas::Areas(const Nodes *nodes) : nodes(nodes), areaIdByNodes(nodes->getNbNodes(), -1)
-{
-}
+Areas::Areas(const Nodes *nodes) : nodes(nodes), areaIdByNodes(nodes->getNbNodes(), -1) {}
 
-mcIdType Areas::addArea(PrimitiveType primitive)
+mcIdType
+Areas::addArea(PrimitiveType primitive)
 {
     Area area;
     area.primitive = primitive;
@@ -37,19 +36,22 @@ mcIdType Areas::addArea(PrimitiveType primitive)
     return areas.size() - 1;
 }
 
-void Areas::cleanArea(mcIdType areaId)
+void
+Areas::cleanArea(mcIdType areaId)
 {
     cleanArea(areaId, -1);
 }
 
-void Areas::cancelArea(mcIdType areaId, PrimitiveType primitive)
+void
+Areas::cancelArea(mcIdType areaId, PrimitiveType primitive)
 {
     cleanArea(areaId, -2);
     Area &area = areas[areaId];
     area.primitive = primitive;
 }
 
-void Areas::removeArea(mcIdType areaId)
+void
+Areas::removeArea(mcIdType areaId)
 {
     for (size_t nodeId = 0; nodeId < areaIdByNodes.size(); ++nodeId)
     {
@@ -61,7 +63,8 @@ void Areas::removeArea(mcIdType areaId)
     areas.erase(areas.begin() + areaId);
 }
 
-void Areas::addNode(mcIdType areaId, mcIdType nodeId)
+void
+Areas::addNode(mcIdType areaId, mcIdType nodeId)
 {
     removeNode(nodeId);
     areaIdByNodes[nodeId] = FromIdType<Int32>(areaId);
@@ -75,7 +78,8 @@ void Areas::addNode(mcIdType areaId, mcIdType nodeId)
     area.adimKdiff0 = ((double)(nbNodes - 1) * area.adimKdiff0 + nodes->getAdimKdiff0(nodeId)) / (double)nbNodes;
 }
 
-void Areas::cleanInvalidNodeAreas()
+void
+Areas::cleanInvalidNodeAreas()
 {
     for (mcIdType nodeId = 0; nodeId < (mcIdType)areaIdByNodes.size(); ++nodeId)
     {
@@ -84,38 +88,43 @@ void Areas::cleanInvalidNodeAreas()
     }
 }
 
-mcIdType Areas::getAreaId(mcIdType nodeId) const
+mcIdType
+Areas::getAreaId(mcIdType nodeId) const
 {
     return areaIdByNodes[nodeId];
 }
 
-bool Areas::isEmpty(mcIdType areaId) const
+bool
+Areas::isEmpty(mcIdType areaId) const
 {
     return areas[areaId].nodeIds.empty();
 }
 
-size_t Areas::getNumberOfAreas() const
+size_t
+Areas::getNumberOfAreas() const
 {
     return areas.size();
 }
 
-size_t Areas::getNumberOfNodes(mcIdType areaId) const
+size_t
+Areas::getNumberOfNodes(mcIdType areaId) const
 {
     return areas[areaId].nodeIds.size();
 }
 
-bool Areas::isNodeCompatible(mcIdType areaId, mcIdType nodeId) const
+bool
+Areas::isNodeCompatible(mcIdType areaId, mcIdType nodeId) const
 {
     PrimitiveType areaType = getPrimitiveType(areaId);
     PrimitiveType nodeType = nodes->getPrimitiveType(nodeId);
     return (
-        (areaType != PrimitiveType::Cylinder ||
-         nodeType != PrimitiveType::Plane) &&
-        (areaType != PrimitiveType::Sphere ||
-         nodeType != PrimitiveType::Plane));
+        (areaType != PrimitiveType::Cylinder || nodeType != PrimitiveType::Plane) &&
+        (areaType != PrimitiveType::Sphere || nodeType != PrimitiveType::Plane)
+    );
 }
 
-PrimitiveType Areas::getPrimitiveType(mcIdType areaId) const
+PrimitiveType
+Areas::getPrimitiveType(mcIdType areaId) const
 {
     const Area &area = areas[areaId];
     if (area.primitive != PrimitiveType::Unknown)
@@ -126,106 +135,121 @@ PrimitiveType Areas::getPrimitiveType(mcIdType areaId) const
         return nodes->getPrimitiveType(area.nodeIds[0]);
 }
 
-std::string Areas::getPrimitiveTypeName(mcIdType areaId) const
+std::string
+Areas::getPrimitiveTypeName(mcIdType areaId) const
 {
     return ConvertPrimitiveToString(getPrimitiveType(areaId));
 }
 
-int Areas::getPrimitiveTypeInt(mcIdType areaId) const
+int
+Areas::getPrimitiveTypeInt(mcIdType areaId) const
 {
     return ConvertPrimitiveToInt(getPrimitiveType(areaId));
 }
 
-const std::vector<mcIdType> &Areas::getNodeIds(mcIdType areaId) const
+const std::vector<mcIdType> &
+Areas::getNodeIds(mcIdType areaId) const
 {
     return areas[areaId].nodeIds;
 }
 
-double Areas::getAdimK1(mcIdType areaId) const
+double
+Areas::getAdimK1(mcIdType areaId) const
 {
-
     return areas[areaId].adimK1;
 }
 
-double Areas::getAdimK2(mcIdType areaId) const
+double
+Areas::getAdimK2(mcIdType areaId) const
 {
     return areas[areaId].adimK2;
 }
 
-double Areas::getAdimKdiff0(mcIdType areaId) const
+double
+Areas::getAdimKdiff0(mcIdType areaId) const
 {
     return areas[areaId].adimKdiff0;
 }
 
-void Areas::computeProperties(mcIdType areaId)
+void
+Areas::computeProperties(mcIdType areaId)
 {
     switch (getPrimitiveType(areaId))
     {
-    case PrimitiveType::Plane:
-        computePlaneProperties(areaId);
-        break;
-    case PrimitiveType::Sphere:
-        computeSphereProperties(areaId);
-        break;
-    case PrimitiveType::Cylinder:
-        computeCylinderProperties(areaId);
-        break;
-    case PrimitiveType::Cone:
-        computeConeProperties(areaId);
-        break;
-    case PrimitiveType::Torus:
-        computeTorusProperties(areaId);
-        break;
-    case PrimitiveType::Unknown:
-    default:
-        break;
+        case PrimitiveType::Plane:
+            computePlaneProperties(areaId);
+            break;
+        case PrimitiveType::Sphere:
+            computeSphereProperties(areaId);
+            break;
+        case PrimitiveType::Cylinder:
+            computeCylinderProperties(areaId);
+            break;
+        case PrimitiveType::Cone:
+            computeConeProperties(areaId);
+            break;
+        case PrimitiveType::Torus:
+            computeTorusProperties(areaId);
+            break;
+        case PrimitiveType::Unknown:
+        default:
+            break;
     }
 }
 
-double Areas::getMinorRadius(mcIdType areaId) const
+double
+Areas::getMinorRadius(mcIdType areaId) const
 {
     const Area &area = areas[areaId];
     return area.minorRadius;
 }
 
-double Areas::getRadius(mcIdType areaId) const
+double
+Areas::getRadius(mcIdType areaId) const
 {
     const Area &area = areas[areaId];
     return area.radius;
 }
 
-double Areas::getAngle(mcIdType areaId) const
+double
+Areas::getAngle(mcIdType areaId) const
 {
     return areas[areaId].angle;
 }
 
-const std::array<double, 3> &Areas::getNormal(mcIdType areaId) const
+const std::array<double, 3> &
+Areas::getNormal(mcIdType areaId) const
 {
     return areas[areaId].normal;
 }
 
-const std::array<double, 3> &Areas::getCenter(mcIdType areaId) const
+const std::array<double, 3> &
+Areas::getCenter(mcIdType areaId) const
 {
     const Area &area = areas[areaId];
     return area.center;
 }
 
-const std::array<double, 3> &Areas::getAxis(mcIdType areaId) const
+const std::array<double, 3> &
+Areas::getAxis(mcIdType areaId) const
 {
     return areas[areaId].axis;
 }
 
-const std::array<double, 3> &Areas::getAxisPoint(mcIdType areaId) const
+const std::array<double, 3> &
+Areas::getAxisPoint(mcIdType areaId) const
 {
     return areas[areaId].axisPoint;
 }
 
-const std::array<double, 3> &Areas::getApex(mcIdType areaId) const
+const std::array<double, 3> &
+Areas::getApex(mcIdType areaId) const
 {
     return areas[areaId].apex;
 }
 
-std::array<double, 3> Areas::getAffinePoint(mcIdType areaId) const
+std::array<double, 3>
+Areas::getAffinePoint(mcIdType areaId) const
 {
     const Area &area = areas[areaId];
     if (area.nodeIds.empty())
@@ -234,11 +258,11 @@ std::array<double, 3> Areas::getAffinePoint(mcIdType areaId) const
         return nodes->getCoordinates(area.nodeIds[0]);
 }
 
-void Areas::cleanArea(mcIdType areaId, mcIdType newAreaId = -1)
+void
+Areas::cleanArea(mcIdType areaId, mcIdType newAreaId = -1)
 {
     Area &area = areas[areaId];
-    for (mcIdType nodeId : area.nodeIds)
-        areaIdByNodes[nodeId] = FromIdType<Int32>( newAreaId );
+    for (mcIdType nodeId : area.nodeIds) areaIdByNodes[nodeId] = FromIdType<Int32>(newAreaId);
     area.primitive = PrimitiveType::Unknown;
     area.k1 = 0.0;
     area.k2 = 0.0;
@@ -256,24 +280,21 @@ void Areas::cleanArea(mcIdType areaId, mcIdType newAreaId = -1)
     area.nodeIds.clear();
 }
 
-void Areas::removeNode(mcIdType nodeId)
+void
+Areas::removeNode(mcIdType nodeId)
 {
     mcIdType areaId = areaIdByNodes[nodeId];
     if (areaId > -1)
     {
         Area &area = areas[areaId];
-        area.nodeIds.erase(
-            std::remove(
-                area.nodeIds.begin(),
-                area.nodeIds.end(),
-                nodeId),
-            area.nodeIds.end());
+        area.nodeIds.erase(std::remove(area.nodeIds.begin(), area.nodeIds.end(), nodeId), area.nodeIds.end());
         areaIdByNodes[nodeId] = -1;
         // TODO: Update the parameters of the area ?
     }
 }
 
-void Areas::computePlaneProperties(mcIdType areaId)
+void
+Areas::computePlaneProperties(mcIdType areaId)
 {
     Area &area = areas[areaId];
     const std::vector<double> &normals = nodes->getNormals();
@@ -281,14 +302,13 @@ void Areas::computePlaneProperties(mcIdType areaId)
     area.normal = {0.0, 0.0, 0.0};
     for (mcIdType nodeId : area.nodeIds)
     {
-        for (size_t i = 0; i < 3; ++i)
-            area.normal[i] += normals[3 * nodeId + i];
+        for (size_t i = 0; i < 3; ++i) area.normal[i] += normals[3 * nodeId + i];
     }
-    for (size_t i = 0; i < 3; ++i)
-        area.normal[i] /= (double)nbNodes;
+    for (size_t i = 0; i < 3; ++i) area.normal[i] /= (double)nbNodes;
 }
 
-void Areas::computeSphereProperties(mcIdType areaId)
+void
+Areas::computeSphereProperties(mcIdType areaId)
 {
     Area &area = areas[areaId];
     const std::vector<double> &normals = nodes->getNormals();
@@ -300,17 +320,16 @@ void Areas::computeSphereProperties(mcIdType areaId)
         for (mcIdType nodeId : area.nodeIds)
         {
             std::array<double, 3> nodeCoords = nodes->getCoordinates(nodeId);
-            for (size_t i = 0; i < 3; ++i)
-                center[i] += nodeCoords[i] - area.radius * normals[3 * nodeId + i];
+            for (size_t i = 0; i < 3; ++i) center[i] += nodeCoords[i] - area.radius * normals[3 * nodeId + i];
         }
-        for (size_t i = 0; i < 3; ++i)
-            center[i] /= (double)nbNodes;
+        for (size_t i = 0; i < 3; ++i) center[i] /= (double)nbNodes;
     }
     area.center = center;
     area.radius = fabs(area.radius);
 }
 
-void Areas::computeCylinderProperties(mcIdType areaId)
+void
+Areas::computeCylinderProperties(mcIdType areaId)
 {
     Area &area = areas[areaId];
     size_t nbNodes = area.nodeIds.size();
@@ -325,22 +344,21 @@ void Areas::computeCylinderProperties(mcIdType areaId)
         double approxRadius = 1.0 / nodes->getKdiff0(nodeId);
         for (size_t j = 0; j < 3; ++j)
         {
-            projectedNodes[3 * i + j] =
-                nodeCoords[j] - approxRadius * nodes->getNormals()[3 * nodeId + j];
+            projectedNodes[3 * i + j] = nodeCoords[j] - approxRadius * nodes->getNormals()[3 * nodeId + j];
             area.axisPoint[j] += projectedNodes[3 * i + j];
         }
         area.radius += approxRadius;
     }
     // Axis point is the mean of the projected nodes
-    for (size_t i = 0; i < 3; ++i)
-        area.axisPoint[i] /= (double)nbNodes;
+    for (size_t i = 0; i < 3; ++i) area.axisPoint[i] /= (double)nbNodes;
     // Radius of the cylinder is the mean of the approximate radius of each node
     area.radius = fabs(area.radius / (double)nbNodes);
     // Compute the axis of the cylinder
     area.axis = MathOps::computePCAFirstAxis(projectedNodes);
 }
 
-void Areas::computeConeProperties(mcIdType areaId)
+void
+Areas::computeConeProperties(mcIdType areaId)
 {
     Area &area = areas[areaId];
     size_t nbNodes = area.nodeIds.size();
@@ -355,30 +373,25 @@ void Areas::computeConeProperties(mcIdType areaId)
         radiusNodes[i] = 1.0 / nodes->getKdiff0(nodeId);
         for (size_t j = 0; j < 3; ++j)
         {
-            projectedNodes[3 * i + j] =
-                nodeCoords[j] - radiusNodes[i] * nodes->getNormals()[3 * nodeId + j];
+            projectedNodes[3 * i + j] = nodeCoords[j] - radiusNodes[i] * nodes->getNormals()[3 * nodeId + j];
             area.axisPoint[j] += projectedNodes[3 * i + j];
         }
     }
     // Axis point is the mean of the projected nodes
-    for (size_t i = 0; i < 3; ++i)
-        area.axisPoint[i] /= (double)nbNodes;
+    for (size_t i = 0; i < 3; ++i) area.axisPoint[i] /= (double)nbNodes;
     // Compute the axis of the cone
     area.axis = MathOps::computePCAFirstAxis(projectedNodes);
     double normAxis = MathOps::computeNorm(area.axis);
-    for (size_t i = 0; i < 3; ++i)
-        area.axis[i] /= normAxis;
+    for (size_t i = 0; i < 3; ++i) area.axis[i] /= normAxis;
     // Compute the angle of the cone
     const std::vector<double> &weakDirections = nodes->getWeakDirections();
     std::vector<double> weakDirectionNodes(3 * nbNodes, 0.0);
     for (size_t i = 0; i < nbNodes; ++i)
     {
         mcIdType nodeId = area.nodeIds[i];
-        for (size_t j = 0; j < 3; ++j)
-            weakDirectionNodes[3 * i + j] = weakDirections[3 * nodeId + j];
+        for (size_t j = 0; j < 3; ++j) weakDirectionNodes[3 * i + j] = weakDirections[3 * nodeId + j];
     }
-    std::vector<double> angles = MathOps::computeAngles(
-        weakDirectionNodes, area.axis);
+    std::vector<double> angles = MathOps::computeAngles(weakDirectionNodes, area.axis);
     // Correct the angles > pi/2 with the supplementary angle
     for (size_t i = 0; i < angles.size(); ++i)
     {
@@ -416,7 +429,8 @@ void Areas::computeConeProperties(mcIdType areaId)
         for (size_t j = 0; j < 3; ++j)
             p[j] = (projectedNodes[3 * q1_indices[i] + j] - projectedNodes[3 * q2_indices[i] + j]);
         double height = MathOps::computeNorm(p);
-        double distanceToApex = height * radiusNodes[q1_indices[i]] / (radiusNodes[q2_indices[i]] - radiusNodes[q1_indices[i]]);
+        double distanceToApex =
+            height * radiusNodes[q1_indices[i]] / (radiusNodes[q2_indices[i]] - radiusNodes[q1_indices[i]]);
         double orientationAxis = MathOps::dot(p, area.axis);
         for (size_t j = 0; j < 3; ++j)
         {
@@ -427,11 +441,11 @@ void Areas::computeConeProperties(mcIdType areaId)
                 area.apex[j] -= distanceToApex * area.axis[j];
         }
     }
-    for (size_t j = 0; j < 3; ++j)
-        area.apex[j] /= (double)min_q_size;
+    for (size_t j = 0; j < 3; ++j) area.apex[j] /= (double)min_q_size;
 }
 
-void Areas::computeTorusProperties(mcIdType areaId)
+void
+Areas::computeTorusProperties(mcIdType areaId)
 {
     Area &area = areas[areaId];
     size_t n = area.nodeIds.size();
@@ -457,14 +471,12 @@ void Areas::computeTorusProperties(mcIdType areaId)
     {
         std::array<double, 3> coords = nodes->getCoordinates(area.nodeIds[i]);
         std::array<double, 3> normal = nodes->getNormal(area.nodeIds[i]);
-        for (size_t j = 0; j < 3; ++j)
-            majorRadiusNodes[3 * i + j] = coords[j] - normal[j] * area.minorRadius;
+        for (size_t j = 0; j < 3; ++j) majorRadiusNodes[3 * i + j] = coords[j] - normal[j] * area.minorRadius;
     }
     std::array<double, 3> meanMajorRadiusNodes = MathOps::meanCoordinates(majorRadiusNodes);
     for (size_t i = 0; i < n; ++i)
     {
-        for (size_t j = 0; j < 3; ++j)
-            majorRadiusNodes[3 * i + j] -= meanMajorRadiusNodes[j];
+        for (size_t j = 0; j < 3; ++j) majorRadiusNodes[3 * i + j] -= meanMajorRadiusNodes[j];
     }
     std::array<double, 3> normal = MathOps::computePCAThirdAxis(majorRadiusNodes);
     std::array<double, 6> base2d = MathOps::computeBaseFromNormal(normal);
@@ -473,19 +485,24 @@ void Areas::computeTorusProperties(mcIdType areaId)
         CBLAS_LAYOUT::CblasRowMajor,
         CBLAS_TRANSPOSE::CblasNoTrans,
         CBLAS_TRANSPOSE::CblasTrans,
-        (int)n, 2, 3,
+        (int)n,
+        2,
+        3,
         1.0,
-        majorRadiusNodes.data(), 3,
-        base2d.data(), 3,
-        0.0, projectedMajorRadiusNodes.data(), 2);
+        majorRadiusNodes.data(),
+        3,
+        base2d.data(),
+        3,
+        0.0,
+        projectedMajorRadiusNodes.data(),
+        2
+    );
     std::vector<double> A(3 * n, 1.0);
     std::vector<double> B(n, 0.0);
     for (size_t i = 0; i < n; ++i)
     {
-        for (size_t j = 0; j < 2; ++j)
-            A[3 * i + j] = projectedMajorRadiusNodes[2 * i + j];
-        B[i] = pow(projectedMajorRadiusNodes[2 * i], 2) +
-               pow(projectedMajorRadiusNodes[2 * i + 1], 2);
+        for (size_t j = 0; j < 2; ++j) A[3 * i + j] = projectedMajorRadiusNodes[2 * i + j];
+        B[i] = pow(projectedMajorRadiusNodes[2 * i], 2) + pow(projectedMajorRadiusNodes[2 * i + 1], 2);
     }
     std::vector<double> fit = MathOps::lstsqRow(A, B);
     double a = fit[0];
@@ -494,11 +511,11 @@ void Areas::computeTorusProperties(mcIdType areaId)
     double xc = a / 2.0;
     double yc = b / 2.0;
     area.radius = sqrt(4.0 * c + pow(a, 2) + pow(b, 2)) / 2.0;
-    for (size_t i = 0; i < 3; ++i)
-        area.center[i] = xc * base2d[i] + yc * base2d[3 + i] + meanMajorRadiusNodes[i];
+    for (size_t i = 0; i < 3; ++i) area.center[i] = xc * base2d[i] + yc * base2d[3 + i] + meanMajorRadiusNodes[i];
 }
 
-const std::vector<Int32> &Areas::getAreaIdByNodes() const
+const std::vector<Int32> &
+Areas::getAreaIdByNodes() const
 {
     return areaIdByNodes;
 }

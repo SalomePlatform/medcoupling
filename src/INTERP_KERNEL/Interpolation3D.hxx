@@ -28,19 +28,21 @@
 
 namespace INTERP_KERNEL
 {
-  /**
-   * \class Interpolation3D
-   * \brief Class used to calculate the volumes of intersection between the elements of two 3D meshes.
-   */
+/**
+ * \class Interpolation3D
+ * \brief Class used to calculate the volumes of intersection between the elements of two 3D meshes.
+ */
 
-  class INTERPKERNEL_EXPORT Interpolation3D : public Interpolation<Interpolation3D>
-  {
-  public:
+class INTERPKERNEL_EXPORT Interpolation3D : public Interpolation<Interpolation3D>
+{
+   public:
     Interpolation3D();
-    Interpolation3D(const InterpolationOptions& io);
-    template<class MyMeshType, class MatrixType>
-    typename MyMeshType::MyConnType interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const std::string& method);
-  };
-}
+    Interpolation3D(const InterpolationOptions &io);
+    template <class MyMeshType, class MatrixType>
+    typename MyMeshType::MyConnType interpolateMeshes(
+        const MyMeshType &srcMesh, const MyMeshType &targetMesh, MatrixType &result, const std::string &method
+    );
+};
+}  // namespace INTERP_KERNEL
 
 #endif

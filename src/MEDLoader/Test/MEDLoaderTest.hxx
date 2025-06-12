@@ -21,49 +21,49 @@
 #ifndef __MEDLOADERTEST_HXX__
 #define __MEDLOADERTEST_HXX__
 
-#include "MEDCouplingFieldInt.hxx"   // this one can not use a class forward
+#include "MEDCouplingFieldInt.hxx"  // this one can not use a class forward
 #include <cppunit/extensions/HelperMacros.h>
 
 namespace MEDCoupling
 {
-  class MEDCouplingUMesh;
-  class MEDCouplingFieldDouble;
-  class MEDCouplingFieldFloat;
+class MEDCouplingUMesh;
+class MEDCouplingFieldDouble;
+class MEDCouplingFieldFloat;
 
-  class MEDLoaderTest : public CppUnit::TestFixture
-  {
+class MEDLoaderTest : public CppUnit::TestFixture
+{
     CPPUNIT_TEST_SUITE(MEDLoaderTest);
-    CPPUNIT_TEST( testMesh1DRW );
-    CPPUNIT_TEST( testMesh2DCurveRW );
-    CPPUNIT_TEST( testMesh2DRW );
-    CPPUNIT_TEST( testMesh3DSurfRW );
-    CPPUNIT_TEST( testMesh3DRW );
-    CPPUNIT_TEST( testFieldRW1 );
-    CPPUNIT_TEST( testFieldRW2 );
-    CPPUNIT_TEST( testFieldRW3 );
-    CPPUNIT_TEST( testMultiMeshRW1 );
-    CPPUNIT_TEST( testFieldProfilRW1 );
-    CPPUNIT_TEST( testFieldNodeProfilRW1 );
-    CPPUNIT_TEST( testFieldNodeProfilRW2 );
-    CPPUNIT_TEST( testFieldGaussRW1 );
-    CPPUNIT_TEST( testFieldGaussNERW1 );
-    CPPUNIT_TEST( testLittleStrings1 );
-    CPPUNIT_TEST( testSplitIntoNameAndUnit1 );
-    CPPUNIT_TEST( testMesh3DSurfShuffleRW );
-    CPPUNIT_TEST( testFieldShuffleRW1 );
-    CPPUNIT_TEST( testMultiFieldShuffleRW1 );
-    CPPUNIT_TEST( testWriteUMeshesRW1 );
-    CPPUNIT_TEST( testMixCellAndNodesFieldRW1 );
-    CPPUNIT_TEST( testGetAllFieldNamesRW1 );
+    CPPUNIT_TEST(testMesh1DRW);
+    CPPUNIT_TEST(testMesh2DCurveRW);
+    CPPUNIT_TEST(testMesh2DRW);
+    CPPUNIT_TEST(testMesh3DSurfRW);
+    CPPUNIT_TEST(testMesh3DRW);
+    CPPUNIT_TEST(testFieldRW1);
+    CPPUNIT_TEST(testFieldRW2);
+    CPPUNIT_TEST(testFieldRW3);
+    CPPUNIT_TEST(testMultiMeshRW1);
+    CPPUNIT_TEST(testFieldProfilRW1);
+    CPPUNIT_TEST(testFieldNodeProfilRW1);
+    CPPUNIT_TEST(testFieldNodeProfilRW2);
+    CPPUNIT_TEST(testFieldGaussRW1);
+    CPPUNIT_TEST(testFieldGaussNERW1);
+    CPPUNIT_TEST(testLittleStrings1);
+    CPPUNIT_TEST(testSplitIntoNameAndUnit1);
+    CPPUNIT_TEST(testMesh3DSurfShuffleRW);
+    CPPUNIT_TEST(testFieldShuffleRW1);
+    CPPUNIT_TEST(testMultiFieldShuffleRW1);
+    CPPUNIT_TEST(testWriteUMeshesRW1);
+    CPPUNIT_TEST(testMixCellAndNodesFieldRW1);
+    CPPUNIT_TEST(testGetAllFieldNamesRW1);
 
     // Previously in ParaMEDMEM:
     CPPUNIT_TEST(testMEDLoaderRead1);
     CPPUNIT_TEST(testMEDLoaderPolygonRead);
     CPPUNIT_TEST(testMEDLoaderPolyhedronRead);
 
-
     CPPUNIT_TEST_SUITE_END();
-  public:
+
+   public:
     void testMesh1DRW();
     void testMesh2DCurveRW();
     void testMesh2DRW();
@@ -91,7 +91,7 @@ namespace MEDCoupling
     void testMEDLoaderPolygonRead();
     void testMEDLoaderPolyhedronRead();
 
-  private:
+   private:
     MEDCouplingUMesh *build1DMesh_1();
     MEDCouplingUMesh *build2DCurveMesh_1();
     MEDCouplingUMesh *build2DMesh_1();
@@ -100,14 +100,13 @@ namespace MEDCoupling
     MEDCouplingUMesh *build3DMesh_1();
     MEDCouplingUMesh *build3DMesh_2();
     MEDCouplingFieldDouble *buildVecFieldOnCells_1();
-    MEDCouplingFieldInt    *buildIntVecFieldOnCells_1();
-    MEDCouplingFieldInt64  *buildInt64VecFieldOnCells_1();
-    MEDCouplingFieldFloat  *buildFloatVecFieldOnCells_1();
+    MEDCouplingFieldInt *buildIntVecFieldOnCells_1();
+    MEDCouplingFieldInt64 *buildInt64VecFieldOnCells_1();
+    MEDCouplingFieldFloat *buildFloatVecFieldOnCells_1();
     MEDCouplingFieldDouble *buildVecFieldOnNodes_1();
     MEDCouplingFieldDouble *buildVecFieldOnGauss_1();
     MEDCouplingFieldDouble *buildVecFieldOnGaussNE_1();
-
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

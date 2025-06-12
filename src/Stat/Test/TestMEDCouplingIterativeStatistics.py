@@ -50,7 +50,9 @@ class MEDCouplingIterativeStatisticsTest(unittest.TestCase):
         dim = 3
         for i in range(sampling_size):
             coeff = 1.0 + i / sampling_size
-            field = mesh.fillFromAnalytic(mc.ON_NODES, dim, f"2*x*IVec + 3*x*{coeff}*JVec + 5*KVec")
+            field = mesh.fillFromAnalytic(
+                mc.ON_NODES, dim, f"2*x*IVec + 3*x*{coeff}*JVec + 5*KVec"
+            )
             istats.increment(field)
 
         # check moments on last node
@@ -66,11 +68,11 @@ class MEDCouplingIterativeStatisticsTest(unittest.TestCase):
 
         print(f"variance={variance[-1]}")
         assert variance.shape == (size, dim), f"wrong shape: {variance.shape}"
-        assert_allclose(variance[-1], [0., 0.66825, 0.], atol=1e-9)
+        assert_allclose(variance[-1], [0.0, 0.66825, 0.0], atol=1e-9)
 
         print(f"stddev={stddev[-1]}")
         assert stddev.shape == (size, dim), f"wrong shape: {stddev.shape}"
-        assert_allclose(stddev[-1], [0., 0.8174656, 0.], atol=1e-9)
+        assert_allclose(stddev[-1], [0.0, 0.8174656, 0.0], atol=1e-9)
 
         print(f"covariance={covariance[-1]}")
         assert covariance.shape == (size, dim, dim), f"wrong shape: {covariance.shape}"
@@ -103,13 +105,14 @@ class MEDCouplingIterativeStatisticsTest(unittest.TestCase):
 
         variance = sample.computeVariance()
         print(f"variance={variance}")
-        assert_allclose(np.asarray(variance), [0., 0.668250, 0.], atol=1e-9)
+        assert_allclose(np.asarray(variance), [0.0, 0.668250, 0.0], atol=1e-9)
 
         covariance = sample.computeCovariance()
         print(f"covariance={covariance}")
         assert_allclose(
-            np.asarray(covariance).flatten(), [0.0, 0.0, 0.0, 0.0, 0.66825, 0.0, 0.0, 0.0, 0.0],
-            atol=1e-9
+            np.asarray(covariance).flatten(),
+            [0.0, 0.0, 0.0, 0.0, 0.66825, 0.0, 0.0, 0.0, 0.0],
+            atol=1e-9,
         )
 
     def test3(self):
@@ -130,13 +133,15 @@ class MEDCouplingIterativeStatisticsTest(unittest.TestCase):
         dim = 2
         for i in range(sampling_size):
             coeff = 1.0 + i / sampling_size
-            field = mesh.fillFromAnalytic(mc.ON_NODES, dim, f"2*x*IVec + 3*x*{coeff}*JVec")
+            field = mesh.fillFromAnalytic(
+                mc.ON_NODES, dim, f"2*x*IVec + 3*x*{coeff}*JVec"
+            )
             istats.increment(field)
 
         mean = istats.mean()
         print(f"mean={mean[-1]}")
         assert mean.shape == (size, dim), f"wrong shape: {mean.shape}"
-        assert_allclose(mean[-1], [1.9998 , 4.349565])
+        assert_allclose(mean[-1], [1.9998, 4.349565])
 
     def test4(self):
         #! [UG_MEDCouplingIterativeStatistics_2]
@@ -148,7 +153,7 @@ class MEDCouplingIterativeStatisticsTest(unittest.TestCase):
 
         # 1-d mesh [-1; -1]
         size = int(1e2)
-        coords = [-1 + 2*i / size for i in range(size)]
+        coords = [-1 + 2 * i / size for i in range(size)]
         arrX = mc.DataArrayDouble(coords, size, 1)
         mesh = mc.MEDCouplingCMesh()
         mesh.setCoords(arrX)
@@ -156,10 +161,12 @@ class MEDCouplingIterativeStatisticsTest(unittest.TestCase):
         # class to sample 2 parameters: in [0,1]^2 for nb_sim repetitions in a pick-freeze manner
         nb_parms = 2
         nb_sim = 300
+
         class ABSampler(AbstractExperiment):
             def __init__(self):
                 super(ABSampler, self).__init__(nb_parms, nb_sim)
                 np.random.seed(42)
+
             def draw(self):
                 return np.random.rand(1, self.nb_parms)
 
@@ -167,7 +174,10 @@ class MEDCouplingIterativeStatisticsTest(unittest.TestCase):
         isobol = IterativeFieldSobol(nb_parms)
         for pf_sample in ABSampler().generator():
             # build the fields of the time-series f(a, b)_x=a+bx^2 for each (a,b) tuple in the pick-freeze sample
-            fields = [mesh.fillFromAnalytic(mc.ON_NODES, 1, f"({a}+{b}*x*x)*IVec") for a,b in pf_sample]
+            fields = [
+                mesh.fillFromAnalytic(mc.ON_NODES, 1, f"({a}+{b}*x*x)*IVec")
+                for a, b in pf_sample
+            ]
             # note that for each simulation we need to instanciate nb_parms+2 fields
             isobol.increment(fields)
 
@@ -184,11 +194,12 @@ class MEDCouplingIterativeStatisticsTest(unittest.TestCase):
         assert_allclose(total_beg[0], [0.52188301, 0.47895543])
 
         assert_allclose(first_mid[0], [0.94759752, -0.00683533], rtol=1e-6)
-        assert_allclose(total_mid[0], [1.00739829e+00, -9.41396650e-07])
+        assert_allclose(total_mid[0], [1.00739829e00, -9.41396650e-07])
 
 
 if __name__ == "__main__":
     import logging
     from iterative_stats.utils.logger import logger
+
     logger.level = logging.INFO
     unittest.main()

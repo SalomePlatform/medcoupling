@@ -31,13 +31,14 @@
 
 namespace MEDCoupling
 {
-  /*!
-   * The aim of this class is \b NOT to reimplement all linear algebra but only to store a dense matrix.
-   * It only provides basic set/get and basic operations and bindings to linear algebra libraries (numpy/scipy) and a compatible format to Petsc.
-   */
-  class DenseMatrix : public RefCountObject, public TimeLabel
-  {
-  public:
+/*!
+ * The aim of this class is \b NOT to reimplement all linear algebra but only to store a dense matrix.
+ * It only provides basic set/get and basic operations and bindings to linear algebra libraries (numpy/scipy) and a
+ * compatible format to Petsc.
+ */
+class DenseMatrix : public RefCountObject, public TimeLabel
+{
+   public:
     MEDCOUPLING_EXPORT static DenseMatrix *New(mcIdType nbRows, mcIdType nbCols);
     MEDCOUPLING_EXPORT static DenseMatrix *New(DataArrayDouble *array, mcIdType nbRows, mcIdType nbCols);
     std::string getClassName() const override { return std::string("DenseMatrix"); }
@@ -49,13 +50,13 @@ namespace MEDCoupling
     //
     mcIdType getNumberOfRows() const { return _nb_rows; }
     mcIdType getNumberOfCols() const { return _nb_cols; }
-    mcIdType getNbOfElems() const { return _nb_rows*_nb_cols; }
-    MEDCOUPLING_EXPORT void reBuild(DataArrayDouble *array, mcIdType nbRows=-1, mcIdType nbCols=-1);
+    mcIdType getNbOfElems() const { return _nb_rows * _nb_cols; }
+    MEDCOUPLING_EXPORT void reBuild(DataArrayDouble *array, mcIdType nbRows = -1, mcIdType nbCols = -1);
     MEDCOUPLING_EXPORT void reShape(mcIdType nbRows, mcIdType nbCols);
     MEDCOUPLING_EXPORT void transpose();
     //
-    MEDCOUPLING_EXPORT bool isEqual(const DenseMatrix& other, double eps) const;
-    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DenseMatrix& other, double eps, std::string& reason) const;
+    MEDCOUPLING_EXPORT bool isEqual(const DenseMatrix &other, double eps) const;
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const DenseMatrix &other, double eps, std::string &reason) const;
     MEDCOUPLING_EXPORT DataArrayDouble *matVecMult(const DataArrayDouble *vec) const;
     MEDCOUPLING_EXPORT static DataArrayDouble *MatVecMult(const DenseMatrix *mat, const DataArrayDouble *vec);
     MEDCOUPLING_EXPORT static DenseMatrix *Add(const DenseMatrix *a1, const DenseMatrix *a2);
@@ -67,7 +68,8 @@ namespace MEDCoupling
     //
     const DataArrayDouble *getData() const { return _data; }
     DataArrayDouble *getData() { return _data; }
-  private:
+
+   private:
     ~DenseMatrix();
     DenseMatrix(mcIdType nbRows, mcIdType nbCols);
     DenseMatrix(DataArrayDouble *array, mcIdType nbRows, mcIdType nbCols);
@@ -77,11 +79,12 @@ namespace MEDCoupling
     static void CheckArraySizes(DataArrayDouble *array, mcIdType nbRows, mcIdType nbCols);
     static void CheckSameSize(const DenseMatrix *a1, const DenseMatrix *a2);
     static void CheckCompatibleSizeForMul(const DenseMatrix *a1, const DenseMatrix *a2);
-  private:
+
+   private:
     mcIdType _nb_rows;
     mcIdType _nb_cols;
     MCAuto<DataArrayDouble> _data;
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

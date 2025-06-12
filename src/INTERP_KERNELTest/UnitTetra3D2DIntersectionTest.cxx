@@ -30,148 +30,146 @@ using namespace INTERP_KERNEL;
 
 namespace INTERP_TEST
 {
-  struct __MESH_DUMMY
-  {
+struct __MESH_DUMMY
+{
     typedef mcIdType MyConnType;
-    static const int MY_SPACEDIM=3;
-  };
+    static const int MY_SPACEDIM = 3;
+};
 
-  static SplitterTetra<__MESH_DUMMY>* buildSplitterTetra()
-  {
-    const mcIdType conn[4] = { 0,1,2,3 };
+static SplitterTetra<__MESH_DUMMY> *
+buildSplitterTetra()
+{
+    const mcIdType conn[4] = {0, 1, 2, 3};
 
-    const double targetCoords[] = { -20., 0.,10.,
-                                    -20.,10.,10.,
-                                    -12., 0.,10.,
-                                    -20., 0.,18. };
+    const double targetCoords[] = {-20., 0., 10., -20., 10., 10., -12., 0., 10., -20., 0., 18.};
 
-    const double* tetraCoords[]={ targetCoords, targetCoords+3, targetCoords+6, targetCoords+9 };
+    const double *tetraCoords[] = {targetCoords, targetCoords + 3, targetCoords + 6, targetCoords + 9};
 
     __MESH_DUMMY dummyMesh;
-    SplitterTetra<__MESH_DUMMY>* targetTetra = new SplitterTetra<__MESH_DUMMY>( dummyMesh, tetraCoords, conn );
+    SplitterTetra<__MESH_DUMMY> *targetTetra = new SplitterTetra<__MESH_DUMMY>(dummyMesh, tetraCoords, conn);
     return targetTetra;
-  }
-
-  void UnitTetra3D2DIntersectionTest::test_UnitTetra3D2DIntersection_1()
-  {
-    const mcIdType conn[4] = { 0,1,2 };
-
-    const double sourceCoords[] = { -20., 0., 10.,
-                                    -12., 0., 10.,
-                                    -20.,10., 10. };
-
-    SplitterTetra<__MESH_DUMMY>* targetTetra = buildSplitterTetra();
-    const double dimCaracteristic = 1.;
-    const double precision = 1.e-12;
-    std::multiset<TriangleFaceKey> listOfTetraFacesTreated;
-    std::set<TriangleFaceKey> listOfTetraFacesColinear;
-
-    const double* sourceTriCoords[] = { sourceCoords, sourceCoords+3, sourceCoords+6 };
-    double surface = targetTetra->intersectSourceFace(NORM_TRI3,
-                                                      3,
-                                                      conn,
-                                                      sourceTriCoords,
-                                                      dimCaracteristic,
-                                                      precision,
-                                                      listOfTetraFacesTreated,
-                                                      listOfTetraFacesColinear);
-    delete targetTetra;
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(40.,surface,precision);
-
-    CPPUNIT_ASSERT_EQUAL(4,(int)listOfTetraFacesTreated.size());
-    std::multiset<TriangleFaceKey> correctListOfTetraFacesTreated;
-    TriangleFaceKey key1 = TriangleFaceKey(0, 1, 2);
-    correctListOfTetraFacesTreated.insert(key1);
-    TriangleFaceKey key2 = TriangleFaceKey(0, 1, 3);
-    correctListOfTetraFacesTreated.insert(key2);
-    TriangleFaceKey key3 = TriangleFaceKey(0, 2, 3);
-    correctListOfTetraFacesTreated.insert(key3);
-    TriangleFaceKey key4 = TriangleFaceKey(1, 2, 3);
-    correctListOfTetraFacesTreated.insert(key4);
-    CPPUNIT_ASSERT(correctListOfTetraFacesTreated == listOfTetraFacesTreated);
-
-    CPPUNIT_ASSERT_EQUAL(1,(int)listOfTetraFacesColinear.size());
-    std::set<TriangleFaceKey> correctListOfTetraFacesColinear;
-    correctListOfTetraFacesColinear.insert(key1);
-    CPPUNIT_ASSERT(correctListOfTetraFacesColinear == listOfTetraFacesColinear);
-
-  }
-
-  void UnitTetra3D2DIntersectionTest::test_UnitTetra3D2DIntersection_2()
-  {
-    const mcIdType conn[4] = { 0,1,2,3 };
-
-    const double sourceCoords[] = { -20., 0., 10.,
-                                    -12., 0., 10.,
-                                    -12.,10., 10.,
-                                    -20.,10., 10. };
-
-    SplitterTetra<__MESH_DUMMY>* targetTetra = buildSplitterTetra();
-    const double dimCaracteristic = 1.;
-    const double precision = 1.e-12;
-    std::multiset<TriangleFaceKey> listOfTetraFacesTreated;
-    std::set<TriangleFaceKey> listOfTetraFacesColinear;
-
-    const double* sourceQuadCoords[] = { sourceCoords, sourceCoords+3, sourceCoords+6, sourceCoords+9 };
-    double surface = targetTetra->intersectSourceFace(NORM_QUAD4,
-                                                      4,
-                                                      conn,
-                                                      sourceQuadCoords,
-                                                      dimCaracteristic,
-                                                      precision,
-                                                      listOfTetraFacesTreated,
-                                                      listOfTetraFacesColinear);
-    delete targetTetra;
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(40.,surface,precision);
-
-    CPPUNIT_ASSERT_EQUAL(4,(int)listOfTetraFacesTreated.size());
-    std::multiset<TriangleFaceKey> correctListOfTetraFacesTreated;
-    TriangleFaceKey key1 = TriangleFaceKey(0, 1, 2);
-    correctListOfTetraFacesTreated.insert(key1);
-    TriangleFaceKey key2 = TriangleFaceKey(0, 1, 3);
-    correctListOfTetraFacesTreated.insert(key2);
-    TriangleFaceKey key3 = TriangleFaceKey(0, 2, 3);
-    correctListOfTetraFacesTreated.insert(key3);
-    TriangleFaceKey key4 = TriangleFaceKey(1, 2, 3);
-    correctListOfTetraFacesTreated.insert(key4);
-    CPPUNIT_ASSERT(correctListOfTetraFacesTreated == listOfTetraFacesTreated);
-
-    CPPUNIT_ASSERT_EQUAL(1,(int)listOfTetraFacesColinear.size());
-    std::set<TriangleFaceKey> correctListOfTetraFacesColinear;
-    correctListOfTetraFacesColinear.insert(key1);
-    CPPUNIT_ASSERT(correctListOfTetraFacesColinear == listOfTetraFacesColinear);
-
- }
-
-  void UnitTetra3D2DIntersectionTest::test_UnitTetra3D2DIntersection_3()
-  {
-    const mcIdType conn[4] = { 0,1,2 };
-
-    const double sourceCoords[] = { -20., 0., 16.,
-                                    -18., 0., 16.,
-                                    -20.,2.5, 16. };
-
-    SplitterTetra<__MESH_DUMMY>* targetTetra = buildSplitterTetra();
-    const double dimCaracteristic = 1.;
-    const double precision = 1.e-12;
-    std::multiset<TriangleFaceKey> listOfTetraFacesTreated;
-    std::set<TriangleFaceKey> listOfTetraFacesColinear;
-
-    const double* sourceTri2Coords[] = { sourceCoords, sourceCoords+3, sourceCoords+6 };
-    double surface = targetTetra->intersectSourceFace(NORM_TRI3,
-                                                      3,
-                                                      conn,
-                                                      sourceTri2Coords,
-                                                      dimCaracteristic,
-                                                      precision,
-                                                      listOfTetraFacesTreated,
-                                                      listOfTetraFacesColinear);
-    delete targetTetra;
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(2.5,surface,precision);
-
-    CPPUNIT_ASSERT_EQUAL(0,(int)listOfTetraFacesTreated.size());
-
-    CPPUNIT_ASSERT_EQUAL(0,(int)listOfTetraFacesColinear.size());
- }
-
 }
+
+void
+UnitTetra3D2DIntersectionTest::test_UnitTetra3D2DIntersection_1()
+{
+    const mcIdType conn[4] = {0, 1, 2};
+
+    const double sourceCoords[] = {-20., 0., 10., -12., 0., 10., -20., 10., 10.};
+
+    SplitterTetra<__MESH_DUMMY> *targetTetra = buildSplitterTetra();
+    const double dimCaracteristic = 1.;
+    const double precision = 1.e-12;
+    std::multiset<TriangleFaceKey> listOfTetraFacesTreated;
+    std::set<TriangleFaceKey> listOfTetraFacesColinear;
+
+    const double *sourceTriCoords[] = {sourceCoords, sourceCoords + 3, sourceCoords + 6};
+    double surface = targetTetra->intersectSourceFace(
+        NORM_TRI3,
+        3,
+        conn,
+        sourceTriCoords,
+        dimCaracteristic,
+        precision,
+        listOfTetraFacesTreated,
+        listOfTetraFacesColinear
+    );
+    delete targetTetra;
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(40., surface, precision);
+
+    CPPUNIT_ASSERT_EQUAL(4, (int)listOfTetraFacesTreated.size());
+    std::multiset<TriangleFaceKey> correctListOfTetraFacesTreated;
+    TriangleFaceKey key1 = TriangleFaceKey(0, 1, 2);
+    correctListOfTetraFacesTreated.insert(key1);
+    TriangleFaceKey key2 = TriangleFaceKey(0, 1, 3);
+    correctListOfTetraFacesTreated.insert(key2);
+    TriangleFaceKey key3 = TriangleFaceKey(0, 2, 3);
+    correctListOfTetraFacesTreated.insert(key3);
+    TriangleFaceKey key4 = TriangleFaceKey(1, 2, 3);
+    correctListOfTetraFacesTreated.insert(key4);
+    CPPUNIT_ASSERT(correctListOfTetraFacesTreated == listOfTetraFacesTreated);
+
+    CPPUNIT_ASSERT_EQUAL(1, (int)listOfTetraFacesColinear.size());
+    std::set<TriangleFaceKey> correctListOfTetraFacesColinear;
+    correctListOfTetraFacesColinear.insert(key1);
+    CPPUNIT_ASSERT(correctListOfTetraFacesColinear == listOfTetraFacesColinear);
+}
+
+void
+UnitTetra3D2DIntersectionTest::test_UnitTetra3D2DIntersection_2()
+{
+    const mcIdType conn[4] = {0, 1, 2, 3};
+
+    const double sourceCoords[] = {-20., 0., 10., -12., 0., 10., -12., 10., 10., -20., 10., 10.};
+
+    SplitterTetra<__MESH_DUMMY> *targetTetra = buildSplitterTetra();
+    const double dimCaracteristic = 1.;
+    const double precision = 1.e-12;
+    std::multiset<TriangleFaceKey> listOfTetraFacesTreated;
+    std::set<TriangleFaceKey> listOfTetraFacesColinear;
+
+    const double *sourceQuadCoords[] = {sourceCoords, sourceCoords + 3, sourceCoords + 6, sourceCoords + 9};
+    double surface = targetTetra->intersectSourceFace(
+        NORM_QUAD4,
+        4,
+        conn,
+        sourceQuadCoords,
+        dimCaracteristic,
+        precision,
+        listOfTetraFacesTreated,
+        listOfTetraFacesColinear
+    );
+    delete targetTetra;
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(40., surface, precision);
+
+    CPPUNIT_ASSERT_EQUAL(4, (int)listOfTetraFacesTreated.size());
+    std::multiset<TriangleFaceKey> correctListOfTetraFacesTreated;
+    TriangleFaceKey key1 = TriangleFaceKey(0, 1, 2);
+    correctListOfTetraFacesTreated.insert(key1);
+    TriangleFaceKey key2 = TriangleFaceKey(0, 1, 3);
+    correctListOfTetraFacesTreated.insert(key2);
+    TriangleFaceKey key3 = TriangleFaceKey(0, 2, 3);
+    correctListOfTetraFacesTreated.insert(key3);
+    TriangleFaceKey key4 = TriangleFaceKey(1, 2, 3);
+    correctListOfTetraFacesTreated.insert(key4);
+    CPPUNIT_ASSERT(correctListOfTetraFacesTreated == listOfTetraFacesTreated);
+
+    CPPUNIT_ASSERT_EQUAL(1, (int)listOfTetraFacesColinear.size());
+    std::set<TriangleFaceKey> correctListOfTetraFacesColinear;
+    correctListOfTetraFacesColinear.insert(key1);
+    CPPUNIT_ASSERT(correctListOfTetraFacesColinear == listOfTetraFacesColinear);
+}
+
+void
+UnitTetra3D2DIntersectionTest::test_UnitTetra3D2DIntersection_3()
+{
+    const mcIdType conn[4] = {0, 1, 2};
+
+    const double sourceCoords[] = {-20., 0., 16., -18., 0., 16., -20., 2.5, 16.};
+
+    SplitterTetra<__MESH_DUMMY> *targetTetra = buildSplitterTetra();
+    const double dimCaracteristic = 1.;
+    const double precision = 1.e-12;
+    std::multiset<TriangleFaceKey> listOfTetraFacesTreated;
+    std::set<TriangleFaceKey> listOfTetraFacesColinear;
+
+    const double *sourceTri2Coords[] = {sourceCoords, sourceCoords + 3, sourceCoords + 6};
+    double surface = targetTetra->intersectSourceFace(
+        NORM_TRI3,
+        3,
+        conn,
+        sourceTri2Coords,
+        dimCaracteristic,
+        precision,
+        listOfTetraFacesTreated,
+        listOfTetraFacesColinear
+    );
+    delete targetTetra;
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(2.5, surface, precision);
+
+    CPPUNIT_ASSERT_EQUAL(0, (int)listOfTetraFacesTreated.size());
+
+    CPPUNIT_ASSERT_EQUAL(0, (int)listOfTetraFacesColinear.size());
+}
+
+}  // namespace INTERP_TEST

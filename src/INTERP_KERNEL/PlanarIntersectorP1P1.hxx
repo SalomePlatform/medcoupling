@@ -25,25 +25,42 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix, class ConcreteP1P1Intersector>
-  class PlanarIntersectorP1P1 : public PlanarIntersector<MyMeshType,MyMatrix>
-  {
-  public:
-    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+template <class MyMeshType, class MyMatrix, class ConcreteP1P1Intersector>
+class PlanarIntersectorP1P1 : public PlanarIntersector<MyMeshType, MyMatrix>
+{
+   public:
+    static const int SPACEDIM = MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM = MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
-    static const NumberingPolicy numPol=MyMeshType::My_numPol;
-  protected:
-    PlanarIntersectorP1P1(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel);
-  public:
-    void intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res);
+    static const NumberingPolicy numPol = MyMeshType::My_numPol;
+
+   protected:
+    PlanarIntersectorP1P1(
+        const MyMeshType &meshT,
+        const MyMeshType &meshS,
+        double dimCaracteristic,
+        double precision,
+        double md3DSurf,
+        double minDot3DSurf,
+        double medianPlane,
+        bool doRotate,
+        int orientation,
+        int printLevel
+    );
+
+   public:
+    void intersectCells(ConnType icellT, const std::vector<ConnType> &icellsS, MyMatrix &res);
     ConnType getNumberOfRowsOfResMatrix() const;
     ConnType getNumberOfColsOfResMatrix() const;
 
-    double intersectGeometryGeneral(const std::vector<double>& targetCoords, const std::vector<double>& sourceCoords) { return asLeaf().intersectGeometryGeneral(targetCoords,sourceCoords); }
-  protected:
-    ConcreteP1P1Intersector& asLeaf() { return static_cast<ConcreteP1P1Intersector&>(*this); }
-  };
-}
+    double intersectGeometryGeneral(const std::vector<double> &targetCoords, const std::vector<double> &sourceCoords)
+    {
+        return asLeaf().intersectGeometryGeneral(targetCoords, sourceCoords);
+    }
+
+   protected:
+    ConcreteP1P1Intersector &asLeaf() { return static_cast<ConcreteP1P1Intersector &>(*this); }
+};
+}  // namespace INTERP_KERNEL
 
 #endif

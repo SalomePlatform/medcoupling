@@ -24,25 +24,28 @@
 
 using namespace MEDCoupling;
 
-MEDCoupling::MEDCouplingUMesh *MEDMeshMaker(int dim, int nbedge)
+MEDCoupling::MEDCouplingUMesh *
+MEDMeshMaker(int dim, int nbedge)
 {
-  MCAuto<MEDCouplingCMesh> c=MEDCouplingCMesh::New();
-  MCAuto<DataArrayDouble> arr=DataArrayDouble::New();
-  arr->alloc(nbedge+1,1); arr->iota(0.); arr->applyLin(1./double(nbedge),0.);
-  switch(dim)
-  {
-  case 2:
+    MCAuto<MEDCouplingCMesh> c = MEDCouplingCMesh::New();
+    MCAuto<DataArrayDouble> arr = DataArrayDouble::New();
+    arr->alloc(nbedge + 1, 1);
+    arr->iota(0.);
+    arr->applyLin(1. / double(nbedge), 0.);
+    switch (dim)
     {
-      c->setCoords(arr,arr);
-      break;
+        case 2:
+        {
+            c->setCoords(arr, arr);
+            break;
+        }
+        case 3:
+        {
+            c->setCoords(arr, arr, arr);
+            break;
+        }
+        default:
+            throw INTERP_KERNEL::Exception("MEDMeshMaker : only dim 2 or 3 supported !");
     }
-  case 3:
-    {
-      c->setCoords(arr,arr,arr);
-      break;
-    }
-  default:
-    throw INTERP_KERNEL::Exception("MEDMeshMaker : only dim 2 or 3 supported !");
-  }
-  return c->buildUnstructured();
+    return c->buildUnstructured();
 }

@@ -76,11 +76,11 @@ Here contrary to the previous steps, we are going to write in a multi-session mo
 First dealing with the mesh. ::
 
 	mc.WriteUMesh("MySecondField.med",f.getMesh(),True)
-	
+
 Then writing only array part of field. ::
 
 	mc.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f)
-	
+
 Then put a another time step. ::
 
 	f2=f.clone(True)

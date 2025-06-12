@@ -28,15 +28,15 @@
 
 namespace MEDCoupling
 {
-  using mcIdType = ::mcIdType;
-  using Int64 = std::int64_t;
-  using Int32 = std::int32_t;
+using mcIdType = ::mcIdType;
+using Int64 = std::int64_t;
+using Int32 = std::int32_t;
 
-  class DataArrayInt32;
-  class DataArrayInt32Iterator;
-  class DataArrayInt32Tuple;
-  class DataArrayInt64;
-  class DataArrayInt64Tuple;
+class DataArrayInt32;
+class DataArrayInt32Iterator;
+class DataArrayInt32Tuple;
+class DataArrayInt64;
+class DataArrayInt64Tuple;
 
 #ifndef MEDCOUPLING_USE_64BIT_IDS
 
@@ -52,4 +52,4 @@ namespace MEDCoupling
 
 #define DataArrayInt DataArrayInt32
 #define DataArrayIntIterator DataArrayInt32Iterator
-}
+}  // namespace MEDCoupling

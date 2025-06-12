@@ -23,28 +23,28 @@
 
 namespace INTERP_KERNEL
 {
-  Interpolation1D0D::Interpolation1D0D()
-  {}
+Interpolation1D0D::Interpolation1D0D() {}
 
-  Interpolation1D0D::Interpolation1D0D(const InterpolationOptions& io):Interpolation<Interpolation1D0D>(io)
-  {}
+Interpolation1D0D::Interpolation1D0D(const InterpolationOptions &io) : Interpolation<Interpolation1D0D>(io) {}
 
-  /**
-   * Inspired from PlanarIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes
-   */
-  void Interpolation1D0D::adjustBoundingBoxes(std::vector<double>& bbox)
-  {
+/**
+ * Inspired from PlanarIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes
+ */
+void
+Interpolation1D0D::adjustBoundingBoxes(std::vector<double> &bbox)
+{
     const int SPACE_DIM = 3;
-    const double adj(getPrecision());// here precision is used instead of getBoundingBoxAdjustment and getBoundingBoxAdjustmentAbs because in the context only precision is relevant
+    const double adj(getPrecision());  // here precision is used instead of getBoundingBoxAdjustment and
+                                       // getBoundingBoxAdjustmentAbs because in the context only precision is relevant
 
-    std::size_t size = bbox.size()/(2*SPACE_DIM);
-    for (std::size_t i=0; i<size; i++)
-      {
-        for(int idim=0; idim<SPACE_DIM; idim++)
-          {
-            bbox[i*2*SPACE_DIM+2*idim  ] -= adj;
-            bbox[i*2*SPACE_DIM+2*idim+1] += adj;
-          }
-      }
-  }
+    std::size_t size = bbox.size() / (2 * SPACE_DIM);
+    for (std::size_t i = 0; i < size; i++)
+    {
+        for (int idim = 0; idim < SPACE_DIM; idim++)
+        {
+            bbox[i * 2 * SPACE_DIM + 2 * idim] -= adj;
+            bbox[i * 2 * SPACE_DIM + 2 * idim + 1] += adj;
+        }
+    }
 }
+}  // namespace INTERP_KERNEL

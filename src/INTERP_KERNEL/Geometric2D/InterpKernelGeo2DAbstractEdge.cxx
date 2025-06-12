@@ -24,105 +24,114 @@
 
 using namespace INTERP_KERNEL;
 
-IteratorOnComposedEdge::IteratorOnComposedEdge():_list_handle(0)
-{
-}
+IteratorOnComposedEdge::IteratorOnComposedEdge() : _list_handle(0) {}
 
-IteratorOnComposedEdge::IteratorOnComposedEdge(ComposedEdge *compEdges):_list_handle(compEdges->getListBehind())
+IteratorOnComposedEdge::IteratorOnComposedEdge(ComposedEdge *compEdges) : _list_handle(compEdges->getListBehind())
 {
-  first();
-}
-
-void IteratorOnComposedEdge::operator=(const IteratorOnComposedEdge& other)
-{
-  _deep_it=other._deep_it;
-  _list_handle=other._list_handle;
-}
-
-void IteratorOnComposedEdge::last()
-{
-  _deep_it=_list_handle->end();
-  _deep_it--;
-}
-
-void IteratorOnComposedEdge::nextLoop()
-{
-  _deep_it++;
-  if(_deep_it==_list_handle->end())
     first();
 }
 
-void IteratorOnComposedEdge::previousLoop()
+void
+IteratorOnComposedEdge::operator=(const IteratorOnComposedEdge &other)
 {
-  if(_deep_it!=_list_handle->begin())
+    _deep_it = other._deep_it;
+    _list_handle = other._list_handle;
+}
+
+void
+IteratorOnComposedEdge::last()
+{
+    _deep_it = _list_handle->end();
     _deep_it--;
-  else
-    last();
 }
 
-bool IteratorOnComposedEdge::goToNextInOn(bool direction, int& i, int nbMax)
+void
+IteratorOnComposedEdge::nextLoop()
 {
-  TypeOfEdgeLocInPolygon loc=current()->getLoc();
-  if(direction)
-    {
-      while(loc==FULL_OUT_1 && i<nbMax)
-        {
-          nextLoop(); i++;
-          loc=current()->getLoc();
-        }
-      if(i==nbMax)
-        return false;
-      return true;
-    }
-  else
-    {
-      while(loc==FULL_OUT_1 && i<nbMax)
-        {
-          previousLoop(); i++;
-          loc=current()->getLoc();
-        }
-      if(i==nbMax)
-        return false;
-      while(loc!=FULL_OUT_1 && i<nbMax)
-        {
-          previousLoop(); i++;
-          loc=current()->getLoc();
-        }
-      nextLoop(); i--;
-      return true;
-    }
+    _deep_it++;
+    if (_deep_it == _list_handle->end())
+        first();
 }
 
-void IteratorOnComposedEdge::assignMySelfToAllElems(ComposedEdge *elems)
+void
+IteratorOnComposedEdge::previousLoop()
 {
-  std::list<ElementaryEdge *> *myList=elems->getListBehind();
-  for(std::list<ElementaryEdge *>::iterator iter=myList->begin();iter!=myList->end();iter++)
-    (*iter)->getIterator()=(*this);
-}
-
-void IteratorOnComposedEdge::insertElemEdges(ComposedEdge *elems, bool changeMySelf)
-{
-  std::list<ElementaryEdge *> *myListToInsert=elems->getListBehind();
-  std::list<ElementaryEdge *>::iterator iter=myListToInsert->begin();
-  *_deep_it=*iter;
-  _deep_it++;
-  iter++;
-  std::size_t sizeOfMyList=myListToInsert->size();
-  _list_handle->insert(_deep_it,iter,myListToInsert->end());
-  if(!changeMySelf)
-    {
-      for(std::size_t i=0;i<sizeOfMyList;i++)
+    if (_deep_it != _list_handle->begin())
         _deep_it--;
+    else
+        last();
+}
+
+bool
+IteratorOnComposedEdge::goToNextInOn(bool direction, int &i, int nbMax)
+{
+    TypeOfEdgeLocInPolygon loc = current()->getLoc();
+    if (direction)
+    {
+        while (loc == FULL_OUT_1 && i < nbMax)
+        {
+            nextLoop();
+            i++;
+            loc = current()->getLoc();
+        }
+        if (i == nbMax)
+            return false;
+        return true;
+    }
+    else
+    {
+        while (loc == FULL_OUT_1 && i < nbMax)
+        {
+            previousLoop();
+            i++;
+            loc = current()->getLoc();
+        }
+        if (i == nbMax)
+            return false;
+        while (loc != FULL_OUT_1 && i < nbMax)
+        {
+            previousLoop();
+            i++;
+            loc = current()->getLoc();
+        }
+        nextLoop();
+        i--;
+        return true;
+    }
+}
+
+void
+IteratorOnComposedEdge::assignMySelfToAllElems(ComposedEdge *elems)
+{
+    std::list<ElementaryEdge *> *myList = elems->getListBehind();
+    for (std::list<ElementaryEdge *>::iterator iter = myList->begin(); iter != myList->end(); iter++)
+        (*iter)->getIterator() = (*this);
+}
+
+void
+IteratorOnComposedEdge::insertElemEdges(ComposedEdge *elems, bool changeMySelf)
+{
+    std::list<ElementaryEdge *> *myListToInsert = elems->getListBehind();
+    std::list<ElementaryEdge *>::iterator iter = myListToInsert->begin();
+    *_deep_it = *iter;
+    _deep_it++;
+    iter++;
+    std::size_t sizeOfMyList = myListToInsert->size();
+    _list_handle->insert(_deep_it, iter, myListToInsert->end());
+    if (!changeMySelf)
+    {
+        for (std::size_t i = 0; i < sizeOfMyList; i++) _deep_it--;
     }
 }
 
 /*!
  * Erase current element and place iterator onto the PREVIOUS element (eventually looping)
  */
-void IteratorOnComposedEdge::eraseCurrent()
+void
+IteratorOnComposedEdge::eraseCurrent()
 {
-  delete(*_deep_it);
-  _deep_it = _list_handle->erase(_deep_it);
-  // By default erase place the iterator after the removed element:
-  previousLoop();
+    delete (*_deep_it);
+    _deep_it = _list_handle->erase(_deep_it);
+    // By default erase place the iterator after the removed element:
+    previousLoop();
 }

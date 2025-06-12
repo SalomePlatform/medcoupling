@@ -28,9 +28,9 @@
 
 namespace MEDCoupling
 {
-  class MEDLOADER_EXPORT MEDFileMeshReadSelector
-  {
-  public:
+class MEDLOADER_EXPORT MEDFileMeshReadSelector
+{
+   public:
     MEDFileMeshReadSelector();
     MEDFileMeshReadSelector(unsigned int code);
     unsigned int getCode() const;
@@ -51,18 +51,19 @@ namespace MEDCoupling
     void setCellNumFieldReading(bool b);
     void setNodeNumFieldReading(bool b);
     void setGlobalNodeNumFieldReading(bool b);
-    void reprAll(std::ostream& str) const;
-  private:
-    static std::string ReprStatus(bool v);
-  private:
-    mcIdType _nb_coords_load_sessions;
-    //bit #0 cell family field
-    //bit #1 node family field
-    //bit #2 cell name field
-    //bit #3 node name field
-    //bit #4 cell num field
-    //bit #5 node num field
-    unsigned int _code;
-  };
-}
+    void reprAll(std::ostream &str) const;
 
+   private:
+    static std::string ReprStatus(bool v);
+
+   private:
+    mcIdType _nb_coords_load_sessions;
+    // bit #0 cell family field
+    // bit #1 node family field
+    // bit #2 cell name field
+    // bit #3 node name field
+    // bit #4 cell num field
+    // bit #5 node num field
+    unsigned int _code;
+};
+}  // namespace MEDCoupling

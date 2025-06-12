@@ -33,71 +33,81 @@
 
 using namespace MEDCoupling;
 
-MEDCouplingMesh::MEDCouplingMesh():_time(0.),_iteration(-1),_order(-1)
+MEDCouplingMesh::MEDCouplingMesh() : _time(0.), _iteration(-1), _order(-1) {}
+
+MEDCouplingMesh::MEDCouplingMesh(const MEDCouplingMesh &other)
+    : RefCountObject(other),
+      _name(other._name),
+      _description(other._description),
+      _time(other._time),
+      _iteration(other._iteration),
+      _order(other._order),
+      _time_unit(other._time_unit)
 {
 }
 
-MEDCouplingMesh::MEDCouplingMesh(const MEDCouplingMesh& other):RefCountObject(other),_name(other._name),_description(other._description),
-                                                               _time(other._time),_iteration(other._iteration),
-                                                               _order(other._order),_time_unit(other._time_unit)
+std::size_t
+MEDCouplingMesh::getHeapMemorySizeWithoutChildren() const
 {
-}
-
-std::size_t MEDCouplingMesh::getHeapMemorySizeWithoutChildren() const
-{
-  return _name.capacity()+_description.capacity()+_time_unit.capacity();
+    return _name.capacity() + _description.capacity() + _time_unit.capacity();
 }
 
 /*!
  * This method is only for ParaMEDMEM in ParaFIELD constructor.
  */
-bool MEDCouplingMesh::isStructured() const
+bool
+MEDCouplingMesh::isStructured() const
 {
-  return getType()==CARTESIAN;
+    return getType() == CARTESIAN;
 }
 
-bool MEDCouplingMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string& reason) const
+bool
+MEDCouplingMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec, std::string &reason) const
 {
-  if(!other)
-    throw INTERP_KERNEL::Exception("MEDCouplingMesh::isEqualIfNotWhy : other instance is NULL !");
-  std::ostringstream oss; oss.precision(15);
-  if(_name!=other->_name)
+    if (!other)
+        throw INTERP_KERNEL::Exception("MEDCouplingMesh::isEqualIfNotWhy : other instance is NULL !");
+    std::ostringstream oss;
+    oss.precision(15);
+    if (_name != other->_name)
     {
-      oss << "Mesh names differ : this name = \"" << _name << "\" and other name = \"" << other->_name << "\" !";
-      reason=oss.str();
-      return false;
+        oss << "Mesh names differ : this name = \"" << _name << "\" and other name = \"" << other->_name << "\" !";
+        reason = oss.str();
+        return false;
     }
-  if(_description!=other->_description)
+    if (_description != other->_description)
     {
-      oss << "Mesh descriptions differ : this description = \"" << _description << "\" and other description = \"" << other->_description << "\" !";
-      reason=oss.str();
-      return false;
+        oss << "Mesh descriptions differ : this description = \"" << _description << "\" and other description = \""
+            << other->_description << "\" !";
+        reason = oss.str();
+        return false;
     }
-  if(_iteration!=other->_iteration)
+    if (_iteration != other->_iteration)
     {
-      oss << "Mesh iterations differ : this iteration = \"" << _iteration << "\" and other iteration = \"" << other->_iteration << "\" !";
-      reason=oss.str();
-      return false;
+        oss << "Mesh iterations differ : this iteration = \"" << _iteration << "\" and other iteration = \""
+            << other->_iteration << "\" !";
+        reason = oss.str();
+        return false;
     }
-  if(_order!=other->_order)
+    if (_order != other->_order)
     {
-      oss << "Mesh orders differ : this order = \"" << _order << "\" and other order = \"" << other->_order << "\" !";
-      reason=oss.str();
-      return false;
+        oss << "Mesh orders differ : this order = \"" << _order << "\" and other order = \"" << other->_order << "\" !";
+        reason = oss.str();
+        return false;
     }
-  if(_time_unit!=other->_time_unit)
+    if (_time_unit != other->_time_unit)
     {
-      oss << "Mesh time units differ : this time unit = \"" << _time_unit << "\" and other time unit = \"" << other->_time_unit << "\" !";
-      reason=oss.str();
-      return false;
+        oss << "Mesh time units differ : this time unit = \"" << _time_unit << "\" and other time unit = \""
+            << other->_time_unit << "\" !";
+        reason = oss.str();
+        return false;
     }
-  if(fabs(_time-other->_time)>=1e-12)
+    if (fabs(_time - other->_time) >= 1e-12)
     {
-      oss << "Mesh times differ : this time = \"" << _time << "\" and other time = \"" << other->_time << "\" !";
-      reason=oss.str();
-      return false;
+        oss << "Mesh times differ : this time = \"" << _time << "\" and other time = \"" << other->_time << "\" !";
+        reason = oss.str();
+        return false;
     }
-  return true;
+    return true;
 }
 
 /*!
@@ -106,10 +116,11 @@ bool MEDCouplingMesh::isEqualIfNotWhy(const MEDCouplingMesh *other, double prec,
  *  \param [in] prec - precision value used to compare node coordinates.
  *  \return bool - \c true if the two meshes are equal, \c false else.
  */
-bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const
+bool
+MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const
 {
-  std::string tmp;
-  return isEqualIfNotWhy(other,prec,tmp);
+    std::string tmp;
+    return isEqualIfNotWhy(other, prec, tmp);
 }
 
 /*!
@@ -124,69 +135,82 @@ bool MEDCouplingMesh::isEqual(const MEDCouplingMesh *other, double prec) const
  *
  * If \a nodeCor is null (or Py_None) it means that for all #i node in \a other is equal to node # i in \a this.
  *
- * So null (or Py_None) returned in \a cellCor and/or \a nodeCor means identity array. This is for optimization reason to avoid to build useless arrays
- * for some \a levOfCheck (for example 0).
+ * So null (or Py_None) returned in \a cellCor and/or \a nodeCor means identity array. This is for optimization reason
+ * to avoid to build useless arrays for some \a levOfCheck (for example 0).
  *
  * **Warning a not null output does not mean that it is not identity !**
  *
  * \param [in] other - the mesh to be compared with \a this.
  * \param [in] levOfCheck - input that specifies the level of check specified. The possible values are listed below.
  * \param [in] prec - input that specifies precision for double float data used for comparison in meshes.
- * \param [out] cellCor - output array not always informed (depending \a levOfCheck param) that gives the corresponding array for cells from \a other to \a this.
- * \param [out] nodeCor - output array not always informed (depending \a levOfCheck param) that gives the corresponding array for nodes from \a other to \a this.
+ * \param [out] cellCor - output array not always informed (depending \a levOfCheck param) that gives the corresponding
+ * array for cells from \a other to \a this.
+ * \param [out] nodeCor - output array not always informed (depending \a levOfCheck param) that gives the corresponding
+ * array for nodes from \a other to \a this.
  *
  * Possible values for levOfCheck :
  *   - 0 for strict equality. This is the strongest level. \a cellCor and \a nodeCor params are never informed.
- *   - 10,11,12 (10+x) for less strict equality. Two meshes are compared geometrically. In case of success \a cellCor and \a nodeCor are informed. Warning ! These equivalences are CPU/Mem costly. The 3 values correspond respectively to policy used for cell comparison (see MEDCouplingUMesh::zipConnectivityTraducer to have more details)
- *   - 20,21,22 (20+x), for less strict equality. Two meshes are compared geometrically. The difference with the previous version is that nodes(coordinates) are expected to be the same between this and other. In case of success \a cellCor is informed. Warning ! These equivalences are CPU/Mem costly. The 3 values correspond respectively to policy used for cell comparison (see MEDCouplingUMesh::zipConnectivityTraducer to have more details)
- *   - 1 for fast 'equality'. This is a lazy level. Just number of cells and number of nodes are considered here and 3 cells (begin,middle,end)
+ *   - 10,11,12 (10+x) for less strict equality. Two meshes are compared geometrically. In case of success \a cellCor
+ * and \a nodeCor are informed. Warning ! These equivalences are CPU/Mem costly. The 3 values correspond respectively to
+ * policy used for cell comparison (see MEDCouplingUMesh::zipConnectivityTraducer to have more details)
+ *   - 20,21,22 (20+x), for less strict equality. Two meshes are compared geometrically. The difference with the
+ * previous version is that nodes(coordinates) are expected to be the same between this and other. In case of success \a
+ * cellCor is informed. Warning ! These equivalences are CPU/Mem costly. The 3 values correspond respectively to policy
+ * used for cell comparison (see MEDCouplingUMesh::zipConnectivityTraducer to have more details)
+ *   - 1 for fast 'equality'. This is a lazy level. Just number of cells and number of nodes are considered here and 3
+ * cells (begin,middle,end)
  *   - 2 for deep 'equality' as 0 option except that no control is done on all strings in mesh.
  *
- * So the most strict level of check is 0 (equality). The least strict is 12. If the level of check 12 throws, the 2 meshes \a this and \a other are not similar enough
- * to be compared. An interpolation using MEDCouplingRemapper class should be then used.
+ * So the most strict level of check is 0 (equality). The least strict is 12. If the level of check 12 throws, the 2
+ * meshes \a this and \a other are not similar enough to be compared. An interpolation using MEDCouplingRemapper class
+ * should be then used.
  */
-void MEDCouplingMesh::checkGeoEquivalWith(const MEDCouplingMesh *other, int levOfCheck, double prec,
-                                          DataArrayIdType *&cellCor, DataArrayIdType *&nodeCor) const
+void
+MEDCouplingMesh::checkGeoEquivalWith(
+    const MEDCouplingMesh *other, int levOfCheck, double prec, DataArrayIdType *&cellCor, DataArrayIdType *&nodeCor
+) const
 {
-  cellCor=0;
-  nodeCor=0;
-  if(this==other)
-    return ;
-  switch(levOfCheck)
-    {
-    case 0:
-      {
-        if(!isEqual(other,prec))
-          throw INTERP_KERNEL::Exception("checkGeoFitWith : Meshes are not equal !");
-        return ;
-      }
-    case 10:
-    case 11:
-    case 12:
-      {
-        checkDeepEquivalWith(other,levOfCheck-10,prec,cellCor,nodeCor);
-        return ;
-      }
-    case 20:
-    case 21:
-    case 22:
-      {
-        checkDeepEquivalOnSameNodesWith(other,levOfCheck-20,prec,cellCor);
-        return ;
-      }
-    case 1:
-      {
-        checkFastEquivalWith(other,prec);
+    cellCor = 0;
+    nodeCor = 0;
+    if (this == other)
         return;
-      }
-    case 2:
-      {
-        if(!isEqualWithoutConsideringStr(other,prec))
-          throw INTERP_KERNEL::Exception("checkGeoFitWith : Meshes are not equal without considering strings !");
-        return ;
-      }
-    default:
-      throw INTERP_KERNEL::Exception("checkGeoFitWith : Invalid levOfCheck specified ! Value must be in 0,1,2,10,11 or 12.");
+    switch (levOfCheck)
+    {
+        case 0:
+        {
+            if (!isEqual(other, prec))
+                throw INTERP_KERNEL::Exception("checkGeoFitWith : Meshes are not equal !");
+            return;
+        }
+        case 10:
+        case 11:
+        case 12:
+        {
+            checkDeepEquivalWith(other, levOfCheck - 10, prec, cellCor, nodeCor);
+            return;
+        }
+        case 20:
+        case 21:
+        case 22:
+        {
+            checkDeepEquivalOnSameNodesWith(other, levOfCheck - 20, prec, cellCor);
+            return;
+        }
+        case 1:
+        {
+            checkFastEquivalWith(other, prec);
+            return;
+        }
+        case 2:
+        {
+            if (!isEqualWithoutConsideringStr(other, prec))
+                throw INTERP_KERNEL::Exception("checkGeoFitWith : Meshes are not equal without considering strings !");
+            return;
+        }
+        default:
+            throw INTERP_KERNEL::Exception(
+                "checkGeoFitWith : Invalid levOfCheck specified ! Value must be in 0,1,2,10,11 or 12."
+            );
     }
 }
 
@@ -199,90 +223,107 @@ void MEDCouplingMesh::checkGeoEquivalWith(const MEDCouplingMesh *other, int levO
  *          cells. The caller is to delete this array using decrRef() as it is no
  *          more needed.
  */
-DataArrayIdType *MEDCouplingMesh::getCellIdsFullyIncludedInNodeIds(const mcIdType *partBg, const mcIdType *partEnd) const
+DataArrayIdType *
+MEDCouplingMesh::getCellIdsFullyIncludedInNodeIds(const mcIdType *partBg, const mcIdType *partEnd) const
 {
-  std::vector<mcIdType> crest;
-  std::set<mcIdType> p(partBg,partEnd);
-  mcIdType nbOfCells=getNumberOfCells();
-  for(mcIdType i=0;i<nbOfCells;i++)
+    std::vector<mcIdType> crest;
+    std::set<mcIdType> p(partBg, partEnd);
+    mcIdType nbOfCells = getNumberOfCells();
+    for (mcIdType i = 0; i < nbOfCells; i++)
     {
-      std::vector<mcIdType> conn;
-      getNodeIdsOfCell(i,conn);
-      bool cont=true;
-      for(std::vector<mcIdType>::const_iterator iter=conn.begin();iter!=conn.end() && cont;iter++)
-        if(p.find(*iter)==p.end())
-          cont=false;
-      if(cont)
-        crest.push_back(i);
+        std::vector<mcIdType> conn;
+        getNodeIdsOfCell(i, conn);
+        bool cont = true;
+        for (std::vector<mcIdType>::const_iterator iter = conn.begin(); iter != conn.end() && cont; iter++)
+            if (p.find(*iter) == p.end())
+                cont = false;
+        if (cont)
+            crest.push_back(i);
     }
-  DataArrayIdType *ret=DataArrayIdType::New();
-  ret->alloc(crest.size(),1);
-  std::copy(crest.begin(),crest.end(),ret->getPointer());
-  return ret;
+    DataArrayIdType *ret = DataArrayIdType::New();
+    ret->alloc(crest.size(), 1);
+    std::copy(crest.begin(), crest.end(), ret->getPointer());
+    return ret;
 }
 
 /*!
  * This method checks fastly that \a this and \a other are equal. All common checks are done here.
  */
-void MEDCouplingMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const
+void
+MEDCouplingMesh::checkFastEquivalWith(const MEDCouplingMesh *other, double prec) const
 {
-  if(!other)
-    throw INTERP_KERNEL::Exception("MEDCouplingMesh::checkFastEquivalWith : input mesh is null !");
-  if(getMeshDimension()!=other->getMeshDimension())
-    throw INTERP_KERNEL::Exception("checkFastEquivalWith : Mesh dimensions are not equal !");
-  if(getSpaceDimension()!=other->getSpaceDimension())
-    throw INTERP_KERNEL::Exception("checkFastEquivalWith : Space dimensions are not equal !");
-  if(getNumberOfCells()!=other->getNumberOfCells())
-    throw INTERP_KERNEL::Exception("checkFastEquivalWith : number of cells are not equal !");
+    if (!other)
+        throw INTERP_KERNEL::Exception("MEDCouplingMesh::checkFastEquivalWith : input mesh is null !");
+    if (getMeshDimension() != other->getMeshDimension())
+        throw INTERP_KERNEL::Exception("checkFastEquivalWith : Mesh dimensions are not equal !");
+    if (getSpaceDimension() != other->getSpaceDimension())
+        throw INTERP_KERNEL::Exception("checkFastEquivalWith : Space dimensions are not equal !");
+    if (getNumberOfCells() != other->getNumberOfCells())
+        throw INTERP_KERNEL::Exception("checkFastEquivalWith : number of cells are not equal !");
 }
 
 /*!
- * This method is very poor and looks only if \a this and \a other are candidate for merge of fields lying respectively on them.
+ * This method is very poor and looks only if \a this and \a other are candidate for merge of fields lying respectively
+ * on them.
  */
-bool MEDCouplingMesh::areCompatibleForMerge(const MEDCouplingMesh *other) const
+bool
+MEDCouplingMesh::areCompatibleForMerge(const MEDCouplingMesh *other) const
 {
-  if(!other)
-    throw INTERP_KERNEL::Exception("MEDCouplingMesh::areCompatibleForMerge : input mesh is null !");
-  if(getMeshDimension()!=other->getMeshDimension())
-    return false;
-  if(getSpaceDimension()!=other->getSpaceDimension())
-    return false;
-  return true;
+    if (!other)
+        throw INTERP_KERNEL::Exception("MEDCouplingMesh::areCompatibleForMerge : input mesh is null !");
+    if (getMeshDimension() != other->getMeshDimension())
+        return false;
+    if (getSpaceDimension() != other->getSpaceDimension())
+        return false;
+    return true;
 }
 
 /*!
- * This method is equivalent to MEDCouplingMesh::buildPart method except that here the cell ids are specified using slice \a beginCellIds \a endCellIds and \a stepCellIds.
+ * This method is equivalent to MEDCouplingMesh::buildPart method except that here the cell ids are specified using
+ * slice \a beginCellIds \a endCellIds and \a stepCellIds.
  * \b WARNING , there is a big difference compared to MEDCouplingMesh::buildPart method.
  * If the input range is equal all cells in \a this, \a this is returned !
  *
- * \return a new ref to be managed by the caller. Warning this ref can be equal to \a this if input slice is exactly equal to the whole cells in the same order.
+ * \return a new ref to be managed by the caller. Warning this ref can be equal to \a this if input slice is exactly
+ * equal to the whole cells in the same order.
  *
  * \sa MEDCouplingMesh::buildPart
  */
-MEDCouplingMesh *MEDCouplingMesh::buildPartRange(mcIdType beginCellIds, mcIdType endCellIds, mcIdType stepCellIds) const
+MEDCouplingMesh *
+MEDCouplingMesh::buildPartRange(mcIdType beginCellIds, mcIdType endCellIds, mcIdType stepCellIds) const
 {
-  if(beginCellIds==0 && endCellIds==getNumberOfCells() && stepCellIds==1)
+    if (beginCellIds == 0 && endCellIds == getNumberOfCells() && stepCellIds == 1)
     {
-      MEDCouplingMesh *ret(const_cast<MEDCouplingMesh *>(this));
-      ret->incrRef();
-      return ret;
+        MEDCouplingMesh *ret(const_cast<MEDCouplingMesh *>(this));
+        ret->incrRef();
+        return ret;
     }
-  else
+    else
     {
-      MCAuto<DataArrayIdType> cellIds=DataArrayIdType::Range(beginCellIds,endCellIds,stepCellIds);
-      return buildPart(cellIds->begin(),cellIds->end());
+        MCAuto<DataArrayIdType> cellIds = DataArrayIdType::Range(beginCellIds, endCellIds, stepCellIds);
+        return buildPart(cellIds->begin(), cellIds->end());
     }
 }
 
 /*!
- * This method is equivalent to MEDCouplingMesh::buildPartAndReduceNodes method except that here the cell ids are specified using slice \a beginCellIds \a endCellIds and \a stepCellIds.
+ * This method is equivalent to MEDCouplingMesh::buildPartAndReduceNodes method except that here the cell ids are
+ * specified using slice \a beginCellIds \a endCellIds and \a stepCellIds.
  *
  * \sa MEDCouplingMesh::buildPartAndReduceNodes
  */
-MEDCouplingMesh *MEDCouplingMesh::buildPartRangeAndReduceNodes(mcIdType beginCellIds, mcIdType endCellIds, mcIdType stepCellIds, mcIdType& beginOut, mcIdType& endOut, mcIdType& stepOut, DataArrayIdType*& arr) const
+MEDCouplingMesh *
+MEDCouplingMesh::buildPartRangeAndReduceNodes(
+    mcIdType beginCellIds,
+    mcIdType endCellIds,
+    mcIdType stepCellIds,
+    mcIdType &beginOut,
+    mcIdType &endOut,
+    mcIdType &stepOut,
+    DataArrayIdType *&arr
+) const
 {
-  MCAuto<DataArrayIdType> cellIds=DataArrayIdType::Range(beginCellIds,endCellIds,stepCellIds);
-  return buildPartAndReduceNodes(cellIds->begin(),cellIds->end(),arr);
+    MCAuto<DataArrayIdType> cellIds = DataArrayIdType::Range(beginCellIds, endCellIds, stepCellIds);
+    return buildPartAndReduceNodes(cellIds->begin(), cellIds->end(), arr);
 }
 
 /*!
@@ -301,38 +342,41 @@ MEDCouplingMesh *MEDCouplingMesh::buildPartRangeAndReduceNodes(mcIdType beginCel
  * \param func pointer to a function that should return false if the evaluation failed. (division by 0. for example)
  * \return field with counter = 1.
  */
-MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, FunctionToEvaluate func) const
+MEDCouplingFieldDouble *
+MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, FunctionToEvaluate func) const
 {
-  MCAuto<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
-  ret->setMesh(this);
-  ret->fillFromAnalytic(nbOfComp,func);
-  ret->synchronizeTimeWithSupport();
-  return ret.retn();
+    MCAuto<MEDCouplingFieldDouble> ret = MEDCouplingFieldDouble::New(t, ONE_TIME);
+    ret->setMesh(this);
+    ret->fillFromAnalytic(nbOfComp, func);
+    ret->synchronizeTimeWithSupport();
+    return ret.retn();
 }
 
 /*!
  * This method copyies all tiny strings from other (name and components name).
  * @throw if other and this have not same mesh type.
  */
-void MEDCouplingMesh::copyTinyStringsFrom(const MEDCouplingMesh *other)
+void
+MEDCouplingMesh::copyTinyStringsFrom(const MEDCouplingMesh *other)
 {
-  if(!other)
-    throw INTERP_KERNEL::Exception("MEDCouplingMesh::copyTinyStringsFrom : input mesh is null !");
-  _name=other->_name;
-  _description=other->_description;
-  _time_unit=other->_time_unit;
+    if (!other)
+        throw INTERP_KERNEL::Exception("MEDCouplingMesh::copyTinyStringsFrom : input mesh is null !");
+    _name = other->_name;
+    _description = other->_description;
+    _time_unit = other->_time_unit;
 }
 
 /*!
  * This method copies all attributes that are \b NOT arrays in this.
  * All tiny attributes not usefully for state of \a this are ignored.
  */
-void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other)
+void
+MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other)
 {
-  _time=other->_time;
-  _iteration=other->_iteration;
-  _order=other->_order;
-  copyTinyStringsFrom(other);
+    _time = other->_time;
+    _iteration = other->_iteration;
+    _order = other->_order;
+    copyTinyStringsFrom(other);
 }
 
 /*!
@@ -376,13 +420,14 @@ void MEDCouplingMesh::copyTinyInfoFrom(const MEDCouplingMesh *other)
  *  \ref  py_mcmesh_fillFromAnalytic "Here is a Python example".
  *  \endif
  */
-MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const std::string& func) const
+MEDCouplingFieldDouble *
+MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const std::string &func) const
 {
-  MCAuto<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
-  ret->setMesh(this);
-  ret->fillFromAnalytic(nbOfComp,func);
-  ret->synchronizeTimeWithSupport();
-  return ret.retn();
+    MCAuto<MEDCouplingFieldDouble> ret = MEDCouplingFieldDouble::New(t, ONE_TIME);
+    ret->setMesh(this);
+    ret->fillFromAnalytic(nbOfComp, func);
+    ret->synchronizeTimeWithSupport();
+    return ret.retn();
 }
 
 /*!
@@ -391,23 +436,17 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
  * function to coordinates of field location points (defined by the given field type).
  * For example, if \a t == MEDCoupling::ON_CELLS, the function is applied to cell
  * barycenters. This method differs from
- * \ref MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const std::string& func) const "fillFromAnalytic()"
- * by the way how variable
- * names, used in the function, are associated with components of coordinates of field
- * location points; here, a variable name corresponding to a component is retrieved from
- * a corresponding node coordinates array (where it is set via
- * DataArrayDouble::setInfoOnComponent()).<br>
- * For more info on supported expressions that can be used in the function, see \ref
- * MEDCouplingArrayApplyFuncExpr. <br>
- * In a general case, a value resulting from the function evaluation is assigned to all
- * components of a field value. But there is a possibility to have its own expression for
- * each component within one function. For this purpose, there are predefined variable
- * names (IVec, JVec, KVec, LVec etc) each dedicated to a certain component (IVec, to
- * the component #0 etc). A factor of such a variable is added to the
- * corresponding component only.<br>
- * For example, \a nbOfComp == 4, \a this->getSpaceDimension() == 3, names of
- * spatial components are "x", "y" and "z", coordinates of a
- * point are (1.,3.,7.), then
+ * \ref MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbOfComp, const std::string& func) const
+ * "fillFromAnalytic()" by the way how variable names, used in the function, are associated with components of
+ * coordinates of field location points; here, a variable name corresponding to a component is retrieved from a
+ * corresponding node coordinates array (where it is set via DataArrayDouble::setInfoOnComponent()).<br> For more info
+ * on supported expressions that can be used in the function, see \ref MEDCouplingArrayApplyFuncExpr. <br> In a general
+ * case, a value resulting from the function evaluation is assigned to all components of a field value. But there is a
+ * possibility to have its own expression for each component within one function. For this purpose, there are predefined
+ * variable names (IVec, JVec, KVec, LVec etc) each dedicated to a certain component (IVec, to the component #0 etc). A
+ * factor of such a variable is added to the corresponding component only.<br> For example, \a nbOfComp == 4, \a
+ * this->getSpaceDimension() == 3, names of spatial components are "x", "y" and "z", coordinates of a point are
+ * (1.,3.,7.), then
  *   - "2*x + z"               produces (9.,9.,9.,9.)
  *   - "2*x*IVec + (x+z)*LVec" produces (2.,0.,0.,8.)
  *   - "2*y*IVec + z*KVec + x" produces (7.,1.,1.,8.)
@@ -428,13 +467,14 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalytic(TypeOfField t, int nbO
  *  \ref  py_mcmesh_fillFromAnalytic2 "Here is a Python example".
  *  \endif
  */
-MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalyticCompo(TypeOfField t, int nbOfComp, const std::string& func) const
+MEDCouplingFieldDouble *
+MEDCouplingMesh::fillFromAnalyticCompo(TypeOfField t, int nbOfComp, const std::string &func) const
 {
-  MCAuto<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
-  ret->setMesh(this);
-  ret->fillFromAnalyticCompo(nbOfComp,func);
-  ret->synchronizeTimeWithSupport();
-  return ret.retn();
+    MCAuto<MEDCouplingFieldDouble> ret = MEDCouplingFieldDouble::New(t, ONE_TIME);
+    ret->setMesh(this);
+    ret->fillFromAnalyticCompo(nbOfComp, func);
+    ret->synchronizeTimeWithSupport();
+    return ret.retn();
 }
 
 /*!
@@ -481,13 +521,16 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalyticCompo(TypeOfField t, in
  *  \ref  py_mcmesh_fillFromAnalytic3 "Here is a Python example".
  *  \endif
  */
-MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalyticNamedCompo(TypeOfField t, int nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func) const
+MEDCouplingFieldDouble *
+MEDCouplingMesh::fillFromAnalyticNamedCompo(
+    TypeOfField t, int nbOfComp, const std::vector<std::string> &varsOrder, const std::string &func
+) const
 {
-  MCAuto<MEDCouplingFieldDouble> ret=MEDCouplingFieldDouble::New(t,ONE_TIME);
-  ret->setMesh(this);
-  ret->fillFromAnalyticNamedCompo(nbOfComp,varsOrder,func);
-  ret->synchronizeTimeWithSupport();
-  return ret.retn();
+    MCAuto<MEDCouplingFieldDouble> ret = MEDCouplingFieldDouble::New(t, ONE_TIME);
+    ret->setMesh(this);
+    ret->fillFromAnalyticNamedCompo(nbOfComp, varsOrder, func);
+    ret->synchronizeTimeWithSupport();
+    return ret.retn();
 }
 
 /*!
@@ -503,13 +546,14 @@ MEDCouplingFieldDouble *MEDCouplingMesh::fillFromAnalyticNamedCompo(TypeOfField 
  *          is no more needed.
  *  \throw If the meshes are of different mesh type.
  */
-MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2)
+MEDCouplingMesh *
+MEDCouplingMesh::MergeMeshes(const MEDCouplingMesh *mesh1, const MEDCouplingMesh *mesh2)
 {
-  if(!mesh1)
-    throw INTERP_KERNEL::Exception("MEDCouplingMesh::MergeMeshes : first parameter is an empty mesh !");
-  if(!mesh2)
-    throw INTERP_KERNEL::Exception("MEDCouplingMesh::MergeMeshes : second parameter is an empty mesh !");
-  return mesh1->mergeMyselfWith(mesh2);
+    if (!mesh1)
+        throw INTERP_KERNEL::Exception("MEDCouplingMesh::MergeMeshes : first parameter is an empty mesh !");
+    if (!mesh2)
+        throw INTERP_KERNEL::Exception("MEDCouplingMesh::MergeMeshes : second parameter is an empty mesh !");
+    return mesh1->mergeMyselfWith(mesh2);
 }
 
 /*!
@@ -530,24 +574,28 @@ MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(const MEDCouplingMesh *mesh1, cons
  *  \throw If \a meshes[ *i* ]->getMeshDimension() < 0.
  *  \throw If the \a meshes are of different dimension (getMeshDimension()).
  */
-MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(std::vector<const MEDCouplingMesh *>& meshes)
+MEDCouplingMesh *
+MEDCouplingMesh::MergeMeshes(std::vector<const MEDCouplingMesh *> &meshes)
 {
-  std::vector< MCAuto<MEDCouplingUMesh> > ms1(meshes.size());
-  std::vector< const MEDCouplingUMesh * > ms2(meshes.size());
-  for(std::size_t i=0;i<meshes.size();i++)
+    std::vector<MCAuto<MEDCouplingUMesh> > ms1(meshes.size());
+    std::vector<const MEDCouplingUMesh *> ms2(meshes.size());
+    for (std::size_t i = 0; i < meshes.size(); i++)
     {
-      if(meshes[i])
+        if (meshes[i])
         {
-          MEDCouplingUMesh *cur=meshes[i]->buildUnstructured();
-          ms1[i]=cur;  ms2[i]=cur;
+            MEDCouplingUMesh *cur = meshes[i]->buildUnstructured();
+            ms1[i] = cur;
+            ms2[i] = cur;
         }
-      else
+        else
         {
-          std::ostringstream oss; oss << "MEDCouplingMesh::MergeMeshes(std::vector<const MEDCouplingMesh *>& meshes) : mesh at pos #" << i << " of input vector of size " << meshes.size() << " is empty !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+            std::ostringstream oss;
+            oss << "MEDCouplingMesh::MergeMeshes(std::vector<const MEDCouplingMesh *>& meshes) : mesh at pos #" << i
+                << " of input vector of size " << meshes.size() << " is empty !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  return MEDCouplingUMesh::MergeUMeshes(ms2);
+    return MEDCouplingUMesh::MergeUMeshes(ms2);
 }
 
 /*!
@@ -559,25 +607,31 @@ MEDCouplingMesh *MEDCouplingMesh::MergeMeshes(std::vector<const MEDCouplingMesh 
  *
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
-INTERP_KERNEL::NormalizedCellType MEDCouplingMesh::GetCorrespondingPolyType(INTERP_KERNEL::NormalizedCellType type)
+INTERP_KERNEL::NormalizedCellType
+MEDCouplingMesh::GetCorrespondingPolyType(INTERP_KERNEL::NormalizedCellType type)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
-  return cm.getCorrespondingPolyType();
+    const INTERP_KERNEL::CellModel &cm = INTERP_KERNEL::CellModel::GetCellModel(type);
+    return cm.getCorrespondingPolyType();
 }
 
 /*!
  * \param [in] type the geometric type for which the number of nodes consituting it, is asked.
  * \return number of nodes consituting the input geometric type \a type.
  *
- * \throw if type is dynamic as \c INTERP_KERNEL::NORM_POLYHED , \c INTERP_KERNEL::NORM_POLYGON , \c INTERP_KERNEL::NORM_QPOLYG
+ * \throw if type is dynamic as \c INTERP_KERNEL::NORM_POLYHED , \c INTERP_KERNEL::NORM_POLYGON , \c
+ * INTERP_KERNEL::NORM_QPOLYG
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
-mcIdType MEDCouplingMesh::GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NormalizedCellType type)
+mcIdType
+MEDCouplingMesh::GetNumberOfNodesOfGeometricType(INTERP_KERNEL::NormalizedCellType type)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
-  if(cm.isDynamic())
-    throw INTERP_KERNEL::Exception("MEDCouplingMesh::GetNumberOfNodesOfGeometricType : the input geometric type is dynamic ! Impossible to return a fixed number of nodes constituting it !");
-  return ToIdType( cm.getNumberOfNodes());
+    const INTERP_KERNEL::CellModel &cm = INTERP_KERNEL::CellModel::GetCellModel(type);
+    if (cm.isDynamic())
+        throw INTERP_KERNEL::Exception(
+            "MEDCouplingMesh::GetNumberOfNodesOfGeometricType : the input geometric type is dynamic ! Impossible to "
+            "return a fixed number of nodes constituting it !"
+        );
+    return ToIdType(cm.getNumberOfNodes());
 }
 
 /*!
@@ -586,16 +640,18 @@ mcIdType MEDCouplingMesh::GetNumberOfNodesOfGeometricType(INTERP_KERNEL::Normali
  *
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
-bool MEDCouplingMesh::IsStaticGeometricType(INTERP_KERNEL::NormalizedCellType type)
+bool
+MEDCouplingMesh::IsStaticGeometricType(INTERP_KERNEL::NormalizedCellType type)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
-  return !cm.isDynamic();
+    const INTERP_KERNEL::CellModel &cm = INTERP_KERNEL::CellModel::GetCellModel(type);
+    return !cm.isDynamic();
 }
 
-bool MEDCouplingMesh::IsLinearGeometricType(INTERP_KERNEL::NormalizedCellType type)
+bool
+MEDCouplingMesh::IsLinearGeometricType(INTERP_KERNEL::NormalizedCellType type)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
-  return !cm.isQuadratic();
+    const INTERP_KERNEL::CellModel &cm = INTERP_KERNEL::CellModel::GetCellModel(type);
+    return !cm.isQuadratic();
 }
 
 /*!
@@ -604,10 +660,11 @@ bool MEDCouplingMesh::IsLinearGeometricType(INTERP_KERNEL::NormalizedCellType ty
  *
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
-int MEDCouplingMesh::GetDimensionOfGeometricType(INTERP_KERNEL::NormalizedCellType type)
+int
+MEDCouplingMesh::GetDimensionOfGeometricType(INTERP_KERNEL::NormalizedCellType type)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
-  return (int) cm.getDimension();
+    const INTERP_KERNEL::CellModel &cm = INTERP_KERNEL::CellModel::GetCellModel(type);
+    return (int)cm.getDimension();
 }
 
 /*!
@@ -616,10 +673,11 @@ int MEDCouplingMesh::GetDimensionOfGeometricType(INTERP_KERNEL::NormalizedCellTy
  *
  * \throw if type is equal to \c INTERP_KERNEL::NORM_ERROR or to an unexisting geometric type.
  */
-const char *MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NormalizedCellType type)
+const char *
+MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NormalizedCellType type)
 {
-  const INTERP_KERNEL::CellModel& cm=INTERP_KERNEL::CellModel::GetCellModel(type);
-  return cm.getRepr();
+    const INTERP_KERNEL::CellModel &cm = INTERP_KERNEL::CellModel::GetCellModel(type);
+    return cm.getRepr();
 }
 
 /*!
@@ -647,18 +705,29 @@ const char *MEDCouplingMesh::GetReprOfGeometricType(INTERP_KERNEL::NormalizedCel
  *  \ref  py_mcumesh_getCellsContainingPoints "Here is a Python example".
  *  \endif
  */
-void MEDCouplingMesh::getCellsContainingPoints(const double *pos, mcIdType nbOfPoints, double eps, MCAuto<DataArrayIdType>& elts, MCAuto<DataArrayIdType>& eltsIndex) const
+void
+MEDCouplingMesh::getCellsContainingPoints(
+    const double *pos,
+    mcIdType nbOfPoints,
+    double eps,
+    MCAuto<DataArrayIdType> &elts,
+    MCAuto<DataArrayIdType> &eltsIndex
+) const
 {
-  eltsIndex=DataArrayIdType::New(); elts=DataArrayIdType::New(); eltsIndex->alloc(nbOfPoints+1,1); eltsIndex->setIJ(0,0,0); elts->alloc(0,1);
-  mcIdType *eltsIndexPtr(eltsIndex->getPointer());
-  int spaceDim(getSpaceDimension());
-  const double *work(pos);
-  for(mcIdType i=0;i<nbOfPoints;i++,work+=spaceDim)
+    eltsIndex = DataArrayIdType::New();
+    elts = DataArrayIdType::New();
+    eltsIndex->alloc(nbOfPoints + 1, 1);
+    eltsIndex->setIJ(0, 0, 0);
+    elts->alloc(0, 1);
+    mcIdType *eltsIndexPtr(eltsIndex->getPointer());
+    int spaceDim(getSpaceDimension());
+    const double *work(pos);
+    for (mcIdType i = 0; i < nbOfPoints; i++, work += spaceDim)
     {
-      std::vector<mcIdType> ret;
-      getCellsContainingPoint(work,eps,ret);
-      elts->insertAtTheEnd(ret.begin(),ret.end());
-      eltsIndexPtr[i+1]=elts->getNumberOfTuples();
+        std::vector<mcIdType> ret;
+        getCellsContainingPoint(work, eps, ret);
+        elts->insertAtTheEnd(ret.begin(), ret.end());
+        eltsIndexPtr[i + 1] = elts->getNumberOfTuples();
     }
 }
 
@@ -669,25 +738,35 @@ void MEDCouplingMesh::getCellsContainingPoints(const double *pos, mcIdType nbOfP
  *
  * \sa MEDCouplingMesh::getCellsContainingPoints, MEDCouplingRemapper::prepareNotInterpKernelOnlyGaussGauss
  */
-void MEDCouplingMesh::getCellsContainingPointsLinearPartOnlyOnNonDynType(const double *pos, mcIdType nbOfPoints, double eps, MCAuto<DataArrayIdType>& elts, MCAuto<DataArrayIdType>& eltsIndex) const
+void
+MEDCouplingMesh::getCellsContainingPointsLinearPartOnlyOnNonDynType(
+    const double *pos,
+    mcIdType nbOfPoints,
+    double eps,
+    MCAuto<DataArrayIdType> &elts,
+    MCAuto<DataArrayIdType> &eltsIndex
+) const
 {
-  this->getCellsContainingPoints(pos,nbOfPoints,eps,elts,eltsIndex);
+    this->getCellsContainingPoints(pos, nbOfPoints, eps, elts, eltsIndex);
 }
 
 /*!
  * Method computing center of mass of whole mesh (\a this)
- * \return DataArrayDouble * - a new instance of DataArrayDouble with one tuple of n components where n is space dimension
+ * \return DataArrayDouble * - a new instance of DataArrayDouble with one tuple of n components where n is space
+ * dimension
  */
-MCAuto<DataArrayDouble> MEDCouplingMesh::computeMeshCenterOfMass() const
+MCAuto<DataArrayDouble>
+MEDCouplingMesh::computeMeshCenterOfMass() const
 {
-  MCAuto<DataArrayDouble> cellCenters( this->computeCellCenterOfMass() );
-  MCAuto<MEDCouplingFieldDouble> vol( this->getMeasureField(true) );
-  MCAuto<DataArrayDouble> volXCenter( DataArrayDouble::Multiply(cellCenters,vol->getArray()) );
-  MCAuto<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(1, this->getSpaceDimension());
-  volXCenter->accumulate( ret->getPointer() );
-  double volOfMesh(vol->accumulate(0));
-  ret->applyLin(1.0/volOfMesh,0.0);
-  return ret;
+    MCAuto<DataArrayDouble> cellCenters(this->computeCellCenterOfMass());
+    MCAuto<MEDCouplingFieldDouble> vol(this->getMeasureField(true));
+    MCAuto<DataArrayDouble> volXCenter(DataArrayDouble::Multiply(cellCenters, vol->getArray()));
+    MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+    ret->alloc(1, this->getSpaceDimension());
+    volXCenter->accumulate(ret->getPointer());
+    double volOfMesh(vol->accumulate(0));
+    ret->applyLin(1.0 / volOfMesh, 0.0);
+    return ret;
 }
 
 /*!
@@ -698,68 +777,85 @@ MCAuto<DataArrayDouble> MEDCouplingMesh::computeMeshCenterOfMass() const
  *  \throw If \a fileName is not a writable file.
  *  \sa getVTKFileNameOf
  */
-std::string MEDCouplingMesh::writeVTK(const std::string& fileName, bool isBinary) const
+std::string
+MEDCouplingMesh::writeVTK(const std::string &fileName, bool isBinary) const
 {
-  std::string ret(getVTKFileNameOf(fileName));
-  //
-  std::string cda,pda;
-  MCAuto<DataArrayByte> byteArr;
-  if(isBinary)
-    { byteArr=DataArrayByte::New(); byteArr->alloc(0,1); }
-  writeVTKAdvanced(ret,cda,pda,byteArr);
-  return ret;
+    std::string ret(getVTKFileNameOf(fileName));
+    //
+    std::string cda, pda;
+    MCAuto<DataArrayByte> byteArr;
+    if (isBinary)
+    {
+        byteArr = DataArrayByte::New();
+        byteArr->alloc(0, 1);
+    }
+    writeVTKAdvanced(ret, cda, pda, byteArr);
+    return ret;
 }
 
 /*!
- * This method takes in input a file name \a fileName and considering the VTK extension of \a this (depending on the type of \a this)
- * returns a right file name. If the input \a fileName has a valid extension the returned string is equal to \a fileName.
+ * This method takes in input a file name \a fileName and considering the VTK extension of \a this (depending on the
+ * type of \a this) returns a right file name. If the input \a fileName has a valid extension the returned string is
+ * equal to \a fileName.
  *
  * \sa  getVTKFileExtension
  */
-std::string MEDCouplingMesh::getVTKFileNameOf(const std::string& fileName) const
+std::string
+MEDCouplingMesh::getVTKFileNameOf(const std::string &fileName) const
 {
-  std::string ret;
-  std::string part0,part1;
-  SplitExtension(fileName,part0,part1);
-  std::string ext("."); ext+=getVTKFileExtension();
-  if(part1==ext)
-    ret=fileName;
-  else
-    ret=fileName+ext;
-  return ret;
+    std::string ret;
+    std::string part0, part1;
+    SplitExtension(fileName, part0, part1);
+    std::string ext(".");
+    ext += getVTKFileExtension();
+    if (part1 == ext)
+        ret = fileName;
+    else
+        ret = fileName + ext;
+    return ret;
 }
 
 /// @cond INTERNAL
-void MEDCouplingMesh::writeVTKAdvanced(const std::string& fileName, const std::string& cda, const std::string& pda, DataArrayByte *byteData) const
+void
+MEDCouplingMesh::writeVTKAdvanced(
+    const std::string &fileName, const std::string &cda, const std::string &pda, DataArrayByte *byteData
+) const
 {
-  std::ofstream ofs(fileName.c_str());
-  ofs << "<VTKFile type=\""  << getVTKDataSetType() << "\" version=\"0.1\" byte_order=\"" << MEDCouplingByteOrderStr() << "\">\n";
-  writeVTKLL(ofs,cda,pda,byteData);
-  if(byteData)
+    std::ofstream ofs(fileName.c_str());
+    ofs << "<VTKFile type=\"" << getVTKDataSetType() << "\" version=\"0.1\" byte_order=\"" << MEDCouplingByteOrderStr()
+        << "\">\n";
+    writeVTKLL(ofs, cda, pda, byteData);
+    if (byteData)
     {
-      ofs << "<AppendedData encoding=\"raw\">\n_1234";
-      ofs << std::flush; ofs.close();
-      std::ofstream ofs2(fileName.c_str(),std::ios_base::binary | std::ios_base::app);
-      ofs2.write(byteData->begin(),byteData->getNbOfElems()); ofs2 << std::flush; ofs2.close();
-      std::ofstream ofs3(fileName.c_str(),std::ios_base::app); ofs3 << "\n</AppendedData>\n</VTKFile>\n"; ofs3.close();
+        ofs << "<AppendedData encoding=\"raw\">\n_1234";
+        ofs << std::flush;
+        ofs.close();
+        std::ofstream ofs2(fileName.c_str(), std::ios_base::binary | std::ios_base::app);
+        ofs2.write(byteData->begin(), byteData->getNbOfElems());
+        ofs2 << std::flush;
+        ofs2.close();
+        std::ofstream ofs3(fileName.c_str(), std::ios_base::app);
+        ofs3 << "\n</AppendedData>\n</VTKFile>\n";
+        ofs3.close();
     }
-  else
+    else
     {
-      ofs << "</VTKFile>\n";
-      ofs.close();
+        ofs << "</VTKFile>\n";
+        ofs.close();
     }
 }
 
-void MEDCouplingMesh::SplitExtension(const std::string& fileName, std::string& baseName, std::string& extension)
+void
+MEDCouplingMesh::SplitExtension(const std::string &fileName, std::string &baseName, std::string &extension)
 {
-  std::size_t pos(fileName.find_last_of('.'));
-  if(pos==std::string::npos)
+    std::size_t pos(fileName.find_last_of('.'));
+    if (pos == std::string::npos)
     {
-      baseName=fileName;
-      extension.clear();
-      return ;
+        baseName = fileName;
+        extension.clear();
+        return;
     }
-  baseName=fileName.substr(0,pos);
-  extension=fileName.substr(pos);
+    baseName = fileName.substr(0, pos);
+    extension = fileName.substr(pos);
 }
 /// @endcond

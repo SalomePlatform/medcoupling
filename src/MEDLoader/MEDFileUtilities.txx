@@ -23,18 +23,19 @@
 
 #include "MEDFileUtilities.hxx"
 
-template<class T>
-T *MEDCoupling::MEDFileWritableStandAlone::BuildFromMemoryChunk(MEDCoupling::DataArrayByte *db)
+template <class T>
+T *
+MEDCoupling::MEDFileWritableStandAlone::BuildFromMemoryChunk(MEDCoupling::DataArrayByte *db)
 {
-  if(!db)
-    throw INTERP_KERNEL::Exception("Null input DataArrayByte !");
-  db->checkAllocated();
-  med_memfile memfile=MED_MEMFILE_INIT;
-  memfile.app_image_ptr=db->getPointer();
-  memfile.app_image_size=db->getNbOfElems();
-  std::string dftFileName(MEDCoupling::MEDFileWritableStandAlone::GenerateUniqueDftFileNameInMem());
-  MEDFileUtilities::AutoFid fid(MEDmemFileOpen(dftFileName.c_str(),&memfile,MED_FALSE,MED_ACC_RDWR));
-  return T::New(fid);
+    if (!db)
+        throw INTERP_KERNEL::Exception("Null input DataArrayByte !");
+    db->checkAllocated();
+    med_memfile memfile = MED_MEMFILE_INIT;
+    memfile.app_image_ptr = db->getPointer();
+    memfile.app_image_size = db->getNbOfElems();
+    std::string dftFileName(MEDCoupling::MEDFileWritableStandAlone::GenerateUniqueDftFileNameInMem());
+    MEDFileUtilities::AutoFid fid(MEDmemFileOpen(dftFileName.c_str(), &memfile, MED_FALSE, MED_ACC_RDWR));
+    return T::New(fid);
 }
 
 #endif

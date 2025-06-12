@@ -25,42 +25,37 @@
 
 namespace MEDPARTITIONER
 {
-  Graph::Graph():
-    _graph(0),_partition(0),
-    _edge_weight(0),_cell_weight(0)
-  {
-  }
+Graph::Graph() : _graph(0), _partition(0), _edge_weight(0), _cell_weight(0) {}
 
-  Graph::Graph(MEDCoupling::MEDCouplingSkyLineArray *array, int *edgeweight):
-    _graph(array),_partition(0),
-    _edge_weight(edgeweight),_cell_weight(0)
-  {
-  }
+Graph::Graph(MEDCoupling::MEDCouplingSkyLineArray *array, int *edgeweight)
+    : _graph(array), _partition(0), _edge_weight(edgeweight), _cell_weight(0)
+{
+}
 
-  Graph::~Graph()
-  {
-  }
+Graph::~Graph() {}
 
-  int Graph::nbDomains() const
-  {
+int
+Graph::nbDomains() const
+{
     std::set<mcIdType> domains;
-    if ( _partition.isNotNull() )
-      if ( MEDCoupling::DataArrayIdType* array = _partition->getValuesArray() )
-      {
-        for ( const mcIdType * dom = array->begin(); dom != array->end(); ++dom )
-          domains.insert( *dom );
-      }
+    if (_partition.isNotNull())
+        if (MEDCoupling::DataArrayIdType *array = _partition->getValuesArray())
+        {
+            for (const mcIdType *dom = array->begin(); dom != array->end(); ++dom) domains.insert(*dom);
+        }
     return (int)domains.size();
-  }
+}
 
-  const mcIdType *Graph::getPart() const
-  {
+const mcIdType *
+Graph::getPart() const
+{
     return _partition->getValues();
-  }
+}
 
-  mcIdType Graph::nbVertices() const
-  {
+mcIdType
+Graph::nbVertices() const
+{
     return _graph->getNumberOf();
-  }
+}
 
-};
+};  // namespace MEDPARTITIONER

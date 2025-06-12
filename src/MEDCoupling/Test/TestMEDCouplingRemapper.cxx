@@ -20,6 +20,6 @@
 
 #include "MEDCouplingRemapperTest.hxx"
 
-CPPUNIT_TEST_SUITE_REGISTRATION( MEDCoupling::MEDCouplingRemapperTest );
+CPPUNIT_TEST_SUITE_REGISTRATION(MEDCoupling::MEDCouplingRemapperTest);
 
 #include "BasicMainTest.hxx"

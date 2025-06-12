@@ -26,7 +26,7 @@ point ``[0.,0.]`` et ayant un pas de 1. selon X et selon Y : ::
 	arr.iota(0)
 	trgMesh = mc.MEDCouplingCMesh()
 	trgMesh.setCoords(arr,arr)
-	trgMesh = trgMesh.buildUnstructured()	
+	trgMesh = trgMesh.buildUnstructured()
 
 Créer le maillage source
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,7 +39,7 @@ aussi au point ``[0.,0.]`` et ayant un pas de 0.5 selon X et selon Y : ::
 	arr *= 0.5
 	srcMesh = mc.MEDCouplingCMesh()
 	srcMesh.setCoords(arr,arr)
-	srcMesh = srcMesh.buildUnstructured()	
+	srcMesh = srcMesh.buildUnstructured()
 
 Afin de rendre l'exercise plus intéressant, triangulariser à l'aide de ``MEDCouplingUMesh.simplexize()``
 les 20 premières cellules de ``srcMesh``
@@ -119,7 +119,7 @@ la somme sur les cellules (accumulation) n'est **pas** conservée ! ::
 	integSource = srcField.integral(True)[0]
 	integTarget =  trgFieldCV.integral(True)[0]
 	print("IntensiveMaximum -- integrals: %lf == %lf" % (integSource, integTarget))
-	
+
 	accSource = srcField.getArray().accumulate()[0]
 	accTarget = trgFieldCV.getArray().accumulate()[0]
 	print("IntensiveMaximum -- sums: %lf != %lf" % (accSource, accTarget))
@@ -137,7 +137,7 @@ Par contre, la somme sur les cellules est conservée. ::
 	integSource = srcField.integral(True)[0]
 	integTarget =  trgFieldI.integral(True)[0]
 	print("ExtensiveConservation -- integrals: %lf != %lf" % (integSource, integTarget))
-	
+
 	accSource = srcField.getArray().accumulate()[0]
 	accTarget = trgFieldI.getArray().accumulate()[0]
 	print("ExtensiveConservation -- sums: %lf == %lf" % (accSource, accTarget))

@@ -27,21 +27,23 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix>
-  class PointLocator3DIntersectorP1P1 : public Intersector3DP1P1<MyMeshType,MyMatrix>
-  {
-  public:
-    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+template <class MyMeshType, class MyMatrix>
+class PointLocator3DIntersectorP1P1 : public Intersector3DP1P1<MyMeshType, MyMatrix>
+{
+   public:
+    static const int SPACEDIM = MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM = MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
-    static const NumberingPolicy numPol=MyMeshType::My_numPol;
-  public:
-    PointLocator3DIntersectorP1P1(const MyMeshType& targetMesh, const MyMeshType& srcMesh, double precision);
+    static const NumberingPolicy numPol = MyMeshType::My_numPol;
+
+   public:
+    PointLocator3DIntersectorP1P1(const MyMeshType &targetMesh, const MyMeshType &srcMesh, double precision);
     ~PointLocator3DIntersectorP1P1();
-    void intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res);
-  protected:
+    void intersectCells(ConnType targetCell, const std::vector<ConnType> &srcCells, MyMatrix &res);
+
+   protected:
     double _precision;
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

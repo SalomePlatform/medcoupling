@@ -28,40 +28,41 @@
 
 namespace MEDCoupling
 {
-  /*!
-   * Internal class, not part of the public API.
-   *
-   * Used by the ExplicitCoincidentDEC.
-   */
-  class ExplicitMapping
-  {
-  public:
+/*!
+ * Internal class, not part of the public API.
+ *
+ * Used by the ExplicitCoincidentDEC.
+ */
+class ExplicitMapping
+{
+   public:
     ExplicitMapping();
     ~ExplicitMapping();
 
-    void pushBackElem(std::pair<int,mcIdType> idistant);
-    void  setDistantElem(mcIdType ilocal, std::pair<int,mcIdType> idistant);
+    void pushBackElem(std::pair<int, mcIdType> idistant);
+    void setDistantElem(mcIdType ilocal, std::pair<int, mcIdType> idistant);
     int nbDistantDomains();
-    std::pair <int,mcIdType> getDistantNumbering(mcIdType ielem) const;
+    std::pair<int, mcIdType> getDistantNumbering(mcIdType ielem) const;
 
     int getDistantDomain(int i);
     int getNbDistantElems(int i);
-    mcIdType* serialize(int idproc);
-    void unserialize(int nbprocs, int* sizes,int nbtarget, int* targetrank, mcIdType* commbuffer);
+    mcIdType *serialize(int idproc);
+    void unserialize(int nbprocs, int *sizes, int nbtarget, int *targetrank, mcIdType *commbuffer);
 
-    int* getBufferIndex() const { return _buffer_index; }
-    int* getCounts() const { return _send_counts; }
-  private:
-    std::vector <std::pair<int,mcIdType> > _mapping;
+    int *getBufferIndex() const { return _buffer_index; }
+    int *getCounts() const { return _send_counts; }
+
+   private:
+    std::vector<std::pair<int, mcIdType> > _mapping;
     std::set<int> _distant_domains;
-    int* _numbers;
-    int* _domains;
-    mcIdType* _comm_buffer;
-    int* _buffer_index;
-    int* _send_counts;
+    int *_numbers;
+    int *_domains;
+    mcIdType *_comm_buffer;
+    int *_buffer_index;
+    int *_send_counts;
 
     void computeNumbers();
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

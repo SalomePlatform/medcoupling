@@ -26,39 +26,40 @@
 
 namespace MEDCoupling
 {
-  class ProcessorGroup;
+class ProcessorGroup;
 
-  /*!
-   * \anchor ComponentTopology-det
-   *
-   * The ComponentTopology can be used when building a ParaFIELD. It allows the splitting of the components
-   * of the field among different processors within a single processor group.
-   *
-   * \sa ParaFIELD::ParaFIELD(TypeOfField , TypeOfTimeDiscretization , ParaMESH* , const ComponentTopology& )
-   */
-  class ComponentTopology
-  {
-  public:
-    ComponentTopology(int nb_comp, ProcessorGroup* group);
+/*!
+ * \anchor ComponentTopology-det
+ *
+ * The ComponentTopology can be used when building a ParaFIELD. It allows the splitting of the components
+ * of the field among different processors within a single processor group.
+ *
+ * \sa ParaFIELD::ParaFIELD(TypeOfField , TypeOfTimeDiscretization , ParaMESH* , const ComponentTopology& )
+ */
+class ComponentTopology
+{
+   public:
+    ComponentTopology(int nb_comp, ProcessorGroup *group);
     ComponentTopology(int nb_comp, int nb_blocks);
     ComponentTopology(int nb_comp);
     ComponentTopology();
     virtual ~ComponentTopology();
-    //!returns the number of MED components in the topology
+    //! returns the number of MED components in the topology
     int nbComponents() const { return _component_array.back(); }
-    //!returns the number of MED components on local processor
-    int nbLocalComponents() const ;
-    //!returns the number of the first MED component on local processor
-    int firstLocalComponent() const ;
-    //!returns the number of blocks in the topology
-    int nbBlocks()const {return (int)_component_array.size()-1;}
-    //!returns the block structure
-    const std::vector<int>* getBlockIndices() const { return &_component_array; }
-    const ProcessorGroup* getProcGroup()const { return _proc_group; }
-  private:
+    //! returns the number of MED components on local processor
+    int nbLocalComponents() const;
+    //! returns the number of the first MED component on local processor
+    int firstLocalComponent() const;
+    //! returns the number of blocks in the topology
+    int nbBlocks() const { return (int)_component_array.size() - 1; }
+    //! returns the block structure
+    const std::vector<int> *getBlockIndices() const { return &_component_array; }
+    const ProcessorGroup *getProcGroup() const { return _proc_group; }
+
+   private:
     std::vector<int> _component_array;
-    ProcessorGroup* _proc_group;
-  };
-}
+    ProcessorGroup *_proc_group;
+};
+}  // namespace MEDCoupling
 
 #endif /*COMPONENTTOPOLOGY_HXX_*/

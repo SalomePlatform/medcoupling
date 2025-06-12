@@ -22,33 +22,33 @@
 #define _MEDCOUPLING_HXX_
 
 #ifdef WIN32
-#  if defined(medcoupling_EXPORTS) || defined(medcouplingcpp_EXPORTS)
-#    define MEDCOUPLING_EXPORT __declspec( dllexport )
-#  else
-#    define MEDCOUPLING_EXPORT __declspec( dllimport )
-#  endif
+#if defined(medcoupling_EXPORTS) || defined(medcouplingcpp_EXPORTS)
+#define MEDCOUPLING_EXPORT __declspec(dllexport)
 #else
-#  define MEDCOUPLING_EXPORT
+#define MEDCOUPLING_EXPORT __declspec(dllimport)
+#endif
+#else
+#define MEDCOUPLING_EXPORT
 #endif
 
 #ifdef __GNUC__
-  # define MEDCOUPLING_EXPORT_TEMPLATE MEDCOUPLING_EXPORT
+#define MEDCOUPLING_EXPORT_TEMPLATE MEDCOUPLING_EXPORT
 #else
-  # define MEDCOUPLING_EXPORT_TEMPLATE
+#define MEDCOUPLING_EXPORT_TEMPLATE
 #endif
 
 #ifdef WIN32
-#  if defined medcouplingremapper_EXPORTS
-#    define MEDCOUPLINGREMAPPER_EXPORT __declspec( dllexport )
-#  else
-#    define MEDCOUPLINGREMAPPER_EXPORT __declspec( dllimport )
-#  endif
+#if defined medcouplingremapper_EXPORTS
+#define MEDCOUPLINGREMAPPER_EXPORT __declspec(dllexport)
 #else
-#  define MEDCOUPLINGREMAPPER_EXPORT
+#define MEDCOUPLINGREMAPPER_EXPORT __declspec(dllimport)
+#endif
+#else
+#define MEDCOUPLINGREMAPPER_EXPORT
 #endif
 
 #ifdef WIN32
-#pragma warning( disable : 4290 )
+#pragma warning(disable : 4290)
 #endif
 
 #endif

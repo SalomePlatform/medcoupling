@@ -24,48 +24,47 @@
 #include "ShapeRecognDefines.hxx"
 namespace MEDCoupling
 {
-    class SHAPE_RECOGNITION_EXPORT AreasBuilder
-    {
-    public:
-        AreasBuilder(const Nodes *nodes);
+class SHAPE_RECOGNITION_EXPORT AreasBuilder
+{
+   public:
+    AreasBuilder(const Nodes *nodes);
 
-        void build();
+    void build();
 
-        Areas *getAreas() const;
+    Areas *getAreas() const;
 
-    private:
-        void explore();
-        void expand();
-        void rebuild();
-        void exploreAreas();
-        void expandAreas();
-        void expandAreasByType(PrimitiveType primitive);
-        void rebuildInvalidAreas();
-        void filterHighPass();
-        bool doesItMatch(mcIdType areaId, mcIdType nodeId) const;
-        bool doesItBelong(mcIdType areaId, mcIdType nodeId) const;
-        bool isInvalidCylinderNode(mcIdType nodeId) const;
+   private:
+    void explore();
+    void expand();
+    void rebuild();
+    void exploreAreas();
+    void expandAreas();
+    void expandAreasByType(PrimitiveType primitive);
+    void rebuildInvalidAreas();
+    void filterHighPass();
+    bool doesItMatch(mcIdType areaId, mcIdType nodeId) const;
+    bool doesItBelong(mcIdType areaId, mcIdType nodeId) const;
+    bool isInvalidCylinderNode(mcIdType nodeId) const;
 
-        static double distanceToPlane(
-            const std::array<double, 3> &nodeCoords,
-            const std::array<double, 3> &point,
-            const std::array<double, 3> &normal);
-        static double distanceToSphere(
-            const std::array<double, 3> &nodeCoords,
-            const std::array<double, 3> &center);
-        static double distanceToCylinder(
-            const std::array<double, 3> &nodeCoords,
-            const std::array<double, 3> &axis,
-            const std::array<double, 3> &axisPoint);
-        static double distanceToCone(
-            const std::array<double, 3> &nodeCoords,
-            const std::array<double, 3> &axis,
-            const std::array<double, 3> &apex,
-            double angle);
+    static double distanceToPlane(
+        const std::array<double, 3> &nodeCoords, const std::array<double, 3> &point, const std::array<double, 3> &normal
+    );
+    static double distanceToSphere(const std::array<double, 3> &nodeCoords, const std::array<double, 3> &center);
+    static double distanceToCylinder(
+        const std::array<double, 3> &nodeCoords,
+        const std::array<double, 3> &axis,
+        const std::array<double, 3> &axisPoint
+    );
+    static double distanceToCone(
+        const std::array<double, 3> &nodeCoords,
+        const std::array<double, 3> &axis,
+        const std::array<double, 3> &apex,
+        double angle
+    );
 
-        const Nodes *nodes;
-        Areas *areas;
+    const Nodes *nodes;
+    Areas *areas;
 
-        size_t threshold = 5;
-    };
-}
+    size_t threshold = 5;
+};
+}  // namespace MEDCoupling

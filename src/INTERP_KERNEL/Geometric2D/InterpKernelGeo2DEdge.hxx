@@ -34,97 +34,118 @@
 
 namespace INTERP_KERNEL
 {
-  typedef enum
-  {
-    SEG         = 1,
-    ARC_CIRCLE  = 4,
+typedef enum
+{
+    SEG = 1,
+    ARC_CIRCLE = 4,
     ARC_PARABOL = 8
-  } TypeOfFunction;
+} TypeOfFunction;
 
-  typedef enum
-  {
-    CIRCLE  = 0 ,
+typedef enum
+{
+    CIRCLE = 0,
     PARABOL = 1
-  } TypeOfMod4QuadEdge;
+} TypeOfMod4QuadEdge;
 
-  typedef enum
-  {
-    START       = 5,
-    END         = 1,
-    INSIDE      = 2,
-    OUT_BEFORE  = 3,
-    OUT_AFTER   = 4
-  } TypeOfLocInEdge; //see Edge::OFFSET_FOR_TYPEOFLOCINEDGE
+typedef enum
+{
+    START = 5,
+    END = 1,
+    INSIDE = 2,
+    OUT_BEFORE = 3,
+    OUT_AFTER = 4
+} TypeOfLocInEdge;  // see Edge::OFFSET_FOR_TYPEOFLOCINEDGE
 
-  typedef enum
-  {
-    FULL_IN_1    = 1,
-    FULL_ON_1    = 4,
-    FULL_OUT_1   = 2,
+typedef enum
+{
+    FULL_IN_1 = 1,
+    FULL_ON_1 = 4,
+    FULL_OUT_1 = 2,
     FULL_UNKNOWN = 3
-  } TypeOfEdgeLocInPolygon;
+} TypeOfEdgeLocInPolygon;
 
-  class INTERPKERNEL_EXPORT MergePoints
-  {
-  public:
+class INTERPKERNEL_EXPORT MergePoints
+{
+   public:
     MergePoints();
 
-    //methods called during intersection edge-edge
+    // methods called during intersection edge-edge
     void start1Replaced();
     void end1Replaced();
     void start1OnStart2();
     void start1OnEnd2();
     void end1OnStart2();
     void end1OnEnd2();
-    //methods to be called during aggregation
+    // methods to be called during aggregation
     bool isStart1(unsigned rk) const;
     bool isEnd1(unsigned rk) const;
     bool isStart2(unsigned rk) const;
     bool isEnd2(unsigned rk) const;
     void clear();
     unsigned getNumberOfAssociations() const;
-    void updateMergedNodes(mcIdType e1Start, mcIdType e1End, mcIdType e2Start, mcIdType e2End, std::map<mcIdType,mcIdType>& mergedNodes);
-  private:
-    static void PushInMap(mcIdType key, mcIdType value, std::map<mcIdType,mcIdType>& mergedNodes);
-  private:
-    unsigned _ass1Start1  : 1;
-    unsigned _ass1End1    : 1;
-    unsigned _ass1Start2  : 1;
-    unsigned _ass1End2    : 1;
-    unsigned _ass2Start1  : 1;
-    unsigned _ass2End1    : 1;
-    unsigned _ass2Start2  : 1;
-    unsigned _ass2End2    : 1;
-  };
+    void updateMergedNodes(
+        mcIdType e1Start, mcIdType e1End, mcIdType e2Start, mcIdType e2End, std::map<mcIdType, mcIdType> &mergedNodes
+    );
 
-  class Edge;
-  class ComposedEdge;
-  /*!
-   * This class is in charge to store an intersection point as result of \b non oververlapping edge intersection.
-   * This class manages the cases when intersect element is one of the extrimities of edge1 and/or edge2.
-   */
-  class INTERPKERNEL_EXPORT IntersectElement
-  {
-  public:
-    IntersectElement(double val1, double val2, bool start1, bool end1, bool start2, bool end2, Node *node, const Edge& e1, const Edge& e2, bool keepOrder);
-    IntersectElement(const IntersectElement& other);
+   private:
+    static void PushInMap(mcIdType key, mcIdType value, std::map<mcIdType, mcIdType> &mergedNodes);
+
+   private:
+    unsigned _ass1Start1 : 1;
+    unsigned _ass1End1 : 1;
+    unsigned _ass1Start2 : 1;
+    unsigned _ass1End2 : 1;
+    unsigned _ass2Start1 : 1;
+    unsigned _ass2End1 : 1;
+    unsigned _ass2Start2 : 1;
+    unsigned _ass2End2 : 1;
+};
+
+class Edge;
+class ComposedEdge;
+/*!
+ * This class is in charge to store an intersection point as result of \b non oververlapping edge intersection.
+ * This class manages the cases when intersect element is one of the extrimities of edge1 and/or edge2.
+ */
+class INTERPKERNEL_EXPORT IntersectElement
+{
+   public:
+    IntersectElement(
+        double val1,
+        double val2,
+        bool start1,
+        bool end1,
+        bool start2,
+        bool end2,
+        Node *node,
+        const Edge &e1,
+        const Edge &e2,
+        bool keepOrder
+    );
+    IntersectElement(const IntersectElement &other);
     //! The sort operator is done on the edge 1 \b not edge 2.
-    bool operator<(const IntersectElement& other) const;
-    IntersectElement& operator=(const IntersectElement& other);
+    bool operator<(const IntersectElement &other) const;
+    IntersectElement &operator=(const IntersectElement &other);
     double getVal1() const { return _chararct_val_for_e1; }
     double getVal2() const { return _chararct_val_for_e2; }
     //! idem operator< method except that the orientation is done on edge 2 \b not edge 1.
-    bool isLowerOnOther(const IntersectElement& other) const;
+    bool isLowerOnOther(const IntersectElement &other) const;
     unsigned isOnExtrForAnEdgeAndInForOtherEdge() const;
     void attachLoc() { _node->setLoc(_loc_of_node); }
     bool isOnMergedExtremity() const;
     bool isIncludedByBoth() const;
     void setNode(Node *node) const;
-    void performMerging(MergePoints& commonNode) const;
+    void performMerging(MergePoints &commonNode) const;
     Node *getNodeOnly() const { return _node; }
-    Node *getNodeAndReleaseIt() { Node *tmp=_node; _node=0; return tmp; }
+    Node *getNodeAndReleaseIt()
+    {
+        Node *tmp = _node;
+        _node = 0;
+        return tmp;
+    }
     ~IntersectElement();
-  private:
+
+   private:
     bool _1S;  // true if starting point of edge 1 is located exactly on edge 2 (not nearby)
     bool _1E;  // true if ending point of edge 1 is located exactly on edge 2 (not nearby)
     bool _2S;  // true if starting point of edge 2 is located exactly on edge 1 (not nearby)
@@ -133,111 +154,185 @@ namespace INTERP_KERNEL
     double _chararct_val_for_e2;
     Node *_node;
     TypeOfLocInPolygon _loc_of_node;
-    const Edge& _e1;
-    const Edge& _e2;
-  public:
+    const Edge &_e1;
+    const Edge &_e2;
+
+   public:
     static const unsigned LIMIT_ALONE = 22;
     static const unsigned LIMIT_ON = 73;
     static const unsigned NO_LIMIT = 19;
-  };
+};
 
-  /*!
-   * This abstract interface specifies all the methods to be overloaded of all possibilities edge-intersection.
-   */
-  class INTERPKERNEL_EXPORT EdgeIntersector
-  {
-  protected:
+/*!
+ * This abstract interface specifies all the methods to be overloaded of all possibilities edge-intersection.
+ */
+class INTERPKERNEL_EXPORT EdgeIntersector
+{
+   protected:
     //! All non symmetric methods are relative to 'e1'.
-    EdgeIntersector(const Edge& e1, const Edge& e2):_e1(e1),_e2(e2), _earlyInter(0) { }
-  public:
-    virtual ~EdgeIntersector() { if(_earlyInter) delete(_earlyInter); }
+    EdgeIntersector(const Edge &e1, const Edge &e2) : _e1(e1), _e2(e2), _earlyInter(0) {}
+
+   public:
+    virtual ~EdgeIntersector()
+    {
+        if (_earlyInter)
+            delete (_earlyInter);
+    }
     virtual bool keepOrder() const = 0;
     virtual bool areColinears() const = 0;
-    //!to call only if 'areOverlapped' have been set to true when areOverlappedOrOnlyColinears was called
+    //! to call only if 'areOverlapped' have been set to true when areOverlappedOrOnlyColinears was called
     virtual bool haveTheySameDirection() const = 0;
-    //!to call only if 'areOverlapped' have been set to true when areOverlappedOrOnlyColinears was called
-    virtual void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const = 0;
-    //! When true is returned, newNodes should contains at least 1 element. All merging nodes betw _e1 and _e2 extremities must be done.
-    bool intersect(std::vector<Node *>& newNodes, bool& order, MergePoints& commonNode);
+    //! to call only if 'areOverlapped' have been set to true when areOverlappedOrOnlyColinears was called
+    virtual void getPlacements(
+        Node *start, Node *end, TypeOfLocInEdge &whereStart, TypeOfLocInEdge &whereEnd, MergePoints &commonNode
+    ) const = 0;
+    //! When true is returned, newNodes should contains at least 1 element. All merging nodes betw _e1 and _e2
+    //! extremities must be done.
+    bool intersect(std::vector<Node *> &newNodes, bool &order, MergePoints &commonNode);
     //! Should be called only once per association.
-    virtual void areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped) = 0;
-    //! The size of returned vector is equal to number of potential intersections point. The values are so that their are interpretable by virtual Edge::isIn method.
-    virtual std::list< IntersectElement > getIntersectionsCharacteristicVal() const = 0;
-  protected:
-    void obviousCaseForCurvAbscisse(Node *node, TypeOfLocInEdge& where, MergePoints& commonNode, bool& obvious) const;
-    virtual void identifyEarlyIntersection(bool& , bool&, bool&, bool&);
-  protected:
-    const Edge& _e1;
-    const Edge& _e2;
-    IntersectElement *_earlyInter;   // Non null if the intersection can be determined early -> see areOverlappedOrOnlyColinears()
-  };
+    virtual void areOverlappedOrOnlyColinears(bool &obviousNoIntersection, bool &areOverlapped) = 0;
+    //! The size of returned vector is equal to number of potential intersections point. The values are so that their
+    //! are interpretable by virtual Edge::isIn method.
+    virtual std::list<IntersectElement> getIntersectionsCharacteristicVal() const = 0;
 
-  class INTERPKERNEL_EXPORT SameTypeEdgeIntersector : public EdgeIntersector
-  {
-  protected:
-    SameTypeEdgeIntersector(const Edge& e1, const Edge& e2):EdgeIntersector(e1,e2) { }
+   protected:
+    void obviousCaseForCurvAbscisse(Node *node, TypeOfLocInEdge &where, MergePoints &commonNode, bool &obvious) const;
+    virtual void identifyEarlyIntersection(bool &, bool &, bool &, bool &);
+
+   protected:
+    const Edge &_e1;
+    const Edge &_e2;
+    IntersectElement
+        *_earlyInter;  // Non null if the intersection can be determined early -> see areOverlappedOrOnlyColinears()
+};
+
+class INTERPKERNEL_EXPORT SameTypeEdgeIntersector : public EdgeIntersector
+{
+   protected:
+    SameTypeEdgeIntersector(const Edge &e1, const Edge &e2) : EdgeIntersector(e1, e2) {}
     bool keepOrder() const { return true; }
-  };
+};
 
-  class INTERPKERNEL_EXPORT CrossTypeEdgeIntersector : public EdgeIntersector
-  {
-  protected:
-    CrossTypeEdgeIntersector(const Edge& e1, const Edge& e2, bool reverse):EdgeIntersector(e1,e2),_reverse(reverse) { }
+class INTERPKERNEL_EXPORT CrossTypeEdgeIntersector : public EdgeIntersector
+{
+   protected:
+    CrossTypeEdgeIntersector(const Edge &e1, const Edge &e2, bool reverse) : EdgeIntersector(e1, e2), _reverse(reverse)
+    {
+    }
     bool keepOrder() const { return _reverse; }
-    bool haveTheySameDirection() const { throw Exception("Cross type intersector is not supposed to deal with overlapped in cross type."); }
-    const Edge *myE1() { if(_reverse) return &_e1; else return &_e2; }
-    const Edge *myE2() { if(_reverse) return &_e2; else return &_e1; }
-  protected:
+    bool haveTheySameDirection() const
+    {
+        throw Exception("Cross type intersector is not supposed to deal with overlapped in cross type.");
+    }
+    const Edge *myE1()
+    {
+        if (_reverse)
+            return &_e1;
+        else
+            return &_e2;
+    }
+    const Edge *myE2()
+    {
+        if (_reverse)
+            return &_e2;
+        else
+            return &_e1;
+    }
+
+   protected:
     //! boolean to inform intersector that unsymetrics treatments reverse of e1 and e2 should be done.
     bool _reverse;
-  };
+};
 
-  class EdgeLin;
-  class EdgeInfLin;
-  class EdgeArcCircle;
+class EdgeLin;
+class EdgeInfLin;
+class EdgeArcCircle;
 
-  /*!
-   * Deal with an oriented edge of a polygon.
-   * An Edge is defined with a start node, an end node and an equation of 1D curve.
-   * All other attributes are mutable because they don't impact these 3 invariant attributes.
-   * To be exact start and end nodes can change (address) but their location remain
-   * the same (at precision).
-   */
-  class INTERPKERNEL_EXPORT Edge
-  {
-  public:
-    Edge(Node *start, Node *end, bool direction=true):_cnt(1),_loc(FULL_UNKNOWN) { if(direction) { _start=start; _end=end; } else { _start=end; _end=start; } _start->incrRef(); _end->incrRef(); }
+/*!
+ * Deal with an oriented edge of a polygon.
+ * An Edge is defined with a start node, an end node and an equation of 1D curve.
+ * All other attributes are mutable because they don't impact these 3 invariant attributes.
+ * To be exact start and end nodes can change (address) but their location remain
+ * the same (at precision).
+ */
+class INTERPKERNEL_EXPORT Edge
+{
+   public:
+    Edge(Node *start, Node *end, bool direction = true) : _cnt(1), _loc(FULL_UNKNOWN)
+    {
+        if (direction)
+        {
+            _start = start;
+            _end = end;
+        }
+        else
+        {
+            _start = end;
+            _end = start;
+        }
+        _start->incrRef();
+        _end->incrRef();
+    }
     Edge(double sX, double sY, double eX, double eY);
     TypeOfEdgeLocInPolygon getLoc() const { return _loc; }
     void incrRef() const { _cnt++; }
     bool decrRef();
-    void initLocs() const { _loc=FULL_UNKNOWN; _start->initLocs(); _end->initLocs(); }
+    void initLocs() const
+    {
+        _loc = FULL_UNKNOWN;
+        _start->initLocs();
+        _end->initLocs();
+    }
     void declareOn() const;
     void declareIn() const;
     void declareOut() const;
-    void initHitStatus() const { _hit=false; }
+    void initHitStatus() const { _hit = false; }
     bool getHitStatus() const { return _hit; }
-    void hitMeAlone(double xBary, double yBary, double dimChar) { _hit=true; applySimilarity(xBary,yBary,dimChar); }
-    void unHitMeAlone(double xBary, double yBary, double dimChar) { _hit=true; unApplySimilarity(xBary,yBary,dimChar); }
-    void hitMeAfter(double xBary, double yBary, double dimChar) { if(!_hit) hitMeAlone(xBary,yBary,dimChar); }
-    void unHitMeAfter(double xBary, double yBary, double dimChar) { if(!_hit) unHitMeAlone(xBary,yBary,dimChar); }
-    const Bounds& getBounds() const { return _bounds; }
-    void fillXfigStreamForLoc(std::ostream& stream) const;
-    Node *getNode(TypeOfLocInEdge where) const { if(where==START) return _start; else if(where==END) return _end; else return 0; }
+    void hitMeAlone(double xBary, double yBary, double dimChar)
+    {
+        _hit = true;
+        applySimilarity(xBary, yBary, dimChar);
+    }
+    void unHitMeAlone(double xBary, double yBary, double dimChar)
+    {
+        _hit = true;
+        unApplySimilarity(xBary, yBary, dimChar);
+    }
+    void hitMeAfter(double xBary, double yBary, double dimChar)
+    {
+        if (!_hit)
+            hitMeAlone(xBary, yBary, dimChar);
+    }
+    void unHitMeAfter(double xBary, double yBary, double dimChar)
+    {
+        if (!_hit)
+            unHitMeAlone(xBary, yBary, dimChar);
+    }
+    const Bounds &getBounds() const { return _bounds; }
+    void fillXfigStreamForLoc(std::ostream &stream) const;
+    Node *getNode(TypeOfLocInEdge where) const
+    {
+        if (where == START)
+            return _start;
+        else if (where == END)
+            return _end;
+        else
+            return 0;
+    }
     Node *getStartNode() const { return _start; }
     Node *getEndNode() const { return _end; }
     void setEndNodeWithoutChange(Node *newEnd);
     void setStartNodeWithoutChange(Node *newStart);
     bool changeStartNodeWith(Node *otherStartNode) const;
-    bool changeStartNodeWithAndKeepTrack(Node *otherStartNode, std::vector<Node *>& track) const;
+    bool changeStartNodeWithAndKeepTrack(Node *otherStartNode, std::vector<Node *> &track) const;
     bool changeEndNodeWith(Node *otherEndNode) const;
-    bool changeEndNodeWithAndKeepTrack(Node *otherEndNode, std::vector<Node *>& track) const;
-    void addSubEdgeInVector(Node *start, Node *end, ComposedEdge& vec) const;
+    bool changeEndNodeWithAndKeepTrack(Node *otherEndNode, std::vector<Node *> &track) const;
+    void addSubEdgeInVector(Node *start, Node *end, ComposedEdge &vec) const;
     void getNormalVector(double *vectOutput) const;
     static EdgeIntersector *BuildIntersectorWith(const Edge *e1, const Edge *e2);
-    static Edge *BuildFromXfigLine(std::istream& str);
+    static Edge *BuildFromXfigLine(std::istream &str);
     static Edge *BuildEdgeFrom(Node *start, Node *end);
-    template<TypeOfMod4QuadEdge type>
+    template <TypeOfMod4QuadEdge type>
     static Edge *BuildEdgeFrom(Node *start, Node *middle, Node *end);
     static Edge *BuildEdgeFrom3Points(const double *start, const double *middle, const double *end);
     virtual void update(Node *m) = 0;
@@ -253,64 +348,117 @@ namespace INTERP_KERNEL
     virtual void getBarycenterOfZone(double *bary) const = 0;
     //! return the middle of two points
     virtual void getMiddleOfPoints(const double *p1, const double *p2, double *mid) const = 0;
-    //! return the middle of two points respecting the orientation defined by this (relevant for arc of circle). By default same as getMiddleOfPoints()
+    //! return the middle of two points respecting the orientation defined by this (relevant for arc of circle). By
+    //! default same as getMiddleOfPoints()
     virtual void getMiddleOfPointsOriented(const double *p1, const double *p2, double *mid) const;
-    //! Retrieves a point that is owning to this, well placed for IN/OUT detection of this. Typically midlle of this is returned.
+    //! Retrieves a point that is owning to this, well placed for IN/OUT detection of this. Typically midlle of this is
+    //! returned.
     virtual Node *buildRepresentantOfMySelf() const = 0;
     //! Given a magnitude specified by sub-type returns if in or not. See getCharactValue method.
     virtual bool isIn(double characterVal) const = 0;
-    //! With the same magnitude as defined in 'isIn' method perform a compararison. Precondition : val1 and val2 are different and exactly INSIDE this.
+    //! With the same magnitude as defined in 'isIn' method perform a compararison. Precondition : val1 and val2 are
+    //! different and exactly INSIDE this.
     virtual bool isLower(double val1, double val2) const = 0;
     //! node is expected to lay on 'this'. It returns a characteristic magnitude usable by isIn method.
-    virtual double getCharactValue(const Node& node) const = 0;
+    virtual double getCharactValue(const Node &node) const = 0;
     //! node is expected to lay on 'this'. It returns a characteristic magnitude between 0 and 1.
-    virtual double getCharactValueBtw0And1(const Node& node) const = 0;
+    virtual double getCharactValueBtw0And1(const Node &node) const = 0;
     //! retrieves the distance to this : The min distance from pt and any point of this.
     virtual double getDistanceToPoint(const double *pt) const = 0;
     //! return if node with coords 'coordOfNode' is on this (with precision).
     virtual bool isNodeLyingOn(const double *coordOfNode) const = 0;
     virtual TypeOfFunction getTypeOfFunc() const = 0;
-    virtual void dynCastFunction(const EdgeLin * &seg,
-                                 const EdgeArcCircle * &arcSeg) const = 0;
-    bool intersectWith(const Edge *other, MergePoints& commonNode,
-                       ComposedEdge& outVal1, ComposedEdge& outVal2) const;
-    static bool IntersectOverlapped(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, MergePoints& commonNode,
-                                    ComposedEdge& outValForF1, ComposedEdge& outValForF2);
-    static void Interpolate1DLin(const std::vector<double>& distrib1, const std::vector<double>& distrib2,
-                                 std::map<int, std::map<int,double> >& result);
-    virtual void dumpInXfigFile(std::ostream& stream, bool direction, int resolution, const Bounds& box) const = 0;
-    void dumpToCout(const std::map<INTERP_KERNEL::Node *,int>& mapp, int index) const;
-    bool isEqual(const Edge& other) const;
-  public:
-    bool sortSubNodesAbs(const double *coo, std::vector<mcIdType>& subNodes);
-    void sortIdsAbs(const std::vector<INTERP_KERNEL::Node *>& addNodes, const std::map<INTERP_KERNEL::Node *, mcIdType>& mapp1, const std::map<INTERP_KERNEL::Node *, mcIdType>& mapp2, std::vector<mcIdType>& edgesThis);
-    virtual Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction=true) const = 0;
-    void fillGlobalInfoAbs(bool direction, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapThis, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapOther, mcIdType offset1, mcIdType offset2, double fact, double baryX, double baryY,
-                           std::vector<mcIdType>& edgesThis, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType> mapAddCoo) const;
-    void fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,mcIdType>& mapThis, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapOther, mcIdType offset1, mcIdType offset2, double fact, double baryX, double baryY,
-                            short skipStartOrEnd,
-                            std::vector<mcIdType>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType>& mapAddCoo) const;
+    virtual void dynCastFunction(const EdgeLin *&seg, const EdgeArcCircle *&arcSeg) const = 0;
+    bool intersectWith(const Edge *other, MergePoints &commonNode, ComposedEdge &outVal1, ComposedEdge &outVal2) const;
+    static bool IntersectOverlapped(
+        const Edge *f1,
+        const Edge *f2,
+        EdgeIntersector *intersector,
+        MergePoints &commonNode,
+        ComposedEdge &outValForF1,
+        ComposedEdge &outValForF2
+    );
+    static void Interpolate1DLin(
+        const std::vector<double> &distrib1,
+        const std::vector<double> &distrib2,
+        std::map<int, std::map<int, double> > &result
+    );
+    virtual void dumpInXfigFile(std::ostream &stream, bool direction, int resolution, const Bounds &box) const = 0;
+    void dumpToCout(const std::map<INTERP_KERNEL::Node *, int> &mapp, int index) const;
+    bool isEqual(const Edge &other) const;
 
-  protected:
-    Edge():_cnt(1),_loc(FULL_UNKNOWN),_start(0),_end(0) { }
+   public:
+    bool sortSubNodesAbs(const double *coo, std::vector<mcIdType> &subNodes);
+    void sortIdsAbs(
+        const std::vector<INTERP_KERNEL::Node *> &addNodes,
+        const std::map<INTERP_KERNEL::Node *, mcIdType> &mapp1,
+        const std::map<INTERP_KERNEL::Node *, mcIdType> &mapp2,
+        std::vector<mcIdType> &edgesThis
+    );
+    virtual Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction = true) const = 0;
+    void fillGlobalInfoAbs(
+        bool direction,
+        const std::map<INTERP_KERNEL::Node *, mcIdType> &mapThis,
+        const std::map<INTERP_KERNEL::Node *, mcIdType> &mapOther,
+        mcIdType offset1,
+        mcIdType offset2,
+        double fact,
+        double baryX,
+        double baryY,
+        std::vector<mcIdType> &edgesThis,
+        std::vector<double> &addCoo,
+        std::map<INTERP_KERNEL::Node *, mcIdType> mapAddCoo
+    ) const;
+    void fillGlobalInfoAbs2(
+        const std::map<INTERP_KERNEL::Node *, mcIdType> &mapThis,
+        const std::map<INTERP_KERNEL::Node *, mcIdType> &mapOther,
+        mcIdType offset1,
+        mcIdType offset2,
+        double fact,
+        double baryX,
+        double baryY,
+        short skipStartOrEnd,
+        std::vector<mcIdType> &edgesOther,
+        std::vector<double> &addCoo,
+        std::map<INTERP_KERNEL::Node *, mcIdType> &mapAddCoo
+    ) const;
+
+   protected:
+    Edge() : _cnt(1), _loc(FULL_UNKNOWN), _start(0), _end(0) {}
     virtual ~Edge();
     static int CombineCodes(TypeOfLocInEdge code1, TypeOfLocInEdge code2);
-    static bool Intersect(const Edge *f1, const Edge *f2, EdgeIntersector *intersector, MergePoints& commonNode,
-                          ComposedEdge& outValForF1, ComposedEdge& outValForF2);
+    static bool Intersect(
+        const Edge *f1,
+        const Edge *f2,
+        EdgeIntersector *intersector,
+        MergePoints &commonNode,
+        ComposedEdge &outValForF1,
+        ComposedEdge &outValForF2
+    );
     //! The code 'code' is built by method combineCodes
-    static bool SplitOverlappedEdges(const Edge *e1, const Edge *e2, Node *nS, Node *nE, bool direction, int code,
-                                     ComposedEdge& outVal1, ComposedEdge& outVal2);
-  protected:
+    static bool SplitOverlappedEdges(
+        const Edge *e1,
+        const Edge *e2,
+        Node *nS,
+        Node *nE,
+        bool direction,
+        int code,
+        ComposedEdge &outVal1,
+        ComposedEdge &outVal2
+    );
+
+   protected:
     mutable bool _hit;
     mutable unsigned char _cnt;
     mutable TypeOfEdgeLocInPolygon _loc;
     Bounds _bounds;
     Node *_start;
     Node *_end;
-  protected:
-    //In relation with max possible value of TypeOfLocInEdge.
+
+   protected:
+    // In relation with max possible value of TypeOfLocInEdge.
     static const int OFFSET_FOR_TYPEOFLOCINEDGE = 8;
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

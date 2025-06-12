@@ -29,27 +29,27 @@
 
 namespace INTERP_KERNEL
 {
-  class _Cartesian3D2UnstructHexMesh;
+class _Cartesian3D2UnstructHexMesh;
 
-  template<class MyCMeshType, class MyUMeshType, class MyMatrix >
-  class IntersectorCU3D : public IntersectorCU<MyCMeshType,MyUMeshType,MyMatrix,IntersectorCU3D<MyCMeshType,MyUMeshType,MyMatrix> >
-  {
-  public:
+template <class MyCMeshType, class MyUMeshType, class MyMatrix>
+class IntersectorCU3D
+    : public IntersectorCU<MyCMeshType, MyUMeshType, MyMatrix, IntersectorCU3D<MyCMeshType, MyUMeshType, MyMatrix> >
+{
+   public:
     typedef typename MyUMeshType::MyConnType UConnType;
     typedef typename MyCMeshType::MyConnType CConnType;
-  public:
-    IntersectorCU3D(const MyCMeshType& meshS, const MyUMeshType& meshT, SplittingPolicy splitting_policy);
+
+   public:
+    IntersectorCU3D(const MyCMeshType &meshS, const MyUMeshType &meshT, SplittingPolicy splitting_policy);
     ~IntersectorCU3D();
-    double intersectGeometry(UConnType icellT, const std::vector<CConnType>& icellC);
+    double intersectGeometry(UConnType icellT, const std::vector<CConnType> &icellC);
 
-  private:
-
-    typedef SplitterTetra2<MyUMeshType, _Cartesian3D2UnstructHexMesh > TSplitter;
-    typedef SplitterTetra <_Cartesian3D2UnstructHexMesh >              TTetra;
-    _Cartesian3D2UnstructHexMesh* _uHexMesh;
-    TSplitter*                    _split;
-  };
-}
-
+   private:
+    typedef SplitterTetra2<MyUMeshType, _Cartesian3D2UnstructHexMesh> TSplitter;
+    typedef SplitterTetra<_Cartesian3D2UnstructHexMesh> TTetra;
+    _Cartesian3D2UnstructHexMesh *_uHexMesh;
+    TSplitter *_split;
+};
+}  // namespace INTERP_KERNEL
 
 #endif

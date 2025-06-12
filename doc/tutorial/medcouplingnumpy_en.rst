@@ -160,7 +160,7 @@ Interpolons ``skinAndNCFaces`` sur lui-même. On acceptera un écart entre face 
 Récupérer la matrice creuse au format CSR du remapper. ::
 
 	mat = rem.getCrudeCSRMatrix()
-	
+
 .. note:: Le format CSR est un format de stockage efficace des matrices
 	creuses : `Sparse matrix CSR <http://en.wikipedia.org/wiki/Sparse_matrix>`_
 
@@ -187,4 +187,3 @@ Script complet
 ~~~~~~~~~~~~~~
 
 :ref:`python_testMEDCouplingNumPy_solution`
-

@@ -27,25 +27,26 @@
 
 namespace INTERP_TEST
 {
-  class INTERPKERNELTEST_EXPORT ExprEvalInterpTest : public CppUnit::TestFixture
-  {
-    CPPUNIT_TEST_SUITE( ExprEvalInterpTest );
-    CPPUNIT_TEST( testBuildStringFromFortran );
-    CPPUNIT_TEST( testDeleteWhiteSpaces );
-    CPPUNIT_TEST( testInterpreter0 );
-    CPPUNIT_TEST( testInterpreter1 );
-    CPPUNIT_TEST( testInterpreter2 );
-    CPPUNIT_TEST( testInterpreterUnit0 );
-    CPPUNIT_TEST( testInterpreterUnit1 );
-    CPPUNIT_TEST( testInterpreter3 );
-    CPPUNIT_TEST( testInterpreter4 );
-    CPPUNIT_TEST( testInterpreter5 );
-    CPPUNIT_TEST( testInterpreter6 );
+class INTERPKERNELTEST_EXPORT ExprEvalInterpTest : public CppUnit::TestFixture
+{
+    CPPUNIT_TEST_SUITE(ExprEvalInterpTest);
+    CPPUNIT_TEST(testBuildStringFromFortran);
+    CPPUNIT_TEST(testDeleteWhiteSpaces);
+    CPPUNIT_TEST(testInterpreter0);
+    CPPUNIT_TEST(testInterpreter1);
+    CPPUNIT_TEST(testInterpreter2);
+    CPPUNIT_TEST(testInterpreterUnit0);
+    CPPUNIT_TEST(testInterpreterUnit1);
+    CPPUNIT_TEST(testInterpreter3);
+    CPPUNIT_TEST(testInterpreter4);
+    CPPUNIT_TEST(testInterpreter5);
+    CPPUNIT_TEST(testInterpreter6);
     CPPUNIT_TEST_SUITE_END();
-  public:
-    void setUp() { }
-    void tearDown() { }
-    void cleanUp() { }
+
+   public:
+    void setUp() {}
+    void tearDown() {}
+    void cleanUp() {}
     void testBuildStringFromFortran();
     void testDeleteWhiteSpaces();
     void testInterpreter0();
@@ -57,7 +58,7 @@ namespace INTERP_TEST
     void testInterpreter6();
     void testInterpreterUnit0();
     void testInterpreterUnit1();
-  };
-}
+};
+}  // namespace INTERP_TEST
 
 #endif

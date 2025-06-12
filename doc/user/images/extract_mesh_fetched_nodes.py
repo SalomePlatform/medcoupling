@@ -11,19 +11,27 @@ salome.salome_init()
 theStudy = salome.myStudy
 
 import iparameters
-ipar = iparameters.IParameters(salome.myStudy.GetCommonParameters("Interface Applicative", 1), True)
 
-#Set up visual properties:
+ipar = iparameters.IParameters(
+    salome.myStudy.GetCommonParameters("Interface Applicative", 1), True
+)
+
+# Set up visual properties:
 ipar.setProperty("AP_ACTIVE_VIEW", "VTKViewer_0_0")
-ipar.setProperty("AP_WORKSTACK_INFO", "0000000100000000000000020100000001000003a0000000040000000100000002000000080000001a00560054004b005600690065007700650072005f0030005f00300000000202")
+ipar.setProperty(
+    "AP_WORKSTACK_INFO",
+    "0000000100000000000000020100000001000003a0000000040000000100000002000000080000001a00560054004b005600690065007700650072005f0030005f00300000000202",
+)
 ipar.setProperty("AP_ACTIVE_MODULE", "Mesh")
 ipar.setProperty("AP_SAVEPOINT_NAME", "GUI state: 2")
-#Set up lists:
+# Set up lists:
 # fill list AP_VIEWERS_LIST
 ipar.append("AP_VIEWERS_LIST", "VTKViewer_1")
 # fill list VTKViewer_1
 ipar.append("VTKViewer_1", "VTK scene:1 - viewer:1")
-ipar.append("VTKViewer_1", """<?xml version="1.0"?>
+ipar.append(
+    "VTKViewer_1",
+    """<?xml version="1.0"?>
 <ViewState>
     <Position X="6.72975" Y="50.5667" Z="-84.713"/>
     <FocalPoint X="7.8892" Y="1.31555" Z="0.206316"/>
@@ -60,7 +68,8 @@ ipar.append("VTKViewer_1", """<?xml version="1.0"?>
     <Trihedron isShown="0" Size="100"/>
     <Background Value="bt=1;fn=;tm=0;ts=false;c1=#ffffff;c2=#000000;gt=-1;gr="/>
 </ViewState>
-""")
+""",
+)
 # fill list AP_MODULES_LIST
 ipar.append("AP_MODULES_LIST", "Mesh")
 
@@ -70,48 +79,59 @@ if sys.platform == "win32":
 else:
     from MEDCoupling import *
 
-coordsArr=DataArrayDouble(range(6))
-mesh1=MEDCouplingCMesh("mesh")
-mesh1.setCoords(coordsArr,coordsArr[:3])
+coordsArr = DataArrayDouble(range(6))
+mesh1 = MEDCouplingCMesh("mesh")
+mesh1.setCoords(coordsArr, coordsArr[:3])
 
 from MEDLoader import WriteMesh
 
-mesh1.translate( [6.5,0] )
+mesh1.translate([6.5, 0])
 mesh2 = mesh1.buildUnstructured()
-part = mesh2[1,2,4,5,7,8]
-WriteMesh("part.med",part,True)
+part = mesh2[1, 2, 4, 5, 7, 8]
+WriteMesh("part.med", part, True)
 
 ###
 ### SMESH component
 ###
 
-import  SMESH, SALOMEDS
+import SMESH, SALOMEDS
 from salome.smesh import smeshBuilder
 
 smesh = smeshBuilder.New(theStudy)
-([mesh], status) = smesh.CreateMeshesFromMED(r'part.med')
+([mesh], status) = smesh.CreateMeshesFromMED(r"part.med")
 
 
 ## Set names of Mesh objects
-smesh.SetName(mesh.GetMesh(), 'mesh')
+smesh.SetName(mesh.GetMesh(), "mesh")
 
 ### Store presentation parameters of displayed objects
 import iparameters
-ipar = iparameters.IParameters(theStudy.GetModuleParameters("Interface Applicative", "SMESH", 1))
 
-#Set up entries:
+ipar = iparameters.IParameters(
+    theStudy.GetModuleParameters("Interface Applicative", "SMESH", 1)
+)
+
+# Set up entries:
 # set up entry SMESH_3 (mesh) parameters
 ipar.setParameter("SMESH_3", "VTKViewer_0_Visibility", "On")
 ipar.setParameter("SMESH_3", "VTKViewer_0_Representation", "2")
 ipar.setParameter("SMESH_3", "VTKViewer_0_IsShrunk", "0")
 ipar.setParameter("SMESH_3", "VTKViewer_0_Entities", "e:0:f:1:v:0:0d:0:b:0")
-ipar.setParameter("SMESH_3", "VTKViewer_0_Colors", "surface:0:0.666667:1:backsurface:100:volume:1:0:0.666667:-100:edge:0:0.666667:1:node:1:0:0:outline:0:0.27451:0:elem0d:0:1:0:ball:0:0.333333:1:orientation:1:1:1")
-ipar.setParameter("SMESH_3", "VTKViewer_0_Sizes", "line:1:outline:1:elem0d:5:ball:10:1:shrink:0.75:orientation:0.1:0")
+ipar.setParameter(
+    "SMESH_3",
+    "VTKViewer_0_Colors",
+    "surface:0:0.666667:1:backsurface:100:volume:1:0:0.666667:-100:edge:0:0.666667:1:node:1:0:0:outline:0:0.27451:0:elem0d:0:1:0:ball:0:0.333333:1:orientation:1:1:1",
+)
+ipar.setParameter(
+    "SMESH_3",
+    "VTKViewer_0_Sizes",
+    "line:1:outline:1:elem0d:5:ball:10:1:shrink:0.75:orientation:0.1:0",
+)
 ipar.setParameter("SMESH_3", "VTKViewer_0_PointMarker", "std:1:9")
 ipar.setParameter("SMESH_3", "VTKViewer_0_Opacity", "1")
 ipar.setParameter("SMESH_3", "VTKViewer_0_ClippingPlane", "Off")
 
 
 if salome.sg.hasDesktop():
-  salome.sg.updateObjBrowser(True)
-  iparameters.getSession().restoreVisualState(1)
+    salome.sg.updateObjBrowser(True)
+    iparameters.getSession().restoreVisualState(1)

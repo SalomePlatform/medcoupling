@@ -25,10 +25,27 @@
 
 #include <sstream>
 
-#define IKAssert(a) { bool verdict(a);           \
-    if(!verdict) { std::ostringstream osszz; osszz << "Assertion \"" << #a << "\" failed into " << __FILE__ << " at line " << __LINE__ << " !"; throw INTERP_KERNEL::Exception(osszz.str()); } }
+#define IKAssert(a)                                                                                            \
+    {                                                                                                          \
+        bool verdict(a);                                                                                       \
+        if (!verdict)                                                                                          \
+        {                                                                                                      \
+            std::ostringstream osszz;                                                                          \
+            osszz << "Assertion \"" << #a << "\" failed into " << __FILE__ << " at line " << __LINE__ << " !"; \
+            throw INTERP_KERNEL::Exception(osszz.str());                                                       \
+        }                                                                                                      \
+    }
 
-#define IKAssertMsg(a,b) { bool verdict(a);           \
-    if(!verdict) { std::ostringstream osszz; osszz << "Assertion \"" << #a << "\" failed into " << __FILE__ << " at line " << __LINE__ << " with message \"" << b << "\" !"; throw INTERP_KERNEL::Exception(osszz.str()); } }
+#define IKAssertMsg(a, b)                                                                             \
+    {                                                                                                 \
+        bool verdict(a);                                                                              \
+        if (!verdict)                                                                                 \
+        {                                                                                             \
+            std::ostringstream osszz;                                                                 \
+            osszz << "Assertion \"" << #a << "\" failed into " << __FILE__ << " at line " << __LINE__ \
+                  << " with message \"" << b << "\" !";                                               \
+            throw INTERP_KERNEL::Exception(osszz.str());                                              \
+        }                                                                                             \
+    }
 
 #endif

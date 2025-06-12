@@ -23,6 +23,7 @@ from medcoupling import *
 from math import pi, sqrt
 
 import numpy
+
 if sys.platform == "win32":
     import MEDCouplingCompat as MEDCoupling
 else:
@@ -30,9 +31,9 @@ else:
 
 #! [UG_DataArrayNumpy_0]
 # NumPy is an optional pre-requisite!
-assert(MEDCoupling.MEDCouplingHasNumPyBindings())
-a=numpy.arange(20,dtype=numpy.int32)
-d=DataArrayInt32(a) # d owns data of a
-e=DataArrayInt32(a) # a not owned -> e only an access to chunk of a
-a1=d.toNumPyArray()
+assert MEDCoupling.MEDCouplingHasNumPyBindings()
+a = numpy.arange(20, dtype=numpy.int32)
+d = DataArrayInt32(a)  # d owns data of a
+e = DataArrayInt32(a)  # a not owned -> e only an access to chunk of a
+a1 = d.toNumPyArray()
 #! [UG_DataArrayNumpy_0]

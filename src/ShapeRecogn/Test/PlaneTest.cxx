@@ -23,13 +23,14 @@
 #include "ShapeRecognMesh.hxx"
 #include "Areas.hxx"
 #include "MathOps.hxx"
-#include "TestInterpKernelUtils.hxx" // getResourceFile()
+#include "TestInterpKernelUtils.hxx"  // getResourceFile()
 
 #include "ShapeRecognTest.hxx"
 
 using namespace MEDCoupling;
 
-void PlaneTest::setUp()
+void
+PlaneTest::setUp()
 {
     std::string file = INTERP_TEST::getResourceFile("ShapeRecognPlane.med", 3);
     srMesh = BuildShapeRecognMeshBuilderFromFile(file);
@@ -37,12 +38,14 @@ void PlaneTest::setUp()
     areas = srMesh->getAreas();
 }
 
-void PlaneTest::tearDown()
+void
+PlaneTest::tearDown()
 {
     areas = 0;
 }
 
-void PlaneTest::testArea()
+void
+PlaneTest::testArea()
 {
     CPPUNIT_ASSERT_EQUAL(36, (int)areas->getNumberOfNodes(0));
     CPPUNIT_ASSERT_EQUAL(1, (int)areas->getNumberOfAreas());

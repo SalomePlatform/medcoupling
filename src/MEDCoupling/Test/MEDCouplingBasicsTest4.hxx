@@ -28,74 +28,75 @@
 
 namespace MEDCoupling
 {
-  class DataArrayDouble;
-  class MEDCouplingUMesh;
-  class MEDCouplingFieldDouble;
-  class MEDCouplingMultiFields;
+class DataArrayDouble;
+class MEDCouplingUMesh;
+class MEDCouplingFieldDouble;
+class MEDCouplingMultiFields;
 
-  class MEDCouplingBasicsTest4 : public MEDCouplingBasicsTest
-  {
+class MEDCouplingBasicsTest4 : public MEDCouplingBasicsTest
+{
     CPPUNIT_TEST_SUITE(MEDCouplingBasicsTest4);
-    CPPUNIT_TEST( testDescriptionInMeshTimeUnit1 );
-    CPPUNIT_TEST( testMultiFields1 );
-    CPPUNIT_TEST( testFieldOverTime1 );
-    CPPUNIT_TEST( testDAICheckAndPreparePermutation1 );
-    CPPUNIT_TEST( testDAIChangeSurjectiveFormat1 );
-    CPPUNIT_TEST( testUMeshGetCellIdsLyingOnNodes1 );
-    CPPUNIT_TEST( testUMeshFindCellIdsOnBoundary1 );
-    CPPUNIT_TEST( testMeshSetTime1 );
-    CPPUNIT_TEST( testApplyFuncTwo1 );
-    CPPUNIT_TEST( testApplyFuncThree1 );
-    CPPUNIT_TEST( testFillFromAnalyticTwo1 );
-    CPPUNIT_TEST( testFillFromAnalyticThree1 );
-    CPPUNIT_TEST( testDAUnitVar1 );
-    CPPUNIT_TEST( testGaussCoordinates1 );
-    CPPUNIT_TEST( testP2Localization1 );
-    CPPUNIT_TEST( testP2Localization2 );
-    CPPUNIT_TEST( testGetValueOn2 );
-    CPPUNIT_TEST( testDAIGetIdsNotEqual1 );
-    CPPUNIT_TEST( testDAIComputeOffsets1 );
-    CPPUNIT_TEST( testUMeshHexagonPrism1 );
-    CPPUNIT_TEST( testDADCheckIsMonotonic );
-    CPPUNIT_TEST( testCheckCoherencyDeeper1 );
-    CPPUNIT_TEST( testUnPolyze2 );
-    CPPUNIT_TEST( testDACpyFrom1 );
-    CPPUNIT_TEST( testDAITransformWithIndArr1 );
-    CPPUNIT_TEST( testDAIBuildPermArrPerLevel1 );
-    CPPUNIT_TEST( testDAIOperations1 );
-    CPPUNIT_TEST( testEmulateMEDMEMBDC1 );
-    CPPUNIT_TEST( testGetLevArrPerCellTypes1 );
-    CPPUNIT_TEST( testSortCellsInMEDFileFrmt1 );
-    CPPUNIT_TEST( testBuildPartAndReduceNodes1 );
-    CPPUNIT_TEST( testDAITransformWithIndArrR1 );
-    CPPUNIT_TEST( testDAISplitByValueRange1 );
-    CPPUNIT_TEST( testUMeshSplitProfilePerType1 );
-    CPPUNIT_TEST( testDAIBuildExplicitArrByRanges1 );
-    CPPUNIT_TEST( testDAIComputeOffsets2 );
-    CPPUNIT_TEST( testMergeField3 );
-    CPPUNIT_TEST( testGetDistributionOfTypes1 );
-    CPPUNIT_TEST( testNorm2_1 );
-    CPPUNIT_TEST( testNormMax1 );
-    CPPUNIT_TEST( testFindAndCorrectBadOriented3DExtrudedCells1 );
-    CPPUNIT_TEST( testConvertExtrudedPolyhedra1 );
-    CPPUNIT_TEST( testNonRegressionCopyTinyStrings );
-    CPPUNIT_TEST( testDaDSetPartOfValuesAdv1 );
-    CPPUNIT_TEST( testUMeshBuildSetInstanceFromThis1 );
-    CPPUNIT_TEST( testUMeshMergeMeshesCVW1 );
-    CPPUNIT_TEST( testDADFindCommonTuples1 );
-    CPPUNIT_TEST( testDABack1 );
-    CPPUNIT_TEST( testDADGetDifferentValues1 );
-    CPPUNIT_TEST( testDAIBuildOld2NewArrayFromSurjectiveFormat2 );
-    CPPUNIT_TEST( testDADIReverse1 );
-    CPPUNIT_TEST( testGetNodeIdsInUse1 );
-    CPPUNIT_TEST( testBuildDescendingConnec2 );
-    CPPUNIT_TEST( testIntersect2DMeshesTmp1 );
-    CPPUNIT_TEST( testFindNodesOnLine1 );
-    CPPUNIT_TEST( testIntersect2DMeshesTmp2 );
-    CPPUNIT_TEST( testBuildPartOfMySelfSafe1 );
-    CPPUNIT_TEST( testIntersect2DMeshesTmp3 );
+    CPPUNIT_TEST(testDescriptionInMeshTimeUnit1);
+    CPPUNIT_TEST(testMultiFields1);
+    CPPUNIT_TEST(testFieldOverTime1);
+    CPPUNIT_TEST(testDAICheckAndPreparePermutation1);
+    CPPUNIT_TEST(testDAIChangeSurjectiveFormat1);
+    CPPUNIT_TEST(testUMeshGetCellIdsLyingOnNodes1);
+    CPPUNIT_TEST(testUMeshFindCellIdsOnBoundary1);
+    CPPUNIT_TEST(testMeshSetTime1);
+    CPPUNIT_TEST(testApplyFuncTwo1);
+    CPPUNIT_TEST(testApplyFuncThree1);
+    CPPUNIT_TEST(testFillFromAnalyticTwo1);
+    CPPUNIT_TEST(testFillFromAnalyticThree1);
+    CPPUNIT_TEST(testDAUnitVar1);
+    CPPUNIT_TEST(testGaussCoordinates1);
+    CPPUNIT_TEST(testP2Localization1);
+    CPPUNIT_TEST(testP2Localization2);
+    CPPUNIT_TEST(testGetValueOn2);
+    CPPUNIT_TEST(testDAIGetIdsNotEqual1);
+    CPPUNIT_TEST(testDAIComputeOffsets1);
+    CPPUNIT_TEST(testUMeshHexagonPrism1);
+    CPPUNIT_TEST(testDADCheckIsMonotonic);
+    CPPUNIT_TEST(testCheckCoherencyDeeper1);
+    CPPUNIT_TEST(testUnPolyze2);
+    CPPUNIT_TEST(testDACpyFrom1);
+    CPPUNIT_TEST(testDAITransformWithIndArr1);
+    CPPUNIT_TEST(testDAIBuildPermArrPerLevel1);
+    CPPUNIT_TEST(testDAIOperations1);
+    CPPUNIT_TEST(testEmulateMEDMEMBDC1);
+    CPPUNIT_TEST(testGetLevArrPerCellTypes1);
+    CPPUNIT_TEST(testSortCellsInMEDFileFrmt1);
+    CPPUNIT_TEST(testBuildPartAndReduceNodes1);
+    CPPUNIT_TEST(testDAITransformWithIndArrR1);
+    CPPUNIT_TEST(testDAISplitByValueRange1);
+    CPPUNIT_TEST(testUMeshSplitProfilePerType1);
+    CPPUNIT_TEST(testDAIBuildExplicitArrByRanges1);
+    CPPUNIT_TEST(testDAIComputeOffsets2);
+    CPPUNIT_TEST(testMergeField3);
+    CPPUNIT_TEST(testGetDistributionOfTypes1);
+    CPPUNIT_TEST(testNorm2_1);
+    CPPUNIT_TEST(testNormMax1);
+    CPPUNIT_TEST(testFindAndCorrectBadOriented3DExtrudedCells1);
+    CPPUNIT_TEST(testConvertExtrudedPolyhedra1);
+    CPPUNIT_TEST(testNonRegressionCopyTinyStrings);
+    CPPUNIT_TEST(testDaDSetPartOfValuesAdv1);
+    CPPUNIT_TEST(testUMeshBuildSetInstanceFromThis1);
+    CPPUNIT_TEST(testUMeshMergeMeshesCVW1);
+    CPPUNIT_TEST(testDADFindCommonTuples1);
+    CPPUNIT_TEST(testDABack1);
+    CPPUNIT_TEST(testDADGetDifferentValues1);
+    CPPUNIT_TEST(testDAIBuildOld2NewArrayFromSurjectiveFormat2);
+    CPPUNIT_TEST(testDADIReverse1);
+    CPPUNIT_TEST(testGetNodeIdsInUse1);
+    CPPUNIT_TEST(testBuildDescendingConnec2);
+    CPPUNIT_TEST(testIntersect2DMeshesTmp1);
+    CPPUNIT_TEST(testFindNodesOnLine1);
+    CPPUNIT_TEST(testIntersect2DMeshesTmp2);
+    CPPUNIT_TEST(testBuildPartOfMySelfSafe1);
+    CPPUNIT_TEST(testIntersect2DMeshesTmp3);
     CPPUNIT_TEST_SUITE_END();
-  public:
+
+   public:
     void testDescriptionInMeshTimeUnit1();
     void testMultiFields1();
     void testFieldOverTime1();
@@ -156,7 +157,7 @@ namespace MEDCoupling
     void testIntersect2DMeshesTmp2();
     void testBuildPartOfMySelfSafe1();
     void testIntersect2DMeshesTmp3();
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

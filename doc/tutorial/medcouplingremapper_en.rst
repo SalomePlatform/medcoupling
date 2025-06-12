@@ -23,7 +23,7 @@ starting at point [0.,0.] and having a step of 1.0 along the X and Y directions.
 ::
 
 	arr=DataArrayDouble(11) ; arr.iota(0)
-	trgMesh=MEDCouplingCMesh() ; trgMesh.setCoords(arr,arr) ; trgMesh=trgMesh.buildUnstructured()	
+	trgMesh=MEDCouplingCMesh() ; trgMesh.setCoords(arr,arr) ; trgMesh=trgMesh.buildUnstructured()
 
 Create the source mesh "srcMesh"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -33,8 +33,8 @@ at point [0.,0.] with a step of 0.5 along the X and Y directions.
 ::
 
 	arr=DataArrayDouble(21) ; arr.iota(0) ; arr*=0.5
-	srcMesh=MEDCouplingCMesh() ; srcMesh.setCoords(arr,arr) ; srcMesh=srcMesh.buildUnstructured()	
-	
+	srcMesh=MEDCouplingCMesh() ; srcMesh.setCoords(arr,arr) ; srcMesh=srcMesh.buildUnstructured()
+
 Triangulate the 20 first cells of source mesh (using MEDCouplingUMesh.simplexize()).
 Store the result in "srcMesh".
 ::

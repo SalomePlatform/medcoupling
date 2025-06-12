@@ -26,14 +26,14 @@
 
 namespace INTERP_KERNEL
 {
-  class INTERPKERNEL_EXPORT Interpolation2DCurve : public InterpolationCurve<Interpolation2DCurve>
-  {
-  public:
+class INTERPKERNEL_EXPORT Interpolation2DCurve : public InterpolationCurve<Interpolation2DCurve>
+{
+   public:
     Interpolation2DCurve();
-    Interpolation2DCurve(const InterpolationOptions& io);
+    Interpolation2DCurve(const InterpolationOptions &io);
     // geometric precision, intersection tolerance, choice of the median line,
     void setOptions(double precision, double tolerance, double medianLine);
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

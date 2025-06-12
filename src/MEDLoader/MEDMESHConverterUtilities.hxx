@@ -22,94 +22,97 @@
 
 #include "MEDLoaderDefines.hxx"
 
-# include <string>
-# include <sstream>
+#include <string>
+#include <sstream>
 #include <iostream>
-# include <vector>
+#include <vector>
 #include <cstring>
 
 namespace MeshFormat
 {
-bool isMeshExtensionCorrect( const std::string& fileName );
+bool
+isMeshExtensionCorrect(const std::string &fileName);
 
 //~void closeMeshFile(const int gmfMeshID);
 
-enum Status {
+enum Status
+{
     DRS_OK,
     DRS_EMPTY,          // a file contains no mesh with the given name
     DRS_WARN_RENUMBER,  // a file has overlapped ranges of element numbers,
     // so the numbers from the file are ignored
-    DRS_WARN_SKIP_ELEM, // some elements were skipped due to incorrect file data
-    DRS_WARN_DESCENDING, // some elements were skipped due to descending connectivity
-    DRS_FAIL            // general failure (exception etc.)
+    DRS_WARN_SKIP_ELEM,   // some elements were skipped due to incorrect file data
+    DRS_WARN_DESCENDING,  // some elements were skipped due to descending connectivity
+    DRS_FAIL              // general failure (exception etc.)
 };
 /*!
  * \brief Class to generate string from any type
  */
 class Comment : public std::string
 {
-    std::ostringstream _s ;
+    std::ostringstream _s;
 
-public :
+   public:
+    Comment() : std::string("") {}
 
-    Comment():std::string("") {}
-
-    Comment(const Comment& c):std::string() {
-        _s << c.c_str() ;
-        this->std::string::operator=( _s.str() );
+    Comment(const Comment &c) : std::string()
+    {
+        _s << c.c_str();
+        this->std::string::operator=(_s.str());
     }
 
-    Comment & operator=(const Comment& c) {
-        _s << c.c_str() ;
-        this->std::string::operator=( _s.str() );
+    Comment &operator=(const Comment &c)
+    {
+        _s << c.c_str();
+        this->std::string::operator=(_s.str());
         return *this;
     }
 
     template <class T>
-    Comment( const T &anything ) {
-        _s << anything ;
-        this->std::string::operator=( _s.str() );
+    Comment(const T &anything)
+    {
+        _s << anything;
+        this->std::string::operator=(_s.str());
     }
 
     template <class T>
-    Comment & operator<<( const T &anything ) {
-        _s << anything ;
-        this->std::string::operator=( _s.str() );
-        return *this ;
+    Comment &operator<<(const T &anything)
+    {
+        _s << anything;
+        this->std::string::operator=(_s.str());
+        return *this;
     }
 
-    operator char*() const {
-        return (char*)c_str();
-    }
+    operator char *() const { return (char *)c_str(); }
 
-    std::ostream& Stream() {
-        return _s;
-    }
+    std::ostream &Stream() { return _s; }
 };
 /*!
-   * \brief Enforce freeing memory allocated by std::vector
-   */
+ * \brief Enforce freeing memory allocated by std::vector
+ */
 template <class TVECTOR>
-void FreeVector(TVECTOR& vec)
+void
+FreeVector(TVECTOR &vec)
 {
     TVECTOR v2;
-    vec.swap( v2 );
+    vec.swap(v2);
 }
 template <class TVECTOR>
-void CompactVector(TVECTOR& vec)
+void
+CompactVector(TVECTOR &vec)
 {
-    TVECTOR v2( vec );
-    vec.swap( v2 );
+    TVECTOR v2(vec);
+    vec.swap(v2);
 }
 
 class Localizer
 {
     std::string _locale;
-public:
-  MEDLOADER_EXPORT Localizer();
-  MEDLOADER_EXPORT ~Localizer();
+
+   public:
+    MEDLOADER_EXPORT Localizer();
+    MEDLOADER_EXPORT ~Localizer();
 };
-}
+}  // namespace MeshFormat
 
-
-#endif // MEDMESHCONVERTERUTILITIES_HXX
+#endif  // MEDMESHCONVERTERUTILITIES_HXX

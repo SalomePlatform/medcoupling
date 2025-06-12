@@ -31,28 +31,50 @@
 
 namespace MEDCoupling
 {
-  class MEDFileBlowStrEltUp
-  {
-  public:
+class MEDFileBlowStrEltUp
+{
+   public:
     MEDFileBlowStrEltUp(const MEDFileFields *fsOnlyOnSE, const MEDFileMeshes *ms, const MEDFileStructureElements *ses);
     void generate(MEDFileMeshes *msOut, MEDFileFields *allZeOutFields);
     static void DealWithSE(MEDFileFields *fs, MEDFileMeshes *ms, const MEDFileStructureElements *ses);
-  private:
-    MCAuto<MEDFileFields> splitFieldsPerLoc(const MEDFileFields *fields, const MEDFileUMesh *mesh, MEDFileMeshes *msOut, MEDFileFields *allZeOutFields);
-    MCAuto<MEDFileEltStruct4Mesh> dealWithSEInMesh(const std::string& seName, MEDFileUMesh *mesh, MCAuto<MEDFileUMesh>& mOut, MCAuto<MEDFileFields>& fsOut) const;
-    MCAuto<MEDFileEltStruct4Mesh> dealWithMEDBALLInMesh(const MEDFileUMesh *mesh, MCAuto<MEDFileUMesh>& mOut, MCAuto<MEDFileFields>& fsOut) const;
-    void dealWithSEInFields(const std::string& seName, const MEDFileFields *fs, const MEDFileEltStruct4Mesh *zeStr, const MEDFileFields *varAtt, MEDFileFields *zeOutputs) const;
-    void dealWithMEDBALLSInFields(const MEDFileFields *fs, const MEDFileEltStruct4Mesh *zeStr, const MEDFileFields *varAtt, MEDFileFields *zeOutputs) const;
-    static std::string BuildNewMeshName(const std::string& meshName, const std::string& seName);
-    static std::string BuildVarAttName(std::size_t iPart, std::size_t totINbParts, std::size_t jPart, std::size_t totJNbParts, const std::string& name);
+
+   private:
+    MCAuto<MEDFileFields> splitFieldsPerLoc(
+        const MEDFileFields *fields, const MEDFileUMesh *mesh, MEDFileMeshes *msOut, MEDFileFields *allZeOutFields
+    );
+    MCAuto<MEDFileEltStruct4Mesh> dealWithSEInMesh(
+        const std::string &seName, MEDFileUMesh *mesh, MCAuto<MEDFileUMesh> &mOut, MCAuto<MEDFileFields> &fsOut
+    ) const;
+    MCAuto<MEDFileEltStruct4Mesh> dealWithMEDBALLInMesh(
+        const MEDFileUMesh *mesh, MCAuto<MEDFileUMesh> &mOut, MCAuto<MEDFileFields> &fsOut
+    ) const;
+    void dealWithSEInFields(
+        const std::string &seName,
+        const MEDFileFields *fs,
+        const MEDFileEltStruct4Mesh *zeStr,
+        const MEDFileFields *varAtt,
+        MEDFileFields *zeOutputs
+    ) const;
+    void dealWithMEDBALLSInFields(
+        const MEDFileFields *fs,
+        const MEDFileEltStruct4Mesh *zeStr,
+        const MEDFileFields *varAtt,
+        MEDFileFields *zeOutputs
+    ) const;
+    static std::string BuildNewMeshName(const std::string &meshName, const std::string &seName);
+    static std::string BuildVarAttName(
+        std::size_t iPart, std::size_t totINbParts, std::size_t jPart, std::size_t totJNbParts, const std::string &name
+    );
     static void DealWithConflictNames(MEDFileAnyTypeFieldMultiTS *fmtsToAdd, const MEDFileFields *fs);
-  public:
+
+   public:
     static const char MED_BALL_STR[];
-  private:
-    std::vector< MCAuto<MEDFileFields> > _elts;// split by pair(meshName,SEName)
+
+   private:
+    std::vector<MCAuto<MEDFileFields> > _elts;  // split by pair(meshName,SEName)
     MCConstAuto<MEDFileMeshes> _ms;
     MCConstAuto<MEDFileStructureElements> _ses;
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

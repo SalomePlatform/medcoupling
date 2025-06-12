@@ -25,14 +25,14 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix>
-  class Intersector3DP0P1 : public Intersector3D<MyMeshType,MyMatrix>
-  {
-  public:
-    Intersector3DP0P1(const MyMeshType& targetMesh, const MyMeshType& srcMesh);
+template <class MyMeshType, class MyMatrix>
+class Intersector3DP0P1 : public Intersector3D<MyMeshType, MyMatrix>
+{
+   public:
+    Intersector3DP0P1(const MyMeshType &targetMesh, const MyMeshType &srcMesh);
     typename MyMeshType::MyConnType getNumberOfRowsOfResMatrix() const;
     typename MyMeshType::MyConnType getNumberOfColsOfResMatrix() const;
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

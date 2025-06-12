@@ -23,19 +23,37 @@
 #include "PlanarIntersectorP1P0Bary.hxx"
 #include "InterpolationUtils.hxx"
 
-#define PLAN_INTERSECTOR PlanarIntersectorP1P0Bary<MyMeshType,MyMatrix,ConcreteP1P0Intersector>
-#define PLAN_INTER_TEMPLATE template<class MyMeshType, class MyMatrix, class ConcreteP1P0Intersector>
+#define PLAN_INTERSECTOR PlanarIntersectorP1P0Bary<MyMeshType, MyMatrix, ConcreteP1P0Intersector>
+#define PLAN_INTER_TEMPLATE template <class MyMeshType, class MyMatrix, class ConcreteP1P0Intersector>
 
 namespace INTERP_KERNEL
 {
-  PLAN_INTER_TEMPLATE
-  PLAN_INTERSECTOR::PlanarIntersectorP1P0Bary(const MyMeshType& meshT, const MyMeshType& meshS,
-                                              double dimCaracteristic, double precision,
-                                              double md3DSurf, double minDot3DSurf, double medianPlane,
-                                              bool doRotate, int orientation, int printLevel):
-    PlanarIntersector<MyMeshType,MyMatrix>(meshT,meshS,dimCaracteristic,precision,md3DSurf,minDot3DSurf,
-                                           medianPlane,doRotate,orientation,printLevel)
-  {
+PLAN_INTER_TEMPLATE
+PLAN_INTERSECTOR::PlanarIntersectorP1P0Bary(
+    const MyMeshType &meshT,
+    const MyMeshType &meshS,
+    double dimCaracteristic,
+    double precision,
+    double md3DSurf,
+    double minDot3DSurf,
+    double medianPlane,
+    bool doRotate,
+    int orientation,
+    int printLevel
+)
+    : PlanarIntersector<MyMeshType, MyMatrix>(
+          meshT,
+          meshS,
+          dimCaracteristic,
+          precision,
+          md3DSurf,
+          minDot3DSurf,
+          medianPlane,
+          doRotate,
+          orientation,
+          printLevel
+      )
+{
     // SPEC:
     // "Limitation. For the P1P0 barycentric improvement only triangle source cells in 2D and
     // tetrahedrons in 3D will be supported by interpolators. If a non
@@ -45,74 +63,83 @@ namespace INTERP_KERNEL
     // found late after a long time of calculation.
 
     const ConnType numSrcElems = meshS.getNumberOfElements();
-    for(ConnType i = 0 ; i < numSrcElems ; ++i)
-      if ( meshS.getTypeOfElement( OTT<ConnType,numPol>::indFC( i )) != NORM_TRI3 )
-        throw INTERP_KERNEL::Exception("P1P0 barycentric algorithm works only with triangular source meshes");
-  }
+    for (ConnType i = 0; i < numSrcElems; ++i)
+        if (meshS.getTypeOfElement(OTT<ConnType, numPol>::indFC(i)) != NORM_TRI3)
+            throw INTERP_KERNEL::Exception("P1P0 barycentric algorithm works only with triangular source meshes");
+}
 
-  PLAN_INTER_TEMPLATE
-  typename MyMeshType::MyConnType PLAN_INTERSECTOR::getNumberOfRowsOfResMatrix() const
-  {
-    return PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getNumberOfElements();
-  }
+PLAN_INTER_TEMPLATE
+typename MyMeshType::MyConnType
+PLAN_INTERSECTOR::getNumberOfRowsOfResMatrix() const
+{
+    return PlanarIntersector<MyMeshType, MyMatrix>::_meshT.getNumberOfElements();
+}
 
-  PLAN_INTER_TEMPLATE
-  typename MyMeshType::MyConnType PLAN_INTERSECTOR::getNumberOfColsOfResMatrix() const
-  {
-    return PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getNumberOfNodes();
-  }
+PLAN_INTER_TEMPLATE
+typename MyMeshType::MyConnType
+PLAN_INTERSECTOR::getNumberOfColsOfResMatrix() const
+{
+    return PlanarIntersector<MyMeshType, MyMatrix>::_meshS.getNumberOfNodes();
+}
 
-  /*!
-   * This method computes a value per each node of each source triangle for target.
-   */
-  PLAN_INTER_TEMPLATE
-  void PLAN_INTERSECTOR::intersectCells(ConnType                     icellT,
-                                        const std::vector<ConnType>& icellsS,
-                                        MyMatrix&                    res)
-  {
-    int orientation=1;
+/*!
+ * This method computes a value per each node of each source triangle for target.
+ */
+PLAN_INTER_TEMPLATE
+void
+PLAN_INTERSECTOR::intersectCells(ConnType icellT, const std::vector<ConnType> &icellsS, MyMatrix &res)
+{
+    int orientation = 1;
     std::vector<double> srcTriaCoords, tgtCellCoords, tgtCellCoordsTmp, nodeCeffs;
 
     // target cell data
-    PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(OTT<ConnType,numPol>::indFC(icellT),tgtCellCoords);
-    std::vector<double> * tgtCoords = & tgtCellCoords;
-    ConnType tgtNbNodes = ToConnType(tgtCellCoords.size())/SPACEDIM;
-    NormalizedCellType tT=PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getTypeOfElement(OTT<ConnType,numPol>::indFC(icellT));
-    bool isTargetQuad=CellModel::GetCellModel(tT).isQuadratic();
+    PlanarIntersector<MyMeshType, MyMatrix>::getRealTargetCoordinates(
+        OTT<ConnType, numPol>::indFC(icellT), tgtCellCoords
+    );
+    std::vector<double> *tgtCoords = &tgtCellCoords;
+    ConnType tgtNbNodes = ToConnType(tgtCellCoords.size()) / SPACEDIM;
+    NormalizedCellType tT =
+        PlanarIntersector<MyMeshType, MyMatrix>::_meshT.getTypeOfElement(OTT<ConnType, numPol>::indFC(icellT));
+    bool isTargetQuad = CellModel::GetCellModel(tT).isQuadratic();
 
-    typename MyMatrix::value_type& resRow=res[icellT];
+    typename MyMatrix::value_type &resRow = res[icellT];
 
     // treat each source triangle
-    for(typename std::vector<ConnType>::const_iterator iter=icellsS.begin();iter!=icellsS.end();iter++)
+    for (typename std::vector<ConnType>::const_iterator iter = icellsS.begin(); iter != icellsS.end(); iter++)
     {
-      ConnType iS=*iter;
-      PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates(OTT<ConnType,numPol>::indFC(iS),srcTriaCoords);
-      const ConnType *startOfCellNodeConn=PlanarIntersector<MyMeshType,MyMatrix>::_connectS+OTT<ConnType,numPol>::conn2C(PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS]);
-      if(SPACEDIM==3)
-      {
-        tgtCellCoordsTmp = tgtCellCoords;
-        tgtCoords = & tgtCellCoordsTmp;
-        orientation=PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&tgtCellCoordsTmp[0], &srcTriaCoords[0],
-                                                                           tgtNbNodes, 3);
-      }
-      //double surf=orientation*intersectGeometryWithQuadrangle(quadrangle,targetCellCoordsTmp,isTargetQuad);
-      double surf=orientation*intersectGeoBary( *tgtCoords, isTargetQuad, &srcTriaCoords[0], nodeCeffs );
-      surf=PlanarIntersector<MyMeshType,MyMatrix>::getValueRegardingOption(surf);
-      if(surf!=0.)
-      {
-        for(int nodeIdS=0;nodeIdS<3;nodeIdS++)
+        ConnType iS = *iter;
+        PlanarIntersector<MyMeshType, MyMatrix>::getRealSourceCoordinates(
+            OTT<ConnType, numPol>::indFC(iS), srcTriaCoords
+        );
+        const ConnType *startOfCellNodeConn =
+            PlanarIntersector<MyMeshType, MyMatrix>::_connectS +
+            OTT<ConnType, numPol>::conn2C(PlanarIntersector<MyMeshType, MyMatrix>::_connIndexS[iS]);
+        if (SPACEDIM == 3)
         {
-          ConnType curNodeS=startOfCellNodeConn[nodeIdS];
-          typename MyMatrix::value_type::const_iterator iterRes=resRow.find(curNodeS);
-          if(iterRes!=resRow.end())
-          {
-            nodeCeffs[nodeIdS] += iterRes->second;
-            resRow.erase( curNodeS );
-          }
-          resRow.insert(std::make_pair(curNodeS,nodeCeffs[nodeIdS]));
+            tgtCellCoordsTmp = tgtCellCoords;
+            tgtCoords = &tgtCellCoordsTmp;
+            orientation = PlanarIntersector<MyMeshType, MyMatrix>::projectionThis(
+                &tgtCellCoordsTmp[0], &srcTriaCoords[0], tgtNbNodes, 3
+            );
         }
-      }
+        // double surf=orientation*intersectGeometryWithQuadrangle(quadrangle,targetCellCoordsTmp,isTargetQuad);
+        double surf = orientation * intersectGeoBary(*tgtCoords, isTargetQuad, &srcTriaCoords[0], nodeCeffs);
+        surf = PlanarIntersector<MyMeshType, MyMatrix>::getValueRegardingOption(surf);
+        if (surf != 0.)
+        {
+            for (int nodeIdS = 0; nodeIdS < 3; nodeIdS++)
+            {
+                ConnType curNodeS = startOfCellNodeConn[nodeIdS];
+                typename MyMatrix::value_type::const_iterator iterRes = resRow.find(curNodeS);
+                if (iterRes != resRow.end())
+                {
+                    nodeCeffs[nodeIdS] += iterRes->second;
+                    resRow.erase(curNodeS);
+                }
+                resRow.insert(std::make_pair(curNodeS, nodeCeffs[nodeIdS]));
+            }
+        }
     }
-  }
 }
+}  // namespace INTERP_KERNEL
 #endif

@@ -42,11 +42,11 @@ will contain 1000 cells. ::
 	cmesh=MEDCouplingCMesh.New()
 	cmesh.setCoords(xarr,xarr,xarr)
 	mesh=cmesh.buildUnstructured()
-	
+
 In order to put the focus on mixed types, cells with an even id will be converted to polyhedrons ::
 
 	mesh.convertToPolyTypes(DataArrayInt.Range(0,mesh.getNumberOfCells(),2))
-	
+
 Creation of a field
 ~~~~~~~~~~~~~~~~~~~
 
@@ -57,7 +57,7 @@ Two possibilities :
 
 	f=mesh.fillFromAnalytic(ON_CELLS,1,"(x-5.)*(x-5.)+(y-5.)*(y-5.)+(z-5.)*(z-5.)")
 	f.setName("MyField")
-	
+
 * Or by building a new instance ::
 
 	f2=MEDCouplingFieldDouble.New(ON_CELLS,ONE_TIME)
@@ -72,12 +72,12 @@ Compare f and f2 with a precision of 1e-12 on coordinates and 1e-12 on values. :
 
 Builing of a subpart of a field
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	
+
 Store in ids1 the list of tuple ids whose value is within [0.0,5.0] (DataArrayDouble.findIdsInRange)	. From ids1 build the sub-part fPart1 of the field "f". ::
 
 	ids1=f.getArray().findIdsInRange(0.,5.)
 	fPart1=f.buildSubPart(ids1)
-	
+
 .. image:: images/FieldDouble1_1.png
 
 Select the part "fPart2" of the field "f" whose values are in [50.,infinity). ::
@@ -94,8 +94,8 @@ renumber manually fPart1 starting from a deep copy of fPart1. ::
 	fPart1Cpy=fPart1.deepCopy()
 	o2n=fPart1Cpy.getMesh().sortCellsInMEDFileFrmt()
 	fPart1Cpy.getArray().renumberInPlace(o2n)
-	
-"fPart1Cpy" is now normalized to be stored in a MED file (we will tackle this later).	
+
+"fPart1Cpy" is now normalized to be stored in a MED file (we will tackle this later).
 Check that fPart1Cpy and fPart1 are the same (discarding any permutation): ::
 
 	fPart1Cpy.substractInPlaceDM(fPart1,12,1e-12)
@@ -174,7 +174,7 @@ To explode the underlying mesh fPart1.getMesh(), use the vectorial displacement 
 	fPart1.setMesh(meshFVecPart1Exploded)
 
 .. image:: images/FieldDouble1_1_exploded.png
-	
+
 Solution
 ~~~~~~~~
 

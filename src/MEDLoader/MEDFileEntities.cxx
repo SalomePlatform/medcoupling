@@ -22,90 +22,100 @@
 
 using namespace MEDCoupling;
 
-MEDFileEntities *MEDFileEntities::BuildFrom(const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities)
+MEDFileEntities *
+MEDFileEntities::BuildFrom(const std::vector<std::pair<TypeOfField, INTERP_KERNEL::NormalizedCellType> > *entities)
 {
-  if(!entities)
-    return new MEDFileAllStaticEntites;
-  else
-    return new MEDFileStaticEntities(*entities);
+    if (!entities)
+        return new MEDFileAllStaticEntites;
+    else
+        return new MEDFileStaticEntities(*entities);
 }
 
-MEDFileEntities *MEDFileEntities::BuildFrom(const MEDFileStructureElements& se)
+MEDFileEntities *
+MEDFileEntities::BuildFrom(const MEDFileStructureElements &se)
 {
-  if(se.getNumberOf()==0)
-    return new MEDFileAllStaticEntites;
-  else
-    return new MEDFileAllStaticEntitiesPlusDyn(&se);
+    if (se.getNumberOf() == 0)
+        return new MEDFileAllStaticEntites;
+    else
+        return new MEDFileAllStaticEntitiesPlusDyn(&se);
 }
 
-MEDFileEntities::~MEDFileEntities()
+MEDFileEntities::~MEDFileEntities() {}
+
+//////////////
+
+std::vector<int>
+MEDFileStaticEntities::getDynGTAvail() const
 {
+    return std::vector<int>();
+}
+
+bool
+MEDFileStaticEntities::areAllStaticTypesPresent() const
+{
+    return false;
+}
+
+bool
+MEDFileStaticEntities::areAllStaticPresentAndNoDyn() const
+{
+    return false;
 }
 
 //////////////
 
-std::vector<int> MEDFileStaticEntities::getDynGTAvail() const
+std::vector<int>
+MEDFileAllStaticEntites::getDynGTAvail() const
 {
-  return std::vector<int>();
+    return std::vector<int>();
 }
 
-bool MEDFileStaticEntities::areAllStaticTypesPresent() const
+bool
+MEDFileAllStaticEntites::areAllStaticTypesPresent() const
 {
-  return false;
+    return true;
 }
 
-bool MEDFileStaticEntities::areAllStaticPresentAndNoDyn() const
+bool
+MEDFileAllStaticEntites::areAllStaticPresentAndNoDyn() const
 {
-  return false;
-}
-
-//////////////
-
-
-std::vector<int> MEDFileAllStaticEntites::getDynGTAvail() const
-{
-  return std::vector<int>();
-}
-
-bool MEDFileAllStaticEntites::areAllStaticTypesPresent() const
-{
-  return true;
-}
-
-bool MEDFileAllStaticEntites::areAllStaticPresentAndNoDyn() const
-{
-  return true;
+    return true;
 }
 
 //////////////
 
-MEDFileAllStaticEntitiesPlusDyn::MEDFileAllStaticEntitiesPlusDyn(const MEDFileStructureElements *se):_se(se)
+MEDFileAllStaticEntitiesPlusDyn::MEDFileAllStaticEntitiesPlusDyn(const MEDFileStructureElements *se) : _se(se)
 {
-  if(se)
-    se->incrRef();
+    if (se)
+        se->incrRef();
 }
 
-std::vector<int> MEDFileAllStaticEntitiesPlusDyn::getDynGTAvail() const
+std::vector<int>
+MEDFileAllStaticEntitiesPlusDyn::getDynGTAvail() const
 {
-  return _se->getDynGTAvail();
+    return _se->getDynGTAvail();
 }
 
-bool MEDFileAllStaticEntitiesPlusDyn::areAllStaticTypesPresent() const
+bool
+MEDFileAllStaticEntitiesPlusDyn::areAllStaticTypesPresent() const
 {
-  return true;
+    return true;
 }
 
-bool MEDFileAllStaticEntitiesPlusDyn::areAllStaticPresentAndNoDyn() const
+bool
+MEDFileAllStaticEntitiesPlusDyn::areAllStaticPresentAndNoDyn() const
 {
-  return false;
+    return false;
 }
 
-const MEDFileStructureElement *MEDFileAllStaticEntitiesPlusDyn::getWithGT(int idGT) const
+const MEDFileStructureElement *
+MEDFileAllStaticEntitiesPlusDyn::getWithGT(int idGT) const
 {
-  return _se->getWithGT(idGT);
+    return _se->getWithGT(idGT);
 }
 
-const MEDFileUMesh *MEDFileAllStaticEntitiesPlusDyn::getSupMeshWithName(const std::string& name) const
+const MEDFileUMesh *
+MEDFileAllStaticEntitiesPlusDyn::getSupMeshWithName(const std::string &name) const
 {
-  return _se->getSupMeshWithName(name);
+    return _se->getSupMeshWithName(name);
 }

@@ -41,134 +41,134 @@
 
 namespace MEDCoupling
 {
-  class DataArrayDouble;
-  class DataArrayInt;
-  class MEDFileData;
-  class MEDFileFields;
-  class MEDFileFieldMultiTS;
-  class MEDFileUMesh;
-  class MEDCouplingUMesh;
+class DataArrayDouble;
+class DataArrayInt;
+class MEDFileData;
+class MEDFileFields;
+class MEDFileFieldMultiTS;
+class MEDFileUMesh;
+class MEDCouplingUMesh;
 
-  struct MeshFormatElement
-  {
+struct MeshFormatElement
+{
     MeshFormatElement(int type, int id = 0) : _type(type), _id(id) {}
     int _type;
     int _id;
 
     inline friend bool operator==(const MeshFormatElement &a, const MeshFormatElement &b)
     {
-      return ((a._type == b._type) && (a._id == b._id));
+        return ((a._type == b._type) && (a._id == b._id));
     }
-  };
+};
 
-  struct MeshFormatFamily
-  {
-
+struct MeshFormatFamily
+{
     std::map<int, std::vector<MeshFormatElement> *> _meshFormatFams;
     std::map<int, std::vector<MeshFormatElement> *> _meshFormatFams_0;
     std::map<int, std::vector<MeshFormatElement> *> _meshFormatFams_1;
     std::map<int, std::vector<MeshFormatElement> *> _meshFormatFams_2;
     std::map<int, std::vector<MeshFormatElement> *> _meshFormatFamsNodes;
 
-  public:
+   public:
     void insert(std::pair<int, MeshFormatElement> addToFamily, int dimRelMax)
     {
-      insertPairInMap(_meshFormatFams, addToFamily);
-      insertPairInMap(getMapAtLevel(dimRelMax), addToFamily);
+        insertPairInMap(_meshFormatFams, addToFamily);
+        insertPairInMap(getMapAtLevel(dimRelMax), addToFamily);
     }
 
-  private:
-    void insertPairInMap(std::map<int, std::vector<MeshFormatElement> *> &aMap, std::pair<int, MeshFormatElement> addToFamily)
+   private:
+    void insertPairInMap(
+        std::map<int, std::vector<MeshFormatElement> *> &aMap, std::pair<int, MeshFormatElement> addToFamily
+    )
     {
-      std::map<int, std::vector<MeshFormatElement> *>::iterator it = aMap.find(addToFamily.first);
-      if (it != aMap.end())
-      {
-        aMap[addToFamily.first]->push_back(addToFamily.second);
-      }
-      else
-      {
-        std::vector<MeshFormatElement> *tmpVec = new std::vector<MeshFormatElement>;
-        tmpVec->push_back(addToFamily.second);
-        aMap.insert(std::pair<int, std::vector<MeshFormatElement> *>(addToFamily.first, tmpVec));
-      }
+        std::map<int, std::vector<MeshFormatElement> *>::iterator it = aMap.find(addToFamily.first);
+        if (it != aMap.end())
+        {
+            aMap[addToFamily.first]->push_back(addToFamily.second);
+        }
+        else
+        {
+            std::vector<MeshFormatElement> *tmpVec = new std::vector<MeshFormatElement>;
+            tmpVec->push_back(addToFamily.second);
+            aMap.insert(std::pair<int, std::vector<MeshFormatElement> *>(addToFamily.first, tmpVec));
+        }
     }
 
-  public:
+   public:
     void remove(std::pair<int, MeshFormatElement> removeFromFamily, int dimRelMax)
     {
-      removePairFromMap(_meshFormatFams, removeFromFamily);
-      removePairFromMap(getMapAtLevel(dimRelMax), removeFromFamily);
+        removePairFromMap(_meshFormatFams, removeFromFamily);
+        removePairFromMap(getMapAtLevel(dimRelMax), removeFromFamily);
     }
 
-  private:
-    void removePairFromMap(std::map<int, std::vector<MeshFormatElement> *> &aMap, const std::pair<int, MeshFormatElement> removeFromFamily)
+   private:
+    void removePairFromMap(
+        std::map<int, std::vector<MeshFormatElement> *> &aMap, const std::pair<int, MeshFormatElement> removeFromFamily
+    )
     {
-
-      if (!aMap.size())
-        return;
-      std::map<int, std::vector<MeshFormatElement> *>::iterator itTmp = aMap.find(removeFromFamily.first);
-      if (itTmp == aMap.end())
-        return;
-      else
-      {
-        std::vector<MeshFormatElement> *tmpVec2 = aMap[removeFromFamily.first];
-        std::vector<MeshFormatElement>::iterator itt2;
-        const MeshFormatElement e = removeFromFamily.second;
-        itt2 = std::find(tmpVec2->begin(), tmpVec2->end(), e);
-        if (itt2 != tmpVec2->end())
-          tmpVec2->erase(itt2);
-
-        if (!tmpVec2->size())
+        if (!aMap.size())
+            return;
+        std::map<int, std::vector<MeshFormatElement> *>::iterator itTmp = aMap.find(removeFromFamily.first);
+        if (itTmp == aMap.end())
+            return;
+        else
         {
-          delete tmpVec2;
-          aMap.erase(removeFromFamily.first);
+            std::vector<MeshFormatElement> *tmpVec2 = aMap[removeFromFamily.first];
+            std::vector<MeshFormatElement>::iterator itt2;
+            const MeshFormatElement e = removeFromFamily.second;
+            itt2 = std::find(tmpVec2->begin(), tmpVec2->end(), e);
+            if (itt2 != tmpVec2->end())
+                tmpVec2->erase(itt2);
+
+            if (!tmpVec2->size())
+            {
+                delete tmpVec2;
+                aMap.erase(removeFromFamily.first);
+            }
         }
-      }
     }
 
-  public:
+   public:
     std::map<int, std::vector<MeshFormatElement> *> &getMapAtLevel(int dimRelMax)
     {
-      switch (dimRelMax)
-      {
-      case 0:
-        return _meshFormatFams_0;
-        break;
-      case -1:
-        return _meshFormatFams_1;
-        break;
-      case -2:
-        return _meshFormatFams_2;
-        break;
-      case 1:
-        return _meshFormatFamsNodes;
-        break;
-      }
-      THROW_IK_EXCEPTION("getMapAtLevel : dimRelMax must be in [0,-1,-2,1]");
+        switch (dimRelMax)
+        {
+            case 0:
+                return _meshFormatFams_0;
+                break;
+            case -1:
+                return _meshFormatFams_1;
+                break;
+            case -2:
+                return _meshFormatFams_2;
+                break;
+            case 1:
+                return _meshFormatFamsNodes;
+                break;
+        }
+        THROW_IK_EXCEPTION("getMapAtLevel : dimRelMax must be in [0,-1,-2,1]");
     }
 
-  public:
+   public:
     ~MeshFormatFamily()
     {
-
-      freeMap(_meshFormatFams);
-      freeMap(_meshFormatFams_0);
-      freeMap(_meshFormatFams_1);
-      freeMap(_meshFormatFams_2);
-      freeMap(_meshFormatFamsNodes);
+        freeMap(_meshFormatFams);
+        freeMap(_meshFormatFams_0);
+        freeMap(_meshFormatFams_1);
+        freeMap(_meshFormatFams_2);
+        freeMap(_meshFormatFamsNodes);
     }
 
-  private:
+   private:
     void freeMap(std::map<int, std::vector<MeshFormatElement> *> &aMap)
     {
-      std::map<int, std::vector<MeshFormatElement> *>::iterator it = aMap.begin();
-      for (; it != aMap.end(); ++it)
-        delete it->second;
+        std::map<int, std::vector<MeshFormatElement> *>::iterator it = aMap.begin();
+        for (; it != aMap.end(); ++it) delete it->second;
     }
-  };
-  class MeshFormatReader
-  {
-  public:
+};
+class MeshFormatReader
+{
+   public:
     MEDLOADER_EXPORT MeshFormatReader();
     MEDLOADER_EXPORT MeshFormatReader(const std::string &meshFileName, const std::vector<std::string> &fieldFileName);
     MEDLOADER_EXPORT ~MeshFormatReader();
@@ -181,7 +181,7 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::vector<std::string> getFieldFileNames() const;
     MEDLOADER_EXPORT std::vector<std::string> getErroMessage() const;
 
-  private:
+   private:
     MeshFormat::Status addMessage(const std::string &msg, const bool isFatal = false);
     MeshFormat::Status perform();
     MeshFormat::Status performFields();
@@ -220,6 +220,6 @@ namespace MEDCoupling
     int _dim1NbEl;
     int _dim2NbEl;
     int _dim3NbEl;
-  };
-} // namespace MEDCoupling
-#endif //MESHFORMATREADER_HXX
+};
+}  // namespace MEDCoupling
+#endif  // MESHFORMATREADER_HXX

@@ -30,149 +30,165 @@
 
 #include <limits>
 
-template<int SPACEDIM,int MESHDIM>
-MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::MEDCouplingNormalizedUnstructuredMesh(const MEDCoupling::MEDCouplingPointSet *mesh):_mesh(mesh)
+template <int SPACEDIM, int MESHDIM>
+MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, MESHDIM>::MEDCouplingNormalizedUnstructuredMesh(
+    const MEDCoupling::MEDCouplingPointSet *mesh
+)
+    : _mesh(mesh)
 {
-  if(_mesh)
-    _mesh->incrRef();
-  prepare();
+    if (_mesh)
+        _mesh->incrRef();
+    prepare();
 }
 
-template<int SPACEDIM,int MESHDIM>
-void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getBoundingBox(double *boundingBox) const
+template <int SPACEDIM, int MESHDIM>
+void
+MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, MESHDIM>::getBoundingBox(double *boundingBox) const
 {
-  for(int i=0;i<SPACEDIM;i++)
+    for (int i = 0; i < SPACEDIM; i++)
     {
-      boundingBox[i]=std::numeric_limits<double>::max();
-      boundingBox[SPACEDIM+i]=-std::numeric_limits<double>::max();
+        boundingBox[i] = std::numeric_limits<double>::max();
+        boundingBox[SPACEDIM + i] = -std::numeric_limits<double>::max();
     }
-  const MEDCoupling::DataArrayDouble *array=_mesh->getCoords();
-  const double *ptr=array->getConstPointer();
-  mcIdType nbOfPts=ToIdType(array->getNbOfElems())/SPACEDIM;
-  for(int j=0;j<SPACEDIM;j++)
+    const MEDCoupling::DataArrayDouble *array = _mesh->getCoords();
+    const double *ptr = array->getConstPointer();
+    mcIdType nbOfPts = ToIdType(array->getNbOfElems()) / SPACEDIM;
+    for (int j = 0; j < SPACEDIM; j++)
     {
-      const double *work=ptr+j;
-      for(mcIdType i=0;i<nbOfPts;i++,work+=SPACEDIM)
+        const double *work = ptr + j;
+        for (mcIdType i = 0; i < nbOfPts; i++, work += SPACEDIM)
         {
-          if(boundingBox[j]>*work)
-            boundingBox[j]=*work;
-          if(boundingBox[j+SPACEDIM]<*work)
-            boundingBox[j+SPACEDIM]=*work;
+            if (boundingBox[j] > *work)
+                boundingBox[j] = *work;
+            if (boundingBox[j + SPACEDIM] < *work)
+                boundingBox[j + SPACEDIM] = *work;
         }
     }
 }
 
-template<int SPACEDIM,int MESHDIM>
-INTERP_KERNEL::NormalizedCellType MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getTypeOfElement(mcIdType eltId) const
+template <int SPACEDIM, int MESHDIM>
+INTERP_KERNEL::NormalizedCellType
+MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, MESHDIM>::getTypeOfElement(mcIdType eltId) const
 {
-  return _mesh->getTypeOfCell(eltId);
+    return _mesh->getTypeOfCell(eltId);
 }
 
-template<int SPACEDIM,int MESHDIM>
-mcIdType MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getNumberOfNodesOfElement(mcIdType eltId) const
+template <int SPACEDIM, int MESHDIM>
+mcIdType
+MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, MESHDIM>::getNumberOfNodesOfElement(mcIdType eltId) const
 {
-  return _mesh->getNumberOfNodesInCell(eltId);
+    return _mesh->getNumberOfNodesInCell(eltId);
 }
 
-template<int SPACEDIM,int MESHDIM>
-mcIdType MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getNumberOfElements() const
+template <int SPACEDIM, int MESHDIM>
+mcIdType
+MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, MESHDIM>::getNumberOfElements() const
 {
-  return ToIdType(_mesh->getNumberOfCells());
+    return ToIdType(_mesh->getNumberOfCells());
 }
 
-template<int SPACEDIM,int MESHDIM>
-mcIdType MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getNumberOfNodes() const
+template <int SPACEDIM, int MESHDIM>
+mcIdType
+MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, MESHDIM>::getNumberOfNodes() const
 {
-  return _mesh->getNumberOfNodes();
+    return _mesh->getNumberOfNodes();
 }
 
-template<int SPACEDIM,int MESHDIM>
-const mcIdType *MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getConnectivityPtr() const
+template <int SPACEDIM, int MESHDIM>
+const mcIdType *
+MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, MESHDIM>::getConnectivityPtr() const
 {
-  return _conn_for_interp;
+    return _conn_for_interp;
 }
 
-template<int SPACEDIM,int MESHDIM>
-const double *MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getCoordinatesPtr() const
+template <int SPACEDIM, int MESHDIM>
+const double *
+MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, MESHDIM>::getCoordinatesPtr() const
 {
-  const MEDCoupling::DataArrayDouble *array=_mesh->getCoords();
-  return array->getConstPointer();
+    const MEDCoupling::DataArrayDouble *array = _mesh->getCoords();
+    return array->getConstPointer();
 }
 
-template<int SPACEDIM,int MESHDIM>
-const mcIdType *MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::getConnectivityIndexPtr() const
+template <int SPACEDIM, int MESHDIM>
+const mcIdType *
+MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, MESHDIM>::getConnectivityIndexPtr() const
 {
-  return _conn_index_for_interp;
+    return _conn_index_for_interp;
 }
 
-template<int SPACEDIM,int MESHDIM>
-void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::releaseTempArrays()
+template <int SPACEDIM, int MESHDIM>
+void
+MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, MESHDIM>::releaseTempArrays()
 {
-  delete [] _conn_for_interp;
-  delete [] _conn_index_for_interp;
-  _conn_for_interp=0;
-  _conn_index_for_interp=0;
+    delete[] _conn_for_interp;
+    delete[] _conn_index_for_interp;
+    _conn_for_interp = 0;
+    _conn_index_for_interp = 0;
 }
 
-template<int SPACEDIM,int MESHDIM>
-MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::~MEDCouplingNormalizedUnstructuredMesh()
+template <int SPACEDIM, int MESHDIM>
+MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, MESHDIM>::~MEDCouplingNormalizedUnstructuredMesh()
 {
-  if(_mesh)
-    _mesh->decrRef();
-  releaseTempArrays();
+    if (_mesh)
+        _mesh->decrRef();
+    releaseTempArrays();
 }
 
-template<int SPACEDIM,int MESHDIM>
-void MEDCouplingNormalizedUnstructuredMesh<SPACEDIM,MESHDIM>::prepare()
+template <int SPACEDIM, int MESHDIM>
+void
+MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, MESHDIM>::prepare()
 {
-  IKAssert(_mesh->getSpaceDimension()==SPACEDIM);
-  const MEDCoupling::MEDCouplingUMesh *m1(dynamic_cast<const MEDCoupling::MEDCouplingUMesh *>(_mesh));
-  if(m1)
+    IKAssert(_mesh->getSpaceDimension() == SPACEDIM);
+    const MEDCoupling::MEDCouplingUMesh *m1(dynamic_cast<const MEDCoupling::MEDCouplingUMesh *>(_mesh));
+    if (m1)
     {
-      mcIdType nbOfCell=ToIdType(m1->getNumberOfCells());
-      mcIdType initialConnSize=ToIdType(m1->getNodalConnectivity()->getNbOfElems());
-      _conn_for_interp=new mcIdType[initialConnSize-nbOfCell];
-      _conn_index_for_interp=new mcIdType[nbOfCell+1];
-      _conn_index_for_interp[0]=0;
-      const mcIdType *work_conn=m1->getNodalConnectivity()->getConstPointer()+1;
-      const mcIdType *work_conn_index=m1->getNodalConnectivityIndex()->getConstPointer();
-      mcIdType *work_conn_for_interp=_conn_for_interp;
-      mcIdType *work_conn_index_for_interp=_conn_index_for_interp;
-      for(mcIdType i=0;i<nbOfCell;i++)
+        mcIdType nbOfCell = ToIdType(m1->getNumberOfCells());
+        mcIdType initialConnSize = ToIdType(m1->getNodalConnectivity()->getNbOfElems());
+        _conn_for_interp = new mcIdType[initialConnSize - nbOfCell];
+        _conn_index_for_interp = new mcIdType[nbOfCell + 1];
+        _conn_index_for_interp[0] = 0;
+        const mcIdType *work_conn = m1->getNodalConnectivity()->getConstPointer() + 1;
+        const mcIdType *work_conn_index = m1->getNodalConnectivityIndex()->getConstPointer();
+        mcIdType *work_conn_for_interp = _conn_for_interp;
+        mcIdType *work_conn_index_for_interp = _conn_index_for_interp;
+        for (mcIdType i = 0; i < nbOfCell; i++)
         {
-          mcIdType nbOfValsToCopy=work_conn_index[1]-work_conn_index[0]-1;
-          work_conn_for_interp=std::copy(work_conn,work_conn+nbOfValsToCopy,work_conn_for_interp);
-          work_conn_index_for_interp[1]=work_conn_index_for_interp[0]+nbOfValsToCopy;
-          work_conn_index++;
-          work_conn+=nbOfValsToCopy+1;
-          work_conn_index_for_interp++;
+            mcIdType nbOfValsToCopy = work_conn_index[1] - work_conn_index[0] - 1;
+            work_conn_for_interp = std::copy(work_conn, work_conn + nbOfValsToCopy, work_conn_for_interp);
+            work_conn_index_for_interp[1] = work_conn_index_for_interp[0] + nbOfValsToCopy;
+            work_conn_index++;
+            work_conn += nbOfValsToCopy + 1;
+            work_conn_index_for_interp++;
         }
-      return ;
+        return;
     }
-  const MEDCoupling::MEDCoupling1DGTUMesh *m2(dynamic_cast<const MEDCoupling::MEDCoupling1DGTUMesh *>(_mesh));
-  if(m2)
+    const MEDCoupling::MEDCoupling1DGTUMesh *m2(dynamic_cast<const MEDCoupling::MEDCoupling1DGTUMesh *>(_mesh));
+    if (m2)
     {
-      mcIdType nbOfCell=ToIdType(m2->getNumberOfCells());
-      _conn_index_for_interp=new mcIdType[nbOfCell+1];
-      const mcIdType *conni(m2->getNodalConnectivityIndex()->begin());
-      std::copy(conni,conni+nbOfCell+1,_conn_index_for_interp);
-      _conn_for_interp=new mcIdType[m2->getNodalConnectivity()->getNumberOfTuples()];
-      std::copy(m2->getNodalConnectivity()->begin(),m2->getNodalConnectivity()->end(),_conn_for_interp);
-      return ;
+        mcIdType nbOfCell = ToIdType(m2->getNumberOfCells());
+        _conn_index_for_interp = new mcIdType[nbOfCell + 1];
+        const mcIdType *conni(m2->getNodalConnectivityIndex()->begin());
+        std::copy(conni, conni + nbOfCell + 1, _conn_index_for_interp);
+        _conn_for_interp = new mcIdType[m2->getNodalConnectivity()->getNumberOfTuples()];
+        std::copy(m2->getNodalConnectivity()->begin(), m2->getNodalConnectivity()->end(), _conn_for_interp);
+        return;
     }
-  const MEDCoupling::MEDCoupling1SGTUMesh *m3(dynamic_cast<const MEDCoupling::MEDCoupling1SGTUMesh *>(_mesh));
-  if(m3)
+    const MEDCoupling::MEDCoupling1SGTUMesh *m3(dynamic_cast<const MEDCoupling::MEDCoupling1SGTUMesh *>(_mesh));
+    if (m3)
     {
-      mcIdType nbOfCell=ToIdType(m3->getNumberOfCells()),nbNodesPerCell(m3->getNumberOfNodesPerCell());
-      _conn_index_for_interp=new mcIdType[nbOfCell+1]; _conn_index_for_interp[0]=0;
-      mcIdType *work(_conn_index_for_interp);
-      for(mcIdType i=0;i<nbOfCell;i++,work++)
-        work[1]=work[0]+nbNodesPerCell;
-      _conn_for_interp=new mcIdType[m3->getNodalConnectivity()->getNumberOfTuples()];
-      std::copy(m3->getNodalConnectivity()->begin(),m3->getNodalConnectivity()->end(),_conn_for_interp);
-      return ;
+        mcIdType nbOfCell = ToIdType(m3->getNumberOfCells()), nbNodesPerCell(m3->getNumberOfNodesPerCell());
+        _conn_index_for_interp = new mcIdType[nbOfCell + 1];
+        _conn_index_for_interp[0] = 0;
+        mcIdType *work(_conn_index_for_interp);
+        for (mcIdType i = 0; i < nbOfCell; i++, work++) work[1] = work[0] + nbNodesPerCell;
+        _conn_for_interp = new mcIdType[m3->getNodalConnectivity()->getNumberOfTuples()];
+        std::copy(m3->getNodalConnectivity()->begin(), m3->getNodalConnectivity()->end(), _conn_for_interp);
+        return;
     }
-  throw INTERP_KERNEL::Exception("MEDCouplingNormalizedUnstructuredMesh::prepare : Unrecognized unstructured mesh ! Type must be in MEDCouplingUMesh, MEDCoupling1DGTUMesh, MEDCoupling1SGTUMesh !");
+    throw INTERP_KERNEL::Exception(
+        "MEDCouplingNormalizedUnstructuredMesh::prepare : Unrecognized unstructured mesh ! Type must be in "
+        "MEDCouplingUMesh, MEDCoupling1DGTUMesh, MEDCoupling1SGTUMesh !"
+    );
 }
 
 #endif

@@ -28,36 +28,36 @@
 
 namespace MEDCoupling
 {
-    class ShapeRecognMeshBuilder;
-    class Areas;
+class ShapeRecognMeshBuilder;
+class Areas;
 
-    class ConeTest : public CppUnit::TestFixture
-    {
-        CPPUNIT_TEST_SUITE(ConeTest);
-        CPPUNIT_TEST(testNumberOfAreas);
-        CPPUNIT_TEST(testComputePlaneProperties);
-        CPPUNIT_TEST(testComputeCylinderProperties);
-        CPPUNIT_TEST(testComputeConeProperties);
-        CPPUNIT_TEST(testFirstArea);
-        CPPUNIT_TEST(testSecondArea);
-        CPPUNIT_TEST(testThirdArea);
-        CPPUNIT_TEST_SUITE_END();
+class ConeTest : public CppUnit::TestFixture
+{
+    CPPUNIT_TEST_SUITE(ConeTest);
+    CPPUNIT_TEST(testNumberOfAreas);
+    CPPUNIT_TEST(testComputePlaneProperties);
+    CPPUNIT_TEST(testComputeCylinderProperties);
+    CPPUNIT_TEST(testComputeConeProperties);
+    CPPUNIT_TEST(testFirstArea);
+    CPPUNIT_TEST(testSecondArea);
+    CPPUNIT_TEST(testThirdArea);
+    CPPUNIT_TEST_SUITE_END();
 
-    public:
-        void setUp() override;
-        void tearDown() override;
+   public:
+    void setUp() override;
+    void tearDown() override;
 
-        void testComputePlaneProperties();
-        void testComputeCylinderProperties();
-        void testComputeConeProperties();
+    void testComputePlaneProperties();
+    void testComputeCylinderProperties();
+    void testComputeConeProperties();
 
-        void testNumberOfAreas();
-        void testFirstArea();
-        void testSecondArea();
-        void testThirdArea();
+    void testNumberOfAreas();
+    void testFirstArea();
+    void testSecondArea();
+    void testThirdArea();
 
-    private:
-        std::unique_ptr<ShapeRecognMeshBuilder> srMesh;
-        const Areas *areas;
-    };
-}
+   private:
+    std::unique_ptr<ShapeRecognMeshBuilder> srMesh;
+    const Areas *areas;
+};
+}  // namespace MEDCoupling

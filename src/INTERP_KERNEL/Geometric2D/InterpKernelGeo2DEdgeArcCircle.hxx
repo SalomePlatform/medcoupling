@@ -27,61 +27,87 @@
 
 namespace INTERP_KERNEL
 {
-  class INTERPKERNEL_EXPORT ArcCArcCIntersector : public SameTypeEdgeIntersector
-  {
-  public:
-    ArcCArcCIntersector(const EdgeArcCircle& e1, const EdgeArcCircle& e2);
+class INTERPKERNEL_EXPORT ArcCArcCIntersector : public SameTypeEdgeIntersector
+{
+   public:
+    ArcCArcCIntersector(const EdgeArcCircle &e1, const EdgeArcCircle &e2);
     bool haveTheySameDirection() const;
     bool areColinears() const;
-    void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const;
-    void areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped);
-    std::list< IntersectElement > getIntersectionsCharacteristicVal() const;
-  private:
+    void getPlacements(
+        Node *start, Node *end, TypeOfLocInEdge &whereStart, TypeOfLocInEdge &whereEnd, MergePoints &commonNode
+    ) const;
+    void areOverlappedOrOnlyColinears(bool &obviousNoIntersection, bool &areOverlapped);
+    std::list<IntersectElement> getIntersectionsCharacteristicVal() const;
+
+   private:
     //! return angle in ]-Pi;Pi[ - 'node' must be on curve of '_e1'
     double getAngle(Node *node) const;
-    static bool internalAreColinears(const EdgeArcCircle& a1, const EdgeArcCircle& a2, double& distBetweenCenters, double& cst, double& radiusL, double centerL[2], double& raduisB, double centerB[2]);
-    static bool areArcsOverlapped(const EdgeArcCircle& a1, const EdgeArcCircle& a2);
-  private:
-    const EdgeArcCircle& getE1() const { return (const EdgeArcCircle&)_e1; }
-    const EdgeArcCircle& getE2() const { return (const EdgeArcCircle&)_e2; }
-  private:
-    double _dist;       // distance between the two arc centers
-  };
+    static bool internalAreColinears(
+        const EdgeArcCircle &a1,
+        const EdgeArcCircle &a2,
+        double &distBetweenCenters,
+        double &cst,
+        double &radiusL,
+        double centerL[2],
+        double &raduisB,
+        double centerB[2]
+    );
+    static bool areArcsOverlapped(const EdgeArcCircle &a1, const EdgeArcCircle &a2);
 
-  /**
-   * Cross-type intersector: edge1 is the arc of circle, edge2 is the segment.
-   */
-  class INTERPKERNEL_EXPORT ArcCSegIntersector : public CrossTypeEdgeIntersector
-  {
-  public:
-    ArcCSegIntersector(const EdgeArcCircle& e1, const EdgeLin& e2, bool reverse=true);
-    //virtual overloading
+   private:
+    const EdgeArcCircle &getE1() const { return (const EdgeArcCircle &)_e1; }
+    const EdgeArcCircle &getE2() const { return (const EdgeArcCircle &)_e2; }
+
+   private:
+    double _dist;  // distance between the two arc centers
+};
+
+/**
+ * Cross-type intersector: edge1 is the arc of circle, edge2 is the segment.
+ */
+class INTERPKERNEL_EXPORT ArcCSegIntersector : public CrossTypeEdgeIntersector
+{
+   public:
+    ArcCSegIntersector(const EdgeArcCircle &e1, const EdgeLin &e2, bool reverse = true);
+    // virtual overloading
     bool areColinears() const;
-    void getPlacements(Node *start, Node *end, TypeOfLocInEdge& whereStart, TypeOfLocInEdge& whereEnd, MergePoints& commonNode) const;
-    void areOverlappedOrOnlyColinears(bool& obviousNoIntersection, bool& areOverlapped);
-    std::list< IntersectElement > getIntersectionsCharacteristicVal() const;
-  private:
-    const EdgeArcCircle& getE1() const { return (const EdgeArcCircle&)_e1; }
-    const EdgeLin& getE2() const { return (const EdgeLin&)_e2; }
-  private:
-    double _dx;           //!< X extent of the segment
-    double _dy;           //!< Y extent of the segment
-    double _drSq;         //!< Square of the norm of the seg
-    double _cross;        //!< See areOverlappedOrOnlyColinears()
-    double _deltaRoot_div_dr;    //!< See areOverlappedOrOnlyColinears()
-    bool _i1S2E,_i1E2E;
-  };
+    void getPlacements(
+        Node *start, Node *end, TypeOfLocInEdge &whereStart, TypeOfLocInEdge &whereEnd, MergePoints &commonNode
+    ) const;
+    void areOverlappedOrOnlyColinears(bool &obviousNoIntersection, bool &areOverlapped);
+    std::list<IntersectElement> getIntersectionsCharacteristicVal() const;
 
-  class INTERPKERNEL_EXPORT EdgeArcCircle : public Edge
-  {
-  public:
-    EdgeArcCircle(std::istream& lineInXfig);
+   private:
+    const EdgeArcCircle &getE1() const { return (const EdgeArcCircle &)_e1; }
+    const EdgeLin &getE2() const { return (const EdgeLin &)_e2; }
+
+   private:
+    double _dx;                //!< X extent of the segment
+    double _dy;                //!< Y extent of the segment
+    double _drSq;              //!< Square of the norm of the seg
+    double _cross;             //!< See areOverlappedOrOnlyColinears()
+    double _deltaRoot_div_dr;  //!< See areOverlappedOrOnlyColinears()
+    bool _i1S2E, _i1E2E;
+};
+
+class INTERPKERNEL_EXPORT EdgeArcCircle : public Edge
+{
+   public:
+    EdgeArcCircle(std::istream &lineInXfig);
     EdgeArcCircle(Node *start, Node *middle, Node *end, bool direction = true);
     EdgeArcCircle(double sX, double sY, double mX, double mY, double eX, double eY);
-    EdgeArcCircle(Node *start, Node *end, const double *center, double radius, double angle0, double deltaAngle, bool direction=true);
+    EdgeArcCircle(
+        Node *start,
+        Node *end,
+        const double *center,
+        double radius,
+        double angle0,
+        double deltaAngle,
+        bool direction = true
+    );
     //! for tests
     void changeMiddle(Node *newMiddle);
-    void dumpInXfigFile(std::ostream& stream, bool direction, int resolution, const Bounds& box) const;
+    void dumpInXfigFile(std::ostream &stream, bool direction, int resolution, const Bounds &box) const;
     void update(Node *m);
     double getAreaOfZone() const;
     double getCurveLength() const;
@@ -92,42 +118,76 @@ namespace INTERP_KERNEL
     bool isIn(double characterVal) const;
     Node *buildRepresentantOfMySelf() const;
     bool isLower(double val1, double val2) const;
-    double getCharactValue(const Node& node) const;
-    double getCharactValueBtw0And1(const Node& node) const;
+    double getCharactValue(const Node &node) const;
+    double getCharactValueBtw0And1(const Node &node) const;
     double getDistanceToPoint(const double *pt) const;
     bool isNodeLyingOn(const double *coordOfNode) const;
     TypeOfFunction getTypeOfFunc() const { return ARC_CIRCLE; }
-    void dynCastFunction(const EdgeLin * &seg,
-                         const EdgeArcCircle * &arcSeg) const { arcSeg=this; }
+    void dynCastFunction(const EdgeLin *&seg, const EdgeArcCircle *&arcSeg) const { arcSeg = this; }
     const double *getCenter() const { return _center; }
-    void getCenter(double *center) const { center[0]=_center[0]; center[1]=_center[1]; }
-    bool doIHaveSameDirectionAs(const Edge& other) const { return false; }
+    void getCenter(double *center) const
+    {
+        center[0] = _center[0];
+        center[1] = _center[1];
+    }
+    bool doIHaveSameDirectionAs(const Edge &other) const { return false; }
     void applySimilarity(double xBary, double yBary, double dimChar);
     void unApplySimilarity(double xBary, double yBary, double dimChar);
     double getAngle0() const { return _angle0; }
     double getRadius() const { return _radius; }
     double getAngle() const { return _angle; }
-    void tesselate(const mcIdType *conn, mcIdType offset, double eps, std::vector<mcIdType>& newConn, std::vector<double>& addCoo) const;
+    void tesselate(
+        const mcIdType *conn, mcIdType offset, double eps, std::vector<mcIdType> &newConn, std::vector<double> &addCoo
+    ) const;
     static EdgeArcCircle *BuildFromNodes(Node *start, Node *middle, Node *end);
-    static double GetAbsoluteAngle(const double *vect, double& normVect);
+    static double GetAbsoluteAngle(const double *vect, double &normVect);
     static double GetAbsoluteAngleOfNormalizedVect(double ux, double uy);
-    static void GetArcOfCirclePassingThru(const double *start, const double *middle, const double *end,
-                                          double *center, double& radius, double& angleInRad, double& angleInRad0);
+    static void GetArcOfCirclePassingThru(
+        const double *start,
+        const double *middle,
+        const double *end,
+        double *center,
+        double &radius,
+        double &angleInRad,
+        double &angleInRad0
+    );
     //! To avoid in aggressive optimizations nan.
-    static double SafeSqrt(double val) { double ret=std::max(val,0.); return sqrt(ret); }
-    static double SafeAcos(double cosAngle) { double ret=std::min(cosAngle,1.); ret=std::max(ret,-1.); return acos(ret); }
-    static double SafeAsin(double sinAngle) { double ret=std::min(sinAngle,1.); ret=std::max(ret,-1.); return asin(ret); }
+    static double SafeSqrt(double val)
+    {
+        double ret = std::max(val, 0.);
+        return sqrt(ret);
+    }
+    static double SafeAcos(double cosAngle)
+    {
+        double ret = std::min(cosAngle, 1.);
+        ret = std::max(ret, -1.);
+        return acos(ret);
+    }
+    static double SafeAsin(double sinAngle)
+    {
+        double ret = std::min(sinAngle, 1.);
+        ret = std::max(ret, -1.);
+        return asin(ret);
+    }
     //! @param start and @param angleIn in ]-Pi;Pi] and @param delta in ]-2*Pi,2*Pi[
     static bool IsIn2Pi(double start, double delta, double angleIn);
     //! 'delta' 'start' in ]-Pi;Pi[
     static bool IsAngleNotIn(double start, double delta, double angleIn);
     //! for an angle 'angle' in ]-3*Pi;3*Pi[ returns angle in ]-Pi;Pi[
-    static double NormalizeAngle(double angle) { if(angle>M_PI) return angle-2.*M_PI; if(angle<-M_PI) return angle+2.*M_PI; return angle; }
-  protected:
-    void updateBounds();
-    Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction=true) const;
+    static double NormalizeAngle(double angle)
+    {
+        if (angle > M_PI)
+            return angle - 2. * M_PI;
+        if (angle < -M_PI)
+            return angle + 2. * M_PI;
+        return angle;
+    }
 
-  protected:
+   protected:
+    void updateBounds();
+    Edge *buildEdgeLyingOnMe(Node *start, Node *end, bool direction = true) const;
+
+   protected:
     //! Absolute angle where the arc starts. Value between -Pi and Pi
     double _angle0;
     //! Angular span of the arc. Value between -2Pi and 2Pi
@@ -136,7 +196,7 @@ namespace INTERP_KERNEL
     double _radius;
     //! Center of the arc of circle
     double _center[2];
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

@@ -26,55 +26,65 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix>
-  class CurveIntersector : public TargetIntersector<MyMeshType,MyMatrix>
-  {
-  public:
-    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+template <class MyMeshType, class MyMatrix>
+class CurveIntersector : public TargetIntersector<MyMeshType, MyMatrix>
+{
+   public:
+    static const int SPACEDIM = MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM = MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
-    static const NumberingPolicy numPol=MyMeshType::My_numPol;
-  public:
-    CurveIntersector(const MyMeshType& meshT, const MyMeshType& meshS,
-                     double  precision, double adjustmentEpsAbs, double medianLine, int printLevel);
+    static const NumberingPolicy numPol = MyMeshType::My_numPol;
+
+   public:
+    CurveIntersector(
+        const MyMeshType &meshT,
+        const MyMeshType &meshS,
+        double precision,
+        double adjustmentEpsAbs,
+        double medianLine,
+        int printLevel
+    );
     virtual ~CurveIntersector();
-    void createBoundingBoxes(const MyMeshType& mesh, std::vector<double>& bbox);
-    static void getElemBB(double* bb, const MyMeshType& mesh, ConnType iP, ConnType nb_nodes);
-    static void ComputeBaryCoordsOf(double startOfSeg, double endOfSeg, double pt, double& startPos, double& endPos);
-  protected :
-    bool projectionThis(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt) const;
-    bool projectionThis(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt0, double& xt1) const;
-    bool getRealTargetCoordinates(ConnType icellT, std::vector<double>& coordsT) const;
+    void createBoundingBoxes(const MyMeshType &mesh, std::vector<double> &bbox);
+    static void getElemBB(double *bb, const MyMeshType &mesh, ConnType iP, ConnType nb_nodes);
+    static void ComputeBaryCoordsOf(double startOfSeg, double endOfSeg, double pt, double &startPos, double &endPos);
+
+   protected:
+    bool projectionThis(const double *coordsT, const double *coordsS, double &xs0, double &xs1, double &xt) const;
+    bool projectionThis(
+        const double *coordsT, const double *coordsS, double &xs0, double &xs1, double &xt0, double &xt1
+    ) const;
+    bool getRealTargetCoordinates(ConnType icellT, std::vector<double> &coordsT) const;
     typename MyMeshType::MyConnType getNodeIdOfTargetCellAt(ConnType icellT, ConnType nodeIdInCellT) const;
-    bool getRealSourceCoordinates(ConnType icellS, std::vector<double>& coordsS) const;
+    bool getRealSourceCoordinates(ConnType icellS, std::vector<double> &coordsS) const;
     typename MyMeshType::MyConnType getNodeIdOfSourceCellAt(ConnType icellT, ConnType nodeIdInCellT) const;
     double intersectSegments(const double *coordsT, const double *coordsS) const;
-    double intersectSegmentsInternal(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt0, double& xt1) const;
-    bool isPtIncludedInSeg(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt) const;
+    double intersectSegmentsInternal(
+        const double *coordsT, const double *coordsS, double &xs0, double &xs1, double &xt0, double &xt1
+    ) const;
+    bool isPtIncludedInSeg(const double *coordsT, const double *coordsS, double &xs0, double &xs1, double &xt) const;
 
     struct TDualSegment
     {
-      std::vector<double> _coords;
-      ConnType            _nodeId; // in mesh mode
+        std::vector<double> _coords;
+        ConnType _nodeId;  // in mesh mode
     };
-    static void getDualSegments(ConnType                   icell,
-                                const MyMeshType&          mesh,
-                                std::vector<TDualSegment>& segments);
+    static void getDualSegments(ConnType icell, const MyMeshType &mesh, std::vector<TDualSegment> &segments);
 
-  protected:
+   protected:
     const ConnType *_connectT;
     const ConnType *_connectS;
     const double *_coordsT;
     const double *_coordsS;
     const ConnType *_connIndexT;
     const ConnType *_connIndexS;
-    const MyMeshType& _meshT;
-    const MyMeshType& _meshS;
+    const MyMeshType &_meshT;
+    const MyMeshType &_meshS;
     double _tolerance;
     double _precision;
     double _median_line;
     int _print_level;
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

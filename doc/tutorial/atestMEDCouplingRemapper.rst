@@ -13,14 +13,14 @@ Interpoler avec MEDCouplingRemapper
 	arr.iota(0)
 	trgMesh = mc.MEDCouplingCMesh()
 	trgMesh.setCoords(arr,arr)
-	trgMesh = trgMesh.buildUnstructured()	
+	trgMesh = trgMesh.buildUnstructured()
 	# Source mesh
 	arr = mc.DataArrayDouble(21)
 	arr.iota(0)
 	arr *= 0.5
 	srcMesh = mc.MEDCouplingCMesh()
 	srcMesh.setCoords(arr,arr)
-	srcMesh = srcMesh.buildUnstructured()	
+	srcMesh = srcMesh.buildUnstructured()
 	# Triangularize some cells in source
 	tmp = srcMesh[:20]    # Extract a sub-part of srcMesh
 	tmp.simplexize(0)
@@ -51,7 +51,7 @@ Interpoler avec MEDCouplingRemapper
 	integSource = srcField.integral(True)[0]
 	integTarget =  trgFieldCV.integral(True)[0]
 	print("IntensiveMaximum -- integrals: %lf == %lf" % (integSource, integTarget))
-	
+
 	accSource = srcField.getArray().accumulate()[0]
 	accTarget = trgFieldCV.getArray().accumulate()[0]
 	print("IntensiveMaximum -- sums: %lf != %lf" % (accSource, accTarget))
@@ -61,7 +61,7 @@ Interpoler avec MEDCouplingRemapper
 	#
 	integSource = srcField.integral(True)[0]
 	integTarget =  trgFieldI.integral(True)[0]
-	print("ExtensiveConservation -- integrals: %lf != %lf" % (integSource, integTarget))	
+	print("ExtensiveConservation -- integrals: %lf != %lf" % (integSource, integTarget))
 	accSource = srcField.getArray().accumulate()[0]
 	accTarget = trgFieldI.getArray().accumulate()[0]
 	print("ExtensiveConservation -- sums: %lf == %lf" % (accSource, accTarget))

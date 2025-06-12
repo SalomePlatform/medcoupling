@@ -28,40 +28,44 @@
 
 namespace INTERP_KERNEL
 {
-  /**
-   * \brief Class representing a set of elements in a mesh together with their bounding box.
-   * It permits to split itself in two, which is used in the depth-first search filtering process.
-   *
-   */
-  template<class ConnType>
-  class MeshRegion
-  {
-  public:
-
+/**
+ * \brief Class representing a set of elements in a mesh together with their bounding box.
+ * It permits to split itself in two, which is used in the depth-first search filtering process.
+ *
+ */
+template <class ConnType>
+class MeshRegion
+{
+   public:
     MeshRegion();
 
     ~MeshRegion();
 
-    template<class MyMeshType>
-    void addElement(MeshElement<ConnType>* const element, const MyMeshType& mesh);
+    template <class MyMeshType>
+    void addElement(MeshElement<ConnType> *const element, const MyMeshType &mesh);
 
-    template<class MyMeshType>
-    void split(MeshRegion<ConnType>& region1, MeshRegion<ConnType>& region2, BoundingBox::BoxCoord coord, const MyMeshType& mesh);
+    template <class MyMeshType>
+    void split(
+        MeshRegion<ConnType> &region1,
+        MeshRegion<ConnType> &region2,
+        BoundingBox::BoxCoord coord,
+        const MyMeshType &mesh
+    );
 
-    bool isDisjointWithElementBoundingBox(const MeshElement<ConnType>& elem) const;
+    bool isDisjointWithElementBoundingBox(const MeshElement<ConnType> &elem) const;
     /**
      * Accessor to beginning of elements vector
      *
      * @return  constant iterator pointing at the beginning of the vector or elements
      */
-    typename std::vector< MeshElement<ConnType>* >::const_iterator getBeginElements() const { return _elements.begin(); }
+    typename std::vector<MeshElement<ConnType> *>::const_iterator getBeginElements() const { return _elements.begin(); }
 
     /**
      * Accessor to end of elements vector
      *
      * @return  constant iterator pointing at the end of the vector or elements
      */
-    typename std::vector< MeshElement<ConnType>* >::const_iterator getEndElements() const { return _elements.end(); }
+    typename std::vector<MeshElement<ConnType> *>::const_iterator getEndElements() const { return _elements.end(); }
 
     /**
      * Gives information on how many elements are contained in the region.
@@ -70,24 +74,23 @@ namespace INTERP_KERNEL
      */
     unsigned getNumberOfElements() const { return _elements.size(); }
 
-  private:
-
+   private:
     /// disallow copying
-    MeshRegion(const MeshRegion& m);
+    MeshRegion(const MeshRegion &m);
 
     /// disallow assignment
-    MeshRegion<ConnType>& operator=(const MeshRegion<ConnType>& m);
+    MeshRegion<ConnType> &operator=(const MeshRegion<ConnType> &m);
 
     /// Vector of pointers to contained MeshElements.
     /// NB : these pointers are not owned by the region object, and are thus
-    /// neither allocated or liberated in this class. The elements must therefore be allocated and liberated outside the class.
-    std::vector< MeshElement<ConnType>* > _elements;
+    /// neither allocated or liberated in this class. The elements must therefore be allocated and liberated outside the
+    /// class.
+    std::vector<MeshElement<ConnType> *> _elements;
 
     /// BoundingBox containing all the nodes of all the elements in the region.
-    BoundingBox* _box;
+    BoundingBox *_box;
+};
 
-  };
-
-}
+}  // namespace INTERP_KERNEL
 
 #endif

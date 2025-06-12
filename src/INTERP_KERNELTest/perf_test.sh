@@ -26,80 +26,80 @@ RES_FILE=perf_OPTIMIZE
 #outputs lines of form :
 #"no. source elems      no. target elems    user time"
 function test_pair {
-    echo -n $1 | sed 's/\(PerfCyl\)\([0-9]*\)/\2/' | sed 's/\(PerfBoxT\)\([0-9]*\)/\2/' | sed 's/\(PerfBox\)\([0-9]*\)/\2/' >> $RES_FILE
-    echo -n " " >> $RES_FILE
-    echo -n $2 | sed 's/\(PerfCyl\)\([0-9]*\)/\2/' | sed 's/\(PerfBoxT\)\([0-9]*\)/\2/' | sed 's/\(PerfBox\)\([0-9]*\)/\2/' >> $RES_FILE
-    echo -n " " >> $RES_FILE
+    echo -n $1 | sed 's/\(PerfCyl\)\([0-9]*\)/\2/' | sed 's/\(PerfBoxT\)\([0-9]*\)/\2/' | sed 's/\(PerfBox\)\([0-9]*\)/\2/' >>$RES_FILE
+    echo -n " " >>$RES_FILE
+    echo -n $2 | sed 's/\(PerfCyl\)\([0-9]*\)/\2/' | sed 's/\(PerfBoxT\)\([0-9]*\)/\2/' | sed 's/\(PerfBox\)\([0-9]*\)/\2/' >>$RES_FILE
+    echo -n " " >>$RES_FILE
     time -o $RES_FILE --append -f"%U" ./PerfTest $1 $2
     echo
 }
 
 function test_box_box {
-echo PerfBox PerfBox >> $RES_FILE
+    echo PerfBox PerfBox >>$RES_FILE
 
-test_pair PerfBox1495 PerfBox1495
-test_pair PerfBox2506 PerfBox2506
-test_pair PerfBox5708 PerfBox5708
-test_pair PerfBox13461 PerfBox13461
-test_pair PerfBox30808 PerfBox30808
-test_pair PerfBox47176 PerfBox47176
+    test_pair PerfBox1495 PerfBox1495
+    test_pair PerfBox2506 PerfBox2506
+    test_pair PerfBox5708 PerfBox5708
+    test_pair PerfBox13461 PerfBox13461
+    test_pair PerfBox30808 PerfBox30808
+    test_pair PerfBox47176 PerfBox47176
 
-test_pair PerfBox1495 PerfBox2506
-test_pair PerfBox1495 PerfBox5708
-test_pair PerfBox1495 PerfBox13461
-test_pair PerfBox1495 PerfBox30808
-test_pair PerfBox1495 PerfBox47176
+    test_pair PerfBox1495 PerfBox2506
+    test_pair PerfBox1495 PerfBox5708
+    test_pair PerfBox1495 PerfBox13461
+    test_pair PerfBox1495 PerfBox30808
+    test_pair PerfBox1495 PerfBox47176
 
-test_pair PerfBox2506 PerfBox5708
-test_pair PerfBox2506 PerfBox13461
-test_pair PerfBox2506 PerfBox30808
-test_pair PerfBox2506 PerfBox47176
+    test_pair PerfBox2506 PerfBox5708
+    test_pair PerfBox2506 PerfBox13461
+    test_pair PerfBox2506 PerfBox30808
+    test_pair PerfBox2506 PerfBox47176
 
-test_pair PerfBox5708 PerfBox13461
-test_pair PerfBox5708 PerfBox30808
-test_pair PerfBox5708 PerfBox47176
+    test_pair PerfBox5708 PerfBox13461
+    test_pair PerfBox5708 PerfBox30808
+    test_pair PerfBox5708 PerfBox47176
 
-test_pair PerfBox13461 PerfBox30808
-test_pair PerfBox13461 PerfBox47176
+    test_pair PerfBox13461 PerfBox30808
+    test_pair PerfBox13461 PerfBox47176
 
-test_pair PerfBox30808 PerfBox47176
+    test_pair PerfBox30808 PerfBox47176
 
 }
 
 function test_cyl_cyl {
-echo PerfCyl PerfCyl >> $RES_FILE
+    echo PerfCyl PerfCyl >>$RES_FILE
 
-test_pair PerfCyl1047 PerfCyl1047
-test_pair PerfCyl3020 PerfCyl3020
-test_pair PerfCyl6556 PerfCyl6556
-test_pair PerfCyl9766 PerfCyl9766
-test_pair PerfCyl25745 PerfCyl25745
-test_pair PerfCyl47601 PerfCyl47601
+    test_pair PerfCyl1047 PerfCyl1047
+    test_pair PerfCyl3020 PerfCyl3020
+    test_pair PerfCyl6556 PerfCyl6556
+    test_pair PerfCyl9766 PerfCyl9766
+    test_pair PerfCyl25745 PerfCyl25745
+    test_pair PerfCyl47601 PerfCyl47601
 
-test_pair PerfCyl1047 PerfCyl3020
-test_pair PerfCyl1047 PerfCyl6556
-test_pair PerfCyl1047 PerfCyl9766
-test_pair PerfCyl1047 PerfCyl25745
-test_pair PerfCyl1047 PerfCyl47601
+    test_pair PerfCyl1047 PerfCyl3020
+    test_pair PerfCyl1047 PerfCyl6556
+    test_pair PerfCyl1047 PerfCyl9766
+    test_pair PerfCyl1047 PerfCyl25745
+    test_pair PerfCyl1047 PerfCyl47601
 
-test_pair PerfCyl3020 PerfCyl6556
-test_pair PerfCyl3020 PerfCyl9766
-test_pair PerfCyl3020 PerfCyl25745
-test_pair PerfCyl3020 PerfCyl47601
+    test_pair PerfCyl3020 PerfCyl6556
+    test_pair PerfCyl3020 PerfCyl9766
+    test_pair PerfCyl3020 PerfCyl25745
+    test_pair PerfCyl3020 PerfCyl47601
 
-test_pair PerfCyl6556 PerfCyl9766
-test_pair PerfCyl6556 PerfCyl25745
-test_pair PerfCyl6556 PerfCyl47601
+    test_pair PerfCyl6556 PerfCyl9766
+    test_pair PerfCyl6556 PerfCyl25745
+    test_pair PerfCyl6556 PerfCyl47601
 
-test_pair PerfCyl9766 PerfCyl25745
-test_pair PerfCyl9766 PerfCyl47601
+    test_pair PerfCyl9766 PerfCyl25745
+    test_pair PerfCyl9766 PerfCyl47601
 
-test_pair PerfCyl25745 PerfCyl47601
+    test_pair PerfCyl25745 PerfCyl47601
 
 }
 
 function test_box_cyl {
-    echo PerfBox PerfCyl >> $RES_FILE
+    echo PerfBox PerfCyl >>$RES_FILE
     test_pair PerfBox1495 PerfCyl1047
     test_pair PerfBox1495 PerfCyl3020
     test_pair PerfBox1495 PerfCyl6556
@@ -144,7 +144,7 @@ function test_box_cyl {
 }
 
 function test_box_transbox {
-    echo PerfBox PerfBoxT >> $RES_FILE
+    echo PerfBox PerfBoxT >>$RES_FILE
     test_pair PerfBox1495 PerfBoxT1493
     test_pair PerfBox2506 PerfBoxT2676
     test_pair PerfBox5708 PerfBoxT5717
@@ -153,11 +153,9 @@ function test_box_transbox {
     test_pair PerfBox47176 PerfBoxT47278
 }
 
-
-
 #functions to execute :
 
-echo PerfTest execution on "$(date)" > $RES_FILE
+echo PerfTest execution on "$(date)" >$RES_FILE
 test_box_cyl
 test_box_box
 test_cyl_cyl

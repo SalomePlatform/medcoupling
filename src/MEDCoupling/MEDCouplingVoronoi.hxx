@@ -27,34 +27,36 @@
 
 namespace MEDCoupling
 {
-  class Voronizer
-  {
-  public:
-    virtual MCAuto<MEDCouplingUMesh> doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const = 0;
+class Voronizer
+{
+   public:
+    virtual MCAuto<MEDCouplingUMesh> doIt(
+        const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps
+    ) const = 0;
     virtual int getDimension() const = 0;
     virtual ~Voronizer();
-  };
+};
 
-  class Voronizer1D : public Voronizer
-  {
-  public:
+class Voronizer1D : public Voronizer
+{
+   public:
     MCAuto<MEDCouplingUMesh> doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const;
     int getDimension() const;
-  };
+};
 
-  class Voronizer2D : public Voronizer
-  {
-  public:
+class Voronizer2D : public Voronizer
+{
+   public:
     MCAuto<MEDCouplingUMesh> doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const;
     int getDimension() const;
-  };
+};
 
-  class Voronizer3D : public Voronizer
-  {
-  public:
+class Voronizer3D : public Voronizer
+{
+   public:
     MCAuto<MEDCouplingUMesh> doIt(const MEDCouplingUMesh *m, const DataArrayDouble *points, double eps) const;
     int getDimension() const;
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

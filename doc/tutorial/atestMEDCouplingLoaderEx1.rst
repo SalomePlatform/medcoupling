@@ -8,7 +8,7 @@ Agitateur - Swirler
 
 	import medcoupling as mc
 	import numpy as np
-	
+
 	# Get available time steps
 	data = mc.MEDFileData("agitateur.med")
 	ts = data.getFields()[0].getTimeSteps()
@@ -120,5 +120,5 @@ Agitateur - Swirler
 
 	omega=sum(angle2)/(ts[-1][2]-ts[0][2])
 	print(sum(angle2))
-	
+
 	print("At timestep (%d,%d) (physical time=%r s) the torque is: %r N.m, power/omega=%r N.m " % (ts[2][0],ts[2][1],ts[2][2],zeTorque[2],power/omega))

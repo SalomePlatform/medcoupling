@@ -20,6 +20,6 @@
 
 #include "MEDLoaderTraits.hxx"
 
-const char MEDCoupling::MLMeshTraits<MEDCoupling::MEDFileUMesh>::ClassName[]="MEDFileUMesh";
-const char MEDCoupling::MLMeshTraits<MEDCoupling::MEDFileCMesh>::ClassName[]="MEDFileCMesh";
-const char MEDCoupling::MLMeshTraits<MEDCoupling::MEDFileCurveLinearMesh>::ClassName[]="MEDFileCurveLinearMesh";
+const char MEDCoupling::MLMeshTraits<MEDCoupling::MEDFileUMesh>::ClassName[] = "MEDFileUMesh";
+const char MEDCoupling::MLMeshTraits<MEDCoupling::MEDFileCMesh>::ClassName[] = "MEDFileCMesh";
+const char MEDCoupling::MLMeshTraits<MEDCoupling::MEDFileCurveLinearMesh>::ClassName[] = "MEDFileCurveLinearMesh";

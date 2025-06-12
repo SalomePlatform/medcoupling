@@ -30,8 +30,7 @@
  *
  */
 
-
-//#define LOG_LEVEL 4
+// #define LOG_LEVEL 4
 /// define LOG_LEVEL here if it is not already defined
 #ifndef LOG_LEVEL
 #define LOG_LEVEL 0
@@ -42,16 +41,18 @@
 #include <iostream>
 
 /// write message msg to std::cout if x <= LOG_LEVEL
-#define LOG(x, msg) if(x <= LOG_LEVEL) std::cout << msg << std::endl;
-#define LOG3( x , msg1 , msg2 ) if(x <= LOG_LEVEL) std::cout << msg1, msg2 << std::endl;
+#define LOG(x, msg)     \
+    if (x <= LOG_LEVEL) \
+        std::cout << msg << std::endl;
+#define LOG3(x, msg1, msg2) \
+    if (x <= LOG_LEVEL)     \
+        std::cout << msg1, msg2 << std::endl;
 
 #else
 
-#define LOG( x , msg )
-#define LOG3( x , msg1 , msg2 )
+#define LOG(x, msg)
+#define LOG3(x, msg1, msg2)
 
 #endif
-
-
 
 #endif

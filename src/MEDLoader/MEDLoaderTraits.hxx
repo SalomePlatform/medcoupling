@@ -25,89 +25,89 @@
 
 namespace MEDCoupling
 {
-  template<class T>
-  struct MEDLOADER_EXPORT MLFieldTraits
-  {
+template <class T>
+struct MEDLOADER_EXPORT MLFieldTraits
+{
     typedef T EltType;
-  };
+};
 
-  class MEDFileFieldMultiTS;
-  class MEDFileField1TS;
-  class MEDFileInt32FieldMultiTS;
-  class MEDFileInt64FieldMultiTS;
-  class MEDFileInt32Field1TS;
-  class MEDFileInt64Field1TS;
-  class MEDFileFloatFieldMultiTS;
-  class MEDFileFloatField1TS;
-  class MEDFileField1TSWithoutSDA;
-  class MEDFileInt32Field1TSWithoutSDA;
-  class MEDFileInt64Field1TSWithoutSDA;
-  class MEDFileFloatField1TSWithoutSDA;
-  class MEDFileFieldMultiTSWithoutSDA;
-  class MEDFileInt32FieldMultiTSWithoutSDA;
-  class MEDFileInt64FieldMultiTSWithoutSDA;
-  class MEDFileFloatFieldMultiTSWithoutSDA;
+class MEDFileFieldMultiTS;
+class MEDFileField1TS;
+class MEDFileInt32FieldMultiTS;
+class MEDFileInt64FieldMultiTS;
+class MEDFileInt32Field1TS;
+class MEDFileInt64Field1TS;
+class MEDFileFloatFieldMultiTS;
+class MEDFileFloatField1TS;
+class MEDFileField1TSWithoutSDA;
+class MEDFileInt32Field1TSWithoutSDA;
+class MEDFileInt64Field1TSWithoutSDA;
+class MEDFileFloatField1TSWithoutSDA;
+class MEDFileFieldMultiTSWithoutSDA;
+class MEDFileInt32FieldMultiTSWithoutSDA;
+class MEDFileInt64FieldMultiTSWithoutSDA;
+class MEDFileFloatFieldMultiTSWithoutSDA;
 
-  template<>
-  struct MEDLOADER_EXPORT MLFieldTraits<double>
-  {
+template <>
+struct MEDLOADER_EXPORT MLFieldTraits<double>
+{
     typedef MEDFileFieldMultiTSWithoutSDA FMTSWSDAType;
     typedef MEDFileFieldMultiTS FMTSType;
     typedef MEDFileField1TS F1TSType;
     typedef MEDFileField1TSWithoutSDA F1TSWSDAType;
-  };
+};
 
-  template<>
-  struct MEDLOADER_EXPORT MLFieldTraits<float>
-  {
+template <>
+struct MEDLOADER_EXPORT MLFieldTraits<float>
+{
     typedef MEDFileFloatFieldMultiTSWithoutSDA FMTSWSDAType;
     typedef MEDFileFloatFieldMultiTS FMTSType;
     typedef MEDFileFloatField1TS F1TSType;
     typedef MEDFileFloatField1TSWithoutSDA F1TSWSDAType;
-  };
+};
 
-  template<>
-  struct MEDLOADER_EXPORT MLFieldTraits<Int32>
-  {
+template <>
+struct MEDLOADER_EXPORT MLFieldTraits<Int32>
+{
     typedef MEDFileInt32FieldMultiTSWithoutSDA FMTSWSDAType;
     typedef MEDFileInt32FieldMultiTS FMTSType;
     typedef MEDFileInt32Field1TS F1TSType;
     typedef MEDFileInt32Field1TSWithoutSDA F1TSWSDAType;
-  };
+};
 
-  template<>
-  struct MEDLOADER_EXPORT MLFieldTraits<Int64>
-  {
+template <>
+struct MEDLOADER_EXPORT MLFieldTraits<Int64>
+{
     typedef MEDFileInt64FieldMultiTSWithoutSDA FMTSWSDAType;
     typedef MEDFileInt64FieldMultiTS FMTSType;
     typedef MEDFileInt64Field1TS F1TSType;
     typedef MEDFileInt64Field1TSWithoutSDA F1TSWSDAType;
-  };
+};
 
-  template<class T>
-  struct MEDLOADER_EXPORT MLMeshTraits
-  {
-  };
+template <class T>
+struct MEDLOADER_EXPORT MLMeshTraits
+{
+};
 
-  class MEDFileUMesh;
-  class MEDFileCMesh;
-  class MEDFileCurveLinearMesh;
+class MEDFileUMesh;
+class MEDFileCMesh;
+class MEDFileCurveLinearMesh;
 
-  template<>
-  struct MEDLOADER_EXPORT MLMeshTraits<MEDFileUMesh>
-  {
+template <>
+struct MEDLOADER_EXPORT MLMeshTraits<MEDFileUMesh>
+{
     static const char ClassName[];
-  };
+};
 
-  template<>
-  struct MEDLOADER_EXPORT MLMeshTraits<MEDFileCMesh>
-  {
+template <>
+struct MEDLOADER_EXPORT MLMeshTraits<MEDFileCMesh>
+{
     static const char ClassName[];
-  };
+};
 
-  template<>
-  struct MEDLOADER_EXPORT MLMeshTraits<MEDFileCurveLinearMesh>
-  {
+template <>
+struct MEDLOADER_EXPORT MLMeshTraits<MEDFileCurveLinearMesh>
+{
     static const char ClassName[];
-  };
-}
+};
+}  // namespace MEDCoupling

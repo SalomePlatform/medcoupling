@@ -33,7 +33,7 @@ Le but ici est de créer un maillage ``m`` non structuré trivial qui sera envoy
 	arr.iota(0)
 	m = mc.MEDCouplingCMesh()
 	m.setCoords(arr,arr)
-	m = m.buildUnstructured()	
+	m = m.buildUnstructured()
 
 .. note:: Le maillage ``m`` est non struturé, mais s'il est cartésien ça marche aussi !
 

@@ -24,31 +24,30 @@
 
 using namespace MEDCoupling;
 
-MEDFileString::MEDFileString(int maxLgth):_max_lgth(maxLgth),_content(new char[maxLgth+1])
+MEDFileString::MEDFileString(int maxLgth) : _max_lgth(maxLgth), _content(new char[maxLgth + 1])
 {
-  std::fill(_content,_content+maxLgth+1,'\0');
+    std::fill(_content, _content + maxLgth + 1, '\0');
 }
 
-MEDFileString::~MEDFileString()
+MEDFileString::~MEDFileString() { delete[] _content; }
+
+void
+MEDFileString::clear()
 {
-  delete [] _content;
+    std::fill(_content, _content + _max_lgth + 1, '\0');
 }
 
-void MEDFileString::clear()
+void
+MEDFileString::set(const char *s)
 {
-  std::fill(_content,_content+_max_lgth+1,'\0');
+    if ((int)strlen(s) > _max_lgth)
+        throw INTERP_KERNEL::Exception("Name is too long to be stored in MEDfile !");
+    clear();
+    strcpy(_content, s);
 }
 
-void MEDFileString::set(const char *s)
+std::string
+MEDFileString::getRepr() const
 {
-  if((int)strlen(s)>_max_lgth)
-    throw INTERP_KERNEL::Exception("Name is too long to be stored in MEDfile !");
-  clear();
-  strcpy(_content,s);
+    return std::string(_content);
 }
-
-std::string MEDFileString::getRepr() const
-{
-  return std::string(_content);
-}
-

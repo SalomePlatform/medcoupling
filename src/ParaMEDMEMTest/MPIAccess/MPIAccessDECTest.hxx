@@ -30,79 +30,83 @@
 // (ABN]: too many text output in the MPIAccesTest - this renders
 // the analysis complicated:
 #define MPI_ACCESS_VERBOSE 0
-#define debugStream \
-    if (!MPI_ACCESS_VERBOSE) {} \
-    else std::cout
+#define debugStream          \
+    if (!MPI_ACCESS_VERBOSE) \
+    {                        \
+    }                        \
+    else                     \
+        std::cout
 
 class MPIAccessDECTest : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( MPIAccessDECTest );
-  //  CPPUNIT_TEST( test_AllToAllDECSynchronousPointToPoint ) ;
-  CPPUNIT_TEST( test_AllToAllDECAsynchronousPointToPoint ) ;
-  //CPPUNIT_TEST( test_AllToAllvDECSynchronousPointToPoint ) ;
-  CPPUNIT_TEST( test_AllToAllvDECAsynchronousPointToPoint ) ;
-  //CPPUNIT_TEST( test_AllToAllTimeDECSynchronousPointToPoint ) ;
-  CPPUNIT_TEST( test_AllToAllTimeDECAsynchronousPointToPoint ) ;
-  CPPUNIT_TEST( test_AllToAllvTimeDECSynchronousNative ) ;
-  //CPPUNIT_TEST( test_AllToAllvTimeDECSynchronousPointToPoint ) ;
-  CPPUNIT_TEST( test_AllToAllvTimeDECAsynchronousPointToPoint ) ;
-  //CPPUNIT_TEST( test_AllToAllvTimeDoubleDECSynchronousPointToPoint ) ;
-  CPPUNIT_TEST( test_AllToAllvTimeDoubleDECAsynchronousPointToPoint ) ;
-  CPPUNIT_TEST_SUITE_END();
+    CPPUNIT_TEST_SUITE(MPIAccessDECTest);
+    //  CPPUNIT_TEST( test_AllToAllDECSynchronousPointToPoint ) ;
+    CPPUNIT_TEST(test_AllToAllDECAsynchronousPointToPoint);
+    // CPPUNIT_TEST( test_AllToAllvDECSynchronousPointToPoint ) ;
+    CPPUNIT_TEST(test_AllToAllvDECAsynchronousPointToPoint);
+    // CPPUNIT_TEST( test_AllToAllTimeDECSynchronousPointToPoint ) ;
+    CPPUNIT_TEST(test_AllToAllTimeDECAsynchronousPointToPoint);
+    CPPUNIT_TEST(test_AllToAllvTimeDECSynchronousNative);
+    // CPPUNIT_TEST( test_AllToAllvTimeDECSynchronousPointToPoint ) ;
+    CPPUNIT_TEST(test_AllToAllvTimeDECAsynchronousPointToPoint);
+    // CPPUNIT_TEST( test_AllToAllvTimeDoubleDECSynchronousPointToPoint ) ;
+    CPPUNIT_TEST(test_AllToAllvTimeDoubleDECAsynchronousPointToPoint);
+    CPPUNIT_TEST_SUITE_END();
 
+   public:
+    MPIAccessDECTest() : CppUnit::TestFixture() {}
+    ~MPIAccessDECTest() {}
+    void setUp() {}
+    void tearDown() {}
+    void test_AllToAllDECSynchronousPointToPoint();
+    void test_AllToAllDECAsynchronousPointToPoint();
+    void test_AllToAllvDECSynchronousPointToPoint();
+    void test_AllToAllvDECAsynchronousPointToPoint();
+    void test_AllToAllTimeDECSynchronousPointToPoint();
+    void test_AllToAllTimeDECAsynchronousPointToPoint();
+    void test_AllToAllvTimeDECSynchronousNative();
+    void test_AllToAllvTimeDECSynchronousPointToPoint();
+    void test_AllToAllvTimeDECAsynchronousPointToPoint();
+    void test_AllToAllvTimeDoubleDECSynchronousPointToPoint();
+    void test_AllToAllvTimeDoubleDECAsynchronousPointToPoint();
 
-public:
-
-  MPIAccessDECTest():CppUnit::TestFixture(){}
-  ~MPIAccessDECTest(){}
-  void setUp(){}
-  void tearDown(){}
-  void test_AllToAllDECSynchronousPointToPoint() ;
-  void test_AllToAllDECAsynchronousPointToPoint() ;
-  void test_AllToAllvDECSynchronousPointToPoint() ;
-  void test_AllToAllvDECAsynchronousPointToPoint() ;
-  void test_AllToAllTimeDECSynchronousPointToPoint() ;
-  void test_AllToAllTimeDECAsynchronousPointToPoint() ;
-  void test_AllToAllvTimeDECSynchronousNative() ;
-  void test_AllToAllvTimeDECSynchronousPointToPoint() ;
-  void test_AllToAllvTimeDECAsynchronousPointToPoint() ;
-  void test_AllToAllvTimeDoubleDECSynchronousPointToPoint() ;
-  void test_AllToAllvTimeDoubleDECAsynchronousPointToPoint() ;
-
-private:
-  void test_AllToAllDEC( bool Asynchronous ) ;
-  void test_AllToAllvDEC( bool Asynchronous ) ;
-  void test_AllToAllTimeDEC( bool Asynchronous ) ;
-  void test_AllToAllvTimeDEC( bool Asynchronous , bool UseMPINative ) ;
-  void test_AllToAllvTimeDoubleDEC( bool Asynchronous ) ;
-  };
+   private:
+    void test_AllToAllDEC(bool Asynchronous);
+    void test_AllToAllvDEC(bool Asynchronous);
+    void test_AllToAllTimeDEC(bool Asynchronous);
+    void test_AllToAllvTimeDEC(bool Asynchronous, bool UseMPINative);
+    void test_AllToAllvTimeDoubleDEC(bool Asynchronous);
+};
 
 // to automatically remove temporary files from disk
 class MPIAccessDECTest_TmpFilesRemover
 {
-public:
-  MPIAccessDECTest_TmpFilesRemover() {}
-  ~MPIAccessDECTest_TmpFilesRemover();
-  bool Register(const std::string theTmpFile);
+   public:
+    MPIAccessDECTest_TmpFilesRemover() {}
+    ~MPIAccessDECTest_TmpFilesRemover();
+    bool Register(const std::string theTmpFile);
 
-private:
-  std::set<std::string> myTmpFiles;
+   private:
+    std::set<std::string> myTmpFiles;
 };
 
 /*!
  *  Tool to print array to stream.
  */
-template<class T>
-void MPIAccessDECTest_DumpArray (std::ostream & stream, const T* array, const int length, const std::string text)
+template <class T>
+void
+MPIAccessDECTest_DumpArray(std::ostream &stream, const T *array, const int length, const std::string text)
 {
-  stream << text << ": {";
-  if (length > 0) {
-    stream << array[0];
-    for (int i = 1; i < length; i++) {
-      stream << ", " << array[i];
+    stream << text << ": {";
+    if (length > 0)
+    {
+        stream << array[0];
+        for (int i = 1; i < length; i++)
+        {
+            stream << ", " << array[i];
+        }
     }
-  }
-  stream << "}" << std::endl;
+    stream << "}" << std::endl;
 };
 
 #endif

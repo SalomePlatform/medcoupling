@@ -350,4 +350,3 @@ std::map<std::string,int> MEDFileMesh::_families;
 static const char MEDFileMesh::DFT_FAM_NAME[];
 ///@}
 }
-

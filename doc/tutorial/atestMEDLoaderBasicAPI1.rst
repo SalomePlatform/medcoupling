@@ -48,4 +48,3 @@ Reading, Writing a MED file using MEDLoader basic API
 	print("Is the field read in file equals to 'f' ?", f.isEqual(f3,1e-12,1e-12))
 	f4 = mc.ReadFieldCell("MySecondField.med",f.getMesh().getName(),0,f.getName(),9,10)
 	print("Is the field read in file equals to 'f2' ?", f2.isEqual(f4,1e-12,1e-12))
-

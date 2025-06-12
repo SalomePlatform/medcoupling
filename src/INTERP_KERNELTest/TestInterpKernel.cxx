@@ -40,23 +40,23 @@ using namespace INTERP_TEST;
 
 //--- Registers the fixture into the 'registry'
 
-CPPUNIT_TEST_SUITE_REGISTRATION( BBTreeTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( ExprEvalInterpTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( QuadraticPlanarInterpTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( SingleElementPlanarTests );
-CPPUNIT_TEST_SUITE_REGISTRATION( TransformedTriangleIntersectTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( TransformedTriangleTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( UnitTetraIntersectionBaryTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( UnitTetra3D2DIntersectionTest );
+CPPUNIT_TEST_SUITE_REGISTRATION(BBTreeTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(ExprEvalInterpTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(QuadraticPlanarInterpTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(SingleElementPlanarTests);
+CPPUNIT_TEST_SUITE_REGISTRATION(TransformedTriangleIntersectTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(TransformedTriangleTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(UnitTetraIntersectionBaryTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(UnitTetra3D2DIntersectionTest);
 
 #ifndef MEDCOUPLING_MICROMED
 // These test suites need MEDLoader to load some test files:
-CPPUNIT_TEST_SUITE_REGISTRATION( InterpolationOptionsTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( SingleElementTetraTests );
-CPPUNIT_TEST_SUITE_REGISTRATION( HexaTests );
-CPPUNIT_TEST_SUITE_REGISTRATION( MultiElement2DTests );
-CPPUNIT_TEST_SUITE_REGISTRATION( MultiElementTetraTests );
-CPPUNIT_TEST_SUITE_REGISTRATION( ThreeDSurfProjectionTest );
+CPPUNIT_TEST_SUITE_REGISTRATION(InterpolationOptionsTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(SingleElementTetraTests);
+CPPUNIT_TEST_SUITE_REGISTRATION(HexaTests);
+CPPUNIT_TEST_SUITE_REGISTRATION(MultiElement2DTests);
+CPPUNIT_TEST_SUITE_REGISTRATION(MultiElementTetraTests);
+CPPUNIT_TEST_SUITE_REGISTRATION(ThreeDSurfProjectionTest);
 #endif
 // --- generic Main program from KERNEL_SRC/src/Basics/Test
 

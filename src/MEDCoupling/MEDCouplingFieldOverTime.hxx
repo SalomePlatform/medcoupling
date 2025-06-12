@@ -29,28 +29,32 @@
 
 namespace MEDCoupling
 {
-  class MEDCouplingFieldOverTime : public MEDCouplingMultiFields
-  {
-  public:
-    MEDCOUPLING_EXPORT static MEDCouplingFieldOverTime *New(const std::vector<MEDCouplingFieldDouble *>& fs);
+class MEDCouplingFieldOverTime : public MEDCouplingMultiFields
+{
+   public:
+    MEDCOUPLING_EXPORT static MEDCouplingFieldOverTime *New(const std::vector<MEDCouplingFieldDouble *> &fs);
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT double getTimeTolerance() const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
     MEDCOUPLING_EXPORT bool isEqual(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
-    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
-    //void getIdsToFetch(double time, int& fieldId, int& arrId, int& meshId) const;
-    //void setFieldOnId(int fieldId, MEDCouplingFieldDouble *f);
-    //void dispatchPointers();
+    MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(
+        const MEDCouplingMultiFields *other, double meshPrec, double valsPrec
+    ) const;
+    // void getIdsToFetch(double time, int& fieldId, int& arrId, int& meshId) const;
+    // void setFieldOnId(int fieldId, MEDCouplingFieldDouble *f);
+    // void dispatchPointers();
     MEDCOUPLING_EXPORT std::vector<MEDCouplingMesh *> getMeshes() const;
-    MEDCOUPLING_EXPORT std::vector<MEDCouplingMesh *> getDifferentMeshes(std::vector<int>& refs) const;
+    MEDCOUPLING_EXPORT std::vector<MEDCouplingMesh *> getDifferentMeshes(std::vector<int> &refs) const;
     MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> getArrays() const;
-    MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> getDifferentArrays(std::vector< std::vector<int> >& refs) const;
+    MEDCOUPLING_EXPORT std::vector<DataArrayDouble *> getDifferentArrays(std::vector<std::vector<int> > &refs) const;
     MEDCOUPLING_EXPORT MEDCouplingDefinitionTime getDefinitionTimeZone() const;
-  protected:
+
+   protected:
     MEDCOUPLING_EXPORT MEDCouplingFieldOverTime();
-  private:
-    MEDCouplingFieldOverTime(const std::vector<MEDCouplingFieldDouble *>& fs);
-  };
-}
+
+   private:
+    MEDCouplingFieldOverTime(const std::vector<MEDCouplingFieldDouble *> &fs);
+};
+}  // namespace MEDCoupling
 
 #endif

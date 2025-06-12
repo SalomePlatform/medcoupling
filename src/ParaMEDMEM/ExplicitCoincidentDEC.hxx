@@ -28,35 +28,36 @@
 
 namespace MEDCoupling
 {
-  class BlockTopology;
+class BlockTopology;
 
-  class ExplicitCoincidentDEC : public DisjointDEC
-  {
-  public:
+class ExplicitCoincidentDEC : public DisjointDEC
+{
+   public:
     ExplicitCoincidentDEC();
     virtual ~ExplicitCoincidentDEC();
     void synchronize();
-    void broadcastTopology(BlockTopology*&, int tag);
-    void broadcastTopology(const ExplicitTopology* toposend, ExplicitTopology* toporecv, int tag);
+    void broadcastTopology(BlockTopology *&, int tag);
+    void broadcastTopology(const ExplicitTopology *toposend, ExplicitTopology *toporecv, int tag);
     void transferMappingToSource();
     void prepareSourceDE();
     void prepareTargetDE();
     void recvData();
     void sendData();
-  private:
-    ExplicitTopology* _toposource;
-    ExplicitTopology* _topotarget;
-    ProcessorGroup* _targetgroup;
-    ProcessorGroup* _sourcegroup;
-    int* _sendcounts;
-    int* _recvcounts;
-    int* _senddispls;
-    int* _recvdispls;
-    double* _recvbuffer;
-    double* _sendbuffer;
-    std::map<int,std::pair<int,int> > _distant_elems;
+
+   private:
+    ExplicitTopology *_toposource;
+    ExplicitTopology *_topotarget;
+    ProcessorGroup *_targetgroup;
+    ProcessorGroup *_sourcegroup;
+    int *_sendcounts;
+    int *_recvcounts;
+    int *_senddispls;
+    int *_recvdispls;
+    double *_recvbuffer;
+    double *_sendbuffer;
+    std::map<int, std::pair<int, int> > _distant_elems;
     ExplicitMapping _explicit_mapping;
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

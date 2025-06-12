@@ -26,20 +26,33 @@
 
 namespace INTERP_KERNEL
 {
-  /*!
-   * \class CurveIntersectorInternal
-   * Class defining some functions fir internal projections
-   */
-  class CurveIntersectorInternal
-  {
-    public:
-      CurveIntersectorInternal(){};
-      ~CurveIntersectorInternal(){};
-      INTERPKERNEL_EXPORT static double InternalProjectionFrom3DTo2D(const double coordsT[6], const double coordsS[6], double tolerance, double coordsTOut[4], double coordsSOut[4]);
-      INTERPKERNEL_EXPORT static bool CurveIntersectorInternalProjectionThis2D(const double *coordsT, const double *coordsS, double tolerance, double precision, double medianLine,
-                                                                  double& xs0, double& xs1, double& xt0, double& xt1);
-      static double InternalProjectionFrom3DTo2DHelper(const std::array<double,3>& t01, double norm_t01, const std::array<double,3>& t0s0, double s0x);
-  };
-}
+/*!
+ * \class CurveIntersectorInternal
+ * Class defining some functions fir internal projections
+ */
+class CurveIntersectorInternal
+{
+   public:
+    CurveIntersectorInternal() {};
+    ~CurveIntersectorInternal() {};
+    INTERPKERNEL_EXPORT static double InternalProjectionFrom3DTo2D(
+        const double coordsT[6], const double coordsS[6], double tolerance, double coordsTOut[4], double coordsSOut[4]
+    );
+    INTERPKERNEL_EXPORT static bool CurveIntersectorInternalProjectionThis2D(
+        const double *coordsT,
+        const double *coordsS,
+        double tolerance,
+        double precision,
+        double medianLine,
+        double &xs0,
+        double &xs1,
+        double &xt0,
+        double &xt1
+    );
+    static double InternalProjectionFrom3DTo2DHelper(
+        const std::array<double, 3> &t01, double norm_t01, const std::array<double, 3> &t0s0, double s0x
+    );
+};
+}  // namespace INTERP_KERNEL
 
 #endif

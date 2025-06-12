@@ -40,54 +40,54 @@
 
 namespace INTERP_TEST
 {
-  /**
-   * \brief Specialization of MeshTestToolkit for the purposes of performance testing.
-   *
-   */
-  class PerfTestToolkit : public MeshTestToolkit<3,3>
-  {
-
-  public:
-
+/**
+ * \brief Specialization of MeshTestToolkit for the purposes of performance testing.
+ *
+ */
+class PerfTestToolkit : public MeshTestToolkit<3, 3>
+{
+   public:
     /**
      * Calculates the intersection matrix for two meshes.
      * Outputs the names of the meshes intersected, the number of elements in each mesh,
      * the number of matrix elements and the number of non-zero matrix elements, etc.
      * These values help to determine how well the filtering algorithm is working.
      *
-     * @param  mesh1path   the path to the file containing the source mesh, relative to {$MEDCOUPLING_ROOT_DIR}/share/resources/med/
+     * @param  mesh1path   the path to the file containing the source mesh, relative to
+     * {$MEDCOUPLING_ROOT_DIR}/share/resources/med/
      * @param  mesh1       the name of the source mesh
-     * @param  mesh2path   the path to the file containing the target mesh, relative to {$MEDCOUPLING_ROOT_DIR}/share/resources/med/
+     * @param  mesh2path   the path to the file containing the target mesh, relative to
+     * {$MEDCOUPLING_ROOT_DIR}/share/resources/med/
      * @param  mesh2       the name of the target mesh
      * @param  m           intersection matrix in which to store the result of the intersection
      */
-    void calcIntersectionMatrix(const char* mesh1path, const char* mesh1, const char* mesh2path, const char* mesh2, IntersectionMatrix& m)
+    void calcIntersectionMatrix(
+        const char *mesh1path, const char *mesh1, const char *mesh2path, const char *mesh2, IntersectionMatrix &m
+    )
     {
-      LOG(1, std::endl << "=== -> intersecting src = " << mesh1 << ", target = " << mesh2 );
+        LOG(1, std::endl << "=== -> intersecting src = " << mesh1 << ", target = " << mesh2);
 
-      LOG(5, "Loading " << mesh1 << " from " << mesh1path);
-      MCAuto<MEDFileUMesh> sMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh1path).c_str(),mesh1);
-      MCAuto<MEDCouplingUMesh> sMesh=sMeshML->getMeshAtLevel(0);
+        LOG(5, "Loading " << mesh1 << " from " << mesh1path);
+        MCAuto<MEDFileUMesh> sMeshML = MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh1path).c_str(), mesh1);
+        MCAuto<MEDCouplingUMesh> sMesh = sMeshML->getMeshAtLevel(0);
 
+        LOG(5, "Loading " << mesh2 << " from " << mesh2path);
+        MCAuto<MEDFileUMesh> tMeshML = MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh2path).c_str(), mesh2);
+        MCAuto<MEDCouplingUMesh> tMesh = tMeshML->getMeshAtLevel(0);
 
-      LOG(5, "Loading " << mesh2 << " from " << mesh2path);
-      MCAuto<MEDFileUMesh> tMeshML=MEDFileUMesh::New(INTERP_TEST::getResourceFile(mesh2path).c_str(),mesh2);
-      MCAuto<MEDCouplingUMesh> tMesh=tMeshML->getMeshAtLevel(0);
+        MEDCouplingNormalizedUnstructuredMesh<3, 3> sMesh_wrapper(sMesh);
+        MEDCouplingNormalizedUnstructuredMesh<3, 3> tMesh_wrapper(tMesh);
 
-      MEDCouplingNormalizedUnstructuredMesh<3,3> sMesh_wrapper(sMesh);
-      MEDCouplingNormalizedUnstructuredMesh<3,3> tMesh_wrapper(tMesh);
+        Interpolation3D interpolator;
+        interpolator.interpolateMeshes(sMesh_wrapper, tMesh_wrapper, m, "P0P0");
 
-      Interpolation3D interpolator;
-      interpolator.interpolateMeshes(sMesh_wrapper, tMesh_wrapper,m,"P0P0");
+        //      std::pair<int, int> eff = countNumberOfMatrixEntries(m);
+        //      LOG(1, eff.first << " of " << numTargetElems * numSrcElems << " intersections calculated : ratio = "
+        //          << double(eff.first) / double(numTargetElems * numSrcElems));
+        //      LOG(1, eff.second << " non-zero elements of " << eff.first << " total : filter efficiency = "
+        //          << double(eff.second) / double(eff.first));
 
-//      std::pair<int, int> eff = countNumberOfMatrixEntries(m);
-//      LOG(1, eff.first << " of " << numTargetElems * numSrcElems << " intersections calculated : ratio = "
-//          << double(eff.first) / double(numTargetElems * numSrcElems));
-//      LOG(1, eff.second << " non-zero elements of " << eff.first << " total : filter efficiency = "
-//          << double(eff.second) / double(eff.first));
-
-      LOG(1, "Intersection calculation done. " << std::endl );
-
+        LOG(1, "Intersection calculation done. " << std::endl);
     }
 
     /**
@@ -97,27 +97,25 @@ namespace INTERP_TEST
      * @return  pair<int, int> containing as its first element the number of elements in m and as its second element the
      *                         number these which are non-zero
      */
-    std::pair<int,int> countNumberOfMatrixEntries(const IntersectionMatrix& m)
+    std::pair<int, int> countNumberOfMatrixEntries(const IntersectionMatrix &m)
     {
-
-      int numElems = 0;
-      int numNonZero = 0;
-      for(IntersectionMatrix::const_iterator iter = m.begin() ; iter != m.end() ; ++iter)
+        int numElems = 0;
+        int numNonZero = 0;
+        for (IntersectionMatrix::const_iterator iter = m.begin(); iter != m.end(); ++iter)
         {
-          numElems += iter->size();
-          for(std::map<mcIdType, double>::const_iterator iter2 = iter->begin() ; iter2 != iter->end() ; ++iter2)
+            numElems += iter->size();
+            for (std::map<mcIdType, double>::const_iterator iter2 = iter->begin(); iter2 != iter->end(); ++iter2)
             {
-              if(!INTERP_KERNEL::epsilonEqual(iter2->second, 0.0, VOL_PREC))
+                if (!INTERP_KERNEL::epsilonEqual(iter2->second, 0.0, VOL_PREC))
                 {
-                  ++numNonZero;
+                    ++numNonZero;
                 }
             }
         }
-      return std::make_pair(numElems, numNonZero);
+        return std::make_pair(numElems, numNonZero);
     }
-
-  };
-}
+};
+}  // namespace INTERP_TEST
 
 /**
  * Main method of the program.
@@ -127,28 +125,27 @@ namespace INTERP_TEST
  * @param argc  number of arguments given to the program (should be 3, the user giving 2 mesh names)
  * @param argv  vector to the arguments as strings.
  */
-int main(int argc, char** argv)
+int
+main(int argc, char **argv)
 {
-  using INTERP_TEST::PerfTestToolkit;
+    using INTERP_TEST::PerfTestToolkit;
 
-  assert(argc == 3);
+    assert(argc == 3);
 
-  // load meshes
-  const std::string mesh1 = argv[1];
-  const std::string mesh2 = argv[2];
+    // load meshes
+    const std::string mesh1 = argv[1];
+    const std::string mesh2 = argv[2];
 
-  const std::string mesh1path = mesh1 + ".med";
-  const std::string mesh2path = mesh2 + ".med";
+    const std::string mesh1path = mesh1 + ".med";
+    const std::string mesh2path = mesh2 + ".med";
 
-  IntersectionMatrix m;
+    IntersectionMatrix m;
 
-  PerfTestToolkit testTools;
+    PerfTestToolkit testTools;
 
-  testTools.calcIntersectionMatrix(mesh1path.c_str(), mesh1.c_str(), mesh2path.c_str(), mesh2.c_str(), m);
+    testTools.calcIntersectionMatrix(mesh1path.c_str(), mesh1.c_str(), mesh2path.c_str(), mesh2.c_str(), m);
 
-  testTools.dumpIntersectionMatrix(m);
+    testTools.dumpIntersectionMatrix(m);
 
-  return 0;
-
+    return 0;
 }
-

@@ -25,68 +25,67 @@
 
 namespace INTERP_TEST
 {
-  /**
-   * \brief Class testing algorithm by intersecting simple meshes having only one planar element each.
-   * This serves mainly to verify that the volume calculations between elements is correct.
-   *
-   */
-  class INTERPKERNELTEST_EXPORT SingleElementPlanarTests : public InterpolationPlanarTestSuite
-  {
-    CPPUNIT_TEST_SUITE( SingleElementPlanarTests );
+/**
+ * \brief Class testing algorithm by intersecting simple meshes having only one planar element each.
+ * This serves mainly to verify that the volume calculations between elements is correct.
+ *
+ */
+class INTERPKERNELTEST_EXPORT SingleElementPlanarTests : public InterpolationPlanarTestSuite
+{
+    CPPUNIT_TEST_SUITE(SingleElementPlanarTests);
 
-    CPPUNIT_TEST( diamondsBasic );
-    CPPUNIT_TEST( tangentDiamonds );
-    CPPUNIT_TEST( tangentSquares );
-    CPPUNIT_TEST( diamondsSharingVertex1 );
-    CPPUNIT_TEST( identicalSquares );
-    CPPUNIT_TEST( squareAndDiamondBasic );
-    CPPUNIT_TEST( squareAndDiamondCritical );
-    CPPUNIT_TEST( diamondsCritical );
-    CPPUNIT_TEST( quadranglesCritical );
-    CPPUNIT_TEST( quadrangleAndDiamondCritical );
-    CPPUNIT_TEST( diamondsCritical2 );
-    CPPUNIT_TEST( hexagonsCritical1 );
-    CPPUNIT_TEST( hexagonsCritical2 );
-    CPPUNIT_TEST( squareAndQuadrangleCritical );
-    CPPUNIT_TEST( diamondsSharingVertex2 );
-    CPPUNIT_TEST( triangleAndDiamondCritical );
-    CPPUNIT_TEST( triangleAndSquareBasic );
-    CPPUNIT_TEST( trianglesCritical );
-    CPPUNIT_TEST( paralellogramsCritical1 );
-    CPPUNIT_TEST( paralellogramsCritical2 );
-    CPPUNIT_TEST( trianglesTangencyCritical );
-    CPPUNIT_TEST( trianglesTangencyCritical2 );
-    CPPUNIT_TEST( trianglesTangencyCritical3 );
-    CPPUNIT_TEST( trianglesTangencyCritical4 );
-    CPPUNIT_TEST( diamondsBasic_Triangulation );
-    CPPUNIT_TEST( tangentDiamonds_Triangulation );
-    CPPUNIT_TEST( tangentSquares_Triangulation );
-    CPPUNIT_TEST( diamondsSharingVertex1_Triangulation );
-    CPPUNIT_TEST( identicalSquares_Triangulation );
-    //CPPUNIT_TEST( squareAndDiamondBasic_Triangulation );
-    //CPPUNIT_TEST( squareAndDiamondCritical_Triangulation );
-    CPPUNIT_TEST( diamondsCritical_Triangulation );
-    CPPUNIT_TEST( quadranglesCritical_Triangulation );
-    CPPUNIT_TEST( quadrangleAndDiamondCritical_Triangulation );
-    CPPUNIT_TEST( diamondsCritical2_Triangulation );
-    CPPUNIT_TEST( hexagonsCritical1_Triangulation );
-    CPPUNIT_TEST( hexagonsCritical2_Triangulation );
-    CPPUNIT_TEST( squareAndQuadrangleCritical_Triangulation );
-    CPPUNIT_TEST( diamondsSharingVertex2_Triangulation );
-    CPPUNIT_TEST( triangleAndDiamondCritical_Triangulation );
-    CPPUNIT_TEST( triangleAndSquareBasic_Triangulation );
-    CPPUNIT_TEST( trianglesCritical_Triangulation );
-    CPPUNIT_TEST( paralellogramsCritical1_Triangulation );
-    CPPUNIT_TEST( paralellogramsCritical2_Triangulation );
-    CPPUNIT_TEST( trianglesTangencyCritical_Triangulation );
-    CPPUNIT_TEST( trianglesTangencyCritical2_Triangulation );
-    CPPUNIT_TEST( trianglesTangencyCritical3_Triangulation );
-    CPPUNIT_TEST( trianglesTangencyCritical4_Triangulation );
+    CPPUNIT_TEST(diamondsBasic);
+    CPPUNIT_TEST(tangentDiamonds);
+    CPPUNIT_TEST(tangentSquares);
+    CPPUNIT_TEST(diamondsSharingVertex1);
+    CPPUNIT_TEST(identicalSquares);
+    CPPUNIT_TEST(squareAndDiamondBasic);
+    CPPUNIT_TEST(squareAndDiamondCritical);
+    CPPUNIT_TEST(diamondsCritical);
+    CPPUNIT_TEST(quadranglesCritical);
+    CPPUNIT_TEST(quadrangleAndDiamondCritical);
+    CPPUNIT_TEST(diamondsCritical2);
+    CPPUNIT_TEST(hexagonsCritical1);
+    CPPUNIT_TEST(hexagonsCritical2);
+    CPPUNIT_TEST(squareAndQuadrangleCritical);
+    CPPUNIT_TEST(diamondsSharingVertex2);
+    CPPUNIT_TEST(triangleAndDiamondCritical);
+    CPPUNIT_TEST(triangleAndSquareBasic);
+    CPPUNIT_TEST(trianglesCritical);
+    CPPUNIT_TEST(paralellogramsCritical1);
+    CPPUNIT_TEST(paralellogramsCritical2);
+    CPPUNIT_TEST(trianglesTangencyCritical);
+    CPPUNIT_TEST(trianglesTangencyCritical2);
+    CPPUNIT_TEST(trianglesTangencyCritical3);
+    CPPUNIT_TEST(trianglesTangencyCritical4);
+    CPPUNIT_TEST(diamondsBasic_Triangulation);
+    CPPUNIT_TEST(tangentDiamonds_Triangulation);
+    CPPUNIT_TEST(tangentSquares_Triangulation);
+    CPPUNIT_TEST(diamondsSharingVertex1_Triangulation);
+    CPPUNIT_TEST(identicalSquares_Triangulation);
+    // CPPUNIT_TEST( squareAndDiamondBasic_Triangulation );
+    // CPPUNIT_TEST( squareAndDiamondCritical_Triangulation );
+    CPPUNIT_TEST(diamondsCritical_Triangulation);
+    CPPUNIT_TEST(quadranglesCritical_Triangulation);
+    CPPUNIT_TEST(quadrangleAndDiamondCritical_Triangulation);
+    CPPUNIT_TEST(diamondsCritical2_Triangulation);
+    CPPUNIT_TEST(hexagonsCritical1_Triangulation);
+    CPPUNIT_TEST(hexagonsCritical2_Triangulation);
+    CPPUNIT_TEST(squareAndQuadrangleCritical_Triangulation);
+    CPPUNIT_TEST(diamondsSharingVertex2_Triangulation);
+    CPPUNIT_TEST(triangleAndDiamondCritical_Triangulation);
+    CPPUNIT_TEST(triangleAndSquareBasic_Triangulation);
+    CPPUNIT_TEST(trianglesCritical_Triangulation);
+    CPPUNIT_TEST(paralellogramsCritical1_Triangulation);
+    CPPUNIT_TEST(paralellogramsCritical2_Triangulation);
+    CPPUNIT_TEST(trianglesTangencyCritical_Triangulation);
+    CPPUNIT_TEST(trianglesTangencyCritical2_Triangulation);
+    CPPUNIT_TEST(trianglesTangencyCritical3_Triangulation);
+    CPPUNIT_TEST(trianglesTangencyCritical4_Triangulation);
 
     CPPUNIT_TEST_SUITE_END();
 
-  public:
-
+   public:
     void diamondsBasic();
     void tangentDiamonds();
     void tangentSquares();
@@ -135,6 +134,6 @@ namespace INTERP_TEST
     void trianglesTangencyCritical2_Triangulation();
     void trianglesTangencyCritical3_Triangulation();
     void trianglesTangencyCritical4_Triangulation();
-  };
-}
+};
+}  // namespace INTERP_TEST
 #endif

@@ -26,106 +26,114 @@
 #include <cstring>
 #include <iostream>
 
-const char MEDLoaderBase::WHITE_SPACES[]=" \n";
+const char MEDLoaderBase::WHITE_SPACES[] = " \n";
 
-int MEDLoaderBase::getStatusOfFile(const std::string& fileName)
+int
+MEDLoaderBase::getStatusOfFile(const std::string &fileName)
 {
-  std::ifstream ifs;
-  ifs.open(fileName.c_str());
-  if((ifs.rdstate() & std::ifstream::failbit)!=0)
+    std::ifstream ifs;
+    ifs.open(fileName.c_str());
+    if ((ifs.rdstate() & std::ifstream::failbit) != 0)
     {
-      ifs.close();
-      return NOT_EXIST;
+        ifs.close();
+        return NOT_EXIST;
     }
-  std::ofstream ofs(fileName.c_str(),std::ios_base::app);
-  if((ofs.rdstate() & std::ofstream::failbit)!=0)
+    std::ofstream ofs(fileName.c_str(), std::ios_base::app);
+    if ((ofs.rdstate() & std::ofstream::failbit) != 0)
     {
-      return EXIST_RDONLY;
+        return EXIST_RDONLY;
     }
-  return EXIST_RW;
+    return EXIST_RW;
 }
 
-char *MEDLoaderBase::buildEmptyString(std::size_t lgth)
+char *
+MEDLoaderBase::buildEmptyString(std::size_t lgth)
 {
-  char *ret=new char[lgth+1];
-  std::fill(ret,ret+lgth,' ');
-  ret[lgth]='\0';
-  return ret;
+    char *ret = new char[lgth + 1];
+    std::fill(ret, ret + lgth, ' ');
+    ret[lgth] = '\0';
+    return ret;
 }
 
-void MEDLoaderBase::getDirAndBaseName(const std::string& fullName, std::string& dirName, std::string& baseName)
+void
+MEDLoaderBase::getDirAndBaseName(const std::string &fullName, std::string &dirName, std::string &baseName)
 {
-  std::size_t pos=fullName.find_last_of(getPathSep());
-  if(pos!=std::string::npos)
+    std::size_t pos = fullName.find_last_of(getPathSep());
+    if (pos != std::string::npos)
     {
-      dirName=fullName.substr(0,pos);
-      baseName=fullName.substr(pos+1);
+        dirName = fullName.substr(0, pos);
+        baseName = fullName.substr(pos + 1);
     }
-  else
+    else
     {
-      dirName.clear();
-      baseName=fullName;
+        dirName.clear();
+        baseName = fullName;
     }
 }
 
-std::string MEDLoaderBase::joinPath(const std::string& dirName, const std::string& baseName)
+std::string
+MEDLoaderBase::joinPath(const std::string &dirName, const std::string &baseName)
 {
-  if(!dirName.empty())
-    return dirName+getPathSep()+baseName;
-  else
-    return baseName;
+    if (!dirName.empty())
+        return dirName + getPathSep() + baseName;
+    else
+        return baseName;
 }
 
-std::string MEDLoaderBase::getPathSep()
+std::string
+MEDLoaderBase::getPathSep()
 {
 #ifndef WIN32
-  return std::string("/");
+    return std::string("/");
 #else
-  return std::string("\\");
+    return std::string("\\");
 #endif
 }
 
-std::string MEDLoaderBase::buildUnionUnit(const char *name, int nameLgth, const char *unit, int unitLgth)
+std::string
+MEDLoaderBase::buildUnionUnit(const char *name, int nameLgth, const char *unit, int unitLgth)
 {
-  std::string ret(buildStringFromFortran(name,nameLgth));
-  std::string unitCpp(buildStringFromFortran(unit,unitLgth));
-  if(unitCpp.empty() || unitCpp[0]=='\0')
+    std::string ret(buildStringFromFortran(name, nameLgth));
+    std::string unitCpp(buildStringFromFortran(unit, unitLgth));
+    if (unitCpp.empty() || unitCpp[0] == '\0')
+        return ret;
+    ret += " [";
+    ret += unitCpp;
+    ret += "]";
     return ret;
-  ret+=" [";
-  ret+=unitCpp;
-  ret+="]";
-  return ret;
 }
 
-void MEDLoaderBase::splitIntoNameAndUnit(const std::string& s, std::string& name, std::string& unit)
+void
+MEDLoaderBase::splitIntoNameAndUnit(const std::string &s, std::string &name, std::string &unit)
 {
-  std::string::size_type f1=s.find_first_of('[');
-  std::string::size_type f2=s.find_last_of(']');
-  if(f1!=std::string::npos && f2!=std::string::npos)
+    std::string::size_type f1 = s.find_first_of('[');
+    std::string::size_type f2 = s.find_last_of(']');
+    if (f1 != std::string::npos && f2 != std::string::npos)
     {
-      if(f1<f2)
+        if (f1 < f2)
         {
-          name=s.substr(0,f1);
-          unit=s.substr(f1+1,f2-f1-1);
-          strip(name);
-          strip(unit);
-          return;
+            name = s.substr(0, f1);
+            unit = s.substr(f1 + 1, f2 - f1 - 1);
+            strip(name);
+            strip(unit);
+            return;
         }
     }
-  name=s;
-  unit="";
+    name = s;
+    unit = "";
 }
 
-void MEDLoaderBase::strip(std::string& s)
+void
+MEDLoaderBase::strip(std::string &s)
 {
-  std::string::size_type f1=s.find_first_not_of(' ');
-  if(f1==std::string::npos)
+    std::string::size_type f1 = s.find_first_not_of(' ');
+    if (f1 == std::string::npos)
     {
-      s="";
-      return ;
+        s = "";
+        return;
     }
-  std::string::size_type f2=s.find_last_not_of(' ');
-  s=s.substr(f1,f2-f1+1);
+    std::string::size_type f2 = s.find_last_not_of(' ');
+    s = s.substr(f1, f2 - f1 + 1);
 }
 
 /*!
@@ -134,88 +142,98 @@ void MEDLoaderBase::strip(std::string& s)
  * If 'behaviour' equals 0 an exception is thrown. If 'behaviour' equals 1 an attempt of zipping of string will be done
  * ( see zipString to have more details).
  */
-void MEDLoaderBase::safeStrCpy(const char *src, int maxLgth, char *dest, int behaviour)
+void
+MEDLoaderBase::safeStrCpy(const char *src, int maxLgth, char *dest, int behaviour)
 {
-  if((int)strlen(src)>maxLgth)
+    if ((int)strlen(src) > maxLgth)
     {
-      if(behaviour==0 || behaviour>1)
+        if (behaviour == 0 || behaviour > 1)
         {
-          std::ostringstream oss; oss << "A string : \"" << src << "\" has been detected to be too long for MED File ( > " << maxLgth << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+            std::ostringstream oss;
+            oss << "A string : \"" << src << "\" has been detected to be too long for MED File ( > " << maxLgth
+                << ") !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
-      else if(behaviour==1)
+        else if (behaviour == 1)
         {
-          std::string s=zipString(src,maxLgth);
-          std::cerr << "A string : \"" << src << "\" has been detected to be too long for MED File ( > " << maxLgth << ") : ";
-          std::cerr << "zipping to : " << s << "\n";
-          strcpy(dest,s.c_str());
-          return ;
+            std::string s = zipString(src, maxLgth);
+            std::cerr << "A string : \"" << src << "\" has been detected to be too long for MED File ( > " << maxLgth
+                      << ") : ";
+            std::cerr << "zipping to : " << s << "\n";
+            strcpy(dest, s.c_str());
+            return;
         }
     }
-  strcpy(dest,src);
+    strcpy(dest, src);
 }
 
 /*!
  * This method is equivalent to MEDLoaderBase::safeStrCpy except that here no '\0' car is put.
  * This method should be used for multi string in one string.
  */
-void MEDLoaderBase::safeStrCpy2(const char *src, int maxLgth, char *dest, int behaviour)
+void
+MEDLoaderBase::safeStrCpy2(const char *src, int maxLgth, char *dest, int behaviour)
 {
-  if((int)strlen(src)>maxLgth)
+    if ((int)strlen(src) > maxLgth)
     {
-      if(behaviour==0 || behaviour>1)
+        if (behaviour == 0 || behaviour > 1)
         {
-          std::ostringstream oss; oss << "A string : \"" << src << "\" has been detected to be too long for MED File ( > " << maxLgth << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+            std::ostringstream oss;
+            oss << "A string : \"" << src << "\" has been detected to be too long for MED File ( > " << maxLgth
+                << ") !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
-      else if(behaviour==1)
+        else if (behaviour == 1)
         {
-          std::string s=zipString(src,maxLgth);
-          std::cerr << "A string : \"" << src << "\" has been detected to be too long for MED File ( > " << maxLgth << ") : ";
-          std::cerr << "zipping to : " << s << "\n";
-          strcpy(dest,s.c_str());
-          return ;
+            std::string s = zipString(src, maxLgth);
+            std::cerr << "A string : \"" << src << "\" has been detected to be too long for MED File ( > " << maxLgth
+                      << ") : ";
+            std::cerr << "zipping to : " << s << "\n";
+            strcpy(dest, s.c_str());
+            return;
         }
     }
-  std::size_t n(strlen(src));
-  std::fill(dest,dest+maxLgth,' ');
-  strncpy(dest,src,n);
+    std::size_t n(strlen(src));
+    std::fill(dest, dest + maxLgth, ' ');
+    strncpy(dest, src, n);
 }
 
-std::string MEDLoaderBase::buildStringFromFortran(const char *expr, int lgth)
+std::string
+MEDLoaderBase::buildStringFromFortran(const char *expr, int lgth)
 {
-  std::string ret(expr,lgth);
-  std::string whiteSpaces(WHITE_SPACES);
-  std::size_t lgthReal=strlen(ret.c_str());
-  std::string ret2=ret.substr(0,lgthReal);
-  std::size_t found=ret2.find_last_not_of(whiteSpaces);
-  if (found!=std::string::npos)
-    ret2.erase(found+1);
-  else
-    ret2.clear();//ret is all whitespace
-  return ret2;
+    std::string ret(expr, lgth);
+    std::string whiteSpaces(WHITE_SPACES);
+    std::size_t lgthReal = strlen(ret.c_str());
+    std::string ret2 = ret.substr(0, lgthReal);
+    std::size_t found = ret2.find_last_not_of(whiteSpaces);
+    if (found != std::string::npos)
+        ret2.erase(found + 1);
+    else
+        ret2.clear();  // ret is all whitespace
+    return ret2;
 }
 
 /*!
  * This method given the target size to respect 'sizeToRespect' tries to reduce size of 'src' string.
  * This method uses several soft methods to do its job. But if it fails a simple cut of string will be performed.
  */
-std::string MEDLoaderBase::zipString(const std::string& src, int sizeToRespect)
+std::string
+MEDLoaderBase::zipString(const std::string &src, int sizeToRespect)
 {
-  std::string s(src);
-  strip(s);
-  if((int)s.length()<=sizeToRespect)
-    return s;
-  s=src;
-  zipEqualConsChar(s,3);
-  if((int)s.length()<=sizeToRespect)
-    return s;
-  s=src;
-  zipEqualConsChar(s,2);
-  if((int)s.length()<=sizeToRespect)
-    return s;
-  s=src;
-  return s.substr(0,sizeToRespect);
+    std::string s(src);
+    strip(s);
+    if ((int)s.length() <= sizeToRespect)
+        return s;
+    s = src;
+    zipEqualConsChar(s, 3);
+    if ((int)s.length() <= sizeToRespect)
+        return s;
+    s = src;
+    zipEqualConsChar(s, 2);
+    if ((int)s.length() <= sizeToRespect)
+        return s;
+    s = src;
+    return s.substr(0, sizeToRespect);
 }
 
 /*!
@@ -223,16 +241,15 @@ std::string MEDLoaderBase::zipString(const std::string& src, int sizeToRespect)
  * If yes, the group will be zipped using only one character for this group.
  * If no such group is found, s remains unchanged.
  */
-void MEDLoaderBase::zipEqualConsChar(std::string& s, int minConsSmChar)
+void
+MEDLoaderBase::zipEqualConsChar(std::string &s, int minConsSmChar)
 {
-  for(std::string::iterator it=s.begin();it!=s.end();it++)
+    for (std::string::iterator it = s.begin(); it != s.end(); it++)
     {
-      char tmp=*it;
-      int sz=1;
-      for(std::string::iterator it2=it+1;it2!=s.end() && *it2==tmp;it2++)
-        sz++;
-      if(sz>=minConsSmChar)
-        s.erase(it+1,it+sz);
+        char tmp = *it;
+        int sz = 1;
+        for (std::string::iterator it2 = it + 1; it2 != s.end() && *it2 == tmp; it2++) sz++;
+        if (sz >= minConsSmChar)
+            s.erase(it + 1, it + sz);
     }
 }
-

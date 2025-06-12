@@ -31,27 +31,32 @@ namespace INTERP_KERNEL
 {
 template <class MyMeshType, int dim = 3>
 BBTreeStandAlone<dim, typename MyMeshType::MyConnType>
-BuildBBTreeWithAdjustment(const MyMeshType &srcMesh, std::function<void(double *, typename MyMeshType::MyConnType)> bboxAdjuster) {
-  using ConnType = typename MyMeshType::MyConnType;
-  const ConnType numSrcElems = srcMesh.getNumberOfElements();
-  LOG(2, "Source mesh has " << numSrcElems << " elements");
-  // create BBTree structure
-  // - get bounding boxes
-  const ConnType nbElts = 2 * dim * numSrcElems;
-  std::unique_ptr<double[]> bboxes(new double[nbElts]);
-  for (ConnType i = 0; i < numSrcElems; ++i) {
-    MeshElementT<ConnType,dim> srcElem(i, srcMesh);
-    // get source bboxes in right order
-    const BoundingBoxT<dim> *box(srcElem.getBoundingBox());
-    box->fillInXMinXmaxYminYmaxZminZmaxFormat(bboxes.get() + 2 * dim * i);
-  }
-  bboxAdjuster(bboxes.get(), nbElts);
-  return BBTreeStandAlone<dim, ConnType>(std::move(bboxes), numSrcElems);
+BuildBBTreeWithAdjustment(
+    const MyMeshType &srcMesh, std::function<void(double *, typename MyMeshType::MyConnType)> bboxAdjuster
+)
+{
+    using ConnType = typename MyMeshType::MyConnType;
+    const ConnType numSrcElems = srcMesh.getNumberOfElements();
+    LOG(2, "Source mesh has " << numSrcElems << " elements");
+    // create BBTree structure
+    // - get bounding boxes
+    const ConnType nbElts = 2 * dim * numSrcElems;
+    std::unique_ptr<double[]> bboxes(new double[nbElts]);
+    for (ConnType i = 0; i < numSrcElems; ++i)
+    {
+        MeshElementT<ConnType, dim> srcElem(i, srcMesh);
+        // get source bboxes in right order
+        const BoundingBoxT<dim> *box(srcElem.getBoundingBox());
+        box->fillInXMinXmaxYminYmaxZminZmaxFormat(bboxes.get() + 2 * dim * i);
+    }
+    bboxAdjuster(bboxes.get(), nbElts);
+    return BBTreeStandAlone<dim, ConnType>(std::move(bboxes), numSrcElems);
 }
 
 template <class MyMeshType, int dim = 3>
 BBTreeStandAlone<dim, typename MyMeshType::MyConnType>
-BuildBBTree(const MyMeshType &srcMesh) {
-  return BuildBBTreeWithAdjustment<MyMeshType, dim>(srcMesh, [](double *, typename MyMeshType::MyConnType) {});
+BuildBBTree(const MyMeshType &srcMesh)
+{
+    return BuildBBTreeWithAdjustment<MyMeshType, dim>(srcMesh, [](double *, typename MyMeshType::MyConnType) {});
 }
-}
+}  // namespace INTERP_KERNEL

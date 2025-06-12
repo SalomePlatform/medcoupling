@@ -29,42 +29,70 @@
 
 namespace MEDCoupling
 {
-  class MEDFileData;
-  class DataArrayInt;
-}
+class MEDFileData;
+class DataArrayInt;
+}  // namespace MEDCoupling
 
 namespace MEDPARTITIONER
 {
-  class Topology;
-  class MeshCollection;
+class Topology;
+class MeshCollection;
 
-  class MEDPARTITIONER_EXPORT MEDPartitioner
-  {
-  public:
-    MEDPartitioner(const std::string& filename, int ndomains=1, const std::string& library="metis",bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false);
-    MEDPartitioner(const MEDCoupling::MEDFileData* fileData, int ndomains=1, const std::string& library="metis",bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false);
-    MEDPartitioner(const MEDCoupling::MEDFileData* fileData, Graph* graph, bool create_boundary_faces=false, bool create_joints=false, bool mesure_memory=false);
-    static MEDPARTITIONER::Graph* Graph(MEDCoupling::MEDCouplingSkyLineArray* graph, Graph::splitter_type split=Graph::METIS, int* edgeweight=0, DataArrayIdType* vlbloctab=0);
+class MEDPARTITIONER_EXPORT MEDPartitioner
+{
+   public:
+    MEDPartitioner(
+        const std::string &filename,
+        int ndomains = 1,
+        const std::string &library = "metis",
+        bool create_boundary_faces = false,
+        bool create_joints = false,
+        bool mesure_memory = false
+    );
+    MEDPartitioner(
+        const MEDCoupling::MEDFileData *fileData,
+        int ndomains = 1,
+        const std::string &library = "metis",
+        bool create_boundary_faces = false,
+        bool create_joints = false,
+        bool mesure_memory = false
+    );
+    MEDPartitioner(
+        const MEDCoupling::MEDFileData *fileData,
+        Graph *graph,
+        bool create_boundary_faces = false,
+        bool create_joints = false,
+        bool mesure_memory = false
+    );
+    static MEDPARTITIONER::Graph *Graph(
+        MEDCoupling::MEDCouplingSkyLineArray *graph,
+        Graph::splitter_type split = Graph::METIS,
+        int *edgeweight = 0,
+        DataArrayIdType *vlbloctab = 0
+    );
     static std::vector<std::string> AvailableAlgorithms();
     static std::vector<std::string> AllAlgorithms();
     static bool HasMetisAlg();
     static bool HasScotchAlg();
     static bool HasPTScotchAlg();
-    void write(const std::string& filename);
-    MEDCoupling::MEDFileData* getMEDFileData();
+    void write(const std::string &filename);
+    MEDCoupling::MEDFileData *getMEDFileData();
     ~MEDPartitioner();
 
-    MEDCoupling::MEDFileData *convertToMEDFileData(MeshCollection* meshcollection);
-    void createPartitionCollection(int ndomains, const std::string& library,bool create_boundary_faces, bool create_joints, bool mesure_memory);
+    MEDCoupling::MEDFileData *convertToMEDFileData(MeshCollection *meshcollection);
+    void createPartitionCollection(
+        int ndomains, const std::string &library, bool create_boundary_faces, bool create_joints, bool mesure_memory
+    );
 
-  private:
-    MeshCollection* _input_collection;
-    MeshCollection* _output_collection;
-    Topology*       _new_topology;
-  public:
+   private:
+    MeshCollection *_input_collection;
+    MeshCollection *_output_collection;
+    Topology *_new_topology;
+
+   public:
     static const char METIS_PART_ALG[];
     static const char SCOTCH_PART_ALG[];
     static const char PTSCOTCH_PART_ALG[];
-  };
-}
+};
+}  // namespace MEDPARTITIONER
 #endif

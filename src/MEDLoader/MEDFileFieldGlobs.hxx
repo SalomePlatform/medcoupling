@@ -31,89 +31,97 @@
 
 namespace MEDCoupling
 {
-  class MEDFileFieldGlobsReal;
-  class MEDFileEntities;
-  class MEDFileWritable;
-  class MEDFileFieldLoc;
+class MEDFileFieldGlobsReal;
+class MEDFileEntities;
+class MEDFileWritable;
+class MEDFileFieldLoc;
 
-  class MEDFileFieldGlobs : public RefCountObject
-  {
-  public:
+class MEDFileFieldGlobs : public RefCountObject
+{
+   public:
     static MEDFileFieldGlobs *New(med_idt fid);
     static MEDFileFieldGlobs *New();
     std::string getClassName() const override { return std::string("MEDFileFieldGlobs"); }
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDFileFieldGlobs *deepCopy() const;
-    MEDFileFieldGlobs *shallowCpyPart(const std::vector<std::string>& pfls, const std::vector<std::string>& locs) const;
-    MEDFileFieldGlobs *deepCpyPart(const std::vector<std::string>& pfls, const std::vector<std::string>& locs) const;
-    void simpleRepr(std::ostream& oss) const;
-    void appendGlobs(const MEDFileFieldGlobs& other, double eps);
-    void checkGlobsPflsPartCoherency(const std::vector<std::string>& pflsUsed) const;
-    void checkGlobsLocsPartCoherency(const std::vector<std::string>& locsUsed) const;
-    void loadProfileInFile(med_idt fid, int id, const std::string& pflName);
+    MEDFileFieldGlobs *shallowCpyPart(const std::vector<std::string> &pfls, const std::vector<std::string> &locs) const;
+    MEDFileFieldGlobs *deepCpyPart(const std::vector<std::string> &pfls, const std::vector<std::string> &locs) const;
+    void simpleRepr(std::ostream &oss) const;
+    void appendGlobs(const MEDFileFieldGlobs &other, double eps);
+    void checkGlobsPflsPartCoherency(const std::vector<std::string> &pflsUsed) const;
+    void checkGlobsLocsPartCoherency(const std::vector<std::string> &locsUsed) const;
+    void loadProfileInFile(med_idt fid, int id, const std::string &pflName);
     void loadProfileInFile(med_idt fid, int id);
-    void loadGlobals(med_idt fid, const MEDFileFieldGlobsReal& real);
+    void loadGlobals(med_idt fid, const MEDFileFieldGlobsReal &real);
     void loadAllGlobals(med_idt fid, const MEDFileEntities *entities);
-    void writeGlobals(med_idt fid, const MEDFileWritable& opt) const;
+    void writeGlobals(med_idt fid, const MEDFileWritable &opt) const;
     std::vector<std::string> getPfls() const;
     std::vector<std::string> getLocs() const;
-    bool existsPfl(const std::string& pflName) const;
-    bool existsLoc(const std::string& locName) const;
+    bool existsPfl(const std::string &pflName) const;
+    bool existsLoc(const std::string &locName) const;
     std::string createNewNameOfPfl() const;
     std::string createNewNameOfLoc() const;
-    std::vector< std::vector<int> > whichAreEqualProfiles() const;
-    std::vector< std::vector<int> > whichAreEqualLocs(double eps) const;
-    void setFileName(const std::string& fileName) { _file_name=fileName; }
-    void changePflsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif);
-    void changeLocsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif);
+    std::vector<std::vector<int> > whichAreEqualProfiles() const;
+    std::vector<std::vector<int> > whichAreEqualLocs(double eps) const;
+    void setFileName(const std::string &fileName) { _file_name = fileName; }
+    void changePflsNamesInStruct(const std::vector<std::pair<std::vector<std::string>, std::string> > &mapOfModif);
+    void changeLocsNamesInStruct(const std::vector<std::pair<std::vector<std::string>, std::string> > &mapOfModif);
     int getNbOfGaussPtPerCell(int locId) const;
-    int getLocalizationId(const std::string& loc) const;
-    int getProfileId(const std::string& pfl) const;
+    int getLocalizationId(const std::string &loc) const;
+    int getProfileId(const std::string &pfl) const;
     std::string getFileName() const { return _file_name; }
-    const MEDFileFieldLoc& getLocalizationFromId(int locId) const;
-    const MEDFileFieldLoc& getLocalization(const std::string& locName) const;
+    const MEDFileFieldLoc &getLocalizationFromId(int locId) const;
+    const MEDFileFieldLoc &getLocalization(const std::string &locName) const;
     const DataArrayIdType *getProfileFromId(int pflId) const;
-    const DataArrayIdType *getProfile(const std::string& pflName) const;
-    MEDFileFieldLoc& getLocalizationFromId(int locId);
-    MEDFileFieldLoc& getLocalization(const std::string& locName);
-    DataArrayIdType *getProfile(const std::string& pflName);
+    const DataArrayIdType *getProfile(const std::string &pflName) const;
+    MEDFileFieldLoc &getLocalizationFromId(int locId);
+    MEDFileFieldLoc &getLocalization(const std::string &locName);
+    DataArrayIdType *getProfile(const std::string &pflName);
     DataArrayIdType *getProfileFromId(int pflId);
-    void killProfileIds(const std::vector<int>& pflIds);
-    void killLocalizationIds(const std::vector<int>& locIds);
+    void killProfileIds(const std::vector<int> &pflIds);
+    void killLocalizationIds(const std::vector<int> &locIds);
     void killStructureElementsInGlobs();
     //
     void appendProfile(DataArrayIdType *pfl);
-    void appendLoc(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
+    void appendLoc(
+        const std::string &locName,
+        INTERP_KERNEL::NormalizedCellType geoType,
+        const std::vector<double> &refCoo,
+        const std::vector<double> &gsCoo,
+        const std::vector<double> &w
+    );
     //
-    static std::string CreateNewNameNotIn(const std::string& prefix, const std::vector<std::string>& namesToAvoid);
-  protected:
+    static std::string CreateNewNameNotIn(const std::string &prefix, const std::vector<std::string> &namesToAvoid);
+
+   protected:
     MEDFileFieldGlobs(med_idt fid);
     MEDFileFieldGlobs();
     ~MEDFileFieldGlobs();
-  protected:
-    std::vector< MCAuto<DataArrayIdType> > _pfls;
-    std::vector< MCAuto<MEDFileFieldLoc> > _locs;
+
+   protected:
+    std::vector<MCAuto<DataArrayIdType> > _pfls;
+    std::vector<MCAuto<MEDFileFieldLoc> > _locs;
     std::string _file_name;
-  };
+};
 
-  /// @endcond INTERNAL
+/// @endcond INTERNAL
 
-  class MEDFileFieldGlobsReal
-  {
-  public:
+class MEDFileFieldGlobsReal
+{
+   public:
     MEDLOADER_EXPORT MEDFileFieldGlobsReal(med_idt fid);
     MEDLOADER_EXPORT MEDFileFieldGlobsReal();
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    MEDLOADER_EXPORT void simpleReprGlobs(std::ostream& oss) const;
+    MEDLOADER_EXPORT void simpleReprGlobs(std::ostream &oss) const;
     MEDLOADER_EXPORT void resetContent();
     MEDLOADER_EXPORT void killStructureElementsInGlobs();
-    MEDLOADER_EXPORT void shallowCpyGlobs(const MEDFileFieldGlobsReal& other);
-    MEDLOADER_EXPORT void deepCpyGlobs(const MEDFileFieldGlobsReal& other);
-    MEDLOADER_EXPORT void shallowCpyOnlyUsedGlobs(const MEDFileFieldGlobsReal& other);
-    MEDLOADER_EXPORT void deepCpyOnlyUsedGlobs(const MEDFileFieldGlobsReal& other);
-    MEDLOADER_EXPORT void appendGlobs(const MEDFileFieldGlobsReal& other, double eps);
+    MEDLOADER_EXPORT void shallowCpyGlobs(const MEDFileFieldGlobsReal &other);
+    MEDLOADER_EXPORT void deepCpyGlobs(const MEDFileFieldGlobsReal &other);
+    MEDLOADER_EXPORT void shallowCpyOnlyUsedGlobs(const MEDFileFieldGlobsReal &other);
+    MEDLOADER_EXPORT void deepCpyOnlyUsedGlobs(const MEDFileFieldGlobsReal &other);
+    MEDLOADER_EXPORT void appendGlobs(const MEDFileFieldGlobsReal &other, double eps);
     MEDLOADER_EXPORT void checkGlobsCoherency() const;
     MEDLOADER_EXPORT void checkGlobsPflsPartCoherency() const;
     MEDLOADER_EXPORT void checkGlobsLocsPartCoherency() const;
@@ -121,76 +129,97 @@ namespace MEDCoupling
     MEDLOADER_EXPORT virtual std::vector<std::string> getLocsReallyUsed() const = 0;
     MEDLOADER_EXPORT virtual std::vector<std::string> getPflsReallyUsedMulti() const = 0;
     MEDLOADER_EXPORT virtual std::vector<std::string> getLocsReallyUsedMulti() const = 0;
-    MEDLOADER_EXPORT virtual void changePflsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) = 0;
-    MEDLOADER_EXPORT virtual void changeLocsRefsNamesGen(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif) = 0;
+    MEDLOADER_EXPORT virtual void changePflsRefsNamesGen(
+        const std::vector<std::pair<std::vector<std::string>, std::string> > &mapOfModif
+    ) = 0;
+    MEDLOADER_EXPORT virtual void changeLocsRefsNamesGen(
+        const std::vector<std::pair<std::vector<std::string>, std::string> > &mapOfModif
+    ) = 0;
     MEDLOADER_EXPORT virtual ~MEDFileFieldGlobsReal();
     //
-    MEDLOADER_EXPORT void loadProfileInFile(med_idt fid, int id, const std::string& pflName);
+    MEDLOADER_EXPORT void loadProfileInFile(med_idt fid, int id, const std::string &pflName);
     MEDLOADER_EXPORT void loadProfileInFile(med_idt fid, int id);
     MEDLOADER_EXPORT void loadGlobals(med_idt fid);
-    MEDLOADER_EXPORT void loadAllGlobals(med_idt fid, const MEDFileEntities *entities=0);
-    MEDLOADER_EXPORT void writeGlobals(med_idt fid, const MEDFileWritable& opt) const;
+    MEDLOADER_EXPORT void loadAllGlobals(med_idt fid, const MEDFileEntities *entities = 0);
+    MEDLOADER_EXPORT void writeGlobals(med_idt fid, const MEDFileWritable &opt) const;
     MEDLOADER_EXPORT std::vector<std::string> getPfls() const;
     MEDLOADER_EXPORT std::vector<std::string> getLocs() const;
-    MEDLOADER_EXPORT bool existsPfl(const std::string& pflName) const;
-    MEDLOADER_EXPORT bool existsLoc(const std::string& locName) const;
+    MEDLOADER_EXPORT bool existsPfl(const std::string &pflName) const;
+    MEDLOADER_EXPORT bool existsLoc(const std::string &locName) const;
     MEDLOADER_EXPORT std::string createNewNameOfPfl() const;
     MEDLOADER_EXPORT std::string createNewNameOfLoc() const;
-    MEDLOADER_EXPORT std::vector< std::vector<int> > whichAreEqualProfiles() const;
-    MEDLOADER_EXPORT std::vector< std::vector<int> > whichAreEqualLocs(double eps) const;
-    MEDLOADER_EXPORT void setFileName(const std::string& fileName);
-    MEDLOADER_EXPORT void changePflsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif);
-    MEDLOADER_EXPORT void changeLocsNamesInStruct(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif);
-    MEDLOADER_EXPORT void changePflsNames(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif);
-    MEDLOADER_EXPORT void changeLocsNames(const std::vector< std::pair<std::vector<std::string>, std::string > >& mapOfModif);
-    MEDLOADER_EXPORT void changePflName(const std::string& oldName, const std::string& newName);
-    MEDLOADER_EXPORT void changeLocName(const std::string& oldName, const std::string& newName);
-    MEDLOADER_EXPORT std::vector< std::pair<std::vector<std::string>, std::string > > zipPflsNames();
-    MEDLOADER_EXPORT std::vector< std::pair<std::vector<std::string>, std::string > > zipLocsNames(double eps);
+    MEDLOADER_EXPORT std::vector<std::vector<int> > whichAreEqualProfiles() const;
+    MEDLOADER_EXPORT std::vector<std::vector<int> > whichAreEqualLocs(double eps) const;
+    MEDLOADER_EXPORT void setFileName(const std::string &fileName);
+    MEDLOADER_EXPORT void changePflsNamesInStruct(
+        const std::vector<std::pair<std::vector<std::string>, std::string> > &mapOfModif
+    );
+    MEDLOADER_EXPORT void changeLocsNamesInStruct(
+        const std::vector<std::pair<std::vector<std::string>, std::string> > &mapOfModif
+    );
+    MEDLOADER_EXPORT void changePflsNames(
+        const std::vector<std::pair<std::vector<std::string>, std::string> > &mapOfModif
+    );
+    MEDLOADER_EXPORT void changeLocsNames(
+        const std::vector<std::pair<std::vector<std::string>, std::string> > &mapOfModif
+    );
+    MEDLOADER_EXPORT void changePflName(const std::string &oldName, const std::string &newName);
+    MEDLOADER_EXPORT void changeLocName(const std::string &oldName, const std::string &newName);
+    MEDLOADER_EXPORT std::vector<std::pair<std::vector<std::string>, std::string> > zipPflsNames();
+    MEDLOADER_EXPORT std::vector<std::pair<std::vector<std::string>, std::string> > zipLocsNames(double eps);
     MEDLOADER_EXPORT int getNbOfGaussPtPerCell(int locId) const;
-    MEDLOADER_EXPORT int getLocalizationId(const std::string& loc) const;
-    MEDLOADER_EXPORT int getProfileId(const std::string& pfl) const;
+    MEDLOADER_EXPORT int getLocalizationId(const std::string &loc) const;
+    MEDLOADER_EXPORT int getProfileId(const std::string &pfl) const;
     MEDLOADER_EXPORT std::string getFileName() const;
-    MEDLOADER_EXPORT const MEDFileFieldLoc& getLocalizationFromId(int locId) const;
-    MEDLOADER_EXPORT const MEDFileFieldLoc& getLocalization(const std::string& locName) const;
-    MEDLOADER_EXPORT MEDFileFieldLoc& getLocalizationFromId(int locId);
-    MEDLOADER_EXPORT MEDFileFieldLoc& getLocalization(const std::string& locName);
-    MEDLOADER_EXPORT const DataArrayIdType *getProfile(const std::string& pflName) const;
+    MEDLOADER_EXPORT const MEDFileFieldLoc &getLocalizationFromId(int locId) const;
+    MEDLOADER_EXPORT const MEDFileFieldLoc &getLocalization(const std::string &locName) const;
+    MEDLOADER_EXPORT MEDFileFieldLoc &getLocalizationFromId(int locId);
+    MEDLOADER_EXPORT MEDFileFieldLoc &getLocalization(const std::string &locName);
+    MEDLOADER_EXPORT const DataArrayIdType *getProfile(const std::string &pflName) const;
     MEDLOADER_EXPORT const DataArrayIdType *getProfileFromId(int pflId) const;
-    MEDLOADER_EXPORT DataArrayIdType *getProfile(const std::string& pflName);
+    MEDLOADER_EXPORT DataArrayIdType *getProfile(const std::string &pflName);
     MEDLOADER_EXPORT DataArrayIdType *getProfileFromId(int pflId);
-    MEDLOADER_EXPORT void killProfileIds(const std::vector<int>& pflIds);
-    MEDLOADER_EXPORT void killLocalizationIds(const std::vector<int>& locIds);
+    MEDLOADER_EXPORT void killProfileIds(const std::vector<int> &pflIds);
+    MEDLOADER_EXPORT void killLocalizationIds(const std::vector<int> &locIds);
     //
     MEDLOADER_EXPORT void appendProfile(DataArrayIdType *pfl);
-    MEDLOADER_EXPORT void appendLoc(const std::string& locName, INTERP_KERNEL::NormalizedCellType geoType, const std::vector<double>& refCoo, const std::vector<double>& gsCoo, const std::vector<double>& w);
-  protected:
+    MEDLOADER_EXPORT void appendLoc(
+        const std::string &locName,
+        INTERP_KERNEL::NormalizedCellType geoType,
+        const std::vector<double> &refCoo,
+        const std::vector<double> &gsCoo,
+        const std::vector<double> &w
+    );
+
+   protected:
     MEDFileFieldGlobs *contentNotNull();
     const MEDFileFieldGlobs *contentNotNull() const;
-  protected:
-    MCAuto< MEDFileFieldGlobs > _globals;
-  };
 
-  class MEDFileFieldNameScope
-  {
-  public:
+   protected:
+    MCAuto<MEDFileFieldGlobs> _globals;
+};
+
+class MEDFileFieldNameScope
+{
+   public:
     MEDLOADER_EXPORT MEDFileFieldNameScope();
-    MEDLOADER_EXPORT MEDFileFieldNameScope(const std::string& fieldName, const std::string& meshName);
+    MEDLOADER_EXPORT MEDFileFieldNameScope(const std::string &fieldName, const std::string &meshName);
     MEDLOADER_EXPORT std::string getName() const;
-    MEDLOADER_EXPORT void setName(const std::string& fieldName);
+    MEDLOADER_EXPORT void setName(const std::string &fieldName);
     MEDLOADER_EXPORT std::string getDescription() const;
-    MEDLOADER_EXPORT void setDescription(const std::string& description);
+    MEDLOADER_EXPORT void setDescription(const std::string &description);
     MEDLOADER_EXPORT std::string getDtUnit() const;
-    MEDLOADER_EXPORT void setDtUnit(const std::string& dtUnit);
-    MEDLOADER_EXPORT void copyNameScope(const MEDFileFieldNameScope& other);
+    MEDLOADER_EXPORT void setDtUnit(const std::string &dtUnit);
+    MEDLOADER_EXPORT void copyNameScope(const MEDFileFieldNameScope &other);
     MEDLOADER_EXPORT std::string getMeshName() const;
-    MEDLOADER_EXPORT void setMeshName(const std::string& meshName);
-  protected:
+    MEDLOADER_EXPORT void setMeshName(const std::string &meshName);
+
+   protected:
     std::string _name;
     std::string _dt_unit;
     std::string _mesh_name;
     std::string _description;
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

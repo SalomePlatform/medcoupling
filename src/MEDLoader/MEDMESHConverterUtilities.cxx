@@ -23,36 +23,32 @@
 
 namespace MeshFormat
 {
-    bool isMeshExtensionCorrect( const std::string& fileName )
+bool
+isMeshExtensionCorrect(const std::string &fileName)
+{
+    std::string ext;
     {
-        std::string ext;
-        {
-            auto pos(fileName.find_last_of('.'));
-            if(pos != std::string::npos)
-                ext = fileName.substr(pos);
-        }
-        switch ( ext.size() ) {
+        auto pos(fileName.find_last_of('.'));
+        if (pos != std::string::npos)
+            ext = fileName.substr(pos);
+    }
+    switch (ext.size())
+    {
         case 5:
-            return ( ext == ".mesh" || ext == ".solb" );
+            return (ext == ".mesh" || ext == ".solb");
         case 6:
-            return ( ext == ".meshb" );
+            return (ext == ".meshb");
         case 4:
-            return ( ext == ".sol" );
-        }
-        return false;
+            return (ext == ".sol");
     }
-
-
-    Localizer::Localizer()
-    {
-        _locale = setlocale(LC_NUMERIC, NULL);
-        setlocale(LC_NUMERIC, "C");
-    }
-
-    Localizer::~Localizer()
-    {
-        setlocale(LC_NUMERIC, _locale.c_str() );
-    }
+    return false;
 }
 
+Localizer::Localizer()
+{
+    _locale = setlocale(LC_NUMERIC, NULL);
+    setlocale(LC_NUMERIC, "C");
+}
 
+Localizer::~Localizer() { setlocale(LC_NUMERIC, _locale.c_str()); }
+}  // namespace MeshFormat

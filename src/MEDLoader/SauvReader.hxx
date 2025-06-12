@@ -34,73 +34,84 @@
 
 namespace SauvUtilities
 {
-  class FileReader;
-  struct IntermediateMED;
-  struct Group;
-  struct DoubleField;
-}
+class FileReader;
+struct IntermediateMED;
+struct Group;
+struct DoubleField;
+}  // namespace SauvUtilities
 namespace MEDCoupling
 {
-  class MEDFileData;
+class MEDFileData;
 
 class SauvReader : public MEDCoupling::RefCountObject
 {
- public:
-  MEDLOADER_EXPORT static SauvReader* New(const std::string& fileName);
-  MEDLOADER_EXPORT MEDCoupling::MEDFileData * loadInMEDFileDS();
-  MEDLOADER_EXPORT ~SauvReader();
-  MEDLOADER_EXPORT std::string getClassName() const override { return std::string("SauvReader"); }
+   public:
+    MEDLOADER_EXPORT static SauvReader *New(const std::string &fileName);
+    MEDLOADER_EXPORT MEDCoupling::MEDFileData *loadInMEDFileDS();
+    MEDLOADER_EXPORT ~SauvReader();
+    MEDLOADER_EXPORT std::string getClassName() const override { return std::string("SauvReader"); }
 
- private:
-  std::size_t getHeapMemorySizeWithoutChildren() const;
-  std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-  void readRecord2();
-  void readRecord4();
-  void readRecord7();
-  void readRecord8();
+   private:
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    void readRecord2();
+    void readRecord4();
+    void readRecord7();
+    void readRecord8();
 
-  int readPileNumber(int& nbNamedObjects, int& nbObjects);
-  void read_PILE_SOUS_MAILLAGE(const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);
-  void read_PILE_NODES_FIELD  (const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);
-  void read_PILE_TABLES       (const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);
-  void read_PILE_LREEL        (const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);
-  void read_PILE_LOGIQUES     (const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);
-  void read_PILE_FLOATS       (const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);
-  void read_PILE_INTEGERS     (const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);
-  void read_PILE_STRINGS      (const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);
-  void read_PILE_LMOTS        (const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);
-  void read_PILE_NOEUDS       (const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);
-  void read_PILE_COORDONNEES  (const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);
-  void read_PILE_MODL         (const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);
-  void read_PILE_FIELD        (const int nbObjects, std::vector<std::string>& objectNames, std::vector<int>& nameIndices);
+    int readPileNumber(int &nbNamedObjects, int &nbObjects);
+    void read_PILE_SOUS_MAILLAGE(
+        const int nbObjects, std::vector<std::string> &objectNames, std::vector<int> &nameIndices
+    );
+    void read_PILE_NODES_FIELD(
+        const int nbObjects, std::vector<std::string> &objectNames, std::vector<int> &nameIndices
+    );
+    void read_PILE_TABLES(const int nbObjects, std::vector<std::string> &objectNames, std::vector<int> &nameIndices);
+    void read_PILE_LREEL(const int nbObjects, std::vector<std::string> &objectNames, std::vector<int> &nameIndices);
+    void read_PILE_LOGIQUES(const int nbObjects, std::vector<std::string> &objectNames, std::vector<int> &nameIndices);
+    void read_PILE_FLOATS(const int nbObjects, std::vector<std::string> &objectNames, std::vector<int> &nameIndices);
+    void read_PILE_INTEGERS(const int nbObjects, std::vector<std::string> &objectNames, std::vector<int> &nameIndices);
+    void read_PILE_STRINGS(const int nbObjects, std::vector<std::string> &objectNames, std::vector<int> &nameIndices);
+    void read_PILE_LMOTS(const int nbObjects, std::vector<std::string> &objectNames, std::vector<int> &nameIndices);
+    void read_PILE_NOEUDS(const int nbObjects, std::vector<std::string> &objectNames, std::vector<int> &nameIndices);
+    void read_PILE_COORDONNEES(
+        const int nbObjects, std::vector<std::string> &objectNames, std::vector<int> &nameIndices
+    );
+    void read_PILE_MODL(const int nbObjects, std::vector<std::string> &objectNames, std::vector<int> &nameIndices);
+    void read_PILE_FIELD(const int nbObjects, std::vector<std::string> &objectNames, std::vector<int> &nameIndices);
 
-  void setFieldSupport(const std::vector<SauvUtilities::Group*>& supports,
-                       SauvUtilities::DoubleField*               field);
-  void setFieldNames(const std::vector<SauvUtilities::DoubleField*>& fields,
-                     const std::vector<std::string>& objectNames,
-                     const std::vector<int>& nameIndices);
+    void setFieldSupport(const std::vector<SauvUtilities::Group *> &supports, SauvUtilities::DoubleField *field);
+    void setFieldNames(
+        const std::vector<SauvUtilities::DoubleField *> &fields,
+        const std::vector<std::string> &objectNames,
+        const std::vector<int> &nameIndices
+    );
 
-  bool isASCII() const                                   { return _fileReader->isASCII(); }
-  bool isXRD() const                                     { return !isASCII(); }
-  bool getNextLine (char* & line, bool raiseOEF = true ) { return _fileReader->getNextLine( line, raiseOEF ); }
-  void initNameReading(int nbValues, int width = 8)      { _fileReader->initNameReading( nbValues, width ); }
-  void initIntReading(int nbValues)                      { _fileReader->initIntReading( nbValues ); }
-  void initDoubleReading(int nbValues)                   { _fileReader->initDoubleReading( nbValues ); }
-  bool more() const                                      { return _fileReader->more(); }
-  void next()                                            { _fileReader->next(); }
-  int  index() const                                     { return _fileReader->index(); }
-  int    getInt() const                                  { return _fileReader->getInt(); }
-  int    getIntNext()                                    { int i = getInt(); next(); return i; }
-  float  getFloat() const                                { return _fileReader->getFloat(); }
-  double getDouble() const                               { return _fileReader->getDouble(); }
-  std::string getName() const                            { return _fileReader->getName(); }
-  std::string lineNb() const;
+    bool isASCII() const { return _fileReader->isASCII(); }
+    bool isXRD() const { return !isASCII(); }
+    bool getNextLine(char *&line, bool raiseOEF = true) { return _fileReader->getNextLine(line, raiseOEF); }
+    void initNameReading(int nbValues, int width = 8) { _fileReader->initNameReading(nbValues, width); }
+    void initIntReading(int nbValues) { _fileReader->initIntReading(nbValues); }
+    void initDoubleReading(int nbValues) { _fileReader->initDoubleReading(nbValues); }
+    bool more() const { return _fileReader->more(); }
+    void next() { _fileReader->next(); }
+    int index() const { return _fileReader->index(); }
+    int getInt() const { return _fileReader->getInt(); }
+    int getIntNext()
+    {
+        int i = getInt();
+        next();
+        return i;
+    }
+    float getFloat() const { return _fileReader->getFloat(); }
+    double getDouble() const { return _fileReader->getDouble(); }
+    std::string getName() const { return _fileReader->getName(); }
+    std::string lineNb() const;
 
+    std::set<int> _encounteredPiles;
 
-  std::set<int> _encounteredPiles;
-
-  SauvUtilities::FileReader*      _fileReader;
-  SauvUtilities::IntermediateMED* _iMed;
+    SauvUtilities::FileReader *_fileReader;
+    SauvUtilities::IntermediateMED *_iMed;
 };
-}
+}  // namespace MEDCoupling
 #endif

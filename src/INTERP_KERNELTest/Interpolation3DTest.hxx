@@ -28,22 +28,13 @@
 /// \brief OBSOLETE - renamed Interpolation3DTestSuite
 class Interpolation3DTest : public CppUnit::TestFixture
 {
+   public:
+    void setUp() { _testTools = new MeshTestToolkit(); }
 
-public:
-  void setUp()
-  {
-    _testTools = new MeshTestToolkit();
-  }
+    void tearDown() { delete _testTools; }
 
-  void tearDown()
-  {
-    delete _testTools;
-  }
-
-protected:
-
-  MeshToolkit* _testTools;
-
+   protected:
+    MeshToolkit *_testTools;
 };
 
 #endif

@@ -25,14 +25,22 @@
 
 namespace INTERP_KERNEL
 {
-  INTERPKERNEL_EXPORT double quadSkew(const double *coo);
-  INTERPKERNEL_EXPORT double quadEdgeRatio(const double *coo);
-  INTERPKERNEL_EXPORT double quadAspectRatio(const double *coo);
-  INTERPKERNEL_EXPORT double quadWarp(const double *coo);
-  INTERPKERNEL_EXPORT double triEdgeRatio(const double *coo);
-  INTERPKERNEL_EXPORT double triAspectRatio(const double *coo);
-  INTERPKERNEL_EXPORT double tetraEdgeRatio(const double *coo);
-  INTERPKERNEL_EXPORT double tetraAspectRatio(const double *coo);
-}
+INTERPKERNEL_EXPORT double
+quadSkew(const double *coo);
+INTERPKERNEL_EXPORT double
+quadEdgeRatio(const double *coo);
+INTERPKERNEL_EXPORT double
+quadAspectRatio(const double *coo);
+INTERPKERNEL_EXPORT double
+quadWarp(const double *coo);
+INTERPKERNEL_EXPORT double
+triEdgeRatio(const double *coo);
+INTERPKERNEL_EXPORT double
+triAspectRatio(const double *coo);
+INTERPKERNEL_EXPORT double
+tetraEdgeRatio(const double *coo);
+INTERPKERNEL_EXPORT double
+tetraAspectRatio(const double *coo);
+}  // namespace INTERP_KERNEL
 
 #endif

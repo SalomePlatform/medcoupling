@@ -25,11 +25,11 @@
 #include "MEDCouplingBasicsTest5.hxx"
 #include "MEDCouplingBasicsTestInterp.hxx"
 
-CPPUNIT_TEST_SUITE_REGISTRATION( MEDCoupling::MEDCouplingBasicsTest1 );
-CPPUNIT_TEST_SUITE_REGISTRATION( MEDCoupling::MEDCouplingBasicsTest2 );
-CPPUNIT_TEST_SUITE_REGISTRATION( MEDCoupling::MEDCouplingBasicsTest3 );
-CPPUNIT_TEST_SUITE_REGISTRATION( MEDCoupling::MEDCouplingBasicsTest4 );
-CPPUNIT_TEST_SUITE_REGISTRATION( MEDCoupling::MEDCouplingBasicsTest5 );
-CPPUNIT_TEST_SUITE_REGISTRATION( MEDCoupling::MEDCouplingBasicsTestInterp );
+CPPUNIT_TEST_SUITE_REGISTRATION(MEDCoupling::MEDCouplingBasicsTest1);
+CPPUNIT_TEST_SUITE_REGISTRATION(MEDCoupling::MEDCouplingBasicsTest2);
+CPPUNIT_TEST_SUITE_REGISTRATION(MEDCoupling::MEDCouplingBasicsTest3);
+CPPUNIT_TEST_SUITE_REGISTRATION(MEDCoupling::MEDCouplingBasicsTest4);
+CPPUNIT_TEST_SUITE_REGISTRATION(MEDCoupling::MEDCouplingBasicsTest5);
+CPPUNIT_TEST_SUITE_REGISTRATION(MEDCoupling::MEDCouplingBasicsTestInterp);
 
 #include "BasicMainTest.hxx"

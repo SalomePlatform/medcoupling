@@ -473,4 +473,3 @@ msgstr ""
 #: ../../../../MEDCOUPLING_SRC/doc/user/input/data_conversion.rst:243
 msgid "Result matrix is::"
 msgstr ""
-

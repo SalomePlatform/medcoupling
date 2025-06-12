@@ -25,31 +25,31 @@
 
 namespace INTERP_KERNEL
 {
-  /* !!TODO: a more global review of the code should be done, so that eps is always a parameter of all methods
-     instead of being stored as a static attribute.
-  */
+/* !!TODO: a more global review of the code should be done, so that eps is always a parameter of all methods
+   instead of being stored as a static attribute.
+*/
 
-  /** Class storing the precision for the detection of colinear segments, coincident points, etc ...
-   * in Geometric2D computations.
-   *
-   * RAII pattern allowing to temporarily override Geometric2D precision.
-   * When the instance is destroyed, the previous precision is set back.
-   *
-   */
-  class INTERPKERNEL_EXPORT QuadraticPlanarPrecision
-  {
-  public:
+/** Class storing the precision for the detection of colinear segments, coincident points, etc ...
+ * in Geometric2D computations.
+ *
+ * RAII pattern allowing to temporarily override Geometric2D precision.
+ * When the instance is destroyed, the previous precision is set back.
+ *
+ */
+class INTERPKERNEL_EXPORT QuadraticPlanarPrecision
+{
+   public:
     QuadraticPlanarPrecision(double prec);
     virtual ~QuadraticPlanarPrecision();
 
     static void setPrecision(double precision);
     inline static double getPrecision() { return _precision; }
-  private:
+
+   private:
     static double _precision;
     double _initial_precision;
-  };
+};
 
-}
+}  // namespace INTERP_KERNEL
 
 #endif
-

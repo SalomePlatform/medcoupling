@@ -11,7 +11,6 @@
 /*                                                                                                                      */
 /*----------------------------------------------------------*/
 
-
 /*----------------------------------------------------------*/
 /* Includes                                                                                                     */
 /*----------------------------------------------------------*/
@@ -30,15 +29,13 @@
 
 using namespace MeshFormat;
 
-
-
 /*----------------------------------------------------------*/
 /* Global variables                                                                                     */
 /*----------------------------------------------------------*/
 
 // see MeshGems/Docs/meshgems_formats_description.pdf
-const char *GmfKwdFmt[ GmfMaxKwd + 1 ][4] =
-{   {"Reserved", "", "", ""},
+const char *GmfKwdFmt[GmfMaxKwd + 1][4] = {
+    {"Reserved", "", "", ""},
     {"MeshVersionFormatted", "", "", "i"},
     {"Reserved", "", "", ""},
     {"Dimension", "", "", "i"},
@@ -49,8 +46,8 @@ const char *GmfKwdFmt[ GmfMaxKwd + 1 ][4] =
     {"Tetrahedra", "Tetrahedron", "i", "iiiii"},
     {"Prisms", "Prism", "i", "iiiiiii"},
     {"Hexahedra", "Hexahedron", "i", "iiiiiiiii"},
-    {"IterationsAll", "IterationAll","","i"},
-    {"TimesAll", "TimeAll","","r"},
+    {"IterationsAll", "IterationAll", "", "i"},
+    {"TimesAll", "TimeAll", "", "r"},
     {"Corners", "Corner", "i", "i"},
     {"Ridges", "Ridge", "i", "i"},
     {"RequiredVertices", "RequiredVertex", "i", "i"},
@@ -89,7 +86,7 @@ const char *GmfKwdFmt[ GmfMaxKwd + 1 ][4] =
     {"Fault_Overlap", "Fault_Overlap", "i", "i"},
     {"Pyramids", "Pyramid", "i", "iiiiii"},
     {"BoundingBox", "", "", "drdr"},
-    {"Body","i", "drdrdrdr"},
+    {"Body", "i", "drdrdrdr"},
     {"PrivateTable", "PrivateTable", "i", "i"},
     {"Fault_BadShape", "Fault_BadShape", "i", "i"},
     {"End", "", "", ""},
@@ -115,39 +112,35 @@ const char *GmfKwdFmt[ GmfMaxKwd + 1 ][4] =
     {"ISolAtTetrahedra", "ISolAtTetrahedron", "i", "iiii"},
     {"ISolAtPrisms", "ISolAtPrism", "i", "iiiiii"},
     {"ISolAtHexahedra", "ISolAtHexahedron", "i", "iiiiiiii"},
-    {"Iterations", "","","i"},
-    {"Time", "","","r"},
-    {"Fault_SmallTri", "Fault_SmallTri","i","i"},
+    {"Iterations", "", "", "i"},
+    {"Time", "", "", "r"},
+    {"Fault_SmallTri", "Fault_SmallTri", "i", "i"},
     {"CoarseHexahedra", "CoarseHexahedron", "i", "i"},
     {"Fault_MultipleEdge", "Fault_MultipleEdge", "i", "i"}
 };
 
-
-
-MeshFormatParser::MeshFormatParser():GmfIniFlg(0)
-{
-
-}
+MeshFormatParser::MeshFormatParser() : GmfIniFlg(0) {}
 
 /*----------------------------------------------------------*/
 /* Open a mesh file in read or write mod                                        */
 /*----------------------------------------------------------*/
 
-int MeshFormatParser::GmfOpenMesh(const char *FilNam, int mod, ...)
+int
+MeshFormatParser::GmfOpenMesh(const char *FilNam, int mod, ...)
 {
-    int i, KwdCod, res, *PtrVer, *PtrDim, MshIdx=0;
-    char str[ GmfStrSiz ];
+    int i, KwdCod, res, *PtrVer, *PtrDim, MshIdx = 0;
+    char str[GmfStrSiz];
     va_list VarArg;
     GmfMshSct *msh;
     char *ptr;
     int k;
 #if defined(WIN32) && defined(UNICODE)
-    wchar_t* encoded = 0;
+    wchar_t *encoded = 0;
     int size_needed = 0;
 #endif
-    if(!GmfIniFlg)
+    if (!GmfIniFlg)
     {
-        for(i=0; i<=MaxMsh; i++)
+        for (i = 0; i <= MaxMsh; i++)
             //~GmfMshTab[i] = NULL;
             GmfMshTab[i] = nullptr;
 
@@ -158,24 +151,23 @@ int MeshFormatParser::GmfOpenMesh(const char *FilNam, int mod, ...)
     /* MESH STRUCTURE INIT */
     /*---------------------*/
 
-    for(i=1; i<=MaxMsh; i++)
-        if(!GmfMshTab[i])
+    for (i = 1; i <= MaxMsh; i++)
+        if (!GmfMshTab[i])
         {
             MshIdx = i;
             break;
         }
 
-
-    if( !MshIdx || !(msh = new GmfMshSct() ) )
-        return(0);
+    if (!MshIdx || !(msh = new GmfMshSct()))
+        return (0);
 
     /* Copy the FilNam into the structure */
 
-    if(strlen(FilNam) + 7 >= GmfStrSiz)
+    if (strlen(FilNam) + 7 >= GmfStrSiz)
     {
         //~free (msh);
         delete msh;
-        return(0);
+        return (0);
     }
 
     strcpy(msh->FilNam, FilNam);
@@ -188,28 +180,28 @@ int MeshFormatParser::GmfOpenMesh(const char *FilNam, int mod, ...)
     msh->IntBuf = (int *)msh->DblBuf;
 
     k = static_cast<int>(strlen(msh->FilNam)) - 6;
-    if(k < 0)
+    if (k < 0)
         k = 0;
-    ptr = msh->FilNam+k;
-    if(strstr(ptr, ".meshb"))
+    ptr = msh->FilNam + k;
+    if (strstr(ptr, ".meshb"))
         msh->typ |= (Bin | MshFil);
-    else if(strstr(ptr, ".mesh"))
+    else if (strstr(ptr, ".mesh"))
         msh->typ |= (Asc | MshFil);
-    else if(strstr(ptr, ".solb"))
+    else if (strstr(ptr, ".solb"))
         msh->typ |= (Bin | SolFil);
-    else if(strstr(ptr, ".sol"))
+    else if (strstr(ptr, ".sol"))
         msh->typ |= (Asc | SolFil);
-    else {
+    else
+    {
         //~free (msh);
         delete msh;
-        return(0);
+        return (0);
     }
 
     /* Open the file in the required mod and initialise the mesh structure */
 
-    if(msh->mod == GmfRead)
+    if (msh->mod == GmfRead)
     {
-
         /*-----------------------*/
         /* OPEN FILE FOR READING */
         /*-----------------------*/
@@ -223,7 +215,7 @@ int MeshFormatParser::GmfOpenMesh(const char *FilNam, int mod, ...)
 #if defined(WIN32) && defined(UNICODE)
         size_needed = MultiByteToWideChar(CP_UTF8, 0, msh->FilNam, strlen(msh->FilNam), NULL, 0);
         //~encoded = malloc((size_needed + 1)*sizeof(wchar_t));
-        encoded = new wchar_t[size_needed + 1] ;
+        encoded = new wchar_t[size_needed + 1];
         MultiByteToWideChar(CP_UTF8, 0, msh->FilNam, strlen(msh->FilNam), encoded, size_needed);
         encoded[size_needed] = '\0';
         if (!(msh->hdl = _wfopen(encoded, L"rb")))
@@ -231,56 +223,51 @@ int MeshFormatParser::GmfOpenMesh(const char *FilNam, int mod, ...)
         if (!(msh->hdl = fopen(msh->FilNam, "rb")))
 #endif
         {
-
             delete msh;
 #if defined(WIN32) && defined(UNICODE)
 
-            delete [] encoded;
+            delete[] encoded;
 #endif
-            return(0);
+            return (0);
         }
 
 #if defined(WIN32) && defined(UNICODE)
 
-        delete [] encoded;
+        delete[] encoded;
 #endif
 
         /* Read the endian coding tag, the mesh version and the mesh dimension (mandatory kwd) */
 
-        if(msh->typ & Bin)
+        if (msh->typ & Bin)
         {
             fread((unsigned char *)&msh->cod, WrdSiz, 1, msh->hdl);
 
-            if( (msh->cod != 1) && (msh->cod != 16777216) )
+            if ((msh->cod != 1) && (msh->cod != 16777216))
             {
-
                 delete msh;
-                return(0);
+                return (0);
             }
 
             ScaWrd(msh, (unsigned char *)&msh->ver);
 
-            if( (msh->ver < 1) || (msh->ver > 3) )
+            if ((msh->ver < 1) || (msh->ver > 3))
             {
-
                 delete msh;
-                return(0);
+                return (0);
             }
 
-            if( (msh->ver == 3) && (sizeof(long) == 4) )
+            if ((msh->ver == 3) && (sizeof(long) == 4))
             {
-
                 delete msh;
-                return(0);
+                return (0);
             }
 
             ScaWrd(msh, (unsigned char *)&KwdCod);
 
-            if(KwdCod != GmfDimension)
+            if (KwdCod != GmfDimension)
             {
-
                 delete msh;
-                return(0);
+                return (0);
             }
 
             GetPos(msh);
@@ -291,44 +278,40 @@ int MeshFormatParser::GmfOpenMesh(const char *FilNam, int mod, ...)
             do
             {
                 res = fscanf(msh->hdl, "%s", str);
-            } while( (res != EOF) && strcmp(str, "MeshVersionFormatted") );
+            } while ((res != EOF) && strcmp(str, "MeshVersionFormatted"));
 
-            if(res == EOF)
+            if (res == EOF)
             {
-
                 delete msh;
-                return(0);
+                return (0);
             }
 
             fscanf(msh->hdl, "%d", &msh->ver);
 
-            if( (msh->ver < 1) || (msh->ver > 3) )
+            if ((msh->ver < 1) || (msh->ver > 3))
             {
-
                 delete msh;
-                return(0);
+                return (0);
             }
 
             do
             {
                 res = fscanf(msh->hdl, "%s", str);
-            } while( (res != EOF) && strcmp(str, "Dimension") );
+            } while ((res != EOF) && strcmp(str, "Dimension"));
 
-            if(res == EOF)
+            if (res == EOF)
             {
-
                 delete msh;
-                return(0);
+                return (0);
             }
 
             fscanf(msh->hdl, "%d", &msh->dim);
         }
 
-        if( (msh->dim != 2) && (msh->dim != 3) )
+        if ((msh->dim != 2) && (msh->dim != 3))
         {
-
             delete msh;
-            return(0);
+            return (0);
         }
 
         (*PtrVer) = msh->ver;
@@ -340,20 +323,18 @@ int MeshFormatParser::GmfOpenMesh(const char *FilNam, int mod, ...)
 
         /* Read the list of kw present in the file */
 
-        if(!ScaKwdTab(msh))
+        if (!ScaKwdTab(msh))
         {
-
             delete msh;
-            return(0);
+            return (0);
         }
 
-        GmfMshTab[ MshIdx ] = msh;
+        GmfMshTab[MshIdx] = msh;
 
-        return(MshIdx);
+        return (MshIdx);
     }
-    else if(msh->mod == GmfWrite)
+    else if (msh->mod == GmfWrite)
     {
-
         /*-----------------------*/
         /* OPEN FILE FOR WRITING */
         /*-----------------------*/
@@ -367,25 +348,22 @@ int MeshFormatParser::GmfOpenMesh(const char *FilNam, int mod, ...)
         msh->dim = va_arg(VarArg, int);
         va_end(VarArg);
 
-        if( (msh->ver < 1) || (msh->ver > 3) )
+        if ((msh->ver < 1) || (msh->ver > 3))
         {
-
             delete msh;
-            return(0);
+            return (0);
         }
 
-        if( (msh->ver == 3) && (sizeof(long) == 4) )
+        if ((msh->ver == 3) && (sizeof(long) == 4))
         {
-
             delete msh;
-            return(0);
+            return (0);
         }
 
-        if( (msh->dim != 2) && (msh->dim != 3) )
+        if ((msh->dim != 2) && (msh->dim != 3))
         {
-
             delete msh;
-            return(0);
+            return (0);
         }
 
         /* Create the mesh file */
@@ -397,24 +375,22 @@ int MeshFormatParser::GmfOpenMesh(const char *FilNam, int mod, ...)
         encoded[size_needed] = '\0';
         if (!(msh->hdl = _wfopen(encoded, L"wb")))
 #else
-        if(!(msh->hdl = fopen(msh->FilNam, "wb")))
+        if (!(msh->hdl = fopen(msh->FilNam, "wb")))
 #endif
         {
-
             delete msh;
 #if defined(WIN32) && defined(UNICODE)
 
-            delete []encoded;
+            delete[] encoded;
 #endif
-            return(0);
+            return (0);
         }
 
 #if defined(WIN32) && defined(UNICODE)
 
-        delete []encoded;
+        delete[] encoded;
 #endif
-        GmfMshTab[ MshIdx ] = msh;
-
+        GmfMshTab[MshIdx] = msh;
 
         /*------------*/
         /* KW WRITING */
@@ -422,10 +398,10 @@ int MeshFormatParser::GmfOpenMesh(const char *FilNam, int mod, ...)
 
         /* Write the mesh version and dimension */
 
-        if(msh->typ & Asc)
+        if (msh->typ & Asc)
         {
-            fprintf(msh->hdl, "%s %d\n\n", GmfKwdFmt[ GmfVersionFormatted ][0], msh->ver);
-            fprintf(msh->hdl, "%s %d\n", GmfKwdFmt[ GmfDimension ][0], msh->dim);
+            fprintf(msh->hdl, "%s %d\n\n", GmfKwdFmt[GmfVersionFormatted][0], msh->ver);
+            fprintf(msh->hdl, "%s %d\n", GmfKwdFmt[GmfDimension][0], msh->dim);
         }
         else
         {
@@ -435,81 +411,80 @@ int MeshFormatParser::GmfOpenMesh(const char *FilNam, int mod, ...)
             RecWrd(msh, (unsigned char *)&msh->dim);
         }
 
-        return(MshIdx);
+        return (MshIdx);
     }
     else
     {
-
         delete msh;
-        return(0);
+        return (0);
     }
 }
-
 
 /*----------------------------------------------------------*/
 /* Close a meshfile in the right way                                            */
 /*----------------------------------------------------------*/
 
-int MeshFormatParser::GmfCloseMesh(int MshIdx)
+int
+MeshFormatParser::GmfCloseMesh(int MshIdx)
 {
     int res = 1;
     GmfMshSct *msh;
 
-    if( (MshIdx < 1) || (MshIdx > MaxMsh) )
-        return(0);
+    if ((MshIdx < 1) || (MshIdx > MaxMsh))
+        return (0);
 
-    msh = GmfMshTab[ MshIdx ];
+    msh = GmfMshTab[MshIdx];
     RecBlk(msh, msh->buf, 0);
 
     /* In write down the "End" kw in write mode */
 
-    if(msh->mod == GmfWrite) {
-        if(msh->typ & Asc)
-            fprintf(msh->hdl, "\n%s\n", GmfKwdFmt[ GmfEnd ][0]);
+    if (msh->mod == GmfWrite)
+    {
+        if (msh->typ & Asc)
+            fprintf(msh->hdl, "\n%s\n", GmfKwdFmt[GmfEnd][0]);
         else
             GmfSetKwd(MshIdx, GmfEnd, 0);
     }
     /* Close the file and free the mesh structure */
 
-    if(fclose(msh->hdl))
+    if (fclose(msh->hdl))
         res = 0;
-
 
     delete msh;
 
-    GmfMshTab[ MshIdx ] = nullptr;
+    GmfMshTab[MshIdx] = nullptr;
 
-    return(res);
+    return (res);
 }
-
 
 /*----------------------------------------------------------*/
 /* Read the number of lines and set the position to this kwd*/
 /*----------------------------------------------------------*/
 
-int MeshFormatParser::GmfStatKwd(int MshIdx, int KwdCod, ...)
+int
+MeshFormatParser::GmfStatKwd(int MshIdx, int KwdCod, ...)
 {
     int i, *PtrNmbTyp, *PtrSolSiz, *TypTab;
     GmfMshSct *msh;
     KwdSct *kwd;
     va_list VarArg;
 
-    if( (MshIdx < 1) || (MshIdx > MaxMsh) )
-        return(0);
+    if ((MshIdx < 1) || (MshIdx > MaxMsh))
+        return (0);
 
-    msh = GmfMshTab[ MshIdx ];
+    msh = GmfMshTab[MshIdx];
 
-    if( (KwdCod < 1) || (KwdCod > GmfMaxKwd) )
-        return(0);
+    if ((KwdCod < 1) || (KwdCod > GmfMaxKwd))
+        return (0);
 
-    kwd = &msh->KwdTab[ KwdCod ];
+    kwd = &msh->KwdTab[KwdCod];
 
-    if(!kwd->NmbLin)
-        return(0);
+    if (!kwd->NmbLin)
+        return (0);
 
     /* Read further arguments if this kw is a sol */
 
-    if(kwd->typ == SolKwd)
+    if (kwd->typ == SolKwd)
     {
         va_start(VarArg, KwdCod);
 
@@ -521,79 +496,77 @@ int MeshFormatParser::GmfStatKwd(int MshIdx, int KwdCod, ...)
 
         TypTab = va_arg(VarArg, int *);
 
-        for(i=0; i<kwd->NmbTyp; i++)
-            TypTab[i] = kwd->TypTab[i];
+        for (i = 0; i < kwd->NmbTyp; i++) TypTab[i] = kwd->TypTab[i];
 
         va_end(VarArg);
     }
 
-    return(kwd->NmbLin);
+    return (kwd->NmbLin);
 }
-
 
 /*----------------------------------------------------------*/
 /* Set the current file position to a given kwd                         */
 /*----------------------------------------------------------*/
 
-int MeshFormatParser::GmfGotoKwd(int MshIdx, int KwdCod)
+int
+MeshFormatParser::GmfGotoKwd(int MshIdx, int KwdCod)
 {
     GmfMshSct *msh;
     KwdSct *kwd;
 
-    if( (MshIdx < 1) || (MshIdx > MaxMsh) )
-        return(0);
+    if ((MshIdx < 1) || (MshIdx > MaxMsh))
+        return (0);
 
-    msh = GmfMshTab[ MshIdx ];
+    msh = GmfMshTab[MshIdx];
 
-    if( (KwdCod < 1) || (KwdCod > GmfMaxKwd) )
-        return(0);
+    if ((KwdCod < 1) || (KwdCod > GmfMaxKwd))
+        return (0);
 
-    kwd = &msh->KwdTab[ KwdCod ];
+    kwd = &msh->KwdTab[KwdCod];
 
-    if(!kwd->NmbLin)
-        return(0);
+    if (!kwd->NmbLin)
+        return (0);
 
-    return(fseek(msh->hdl, kwd->pos, SEEK_SET));
+    return (fseek(msh->hdl, kwd->pos, SEEK_SET));
 }
-
 
 /*----------------------------------------------------------*/
 /* Write the kwd and set the number of lines                            */
 /*----------------------------------------------------------*/
 
-int MeshFormatParser::GmfSetKwd(int MshIdx, int KwdCod, ...)
+int
+MeshFormatParser::GmfSetKwd(int MshIdx, int KwdCod, ...)
 {
-    int i, NmbLin=0, *TypTab;
+    int i, NmbLin = 0, *TypTab;
     long CurPos;
     va_list VarArg;
     GmfMshSct *msh;
     KwdSct *kwd;
 
-    if( (MshIdx < 1) || (MshIdx > MaxMsh) )
-        return(0);
+    if ((MshIdx < 1) || (MshIdx > MaxMsh))
+        return (0);
 
-    msh = GmfMshTab[ MshIdx ];
+    msh = GmfMshTab[MshIdx];
     RecBlk(msh, msh->buf, 0);
 
-    if( (KwdCod < 1) || (KwdCod > GmfMaxKwd) )
-        return(0);
+    if ((KwdCod < 1) || (KwdCod > GmfMaxKwd))
+        return (0);
 
-    kwd = &msh->KwdTab[ KwdCod ];
+    kwd = &msh->KwdTab[KwdCod];
 
     /* Read further arguments if this kw has a header */
 
-    if(strlen(GmfKwdFmt[ KwdCod ][2]))
+    if (strlen(GmfKwdFmt[KwdCod][2]))
     {
         va_start(VarArg, KwdCod);
         NmbLin = va_arg(VarArg, int);
 
-        if(!strcmp(GmfKwdFmt[ KwdCod ][3], "sr"))
+        if (!strcmp(GmfKwdFmt[KwdCod][3], "sr"))
         {
             kwd->NmbTyp = va_arg(VarArg, int);
             TypTab = va_arg(VarArg, int *);
 
-            for(i=0; i<kwd->NmbTyp; i++)
-                kwd->TypTab[i] = TypTab[i];
+            for (i = 0; i < kwd->NmbTyp; i++) kwd->TypTab[i] = TypTab[i];
         }
 
         va_end(VarArg);
@@ -603,16 +576,16 @@ int MeshFormatParser::GmfSetKwd(int MshIdx, int KwdCod, ...)
 
     ExpFmt(msh, KwdCod);
 
-    if(!kwd->typ)
-        return(0);
-    else if(kwd->typ == InfKwd)
+    if (!kwd->typ)
+        return (0);
+    else if (kwd->typ == InfKwd)
         kwd->NmbLin = 1;
     else
         kwd->NmbLin = NmbLin;
 
     /* Store the next kwd position in binary file */
 
-    if( (msh->typ & Bin) && msh->NexKwdPos )
+    if ((msh->typ & Bin) && msh->NexKwdPos)
     {
         CurPos = ftell(msh->hdl);
         fseek(msh->hdl, msh->NexKwdPos, SEEK_SET);
@@ -622,21 +595,20 @@ int MeshFormatParser::GmfSetKwd(int MshIdx, int KwdCod, ...)
 
     /* Write the header */
 
-    if(msh->typ & Asc)
+    if (msh->typ & Asc)
     {
-        fprintf(msh->hdl, "\n%s\n", GmfKwdFmt[ KwdCod ][0]);
+        fprintf(msh->hdl, "\n%s\n", GmfKwdFmt[KwdCod][0]);
 
-        if(kwd->typ != InfKwd)
+        if (kwd->typ != InfKwd)
             fprintf(msh->hdl, "%d\n", kwd->NmbLin);
 
         /* In case of solution field, write the extended header */
 
-        if(kwd->typ == SolKwd)
+        if (kwd->typ == SolKwd)
         {
             fprintf(msh->hdl, "%d ", kwd->NmbTyp);
 
-            for(i=0; i<kwd->NmbTyp; i++)
-                fprintf(msh->hdl, "%d ", kwd->TypTab[i]);
+            for (i = 0; i < kwd->NmbTyp; i++) fprintf(msh->hdl, "%d ", kwd->TypTab[i]);
 
             fprintf(msh->hdl, "\n\n");
         }
@@ -647,17 +619,16 @@ int MeshFormatParser::GmfSetKwd(int MshIdx, int KwdCod, ...)
         msh->NexKwdPos = ftell(msh->hdl);
         SetPos(msh, 0);
 
-        if(kwd->typ != InfKwd)
+        if (kwd->typ != InfKwd)
             RecWrd(msh, (unsigned char *)&kwd->NmbLin);
 
         /* In case of solution field, write the extended header at once */
 
-        if(kwd->typ == SolKwd)
+        if (kwd->typ == SolKwd)
         {
             RecWrd(msh, (unsigned char *)&kwd->NmbTyp);
 
-            for(i=0; i<kwd->NmbTyp; i++)
-                RecWrd(msh, (unsigned char *)&kwd->TypTab[i]);
+            for (i = 0; i < kwd->NmbTyp; i++) RecWrd(msh, (unsigned char *)&kwd->TypTab[i]);
         }
     }
 
@@ -668,60 +639,60 @@ int MeshFormatParser::GmfSetKwd(int MshIdx, int KwdCod, ...)
 
     msh->siz += kwd->NmbLin * kwd->NmbWrd * WrdSiz;
 
-    if(msh->siz > static_cast<long>(2E9))
-        return(0);
+    if (msh->siz > static_cast<long>(2E9))
+        return (0);
     else
-        return(kwd->NmbLin);
+        return (kwd->NmbLin);
 }
-
 
 /*----------------------------------------------------------*/
 /* Read a full line from the current kwd                                        */
 /*----------------------------------------------------------*/
 
-void MeshFormatParser::GmfGetLin(int MshIdx, int KwdCod, ...)
+void
+MeshFormatParser::GmfGetLin(int MshIdx, int KwdCod, ...)
 {
     int i, j;
     float *FltSolTab;
     double *DblSolTab;
     va_list VarArg;
-    GmfMshSct *msh = GmfMshTab[ MshIdx ];
-    KwdSct *kwd = &msh->KwdTab[ KwdCod ];
+    GmfMshSct *msh = GmfMshTab[MshIdx];
+    KwdSct *kwd = &msh->KwdTab[KwdCod];
 
     /* Start decoding the arguments */
 
     va_start(VarArg, KwdCod);
 
-    if(kwd->typ != SolKwd)
+    if (kwd->typ != SolKwd)
     {
         int k, nb_repeat = 0;
 
-        if(msh->ver == 1)
+        if (msh->ver == 1)
         {
-            if(msh->typ & Asc)
+            if (msh->typ & Asc)
             {
-                for(i=0; i<kwd->SolSiz; i++)
-                    if(kwd->fmt[i] == 'r')
+                for (i = 0; i < kwd->SolSiz; i++)
+                    if (kwd->fmt[i] == 'r')
                         fscanf(msh->hdl, "%f", va_arg(VarArg, float *));
-                    else if(kwd->fmt[i] == 'n') {
+                    else if (kwd->fmt[i] == 'n')
+                    {
                         fscanf(msh->hdl, "%d", &nb_repeat);
-                        *(va_arg(VarArg,  int *)) = nb_repeat;
-                        for(k=0; k<nb_repeat; k++)
-                            fscanf(msh->hdl, "%d", va_arg(VarArg, int *));
+                        *(va_arg(VarArg, int *)) = nb_repeat;
+                        for (k = 0; k < nb_repeat; k++) fscanf(msh->hdl, "%d", va_arg(VarArg, int *));
                     }
                     else
                         fscanf(msh->hdl, "%d", va_arg(VarArg, int *));
             }
             else
             {
-                for(i=0; i<kwd->SolSiz; i++)
-                    if(kwd->fmt[i] == 'r')
+                for (i = 0; i < kwd->SolSiz; i++)
+                    if (kwd->fmt[i] == 'r')
                         ScaWrd(msh, (unsigned char *)va_arg(VarArg, float *));
-                    else if(kwd->fmt[i] == 'n') {
+                    else if (kwd->fmt[i] == 'n')
+                    {
                         ScaWrd(msh, (unsigned char *)&nb_repeat);
-                        *(va_arg(VarArg,  int *)) = nb_repeat;
-                        for(k=0; k<nb_repeat; k++)
-                            ScaWrd(msh, (unsigned char *)va_arg(VarArg, int *));
+                        *(va_arg(VarArg, int *)) = nb_repeat;
+                        for (k = 0; k < nb_repeat; k++) ScaWrd(msh, (unsigned char *)va_arg(VarArg, int *));
                     }
                     else
                         ScaWrd(msh, (unsigned char *)va_arg(VarArg, int *));
@@ -729,29 +700,29 @@ void MeshFormatParser::GmfGetLin(int MshIdx, int KwdCod, ...)
         }
         else
         {
-            if(msh->typ & Asc)
+            if (msh->typ & Asc)
             {
-                for(i=0; i<kwd->SolSiz; i++)
-                    if(kwd->fmt[i] == 'r')
+                for (i = 0; i < kwd->SolSiz; i++)
+                    if (kwd->fmt[i] == 'r')
                         fscanf(msh->hdl, "%lf", va_arg(VarArg, double *));
-                    else if(kwd->fmt[i] == 'n') {
+                    else if (kwd->fmt[i] == 'n')
+                    {
                         fscanf(msh->hdl, "%d", &nb_repeat);
-                        *(va_arg(VarArg,  int *)) = nb_repeat;
-                        for(k=0; k<nb_repeat; k++)
-                            fscanf(msh->hdl, "%d", va_arg(VarArg, int *));
+                        *(va_arg(VarArg, int *)) = nb_repeat;
+                        for (k = 0; k < nb_repeat; k++) fscanf(msh->hdl, "%d", va_arg(VarArg, int *));
                     }
                     else
                         fscanf(msh->hdl, "%d", va_arg(VarArg, int *));
             }
             else
-                for(i=0; i<kwd->SolSiz; i++)
-                    if(kwd->fmt[i] == 'r')
+                for (i = 0; i < kwd->SolSiz; i++)
+                    if (kwd->fmt[i] == 'r')
                         ScaDblWrd(msh, (unsigned char *)va_arg(VarArg, double *));
-                    else if(kwd->fmt[i] == 'n') {
+                    else if (kwd->fmt[i] == 'n')
+                    {
                         ScaWrd(msh, (unsigned char *)&nb_repeat);
-                        *(va_arg(VarArg,  int *)) = nb_repeat;
-                        for(k=0; k<nb_repeat; k++)
-                            ScaWrd(msh, (unsigned char *)va_arg(VarArg, int *));
+                        *(va_arg(VarArg, int *)) = nb_repeat;
+                        for (k = 0; k < nb_repeat; k++) ScaWrd(msh, (unsigned char *)va_arg(VarArg, int *));
                     }
                     else
                         ScaWrd(msh, (unsigned char *)va_arg(VarArg, int *));
@@ -759,13 +730,12 @@ void MeshFormatParser::GmfGetLin(int MshIdx, int KwdCod, ...)
     }
     else
     {
-        if(msh->ver == 1)
+        if (msh->ver == 1)
         {
             FltSolTab = va_arg(VarArg, float *);
 
-            if(msh->typ & Asc)
-                for(j=0; j<kwd->SolSiz; j++)
-                    fscanf(msh->hdl, "%f", &FltSolTab[j]);
+            if (msh->typ & Asc)
+                for (j = 0; j < kwd->SolSiz; j++) fscanf(msh->hdl, "%f", &FltSolTab[j]);
             else
                 ScaBlk(msh, (unsigned char *)FltSolTab, kwd->NmbWrd);
         }
@@ -773,52 +743,50 @@ void MeshFormatParser::GmfGetLin(int MshIdx, int KwdCod, ...)
         {
             DblSolTab = va_arg(VarArg, double *);
 
-            if(msh->typ & Asc)
-                for(j=0; j<kwd->SolSiz; j++)
-                    fscanf(msh->hdl, "%lf", &DblSolTab[j]);
+            if (msh->typ & Asc)
+                for (j = 0; j < kwd->SolSiz; j++) fscanf(msh->hdl, "%lf", &DblSolTab[j]);
             else
-                for(j=0; j<kwd->SolSiz; j++)
-                    ScaDblWrd(msh, (unsigned char *)&DblSolTab[j]);
+                for (j = 0; j < kwd->SolSiz; j++) ScaDblWrd(msh, (unsigned char *)&DblSolTab[j]);
         }
     }
 
     va_end(VarArg);
 }
 
-
 /*----------------------------------------------------------*/
 /* Write a full line from the current kwd                                       */
 /*----------------------------------------------------------*/
 
-void MeshFormatParser::GmfSetLin(int MshIdx, int KwdCod, ...)
+void
+MeshFormatParser::GmfSetLin(int MshIdx, int KwdCod, ...)
 {
     int i, j, pos, *IntBuf;
     float *FltSolTab;
     double *DblSolTab, *DblBuf;
     va_list VarArg;
-    GmfMshSct *msh = GmfMshTab[ MshIdx ];
-    KwdSct *kwd = &msh->KwdTab[ KwdCod ];
+    GmfMshSct *msh = GmfMshTab[MshIdx];
+    KwdSct *kwd = &msh->KwdTab[KwdCod];
 
     /* Start decoding the arguments */
 
     va_start(VarArg, KwdCod);
 
-    if(kwd->typ != SolKwd)
+    if (kwd->typ != SolKwd)
     {
         int k, nb_repeat = 0;
 
-        if(msh->ver == 1)
+        if (msh->ver == 1)
         {
-            if(msh->typ & Asc)
+            if (msh->typ & Asc)
             {
-                for(i=0; i<kwd->SolSiz; i++)
-                    if(kwd->fmt[i] == 'r')
+                for (i = 0; i < kwd->SolSiz; i++)
+                    if (kwd->fmt[i] == 'r')
                         fprintf(msh->hdl, "%g ", (float)va_arg(VarArg, double));
-                    else if(kwd->fmt[i] == 'n') {
+                    else if (kwd->fmt[i] == 'n')
+                    {
                         nb_repeat = va_arg(VarArg, int);
                         fprintf(msh->hdl, "%d ", nb_repeat);
-                        for(k=0; k<nb_repeat; k++)
-                            fprintf(msh->hdl, "%d ", va_arg(VarArg, int));
+                        for (k = 0; k < nb_repeat; k++) fprintf(msh->hdl, "%d ", va_arg(VarArg, int));
                     }
                     else
                         fprintf(msh->hdl, "%d ", va_arg(VarArg, int));
@@ -826,15 +794,17 @@ void MeshFormatParser::GmfSetLin(int MshIdx, int KwdCod, ...)
             else
             {
                 int size_of_block = kwd->SolSiz;
-                for(i=0; i<kwd->SolSiz; i++)
-                    if(kwd->fmt[i] == 'r')
+                for (i = 0; i < kwd->SolSiz; i++)
+                    if (kwd->fmt[i] == 'r')
                         msh->FltBuf[i] = static_cast<float>(va_arg(VarArg, double));
-                    else if(kwd->fmt[i] == 'n') {
+                    else if (kwd->fmt[i] == 'n')
+                    {
                         nb_repeat = va_arg(VarArg, int);
-                        msh->FltBuf[i] = static_cast<float> (nb_repeat);
-                        for(k=0; k<nb_repeat; k++) {
-                            msh->IntBuf[i+1+k] = va_arg(VarArg, int);
-                            size_of_block ++;
+                        msh->FltBuf[i] = static_cast<float>(nb_repeat);
+                        for (k = 0; k < nb_repeat; k++)
+                        {
+                            msh->IntBuf[i + 1 + k] = va_arg(VarArg, int);
+                            size_of_block++;
                         }
                     }
                     else
@@ -845,16 +815,16 @@ void MeshFormatParser::GmfSetLin(int MshIdx, int KwdCod, ...)
         }
         else
         {
-            if(msh->typ & Asc)
+            if (msh->typ & Asc)
             {
-                for(i=0; i<kwd->SolSiz; i++)
-                    if(kwd->fmt[i] == 'r')
+                for (i = 0; i < kwd->SolSiz; i++)
+                    if (kwd->fmt[i] == 'r')
                         fprintf(msh->hdl, "%.15lg ", va_arg(VarArg, double));
-                    else if(kwd->fmt[i] == 'n') {
+                    else if (kwd->fmt[i] == 'n')
+                    {
                         nb_repeat = va_arg(VarArg, int);
                         fprintf(msh->hdl, "%d ", nb_repeat);
-                        for(k=0; k<nb_repeat; k++)
-                            fprintf(msh->hdl, "%d ", va_arg(VarArg, int));
+                        for (k = 0; k < nb_repeat; k++) fprintf(msh->hdl, "%d ", va_arg(VarArg, int));
                     }
                     else
                         fprintf(msh->hdl, "%d ", va_arg(VarArg, int));
@@ -863,44 +833,44 @@ void MeshFormatParser::GmfSetLin(int MshIdx, int KwdCod, ...)
             {
                 pos = 0;
 
-                for(i=0; i<kwd->SolSiz; i++)
-                    if(kwd->fmt[i] == 'r')
+                for (i = 0; i < kwd->SolSiz; i++)
+                    if (kwd->fmt[i] == 'r')
                     {
-                        DblBuf = (double *)&msh->buf[ pos ];
+                        DblBuf = (double *)&msh->buf[pos];
                         *DblBuf = va_arg(VarArg, double);
                         pos += 8;
                     }
-                    else if(kwd->fmt[i] == 'n')
+                    else if (kwd->fmt[i] == 'n')
                     {
-                        IntBuf = (int *)&msh->buf[ pos ];
+                        IntBuf = (int *)&msh->buf[pos];
                         nb_repeat = va_arg(VarArg, int);
                         *IntBuf = nb_repeat;
                         pos += 4;
-                        for(k=0; k<nb_repeat; k++) {
-                            IntBuf = (int *)&msh->buf[ pos ];
+                        for (k = 0; k < nb_repeat; k++)
+                        {
+                            IntBuf = (int *)&msh->buf[pos];
                             *IntBuf = va_arg(VarArg, int);
                             pos += 4;
                         }
                     }
                     else
                     {
-                        IntBuf = (int *)&msh->buf[ pos ];
+                        IntBuf = (int *)&msh->buf[pos];
                         *IntBuf = va_arg(VarArg, int);
                         pos += 4;
                     }
-                RecBlk(msh, msh->buf, pos/4);
+                RecBlk(msh, msh->buf, pos / 4);
             }
         }
     }
     else
     {
-        if(msh->ver == 1)
+        if (msh->ver == 1)
         {
             FltSolTab = va_arg(VarArg, float *);
 
-            if(msh->typ & Asc)
-                for(j=0; j<kwd->SolSiz; j++)
-                    fprintf(msh->hdl, "%g ", FltSolTab[j]);
+            if (msh->typ & Asc)
+                for (j = 0; j < kwd->SolSiz; j++) fprintf(msh->hdl, "%g ", FltSolTab[j]);
             else
                 RecBlk(msh, (unsigned char *)FltSolTab, kwd->NmbWrd);
         }
@@ -908,9 +878,8 @@ void MeshFormatParser::GmfSetLin(int MshIdx, int KwdCod, ...)
         {
             DblSolTab = va_arg(VarArg, double *);
 
-            if(msh->typ & Asc)
-                for(j=0; j<kwd->SolSiz; j++)
-                    fprintf(msh->hdl, "%.15lg ", DblSolTab[j]);
+            if (msh->typ & Asc)
+                for (j = 0; j < kwd->SolSiz; j++) fprintf(msh->hdl, "%.15lg ", DblSolTab[j]);
             else
                 RecBlk(msh, (unsigned char *)DblSolTab, kwd->NmbWrd);
         }
@@ -918,30 +887,30 @@ void MeshFormatParser::GmfSetLin(int MshIdx, int KwdCod, ...)
 
     va_end(VarArg);
 
-    if(msh->typ & Asc)
+    if (msh->typ & Asc)
         fprintf(msh->hdl, "\n");
 }
-
 
 /*----------------------------------------------------------*/
 /* Private procedure for transmesh : copy a whole line          */
 /*----------------------------------------------------------*/
 
-void MeshFormatParser::GmfCpyLin(int InpIdx, int OutIdx, int KwdCod)
+void
+MeshFormatParser::GmfCpyLin(int InpIdx, int OutIdx, int KwdCod)
 {
     double d;
     float f;
     int i, a;
-    GmfMshSct *InpMsh = GmfMshTab[ InpIdx ], *OutMsh = GmfMshTab[ OutIdx ];
-    KwdSct *kwd = &InpMsh->KwdTab[ KwdCod ];
+    GmfMshSct *InpMsh = GmfMshTab[InpIdx], *OutMsh = GmfMshTab[OutIdx];
+    KwdSct *kwd = &InpMsh->KwdTab[KwdCod];
 
-    for(i=0; i<kwd->SolSiz; i++)
+    for (i = 0; i < kwd->SolSiz; i++)
     {
-        if(kwd->fmt[i] == 'r')
+        if (kwd->fmt[i] == 'r')
         {
-            if(InpMsh->ver == 1)
+            if (InpMsh->ver == 1)
             {
-                if(InpMsh->typ & Asc)
+                if (InpMsh->typ & Asc)
                     fscanf(InpMsh->hdl, "%f", &f);
                 else
                     ScaWrd(InpMsh, (unsigned char *)&f);
@@ -950,7 +919,7 @@ void MeshFormatParser::GmfCpyLin(int InpIdx, int OutIdx, int KwdCod)
             }
             else
             {
-                if(InpMsh->typ & Asc)
+                if (InpMsh->typ & Asc)
                     fscanf(InpMsh->hdl, "%lf", &d);
                 else
                     ScaDblWrd(InpMsh, (unsigned char *)&d);
@@ -958,39 +927,40 @@ void MeshFormatParser::GmfCpyLin(int InpIdx, int OutIdx, int KwdCod)
                 f = (float)d;
             }
 
-            if(OutMsh->ver == 1)
-                if(OutMsh->typ & Asc)
+            if (OutMsh->ver == 1)
+                if (OutMsh->typ & Asc)
                     fprintf(OutMsh->hdl, "%g ", f);
                 else
                     RecWrd(OutMsh, (unsigned char *)&f);
-            else if(OutMsh->typ & Asc)
+            else if (OutMsh->typ & Asc)
                 fprintf(OutMsh->hdl, "%.15g ", d);
             else
                 RecDblWrd(OutMsh, (unsigned char *)&d);
         }
-        else if(kwd->fmt[i] == 'n')
+        else if (kwd->fmt[i] == 'n')
         {
             int k, nb_repeat = 0;
 
-            if(InpMsh->typ & Asc)
+            if (InpMsh->typ & Asc)
                 fscanf(InpMsh->hdl, "%d", &a);
             else
                 ScaWrd(InpMsh, (unsigned char *)&a);
 
             nb_repeat = a;
 
-            if(OutMsh->typ & Asc)
+            if (OutMsh->typ & Asc)
                 fprintf(OutMsh->hdl, "%d ", a);
             else
                 RecWrd(OutMsh, (unsigned char *)&a);
 
-            for(k=0; k<nb_repeat; k++) {
-                if(InpMsh->typ & Asc)
+            for (k = 0; k < nb_repeat; k++)
+            {
+                if (InpMsh->typ & Asc)
                     fscanf(InpMsh->hdl, "%d", &a);
                 else
                     ScaWrd(InpMsh, (unsigned char *)&a);
 
-                if(OutMsh->typ & Asc)
+                if (OutMsh->typ & Asc)
                     fprintf(OutMsh->hdl, "%d ", a);
                 else
                     RecWrd(OutMsh, (unsigned char *)&a);
@@ -998,55 +968,55 @@ void MeshFormatParser::GmfCpyLin(int InpIdx, int OutIdx, int KwdCod)
         }
         else
         {
-            if(InpMsh->typ & Asc)
+            if (InpMsh->typ & Asc)
                 fscanf(InpMsh->hdl, "%d", &a);
             else
                 ScaWrd(InpMsh, (unsigned char *)&a);
 
-            if(OutMsh->typ & Asc)
+            if (OutMsh->typ & Asc)
                 fprintf(OutMsh->hdl, "%d ", a);
             else
                 RecWrd(OutMsh, (unsigned char *)&a);
         }
     }
 
-    if(OutMsh->typ & Asc)
+    if (OutMsh->typ & Asc)
         fprintf(OutMsh->hdl, "\n");
 }
-
 
 /*----------------------------------------------------------*/
 /* Find every kw present in a meshfile                                          */
 /*----------------------------------------------------------*/
 
-int MeshFormatParser::ScaKwdTab(GmfMshSct *msh)
+int
+MeshFormatParser::ScaKwdTab(GmfMshSct *msh)
 {
     int KwdCod;
-    long  NexPos, CurPos, EndPos;
-    char str[ GmfStrSiz ];
+    long NexPos, CurPos, EndPos;
+    char str[GmfStrSiz];
 
-    if(msh->typ & Asc)
+    if (msh->typ & Asc)
     {
         /* Scan each string in the file until the end */
 
-        while(fscanf(msh->hdl, "%s", str) != EOF)
+        while (fscanf(msh->hdl, "%s", str) != EOF)
         {
             /* Fast test in order to reject quickly the numeric values */
 
-            if(isalpha(str[0]))
+            if (isalpha(str[0]))
             {
                 /* Search which kwd code this string is associated with,
                         then get its header and save the current position in file (just before the data) */
                 // printf("libmesh ScaKwdTab %s\n", str);
-                for(KwdCod=1; KwdCod<= GmfMaxKwd; KwdCod++)
-                    if(!strcmp(str, GmfKwdFmt[ KwdCod ][0]))
+                for (KwdCod = 1; KwdCod <= GmfMaxKwd; KwdCod++)
+                    if (!strcmp(str, GmfKwdFmt[KwdCod][0]))
                     {
                         ScaKwdHdr(msh, KwdCod);
                         break;
                     }
             }
-            else if(str[0] == '#')
-                while(fgetc(msh->hdl) != '\n');
+            else if (str[0] == '#')
+                while (fgetc(msh->hdl) != '\n');
         }
     }
     else
@@ -1067,37 +1037,37 @@ int MeshFormatParser::ScaKwdTab(GmfMshSct *msh)
             ScaWrd(msh, (unsigned char *)&KwdCod);
             NexPos = GetPos(msh);
 
-            if(NexPos > EndPos)
-                return(0);
+            if (NexPos > EndPos)
+                return (0);
 
             /* Check if this kwd belongs to this mesh version */
 
-            if( (KwdCod >= 1) && (KwdCod <= GmfMaxKwd) )
+            if ((KwdCod >= 1) && (KwdCod <= GmfMaxKwd))
                 ScaKwdHdr(msh, KwdCod);
 
             /* Go to the next kwd */
 
-            if(NexPos)
+            if (NexPos)
                 fseek(msh->hdl, NexPos, SEEK_SET);
-        } while(NexPos && (KwdCod != GmfEnd));
+        } while (NexPos && (KwdCod != GmfEnd));
     }
 
-    return(1);
+    return (1);
 }
-
 
 /*----------------------------------------------------------*/
 /* Read and setup the keyword's header                                          */
 /*----------------------------------------------------------*/
 
-void MeshFormatParser::ScaKwdHdr(GmfMshSct *msh, int KwdCod)
+void
+MeshFormatParser::ScaKwdHdr(GmfMshSct *msh, int KwdCod)
 {
     int i;
-    KwdSct *kwd = &msh->KwdTab[ KwdCod ];
+    KwdSct *kwd = &msh->KwdTab[KwdCod];
 
-    if(!strcmp("i", GmfKwdFmt[ KwdCod ][2]))
+    if (!strcmp("i", GmfKwdFmt[KwdCod][2]))
     {
-        if(msh->typ & Asc)
+        if (msh->typ & Asc)
             fscanf(msh->hdl, "%d", &kwd->NmbLin);
         else
             ScaWrd(msh, (unsigned char *)&kwd->NmbLin);
@@ -1105,21 +1075,19 @@ void MeshFormatParser::ScaKwdHdr(GmfMshSct *msh, int KwdCod)
     else
         kwd->NmbLin = 1;
 
-    if(!strcmp("sr", GmfKwdFmt[ KwdCod ][3]))
+    if (!strcmp("sr", GmfKwdFmt[KwdCod][3]))
     {
-        if(msh->typ & Asc)
+        if (msh->typ & Asc)
         {
             fscanf(msh->hdl, "%d", &kwd->NmbTyp);
 
-            for(i=0; i<kwd->NmbTyp; i++)
-                fscanf(msh->hdl, "%d", &kwd->TypTab[i]);
+            for (i = 0; i < kwd->NmbTyp; i++) fscanf(msh->hdl, "%d", &kwd->TypTab[i]);
         }
         else
         {
             ScaWrd(msh, (unsigned char *)&kwd->NmbTyp);
 
-            for(i=0; i<kwd->NmbTyp; i++)
-                ScaWrd(msh, (unsigned char *)&kwd->TypTab[i]);
+            for (i = 0; i < kwd->NmbTyp; i++) ScaWrd(msh, (unsigned char *)&kwd->TypTab[i]);
         }
     }
 
@@ -1127,94 +1095,91 @@ void MeshFormatParser::ScaKwdHdr(GmfMshSct *msh, int KwdCod)
     kwd->pos = ftell(msh->hdl);
 }
 
-
 /*----------------------------------------------------------*/
 /* Expand the compacted format and compute the line size        */
 /*----------------------------------------------------------*/
 
-void MeshFormatParser::ExpFmt(GmfMshSct *msh, int KwdCod)
+void
+MeshFormatParser::ExpFmt(GmfMshSct *msh, int KwdCod)
 {
-    int i, j, TmpSiz=0;
+    int i, j, TmpSiz = 0;
     char chr;
-    const char *InpFmt = GmfKwdFmt[ KwdCod ][3];
-    KwdSct *kwd = &msh->KwdTab[ KwdCod ];
+    const char *InpFmt = GmfKwdFmt[KwdCod][3];
+    KwdSct *kwd = &msh->KwdTab[KwdCod];
 
     /* Set the kwd's type */
 
-    if(!strlen(GmfKwdFmt[ KwdCod ][2]))
+    if (!strlen(GmfKwdFmt[KwdCod][2]))
         kwd->typ = InfKwd;
-    else if(!strcmp(InpFmt, "sr"))
+    else if (!strcmp(InpFmt, "sr"))
         kwd->typ = SolKwd;
     else
         kwd->typ = RegKwd;
 
     /* Get the solution-field's size */
 
-    if(kwd->typ == SolKwd)
-        for(i=0; i<kwd->NmbTyp; i++)
-            switch(kwd->TypTab[i])
+    if (kwd->typ == SolKwd)
+        for (i = 0; i < kwd->NmbTyp; i++) switch (kwd->TypTab[i])
             {
-            case GmfSca    :
-                TmpSiz += 1;
-                break;
-            case GmfVec    :
-                TmpSiz += msh->dim;
-                break;
-            case GmfSymMat :
-                TmpSiz += (msh->dim * (msh->dim+1)) / 2;
-                break;
-            case GmfMat    :
-                TmpSiz += msh->dim * msh->dim;
-                break;
+                case GmfSca:
+                    TmpSiz += 1;
+                    break;
+                case GmfVec:
+                    TmpSiz += msh->dim;
+                    break;
+                case GmfSymMat:
+                    TmpSiz += (msh->dim * (msh->dim + 1)) / 2;
+                    break;
+                case GmfMat:
+                    TmpSiz += msh->dim * msh->dim;
+                    break;
             }
 
     /* Scan each character from the format string */
 
     i = kwd->SolSiz = kwd->NmbWrd = 0;
 
-    while(i < static_cast<int>(strlen(InpFmt)) )
+    while (i < static_cast<int>(strlen(InpFmt)))
     {
-        chr = InpFmt[ i++ ];
+        chr = InpFmt[i++];
 
-        if(chr == 'd')
+        if (chr == 'd')
         {
             chr = InpFmt[i++];
 
-            for(j=0; j<msh->dim; j++)
-                kwd->fmt[ kwd->SolSiz++ ] = chr;
+            for (j = 0; j < msh->dim; j++) kwd->fmt[kwd->SolSiz++] = chr;
         }
-        else if(chr == 's')
+        else if (chr == 's')
         {
             chr = InpFmt[i++];
 
-            for(j=0; j<TmpSiz; j++)
-                kwd->fmt[ kwd->SolSiz++ ] = chr;
+            for (j = 0; j < TmpSiz; j++) kwd->fmt[kwd->SolSiz++] = chr;
         }
         else
-            kwd->fmt[ kwd->SolSiz++ ] = chr;
+            kwd->fmt[kwd->SolSiz++] = chr;
     }
 
-    for(i=0; i<kwd->SolSiz; i++)
-        if(kwd->fmt[i] == 'i')
+    for (i = 0; i < kwd->SolSiz; i++)
+        if (kwd->fmt[i] == 'i')
             kwd->NmbWrd++;
-        else if(msh->ver >= 2)
+        else if (msh->ver >= 2)
             kwd->NmbWrd += 2;
         else
             kwd->NmbWrd++;
 }
 
-
 /*----------------------------------------------------------*/
 /* Read a four bytes word from a mesh file                                      */
 /*----------------------------------------------------------*/
 
-void MeshFormatParser::ScaWrd(GmfMshSct *msh, unsigned char *wrd)
+void
+MeshFormatParser::ScaWrd(GmfMshSct *msh, unsigned char *wrd)
 {
     unsigned char swp;
 
     fread(wrd, WrdSiz, 1, msh->hdl);
 
-    if(msh->cod == 1)
+    if (msh->cod == 1)
         return;
 
     swp = wrd[3];
@@ -1226,136 +1191,136 @@ void MeshFormatParser::ScaWrd(GmfMshSct *msh, unsigned char *wrd)
     wrd[1] = swp;
 }
 
-
 /*----------------------------------------------------------*/
 /* Read an eight bytes word from a mesh file                            */
 /*----------------------------------------------------------*/
 
-void MeshFormatParser::ScaDblWrd(GmfMshSct *msh, unsigned char *wrd)
+void
+MeshFormatParser::ScaDblWrd(GmfMshSct *msh, unsigned char *wrd)
 {
     int i;
     unsigned char swp;
 
     fread(wrd, WrdSiz, 2, msh->hdl);
 
-    if(msh->cod == 1)
+    if (msh->cod == 1)
         return;
 
-    for(i=0; i<4; i++)
+    for (i = 0; i < 4; i++)
     {
-        swp = wrd[7-i];
-        wrd[7-i] = wrd[i];
+        swp = wrd[7 - i];
+        wrd[7 - i] = wrd[i];
         wrd[i] = swp;
     }
 }
-
 
 /*----------------------------------------------------------*/
 /* Read ablock of four bytes word from a mesh file                      */
 /*----------------------------------------------------------*/
 
-void MeshFormatParser::ScaBlk(GmfMshSct *msh, unsigned char *blk, int siz)
+void
+MeshFormatParser::ScaBlk(GmfMshSct *msh, unsigned char *blk, int siz)
 {
     int i, j;
     unsigned char swp, *wrd;
 
     fread(blk, WrdSiz, siz, msh->hdl);
 
-    if(msh->cod == 1)
+    if (msh->cod == 1)
         return;
 
-    for(i=0; i<siz; i++)
+    for (i = 0; i < siz; i++)
     {
-        wrd = &blk[ i * 4 ];
+        wrd = &blk[i * 4];
 
-        for(j=0; j<2; j++)
+        for (j = 0; j < 2; j++)
         {
-            swp = wrd[ 3-j ];
-            wrd[ 3-j ] = wrd[j];
+            swp = wrd[3 - j];
+            wrd[3 - j] = wrd[j];
             wrd[j] = swp;
         }
     }
 }
 
-
 /*----------------------------------------------------------*/
 /* Read a 4 or 8 bytes position in mesh file                            */
 /*----------------------------------------------------------*/
 
-long MeshFormatParser::GetPos(GmfMshSct *msh)
+long
+MeshFormatParser::GetPos(GmfMshSct *msh)
 {
     int IntVal;
     long pos;
 
-    if(msh->ver >= 3)
-        ScaDblWrd(msh, (unsigned char*)&pos);
+    if (msh->ver >= 3)
+        ScaDblWrd(msh, (unsigned char *)&pos);
     else
     {
-        ScaWrd(msh, (unsigned char*)&IntVal);
+        ScaWrd(msh, (unsigned char *)&IntVal);
         pos = IntVal;
     }
 
-    return(pos);
+    return (pos);
 }
-
 
 /*----------------------------------------------------------*/
 /* Write a four bytes word to a mesh file                                       */
 /*----------------------------------------------------------*/
 
-void MeshFormatParser::RecWrd(GmfMshSct *msh, unsigned char *wrd)
+void
+MeshFormatParser::RecWrd(GmfMshSct *msh, unsigned char *wrd)
 {
     fwrite(wrd, WrdSiz, 1, msh->hdl);
 }
-
 
 /*----------------------------------------------------------*/
 /* Write an eight bytes word to a mesh file                                     */
 /*----------------------------------------------------------*/
 
-void MeshFormatParser::RecDblWrd(GmfMshSct *msh, unsigned char *wrd)
+void
+MeshFormatParser::RecDblWrd(GmfMshSct *msh, unsigned char *wrd)
 {
     fwrite(wrd, WrdSiz, 2, msh->hdl);
 }
-
 
 /*----------------------------------------------------------*/
 /* Write a block of four bytes word to a mesh file                      */
 /*----------------------------------------------------------*/
 
-void MeshFormatParser::RecBlk(GmfMshSct *msh, unsigned char *blk, int siz)
+void
+MeshFormatParser::RecBlk(GmfMshSct *msh, unsigned char *blk, int siz)
 {
     /* Copy this line-block into the main mesh buffer */
 
-    if(siz)
+    if (siz)
     {
-        memcpy(&msh->blk[ msh->pos ], blk, siz * WrdSiz);
+        memcpy(&msh->blk[msh->pos], blk, siz * WrdSiz);
         msh->pos += siz * WrdSiz;
     }
 
     /* When the buffer is full or this procedure is called with a 0 size, flush the cache on disk */
 
-    if( (msh->pos > BufSiz) || (!siz && msh->pos) )
+    if ((msh->pos > BufSiz) || (!siz && msh->pos))
     {
         fwrite(msh->blk, 1, msh->pos, msh->hdl);
         msh->pos = 0;
     }
 }
 
-
 /*----------------------------------------------------------*/
 /* Write a 4 or 8 bytes position in a mesh file                         */
 /*----------------------------------------------------------*/
 
-void MeshFormatParser::SetPos(GmfMshSct *msh, long pos)
+void
+MeshFormatParser::SetPos(GmfMshSct *msh, long pos)
 {
     int IntVal;
 
-    if(msh->ver >= 3)
-        RecDblWrd(msh, (unsigned char*)&pos);
+    if (msh->ver >= 3)
+        RecDblWrd(msh, (unsigned char *)&pos);
     else
     {
         IntVal = static_cast<int>(pos);
-        RecWrd(msh, (unsigned char*)&IntVal);
+        RecWrd(msh, (unsigned char *)&IntVal);
     }
 }

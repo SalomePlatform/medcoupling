@@ -60,115 +60,145 @@ template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTuple<mcIdType>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTuple<double>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTuple<float>;
 
-void MEDCoupling::DACheckNbOfTuplesAndComp(const DataArray *da, mcIdType nbOfTuples, std::size_t nbOfCompo, const std::string& msg)
+void
+MEDCoupling::DACheckNbOfTuplesAndComp(
+    const DataArray *da, mcIdType nbOfTuples, std::size_t nbOfCompo, const std::string &msg
+)
 {
-  if(!da)
-    throw INTERP_KERNEL::Exception("DACheckNbOfTuplesAndComp : null input object !");
-  da->checkNbOfTuplesAndComp(nbOfTuples,nbOfCompo,msg);
+    if (!da)
+        throw INTERP_KERNEL::Exception("DACheckNbOfTuplesAndComp : null input object !");
+    da->checkNbOfTuplesAndComp(nbOfTuples, nbOfCompo, msg);
 }
 
-template<int SPACEDIM>
-void DataArrayDouble::findCommonTuplesAlg(const double *bbox, mcIdType nbNodes, mcIdType limitNodeId, double prec, DataArrayIdType *c, DataArrayIdType *cI) const
+template <int SPACEDIM>
+void
+DataArrayDouble::findCommonTuplesAlg(
+    const double *bbox, mcIdType nbNodes, mcIdType limitNodeId, double prec, DataArrayIdType *c, DataArrayIdType *cI
+) const
 {
-  const double *coordsPtr=getConstPointer();
-  BBTreePts<SPACEDIM,mcIdType> myTree(bbox,0,0,nbNodes,prec);
-  std::vector<bool> isDone(nbNodes);
-  for(mcIdType i=0;i<nbNodes;i++)
+    const double *coordsPtr = getConstPointer();
+    BBTreePts<SPACEDIM, mcIdType> myTree(bbox, 0, 0, nbNodes, prec);
+    std::vector<bool> isDone(nbNodes);
+    for (mcIdType i = 0; i < nbNodes; i++)
     {
-      if(!isDone[i])
+        if (!isDone[i])
         {
-          std::vector<mcIdType> intersectingElems;
-          myTree.getElementsAroundPoint(coordsPtr+i*SPACEDIM,intersectingElems);
-          if(intersectingElems.size()>1)
+            std::vector<mcIdType> intersectingElems;
+            myTree.getElementsAroundPoint(coordsPtr + i * SPACEDIM, intersectingElems);
+            if (intersectingElems.size() > 1)
             {
-              std::vector<mcIdType> commonNodes;
-              for(std::vector<mcIdType>::const_iterator it=intersectingElems.begin();it!=intersectingElems.end();it++)
-                if(*it!=i)
-                  if(*it>=limitNodeId)
-                    {
-                      commonNodes.push_back(*it);
-                      isDone[*it]=true;
-                    }
-              if(!commonNodes.empty())
+                std::vector<mcIdType> commonNodes;
+                for (std::vector<mcIdType>::const_iterator it = intersectingElems.begin();
+                     it != intersectingElems.end();
+                     it++)
+                    if (*it != i)
+                        if (*it >= limitNodeId)
+                        {
+                            commonNodes.push_back(*it);
+                            isDone[*it] = true;
+                        }
+                if (!commonNodes.empty())
                 {
-                  cI->pushBackSilent(cI->back()+ToIdType(commonNodes.size())+1);
-                  c->pushBackSilent(i);
-                  c->insertAtTheEnd(commonNodes.begin(),commonNodes.end());
+                    cI->pushBackSilent(cI->back() + ToIdType(commonNodes.size()) + 1);
+                    c->pushBackSilent(i);
+                    c->insertAtTheEnd(commonNodes.begin(), commonNodes.end());
                 }
             }
         }
     }
 }
 
-template<int SPACEDIM>
-void DataArrayDouble::FindTupleIdsNearTuplesAlg(const BBTreePts<SPACEDIM,mcIdType>& myTree, const double *pos, mcIdType nbOfTuples, double eps,
-                                                DataArrayIdType *c, DataArrayIdType *cI)
+template <int SPACEDIM>
+void
+DataArrayDouble::FindTupleIdsNearTuplesAlg(
+    const BBTreePts<SPACEDIM, mcIdType> &myTree,
+    const double *pos,
+    mcIdType nbOfTuples,
+    double eps,
+    DataArrayIdType *c,
+    DataArrayIdType *cI
+)
 {
-  for(mcIdType i=0;i<nbOfTuples;i++)
+    for (mcIdType i = 0; i < nbOfTuples; i++)
     {
-      std::vector<mcIdType> intersectingElems;
-      myTree.getElementsAroundPoint(pos+i*SPACEDIM,intersectingElems);
-      std::vector<mcIdType> commonNodes;
-      for(std::vector<mcIdType>::const_iterator it=intersectingElems.begin();it!=intersectingElems.end();it++)
-        commonNodes.push_back(*it);
-      cI->pushBackSilent(cI->back()+ToIdType(commonNodes.size()));
-      c->insertAtTheEnd(commonNodes.begin(),commonNodes.end());
+        std::vector<mcIdType> intersectingElems;
+        myTree.getElementsAroundPoint(pos + i * SPACEDIM, intersectingElems);
+        std::vector<mcIdType> commonNodes;
+        for (std::vector<mcIdType>::const_iterator it = intersectingElems.begin(); it != intersectingElems.end(); it++)
+            commonNodes.push_back(*it);
+        cI->pushBackSilent(cI->back() + ToIdType(commonNodes.size()));
+        c->insertAtTheEnd(commonNodes.begin(), commonNodes.end());
     }
 }
 
-template<int SPACEDIM>
-void DataArrayDouble::FindClosestTupleIdAlg(const BBTreePts<SPACEDIM,mcIdType>& myTree, double dist, const double *pos, mcIdType nbOfTuples, const double *thisPt, mcIdType thisNbOfTuples, mcIdType *res)
+template <int SPACEDIM>
+void
+DataArrayDouble::FindClosestTupleIdAlg(
+    const BBTreePts<SPACEDIM, mcIdType> &myTree,
+    double dist,
+    const double *pos,
+    mcIdType nbOfTuples,
+    const double *thisPt,
+    mcIdType thisNbOfTuples,
+    mcIdType *res
+)
 {
-  double distOpt = std::max(dist, std::numeric_limits<double>::epsilon());
-  const double *p(pos);
-  mcIdType *r(res);
-  for(mcIdType i=0;i<nbOfTuples;i++,p+=SPACEDIM,r++)
+    double distOpt = std::max(dist, std::numeric_limits<double>::epsilon());
+    const double *p(pos);
+    mcIdType *r(res);
+    for (mcIdType i = 0; i < nbOfTuples; i++, p += SPACEDIM, r++)
     {
-      while(true)
+        while (true)
         {
-          mcIdType elem=-1;
-          double ret=myTree.getElementsAroundPoint2(p,distOpt,elem);
-          if(ret!=std::numeric_limits<double>::max())
+            mcIdType elem = -1;
+            double ret = myTree.getElementsAroundPoint2(p, distOpt, elem);
+            if (ret != std::numeric_limits<double>::max())
             {
-              distOpt=std::max(ret,1e-4);
-              *r=elem;
-              break;
+                distOpt = std::max(ret, 1e-4);
+                *r = elem;
+                break;
             }
-          else
-            { distOpt=2*distOpt; continue; }
+            else
+            {
+                distOpt = 2 * distOpt;
+                continue;
+            }
         }
     }
 }
 
-mcIdType DataArray::EffectiveCircPerm(mcIdType nbOfShift, mcIdType nbOfTuples)
+mcIdType
+DataArray::EffectiveCircPerm(mcIdType nbOfShift, mcIdType nbOfTuples)
 {
-  if(nbOfTuples<=0)
-    throw INTERP_KERNEL::Exception("DataArray::EffectiveCircPerm : number of tuples is expected to be > 0 !");
-  if(nbOfShift>=0)
+    if (nbOfTuples <= 0)
+        throw INTERP_KERNEL::Exception("DataArray::EffectiveCircPerm : number of tuples is expected to be > 0 !");
+    if (nbOfShift >= 0)
     {
-      return nbOfShift%nbOfTuples;
+        return nbOfShift % nbOfTuples;
     }
-  else
+    else
     {
-      mcIdType tmp(-nbOfShift);
-      tmp=tmp%nbOfTuples;
-      return nbOfTuples-tmp;
+        mcIdType tmp(-nbOfShift);
+        tmp = tmp % nbOfTuples;
+        return nbOfTuples - tmp;
     }
 }
 
-std::size_t DataArray::getHeapMemorySizeWithoutChildren() const
+std::size_t
+DataArray::getHeapMemorySizeWithoutChildren() const
 {
-  std::size_t sz1=_name.capacity();
-  std::size_t sz2=_info_on_compo.capacity();
-  std::size_t sz3=0;
-  for(std::vector<std::string>::const_iterator it=_info_on_compo.begin();it!=_info_on_compo.end();it++)
-    sz3+=(*it).capacity();
-  return sz1+sz2+sz3;
+    std::size_t sz1 = _name.capacity();
+    std::size_t sz2 = _info_on_compo.capacity();
+    std::size_t sz3 = 0;
+    for (std::vector<std::string>::const_iterator it = _info_on_compo.begin(); it != _info_on_compo.end(); it++)
+        sz3 += (*it).capacity();
+    return sz1 + sz2 + sz3;
 }
 
-std::vector<const BigMemoryObject *> DataArray::getDirectChildrenWithNull() const
+std::vector<const BigMemoryObject *>
+DataArray::getDirectChildrenWithNull() const
 {
-  return std::vector<const BigMemoryObject *>();
+    return std::vector<const BigMemoryObject *>();
 }
 
 /*!
@@ -176,9 +206,10 @@ std::vector<const BigMemoryObject *> DataArray::getDirectChildrenWithNull() cons
  * See \ref MEDCouplingArrayBasicsName "DataArrays infos" for more information.
  *  \param [in] name - new array name
  */
-void DataArray::setName(const std::string& name)
+void
+DataArray::setName(const std::string &name)
 {
-  _name=name;
+    _name = name;
 }
 
 /*!
@@ -191,65 +222,73 @@ void DataArray::setName(const std::string& name)
  *  \param [in] other - another instance of DataArray to copy the textual data from.
  *  \throw If number of components of \a this array differs from that of the \a other.
  */
-void DataArray::copyStringInfoFrom(const DataArray& other)
+void
+DataArray::copyStringInfoFrom(const DataArray &other)
 {
-  if(_info_on_compo.size()!=other._info_on_compo.size())
-    throw INTERP_KERNEL::Exception("Size of arrays mismatches on copyStringInfoFrom !");
-  _name=other._name;
-  _info_on_compo=other._info_on_compo;
+    if (_info_on_compo.size() != other._info_on_compo.size())
+        throw INTERP_KERNEL::Exception("Size of arrays mismatches on copyStringInfoFrom !");
+    _name = other._name;
+    _info_on_compo = other._info_on_compo;
 }
 
-void DataArray::copyPartOfStringInfoFrom(const DataArray& other, const std::vector<std::size_t>& compoIds)
+void
+DataArray::copyPartOfStringInfoFrom(const DataArray &other, const std::vector<std::size_t> &compoIds)
 {
-  std::size_t nbOfCompoOth=other.getNumberOfComponents();
-  std::size_t newNbOfCompo=compoIds.size();
-  for(std::size_t i=0;i<newNbOfCompo;i++)
-    if(compoIds[i]>=nbOfCompoOth)
-      {
-        std::ostringstream oss; oss << "Specified component id is out of range (" << compoIds[i] << ") compared with nb of actual components (" << nbOfCompoOth << ")";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
-  for(std::size_t i=0;i<newNbOfCompo;i++)
-    setInfoOnComponent(i,other.getInfoOnComponent(compoIds[i]));
+    std::size_t nbOfCompoOth = other.getNumberOfComponents();
+    std::size_t newNbOfCompo = compoIds.size();
+    for (std::size_t i = 0; i < newNbOfCompo; i++)
+        if (compoIds[i] >= nbOfCompoOth)
+        {
+            std::ostringstream oss;
+            oss << "Specified component id is out of range (" << compoIds[i]
+                << ") compared with nb of actual components (" << nbOfCompoOth << ")";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    for (std::size_t i = 0; i < newNbOfCompo; i++) setInfoOnComponent(i, other.getInfoOnComponent(compoIds[i]));
 }
 
-void DataArray::copyPartOfStringInfoFrom2(const std::vector<std::size_t>& compoIds, const DataArray& other)
+void
+DataArray::copyPartOfStringInfoFrom2(const std::vector<std::size_t> &compoIds, const DataArray &other)
 {
-  if(compoIds.size()!=other.getNumberOfComponents())
-    throw INTERP_KERNEL::Exception("Given compoIds has not the same size as number of components of given array !");
-  std::size_t partOfCompoToSet=compoIds.size();
-  std::size_t nbOfCompo=getNumberOfComponents();
-  for(std::size_t i=0;i<partOfCompoToSet;i++)
-    if(compoIds[i]>=nbOfCompo)
-      {
-        std::ostringstream oss; oss << "Specified component id is out of range (" << compoIds[i] << ") compared with nb of actual components (" << nbOfCompo << ")";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
-  for(std::size_t i=0;i<partOfCompoToSet;i++)
-    setInfoOnComponent(compoIds[i],other.getInfoOnComponent(i));
+    if (compoIds.size() != other.getNumberOfComponents())
+        throw INTERP_KERNEL::Exception("Given compoIds has not the same size as number of components of given array !");
+    std::size_t partOfCompoToSet = compoIds.size();
+    std::size_t nbOfCompo = getNumberOfComponents();
+    for (std::size_t i = 0; i < partOfCompoToSet; i++)
+        if (compoIds[i] >= nbOfCompo)
+        {
+            std::ostringstream oss;
+            oss << "Specified component id is out of range (" << compoIds[i]
+                << ") compared with nb of actual components (" << nbOfCompo << ")";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    for (std::size_t i = 0; i < partOfCompoToSet; i++) setInfoOnComponent(compoIds[i], other.getInfoOnComponent(i));
 }
 
-bool DataArray::areInfoEqualsIfNotWhy(const DataArray& other, std::string& reason) const
+bool
+DataArray::areInfoEqualsIfNotWhy(const DataArray &other, std::string &reason) const
 {
-  std::ostringstream oss;
-  if(_name!=other._name)
+    std::ostringstream oss;
+    if (_name != other._name)
     {
-      oss << "Names DataArray mismatch : this name=\"" << _name << " other name=\"" << other._name << "\" !";
-      reason=oss.str();
-      return false;
+        oss << "Names DataArray mismatch : this name=\"" << _name << " other name=\"" << other._name << "\" !";
+        reason = oss.str();
+        return false;
     }
-  if(_info_on_compo!=other._info_on_compo)
+    if (_info_on_compo != other._info_on_compo)
     {
-      oss << "Components DataArray mismatch : \nThis components=";
-      for(std::vector<std::string>::const_iterator it=_info_on_compo.begin();it!=_info_on_compo.end();it++)
-        oss << "\"" << *it << "\",";
-      oss << "\nOther components=";
-      for(std::vector<std::string>::const_iterator it=other._info_on_compo.begin();it!=other._info_on_compo.end();it++)
-        oss << "\"" << *it << "\",";
-      reason=oss.str();
-      return false;
+        oss << "Components DataArray mismatch : \nThis components=";
+        for (std::vector<std::string>::const_iterator it = _info_on_compo.begin(); it != _info_on_compo.end(); it++)
+            oss << "\"" << *it << "\",";
+        oss << "\nOther components=";
+        for (std::vector<std::string>::const_iterator it = other._info_on_compo.begin();
+             it != other._info_on_compo.end();
+             it++)
+            oss << "\"" << *it << "\",";
+        reason = oss.str();
+        return false;
     }
-  return true;
+    return true;
 }
 
 /*!
@@ -262,26 +301,29 @@ bool DataArray::areInfoEqualsIfNotWhy(const DataArray& other, std::string& reaso
  *  \param [in] other - another instance of DataArray to compare the textual data of.
  *  \return bool - \a true if the textual information is same, \a false else.
  */
-bool DataArray::areInfoEquals(const DataArray& other) const
+bool
+DataArray::areInfoEquals(const DataArray &other) const
 {
-  std::string tmp;
-  return areInfoEqualsIfNotWhy(other,tmp);
+    std::string tmp;
+    return areInfoEqualsIfNotWhy(other, tmp);
 }
 
-void DataArray::reprWithoutNameStream(std::ostream& stream) const
+void
+DataArray::reprWithoutNameStream(std::ostream &stream) const
 {
-  stream << "Number of components : "<< getNumberOfComponents() << "\n";
-  stream << "Info of these components : ";
-  for(std::vector<std::string>::const_iterator iter=_info_on_compo.begin();iter!=_info_on_compo.end();iter++)
-    stream << "\"" << *iter << "\"   ";
-  stream << "\n";
+    stream << "Number of components : " << getNumberOfComponents() << "\n";
+    stream << "Info of these components : ";
+    for (std::vector<std::string>::const_iterator iter = _info_on_compo.begin(); iter != _info_on_compo.end(); iter++)
+        stream << "\"" << *iter << "\"   ";
+    stream << "\n";
 }
 
-std::string DataArray::cppRepr(const std::string& varName) const
+std::string
+DataArray::cppRepr(const std::string &varName) const
 {
-  std::ostringstream ret;
-  reprCppStream(varName,ret);
-  return ret.str();
+    std::ostringstream ret;
+    reprCppStream(varName, ret);
+    return ret.str();
 }
 
 /*!
@@ -290,68 +332,82 @@ std::string DataArray::cppRepr(const std::string& varName) const
  *  \param [in] info - a vector of strings.
  *  \throw If size of \a info differs from the number of components of \a this.
  */
-void DataArray::setInfoOnComponents(const std::vector<std::string>& info)
+void
+DataArray::setInfoOnComponents(const std::vector<std::string> &info)
 {
-  if(getNumberOfComponents()!=info.size())
+    if (getNumberOfComponents() != info.size())
     {
-      std::ostringstream oss; oss << "DataArray::setInfoOnComponents : input is of size " << info.size() << " whereas number of components is equal to " << getNumberOfComponents() << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "DataArray::setInfoOnComponents : input is of size " << info.size()
+            << " whereas number of components is equal to " << getNumberOfComponents() << " !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  _info_on_compo=info;
+    _info_on_compo = info;
 }
 
 /*!
- * This method is only a dispatcher towards DataArrayDouble::setPartOfValues3, DataArrayInt::setPartOfValues3, DataArrayChar::setPartOfValues3 depending on the true
- * type of \a this and \a aBase.
+ * This method is only a dispatcher towards DataArrayDouble::setPartOfValues3, DataArrayInt::setPartOfValues3,
+ * DataArrayChar::setPartOfValues3 depending on the true type of \a this and \a aBase.
  *
  * \throw If \a aBase and \a this do not have the same type.
  *
  * \sa DataArrayDouble::setPartOfValues3, DataArrayInt::setPartOfValues3, DataArrayChar::setPartOfValues3.
  */
-void DataArray::setPartOfValuesBase3(const DataArray *aBase, const mcIdType *bgTuples, const mcIdType *endTuples, mcIdType bgComp, mcIdType endComp, mcIdType stepComp, bool strictCompoCompare)
+void
+DataArray::setPartOfValuesBase3(
+    const DataArray *aBase,
+    const mcIdType *bgTuples,
+    const mcIdType *endTuples,
+    mcIdType bgComp,
+    mcIdType endComp,
+    mcIdType stepComp,
+    bool strictCompoCompare
+)
 {
-  if(!aBase)
-    throw INTERP_KERNEL::Exception("DataArray::setPartOfValuesBase3 : input aBase object is NULL !");
-  DataArrayDouble *this1(dynamic_cast<DataArrayDouble *>(this));
-  DataArrayIdType *this2(dynamic_cast<DataArrayIdType *>(this));
-  DataArrayChar *this3(dynamic_cast<DataArrayChar *>(this));
-  const DataArrayDouble *a1(dynamic_cast<const DataArrayDouble *>(aBase));
-  const DataArrayIdType *a2(dynamic_cast<const DataArrayIdType *>(aBase));
-  const DataArrayChar *a3(dynamic_cast<const DataArrayChar *>(aBase));
-  if(this1 && a1)
+    if (!aBase)
+        throw INTERP_KERNEL::Exception("DataArray::setPartOfValuesBase3 : input aBase object is NULL !");
+    DataArrayDouble *this1(dynamic_cast<DataArrayDouble *>(this));
+    DataArrayIdType *this2(dynamic_cast<DataArrayIdType *>(this));
+    DataArrayChar *this3(dynamic_cast<DataArrayChar *>(this));
+    const DataArrayDouble *a1(dynamic_cast<const DataArrayDouble *>(aBase));
+    const DataArrayIdType *a2(dynamic_cast<const DataArrayIdType *>(aBase));
+    const DataArrayChar *a3(dynamic_cast<const DataArrayChar *>(aBase));
+    if (this1 && a1)
     {
-      this1->setPartOfValues3(a1,bgTuples,endTuples,bgComp,endComp,stepComp,strictCompoCompare);
-      return ;
+        this1->setPartOfValues3(a1, bgTuples, endTuples, bgComp, endComp, stepComp, strictCompoCompare);
+        return;
     }
-  if(this2 && a2)
+    if (this2 && a2)
     {
-      this2->setPartOfValues3(a2,bgTuples,endTuples,bgComp,endComp,stepComp,strictCompoCompare);
-      return ;
+        this2->setPartOfValues3(a2, bgTuples, endTuples, bgComp, endComp, stepComp, strictCompoCompare);
+        return;
     }
-  if(this3 && a3)
+    if (this3 && a3)
     {
-      this3->setPartOfValues3(a3,bgTuples,endTuples,bgComp,endComp,stepComp,strictCompoCompare);
-      return ;
+        this3->setPartOfValues3(a3, bgTuples, endTuples, bgComp, endComp, stepComp, strictCompoCompare);
+        return;
     }
-  throw INTERP_KERNEL::Exception("DataArray::setPartOfValuesBase3 : input aBase object and this do not have the same type !");
+    throw INTERP_KERNEL::Exception(
+        "DataArray::setPartOfValuesBase3 : input aBase object and this do not have the same type !"
+    );
 }
 
-std::vector<std::string> DataArray::getVarsOnComponent() const
+std::vector<std::string>
+DataArray::getVarsOnComponent() const
 {
-  std::size_t nbOfCompo=_info_on_compo.size();
-  std::vector<std::string> ret(nbOfCompo);
-  for(std::size_t i=0;i<nbOfCompo;i++)
-    ret[i]=getVarOnComponent(i);
-  return ret;
+    std::size_t nbOfCompo = _info_on_compo.size();
+    std::vector<std::string> ret(nbOfCompo);
+    for (std::size_t i = 0; i < nbOfCompo; i++) ret[i] = getVarOnComponent(i);
+    return ret;
 }
 
-std::vector<std::string> DataArray::getUnitsOnComponent() const
+std::vector<std::string>
+DataArray::getUnitsOnComponent() const
 {
-  std::size_t nbOfCompo=_info_on_compo.size();
-  std::vector<std::string> ret(nbOfCompo);
-  for(std::size_t i=0;i<nbOfCompo;i++)
-    ret[i]=getUnitOnComponent(i);
-  return ret;
+    std::size_t nbOfCompo = _info_on_compo.size();
+    std::vector<std::string> ret(nbOfCompo);
+    for (std::size_t i = 0; i < nbOfCompo; i++) ret[i] = getUnitOnComponent(i);
+    return ret;
 }
 
 /*!
@@ -362,14 +418,17 @@ std::vector<std::string> DataArray::getUnitsOnComponent() const
  *  \return std::string - a string containing the information on \a i-th component.
  *  \throw If \a i is not a valid component index.
  */
-std::string DataArray::getInfoOnComponent(std::size_t i) const
+std::string
+DataArray::getInfoOnComponent(std::size_t i) const
 {
-  if(i<_info_on_compo.size())
-    return _info_on_compo[i];
-  else
+    if (i < _info_on_compo.size())
+        return _info_on_compo[i];
+    else
     {
-      std::ostringstream oss; oss << "DataArray::getInfoOnComponent : Specified component id is out of range (" << i << ") compared with nb of actual components (" << _info_on_compo.size();
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "DataArray::getInfoOnComponent : Specified component id is out of range (" << i
+            << ") compared with nb of actual components (" << _info_on_compo.size();
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
 
@@ -385,16 +444,19 @@ std::string DataArray::getInfoOnComponent(std::size_t i) const
  *  \return std::string - a string containing the var information, or the full info.
  *  \throw If \a i is not a valid component index.
  */
-std::string DataArray::getVarOnComponent(std::size_t i) const
+std::string
+DataArray::getVarOnComponent(std::size_t i) const
 {
-  if(i<_info_on_compo.size())
+    if (i < _info_on_compo.size())
     {
-      return GetVarNameFromInfo(_info_on_compo[i]);
+        return GetVarNameFromInfo(_info_on_compo[i]);
     }
-  else
+    else
     {
-      std::ostringstream oss; oss << "DataArray::getVarOnComponent : Specified component id is out of range  (" << i << ") compared with nb of actual components (" << _info_on_compo.size();
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "DataArray::getVarOnComponent : Specified component id is out of range  (" << i
+            << ") compared with nb of actual components (" << _info_on_compo.size();
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
 
@@ -410,16 +472,19 @@ std::string DataArray::getVarOnComponent(std::size_t i) const
  *  \return std::string - a string containing the unit information, if any, or "".
  *  \throw If \a i is not a valid component index.
  */
-std::string DataArray::getUnitOnComponent(std::size_t i) const
+std::string
+DataArray::getUnitOnComponent(std::size_t i) const
 {
-  if(i<_info_on_compo.size())
+    if (i < _info_on_compo.size())
     {
-      return GetUnitFromInfo(_info_on_compo[i]);
+        return GetUnitFromInfo(_info_on_compo[i]);
     }
-  else
+    else
     {
-      std::ostringstream oss; oss << "DataArray::getUnitOnComponent : Specified component id is out of range  (" << i << ") compared with nb of actual components (" << _info_on_compo.size();
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "DataArray::getUnitOnComponent : Specified component id is out of range  (" << i
+            << ") compared with nb of actual components (" << _info_on_compo.size();
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
 
@@ -427,23 +492,27 @@ std::string DataArray::getUnitOnComponent(std::size_t i) const
  * Split \a st string into chunks of sz characters each.
  * Size of input \a st must a be a multiple of \a sz. If not an exception is thrown.
  */
-std::vector<std::string> DataArray::SplitStringInChuncks(const std::string st, std::size_t sz)
+std::vector<std::string>
+DataArray::SplitStringInChuncks(const std::string st, std::size_t sz)
 {
-  std::size_t len = st.length();
-  std::size_t nbOfCompo(len/sz);
-  if( nbOfCompo*sz != len)
-  {
-    THROW_IK_EXCEPTION("DataArray::SplitStringInChuncks : Length of input string (" << len << ") is not equal to " << nbOfCompo << "*" << sz << " !");
-  }
-  std::vector<std::string> ret(nbOfCompo);
-  for(std::size_t i = 0 ; i < nbOfCompo ; ++i)
-  {
-    std::string part = st.substr(i*sz,sz);
-    std::size_t p3=part.find_last_not_of(" \t");
-    part = part.substr(0,p3+1);
-    ret[i] = part;
-  }
-  return ret;
+    std::size_t len = st.length();
+    std::size_t nbOfCompo(len / sz);
+    if (nbOfCompo * sz != len)
+    {
+        THROW_IK_EXCEPTION(
+            "DataArray::SplitStringInChuncks : Length of input string (" << len << ") is not equal to " << nbOfCompo
+                                                                         << "*" << sz << " !"
+        );
+    }
+    std::vector<std::string> ret(nbOfCompo);
+    for (std::size_t i = 0; i < nbOfCompo; ++i)
+    {
+        std::string part = st.substr(i * sz, sz);
+        std::size_t p3 = part.find_last_not_of(" \t");
+        part = part.substr(0, p3 + 1);
+        ret[i] = part;
+    }
+    return ret;
 }
 
 /*!
@@ -456,18 +525,19 @@ std::vector<std::string> DataArray::SplitStringInChuncks(const std::string st, s
  *  \param [in] info - the full component information.
  *  \return std::string - a string containing only var information, or the \a info.
  */
-std::string DataArray::GetVarNameFromInfo(const std::string& info)
+std::string
+DataArray::GetVarNameFromInfo(const std::string &info)
 {
-  std::size_t p1=info.find_last_of('[');
-  std::size_t p2=info.find_last_of(']');
-  if(p1==std::string::npos || p2==std::string::npos)
-    return info;
-  if(p1>p2)
-    return info;
-  if(p1==0)
-    return std::string();
-  std::size_t p3=info.find_last_not_of(' ',p1-1);
-  return info.substr(0,p3+1);
+    std::size_t p1 = info.find_last_of('[');
+    std::size_t p2 = info.find_last_of(']');
+    if (p1 == std::string::npos || p2 == std::string::npos)
+        return info;
+    if (p1 > p2)
+        return info;
+    if (p1 == 0)
+        return std::string();
+    std::size_t p3 = info.find_last_not_of(' ', p1 - 1);
+    return info.substr(0, p3 + 1);
 }
 
 /*!
@@ -480,41 +550,45 @@ std::string DataArray::GetVarNameFromInfo(const std::string& info)
  *  \param [in] info - the full component information.
  *  \return std::string - a string containing only unit information, if any, or "".
  */
-std::string DataArray::GetUnitFromInfo(const std::string& info)
+std::string
+DataArray::GetUnitFromInfo(const std::string &info)
 {
-  std::size_t p1=info.find_last_of('[');
-  std::size_t p2=info.find_last_of(']');
-  if(p1==std::string::npos || p2==std::string::npos)
-    return std::string();
-  if(p1>p2)
-    return std::string();
-  return info.substr(p1+1,p2-p1-1);
+    std::size_t p1 = info.find_last_of('[');
+    std::size_t p2 = info.find_last_of(']');
+    if (p1 == std::string::npos || p2 == std::string::npos)
+        return std::string();
+    if (p1 > p2)
+        return std::string();
+    return info.substr(p1 + 1, p2 - p1 - 1);
 }
 
 /*!
  * This method put in info format the result of the merge of \a var and \a unit.
  * The standard format for that is "var [unit]".
- * Inversely you can retrieve the var part or the unit part of info string using resp. GetVarNameFromInfo and GetUnitFromInfo.
+ * Inversely you can retrieve the var part or the unit part of info string using resp. GetVarNameFromInfo and
+ * GetUnitFromInfo.
  */
-std::string DataArray::BuildInfoFromVarAndUnit(const std::string& var, const std::string& unit)
+std::string
+DataArray::BuildInfoFromVarAndUnit(const std::string &var, const std::string &unit)
 {
-  std::ostringstream oss;
-  oss << var << " [" << unit << "]";
-  return oss.str();
+    std::ostringstream oss;
+    oss << var << " [" << unit << "]";
+    return oss.str();
 }
 
-std::string DataArray::GetAxisTypeRepr(MEDCouplingAxisType at)
+std::string
+DataArray::GetAxisTypeRepr(MEDCouplingAxisType at)
 {
-  switch(at)
+    switch (at)
     {
-    case AX_CART:
-      return std::string("AX_CART");
-    case AX_CYL:
-      return std::string("AX_CYL");
-    case AX_SPHER:
-      return std::string("AX_SPHER");
-    default:
-      throw INTERP_KERNEL::Exception("DataArray::GetAxisTypeRepr : unrecognized axis type enum !");
+        case AX_CART:
+            return std::string("AX_CART");
+        case AX_CYL:
+            return std::string("AX_CYL");
+        case AX_SPHER:
+            return std::string("AX_SPHER");
+        default:
+            throw INTERP_KERNEL::Exception("DataArray::GetAxisTypeRepr : unrecognized axis type enum !");
     }
 }
 
@@ -525,44 +599,56 @@ std::string DataArray::GetAxisTypeRepr(MEDCouplingAxisType at)
  * Info on components is copied from the first of the given arrays. Number of components
  * in the given arrays must be  the same.
  *  \param [in] arrs - a sequence of arrays to include in the result array. All arrays must have the same type.
- *  \return DataArray * - the new instance of DataArray (that can be either DataArrayInt, DataArrayDouble, DataArrayChar).
- *          The caller is to delete this result array using decrRef() as it is no more
- *          needed.
+ *  \return DataArray * - the new instance of DataArray (that can be either DataArrayInt, DataArrayDouble,
+ * DataArrayChar). The caller is to delete this result array using decrRef() as it is no more needed.
  *  \throw If all arrays within \a arrs are NULL.
  *  \throw If all not null arrays in \a arrs have not the same type.
  *  \throw If getNumberOfComponents() of arrays within \a arrs.
  */
-DataArray *DataArray::Aggregate(const std::vector<const DataArray *>& arrs)
+DataArray *
+DataArray::Aggregate(const std::vector<const DataArray *> &arrs)
 {
-  std::vector<const DataArray *> arr2;
-  for(std::vector<const DataArray *>::const_iterator it=arrs.begin();it!=arrs.end();it++)
-    if(*it)
-      arr2.push_back(*it);
-  if(arr2.empty())
-    throw INTERP_KERNEL::Exception("DataArray::Aggregate : only null instance in input vector !");
-  std::vector<const DataArrayDouble *> arrd;
-  std::vector<const DataArrayIdType *> arri;
-  std::vector<const DataArrayChar *> arrc;
-  for(std::vector<const DataArray *>::const_iterator it=arr2.begin();it!=arr2.end();it++)
+    std::vector<const DataArray *> arr2;
+    for (std::vector<const DataArray *>::const_iterator it = arrs.begin(); it != arrs.end(); it++)
+        if (*it)
+            arr2.push_back(*it);
+    if (arr2.empty())
+        throw INTERP_KERNEL::Exception("DataArray::Aggregate : only null instance in input vector !");
+    std::vector<const DataArrayDouble *> arrd;
+    std::vector<const DataArrayIdType *> arri;
+    std::vector<const DataArrayChar *> arrc;
+    for (std::vector<const DataArray *>::const_iterator it = arr2.begin(); it != arr2.end(); it++)
     {
-      const DataArrayDouble *a=dynamic_cast<const DataArrayDouble *>(*it);
-      if(a)
-        { arrd.push_back(a); continue; }
-      const DataArrayIdType *b=dynamic_cast<const DataArrayIdType *>(*it);
-      if(b)
-        { arri.push_back(b); continue; }
-      const DataArrayChar *c=dynamic_cast<const DataArrayChar *>(*it);
-      if(c)
-        { arrc.push_back(c); continue; }
-      throw INTERP_KERNEL::Exception("DataArray::Aggregate : presence of not null instance in inuput that is not in [DataArrayDouble, DataArrayInt, DataArrayChar] !");
+        const DataArrayDouble *a = dynamic_cast<const DataArrayDouble *>(*it);
+        if (a)
+        {
+            arrd.push_back(a);
+            continue;
+        }
+        const DataArrayIdType *b = dynamic_cast<const DataArrayIdType *>(*it);
+        if (b)
+        {
+            arri.push_back(b);
+            continue;
+        }
+        const DataArrayChar *c = dynamic_cast<const DataArrayChar *>(*it);
+        if (c)
+        {
+            arrc.push_back(c);
+            continue;
+        }
+        throw INTERP_KERNEL::Exception(
+            "DataArray::Aggregate : presence of not null instance in inuput that is not in [DataArrayDouble, "
+            "DataArrayInt, DataArrayChar] !"
+        );
     }
-  if(arr2.size()==arrd.size())
-    return DataArrayDouble::Aggregate(arrd);
-  if(arr2.size()==arri.size())
-    return DataArrayIdType::Aggregate(arri);
-  if(arr2.size()==arrc.size())
-    return DataArrayChar::Aggregate(arrc);
-  throw INTERP_KERNEL::Exception("DataArray::Aggregate : all input arrays must have the same type !");
+    if (arr2.size() == arrd.size())
+        return DataArrayDouble::Aggregate(arrd);
+    if (arr2.size() == arri.size())
+        return DataArrayIdType::Aggregate(arri);
+    if (arr2.size() == arrc.size())
+        return DataArrayChar::Aggregate(arrc);
+    throw INTERP_KERNEL::Exception("DataArray::Aggregate : all input arrays must have the same type !");
 }
 
 /*!
@@ -574,14 +660,17 @@ DataArray *DataArray::Aggregate(const std::vector<const DataArray *>& arrs)
  *  \param [in] info - the string containing the information.
  *  \throw If \a i is not a valid component index.
  */
-void DataArray::setInfoOnComponent(std::size_t i, const std::string& info)
+void
+DataArray::setInfoOnComponent(std::size_t i, const std::string &info)
 {
-  if(i<_info_on_compo.size())
-    _info_on_compo[i]=info;
-  else
+    if (i < _info_on_compo.size())
+        _info_on_compo[i] = info;
+    else
     {
-      std::ostringstream oss; oss << "DataArray::setInfoOnComponent : Specified component id is out of range  (" << i << ") compared with nb of actual components (" << _info_on_compo.size();
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "DataArray::setInfoOnComponent : Specified component id is out of range  (" << i
+            << ") compared with nb of actual components (" << _info_on_compo.size();
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
 
@@ -596,78 +685,99 @@ void DataArray::setInfoOnComponent(std::size_t i, const std::string& info)
  *  \param [in] info - a vector of component infos.
  *  \throw If \a this->getNumberOfComponents() != \a info.size() && \a this->isAllocated()
  */
-void DataArray::setInfoAndChangeNbOfCompo(const std::vector<std::string>& info)
+void
+DataArray::setInfoAndChangeNbOfCompo(const std::vector<std::string> &info)
 {
-  if(getNumberOfComponents()!=info.size())
+    if (getNumberOfComponents() != info.size())
     {
-      if(!isAllocated())
-        _info_on_compo=info;
-      else
+        if (!isAllocated())
+            _info_on_compo = info;
+        else
         {
-          std::ostringstream oss; oss << "DataArray::setInfoAndChangeNbOfCompo : input is of size " << info.size() << " whereas number of components is equal to " << getNumberOfComponents() << "  and this is already allocated !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+            std::ostringstream oss;
+            oss << "DataArray::setInfoAndChangeNbOfCompo : input is of size " << info.size()
+                << " whereas number of components is equal to " << getNumberOfComponents()
+                << "  and this is already allocated !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  else
-    _info_on_compo=info;
+    else
+        _info_on_compo = info;
 }
 
-void DataArray::checkNbOfTuples(mcIdType nbOfTuples, const std::string& msg) const
+void
+DataArray::checkNbOfTuples(mcIdType nbOfTuples, const std::string &msg) const
 {
-  if(getNumberOfTuples()!=nbOfTuples)
+    if (getNumberOfTuples() != nbOfTuples)
     {
-      std::ostringstream oss; oss << msg << " : mismatch number of tuples : expected " <<  nbOfTuples << " having " << getNumberOfTuples() << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << msg << " : mismatch number of tuples : expected " << nbOfTuples << " having " << getNumberOfTuples()
+            << " !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
 
-void DataArray::checkNbOfComps(std::size_t nbOfCompo, const std::string& msg) const
+void
+DataArray::checkNbOfComps(std::size_t nbOfCompo, const std::string &msg) const
 {
-  if (getNumberOfComponents()!=nbOfCompo)
+    if (getNumberOfComponents() != nbOfCompo)
     {
-      std::ostringstream oss; oss << msg << " : mismatch number of components : expected " << nbOfCompo << " having " << getNumberOfComponents() << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << msg << " : mismatch number of components : expected " << nbOfCompo << " having "
+            << getNumberOfComponents() << " !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
 
-void DataArray::checkNbOfElems(mcIdType nbOfElems, const std::string& msg) const
+void
+DataArray::checkNbOfElems(mcIdType nbOfElems, const std::string &msg) const
 {
-  if(getNbOfElems()!=nbOfElems)
+    if (getNbOfElems() != nbOfElems)
     {
-      std::ostringstream oss; oss << msg << " : mismatch number of elems : Expected " << nbOfElems << " having " << getNbOfElems() << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << msg << " : mismatch number of elems : Expected " << nbOfElems << " having " << getNbOfElems() << " !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
 
-void DataArray::checkNbOfTuplesAndComp(const DataArray& other, const std::string& msg) const
+void
+DataArray::checkNbOfTuplesAndComp(const DataArray &other, const std::string &msg) const
 {
-  if(getNumberOfTuples()!=other.getNumberOfTuples())
+    if (getNumberOfTuples() != other.getNumberOfTuples())
     {
-      std::ostringstream oss; oss << msg << " : mismatch number of tuples : expected " <<  other.getNumberOfTuples() << " having " << getNumberOfTuples() << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << msg << " : mismatch number of tuples : expected " << other.getNumberOfTuples() << " having "
+            << getNumberOfTuples() << " !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  if(getNumberOfComponents()!=other.getNumberOfComponents())
+    if (getNumberOfComponents() != other.getNumberOfComponents())
     {
-      std::ostringstream oss; oss << msg << " : mismatch number of components : expected " << other.getNumberOfComponents() << " having " << getNumberOfComponents() << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << msg << " : mismatch number of components : expected " << other.getNumberOfComponents() << " having "
+            << getNumberOfComponents() << " !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
 
-void DataArray::checkNbOfTuplesAndComp(mcIdType nbOfTuples, std::size_t nbOfCompo, const std::string& msg) const
+void
+DataArray::checkNbOfTuplesAndComp(mcIdType nbOfTuples, std::size_t nbOfCompo, const std::string &msg) const
 {
-  checkNbOfTuples(nbOfTuples,msg);
-  checkNbOfComps(nbOfCompo,msg);
+    checkNbOfTuples(nbOfTuples, msg);
+    checkNbOfComps(nbOfCompo, msg);
 }
 
 /*!
  * Simply this method checks that \b value is in [0,\b ref).
  */
-void DataArray::CheckValueInRange(mcIdType ref, mcIdType value, const std::string& msg)
+void
+DataArray::CheckValueInRange(mcIdType ref, mcIdType value, const std::string &msg)
 {
-  if(value<0 || value>=ref)
+    if (value < 0 || value >= ref)
     {
-      std::ostringstream oss; oss << "DataArray::CheckValueInRange : " << msg  << " ! Expected in range [0," << ref << "[ having " << value << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "DataArray::CheckValueInRange : " << msg << " ! Expected in range [0," << ref << "[ having " << value
+            << " !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
 
@@ -675,35 +785,43 @@ void DataArray::CheckValueInRange(mcIdType ref, mcIdType value, const std::strin
  * This method checks that [\b start, \b end) is compliant with ref length \b value.
  * typically start in [0,\b value) and end in [0,\b value). If value==start and start==end, it is supported.
  */
-void DataArray::CheckValueInRangeEx(mcIdType value, mcIdType start, mcIdType end, const std::string& msg)
+void
+DataArray::CheckValueInRangeEx(mcIdType value, mcIdType start, mcIdType end, const std::string &msg)
 {
-  if(start<0 || start>=value)
+    if (start < 0 || start >= value)
     {
-      if(value!=start || end!=start)
+        if (value != start || end != start)
         {
-          std::ostringstream oss; oss << "DataArray::CheckValueInRangeEx : " << msg  << " ! Expected start " << start << " of input range, in [0," << value << "[ !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+            std::ostringstream oss;
+            oss << "DataArray::CheckValueInRangeEx : " << msg << " ! Expected start " << start
+                << " of input range, in [0," << value << "[ !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  if(end<0 || end>value)
+    if (end < 0 || end > value)
     {
-      std::ostringstream oss; oss << "DataArray::CheckValueInRangeEx : " << msg  << " ! Expected end " << end << " of input range, in [0," << value << "] !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "DataArray::CheckValueInRangeEx : " << msg << " ! Expected end " << end << " of input range, in [0,"
+            << value << "] !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
 
-void DataArray::CheckClosingParInRange(mcIdType ref, mcIdType value, const std::string& msg)
+void
+DataArray::CheckClosingParInRange(mcIdType ref, mcIdType value, const std::string &msg)
 {
-  if(value<0 || value>ref)
+    if (value < 0 || value > ref)
     {
-      std::ostringstream oss; oss << "DataArray::CheckClosingParInRange : " << msg  << " ! Expected input range in [0," << ref << "] having closing open parenthesis " << value << " !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "DataArray::CheckClosingParInRange : " << msg << " ! Expected input range in [0," << ref
+            << "] having closing open parenthesis " << value << " !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
 
 /*!
- * This method is useful to slice work among a pool of threads or processes. \a begin, \a end \a step is the input whole slice of work to perform,
- * typically it is a whole slice of tuples of DataArray or cells, nodes of a mesh...
+ * This method is useful to slice work among a pool of threads or processes. \a begin, \a end \a step is the input whole
+ * slice of work to perform, typically it is a whole slice of tuples of DataArray or cells, nodes of a mesh...
  *
  * The input \a sliceId should be an id in [0, \a nbOfSlices) that specifies the slice of work.
  *
@@ -711,7 +829,8 @@ void DataArray::CheckClosingParInRange(mcIdType ref, mcIdType value, const std::
  * \param [in] stop - the stop of the input slice of the whole work to perform split into slices.
  * \param [in] step - the step (that can be <0) of the input slice of the whole work to perform split into slices.
  * \param [in] sliceId - the slice id considered
- * \param [in] nbOfSlices - the number of slices (typically the number of cores on which the work is expected to be sliced)
+ * \param [in] nbOfSlices - the number of slices (typically the number of cores on which the work is expected to be
+ * sliced)
  * \param [out] startSlice - the start of the slice considered
  * \param [out] stopSlice - the stop of the slice consided
  *
@@ -719,33 +838,46 @@ void DataArray::CheckClosingParInRange(mcIdType ref, mcIdType value, const std::
  * \throw If \a nbOfSlices not > 0
  * \throw If \a sliceId not in [0,nbOfSlices)
  */
-void DataArray::GetSlice(mcIdType start, mcIdType stop, mcIdType step, mcIdType sliceId, mcIdType nbOfSlices, mcIdType& startSlice, mcIdType& stopSlice)
+void
+DataArray::GetSlice(
+    mcIdType start,
+    mcIdType stop,
+    mcIdType step,
+    mcIdType sliceId,
+    mcIdType nbOfSlices,
+    mcIdType &startSlice,
+    mcIdType &stopSlice
+)
 {
-  DataArrayTools<mcIdType>::GetSlice(start, stop, step, sliceId, nbOfSlices, startSlice, stopSlice);
+    DataArrayTools<mcIdType>::GetSlice(start, stop, step, sliceId, nbOfSlices, startSlice, stopSlice);
 }
 
-mcIdType DataArray::GetNumberOfItemGivenBES(mcIdType begin, mcIdType end, mcIdType step, const std::string& msg)
+mcIdType
+DataArray::GetNumberOfItemGivenBES(mcIdType begin, mcIdType end, mcIdType step, const std::string &msg)
 {
-  return DataArrayTools<mcIdType>::GetNumberOfItemGivenBES(begin, end, step, msg);
+    return DataArrayTools<mcIdType>::GetNumberOfItemGivenBES(begin, end, step, msg);
 }
 
-mcIdType DataArray::GetNumberOfItemGivenBESRelative(mcIdType begin, mcIdType end, mcIdType step, const std::string& msg)
+mcIdType
+DataArray::GetNumberOfItemGivenBESRelative(mcIdType begin, mcIdType end, mcIdType step, const std::string &msg)
 {
-  return DataArrayTools<mcIdType>::GetNumberOfItemGivenBESRelative(begin, end, step, msg);
+    return DataArrayTools<mcIdType>::GetNumberOfItemGivenBESRelative(begin, end, step, msg);
 }
 
-mcIdType DataArray::GetPosOfItemGivenBESRelativeNoThrow(mcIdType value, mcIdType begin, mcIdType end, mcIdType step)
+mcIdType
+DataArray::GetPosOfItemGivenBESRelativeNoThrow(mcIdType value, mcIdType begin, mcIdType end, mcIdType step)
 {
-  return DataArrayTools<mcIdType>::GetPosOfItemGivenBESRelativeNoThrow(value, begin, end, step);
+    return DataArrayTools<mcIdType>::GetPosOfItemGivenBESRelativeNoThrow(value, begin, end, step);
 }
 
 /*!
  * Returns a new instance of DataArrayDouble. The caller is to delete this array
  * using decrRef() as it is no more needed.
  */
-DataArrayDouble *DataArrayDouble::New()
+DataArrayDouble *
+DataArrayDouble::New()
 {
-  return new DataArrayDouble;
+    return new DataArrayDouble;
 }
 
 /*!
@@ -754,19 +886,23 @@ DataArrayDouble *DataArrayDouble::New()
  *  \return double - the sole value stored in \a this array.
  *  \throw If at least one of conditions stated above is not fulfilled.
  */
-double DataArrayDouble::doubleValue() const
+double
+DataArrayDouble::doubleValue() const
 {
-  if(isAllocated())
+    if (isAllocated())
     {
-      if(getNbOfElems()==1)
+        if (getNbOfElems() == 1)
         {
-          return *getConstPointer();
+            return *getConstPointer();
         }
-      else
-        throw INTERP_KERNEL::Exception("DataArrayDouble::doubleValue : DataArrayDouble instance is allocated but number of elements is not equal to 1 !");
+        else
+            throw INTERP_KERNEL::Exception(
+                "DataArrayDouble::doubleValue : DataArrayDouble instance is allocated but number of elements is not "
+                "equal to 1 !"
+            );
     }
-  else
-    throw INTERP_KERNEL::Exception("DataArrayDouble::doubleValue : DataArrayDouble instance is not allocated !");
+    else
+        throw INTERP_KERNEL::Exception("DataArrayDouble::doubleValue : DataArrayDouble instance is not allocated !");
 }
 
 /*!
@@ -775,9 +911,10 @@ double DataArrayDouble::doubleValue() const
  *  \return DataArrayDouble * - a new instance of DataArrayDouble. The caller is to
  *          delete this array using decrRef() as it is no more needed.
  */
-DataArrayDouble *DataArrayDouble::deepCopy() const
+DataArrayDouble *
+DataArrayDouble::deepCopy() const
 {
-  return new DataArrayDouble(*this);
+    return new DataArrayDouble(*this);
 }
 
 /*!
@@ -792,14 +929,15 @@ DataArrayDouble *DataArrayDouble::deepCopy() const
  *  \throw If \a this->getNumberOfComponents() != 1.
  *  \throw If \a this is not allocated.
  */
-void DataArrayDouble::checkMonotonic(bool increasing, double eps) const
+void
+DataArrayDouble::checkMonotonic(bool increasing, double eps) const
 {
-  if(!isMonotonic(increasing,eps))
+    if (!isMonotonic(increasing, eps))
     {
-      if (increasing)
-        throw INTERP_KERNEL::Exception("DataArrayDouble::checkMonotonic : 'this' is not INCREASING monotonic !");
-      else
-        throw INTERP_KERNEL::Exception("DataArrayDouble::checkMonotonic : 'this' is not DECREASING monotonic !");
+        if (increasing)
+            throw INTERP_KERNEL::Exception("DataArrayDouble::checkMonotonic : 'this' is not INCREASING monotonic !");
+        else
+            throw INTERP_KERNEL::Exception("DataArrayDouble::checkMonotonic : 'this' is not DECREASING monotonic !");
     }
 }
 
@@ -813,152 +951,168 @@ void DataArrayDouble::checkMonotonic(bool increasing, double eps) const
  *  \throw If \a this->getNumberOfComponents() != 1.
  *  \throw If \a this is not allocated.
  */
-bool DataArrayDouble::isMonotonic(bool increasing, double eps) const
+bool
+DataArrayDouble::isMonotonic(bool increasing, double eps) const
 {
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::isMonotonic : only supported with 'this' array with ONE component !");
-  mcIdType nbOfElements(getNumberOfTuples());
-  const double *ptr=getConstPointer();
-  if(nbOfElements==0)
-    return true;
-  double ref=ptr[0];
-  double absEps=fabs(eps);
-  if(increasing)
+    checkAllocated();
+    if (getNumberOfComponents() != 1)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::isMonotonic : only supported with 'this' array with ONE component !"
+        );
+    mcIdType nbOfElements(getNumberOfTuples());
+    const double *ptr = getConstPointer();
+    if (nbOfElements == 0)
+        return true;
+    double ref = ptr[0];
+    double absEps = fabs(eps);
+    if (increasing)
     {
-      for(mcIdType i=1;i<nbOfElements;i++)
+        for (mcIdType i = 1; i < nbOfElements; i++)
         {
-          if(ptr[i]<(ref+absEps))
-            return false;
-          ref=ptr[i];
+            if (ptr[i] < (ref + absEps))
+                return false;
+            ref = ptr[i];
         }
-      return true;
+        return true;
     }
-  else
+    else
     {
-      for(mcIdType i=1;i<nbOfElements;i++)
+        for (mcIdType i = 1; i < nbOfElements; i++)
         {
-          if(ptr[i]>(ref-absEps))
-            return false;
-          ref=ptr[i];
+            if (ptr[i] > (ref - absEps))
+                return false;
+            ref = ptr[i];
         }
-      return true;
+        return true;
     }
 }
 
-void DataArrayDouble::writeVTK(std::ostream& ofs, mcIdType indent, const std::string& nameInFile, DataArrayByte *byteArr) const
+void
+DataArrayDouble::writeVTK(
+    std::ostream &ofs, mcIdType indent, const std::string &nameInFile, DataArrayByte *byteArr
+) const
 {
-  static const char SPACE[4]={' ',' ',' ',' '};
-  checkAllocated();
-  std::string idt(indent,' ');
-  ofs.precision(17);
-  ofs << idt << "<DataArray type=\"Float32\" Name=\"" << nameInFile << "\" NumberOfComponents=\"" << getNumberOfComponents() << "\"";
-  //
-  bool areAllEmpty(true);
-  for(std::vector<std::string>::const_iterator it=_info_on_compo.begin();it!=_info_on_compo.end();it++)
-    if(!(*it).empty())
-      areAllEmpty=false;
-  if(!areAllEmpty)
-    for(std::size_t i=0;i<_info_on_compo.size();i++)
-      ofs << " ComponentName" << i << "=\"" << _info_on_compo[i] << "\"";
-  //
-  if(byteArr)
+    static const char SPACE[4] = {' ', ' ', ' ', ' '};
+    checkAllocated();
+    std::string idt(indent, ' ');
+    ofs.precision(17);
+    ofs << idt << "<DataArray type=\"Float32\" Name=\"" << nameInFile << "\" NumberOfComponents=\""
+        << getNumberOfComponents() << "\"";
+    //
+    bool areAllEmpty(true);
+    for (std::vector<std::string>::const_iterator it = _info_on_compo.begin(); it != _info_on_compo.end(); it++)
+        if (!(*it).empty())
+            areAllEmpty = false;
+    if (!areAllEmpty)
+        for (std::size_t i = 0; i < _info_on_compo.size(); i++)
+            ofs << " ComponentName" << i << "=\"" << _info_on_compo[i] << "\"";
+    //
+    if (byteArr)
     {
-      ofs << " format=\"appended\" offset=\"" << byteArr->getNumberOfTuples() << "\">";
-      INTERP_KERNEL::AutoPtr<float> tmp(new float[getNbOfElems()]);
-      float *pt(tmp);
-      // to make Visual C++ happy : instead of std::copy(begin(),end(),(float *)tmp);
-      for(const double *src=begin();src!=end();src++,pt++)
-        *pt=float(*src);
-      const char *data(reinterpret_cast<const char *>((float *)tmp));
-      std::size_t sz(getNbOfElems()*sizeof(float));
-      byteArr->insertAtTheEnd(data,data+sz);
-      byteArr->insertAtTheEnd(SPACE,SPACE+4);
+        ofs << " format=\"appended\" offset=\"" << byteArr->getNumberOfTuples() << "\">";
+        INTERP_KERNEL::AutoPtr<float> tmp(new float[getNbOfElems()]);
+        float *pt(tmp);
+        // to make Visual C++ happy : instead of std::copy(begin(),end(),(float *)tmp);
+        for (const double *src = begin(); src != end(); src++, pt++) *pt = float(*src);
+        const char *data(reinterpret_cast<const char *>((float *)tmp));
+        std::size_t sz(getNbOfElems() * sizeof(float));
+        byteArr->insertAtTheEnd(data, data + sz);
+        byteArr->insertAtTheEnd(SPACE, SPACE + 4);
     }
-  else
+    else
     {
-      ofs << " RangeMin=\"" << getMinValueInArray() << "\" RangeMax=\"" << getMaxValueInArray() << "\" format=\"ascii\">\n" << idt;
-      std::copy(begin(),end(),std::ostream_iterator<double>(ofs," "));
+        ofs << " RangeMin=\"" << getMinValueInArray() << "\" RangeMax=\"" << getMaxValueInArray()
+            << "\" format=\"ascii\">\n"
+            << idt;
+        std::copy(begin(), end(), std::ostream_iterator<double>(ofs, " "));
     }
-  ofs << std::endl << idt << "</DataArray>\n";
+    ofs << std::endl << idt << "</DataArray>\n";
 }
 
-void DataArrayDouble::reprCppStream(const std::string& varName, std::ostream& stream) const
+void
+DataArrayDouble::reprCppStream(const std::string &varName, std::ostream &stream) const
 {
-  mcIdType nbTuples=getNumberOfTuples();
-  std::size_t nbComp=getNumberOfComponents();
-  const double *data(getConstPointer());
-  stream.precision(17);
-  stream << "DataArrayDouble *" << varName << "=DataArrayDouble::New();" << std::endl;
-  if(nbTuples*nbComp>=1)
+    mcIdType nbTuples = getNumberOfTuples();
+    std::size_t nbComp = getNumberOfComponents();
+    const double *data(getConstPointer());
+    stream.precision(17);
+    stream << "DataArrayDouble *" << varName << "=DataArrayDouble::New();" << std::endl;
+    if (nbTuples * nbComp >= 1)
     {
-      stream << "const double " << varName << "Data[" << nbTuples*nbComp << "]={";
-      std::copy(data,data+nbTuples*nbComp-1,std::ostream_iterator<double>(stream,","));
-      stream << data[nbTuples*nbComp-1] << "};" << std::endl;
-      stream << varName << "->useArray(" << varName << "Data,false,CPP_DEALLOC," << nbTuples << "," << nbComp << ");" << std::endl;
+        stream << "const double " << varName << "Data[" << nbTuples * nbComp << "]={";
+        std::copy(data, data + nbTuples * nbComp - 1, std::ostream_iterator<double>(stream, ","));
+        stream << data[nbTuples * nbComp - 1] << "};" << std::endl;
+        stream << varName << "->useArray(" << varName << "Data,false,CPP_DEALLOC," << nbTuples << "," << nbComp << ");"
+               << std::endl;
     }
-  else
-    stream << varName << "->alloc(" << nbTuples << "," << nbComp << ");" << std::endl;
-  stream << varName << "->setName(\"" << getName() << "\");" << std::endl;
+    else
+        stream << varName << "->alloc(" << nbTuples << "," << nbComp << ");" << std::endl;
+    stream << varName << "->setName(\"" << getName() << "\");" << std::endl;
 }
 
 /*!
  * Method that gives a quick overvien of \a this for python.
  */
-void DataArrayDouble::reprQuickOverview(std::ostream& stream) const
+void
+DataArrayDouble::reprQuickOverview(std::ostream &stream) const
 {
-  static const std::size_t MAX_NB_OF_BYTE_IN_REPR=300;
-  stream << "DataArrayDouble C++ instance at " << this << ". ";
-  if(isAllocated())
+    static const std::size_t MAX_NB_OF_BYTE_IN_REPR = 300;
+    stream << "DataArrayDouble C++ instance at " << this << ". ";
+    if (isAllocated())
     {
-      std::size_t nbOfCompo(_info_on_compo.size());
-      if(nbOfCompo>=1)
+        std::size_t nbOfCompo(_info_on_compo.size());
+        if (nbOfCompo >= 1)
         {
-          mcIdType nbOfTuples(getNumberOfTuples());
-          stream << "Number of tuples : " << nbOfTuples << ". Number of components : " << nbOfCompo << "." << std::endl;
-          reprQuickOverviewData(stream,MAX_NB_OF_BYTE_IN_REPR);
+            mcIdType nbOfTuples(getNumberOfTuples());
+            stream << "Number of tuples : " << nbOfTuples << ". Number of components : " << nbOfCompo << "."
+                   << std::endl;
+            reprQuickOverviewData(stream, MAX_NB_OF_BYTE_IN_REPR);
         }
-      else
-        stream << "Number of components : 0.";
+        else
+            stream << "Number of components : 0.";
     }
-  else
-    stream << "*** No data allocated ****";
+    else
+        stream << "*** No data allocated ****";
 }
 
-void DataArrayDouble::reprQuickOverviewData(std::ostream& stream, std::size_t maxNbOfByteInRepr) const
+void
+DataArrayDouble::reprQuickOverviewData(std::ostream &stream, std::size_t maxNbOfByteInRepr) const
 {
-  const double *data=begin();
-  mcIdType nbOfTuples(getNumberOfTuples());
-  std::size_t nbOfCompo(_info_on_compo.size());
-  std::ostringstream oss2; oss2 << "[";
-  oss2.precision(17);
-  std::string oss2Str(oss2.str());
-  bool isFinished=true;
-  for(mcIdType i=0;i<nbOfTuples && isFinished;i++)
+    const double *data = begin();
+    mcIdType nbOfTuples(getNumberOfTuples());
+    std::size_t nbOfCompo(_info_on_compo.size());
+    std::ostringstream oss2;
+    oss2 << "[";
+    oss2.precision(17);
+    std::string oss2Str(oss2.str());
+    bool isFinished = true;
+    for (mcIdType i = 0; i < nbOfTuples && isFinished; i++)
     {
-      if(nbOfCompo>1)
+        if (nbOfCompo > 1)
         {
-          oss2 << "(";
-          for(std::size_t j=0;j<nbOfCompo;j++,data++)
+            oss2 << "(";
+            for (std::size_t j = 0; j < nbOfCompo; j++, data++)
             {
-              oss2 << *data;
-              if(j!=nbOfCompo-1) oss2 << ", ";
+                oss2 << *data;
+                if (j != nbOfCompo - 1)
+                    oss2 << ", ";
             }
-          oss2 << ")";
+            oss2 << ")";
         }
-      else
-        oss2 << *data++;
-      if(i!=nbOfTuples-1) oss2 << ", ";
-      std::string oss3Str(oss2.str());
-      if(oss3Str.length()<maxNbOfByteInRepr)
-        oss2Str=oss3Str;
-      else
-        isFinished=false;
+        else
+            oss2 << *data++;
+        if (i != nbOfTuples - 1)
+            oss2 << ", ";
+        std::string oss3Str(oss2.str());
+        if (oss3Str.length() < maxNbOfByteInRepr)
+            oss2Str = oss3Str;
+        else
+            isFinished = false;
     }
-  stream << oss2Str;
-  if(!isFinished)
-    stream << "... ";
-  stream << "]";
+    stream << oss2Str;
+    if (!isFinished)
+        stream << "... ";
+    stream << "]";
 }
 
 /*!
@@ -970,11 +1124,12 @@ void DataArrayDouble::reprQuickOverviewData(std::ostream& stream, std::size_t ma
  * \param [out] reason In case of inequality returns the reason.
  * \sa DataArrayDouble::isEqual
  */
-bool DataArrayDouble::isEqualIfNotWhy(const DataArrayDouble& other, double prec, std::string& reason) const
+bool
+DataArrayDouble::isEqualIfNotWhy(const DataArrayDouble &other, double prec, std::string &reason) const
 {
-  if(!areInfoEqualsIfNotWhy(other,reason))
-    return false;
-  return _mem.isEqual(other._mem,prec,reason);
+    if (!areInfoEqualsIfNotWhy(other, reason))
+        return false;
+    return _mem.isEqual(other._mem, prec, reason);
 }
 
 /*!
@@ -984,10 +1139,11 @@ bool DataArrayDouble::isEqualIfNotWhy(const DataArrayDouble& other, double prec,
  *  \param [in] prec - precision value to compare numeric data of the arrays.
  *  \return bool - \a true if the two arrays are equal, \a false else.
  */
-bool DataArrayDouble::isEqual(const DataArrayDouble& other, double prec) const
+bool
+DataArrayDouble::isEqual(const DataArrayDouble &other, double prec) const
 {
-  std::string tmp;
-  return isEqualIfNotWhy(other,prec,tmp);
+    std::string tmp;
+    return isEqualIfNotWhy(other, prec, tmp);
 }
 
 /*!
@@ -997,37 +1153,43 @@ bool DataArrayDouble::isEqual(const DataArrayDouble& other, double prec) const
  *  \param [in] prec - precision value to compare numeric data of the arrays.
  *  \return bool - \a true if the values of two arrays are equal, \a false else.
  */
-bool DataArrayDouble::isEqualWithoutConsideringStr(const DataArrayDouble& other, double prec) const
+bool
+DataArrayDouble::isEqualWithoutConsideringStr(const DataArrayDouble &other, double prec) const
 {
-  std::string tmp;
-  return _mem.isEqual(other._mem,prec,tmp);
+    std::string tmp;
+    return _mem.isEqual(other._mem, prec, tmp);
 }
 
 /*!
  * This method checks that all tuples in \a other are in \a this.
  * If true, the output param \a tupleIds contains the tuples ids of \a this that correspond to tupes in \a this.
- * For each i in [ 0 , other->getNumberOfTuples() ) tuple #i in \a other is equal ( regarding input precision \a prec ) to tuple tupleIds[i] in \a this.
+ * For each i in [ 0 , other->getNumberOfTuples() ) tuple #i in \a other is equal ( regarding input precision \a prec )
+ * to tuple tupleIds[i] in \a this.
  *
  * \param [in] other - the array having the same number of components than \a this.
  * \param [out] tupleIds - the tuple ids containing the same number of tuples than \a other has.
  * \sa DataArrayDouble::findCommonTuples
  */
-bool DataArrayDouble::areIncludedInMe(const DataArrayDouble *other, double prec, DataArrayIdType *&tupleIds) const
+bool
+DataArrayDouble::areIncludedInMe(const DataArrayDouble *other, double prec, DataArrayIdType *&tupleIds) const
 {
-  if(!other)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::areIncludedInMe : input array is NULL !");
-  checkAllocated(); other->checkAllocated();
-  if(getNumberOfComponents()!=other->getNumberOfComponents())
-    throw INTERP_KERNEL::Exception("DataArrayDouble::areIncludedInMe : the number of components does not match !");
-  MCAuto<DataArrayDouble> a=DataArrayDouble::Aggregate(this,other);
-  DataArrayIdType *c=0,*ci=0;
-  a->findCommonTuples(prec,getNumberOfTuples(),c,ci);
-  MCAuto<DataArrayIdType> cSafe(c),ciSafe(ci);
-  mcIdType newNbOfTuples=-1;
-  MCAuto<DataArrayIdType> ids=DataArrayIdType::ConvertIndexArrayToO2N(a->getNumberOfTuples(),c->begin(),ci->begin(),ci->end(),newNbOfTuples);
-  MCAuto<DataArrayIdType> ret1=ids->selectByTupleIdSafeSlice(getNumberOfTuples(),a->getNumberOfTuples(),1);
-  tupleIds=ret1.retn();
-  return newNbOfTuples==getNumberOfTuples();
+    if (!other)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::areIncludedInMe : input array is NULL !");
+    checkAllocated();
+    other->checkAllocated();
+    if (getNumberOfComponents() != other->getNumberOfComponents())
+        throw INTERP_KERNEL::Exception("DataArrayDouble::areIncludedInMe : the number of components does not match !");
+    MCAuto<DataArrayDouble> a = DataArrayDouble::Aggregate(this, other);
+    DataArrayIdType *c = 0, *ci = 0;
+    a->findCommonTuples(prec, getNumberOfTuples(), c, ci);
+    MCAuto<DataArrayIdType> cSafe(c), ciSafe(ci);
+    mcIdType newNbOfTuples = -1;
+    MCAuto<DataArrayIdType> ids = DataArrayIdType::ConvertIndexArrayToO2N(
+        a->getNumberOfTuples(), c->begin(), ci->begin(), ci->end(), newNbOfTuples
+    );
+    MCAuto<DataArrayIdType> ret1 = ids->selectByTupleIdSafeSlice(getNumberOfTuples(), a->getNumberOfTuples(), 1);
+    tupleIds = ret1.retn();
+    return newNbOfTuples == getNumberOfTuples();
 }
 
 /*!
@@ -1063,185 +1225,244 @@ bool DataArrayDouble::areIncludedInMe(const DataArrayDouble *other, double prec,
  *  \endif
  *  \sa DataArrayInt::ConvertIndexArrayToO2N(), DataArrayDouble::areIncludedInMe
  */
-void DataArrayDouble::findCommonTuples(double prec, mcIdType limitTupleId, DataArrayIdType *&comm, DataArrayIdType *&commIndex) const
+void
+DataArrayDouble::findCommonTuples(
+    double prec, mcIdType limitTupleId, DataArrayIdType *&comm, DataArrayIdType *&commIndex
+) const
 {
-  checkAllocated();
-  std::size_t nbOfCompo=getNumberOfComponents();
-  if ((nbOfCompo<1) || (nbOfCompo>4)) //test before work
-    throw INTERP_KERNEL::Exception("DataArrayDouble::findCommonTuples : Unexpected spacedim of coords. Must be 1, 2, 3 or 4.");
+    checkAllocated();
+    std::size_t nbOfCompo = getNumberOfComponents();
+    if ((nbOfCompo < 1) || (nbOfCompo > 4))  // test before work
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::findCommonTuples : Unexpected spacedim of coords. Must be 1, 2, 3 or 4."
+        );
 
-  mcIdType nbOfTuples(getNumberOfTuples());
-  //
-  MCAuto<DataArrayIdType> c(DataArrayIdType::New()),cI(DataArrayIdType::New()); c->alloc(0,1); cI->pushBackSilent(0);
-  switch(nbOfCompo)
-  {
-    case 4:
-      findCommonTuplesAlg<4>(begin(),nbOfTuples,limitTupleId,prec,c,cI);
-      break;
-    case 3:
-      findCommonTuplesAlg<3>(begin(),nbOfTuples,limitTupleId,prec,c,cI);
-      break;
-    case 2:
-      findCommonTuplesAlg<2>(begin(),nbOfTuples,limitTupleId,prec,c,cI);
-      break;
-    case 1:
-      findCommonTuplesAlg<1>(begin(),nbOfTuples,limitTupleId,prec,c,cI);
-      break;
-    default:
-      throw INTERP_KERNEL::Exception("DataArrayDouble::findCommonTuples : nb of components managed are 1,2,3 and 4 ! not implemented for other number of components !");
-  }
-  comm=c.retn();
-  commIndex=cI.retn();
+    mcIdType nbOfTuples(getNumberOfTuples());
+    //
+    MCAuto<DataArrayIdType> c(DataArrayIdType::New()), cI(DataArrayIdType::New());
+    c->alloc(0, 1);
+    cI->pushBackSilent(0);
+    switch (nbOfCompo)
+    {
+        case 4:
+            findCommonTuplesAlg<4>(begin(), nbOfTuples, limitTupleId, prec, c, cI);
+            break;
+        case 3:
+            findCommonTuplesAlg<3>(begin(), nbOfTuples, limitTupleId, prec, c, cI);
+            break;
+        case 2:
+            findCommonTuplesAlg<2>(begin(), nbOfTuples, limitTupleId, prec, c, cI);
+            break;
+        case 1:
+            findCommonTuplesAlg<1>(begin(), nbOfTuples, limitTupleId, prec, c, cI);
+            break;
+        default:
+            throw INTERP_KERNEL::Exception(
+                "DataArrayDouble::findCommonTuples : nb of components managed are 1,2,3 and 4 ! not implemented for "
+                "other number of components !"
+            );
+    }
+    comm = c.retn();
+    commIndex = cI.retn();
 }
 
 /*!
  * This methods returns the minimal distance between the two set of points \a this and \a other.
- * So \a this and \a other have to have the same number of components. If not an INTERP_KERNEL::Exception will be thrown.
- * This method works only if number of components of \a this (equal to those of \a other) is in 1, 2 or 3.
+ * So \a this and \a other have to have the same number of components. If not an INTERP_KERNEL::Exception will be
+ * thrown. This method works only if number of components of \a this (equal to those of \a other) is in 1, 2 or 3.
  *
  * \param [out] thisTupleId the tuple id in \a this corresponding to the returned minimal distance
  * \param [out] otherTupleId the tuple id in \a other corresponding to the returned minimal distance
  * \return the minimal distance between the two set of points \a this and \a other.
  * \sa DataArrayDouble::findClosestTupleId
  */
-double DataArrayDouble::minimalDistanceTo(const DataArrayDouble *other, mcIdType& thisTupleId, mcIdType& otherTupleId) const
+double
+DataArrayDouble::minimalDistanceTo(const DataArrayDouble *other, mcIdType &thisTupleId, mcIdType &otherTupleId) const
 {
-  MCAuto<DataArrayIdType> part1=findClosestTupleId(other);
-  std::size_t nbOfCompo=getNumberOfComponents();
-  mcIdType otherNbTuples=other->getNumberOfTuples();
-  const double *thisPt(begin()),*otherPt(other->begin());
-  const mcIdType *part1Pt(part1->begin());
-  double ret=std::numeric_limits<double>::max();
-  for(mcIdType i=0;i<otherNbTuples;i++,part1Pt++,otherPt+=nbOfCompo)
+    MCAuto<DataArrayIdType> part1 = findClosestTupleId(other);
+    std::size_t nbOfCompo = getNumberOfComponents();
+    mcIdType otherNbTuples = other->getNumberOfTuples();
+    const double *thisPt(begin()), *otherPt(other->begin());
+    const mcIdType *part1Pt(part1->begin());
+    double ret = std::numeric_limits<double>::max();
+    for (mcIdType i = 0; i < otherNbTuples; i++, part1Pt++, otherPt += nbOfCompo)
     {
-      double tmp(0.);
-      for(std::size_t j=0;j<nbOfCompo;j++)
-        tmp+=(otherPt[j]-thisPt[nbOfCompo*(*part1Pt)+j])*(otherPt[j]-thisPt[nbOfCompo*(*part1Pt)+j]);
-      if(tmp<ret)
-        { ret=tmp; thisTupleId=*part1Pt; otherTupleId=i; }
+        double tmp(0.);
+        for (std::size_t j = 0; j < nbOfCompo; j++)
+            tmp +=
+                (otherPt[j] - thisPt[nbOfCompo * (*part1Pt) + j]) * (otherPt[j] - thisPt[nbOfCompo * (*part1Pt) + j]);
+        if (tmp < ret)
+        {
+            ret = tmp;
+            thisTupleId = *part1Pt;
+            otherTupleId = i;
+        }
     }
-  return sqrt(ret);
+    return sqrt(ret);
 }
 
 /*!
  * This methods returns for each tuple in \a other which tuple in \a this is the closest.
- * So \a this and \a other have to have the same number of components. If not an INTERP_KERNEL::Exception will be thrown.
- * This method works only if number of components of \a this (equal to those of \a other) is in 1, 2 or 3.
+ * So \a this and \a other have to have the same number of components. If not an INTERP_KERNEL::Exception will be
+ * thrown. This method works only if number of components of \a this (equal to those of \a other) is in 1, 2 or 3.
  *
- * \return a newly allocated (new object to be dealt by the caller) DataArrayInt having \c other->getNumberOfTuples() tuples and one components.
+ * \return a newly allocated (new object to be dealt by the caller) DataArrayInt having \c other->getNumberOfTuples()
+ * tuples and one components.
  * \sa DataArrayDouble::minimalDistanceTo
  */
-DataArrayIdType *DataArrayDouble::findClosestTupleId(const DataArrayDouble *other) const
+DataArrayIdType *
+DataArrayDouble::findClosestTupleId(const DataArrayDouble *other) const
 {
-  if(!other)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::findClosestTupleId : other instance is NULL !");
-  checkAllocated(); other->checkAllocated();
-  std::size_t nbOfCompo(getNumberOfComponents());
-  if(nbOfCompo!=other->getNumberOfComponents())
+    if (!other)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::findClosestTupleId : other instance is NULL !");
+    checkAllocated();
+    other->checkAllocated();
+    std::size_t nbOfCompo(getNumberOfComponents());
+    if (nbOfCompo != other->getNumberOfComponents())
     {
-      std::ostringstream oss; oss << "DataArrayDouble::findClosestTupleId : number of components in this is " << nbOfCompo;
-      oss << ", whereas number of components in other is " << other->getNumberOfComponents() << "! Should be equal !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "DataArrayDouble::findClosestTupleId : number of components in this is " << nbOfCompo;
+        oss << ", whereas number of components in other is " << other->getNumberOfComponents() << "! Should be equal !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  mcIdType nbOfTuples(other->getNumberOfTuples());
-  mcIdType thisNbOfTuples(getNumberOfTuples());
-  MCAuto<DataArrayIdType> ret=DataArrayIdType::New(); ret->alloc(nbOfTuples,1);
-  double bounds[6];
-  getMinMaxPerComponent(bounds);
-  switch(nbOfCompo)
-  {
-    case 3:
-      {
-        double xDelta(fabs(bounds[1]-bounds[0])),yDelta(fabs(bounds[3]-bounds[2])),zDelta(fabs(bounds[5]-bounds[4]));
-        double delta=std::max(xDelta,yDelta); delta=std::max(delta,zDelta);
-        double characSize=pow((delta*delta*delta)/((double)thisNbOfTuples),1./3.);
-        BBTreePts<3,mcIdType> myTree(begin(),0,0,getNumberOfTuples(),characSize*1e-12);
-        FindClosestTupleIdAlg<3>(myTree,3.*characSize*characSize,other->begin(),nbOfTuples,begin(),thisNbOfTuples,ret->getPointer());
-        break;
-      }
-    case 2:
-      {
-        double xDelta(fabs(bounds[1]-bounds[0])),yDelta(fabs(bounds[3]-bounds[2]));
-        double delta=std::max(xDelta,yDelta);
-        double characSize=sqrt(delta/(double)thisNbOfTuples);
-        BBTreePts<2,mcIdType> myTree(begin(),0,0,getNumberOfTuples(),characSize*1e-12);
-        FindClosestTupleIdAlg<2>(myTree,2.*characSize*characSize,other->begin(),nbOfTuples,begin(),thisNbOfTuples,ret->getPointer());
-        break;
-      }
-    case 1:
-      {
-        double characSize=fabs(bounds[1]-bounds[0])/FromIdType<double>(thisNbOfTuples);
-        BBTreePts<1,mcIdType> myTree(begin(),0,0,getNumberOfTuples(),characSize*1e-12);
-        FindClosestTupleIdAlg<1>(myTree,1.*characSize*characSize,other->begin(),nbOfTuples,begin(),thisNbOfTuples,ret->getPointer());
-        break;
-      }
-    default:
-      throw INTERP_KERNEL::Exception("Unexpected spacedim of coords for findClosestTupleId. Must be 1, 2 or 3.");
-  }
-  return ret.retn();
+    mcIdType nbOfTuples(other->getNumberOfTuples());
+    mcIdType thisNbOfTuples(getNumberOfTuples());
+    MCAuto<DataArrayIdType> ret = DataArrayIdType::New();
+    ret->alloc(nbOfTuples, 1);
+    double bounds[6];
+    getMinMaxPerComponent(bounds);
+    switch (nbOfCompo)
+    {
+        case 3:
+        {
+            double xDelta(fabs(bounds[1] - bounds[0])), yDelta(fabs(bounds[3] - bounds[2])),
+                zDelta(fabs(bounds[5] - bounds[4]));
+            double delta = std::max(xDelta, yDelta);
+            delta = std::max(delta, zDelta);
+            double characSize = pow((delta * delta * delta) / ((double)thisNbOfTuples), 1. / 3.);
+            BBTreePts<3, mcIdType> myTree(begin(), 0, 0, getNumberOfTuples(), characSize * 1e-12);
+            FindClosestTupleIdAlg<3>(
+                myTree,
+                3. * characSize * characSize,
+                other->begin(),
+                nbOfTuples,
+                begin(),
+                thisNbOfTuples,
+                ret->getPointer()
+            );
+            break;
+        }
+        case 2:
+        {
+            double xDelta(fabs(bounds[1] - bounds[0])), yDelta(fabs(bounds[3] - bounds[2]));
+            double delta = std::max(xDelta, yDelta);
+            double characSize = sqrt(delta / (double)thisNbOfTuples);
+            BBTreePts<2, mcIdType> myTree(begin(), 0, 0, getNumberOfTuples(), characSize * 1e-12);
+            FindClosestTupleIdAlg<2>(
+                myTree,
+                2. * characSize * characSize,
+                other->begin(),
+                nbOfTuples,
+                begin(),
+                thisNbOfTuples,
+                ret->getPointer()
+            );
+            break;
+        }
+        case 1:
+        {
+            double characSize = fabs(bounds[1] - bounds[0]) / FromIdType<double>(thisNbOfTuples);
+            BBTreePts<1, mcIdType> myTree(begin(), 0, 0, getNumberOfTuples(), characSize * 1e-12);
+            FindClosestTupleIdAlg<1>(
+                myTree,
+                1. * characSize * characSize,
+                other->begin(),
+                nbOfTuples,
+                begin(),
+                thisNbOfTuples,
+                ret->getPointer()
+            );
+            break;
+        }
+        default:
+            throw INTERP_KERNEL::Exception("Unexpected spacedim of coords for findClosestTupleId. Must be 1, 2 or 3.");
+    }
+    return ret.retn();
 }
 
 /*!
- * This method expects that \a this and \a otherBBoxFrmt arrays are bounding box arrays ( as the output of MEDCouplingPointSet::getBoundingBoxForBBTree method ).
- * This method will return a DataArrayInt array having the same number of tuples than \a this. This returned array tells for each cell in \a this
- * how many bounding boxes in \a otherBBoxFrmt.
- * So, this method expects that \a this and \a otherBBoxFrmt have the same number of components.
+ * This method expects that \a this and \a otherBBoxFrmt arrays are bounding box arrays ( as the output of
+ * MEDCouplingPointSet::getBoundingBoxForBBTree method ). This method will return a DataArrayInt array having the same
+ * number of tuples than \a this. This returned array tells for each cell in \a this how many bounding boxes in \a
+ * otherBBoxFrmt. So, this method expects that \a this and \a otherBBoxFrmt have the same number of components.
  *
  * \param [in] otherBBoxFrmt - It is an array .
- * \param [in] eps - the absolute precision of the detection. when eps < 0 the bboxes are enlarged so more interactions are detected. Inversely when > 0 the bboxes are stretched.
+ * \param [in] eps - the absolute precision of the detection. when eps < 0 the bboxes are enlarged so more interactions
+ * are detected. Inversely when > 0 the bboxes are stretched.
  * \sa MEDCouplingPointSet::getBoundingBoxForBBTree
  * \throw If \a this and \a otherBBoxFrmt have not the same number of components.
  * \throw If \a this and \a otherBBoxFrmt number of components is not even (BBox format).
  */
-DataArrayIdType *DataArrayDouble::computeNbOfInteractionsWith(const DataArrayDouble *otherBBoxFrmt, double eps) const
+DataArrayIdType *
+DataArrayDouble::computeNbOfInteractionsWith(const DataArrayDouble *otherBBoxFrmt, double eps) const
 {
-  if(!otherBBoxFrmt)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::computeNbOfInteractionsWith : input array is NULL !");
-  if(!isAllocated() || !otherBBoxFrmt->isAllocated())
-    throw INTERP_KERNEL::Exception("DataArrayDouble::computeNbOfInteractionsWith : this and input array must be allocated !");
-  std::size_t nbOfComp(getNumberOfComponents());
-  mcIdType nbOfTuples(getNumberOfTuples());
-  if(nbOfComp!=otherBBoxFrmt->getNumberOfComponents())
+    if (!otherBBoxFrmt)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::computeNbOfInteractionsWith : input array is NULL !");
+    if (!isAllocated() || !otherBBoxFrmt->isAllocated())
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::computeNbOfInteractionsWith : this and input array must be allocated !"
+        );
+    std::size_t nbOfComp(getNumberOfComponents());
+    mcIdType nbOfTuples(getNumberOfTuples());
+    if (nbOfComp != otherBBoxFrmt->getNumberOfComponents())
     {
-      std::ostringstream oss; oss << "DataArrayDouble::computeNbOfInteractionsWith : this number of components (" << nbOfComp << ") must be equal to the number of components of input array (" << otherBBoxFrmt->getNumberOfComponents() << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "DataArrayDouble::computeNbOfInteractionsWith : this number of components (" << nbOfComp
+            << ") must be equal to the number of components of input array (" << otherBBoxFrmt->getNumberOfComponents()
+            << ") !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  if(nbOfComp%2!=0)
+    if (nbOfComp % 2 != 0)
     {
-      std::ostringstream oss; oss << "DataArrayDouble::computeNbOfInteractionsWith : Number of components (" << nbOfComp << ") is not even ! It should be to be compatible with bbox format !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "DataArrayDouble::computeNbOfInteractionsWith : Number of components (" << nbOfComp
+            << ") is not even ! It should be to be compatible with bbox format !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  MCAuto<DataArrayIdType> ret(DataArrayIdType::New()); ret->alloc(nbOfTuples,1);
-  const double *thisBBPtr(begin());
-  mcIdType *retPtr(ret->getPointer());
-  switch(nbOfComp/2)
-  {
-    case 3:
-      {
-        BBTree<3,mcIdType> bbt(otherBBoxFrmt->begin(),0,0,otherBBoxFrmt->getNumberOfTuples(),eps);
-        for(mcIdType i=0;i<nbOfTuples;i++,retPtr++,thisBBPtr+=nbOfComp)
-          *retPtr=bbt.getNbOfIntersectingElems(thisBBPtr);
-        break;
-      }
-    case 2:
-      {
-        BBTree<2,mcIdType> bbt(otherBBoxFrmt->begin(),0,0,otherBBoxFrmt->getNumberOfTuples(),eps);
-        for(mcIdType i=0;i<nbOfTuples;i++,retPtr++,thisBBPtr+=nbOfComp)
-          *retPtr=bbt.getNbOfIntersectingElems(thisBBPtr);
-        break;
-      }
-    case 1:
-      {
-        BBTree<1,mcIdType> bbt(otherBBoxFrmt->begin(),0,0,otherBBoxFrmt->getNumberOfTuples(),eps);
-        for(mcIdType i=0;i<nbOfTuples;i++,retPtr++,thisBBPtr+=nbOfComp)
-          *retPtr=bbt.getNbOfIntersectingElems(thisBBPtr);
-        break;
-      }
-    default:
-      throw INTERP_KERNEL::Exception("DataArrayDouble::computeNbOfInteractionsWith : space dimension supported are [1,2,3] !");
-  }
+    MCAuto<DataArrayIdType> ret(DataArrayIdType::New());
+    ret->alloc(nbOfTuples, 1);
+    const double *thisBBPtr(begin());
+    mcIdType *retPtr(ret->getPointer());
+    switch (nbOfComp / 2)
+    {
+        case 3:
+        {
+            BBTree<3, mcIdType> bbt(otherBBoxFrmt->begin(), 0, 0, otherBBoxFrmt->getNumberOfTuples(), eps);
+            for (mcIdType i = 0; i < nbOfTuples; i++, retPtr++, thisBBPtr += nbOfComp)
+                *retPtr = bbt.getNbOfIntersectingElems(thisBBPtr);
+            break;
+        }
+        case 2:
+        {
+            BBTree<2, mcIdType> bbt(otherBBoxFrmt->begin(), 0, 0, otherBBoxFrmt->getNumberOfTuples(), eps);
+            for (mcIdType i = 0; i < nbOfTuples; i++, retPtr++, thisBBPtr += nbOfComp)
+                *retPtr = bbt.getNbOfIntersectingElems(thisBBPtr);
+            break;
+        }
+        case 1:
+        {
+            BBTree<1, mcIdType> bbt(otherBBoxFrmt->begin(), 0, 0, otherBBoxFrmt->getNumberOfTuples(), eps);
+            for (mcIdType i = 0; i < nbOfTuples; i++, retPtr++, thisBBPtr += nbOfComp)
+                *retPtr = bbt.getNbOfIntersectingElems(thisBBPtr);
+            break;
+        }
+        default:
+            throw INTERP_KERNEL::Exception(
+                "DataArrayDouble::computeNbOfInteractionsWith : space dimension supported are [1,2,3] !"
+            );
+    }
 
-  return ret.retn();
+    return ret.retn();
 }
 
 /*!
@@ -1264,15 +1485,18 @@ DataArrayIdType *DataArrayDouble::computeNbOfInteractionsWith(const DataArrayDou
  *  \ref py_mcdataarraydouble_getdifferentvalues "Here is a Python example".
  *  \endif
  */
-DataArrayDouble *DataArrayDouble::getDifferentValues(double prec, mcIdType limitTupleId) const
+DataArrayDouble *
+DataArrayDouble::getDifferentValues(double prec, mcIdType limitTupleId) const
 {
-  checkAllocated();
-  DataArrayIdType *c0=0,*cI0=0;
-  findCommonTuples(prec,limitTupleId,c0,cI0);
-  MCAuto<DataArrayIdType> c(c0),cI(cI0);
-  mcIdType newNbOfTuples=-1;
-  MCAuto<DataArrayIdType> o2n=DataArrayIdType::ConvertIndexArrayToO2N(getNumberOfTuples(),c0->begin(),cI0->begin(),cI0->end(),newNbOfTuples);
-  return renumberAndReduce(o2n->getConstPointer(),newNbOfTuples);
+    checkAllocated();
+    DataArrayIdType *c0 = 0, *cI0 = 0;
+    findCommonTuples(prec, limitTupleId, c0, cI0);
+    MCAuto<DataArrayIdType> c(c0), cI(cI0);
+    mcIdType newNbOfTuples = -1;
+    MCAuto<DataArrayIdType> o2n = DataArrayIdType::ConvertIndexArrayToO2N(
+        getNumberOfTuples(), c0->begin(), cI0->begin(), cI0->end(), newNbOfTuples
+    );
+    return renumberAndReduce(o2n->getConstPointer(), newNbOfTuples);
 }
 
 /*!
@@ -1290,33 +1514,34 @@ DataArrayDouble *DataArrayDouble::getDifferentValues(double prec, mcIdType limit
  *  \ref py_mcdataarraydouble_setselectedcomponents "Here is a Python example".
  *  \endif
  */
-void DataArrayDouble::setSelectedComponents(const DataArrayDouble *a, const std::vector<std::size_t>& compoIds)
+void
+DataArrayDouble::setSelectedComponents(const DataArrayDouble *a, const std::vector<std::size_t> &compoIds)
 {
-  if(!a)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::setSelectedComponents : input DataArrayDouble is NULL !");
-  checkAllocated();
-  copyPartOfStringInfoFrom2(compoIds,*a);
-  std::size_t partOfCompoSz=compoIds.size();
-  std::size_t nbOfCompo=getNumberOfComponents();
-  mcIdType nbOfTuples=std::min(getNumberOfTuples(),a->getNumberOfTuples());
-  const double *ac=a->getConstPointer();
-  double *nc=getPointer();
-  for(mcIdType i=0;i<nbOfTuples;i++)
-    for(std::size_t j=0;j<partOfCompoSz;j++,ac++)
-      nc[nbOfCompo*i+compoIds[j]]=*ac;
+    if (!a)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::setSelectedComponents : input DataArrayDouble is NULL !");
+    checkAllocated();
+    copyPartOfStringInfoFrom2(compoIds, *a);
+    std::size_t partOfCompoSz = compoIds.size();
+    std::size_t nbOfCompo = getNumberOfComponents();
+    mcIdType nbOfTuples = std::min(getNumberOfTuples(), a->getNumberOfTuples());
+    const double *ac = a->getConstPointer();
+    double *nc = getPointer();
+    for (mcIdType i = 0; i < nbOfTuples; i++)
+        for (std::size_t j = 0; j < partOfCompoSz; j++, ac++) nc[nbOfCompo * i + compoIds[j]] = *ac;
 }
 /*!
  * Checks if 0.0 value is present in \a this array. If it is the case, an exception
  * is thrown.
  * \throw If zero is found in \a this array.
  */
-void DataArrayDouble::checkNoNullValues() const
+void
+DataArrayDouble::checkNoNullValues() const
 {
-  const double *tmp=getConstPointer();
-  mcIdType nbOfElems=getNbOfElems();
-  const double *where=std::find(tmp,tmp+nbOfElems,0.);
-  if(where!=tmp+nbOfElems)
-    throw INTERP_KERNEL::Exception("A value 0.0 have been detected !");
+    const double *tmp = getConstPointer();
+    mcIdType nbOfElems = getNbOfElems();
+    const double *where = std::find(tmp, tmp + nbOfElems, 0.);
+    if (where != tmp + nbOfElems)
+        throw INTERP_KERNEL::Exception("A value 0.0 have been detected !");
 }
 
 /*!
@@ -1331,60 +1556,63 @@ void DataArrayDouble::checkNoNullValues() const
  *               \a bounds[3] = \c max_of_component_1 <br>
  *               ...
  */
-void DataArrayDouble::getMinMaxPerComponent(double *bounds) const
+void
+DataArrayDouble::getMinMaxPerComponent(double *bounds) const
 {
-  checkAllocated();
-  std::size_t dim=getNumberOfComponents();
-  for (std::size_t idim=0; idim<dim; idim++)
+    checkAllocated();
+    std::size_t dim = getNumberOfComponents();
+    for (std::size_t idim = 0; idim < dim; idim++)
     {
-      bounds[idim*2]=std::numeric_limits<double>::max();
-      bounds[idim*2+1]=-std::numeric_limits<double>::max();
+        bounds[idim * 2] = std::numeric_limits<double>::max();
+        bounds[idim * 2 + 1] = -std::numeric_limits<double>::max();
     }
-  const double *ptr=getConstPointer();
-  mcIdType nbOfTuples=getNumberOfTuples();
-  for(mcIdType i=0;i<nbOfTuples;i++)
+    const double *ptr = getConstPointer();
+    mcIdType nbOfTuples = getNumberOfTuples();
+    for (mcIdType i = 0; i < nbOfTuples; i++)
     {
-      for(std::size_t idim=0;idim<dim;idim++)
+        for (std::size_t idim = 0; idim < dim; idim++)
         {
-          if(bounds[idim*2]>ptr[i*dim+idim])
+            if (bounds[idim * 2] > ptr[i * dim + idim])
             {
-              bounds[idim*2]=ptr[i*dim+idim];
+                bounds[idim * 2] = ptr[i * dim + idim];
             }
-          if(bounds[idim*2+1]<ptr[i*dim+idim])
+            if (bounds[idim * 2 + 1] < ptr[i * dim + idim])
             {
-              bounds[idim*2+1]=ptr[i*dim+idim];
+                bounds[idim * 2 + 1] = ptr[i * dim + idim];
             }
         }
     }
 }
 
 /*!
- * This method retrieves a newly allocated DataArrayDouble instance having same number of tuples than \a this and twice number of components than \a this
- * to store both the min and max per component of each tuples.
+ * This method retrieves a newly allocated DataArrayDouble instance having same number of tuples than \a this and twice
+ * number of components than \a this to store both the min and max per component of each tuples.
  * \param [in] epsilon the width of the bbox (identical in each direction) - 0.0 by default
  *
- * \return a newly created DataArrayDouble instance having \c this->getNumberOfTuples() tuples and 2 * \c this->getNumberOfComponent() components
+ * \return a newly created DataArrayDouble instance having \c this->getNumberOfTuples() tuples and 2 * \c
+ * this->getNumberOfComponent() components
  *
  * \throw If \a this is not allocated yet.
  */
-DataArrayDouble *DataArrayDouble::computeBBoxPerTuple(double epsilon) const
+DataArrayDouble *
+DataArrayDouble::computeBBoxPerTuple(double epsilon) const
 {
-  checkAllocated();
-  const double *dataPtr=getConstPointer();
-  std::size_t nbOfCompo=getNumberOfComponents();
-  mcIdType nbTuples=getNumberOfTuples();
-  MCAuto<DataArrayDouble> bbox=DataArrayDouble::New();
-  bbox->alloc(nbTuples,2*nbOfCompo);
-  double *bboxPtr=bbox->getPointer();
-  for(mcIdType i=0;i<nbTuples;i++)
+    checkAllocated();
+    const double *dataPtr = getConstPointer();
+    std::size_t nbOfCompo = getNumberOfComponents();
+    mcIdType nbTuples = getNumberOfTuples();
+    MCAuto<DataArrayDouble> bbox = DataArrayDouble::New();
+    bbox->alloc(nbTuples, 2 * nbOfCompo);
+    double *bboxPtr = bbox->getPointer();
+    for (mcIdType i = 0; i < nbTuples; i++)
     {
-      for(std::size_t j=0;j<nbOfCompo;j++)
+        for (std::size_t j = 0; j < nbOfCompo; j++)
         {
-          bboxPtr[2*nbOfCompo*i+2*j]=dataPtr[nbOfCompo*i+j]-epsilon;
-          bboxPtr[2*nbOfCompo*i+2*j+1]=dataPtr[nbOfCompo*i+j]+epsilon;
+            bboxPtr[2 * nbOfCompo * i + 2 * j] = dataPtr[nbOfCompo * i + j] - epsilon;
+            bboxPtr[2 * nbOfCompo * i + 2 * j + 1] = dataPtr[nbOfCompo * i + j] + epsilon;
         }
     }
-  return bbox.retn();
+    return bbox.retn();
 }
 
 /*!
@@ -1392,8 +1620,10 @@ DataArrayDouble *DataArrayDouble::computeBBoxPerTuple(double epsilon) const
  * Two tuples are considered equal if the euclidian distance between the two tuples is lower than \a eps.
  *
  * \param [in] other a DataArrayDouble having same number of components than \a this.
- * \param [in] eps absolute precision representing distance (using infinite norm) between 2 tuples behind which 2 tuples are considered equal.
- * \param [out] c will contain the set of tuple ids in \a this that are equal to to the tuple ids in \a other contiguously.
+ * \param [in] eps absolute precision representing distance (using infinite norm) between 2 tuples behind which 2 tuples
+ * are considered equal.
+ * \param [out] c will contain the set of tuple ids in \a this that are equal to to the tuple ids in \a other
+ * contiguously.
  *             \a cI allows to extract information in \a c.
  * \param [out] cI is an indirection array that allows to extract the data contained in \a c.
  *
@@ -1405,65 +1635,76 @@ DataArrayDouble *DataArrayDouble::computeBBoxPerTuple(double epsilon) const
  *
  * \sa MEDCouplingPointSet::getNodeIdsNearPoints, DataArrayDouble::getDifferentValues
  */
-void DataArrayDouble::computeTupleIdsNearTuples(const DataArrayDouble *other, double eps, DataArrayIdType *& c, DataArrayIdType *& cI) const
+void
+DataArrayDouble::computeTupleIdsNearTuples(
+    const DataArrayDouble *other, double eps, DataArrayIdType *&c, DataArrayIdType *&cI
+) const
 {
-  if(!other)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::computeTupleIdsNearTuples : input pointer other is null !");
-  checkAllocated();
-  other->checkAllocated();
-  std::size_t nbOfCompo=getNumberOfComponents();
-  std::size_t otherNbOfCompo=other->getNumberOfComponents();
-  if(nbOfCompo!=otherNbOfCompo)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::computeTupleIdsNearTuples : number of components should be equal between this and other !");
-  mcIdType nbOfTuplesOther=other->getNumberOfTuples();
-  mcIdType nbOfTuples=getNumberOfTuples();
-  MCAuto<DataArrayIdType> cArr(DataArrayIdType::New()),cIArr(DataArrayIdType::New()); cArr->alloc(0,1); cIArr->pushBackSilent(0);
-  switch(nbOfCompo)
-  {
-    case 3:
-      {
-        BBTreePts<3,mcIdType> myTree(begin(),0,0,nbOfTuples,eps);
-        FindTupleIdsNearTuplesAlg<3>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,cArr,cIArr);
-        break;
-      }
-    case 2:
-      {
-        BBTreePts<2,mcIdType> myTree(begin(),0,0,nbOfTuples,eps);
-        FindTupleIdsNearTuplesAlg<2>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,cArr,cIArr);
-        break;
-      }
-    case 1:
-      {
-        BBTreePts<1,mcIdType> myTree(begin(),0,0,nbOfTuples,eps);
-        FindTupleIdsNearTuplesAlg<1>(myTree,other->getConstPointer(),nbOfTuplesOther,eps,cArr,cIArr);
-        break;
-      }
-    default:
-      throw INTERP_KERNEL::Exception("Unexpected spacedim of coords for computeTupleIdsNearTuples. Must be 1, 2 or 3.");
-  }
-  c=cArr.retn(); cI=cIArr.retn();
+    if (!other)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::computeTupleIdsNearTuples : input pointer other is null !");
+    checkAllocated();
+    other->checkAllocated();
+    std::size_t nbOfCompo = getNumberOfComponents();
+    std::size_t otherNbOfCompo = other->getNumberOfComponents();
+    if (nbOfCompo != otherNbOfCompo)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::computeTupleIdsNearTuples : number of components should be equal between this and other !"
+        );
+    mcIdType nbOfTuplesOther = other->getNumberOfTuples();
+    mcIdType nbOfTuples = getNumberOfTuples();
+    MCAuto<DataArrayIdType> cArr(DataArrayIdType::New()), cIArr(DataArrayIdType::New());
+    cArr->alloc(0, 1);
+    cIArr->pushBackSilent(0);
+    switch (nbOfCompo)
+    {
+        case 3:
+        {
+            BBTreePts<3, mcIdType> myTree(begin(), 0, 0, nbOfTuples, eps);
+            FindTupleIdsNearTuplesAlg<3>(myTree, other->getConstPointer(), nbOfTuplesOther, eps, cArr, cIArr);
+            break;
+        }
+        case 2:
+        {
+            BBTreePts<2, mcIdType> myTree(begin(), 0, 0, nbOfTuples, eps);
+            FindTupleIdsNearTuplesAlg<2>(myTree, other->getConstPointer(), nbOfTuplesOther, eps, cArr, cIArr);
+            break;
+        }
+        case 1:
+        {
+            BBTreePts<1, mcIdType> myTree(begin(), 0, 0, nbOfTuples, eps);
+            FindTupleIdsNearTuplesAlg<1>(myTree, other->getConstPointer(), nbOfTuplesOther, eps, cArr, cIArr);
+            break;
+        }
+        default:
+            throw INTERP_KERNEL::Exception(
+                "Unexpected spacedim of coords for computeTupleIdsNearTuples. Must be 1, 2 or 3."
+            );
+    }
+    c = cArr.retn();
+    cI = cIArr.retn();
 }
 
 /*!
- * This method recenter tuples in \b this in order to be centered at the origin to benefit about the advantages of maximal precision to be around the box
- * around origin of 'radius' 1.
+ * This method recenter tuples in \b this in order to be centered at the origin to benefit about the advantages of
+ * maximal precision to be around the box around origin of 'radius' 1.
  *
  * \param [in] eps absolute epsilon. under that value of delta between max and min no scale is performed.
  */
-void DataArrayDouble::recenterForMaxPrecision(double eps)
+void
+DataArrayDouble::recenterForMaxPrecision(double eps)
 {
-  checkAllocated();
-  std::size_t dim=getNumberOfComponents();
-  std::vector<double> bounds(2*dim);
-  getMinMaxPerComponent(&bounds[0]);
-  for(std::size_t i=0;i<dim;i++)
+    checkAllocated();
+    std::size_t dim = getNumberOfComponents();
+    std::vector<double> bounds(2 * dim);
+    getMinMaxPerComponent(&bounds[0]);
+    for (std::size_t i = 0; i < dim; i++)
     {
-      double delta=bounds[2*i+1]-bounds[2*i];
-      double offset=(bounds[2*i]+bounds[2*i+1])/2.;
-      if(delta>eps)
-        applyLin(1./delta,-offset/delta,i);
-      else
-        applyLin(1.,-offset,i);
+        double delta = bounds[2 * i + 1] - bounds[2 * i];
+        double offset = (bounds[2 * i] + bounds[2 * i + 1]) / 2.;
+        if (delta > eps)
+            applyLin(1. / delta, -offset / delta, i);
+        else
+            applyLin(1., -offset, i);
     }
 }
 
@@ -1476,13 +1717,14 @@ void DataArrayDouble::recenterForMaxPrecision(double eps)
  *  \throw If \a this->getNumberOfComponents() != 1
  *  \throw If \a this->getNumberOfTuples() < 1
  */
-double DataArrayDouble::getMaxValue2(DataArrayIdType*& tupleIds) const
+double
+DataArrayDouble::getMaxValue2(DataArrayIdType *&tupleIds) const
 {
-  mcIdType tmp;
-  tupleIds=0;
-  double ret=getMaxValue(tmp);
-  tupleIds=findIdsInRange(ret,ret);
-  return ret;
+    mcIdType tmp;
+    tupleIds = 0;
+    double ret = getMaxValue(tmp);
+    tupleIds = findIdsInRange(ret, ret);
+    return ret;
 }
 
 /*!
@@ -1494,36 +1736,41 @@ double DataArrayDouble::getMaxValue2(DataArrayIdType*& tupleIds) const
  *  \throw If \a this->getNumberOfComponents() != 1
  *  \throw If \a this->getNumberOfTuples() < 1
  */
-double DataArrayDouble::getMinValue2(DataArrayIdType*& tupleIds) const
+double
+DataArrayDouble::getMinValue2(DataArrayIdType *&tupleIds) const
 {
-  mcIdType tmp;
-  tupleIds=0;
-  double ret=getMinValue(tmp);
-  tupleIds=findIdsInRange(ret,ret);
-  return ret;
+    mcIdType tmp;
+    tupleIds = 0;
+    double ret = getMinValue(tmp);
+    tupleIds = findIdsInRange(ret, ret);
+    return ret;
 }
 
 /*!
- * This method returns the number of values in \a this that are equals ( within an absolute precision of \a eps ) to input parameter \a value.
- * This method only works for single component array.
+ * This method returns the number of values in \a this that are equals ( within an absolute precision of \a eps ) to
+ * input parameter \a value. This method only works for single component array.
  *
  * \return a value in [ 0, \c this->getNumberOfTuples() )
  *
  * \throw If \a this is not allocated
  *
  */
-mcIdType DataArrayDouble::count(double value, double eps) const
+mcIdType
+DataArrayDouble::count(double value, double eps) const
 {
-  mcIdType ret=0;
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::count : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before !");
-  const double *vals=begin();
-  mcIdType nbOfTuples=getNumberOfTuples();
-  for(mcIdType i=0;i<nbOfTuples;i++,vals++)
-    if(fabs(*vals-value)<=eps)
-      ret++;
-  return ret;
+    mcIdType ret = 0;
+    checkAllocated();
+    if (getNumberOfComponents() != 1)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::count : must be applied on DataArrayDouble with only one component, you can call "
+            "'rearrange' method before !"
+        );
+    const double *vals = begin();
+    mcIdType nbOfTuples = getNumberOfTuples();
+    for (mcIdType i = 0; i < nbOfTuples; i++, vals++)
+        if (fabs(*vals - value) <= eps)
+            ret++;
+    return ret;
 }
 
 /*!
@@ -1532,16 +1779,22 @@ mcIdType DataArrayDouble::count(double value, double eps) const
  *  \throw If \a this->getNumberOfComponents() != 1
  *  \throw If \a this->getNumberOfTuples() < 1
  */
-double DataArrayDouble::getAverageValue() const
+double
+DataArrayDouble::getAverageValue() const
 {
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::getAverageValue : must be applied on DataArrayDouble with only one component, you can call 'rearrange' method before !");
-  mcIdType nbOfTuples(getNumberOfTuples());
-  if(nbOfTuples<=0)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::getAverageValue : array exists but number of tuples must be > 0 !");
-  const double *vals=getConstPointer();
-  double ret=std::accumulate(vals,vals+nbOfTuples,0.);
-  return ret/FromIdType<double>(nbOfTuples);
+    if (getNumberOfComponents() != 1)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::getAverageValue : must be applied on DataArrayDouble with only one component, you can "
+            "call 'rearrange' method before !"
+        );
+    mcIdType nbOfTuples(getNumberOfTuples());
+    if (nbOfTuples <= 0)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::getAverageValue : array exists but number of tuples must be > 0 !"
+        );
+    const double *vals = getConstPointer();
+    double ret = std::accumulate(vals, vals + nbOfTuples, 0.);
+    return ret / FromIdType<double>(nbOfTuples);
 }
 
 /*!
@@ -1550,15 +1803,15 @@ double DataArrayDouble::getAverageValue() const
  *          the square root of the inner product of vector.
  *  \throw If \a this is not allocated.
  */
-double DataArrayDouble::norm2() const
+double
+DataArrayDouble::norm2() const
 {
-  checkAllocated();
-  double ret=0.;
-  std::size_t nbOfElems=getNbOfElems();
-  const double *pt=getConstPointer();
-  for(std::size_t i=0;i<nbOfElems;i++,pt++)
-    ret+=(*pt)*(*pt);
-  return sqrt(ret);
+    checkAllocated();
+    double ret = 0.;
+    std::size_t nbOfElems = getNbOfElems();
+    const double *pt = getConstPointer();
+    for (std::size_t i = 0; i < nbOfElems; i++, pt++) ret += (*pt) * (*pt);
+    return sqrt(ret);
 }
 
 /*!
@@ -1569,44 +1822,45 @@ double DataArrayDouble::norm2() const
  *          the maximal absolute value among values of \a this array (whatever its number of components).
  *  \throw If \a this is not allocated.
  */
-double DataArrayDouble::normMax() const
+double
+DataArrayDouble::normMax() const
 {
-  checkAllocated();
-  double ret(-1.);
-  std::size_t nbOfElems(getNbOfElems());
-  const double *pt(getConstPointer());
-  for(std::size_t i=0;i<nbOfElems;i++,pt++)
+    checkAllocated();
+    double ret(-1.);
+    std::size_t nbOfElems(getNbOfElems());
+    const double *pt(getConstPointer());
+    for (std::size_t i = 0; i < nbOfElems; i++, pt++)
     {
-      double val(std::abs(*pt));
-      if(val>ret)
-        ret=val;
+        double val(std::abs(*pt));
+        if (val > ret)
+            ret = val;
     }
-  return ret;
+    return ret;
 }
 
 /*!
  * Returns the maximum norm of for each component of \a this array.
  * If the number of elements in \a this is 0, -1. is returned.
-*  \param [out] res - pointer to an array of result values, of size at least \a
+ *  \param [out] res - pointer to an array of result values, of size at least \a
  *         this->getNumberOfComponents(), that is to be allocated by the caller.
  *  \throw If \a this is not allocated.
  */
-void DataArrayDouble::normMaxPerComponent(double * res) const
+void
+DataArrayDouble::normMaxPerComponent(double *res) const
 {
-  checkAllocated();
-  mcIdType nbOfTuples(getNumberOfTuples());
-  std::size_t nbOfCompos(getNumberOfComponents());
-  std::fill(res, res+nbOfCompos, -1.0);
-  const double *pt(getConstPointer());
-  for(mcIdType i=0;i<nbOfTuples;i++)
-    for (std::size_t j=0; j<nbOfCompos; j++, pt++)
-      {
-        double val(std::abs(*pt));
-        if(val>res[j])
-          res[j]=val;
-      }
+    checkAllocated();
+    mcIdType nbOfTuples(getNumberOfTuples());
+    std::size_t nbOfCompos(getNumberOfComponents());
+    std::fill(res, res + nbOfCompos, -1.0);
+    const double *pt(getConstPointer());
+    for (mcIdType i = 0; i < nbOfTuples; i++)
+        for (std::size_t j = 0; j < nbOfCompos; j++, pt++)
+        {
+            double val(std::abs(*pt));
+            if (val > res[j])
+                res[j] = val;
+        }
 }
-
 
 /*!
  * Returns the minimum norm (absolute value) of the vector defined by \a this array.
@@ -1616,19 +1870,20 @@ void DataArrayDouble::normMaxPerComponent(double * res) const
  *          the minimal absolute value among values of \a this array (whatever its number of components).
  *  \throw If \a this is not allocated.
  */
-double DataArrayDouble::normMin() const
+double
+DataArrayDouble::normMin() const
 {
-  checkAllocated();
-  double ret(std::numeric_limits<double>::max());
-  std::size_t nbOfElems(getNbOfElems());
-  const double *pt(getConstPointer());
-  for(std::size_t i=0;i<nbOfElems;i++,pt++)
+    checkAllocated();
+    double ret(std::numeric_limits<double>::max());
+    std::size_t nbOfElems(getNbOfElems());
+    const double *pt(getConstPointer());
+    for (std::size_t i = 0; i < nbOfElems; i++, pt++)
     {
-      double val(std::abs(*pt));
-      if(val<ret)
-        ret=val;
+        double val(std::abs(*pt));
+        if (val < ret)
+            ret = val;
     }
-  return ret;
+    return ret;
 }
 
 /*!
@@ -1638,54 +1893,68 @@ double DataArrayDouble::normMin() const
  *         component.
  *  \throw If \a this is not allocated.
  */
-void DataArrayDouble::accumulate(double *res) const
+void
+DataArrayDouble::accumulate(double *res) const
 {
-  checkAllocated();
-  const double *ptr=getConstPointer();
-  mcIdType nbTuple(getNumberOfTuples());
-  std::size_t nbComps(getNumberOfComponents());
-  std::fill(res,res+nbComps,0.);
-  for(mcIdType i=0;i<nbTuple;i++)
-    std::transform(ptr+i*nbComps,ptr+(i+1)*nbComps,res,res,std::plus<double>());
+    checkAllocated();
+    const double *ptr = getConstPointer();
+    mcIdType nbTuple(getNumberOfTuples());
+    std::size_t nbComps(getNumberOfComponents());
+    std::fill(res, res + nbComps, 0.);
+    for (mcIdType i = 0; i < nbTuple; i++)
+        std::transform(ptr + i * nbComps, ptr + (i + 1) * nbComps, res, res, std::plus<double>());
 }
 
 /*!
  * This method returns the min distance from an external tuple defined by [ \a tupleBg , \a tupleEnd ) to \a this and
- * the first tuple in \a this that matches the returned distance. If there is no tuples in \a this an exception will be thrown.
+ * the first tuple in \a this that matches the returned distance. If there is no tuples in \a this an exception will be
+ * thrown.
  *
  *
- * \a this is expected to be allocated and expected to have a number of components equal to the distance from \a tupleBg to
+ * \a this is expected to be allocated and expected to have a number of components equal to the distance from \a tupleBg
+ * to
  * \a tupleEnd. If not an exception will be thrown.
  *
  * \param [in] tupleBg start pointer (included) of input external tuple
  * \param [in] tupleEnd end pointer (not included) of input external tuple
- * \param [out] tupleId the tuple id in \a this that matches the min of distance between \a this and input external tuple
+ * \param [out] tupleId the tuple id in \a this that matches the min of distance between \a this and input external
+ * tuple
  * \return the min distance.
  * \sa MEDCouplingUMesh::distanceToPoint
  */
-double DataArrayDouble::distanceToTuple(const double *tupleBg, const double *tupleEnd, mcIdType& tupleId) const
+double
+DataArrayDouble::distanceToTuple(const double *tupleBg, const double *tupleEnd, mcIdType &tupleId) const
 {
-  checkAllocated();
-  mcIdType nbTuple(getNumberOfTuples());
-  std::size_t nbComps(getNumberOfComponents());
-  if(nbComps!=(std::size_t)std::distance(tupleBg,tupleEnd))
-    { std::ostringstream oss; oss << "DataArrayDouble::distanceToTuple : size of input tuple is " << std::distance(tupleBg,tupleEnd) << " should be equal to the number of components in this : " << nbComps << " !"; throw INTERP_KERNEL::Exception(oss.str().c_str()); }
-  if(nbTuple==0)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::distanceToTuple : no tuple in this ! No distance to compute !");
-  double ret0=std::numeric_limits<double>::max();
-  tupleId=-1;
-  const double *work=getConstPointer();
-  for(mcIdType i=0;i<nbTuple;i++)
+    checkAllocated();
+    mcIdType nbTuple(getNumberOfTuples());
+    std::size_t nbComps(getNumberOfComponents());
+    if (nbComps != (std::size_t)std::distance(tupleBg, tupleEnd))
     {
-      double val=0.;
-      for(std::size_t j=0;j<nbComps;j++,work++)
-        val+=(*work-tupleBg[j])*((*work-tupleBg[j]));
-      if(val>=ret0)
-        continue;
-      else
-        { ret0=val; tupleId=i; }
+        std::ostringstream oss;
+        oss << "DataArrayDouble::distanceToTuple : size of input tuple is " << std::distance(tupleBg, tupleEnd)
+            << " should be equal to the number of components in this : " << nbComps << " !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  return sqrt(ret0);
+    if (nbTuple == 0)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::distanceToTuple : no tuple in this ! No distance to compute !"
+        );
+    double ret0 = std::numeric_limits<double>::max();
+    tupleId = -1;
+    const double *work = getConstPointer();
+    for (mcIdType i = 0; i < nbTuple; i++)
+    {
+        double val = 0.;
+        for (std::size_t j = 0; j < nbComps; j++, work++) val += (*work - tupleBg[j]) * ((*work - tupleBg[j]));
+        if (val >= ret0)
+            continue;
+        else
+        {
+            ret0 = val;
+            tupleId = i;
+        }
+    }
+    return sqrt(ret0);
 }
 
 /*!
@@ -1696,18 +1965,20 @@ double DataArrayDouble::distanceToTuple(const double *tupleBg, const double *tup
  *  \throw If \a the condition ( 0 <= \a compId < \a this->getNumberOfComponents() ) is
  *         not respected.
  */
-double DataArrayDouble::accumulate(std::size_t compId) const
+double
+DataArrayDouble::accumulate(std::size_t compId) const
 {
-  checkAllocated();
-  const double *ptr=getConstPointer();
-  mcIdType nbTuple(getNumberOfTuples());
-  std::size_t nbComps(getNumberOfComponents());
-  if(compId>=nbComps)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::accumulate : Invalid compId specified : No such nb of components !");
-  double ret=0.;
-  for(mcIdType i=0;i<nbTuple;i++)
-    ret+=ptr[i*nbComps+compId];
-  return ret;
+    checkAllocated();
+    const double *ptr = getConstPointer();
+    mcIdType nbTuple(getNumberOfTuples());
+    std::size_t nbComps(getNumberOfComponents());
+    if (compId >= nbComps)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::accumulate : Invalid compId specified : No such nb of components !"
+        );
+    double ret = 0.;
+    for (mcIdType i = 0; i < nbTuple; i++) ret += ptr[i * nbComps + compId];
+    return ret;
 }
 
 /*!
@@ -1715,8 +1986,9 @@ double DataArrayDouble::accumulate(std::size_t compId) const
  * The returned array will have same number of components than \a this and number of tuples equal to
  * \c std::distance(bgOfIndex,endOfIndex) \b minus \b one.
  *
- * The input index array is expected to be ascendingly sorted in which the all referenced ids should be in [0, \c this->getNumberOfTuples).
- * This method is quite useful for users that need to put a field on cells to field on nodes on the same mesh without a need of conservation.
+ * The input index array is expected to be ascendingly sorted in which the all referenced ids should be in [0, \c
+ * this->getNumberOfTuples). This method is quite useful for users that need to put a field on cells to field on nodes
+ * on the same mesh without a need of conservation.
  *
  * \param [in] bgOfIndex - begin (included) of the input index array.
  * \param [in] endOfIndex - end (excluded) of the input index array.
@@ -1727,68 +1999,78 @@ double DataArrayDouble::accumulate(std::size_t compId) const
  * \throw If there is an id in [ \a bgOfIndex, \a endOfIndex ) not in [0, \c this->getNumberOfTuples).
  * \throw If std::distance(bgOfIndex,endOfIndex)==0.
  */
-DataArrayDouble *DataArrayDouble::accumulatePerChunck(const mcIdType *bgOfIndex, const mcIdType *endOfIndex) const
+DataArrayDouble *
+DataArrayDouble::accumulatePerChunck(const mcIdType *bgOfIndex, const mcIdType *endOfIndex) const
 {
-  if(!bgOfIndex || !endOfIndex)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::accumulatePerChunck : input pointer NULL !");
-  checkAllocated();
-  std::size_t nbCompo(getNumberOfComponents());
-  mcIdType nbOfTuples(getNumberOfTuples());
-  std::size_t sz=std::distance(bgOfIndex,endOfIndex);
-  if(sz<1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::accumulatePerChunck : invalid size of input index array !");
-  sz--;
-  MCAuto<DataArrayDouble> ret=DataArrayDouble::New(); ret->alloc(sz,nbCompo);
-  const mcIdType *w=bgOfIndex;
-  if(*w<0 || *w>=nbOfTuples)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::accumulatePerChunck : The first element of the input index not in [0,nbOfTuples) !");
-  const double *srcPt=begin()+(*w)*nbCompo;
-  double *tmp=ret->getPointer();
-  for(std::size_t i=0;i<sz;i++,tmp+=nbCompo,w++)
+    if (!bgOfIndex || !endOfIndex)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::accumulatePerChunck : input pointer NULL !");
+    checkAllocated();
+    std::size_t nbCompo(getNumberOfComponents());
+    mcIdType nbOfTuples(getNumberOfTuples());
+    std::size_t sz = std::distance(bgOfIndex, endOfIndex);
+    if (sz < 1)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::accumulatePerChunck : invalid size of input index array !");
+    sz--;
+    MCAuto<DataArrayDouble> ret = DataArrayDouble::New();
+    ret->alloc(sz, nbCompo);
+    const mcIdType *w = bgOfIndex;
+    if (*w < 0 || *w >= nbOfTuples)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::accumulatePerChunck : The first element of the input index not in [0,nbOfTuples) !"
+        );
+    const double *srcPt = begin() + (*w) * nbCompo;
+    double *tmp = ret->getPointer();
+    for (std::size_t i = 0; i < sz; i++, tmp += nbCompo, w++)
     {
-      std::fill(tmp,tmp+nbCompo,0.);
-      if(w[1]>=w[0])
+        std::fill(tmp, tmp + nbCompo, 0.);
+        if (w[1] >= w[0])
         {
-          for(mcIdType j=w[0];j<w[1];j++,srcPt+=nbCompo)
+            for (mcIdType j = w[0]; j < w[1]; j++, srcPt += nbCompo)
             {
-              if(j>=0 && j<nbOfTuples)
-                std::transform(srcPt,srcPt+nbCompo,tmp,tmp,std::plus<double>());
-              else
+                if (j >= 0 && j < nbOfTuples)
+                    std::transform(srcPt, srcPt + nbCompo, tmp, tmp, std::plus<double>());
+                else
                 {
-                  std::ostringstream oss; oss << "DataArrayDouble::accumulatePerChunck : At rank #" << i << " the input index array points to id " << j << " should be in [0," << nbOfTuples << ") !";
-                  throw INTERP_KERNEL::Exception(oss.str().c_str());
+                    std::ostringstream oss;
+                    oss << "DataArrayDouble::accumulatePerChunck : At rank #" << i
+                        << " the input index array points to id " << j << " should be in [0," << nbOfTuples << ") !";
+                    throw INTERP_KERNEL::Exception(oss.str().c_str());
                 }
             }
         }
-      else
+        else
         {
-          std::ostringstream oss; oss << "DataArrayDouble::accumulatePerChunck : At rank #" << i << " the input index array is not in ascendingly sorted.";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+            std::ostringstream oss;
+            oss << "DataArrayDouble::accumulatePerChunck : At rank #" << i
+                << " the input index array is not in ascendingly sorted.";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  ret->copyStringInfoFrom(*this);
-  return ret.retn();
+    ret->copyStringInfoFrom(*this);
+    return ret.retn();
 }
 
 /*!
- * This method is close to numpy cumSum except that number of element is equal to \a this->getNumberOfTuples()+1. First element of DataArray returned is equal to 0.
- * This method expects that \a this as only one component. The returned array will have \a this->getNumberOfTuples()+1 tuple with also one component.
- * The ith element of returned array is equal to the sum of elements in \a this with rank strictly lower than i.
+ * This method is close to numpy cumSum except that number of element is equal to \a this->getNumberOfTuples()+1. First
+ * element of DataArray returned is equal to 0. This method expects that \a this as only one component. The returned
+ * array will have \a this->getNumberOfTuples()+1 tuple with also one component. The ith element of returned array is
+ * equal to the sum of elements in \a this with rank strictly lower than i.
  *
  * \return DataArrayDouble - A newly built array containing cum sum of \a this.
  */
-MCAuto<DataArrayDouble> DataArrayDouble::cumSum() const
+MCAuto<DataArrayDouble>
+DataArrayDouble::cumSum() const
 {
-  checkAllocated();
-  checkNbOfComps(1,"DataArrayDouble::cumSum : this is expected to be single component");
-  mcIdType nbOfTuple(getNumberOfTuples());
-  MCAuto<DataArrayDouble> ret(DataArrayDouble::New()); ret->alloc(nbOfTuple+1,1);
-  double *ptr(ret->getPointer());
-  ptr[0]=0.;
-  const double *thisPtr(begin());
-  for(mcIdType i=0;i<nbOfTuple;i++)
-    ptr[i+1]=ptr[i]+thisPtr[i];
-  return ret;
+    checkAllocated();
+    checkNbOfComps(1, "DataArrayDouble::cumSum : this is expected to be single component");
+    mcIdType nbOfTuple(getNumberOfTuples());
+    MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+    ret->alloc(nbOfTuple + 1, 1);
+    double *ptr(ret->getPointer());
+    ptr[0] = 0.;
+    const double *thisPtr(begin());
+    for (mcIdType i = 0; i < nbOfTuple; i++) ptr[i + 1] = ptr[i] + thisPtr[i];
+    return ret;
 }
 
 /*!
@@ -1802,23 +2084,26 @@ MCAuto<DataArrayDouble> DataArrayDouble::cumSum() const
  *  \throw If \a this->getNumberOfComponents() != 2.
  * \sa fromCartToPolar
  */
-DataArrayDouble *DataArrayDouble::fromPolarToCart() const
+DataArrayDouble *
+DataArrayDouble::fromPolarToCart() const
 {
-  checkAllocated();
-  std::size_t nbOfComp(getNumberOfComponents());
-  if(nbOfComp!=2)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::fromPolarToCart : must be an array with exactly 2 components !");
-  mcIdType nbOfTuple(getNumberOfTuples());
-  DataArrayDouble *ret(DataArrayDouble::New());
-  ret->alloc(nbOfTuple,2);
-  double *w(ret->getPointer());
-  const double *wIn(getConstPointer());
-  for(mcIdType i=0;i<nbOfTuple;i++,w+=2,wIn+=2)
+    checkAllocated();
+    std::size_t nbOfComp(getNumberOfComponents());
+    if (nbOfComp != 2)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::fromPolarToCart : must be an array with exactly 2 components !"
+        );
+    mcIdType nbOfTuple(getNumberOfTuples());
+    DataArrayDouble *ret(DataArrayDouble::New());
+    ret->alloc(nbOfTuple, 2);
+    double *w(ret->getPointer());
+    const double *wIn(getConstPointer());
+    for (mcIdType i = 0; i < nbOfTuple; i++, w += 2, wIn += 2)
     {
-      w[0]=wIn[0]*cos(wIn[1]);
-      w[1]=wIn[0]*sin(wIn[1]);
+        w[0] = wIn[0] * cos(wIn[1]);
+        w[1] = wIn[0] * sin(wIn[1]);
     }
-  return ret;
+    return ret;
 }
 
 /*!
@@ -1833,25 +2118,26 @@ DataArrayDouble *DataArrayDouble::fromPolarToCart() const
  *  \throw If \a this->getNumberOfComponents() != 3.
  * \sa fromCartToCyl
  */
-DataArrayDouble *DataArrayDouble::fromCylToCart() const
+DataArrayDouble *
+DataArrayDouble::fromCylToCart() const
 {
-  checkAllocated();
-  std::size_t nbOfComp(getNumberOfComponents());
-  if(nbOfComp!=3)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCylToCart : must be an array with exactly 3 components !");
-  mcIdType nbOfTuple(getNumberOfTuples());
-  DataArrayDouble *ret(DataArrayDouble::New());
-  ret->alloc(getNumberOfTuples(),3);
-  double *w(ret->getPointer());
-  const double *wIn(getConstPointer());
-  for(mcIdType i=0;i<nbOfTuple;i++,w+=3,wIn+=3)
+    checkAllocated();
+    std::size_t nbOfComp(getNumberOfComponents());
+    if (nbOfComp != 3)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::fromCylToCart : must be an array with exactly 3 components !");
+    mcIdType nbOfTuple(getNumberOfTuples());
+    DataArrayDouble *ret(DataArrayDouble::New());
+    ret->alloc(getNumberOfTuples(), 3);
+    double *w(ret->getPointer());
+    const double *wIn(getConstPointer());
+    for (mcIdType i = 0; i < nbOfTuple; i++, w += 3, wIn += 3)
     {
-      w[0]=wIn[0]*cos(wIn[1]);
-      w[1]=wIn[0]*sin(wIn[1]);
-      w[2]=wIn[2];
+        w[0] = wIn[0] * cos(wIn[1]);
+        w[1] = wIn[0] * sin(wIn[1]);
+        w[2] = wIn[2];
     }
-  ret->setInfoOnComponent(2,getInfoOnComponent(2));
-  return ret;
+    ret->setInfoOnComponent(2, getInfoOnComponent(2));
+    return ret;
 }
 
 /*!
@@ -1866,189 +2152,225 @@ DataArrayDouble *DataArrayDouble::fromCylToCart() const
  *  \throw If \a this->getNumberOfComponents() != 3.
  * \sa fromCartToSpher
  */
-DataArrayDouble *DataArrayDouble::fromSpherToCart() const
+DataArrayDouble *
+DataArrayDouble::fromSpherToCart() const
 {
-  checkAllocated();
-  std::size_t nbOfComp(getNumberOfComponents());
-  if(nbOfComp!=3)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::fromSpherToCart : must be an array with exactly 3 components !");
-  mcIdType nbOfTuple(getNumberOfTuples());
-  DataArrayDouble *ret(DataArrayDouble::New());
-  ret->alloc(getNumberOfTuples(),3);
-  double *w(ret->getPointer());
-  const double *wIn(getConstPointer());
-  for(mcIdType i=0;i<nbOfTuple;i++,w+=3,wIn+=3)
+    checkAllocated();
+    std::size_t nbOfComp(getNumberOfComponents());
+    if (nbOfComp != 3)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::fromSpherToCart : must be an array with exactly 3 components !"
+        );
+    mcIdType nbOfTuple(getNumberOfTuples());
+    DataArrayDouble *ret(DataArrayDouble::New());
+    ret->alloc(getNumberOfTuples(), 3);
+    double *w(ret->getPointer());
+    const double *wIn(getConstPointer());
+    for (mcIdType i = 0; i < nbOfTuple; i++, w += 3, wIn += 3)
     {
-      w[0]=wIn[0]*cos(wIn[2])*sin(wIn[1]);
-      w[1]=wIn[0]*sin(wIn[2])*sin(wIn[1]);
-      w[2]=wIn[0]*cos(wIn[1]);
+        w[0] = wIn[0] * cos(wIn[2]) * sin(wIn[1]);
+        w[1] = wIn[0] * sin(wIn[2]) * sin(wIn[1]);
+        w[2] = wIn[0] * cos(wIn[1]);
     }
-  return ret;
+    return ret;
 }
 
 /*!
- * This method returns a new array containing the same number of tuples than \a this. To do this, this method needs \a at parameter to specify the convention of \a this.
- * All the tuples of the returned array will be in cartesian sense. So if \a at equals to AX_CART the returned array is basically a deep copy of \a this.
- * If \a at equals to AX_CYL the returned array will be the result of operation cylindric to cartesian of \a this...
+ * This method returns a new array containing the same number of tuples than \a this. To do this, this method needs \a
+ * at parameter to specify the convention of \a this. All the tuples of the returned array will be in cartesian sense.
+ * So if \a at equals to AX_CART the returned array is basically a deep copy of \a this. If \a at equals to AX_CYL the
+ * returned array will be the result of operation cylindric to cartesian of \a this...
  *
  * \param [in] atOfThis - The axis type of \a this.
- * \return DataArrayDouble * - the new instance of DataArrayDouble (that must be dealed by caller) containing the result of the cartesianizification of \a this.
+ * \return DataArrayDouble * - the new instance of DataArrayDouble (that must be dealed by caller) containing the result
+ * of the cartesianizification of \a this.
  */
-DataArrayDouble *DataArrayDouble::cartesianize(MEDCouplingAxisType atOfThis) const
+DataArrayDouble *
+DataArrayDouble::cartesianize(MEDCouplingAxisType atOfThis) const
 {
-  checkAllocated();
-  std::size_t nbOfComp(getNumberOfComponents());
-  MCAuto<DataArrayDouble> ret;
-  switch(atOfThis)
+    checkAllocated();
+    std::size_t nbOfComp(getNumberOfComponents());
+    MCAuto<DataArrayDouble> ret;
+    switch (atOfThis)
     {
-    case AX_CART:
-      ret=deepCopy();
-      break;
-    case AX_CYL:
-      if(nbOfComp==3)
-        {
-          ret=fromCylToCart();
-          break;
-        }
-      if(nbOfComp==2)
-        {
-          ret=fromPolarToCart();
-          break;
-        }
-      else
-        throw INTERP_KERNEL::Exception("DataArrayDouble::cartesianize : For AX_CYL, number of components must be in [2,3] !");
-    case AX_SPHER:
-      if(nbOfComp==3)
-        {
-          ret=fromSpherToCart();
-          break;
-        }
-      if(nbOfComp==2)
-        {
-          ret=fromPolarToCart();
-          break;
-        }
-      else
-        throw INTERP_KERNEL::Exception("DataArrayDouble::cartesianize : For AX_CYL, number of components must be in [2,3] !");
-    default:
-      throw INTERP_KERNEL::Exception("DataArrayDouble::cartesianize : not recognized axis type ! Only AX_CART, AX_CYL and AX_SPHER supported !");
+        case AX_CART:
+            ret = deepCopy();
+            break;
+        case AX_CYL:
+            if (nbOfComp == 3)
+            {
+                ret = fromCylToCart();
+                break;
+            }
+            if (nbOfComp == 2)
+            {
+                ret = fromPolarToCart();
+                break;
+            }
+            else
+                throw INTERP_KERNEL::Exception(
+                    "DataArrayDouble::cartesianize : For AX_CYL, number of components must be in [2,3] !"
+                );
+        case AX_SPHER:
+            if (nbOfComp == 3)
+            {
+                ret = fromSpherToCart();
+                break;
+            }
+            if (nbOfComp == 2)
+            {
+                ret = fromPolarToCart();
+                break;
+            }
+            else
+                throw INTERP_KERNEL::Exception(
+                    "DataArrayDouble::cartesianize : For AX_CYL, number of components must be in [2,3] !"
+                );
+        default:
+            throw INTERP_KERNEL::Exception(
+                "DataArrayDouble::cartesianize : not recognized axis type ! Only AX_CART, AX_CYL and AX_SPHER "
+                "supported !"
+            );
     }
-  ret->copyStringInfoFrom(*this);
-  return ret.retn();
+    ret->copyStringInfoFrom(*this);
+    return ret.retn();
 }
 
 /*!
- * This method returns a newly created array to be deallocated that contains the result of conversion from cartesian to polar.
- * This method expects that \a this has exactly 2 components.
+ * This method returns a newly created array to be deallocated that contains the result of conversion from cartesian to
+ * polar. This method expects that \a this has exactly 2 components.
  * \sa fromPolarToCart
  */
-DataArrayDouble *DataArrayDouble::fromCartToPolar() const
+DataArrayDouble *
+DataArrayDouble::fromCartToPolar() const
 {
-  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
-  checkAllocated();
-  std::size_t nbOfComp(getNumberOfComponents());
-  mcIdType nbTuples(getNumberOfTuples());
-  if(nbOfComp!=2)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToPolar : must be an array with exactly 2 components !");
-  ret->alloc(nbTuples,2);
-  double *retPtr(ret->getPointer());
-  const double *ptr(begin());
-  for(mcIdType i=0;i<nbTuples;i++,ptr+=2,retPtr+=2)
+    MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+    checkAllocated();
+    std::size_t nbOfComp(getNumberOfComponents());
+    mcIdType nbTuples(getNumberOfTuples());
+    if (nbOfComp != 2)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::fromCartToPolar : must be an array with exactly 2 components !"
+        );
+    ret->alloc(nbTuples, 2);
+    double *retPtr(ret->getPointer());
+    const double *ptr(begin());
+    for (mcIdType i = 0; i < nbTuples; i++, ptr += 2, retPtr += 2)
     {
-      retPtr[0]=sqrt(ptr[0]*ptr[0]+ptr[1]*ptr[1]);
-      retPtr[1]=atan2(ptr[1],ptr[0]);
+        retPtr[0] = sqrt(ptr[0] * ptr[0] + ptr[1] * ptr[1]);
+        retPtr[1] = atan2(ptr[1], ptr[0]);
     }
-  return ret.retn();
+    return ret.retn();
 }
 
 /*!
- * This method returns a newly created array to be deallocated that contains the result of conversion from cartesian to cylindrical.
- * This method expects that \a this has exactly 3 components.
+ * This method returns a newly created array to be deallocated that contains the result of conversion from cartesian to
+ * cylindrical. This method expects that \a this has exactly 3 components.
  * \sa fromCylToCart
  */
-DataArrayDouble *DataArrayDouble::fromCartToCyl() const
+DataArrayDouble *
+DataArrayDouble::fromCartToCyl() const
 {
-  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
-  checkAllocated();
-  std::size_t nbOfComp(getNumberOfComponents());
-  mcIdType nbTuples(getNumberOfTuples());
-  if(nbOfComp!=3)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCyl : must be an array with exactly 3 components !");
-  ret->alloc(nbTuples,3);
-  double *retPtr(ret->getPointer());
-  const double *ptr(begin());
-  for(mcIdType i=0;i<nbTuples;i++,ptr+=3,retPtr+=3)
+    MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+    checkAllocated();
+    std::size_t nbOfComp(getNumberOfComponents());
+    mcIdType nbTuples(getNumberOfTuples());
+    if (nbOfComp != 3)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCyl : must be an array with exactly 3 components !");
+    ret->alloc(nbTuples, 3);
+    double *retPtr(ret->getPointer());
+    const double *ptr(begin());
+    for (mcIdType i = 0; i < nbTuples; i++, ptr += 3, retPtr += 3)
     {
-      retPtr[0]=sqrt(ptr[0]*ptr[0]+ptr[1]*ptr[1]);
-      retPtr[1]=atan2(ptr[1],ptr[0]);
-      retPtr[2]=ptr[2];
+        retPtr[0] = sqrt(ptr[0] * ptr[0] + ptr[1] * ptr[1]);
+        retPtr[1] = atan2(ptr[1], ptr[0]);
+        retPtr[2] = ptr[2];
     }
-  return ret.retn();
+    return ret.retn();
 }
 
 /*!
- * This method returns a newly created array to be deallocated that contains the result of conversion from cartesian to spherical coordinates.
+ * This method returns a newly created array to be deallocated that contains the result of conversion from cartesian to
+ * spherical coordinates.
  * \sa fromSpherToCart
  */
-DataArrayDouble *DataArrayDouble::fromCartToSpher() const
+DataArrayDouble *
+DataArrayDouble::fromCartToSpher() const
 {
-  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
-  checkAllocated();
-  std::size_t nbOfComp(getNumberOfComponents());
-  mcIdType nbTuples(getNumberOfTuples());
-  if(nbOfComp!=3)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToSpher : must be an array with exactly 3 components !");
-  ret->alloc(nbTuples,3);
-  double *retPtr(ret->getPointer());
-  const double *ptr(begin());
-  for(mcIdType i=0;i<nbTuples;i++,ptr+=3,retPtr+=3)
+    MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+    checkAllocated();
+    std::size_t nbOfComp(getNumberOfComponents());
+    mcIdType nbTuples(getNumberOfTuples());
+    if (nbOfComp != 3)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::fromCartToSpher : must be an array with exactly 3 components !"
+        );
+    ret->alloc(nbTuples, 3);
+    double *retPtr(ret->getPointer());
+    const double *ptr(begin());
+    for (mcIdType i = 0; i < nbTuples; i++, ptr += 3, retPtr += 3)
     {
-      retPtr[0]=sqrt(ptr[0]*ptr[0]+ptr[1]*ptr[1]+ptr[2]*ptr[2]);
-      retPtr[1]=acos(ptr[2]/retPtr[0]);
-      retPtr[2]=atan2(ptr[1],ptr[0]);
+        retPtr[0] = sqrt(ptr[0] * ptr[0] + ptr[1] * ptr[1] + ptr[2] * ptr[2]);
+        retPtr[1] = acos(ptr[2] / retPtr[0]);
+        retPtr[2] = atan2(ptr[1], ptr[0]);
     }
-  return ret.retn();
+    return ret.retn();
 }
 
 /*!
- * This method returns a newly created array to be deallocated that contains the result of conversion from cartesian to cylindrical relative to the given \a center and a \a vector.
- * This method expects that \a this has exactly 3 components.
+ * This method returns a newly created array to be deallocated that contains the result of conversion from cartesian to
+ * cylindrical relative to the given \a center and a \a vector. This method expects that \a this has exactly 3
+ * components.
  * \sa MEDCouplingFieldDouble::computeVectorFieldCyl
  */
-DataArrayDouble *DataArrayDouble::fromCartToCylGiven(const DataArrayDouble *coords, const double center[3], const double vect[3]) const
+DataArrayDouble *
+DataArrayDouble::fromCartToCylGiven(const DataArrayDouble *coords, const double center[3], const double vect[3]) const
 {
-  if(!coords)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCylGiven : input coords are NULL !");
-  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
-  checkAllocated(); coords->checkAllocated();
-  std::size_t nbOfComp(getNumberOfComponents());
-  mcIdType nbTuples(getNumberOfTuples());
-  if(nbOfComp!=3)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCylGiven : must be an array with exactly 3 components !");
-  if(coords->getNumberOfComponents()!=3)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCylGiven : coords array must have exactly 3 components !");
-  if(coords->getNumberOfTuples()!=nbTuples)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCylGiven : coords array must have the same number of tuples !");
-  ret->alloc(nbTuples,nbOfComp);
-  double magOfVect(sqrt(vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2]));
-  if(magOfVect<1e-12)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCylGiven : magnitude of vect is too low !");
-  double Ur[3],Uteta[3],Uz[3],*retPtr(ret->getPointer());
-  const double *coo(coords->begin()),*vectField(begin());
-  std::transform(vect,vect+3,Uz,std::bind(std::multiplies<double>(),std::placeholders::_1,1./magOfVect));
-  for(mcIdType i=0;i<nbTuples;i++,vectField+=3,retPtr+=3,coo+=3)
+    if (!coords)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCylGiven : input coords are NULL !");
+    MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+    checkAllocated();
+    coords->checkAllocated();
+    std::size_t nbOfComp(getNumberOfComponents());
+    mcIdType nbTuples(getNumberOfTuples());
+    if (nbOfComp != 3)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::fromCartToCylGiven : must be an array with exactly 3 components !"
+        );
+    if (coords->getNumberOfComponents() != 3)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::fromCartToCylGiven : coords array must have exactly 3 components !"
+        );
+    if (coords->getNumberOfTuples() != nbTuples)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::fromCartToCylGiven : coords array must have the same number of tuples !"
+        );
+    ret->alloc(nbTuples, nbOfComp);
+    double magOfVect(sqrt(vect[0] * vect[0] + vect[1] * vect[1] + vect[2] * vect[2]));
+    if (magOfVect < 1e-12)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::fromCartToCylGiven : magnitude of vect is too low !");
+    double Ur[3], Uteta[3], Uz[3], *retPtr(ret->getPointer());
+    const double *coo(coords->begin()), *vectField(begin());
+    std::transform(vect, vect + 3, Uz, std::bind(std::multiplies<double>(), std::placeholders::_1, 1. / magOfVect));
+    for (mcIdType i = 0; i < nbTuples; i++, vectField += 3, retPtr += 3, coo += 3)
     {
-      std::transform(coo,coo+3,center,Ur,std::minus<double>());
-      Uteta[0]=Uz[1]*Ur[2]-Uz[2]*Ur[1]; Uteta[1]=Uz[2]*Ur[0]-Uz[0]*Ur[2]; Uteta[2]=Uz[0]*Ur[1]-Uz[1]*Ur[0];
-      double magOfTeta(sqrt(Uteta[0]*Uteta[0]+Uteta[1]*Uteta[1]+Uteta[2]*Uteta[2]));
-      std::transform(Uteta,Uteta+3,Uteta,std::bind(std::multiplies<double>(),std::placeholders::_1,1./magOfTeta));
-      Ur[0]=Uteta[1]*Uz[2]-Uteta[2]*Uz[1]; Ur[1]=Uteta[2]*Uz[0]-Uteta[0]*Uz[2]; Ur[2]=Uteta[0]*Uz[1]-Uteta[1]*Uz[0];
-      retPtr[0]=Ur[0]*vectField[0]+Ur[1]*vectField[1]+Ur[2]*vectField[2];
-      retPtr[1]=Uteta[0]*vectField[0]+Uteta[1]*vectField[1]+Uteta[2]*vectField[2];
-      retPtr[2]=Uz[0]*vectField[0]+Uz[1]*vectField[1]+Uz[2]*vectField[2];
+        std::transform(coo, coo + 3, center, Ur, std::minus<double>());
+        Uteta[0] = Uz[1] * Ur[2] - Uz[2] * Ur[1];
+        Uteta[1] = Uz[2] * Ur[0] - Uz[0] * Ur[2];
+        Uteta[2] = Uz[0] * Ur[1] - Uz[1] * Ur[0];
+        double magOfTeta(sqrt(Uteta[0] * Uteta[0] + Uteta[1] * Uteta[1] + Uteta[2] * Uteta[2]));
+        std::transform(
+            Uteta, Uteta + 3, Uteta, std::bind(std::multiplies<double>(), std::placeholders::_1, 1. / magOfTeta)
+        );
+        Ur[0] = Uteta[1] * Uz[2] - Uteta[2] * Uz[1];
+        Ur[1] = Uteta[2] * Uz[0] - Uteta[0] * Uz[2];
+        Ur[2] = Uteta[0] * Uz[1] - Uteta[1] * Uz[0];
+        retPtr[0] = Ur[0] * vectField[0] + Ur[1] * vectField[1] + Ur[2] * vectField[2];
+        retPtr[1] = Uteta[0] * vectField[0] + Uteta[1] * vectField[1] + Uteta[2] * vectField[2];
+        retPtr[2] = Uz[0] * vectField[0] + Uz[1] * vectField[1] + Uz[2] * vectField[2];
     }
-  ret->copyStringInfoFrom(*this);
-  return ret.retn();
+    ret->copyStringInfoFrom(*this);
+    return ret.retn();
 }
 
 /*!
@@ -2060,20 +2382,24 @@ DataArrayDouble *DataArrayDouble::fromCartToCylGiven(const DataArrayDouble *coor
  *         The caller is to delete this result array using decrRef() as it is no more needed.
  *  \throw If \a this->getNumberOfComponents() != 6.
  */
-DataArrayDouble *DataArrayDouble::doublyContractedProduct() const
+DataArrayDouble *
+DataArrayDouble::doublyContractedProduct() const
 {
-  checkAllocated();
-  std::size_t nbOfComp(getNumberOfComponents());
-  if(nbOfComp!=6)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::doublyContractedProduct : must be an array with exactly 6 components !");
-  DataArrayDouble *ret=DataArrayDouble::New();
-  mcIdType nbOfTuple=getNumberOfTuples();
-  ret->alloc(nbOfTuple,1);
-  const double *src=getConstPointer();
-  double *dest=ret->getPointer();
-  for(mcIdType i=0;i<nbOfTuple;i++,dest++,src+=6)
-    *dest=src[0]*src[0]+src[1]*src[1]+src[2]*src[2]+2.*src[3]*src[3]+2.*src[4]*src[4]+2.*src[5]*src[5];
-  return ret;
+    checkAllocated();
+    std::size_t nbOfComp(getNumberOfComponents());
+    if (nbOfComp != 6)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::doublyContractedProduct : must be an array with exactly 6 components !"
+        );
+    DataArrayDouble *ret = DataArrayDouble::New();
+    mcIdType nbOfTuple = getNumberOfTuples();
+    ret->alloc(nbOfTuple, 1);
+    const double *src = getConstPointer();
+    double *dest = ret->getPointer();
+    for (mcIdType i = 0; i < nbOfTuple; i++, dest++, src += 6)
+        *dest = src[0] * src[0] + src[1] * src[1] + src[2] * src[2] + 2. * src[3] * src[3] + 2. * src[4] * src[4] +
+                2. * src[5] * src[5];
+    return ret;
 }
 
 /*!
@@ -2086,32 +2412,36 @@ DataArrayDouble *DataArrayDouble::doublyContractedProduct() const
  *          needed.
  *  \throw If \a this->getNumberOfComponents() is not in [4,6,9].
  */
-DataArrayDouble *DataArrayDouble::determinant() const
+DataArrayDouble *
+DataArrayDouble::determinant() const
 {
-  checkAllocated();
-  DataArrayDouble *ret=DataArrayDouble::New();
-  mcIdType nbOfTuple=getNumberOfTuples();
-  ret->alloc(nbOfTuple,1);
-  const double *src=getConstPointer();
-  double *dest=ret->getPointer();
-  switch(getNumberOfComponents())
-  {
-    case 6:
-      for(mcIdType i=0;i<nbOfTuple;i++,dest++,src+=6)
-        *dest=src[0]*src[1]*src[2]+2.*src[4]*src[5]*src[3]-src[0]*src[4]*src[4]-src[2]*src[3]*src[3]-src[1]*src[5]*src[5];
-      return ret;
-    case 4:
-      for(mcIdType i=0;i<nbOfTuple;i++,dest++,src+=4)
-        *dest=src[0]*src[3]-src[1]*src[2];
-      return ret;
-    case 9:
-      for(mcIdType i=0;i<nbOfTuple;i++,dest++,src+=9)
-        *dest=src[0]*src[4]*src[8]+src[1]*src[5]*src[6]+src[2]*src[3]*src[7]-src[0]*src[5]*src[7]-src[1]*src[3]*src[8]-src[2]*src[4]*src[6];
-      return ret;
-    default:
-      ret->decrRef();
-      throw INTERP_KERNEL::Exception("DataArrayDouble::determinant : Invalid number of components ! must be in 4,6,9 !");
-  }
+    checkAllocated();
+    DataArrayDouble *ret = DataArrayDouble::New();
+    mcIdType nbOfTuple = getNumberOfTuples();
+    ret->alloc(nbOfTuple, 1);
+    const double *src = getConstPointer();
+    double *dest = ret->getPointer();
+    switch (getNumberOfComponents())
+    {
+        case 6:
+            for (mcIdType i = 0; i < nbOfTuple; i++, dest++, src += 6)
+                *dest = src[0] * src[1] * src[2] + 2. * src[4] * src[5] * src[3] - src[0] * src[4] * src[4] -
+                        src[2] * src[3] * src[3] - src[1] * src[5] * src[5];
+            return ret;
+        case 4:
+            for (mcIdType i = 0; i < nbOfTuple; i++, dest++, src += 4) *dest = src[0] * src[3] - src[1] * src[2];
+            return ret;
+        case 9:
+            for (mcIdType i = 0; i < nbOfTuple; i++, dest++, src += 9)
+                *dest = src[0] * src[4] * src[8] + src[1] * src[5] * src[6] + src[2] * src[3] * src[7] -
+                        src[0] * src[5] * src[7] - src[1] * src[3] * src[8] - src[2] * src[4] * src[6];
+            return ret;
+        default:
+            ret->decrRef();
+            throw INTERP_KERNEL::Exception(
+                "DataArrayDouble::determinant : Invalid number of components ! must be in 4,6,9 !"
+            );
+    }
 }
 
 /*!
@@ -2130,20 +2460,20 @@ DataArrayDouble *DataArrayDouble::determinant() const
  *          needed.
  *  \throw If \a this->getNumberOfComponents() != 6.
  */
-DataArrayDouble *DataArrayDouble::eigenValues() const
+DataArrayDouble *
+DataArrayDouble::eigenValues() const
 {
-  checkAllocated();
-  std::size_t nbOfComp=getNumberOfComponents();
-  if(nbOfComp!=6)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::eigenValues : must be an array with exactly 6 components !");
-  DataArrayDouble *ret=DataArrayDouble::New();
-  mcIdType nbOfTuple=getNumberOfTuples();
-  ret->alloc(nbOfTuple,3);
-  const double *src=getConstPointer();
-  double *dest=ret->getPointer();
-  for(mcIdType i=0;i<nbOfTuple;i++,dest+=3,src+=6)
-    INTERP_KERNEL::computeEigenValues6(src,dest);
-  return ret;
+    checkAllocated();
+    std::size_t nbOfComp = getNumberOfComponents();
+    if (nbOfComp != 6)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::eigenValues : must be an array with exactly 6 components !");
+    DataArrayDouble *ret = DataArrayDouble::New();
+    mcIdType nbOfTuple = getNumberOfTuples();
+    ret->alloc(nbOfTuple, 3);
+    const double *src = getConstPointer();
+    double *dest = ret->getPointer();
+    for (mcIdType i = 0; i < nbOfTuple; i++, dest += 3, src += 6) INTERP_KERNEL::computeEigenValues6(src, dest);
+    return ret;
 }
 
 /*!
@@ -2162,25 +2492,26 @@ DataArrayDouble *DataArrayDouble::eigenValues() const
  *          needed.
  *  \throw If \a this->getNumberOfComponents() != 6.
  */
-DataArrayDouble *DataArrayDouble::eigenVectors() const
+DataArrayDouble *
+DataArrayDouble::eigenVectors() const
 {
-  checkAllocated();
-  std::size_t nbOfComp=getNumberOfComponents();
-  if(nbOfComp!=6)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::eigenVectors : must be an array with exactly 6 components !");
-  DataArrayDouble *ret=DataArrayDouble::New();
-  mcIdType nbOfTuple=getNumberOfTuples();
-  ret->alloc(nbOfTuple,9);
-  const double *src=getConstPointer();
-  double *dest=ret->getPointer();
-  for(mcIdType i=0;i<nbOfTuple;i++,src+=6)
+    checkAllocated();
+    std::size_t nbOfComp = getNumberOfComponents();
+    if (nbOfComp != 6)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::eigenVectors : must be an array with exactly 6 components !");
+    DataArrayDouble *ret = DataArrayDouble::New();
+    mcIdType nbOfTuple = getNumberOfTuples();
+    ret->alloc(nbOfTuple, 9);
+    const double *src = getConstPointer();
+    double *dest = ret->getPointer();
+    for (mcIdType i = 0; i < nbOfTuple; i++, src += 6)
     {
-      double tmp[3];
-      INTERP_KERNEL::computeEigenValues6(src,tmp);
-      for(mcIdType j=0;j<3;j++,dest+=3)
-        INTERP_KERNEL::computeEigenVectorForEigenValue6(src,tmp[j],1e-12,dest);
+        double tmp[3];
+        INTERP_KERNEL::computeEigenValues6(src, tmp);
+        for (mcIdType j = 0; j < 3; j++, dest += 3)
+            INTERP_KERNEL::computeEigenVectorForEigenValue6(src, tmp[j], 1e-12, dest);
     }
-  return ret;
+    return ret;
 }
 
 /*!
@@ -2194,52 +2525,55 @@ DataArrayDouble *DataArrayDouble::eigenVectors() const
  *          needed.
  *  \throw If \a this->getNumberOfComponents() is not in [4,6,9].
  */
-DataArrayDouble *DataArrayDouble::inverse() const
+DataArrayDouble *
+DataArrayDouble::inverse() const
 {
-  checkAllocated();
-  std::size_t nbOfComp=getNumberOfComponents();
-  if(nbOfComp!=6 && nbOfComp!=9 && nbOfComp!=4)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::inversion : must be an array with 4,6 or 9 components !");
-  DataArrayDouble *ret=DataArrayDouble::New();
-  mcIdType nbOfTuple=getNumberOfTuples();
-  ret->alloc(nbOfTuple,nbOfComp);
-  const double *src=getConstPointer();
-  double *dest=ret->getPointer();
-  if(nbOfComp==6)
-    for(mcIdType i=0;i<nbOfTuple;i++,dest+=6,src+=6)
-      {
-        double det=src[0]*src[1]*src[2]+2.*src[4]*src[5]*src[3]-src[0]*src[4]*src[4]-src[2]*src[3]*src[3]-src[1]*src[5]*src[5];
-        dest[0]=(src[1]*src[2]-src[4]*src[4])/det;
-        dest[1]=(src[0]*src[2]-src[5]*src[5])/det;
-        dest[2]=(src[0]*src[1]-src[3]*src[3])/det;
-        dest[3]=(src[5]*src[4]-src[3]*src[2])/det;
-        dest[4]=(src[5]*src[3]-src[0]*src[4])/det;
-        dest[5]=(src[3]*src[4]-src[1]*src[5])/det;
-      }
-  else if(nbOfComp==4)
-    for(mcIdType i=0;i<nbOfTuple;i++,dest+=4,src+=4)
-      {
-        double det=src[0]*src[3]-src[1]*src[2];
-        dest[0]=src[3]/det;
-        dest[1]=-src[1]/det;
-        dest[2]=-src[2]/det;
-        dest[3]=src[0]/det;
-      }
-  else
-    for(mcIdType i=0;i<nbOfTuple;i++,dest+=9,src+=9)
-      {
-        double det=src[0]*src[4]*src[8]+src[1]*src[5]*src[6]+src[2]*src[3]*src[7]-src[0]*src[5]*src[7]-src[1]*src[3]*src[8]-src[2]*src[4]*src[6];
-        dest[0]=(src[4]*src[8]-src[7]*src[5])/det;
-        dest[1]=(src[7]*src[2]-src[1]*src[8])/det;
-        dest[2]=(src[1]*src[5]-src[4]*src[2])/det;
-        dest[3]=(src[6]*src[5]-src[3]*src[8])/det;
-        dest[4]=(src[0]*src[8]-src[6]*src[2])/det;
-        dest[5]=(src[2]*src[3]-src[0]*src[5])/det;
-        dest[6]=(src[3]*src[7]-src[6]*src[4])/det;
-        dest[7]=(src[6]*src[1]-src[0]*src[7])/det;
-        dest[8]=(src[0]*src[4]-src[1]*src[3])/det;
-      }
-  return ret;
+    checkAllocated();
+    std::size_t nbOfComp = getNumberOfComponents();
+    if (nbOfComp != 6 && nbOfComp != 9 && nbOfComp != 4)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::inversion : must be an array with 4,6 or 9 components !");
+    DataArrayDouble *ret = DataArrayDouble::New();
+    mcIdType nbOfTuple = getNumberOfTuples();
+    ret->alloc(nbOfTuple, nbOfComp);
+    const double *src = getConstPointer();
+    double *dest = ret->getPointer();
+    if (nbOfComp == 6)
+        for (mcIdType i = 0; i < nbOfTuple; i++, dest += 6, src += 6)
+        {
+            double det = src[0] * src[1] * src[2] + 2. * src[4] * src[5] * src[3] - src[0] * src[4] * src[4] -
+                         src[2] * src[3] * src[3] - src[1] * src[5] * src[5];
+            dest[0] = (src[1] * src[2] - src[4] * src[4]) / det;
+            dest[1] = (src[0] * src[2] - src[5] * src[5]) / det;
+            dest[2] = (src[0] * src[1] - src[3] * src[3]) / det;
+            dest[3] = (src[5] * src[4] - src[3] * src[2]) / det;
+            dest[4] = (src[5] * src[3] - src[0] * src[4]) / det;
+            dest[5] = (src[3] * src[4] - src[1] * src[5]) / det;
+        }
+    else if (nbOfComp == 4)
+        for (mcIdType i = 0; i < nbOfTuple; i++, dest += 4, src += 4)
+        {
+            double det = src[0] * src[3] - src[1] * src[2];
+            dest[0] = src[3] / det;
+            dest[1] = -src[1] / det;
+            dest[2] = -src[2] / det;
+            dest[3] = src[0] / det;
+        }
+    else
+        for (mcIdType i = 0; i < nbOfTuple; i++, dest += 9, src += 9)
+        {
+            double det = src[0] * src[4] * src[8] + src[1] * src[5] * src[6] + src[2] * src[3] * src[7] -
+                         src[0] * src[5] * src[7] - src[1] * src[3] * src[8] - src[2] * src[4] * src[6];
+            dest[0] = (src[4] * src[8] - src[7] * src[5]) / det;
+            dest[1] = (src[7] * src[2] - src[1] * src[8]) / det;
+            dest[2] = (src[1] * src[5] - src[4] * src[2]) / det;
+            dest[3] = (src[6] * src[5] - src[3] * src[8]) / det;
+            dest[4] = (src[0] * src[8] - src[6] * src[2]) / det;
+            dest[5] = (src[2] * src[3] - src[0] * src[5]) / det;
+            dest[6] = (src[3] * src[7] - src[6] * src[4]) / det;
+            dest[7] = (src[6] * src[1] - src[0] * src[7]) / det;
+            dest[8] = (src[0] * src[4] - src[1] * src[3]) / det;
+        }
+    return ret;
 }
 
 /*!
@@ -2253,27 +2587,25 @@ DataArrayDouble *DataArrayDouble::inverse() const
  *          needed.
  *  \throw If \a this->getNumberOfComponents() is not in [4,6,9].
  */
-DataArrayDouble *DataArrayDouble::trace() const
+DataArrayDouble *
+DataArrayDouble::trace() const
 {
-  checkAllocated();
-  std::size_t nbOfComp=getNumberOfComponents();
-  if(nbOfComp!=6 && nbOfComp!=9 && nbOfComp!=4)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::trace : must be an array with 4,6 or 9 components !");
-  DataArrayDouble *ret=DataArrayDouble::New();
-  mcIdType nbOfTuple=getNumberOfTuples();
-  ret->alloc(nbOfTuple,1);
-  const double *src=getConstPointer();
-  double *dest=ret->getPointer();
-  if(nbOfComp==6)
-    for(mcIdType i=0;i<nbOfTuple;i++,dest++,src+=6)
-      *dest=src[0]+src[1]+src[2];
-  else if(nbOfComp==4)
-    for(mcIdType i=0;i<nbOfTuple;i++,dest++,src+=4)
-      *dest=src[0]+src[3];
-  else
-    for(mcIdType i=0;i<nbOfTuple;i++,dest++,src+=9)
-      *dest=src[0]+src[4]+src[8];
-  return ret;
+    checkAllocated();
+    std::size_t nbOfComp = getNumberOfComponents();
+    if (nbOfComp != 6 && nbOfComp != 9 && nbOfComp != 4)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::trace : must be an array with 4,6 or 9 components !");
+    DataArrayDouble *ret = DataArrayDouble::New();
+    mcIdType nbOfTuple = getNumberOfTuples();
+    ret->alloc(nbOfTuple, 1);
+    const double *src = getConstPointer();
+    double *dest = ret->getPointer();
+    if (nbOfComp == 6)
+        for (mcIdType i = 0; i < nbOfTuple; i++, dest++, src += 6) *dest = src[0] + src[1] + src[2];
+    else if (nbOfComp == 4)
+        for (mcIdType i = 0; i < nbOfTuple; i++, dest++, src += 4) *dest = src[0] + src[3];
+    else
+        for (mcIdType i = 0; i < nbOfTuple; i++, dest++, src += 9) *dest = src[0] + src[4] + src[8];
+    return ret;
 }
 
 /*!
@@ -2285,28 +2617,29 @@ DataArrayDouble *DataArrayDouble::trace() const
  *          needed.
  *  \throw If \a this->getNumberOfComponents() != 6.
  */
-DataArrayDouble *DataArrayDouble::deviator() const
+DataArrayDouble *
+DataArrayDouble::deviator() const
 {
-  checkAllocated();
-  std::size_t nbOfComp=getNumberOfComponents();
-  if(nbOfComp!=6)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::deviator : must be an array with exactly 6 components !");
-  DataArrayDouble *ret=DataArrayDouble::New();
-  mcIdType nbOfTuple=getNumberOfTuples();
-  ret->alloc(nbOfTuple,6);
-  const double *src=getConstPointer();
-  double *dest=ret->getPointer();
-  for(mcIdType i=0;i<nbOfTuple;i++,dest+=6,src+=6)
+    checkAllocated();
+    std::size_t nbOfComp = getNumberOfComponents();
+    if (nbOfComp != 6)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::deviator : must be an array with exactly 6 components !");
+    DataArrayDouble *ret = DataArrayDouble::New();
+    mcIdType nbOfTuple = getNumberOfTuples();
+    ret->alloc(nbOfTuple, 6);
+    const double *src = getConstPointer();
+    double *dest = ret->getPointer();
+    for (mcIdType i = 0; i < nbOfTuple; i++, dest += 6, src += 6)
     {
-      double tr=(src[0]+src[1]+src[2])/3.;
-      dest[0]=src[0]-tr;
-      dest[1]=src[1]-tr;
-      dest[2]=src[2]-tr;
-      dest[3]=src[3];
-      dest[4]=src[4];
-      dest[5]=src[5];
+        double tr = (src[0] + src[1] + src[2]) / 3.;
+        dest[0] = src[0] - tr;
+        dest[1] = src[1] - tr;
+        dest[2] = src[2] - tr;
+        dest[3] = src[3];
+        dest[4] = src[4];
+        dest[5] = src[5];
     }
-  return ret;
+    return ret;
 }
 
 /*!
@@ -2318,37 +2651,37 @@ DataArrayDouble *DataArrayDouble::deviator() const
  *          needed.
  *  \throw If \a this is not allocated.
  */
-DataArrayDouble *DataArrayDouble::magnitude() const
+DataArrayDouble *
+DataArrayDouble::magnitude() const
 {
-  checkAllocated();
-  std::size_t nbOfComp=getNumberOfComponents();
-  DataArrayDouble *ret=DataArrayDouble::New();
-  mcIdType nbOfTuple=getNumberOfTuples();
-  ret->alloc(nbOfTuple,1);
-  const double *src=getConstPointer();
-  double *dest=ret->getPointer();
-  for(mcIdType i=0;i<nbOfTuple;i++,dest++)
+    checkAllocated();
+    std::size_t nbOfComp = getNumberOfComponents();
+    DataArrayDouble *ret = DataArrayDouble::New();
+    mcIdType nbOfTuple = getNumberOfTuples();
+    ret->alloc(nbOfTuple, 1);
+    const double *src = getConstPointer();
+    double *dest = ret->getPointer();
+    for (mcIdType i = 0; i < nbOfTuple; i++, dest++)
     {
-      double sum=0.;
-      for(std::size_t j=0;j<nbOfComp;j++,src++)
-        sum+=(*src)*(*src);
-      *dest=sqrt(sum);
+        double sum = 0.;
+        for (std::size_t j = 0; j < nbOfComp; j++, src++) sum += (*src) * (*src);
+        *dest = sqrt(sum);
     }
-  return ret;
+    return ret;
 }
 
-DataArrayDouble *DataArrayDouble::operatePerTuple(std::function<double(const double *bg, const double *endd)> func) const
+DataArrayDouble *
+DataArrayDouble::operatePerTuple(std::function<double(const double *bg, const double *endd)> func) const
 {
-  checkAllocated();
-  std::size_t nbOfComp(getNumberOfComponents());
-  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
-  mcIdType nbOfTuple(getNumberOfTuples());
-  ret->alloc(nbOfTuple,1);
-  const double *src=getConstPointer();
-  double *dest=ret->getPointer();
-  for(mcIdType i=0;i<nbOfTuple;i++,dest++,src+=nbOfComp)
-    *dest=func(src,src+nbOfComp);
-  return ret.retn();
+    checkAllocated();
+    std::size_t nbOfComp(getNumberOfComponents());
+    MCAuto<DataArrayDouble> ret = DataArrayDouble::New();
+    mcIdType nbOfTuple(getNumberOfTuples());
+    ret->alloc(nbOfTuple, 1);
+    const double *src = getConstPointer();
+    double *dest = ret->getPointer();
+    for (mcIdType i = 0; i < nbOfTuple; i++, dest++, src += nbOfComp) *dest = func(src, src + nbOfComp);
+    return ret.retn();
 }
 
 /*!
@@ -2360,9 +2693,10 @@ DataArrayDouble *DataArrayDouble::operatePerTuple(std::function<double(const dou
  *  \throw If \a this is not allocated.
  *  \sa DataArrayDouble::maxPerTupleWithCompoId, DataArrayDouble::minPerTuple
  */
-DataArrayDouble *DataArrayDouble::maxPerTuple() const
+DataArrayDouble *
+DataArrayDouble::maxPerTuple() const
 {
-  return this->operatePerTuple([](const double *bg, const double *endd) { return *std::max_element(bg,endd); });
+    return this->operatePerTuple([](const double *bg, const double *endd) { return *std::max_element(bg, endd); });
 }
 
 /*!
@@ -2374,9 +2708,10 @@ DataArrayDouble *DataArrayDouble::maxPerTuple() const
  *  \throw If \a this is not allocated.
  *  \sa DataArrayDouble::maxPerTuple
  */
-DataArrayDouble *DataArrayDouble::minPerTuple() const
+DataArrayDouble *
+DataArrayDouble::minPerTuple() const
 {
-  return this->operatePerTuple([](const double *bg, const double *endd) { return *std::min_element(bg,endd); });
+    return this->operatePerTuple([](const double *bg, const double *endd) { return *std::min_element(bg, endd); });
 }
 
 /*!
@@ -2392,31 +2727,36 @@ DataArrayDouble *DataArrayDouble::minPerTuple() const
  *  \throw If \a this is not allocated.
  *  \sa DataArrayDouble::maxPerTuple
  */
-DataArrayDouble *DataArrayDouble::maxPerTupleWithCompoId(DataArrayIdType* &compoIdOfMaxPerTuple) const
+DataArrayDouble *
+DataArrayDouble::maxPerTupleWithCompoId(DataArrayIdType *&compoIdOfMaxPerTuple) const
 {
-  checkAllocated();
-  std::size_t nbOfComp(getNumberOfComponents());
-  MCAuto<DataArrayDouble> ret0=DataArrayDouble::New();
-  MCAuto<DataArrayIdType> ret1=DataArrayIdType::New();
-  mcIdType nbOfTuple=getNumberOfTuples();
-  ret0->alloc(nbOfTuple,1); ret1->alloc(nbOfTuple,1);
-  const double *src=getConstPointer();
-  double *dest=ret0->getPointer(); mcIdType *dest1=ret1->getPointer();
-  for(mcIdType i=0;i<nbOfTuple;i++,dest++,dest1++,src+=nbOfComp)
+    checkAllocated();
+    std::size_t nbOfComp(getNumberOfComponents());
+    MCAuto<DataArrayDouble> ret0 = DataArrayDouble::New();
+    MCAuto<DataArrayIdType> ret1 = DataArrayIdType::New();
+    mcIdType nbOfTuple = getNumberOfTuples();
+    ret0->alloc(nbOfTuple, 1);
+    ret1->alloc(nbOfTuple, 1);
+    const double *src = getConstPointer();
+    double *dest = ret0->getPointer();
+    mcIdType *dest1 = ret1->getPointer();
+    for (mcIdType i = 0; i < nbOfTuple; i++, dest++, dest1++, src += nbOfComp)
     {
-      const double *loc=std::max_element(src,src+nbOfComp);
-      *dest=*loc;
-      *dest1=ToIdType(std::distance(src,loc));
+        const double *loc = std::max_element(src, src + nbOfComp);
+        *dest = *loc;
+        *dest1 = ToIdType(std::distance(src, loc));
     }
-  compoIdOfMaxPerTuple=ret1.retn();
-  return ret0.retn();
+    compoIdOfMaxPerTuple = ret1.retn();
+    return ret0.retn();
 }
 
 /*!
- * This method returns a newly allocated DataArrayDouble instance having one component and \c this->getNumberOfTuples() * \c this->getNumberOfTuples() tuples.
+ * This method returns a newly allocated DataArrayDouble instance having one component and \c this->getNumberOfTuples()
+ * * \c this->getNumberOfTuples() tuples.
  * \n This returned array contains the euclidian distance for each tuple in \a this.
  * \n So the returned array can be seen as a dense symmetrical matrix whose diagonal elements are equal to 0.
- * \n The returned array has only one component (and **not** \c this->getNumberOfTuples() components to avoid the useless memory consumption due to components info in returned DataArrayDouble)
+ * \n The returned array has only one component (and **not** \c this->getNumberOfTuples() components to avoid the
+ * useless memory consumption due to components info in returned DataArrayDouble)
  *
  * \warning use this method with care because it can leads to big amount of consumed memory !
  *
@@ -2426,111 +2766,134 @@ DataArrayDouble *DataArrayDouble::maxPerTupleWithCompoId(DataArrayIdType* &compo
  *
  * \sa DataArrayDouble::buildEuclidianDistanceDenseMatrixWith
  */
-DataArrayDouble *DataArrayDouble::buildEuclidianDistanceDenseMatrix() const
+DataArrayDouble *
+DataArrayDouble::buildEuclidianDistanceDenseMatrix() const
 {
-  checkAllocated();
-  std::size_t nbOfComp(getNumberOfComponents());
-  mcIdType nbOfTuples(getNumberOfTuples());
-  const double *inData=getConstPointer();
-  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
-  ret->alloc(nbOfTuples*nbOfTuples,1);
-  double *outData=ret->getPointer();
-  for(mcIdType i=0;i<nbOfTuples;i++)
+    checkAllocated();
+    std::size_t nbOfComp(getNumberOfComponents());
+    mcIdType nbOfTuples(getNumberOfTuples());
+    const double *inData = getConstPointer();
+    MCAuto<DataArrayDouble> ret = DataArrayDouble::New();
+    ret->alloc(nbOfTuples * nbOfTuples, 1);
+    double *outData = ret->getPointer();
+    for (mcIdType i = 0; i < nbOfTuples; i++)
     {
-      outData[i*nbOfTuples+i]=0.;
-      for(mcIdType j=i+1;j<nbOfTuples;j++)
+        outData[i * nbOfTuples + i] = 0.;
+        for (mcIdType j = i + 1; j < nbOfTuples; j++)
         {
-          double dist=0.;
-          for(std::size_t k=0;k<nbOfComp;k++)
-            { double delta=inData[i*nbOfComp+k]-inData[j*nbOfComp+k]; dist+=delta*delta; }
-          dist=sqrt(dist);
-          outData[i*nbOfTuples+j]=dist;
-          outData[j*nbOfTuples+i]=dist;
+            double dist = 0.;
+            for (std::size_t k = 0; k < nbOfComp; k++)
+            {
+                double delta = inData[i * nbOfComp + k] - inData[j * nbOfComp + k];
+                dist += delta * delta;
+            }
+            dist = sqrt(dist);
+            outData[i * nbOfTuples + j] = dist;
+            outData[j * nbOfTuples + i] = dist;
         }
     }
-  return ret.retn();
+    return ret.retn();
 }
 
 /*!
- * This method returns a newly allocated DataArrayDouble instance having one component and \c this->getNumberOfTuples() * \c other->getNumberOfTuples() tuples.
+ * This method returns a newly allocated DataArrayDouble instance having one component and \c this->getNumberOfTuples()
+ * * \c other->getNumberOfTuples() tuples.
  * \n This returned array contains the euclidian distance for each tuple in \a other with each tuple in \a this.
- * \n So the returned array can be seen as a dense rectangular matrix with \c other->getNumberOfTuples() rows and \c this->getNumberOfTuples() columns.
+ * \n So the returned array can be seen as a dense rectangular matrix with \c other->getNumberOfTuples() rows and \c
+ * this->getNumberOfTuples() columns.
  * \n Output rectangular matrix is sorted along rows.
- * \n The returned array has only one component (and **not** \c this->getNumberOfTuples() components to avoid the useless memory consumption due to components info in returned DataArrayDouble)
+ * \n The returned array has only one component (and **not** \c this->getNumberOfTuples() components to avoid the
+ * useless memory consumption due to components info in returned DataArrayDouble)
  *
  * \warning use this method with care because it can leads to big amount of consumed memory !
  *
  * \param [in] other DataArrayDouble instance having same number of components than \a this.
  * \return A newly allocated (huge) MEDCoupling::DataArrayDouble instance that the caller should deal with.
  *
- * \throw If \a this is not allocated, or if \a other is null or if \a other is not allocated, or if number of components of \a other and \a this differs.
+ * \throw If \a this is not allocated, or if \a other is null or if \a other is not allocated, or if number of
+ * components of \a other and \a this differs.
  *
  * \sa DataArrayDouble::buildEuclidianDistanceDenseMatrix
  */
-DataArrayDouble *DataArrayDouble::buildEuclidianDistanceDenseMatrixWith(const DataArrayDouble *other) const
+DataArrayDouble *
+DataArrayDouble::buildEuclidianDistanceDenseMatrixWith(const DataArrayDouble *other) const
 {
-  if(!other)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::buildEuclidianDistanceDenseMatrixWith : input parameter is null !");
-  checkAllocated();
-  other->checkAllocated();
-  std::size_t nbOfComp(getNumberOfComponents());
-  std::size_t otherNbOfComp(other->getNumberOfComponents());
-  if(nbOfComp!=otherNbOfComp)
+    if (!other)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::buildEuclidianDistanceDenseMatrixWith : input parameter is null !"
+        );
+    checkAllocated();
+    other->checkAllocated();
+    std::size_t nbOfComp(getNumberOfComponents());
+    std::size_t otherNbOfComp(other->getNumberOfComponents());
+    if (nbOfComp != otherNbOfComp)
     {
-      std::ostringstream oss; oss << "DataArrayDouble::buildEuclidianDistanceDenseMatrixWith : this nb of compo=" << nbOfComp << " and other nb of compo=" << otherNbOfComp << ". It should match !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "DataArrayDouble::buildEuclidianDistanceDenseMatrixWith : this nb of compo=" << nbOfComp
+            << " and other nb of compo=" << otherNbOfComp << ". It should match !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  mcIdType nbOfTuples(getNumberOfTuples());
-  mcIdType otherNbOfTuples(other->getNumberOfTuples());
-  const double *inData=getConstPointer();
-  const double *inDataOther=other->getConstPointer();
-  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
-  ret->alloc(otherNbOfTuples*nbOfTuples,1);
-  double *outData=ret->getPointer();
-  for(mcIdType i=0;i<otherNbOfTuples;i++,inDataOther+=nbOfComp)
+    mcIdType nbOfTuples(getNumberOfTuples());
+    mcIdType otherNbOfTuples(other->getNumberOfTuples());
+    const double *inData = getConstPointer();
+    const double *inDataOther = other->getConstPointer();
+    MCAuto<DataArrayDouble> ret = DataArrayDouble::New();
+    ret->alloc(otherNbOfTuples * nbOfTuples, 1);
+    double *outData = ret->getPointer();
+    for (mcIdType i = 0; i < otherNbOfTuples; i++, inDataOther += nbOfComp)
     {
-      for(mcIdType j=0;j<nbOfTuples;j++)
+        for (mcIdType j = 0; j < nbOfTuples; j++)
         {
-          double dist=0.;
-          for(std::size_t k=0;k<nbOfComp;k++)
-            { double delta=inDataOther[k]-inData[j*nbOfComp+k]; dist+=delta*delta; }
-          dist=sqrt(dist);
-          outData[i*nbOfTuples+j]=dist;
+            double dist = 0.;
+            for (std::size_t k = 0; k < nbOfComp; k++)
+            {
+                double delta = inDataOther[k] - inData[j * nbOfComp + k];
+                dist += delta * delta;
+            }
+            dist = sqrt(dist);
+            outData[i * nbOfTuples + j] = dist;
         }
     }
-  return ret.retn();
+    return ret.retn();
 }
 
 /*!
  * This method expects that \a this stores 3 tuples containing 2 components each.
  * Each of this tuples represent a point into 2D space.
- * This method tries to find an arc of circle starting from first point (tuple) to 2nd and middle point (tuple) along 3nd and last point (tuple).
- * If such arc of circle exists, the corresponding center, radius of circle is returned. And additionnaly the length of arc expressed with an \a ang output variable in ]0,2*pi[.
+ * This method tries to find an arc of circle starting from first point (tuple) to 2nd and middle point (tuple) along
+ * 3nd and last point (tuple). If such arc of circle exists, the corresponding center, radius of circle is returned. And
+ * additionnaly the length of arc expressed with an \a ang output variable in ]0,2*pi[.
  *
  *  \throw If \a this is not allocated.
  *  \throw If \a this has not 3 tuples of 2 components
  *  \throw If tuples/points in \a this are aligned
  */
-void DataArrayDouble::asArcOfCircle(double center[2], double& radius, double& ang) const
+void
+DataArrayDouble::asArcOfCircle(double center[2], double &radius, double &ang) const
 {
-  checkAllocated();
-  INTERP_KERNEL::QuadraticPlanarPrecision arcPrec(1e-14);
-  if(getNumberOfTuples()!=3 && getNumberOfComponents()!=2)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::asArcCircle : this method expects");
-  const double *pt(begin());
-  MCAuto<INTERP_KERNEL::Node> n0(new INTERP_KERNEL::Node(pt[0],pt[1])),n1(new INTERP_KERNEL::Node(pt[2],pt[3])),n2(new INTERP_KERNEL::Node(pt[4],pt[5]));
-  {
-    INTERP_KERNEL::AutoCppPtr<INTERP_KERNEL::EdgeLin> e1(new INTERP_KERNEL::EdgeLin(n0,n2)),e2(new INTERP_KERNEL::EdgeLin(n2,n1));
-    INTERP_KERNEL::SegSegIntersector inters(*e1,*e2);
-    bool colinearity(inters.areColinears());
-    if(colinearity)
-      throw INTERP_KERNEL::Exception("DataArrayDouble::asArcOfCircle : 3 points in this have been detected as colinear !");
-  }
-  INTERP_KERNEL::AutoCppPtr<INTERP_KERNEL::EdgeArcCircle> ret(new INTERP_KERNEL::EdgeArcCircle(n0,n2,n1));
-  const double *c(ret->getCenter());
-  center[0]=c[0]; center[1]=c[1];
-  radius=ret->getRadius();
-  ang=ret->getAngle();
+    checkAllocated();
+    INTERP_KERNEL::QuadraticPlanarPrecision arcPrec(1e-14);
+    if (getNumberOfTuples() != 3 && getNumberOfComponents() != 2)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::asArcCircle : this method expects");
+    const double *pt(begin());
+    MCAuto<INTERP_KERNEL::Node> n0(new INTERP_KERNEL::Node(pt[0], pt[1])), n1(new INTERP_KERNEL::Node(pt[2], pt[3])),
+        n2(new INTERP_KERNEL::Node(pt[4], pt[5]));
+    {
+        INTERP_KERNEL::AutoCppPtr<INTERP_KERNEL::EdgeLin> e1(new INTERP_KERNEL::EdgeLin(n0, n2)),
+            e2(new INTERP_KERNEL::EdgeLin(n2, n1));
+        INTERP_KERNEL::SegSegIntersector inters(*e1, *e2);
+        bool colinearity(inters.areColinears());
+        if (colinearity)
+            throw INTERP_KERNEL::Exception(
+                "DataArrayDouble::asArcOfCircle : 3 points in this have been detected as colinear !"
+            );
+    }
+    INTERP_KERNEL::AutoCppPtr<INTERP_KERNEL::EdgeArcCircle> ret(new INTERP_KERNEL::EdgeArcCircle(n0, n2, n1));
+    const double *c(ret->getCenter());
+    center[0] = c[0];
+    center[1] = c[1];
+    radius = ret->getRadius();
+    ang = ret->getAngle();
 }
 
 /*!
@@ -2543,25 +2906,28 @@ void DataArrayDouble::asArcOfCircle(double center[2], double& radius, double& an
  *  \throw If \a this is not allocated.
  *  \throw If there is an element equal to 0.0 in \a this array.
  */
-void DataArrayDouble::applyInv(double numerator)
+void
+DataArrayDouble::applyInv(double numerator)
 {
-  checkAllocated();
-  double *ptr=getPointer();
-  std::size_t nbOfElems=getNbOfElems();
-  for(std::size_t i=0;i<nbOfElems;i++,ptr++)
+    checkAllocated();
+    double *ptr = getPointer();
+    std::size_t nbOfElems = getNbOfElems();
+    for (std::size_t i = 0; i < nbOfElems; i++, ptr++)
     {
-      if(std::abs(*ptr)>std::numeric_limits<double>::min())
+        if (std::abs(*ptr) > std::numeric_limits<double>::min())
         {
-          *ptr=numerator/(*ptr);
+            *ptr = numerator / (*ptr);
         }
-      else
+        else
         {
-          std::ostringstream oss; oss << "DataArrayDouble::applyInv : presence of null value in tuple #" << i/getNumberOfComponents() << " component #" << i%getNumberOfComponents();
-          oss << " !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+            std::ostringstream oss;
+            oss << "DataArrayDouble::applyInv : presence of null value in tuple #" << i / getNumberOfComponents()
+                << " component #" << i % getNumberOfComponents();
+            oss << " !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  declareAsNew();
+    declareAsNew();
 }
 
 /*!
@@ -2574,32 +2940,34 @@ void DataArrayDouble::applyInv(double numerator)
  *           array and \a val is \b not integer, all elements processed before detection of the zero element remain
  *           modified.
  */
-void DataArrayDouble::applyPow(double val)
+void
+DataArrayDouble::applyPow(double val)
 {
-  checkAllocated();
-  double *ptr=getPointer();
-  std::size_t nbOfElems=getNbOfElems();
-  int val2=(int)val;
-  bool isInt=((double)val2)==val;
-  if(!isInt)
+    checkAllocated();
+    double *ptr = getPointer();
+    std::size_t nbOfElems = getNbOfElems();
+    int val2 = (int)val;
+    bool isInt = ((double)val2) == val;
+    if (!isInt)
     {
-      for(std::size_t i=0;i<nbOfElems;i++,ptr++)
+        for (std::size_t i = 0; i < nbOfElems; i++, ptr++)
         {
-          if(*ptr>=0)
-            *ptr=pow(*ptr,val);
-          else
+            if (*ptr >= 0)
+                *ptr = pow(*ptr, val);
+            else
             {
-              std::ostringstream oss; oss << "DataArrayDouble::applyPow (double) : At elem # " << i << " value is " << *ptr << " ! must be >=0. !";
-              throw INTERP_KERNEL::Exception(oss.str().c_str());
+                std::ostringstream oss;
+                oss << "DataArrayDouble::applyPow (double) : At elem # " << i << " value is " << *ptr
+                    << " ! must be >=0. !";
+                throw INTERP_KERNEL::Exception(oss.str().c_str());
             }
         }
     }
-  else
+    else
     {
-      for(std::size_t i=0;i<nbOfElems;i++,ptr++)
-        *ptr=pow(*ptr,val2);
+        for (std::size_t i = 0; i < nbOfElems; i++, ptr++) *ptr = pow(*ptr, val2);
     }
-  declareAsNew();
+    declareAsNew();
 }
 
 /*!
@@ -2612,16 +2980,16 @@ void DataArrayDouble::applyPow(double val)
  *           array, all elements processed before detection of the zero element remain
  *           modified.
  */
-void DataArrayDouble::applyRPow(double val)
+void
+DataArrayDouble::applyRPow(double val)
 {
-  checkAllocated();
-  if(val<0.)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::applyRPow : the input value has to be >= 0 !");
-  double *ptr=getPointer();
-  std::size_t nbOfElems=getNbOfElems();
-  for(std::size_t i=0;i<nbOfElems;i++,ptr++)
-    *ptr=pow(val,*ptr);
-  declareAsNew();
+    checkAllocated();
+    if (val < 0.)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::applyRPow : the input value has to be >= 0 !");
+    double *ptr = getPointer();
+    std::size_t nbOfElems = getNbOfElems();
+    for (std::size_t i = 0; i < nbOfElems; i++, ptr++) *ptr = pow(val, *ptr);
+    declareAsNew();
 }
 
 /*!
@@ -2642,27 +3010,29 @@ void DataArrayDouble::applyRPow(double val)
  *  \throw If \a this is not allocated.
  *  \throw If \a func returns \a false.
  */
-DataArrayDouble *DataArrayDouble::applyFunc(std::size_t nbOfComp, FunctionToEvaluate func) const
+DataArrayDouble *
+DataArrayDouble::applyFunc(std::size_t nbOfComp, FunctionToEvaluate func) const
 {
-  checkAllocated();
-  DataArrayDouble *newArr=DataArrayDouble::New();
-  mcIdType nbOfTuples(getNumberOfTuples());
-  std::size_t oldNbOfComp(getNumberOfComponents());
-  newArr->alloc(nbOfTuples,nbOfComp);
-  const double *ptr=getConstPointer();
-  double *ptrToFill=newArr->getPointer();
-  for(mcIdType i=0;i<nbOfTuples;i++)
+    checkAllocated();
+    DataArrayDouble *newArr = DataArrayDouble::New();
+    mcIdType nbOfTuples(getNumberOfTuples());
+    std::size_t oldNbOfComp(getNumberOfComponents());
+    newArr->alloc(nbOfTuples, nbOfComp);
+    const double *ptr = getConstPointer();
+    double *ptrToFill = newArr->getPointer();
+    for (mcIdType i = 0; i < nbOfTuples; i++)
     {
-      if(!func(ptr+i*oldNbOfComp,ptrToFill+i*nbOfComp))
+        if (!func(ptr + i * oldNbOfComp, ptrToFill + i * nbOfComp))
         {
-          std::ostringstream oss; oss << "For tuple # " << i << " with value (";
-          std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
-          oss << ") : Evaluation of function failed !";
-          newArr->decrRef();
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+            std::ostringstream oss;
+            oss << "For tuple # " << i << " with value (";
+            std::copy(ptr + oldNbOfComp * i, ptr + oldNbOfComp * (i + 1), std::ostream_iterator<double>(oss, ", "));
+            oss << ") : Evaluation of function failed !";
+            newArr->decrRef();
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  return newArr;
+    return newArr;
 }
 
 /*!
@@ -2672,8 +3042,9 @@ DataArrayDouble *DataArrayDouble::applyFunc(std::size_t nbOfComp, FunctionToEval
  *  \param [in] nbOfComp - number of components in the result array.
  *  \param [in] func - the expression defining how to transform a tuple of \a this array.
  *              Supported expressions are described \ref MEDCouplingArrayApplyFuncExpr "here".
- *  \param [in] isSafe - By default true. If true invalid operation (division by 0. acos of value > 1. ...) leads to a throw of an exception.
- *              If false the computation is carried on without any notification. When false the evaluation is a little faster.
+ *  \param [in] isSafe - By default true. If true invalid operation (division by 0. acos of value > 1. ...) leads to a
+ * throw of an exception. If false the computation is carried on without any notification. When false the evaluation is
+ * a little faster.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
  *          same number of tuples as \a this array and \a nbOfComp components.
  *          The caller is to delete this result array using decrRef() as it is no more
@@ -2681,14 +3052,15 @@ DataArrayDouble *DataArrayDouble::applyFunc(std::size_t nbOfComp, FunctionToEval
  *  \throw If \a this is not allocated.
  *  \throw If computing \a func fails.
  */
-DataArrayDouble *DataArrayDouble::applyFunc(std::size_t nbOfComp, const std::string& func, bool isSafe) const
+DataArrayDouble *
+DataArrayDouble::applyFunc(std::size_t nbOfComp, const std::string &func, bool isSafe) const
 {
-  INTERP_KERNEL::ExprParser expr(func);
-  expr.parse();
-  std::set<std::string> vars;
-  expr.getTrueSetOfVars(vars);
-  std::vector<std::string> varsV(vars.begin(),vars.end());
-  return applyFuncNamedCompo(nbOfComp,varsV,func,isSafe);
+    INTERP_KERNEL::ExprParser expr(func);
+    expr.parse();
+    std::set<std::string> vars;
+    expr.getTrueSetOfVars(vars);
+    std::vector<std::string> varsV(vars.begin(), vars.end());
+    return applyFuncNamedCompo(nbOfComp, varsV, func, isSafe);
 }
 
 /*!
@@ -2699,8 +3071,9 @@ DataArrayDouble *DataArrayDouble::applyFunc(std::size_t nbOfComp, const std::str
  * For more info see \ref MEDCouplingArrayApplyFunc0.
  *  \param [in] func - the expression defining how to transform a tuple of \a this array.
  *              Supported expressions are described \ref MEDCouplingArrayApplyFuncExpr "here".
- *  \param [in] isSafe - By default true. If true invalid operation (division by 0. acos of value > 1. ...) leads to a throw of an exception.
- *                       If false the computation is carried on without any notification. When false the evaluation is a little faster.
+ *  \param [in] isSafe - By default true. If true invalid operation (division by 0. acos of value > 1. ...) leads to a
+ * throw of an exception. If false the computation is carried on without any notification. When false the evaluation is
+ * a little faster.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
  *          same number of tuples and components as \a this array.
  *          The caller is to delete this result array using decrRef() as it is no more
@@ -2709,76 +3082,81 @@ DataArrayDouble *DataArrayDouble::applyFunc(std::size_t nbOfComp, const std::str
  *  \throw If \a this is not allocated.
  *  \throw If computing \a func fails.
  */
-DataArrayDouble *DataArrayDouble::applyFunc(const std::string& func, bool isSafe) const
+DataArrayDouble *
+DataArrayDouble::applyFunc(const std::string &func, bool isSafe) const
 {
-  std::size_t nbOfComp(getNumberOfComponents());
-  if(nbOfComp<=0)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::applyFunc : output number of component must be > 0 !");
-  checkAllocated();
-  mcIdType nbOfTuples(getNumberOfTuples());
-  MCAuto<DataArrayDouble> newArr(DataArrayDouble::New());
-  newArr->alloc(nbOfTuples,nbOfComp);
-  INTERP_KERNEL::ExprParser expr(func);
-  expr.parse();
-  std::set<std::string> vars;
-  expr.getTrueSetOfVars(vars);
-  if(vars.size()>1)
+    std::size_t nbOfComp(getNumberOfComponents());
+    if (nbOfComp <= 0)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::applyFunc : output number of component must be > 0 !");
+    checkAllocated();
+    mcIdType nbOfTuples(getNumberOfTuples());
+    MCAuto<DataArrayDouble> newArr(DataArrayDouble::New());
+    newArr->alloc(nbOfTuples, nbOfComp);
+    INTERP_KERNEL::ExprParser expr(func);
+    expr.parse();
+    std::set<std::string> vars;
+    expr.getTrueSetOfVars(vars);
+    if (vars.size() > 1)
     {
-      std::ostringstream oss; oss << "DataArrayDouble::applyFunc : this method works only with at most one var func expression ! If you need to map comps on variables please use applyFuncCompo or applyFuncNamedCompo instead ! Vars in expr are : ";
-      std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "DataArrayDouble::applyFunc : this method works only with at most one var func expression ! If you need "
+               "to map comps on variables please use applyFuncCompo or applyFuncNamedCompo instead ! Vars in expr are "
+               ": ";
+        std::copy(vars.begin(), vars.end(), std::ostream_iterator<std::string>(oss, " "));
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  if(vars.empty())
+    if (vars.empty())
     {
-      expr.prepareFastEvaluator();
-      newArr->rearrange(1);
-      newArr->fillWithValue(expr.evaluateDouble());
-      newArr->rearrange(nbOfComp);
-      return newArr.retn();
+        expr.prepareFastEvaluator();
+        newArr->rearrange(1);
+        newArr->fillWithValue(expr.evaluateDouble());
+        newArr->rearrange(nbOfComp);
+        return newArr.retn();
     }
-  std::vector<std::string> vars2(vars.begin(),vars.end());
-  double buff,*ptrToFill(newArr->getPointer());
-  const double *ptr(begin());
-  std::vector<double> stck;
-  expr.prepareExprEvaluationDouble(vars2,1,1,0,&buff,&buff+1);
-  expr.prepareFastEvaluator();
-  if(!isSafe)
+    std::vector<std::string> vars2(vars.begin(), vars.end());
+    double buff, *ptrToFill(newArr->getPointer());
+    const double *ptr(begin());
+    std::vector<double> stck;
+    expr.prepareExprEvaluationDouble(vars2, 1, 1, 0, &buff, &buff + 1);
+    expr.prepareFastEvaluator();
+    if (!isSafe)
     {
-      for(mcIdType i=0;i<nbOfTuples;i++)
+        for (mcIdType i = 0; i < nbOfTuples; i++)
         {
-          for(std::size_t iComp=0;iComp<nbOfComp;iComp++,ptr++,ptrToFill++)
+            for (std::size_t iComp = 0; iComp < nbOfComp; iComp++, ptr++, ptrToFill++)
             {
-              buff=*ptr;
-              expr.evaluateDoubleInternal(stck);
-              *ptrToFill=stck.back();
-              stck.pop_back();
+                buff = *ptr;
+                expr.evaluateDoubleInternal(stck);
+                *ptrToFill = stck.back();
+                stck.pop_back();
             }
         }
     }
-  else
+    else
     {
-      for(mcIdType i=0;i<nbOfTuples;i++)
+        for (mcIdType i = 0; i < nbOfTuples; i++)
         {
-          for(std::size_t iComp=0;iComp<nbOfComp;iComp++,ptr++,ptrToFill++)
+            for (std::size_t iComp = 0; iComp < nbOfComp; iComp++, ptr++, ptrToFill++)
             {
-              buff=*ptr;
-              try
-              {
-                  expr.evaluateDoubleInternalSafe(stck);
-              }
-              catch(INTERP_KERNEL::Exception& e)
-              {
-                  std::ostringstream oss; oss << "For tuple # " << i << " component # " << iComp << " with value (";
-                  oss << buff;
-                  oss << ") : Evaluation of function failed !" << e.what();
-                  throw INTERP_KERNEL::Exception(oss.str().c_str());
-              }
-              *ptrToFill=stck.back();
-              stck.pop_back();
+                buff = *ptr;
+                try
+                {
+                    expr.evaluateDoubleInternalSafe(stck);
+                }
+                catch (INTERP_KERNEL::Exception &e)
+                {
+                    std::ostringstream oss;
+                    oss << "For tuple # " << i << " component # " << iComp << " with value (";
+                    oss << buff;
+                    oss << ") : Evaluation of function failed !" << e.what();
+                    throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+                *ptrToFill = stck.back();
+                stck.pop_back();
             }
         }
     }
-  return newArr.retn();
+    return newArr.retn();
 }
 
 /*!
@@ -2789,77 +3167,83 @@ DataArrayDouble *DataArrayDouble::applyFunc(const std::string& func, bool isSafe
  *
  *  \param [in] func - the expression defining how to transform a tuple of \a this array.
  *              Supported expressions are described \ref MEDCouplingArrayApplyFuncExpr "here".
- *  \param [in] isSafe - By default true. If true invalid operation (division by 0. acos of value > 1. ...) leads to a throw of an exception.
- *              If false the computation is carried on without any notification. When false the evaluation is a little faster.
+ *  \param [in] isSafe - By default true. If true invalid operation (division by 0. acos of value > 1. ...) leads to a
+ * throw of an exception. If false the computation is carried on without any notification. When false the evaluation is
+ * a little faster.
  *
  * \sa applyFunc
  */
-void DataArrayDouble::applyFuncOnThis(const std::string& func, bool isSafe)
+void
+DataArrayDouble::applyFuncOnThis(const std::string &func, bool isSafe)
 {
-  std::size_t nbOfComp(getNumberOfComponents());
-  if(nbOfComp<=0)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::applyFuncOnThis : output number of component must be > 0 !");
-  checkAllocated();
-  mcIdType nbOfTuples(getNumberOfTuples());
-  INTERP_KERNEL::ExprParser expr(func);
-  expr.parse();
-  std::set<std::string> vars;
-  expr.getTrueSetOfVars(vars);
-  if(vars.size()>1)
+    std::size_t nbOfComp(getNumberOfComponents());
+    if (nbOfComp <= 0)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::applyFuncOnThis : output number of component must be > 0 !");
+    checkAllocated();
+    mcIdType nbOfTuples(getNumberOfTuples());
+    INTERP_KERNEL::ExprParser expr(func);
+    expr.parse();
+    std::set<std::string> vars;
+    expr.getTrueSetOfVars(vars);
+    if (vars.size() > 1)
     {
-      std::ostringstream oss; oss << "DataArrayDouble::applyFuncOnThis : this method works only with at most one var func expression ! If you need to map comps on variables please use applyFuncCompo or applyFuncNamedCompo instead ! Vars in expr are : ";
-      std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "DataArrayDouble::applyFuncOnThis : this method works only with at most one var func expression ! If "
+               "you need to map comps on variables please use applyFuncCompo or applyFuncNamedCompo instead ! Vars in "
+               "expr are : ";
+        std::copy(vars.begin(), vars.end(), std::ostream_iterator<std::string>(oss, " "));
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  if(vars.empty())
+    if (vars.empty())
     {
-      expr.prepareFastEvaluator();
-      std::vector<std::string> compInfo(getInfoOnComponents());
-      rearrange(1);
-      fillWithValue(expr.evaluateDouble());
-      rearrange(nbOfComp);
-      setInfoOnComponents(compInfo);
-      return ;
+        expr.prepareFastEvaluator();
+        std::vector<std::string> compInfo(getInfoOnComponents());
+        rearrange(1);
+        fillWithValue(expr.evaluateDouble());
+        rearrange(nbOfComp);
+        setInfoOnComponents(compInfo);
+        return;
     }
-  std::vector<std::string> vars2(vars.begin(),vars.end());
-  double buff,*ptrToFill(getPointer());
-  const double *ptr(begin());
-  std::vector<double> stck;
-  expr.prepareExprEvaluationDouble(vars2,1,1,0,&buff,&buff+1);
-  expr.prepareFastEvaluator();
-  if(!isSafe)
+    std::vector<std::string> vars2(vars.begin(), vars.end());
+    double buff, *ptrToFill(getPointer());
+    const double *ptr(begin());
+    std::vector<double> stck;
+    expr.prepareExprEvaluationDouble(vars2, 1, 1, 0, &buff, &buff + 1);
+    expr.prepareFastEvaluator();
+    if (!isSafe)
     {
-      for(mcIdType i=0;i<nbOfTuples;i++)
+        for (mcIdType i = 0; i < nbOfTuples; i++)
         {
-          for(std::size_t iComp=0;iComp<nbOfComp;iComp++,ptr++,ptrToFill++)
+            for (std::size_t iComp = 0; iComp < nbOfComp; iComp++, ptr++, ptrToFill++)
             {
-              buff=*ptr;
-              expr.evaluateDoubleInternal(stck);
-              *ptrToFill=stck.back();
-              stck.pop_back();
+                buff = *ptr;
+                expr.evaluateDoubleInternal(stck);
+                *ptrToFill = stck.back();
+                stck.pop_back();
             }
         }
     }
-  else
+    else
     {
-      for(mcIdType i=0;i<nbOfTuples;i++)
+        for (mcIdType i = 0; i < nbOfTuples; i++)
         {
-          for(std::size_t iComp=0;iComp<nbOfComp;iComp++,ptr++,ptrToFill++)
+            for (std::size_t iComp = 0; iComp < nbOfComp; iComp++, ptr++, ptrToFill++)
             {
-              buff=*ptr;
-              try
-              {
-                  expr.evaluateDoubleInternalSafe(stck);
-              }
-              catch(INTERP_KERNEL::Exception& e)
-              {
-                  std::ostringstream oss; oss << "For tuple # " << i << " component # " << iComp << " with value (";
-                  oss << buff;
-                  oss << ") : Evaluation of function failed !" << e.what();
-                  throw INTERP_KERNEL::Exception(oss.str().c_str());
-              }
-              *ptrToFill=stck.back();
-              stck.pop_back();
+                buff = *ptr;
+                try
+                {
+                    expr.evaluateDoubleInternalSafe(stck);
+                }
+                catch (INTERP_KERNEL::Exception &e)
+                {
+                    std::ostringstream oss;
+                    oss << "For tuple # " << i << " component # " << iComp << " with value (";
+                    oss << buff;
+                    oss << ") : Evaluation of function failed !" << e.what();
+                    throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
+                *ptrToFill = stck.back();
+                stck.pop_back();
             }
         }
     }
@@ -2872,8 +3256,9 @@ void DataArrayDouble::applyFuncOnThis(const std::string& func, bool isSafe)
  *  \param [in] nbOfComp - number of components in the result array.
  *  \param [in] func - the expression defining how to transform a tuple of \a this array.
  *              Supported expressions are described \ref MEDCouplingArrayApplyFuncExpr "here".
- *  \param [in] isSafe - By default true. If true invalid operation (division by 0. acos of value > 1. ...) leads to a throw of an exception.
- *              If false the computation is carried on without any notification. When false the evaluation is a little faster.
+ *  \param [in] isSafe - By default true. If true invalid operation (division by 0. acos of value > 1. ...) leads to a
+ * throw of an exception. If false the computation is carried on without any notification. When false the evaluation is
+ * a little faster.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
  *          same number of tuples as \a this array.
  *          The caller is to delete this result array using decrRef() as it is no more
@@ -2882,9 +3267,10 @@ void DataArrayDouble::applyFuncOnThis(const std::string& func, bool isSafe)
  *  \throw If \a func contains vars that are not in \a this->getInfoOnComponent().
  *  \throw If computing \a func fails.
  */
-DataArrayDouble *DataArrayDouble::applyFuncCompo(std::size_t nbOfComp, const std::string& func, bool isSafe) const
+DataArrayDouble *
+DataArrayDouble::applyFuncCompo(std::size_t nbOfComp, const std::string &func, bool isSafe) const
 {
-  return applyFuncNamedCompo(nbOfComp,getVarsOnComponent(),func,isSafe);
+    return applyFuncNamedCompo(nbOfComp, getVarsOnComponent(), func, isSafe);
 }
 
 /*!
@@ -2895,8 +3281,9 @@ DataArrayDouble *DataArrayDouble::applyFuncCompo(std::size_t nbOfComp, const std
  *  \param [in] varsOrder - sequence of vars defining their order.
  *  \param [in] func - the expression defining how to transform a tuple of \a this array.
  *              Supported expressions are described \ref MEDCouplingArrayApplyFuncExpr "here".
- *  \param [in] isSafe - By default true. If true invalid operation (division by 0. acos of value > 1. ...) leads to a throw of an exception.
- *              If false the computation is carried on without any notification. When false the evaluation is a little faster.
+ *  \param [in] isSafe - By default true. If true invalid operation (division by 0. acos of value > 1. ...) leads to a
+ * throw of an exception. If false the computation is carried on without any notification. When false the evaluation is
+ * a little faster.
  *  \return DataArrayDouble * - the new instance of DataArrayDouble containing the
  *          same number of tuples as \a this array.
  *          The caller is to delete this result array using decrRef() as it is no more
@@ -2905,126 +3292,139 @@ DataArrayDouble *DataArrayDouble::applyFuncCompo(std::size_t nbOfComp, const std
  *  \throw If \a func contains vars not in \a varsOrder.
  *  \throw If computing \a func fails.
  */
-DataArrayDouble *DataArrayDouble::applyFuncNamedCompo(std::size_t nbOfComp, const std::vector<std::string>& varsOrder, const std::string& func, bool isSafe) const
+DataArrayDouble *
+DataArrayDouble::applyFuncNamedCompo(
+    std::size_t nbOfComp, const std::vector<std::string> &varsOrder, const std::string &func, bool isSafe
+) const
 {
-  if(nbOfComp<=0)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::applyFuncNamedCompo : output number of component must be > 0 !");
-  std::vector<std::string> varsOrder2(varsOrder);
-  std::size_t oldNbOfComp(getNumberOfComponents());
-  for(std::size_t i=varsOrder.size();i<oldNbOfComp;i++)
-    varsOrder2.push_back(std::string());
-  checkAllocated();
-  mcIdType nbOfTuples(getNumberOfTuples());
-  INTERP_KERNEL::ExprParser expr(func);
-  expr.parse();
-  std::set<std::string> vars;
-  expr.getTrueSetOfVars(vars);
-  if(vars.size()>oldNbOfComp)
+    if (nbOfComp <= 0)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::applyFuncNamedCompo : output number of component must be > 0 !"
+        );
+    std::vector<std::string> varsOrder2(varsOrder);
+    std::size_t oldNbOfComp(getNumberOfComponents());
+    for (std::size_t i = varsOrder.size(); i < oldNbOfComp; i++) varsOrder2.push_back(std::string());
+    checkAllocated();
+    mcIdType nbOfTuples(getNumberOfTuples());
+    INTERP_KERNEL::ExprParser expr(func);
+    expr.parse();
+    std::set<std::string> vars;
+    expr.getTrueSetOfVars(vars);
+    if (vars.size() > oldNbOfComp)
     {
-      std::ostringstream oss; oss << "The field has " << oldNbOfComp << " components and there are ";
-      oss << vars.size() << " variables : ";
-      std::copy(vars.begin(),vars.end(),std::ostream_iterator<std::string>(oss," "));
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "The field has " << oldNbOfComp << " components and there are ";
+        oss << vars.size() << " variables : ";
+        std::copy(vars.begin(), vars.end(), std::ostream_iterator<std::string>(oss, " "));
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  MCAuto<DataArrayDouble> newArr(DataArrayDouble::New());
-  newArr->alloc(nbOfTuples,nbOfComp);
-  INTERP_KERNEL::AutoPtr<double> buff(new double[oldNbOfComp]);
-  double *buffPtr(buff),*ptrToFill;
-  std::vector<double> stck;
-  for(std::size_t iComp=0;iComp<nbOfComp;iComp++)
+    MCAuto<DataArrayDouble> newArr(DataArrayDouble::New());
+    newArr->alloc(nbOfTuples, nbOfComp);
+    INTERP_KERNEL::AutoPtr<double> buff(new double[oldNbOfComp]);
+    double *buffPtr(buff), *ptrToFill;
+    std::vector<double> stck;
+    for (std::size_t iComp = 0; iComp < nbOfComp; iComp++)
     {
-      expr.prepareExprEvaluationDouble(varsOrder2,(int)oldNbOfComp,(int)nbOfComp,(int)iComp,buffPtr,buffPtr+oldNbOfComp);
-      expr.prepareFastEvaluator();
-      const double *ptr(getConstPointer());
-      ptrToFill=newArr->getPointer()+iComp;
-      if(!isSafe)
+        expr.prepareExprEvaluationDouble(
+            varsOrder2, (int)oldNbOfComp, (int)nbOfComp, (int)iComp, buffPtr, buffPtr + oldNbOfComp
+        );
+        expr.prepareFastEvaluator();
+        const double *ptr(getConstPointer());
+        ptrToFill = newArr->getPointer() + iComp;
+        if (!isSafe)
         {
-          for(mcIdType i=0;i<nbOfTuples;i++,ptrToFill+=nbOfComp,ptr+=oldNbOfComp)
+            for (mcIdType i = 0; i < nbOfTuples; i++, ptrToFill += nbOfComp, ptr += oldNbOfComp)
             {
-              std::copy(ptr,ptr+oldNbOfComp,buffPtr);
-              expr.evaluateDoubleInternal(stck);
-              *ptrToFill=stck.back();
-              stck.pop_back();
+                std::copy(ptr, ptr + oldNbOfComp, buffPtr);
+                expr.evaluateDoubleInternal(stck);
+                *ptrToFill = stck.back();
+                stck.pop_back();
             }
         }
-      else
+        else
         {
-          for(mcIdType i=0;i<nbOfTuples;i++,ptrToFill+=nbOfComp,ptr+=oldNbOfComp)
+            for (mcIdType i = 0; i < nbOfTuples; i++, ptrToFill += nbOfComp, ptr += oldNbOfComp)
             {
-              std::copy(ptr,ptr+oldNbOfComp,buffPtr);
-              try
-              {
-                  expr.evaluateDoubleInternalSafe(stck);
-                  *ptrToFill=stck.back();
-                  stck.pop_back();
-              }
-              catch(INTERP_KERNEL::Exception& e)
-              {
-                  std::ostringstream oss; oss << "For tuple # " << i << " with value (";
-                  std::copy(ptr+oldNbOfComp*i,ptr+oldNbOfComp*(i+1),std::ostream_iterator<double>(oss,", "));
-                  oss << ") : Evaluation of function failed !" << e.what();
-                  throw INTERP_KERNEL::Exception(oss.str().c_str());
-              }
+                std::copy(ptr, ptr + oldNbOfComp, buffPtr);
+                try
+                {
+                    expr.evaluateDoubleInternalSafe(stck);
+                    *ptrToFill = stck.back();
+                    stck.pop_back();
+                }
+                catch (INTERP_KERNEL::Exception &e)
+                {
+                    std::ostringstream oss;
+                    oss << "For tuple # " << i << " with value (";
+                    std::copy(
+                        ptr + oldNbOfComp * i, ptr + oldNbOfComp * (i + 1), std::ostream_iterator<double>(oss, ", ")
+                    );
+                    oss << ") : Evaluation of function failed !" << e.what();
+                    throw INTERP_KERNEL::Exception(oss.str().c_str());
+                }
             }
         }
     }
-  return newArr.retn();
+    return newArr.retn();
 }
 
-void DataArrayDouble::applyFuncFast32(const std::string& func)
+void
+DataArrayDouble::applyFuncFast32(const std::string &func)
 {
-  checkAllocated();
-  INTERP_KERNEL::ExprParser expr(func);
-  expr.parse();
-  char *funcStr=expr.compileX86();
-  MYFUNCPTR funcPtr;
-  *((void **)&funcPtr)=funcStr;//he he...
-  //
-  double *ptr=getPointer();
-  std::size_t nbOfComp=getNumberOfComponents();
-  mcIdType nbOfTuples=getNumberOfTuples();
-  std::size_t nbOfElems=nbOfTuples*nbOfComp;
-  for(std::size_t i=0;i<nbOfElems;i++,ptr++)
-    *ptr=funcPtr(*ptr);
-  declareAsNew();
+    checkAllocated();
+    INTERP_KERNEL::ExprParser expr(func);
+    expr.parse();
+    char *funcStr = expr.compileX86();
+    MYFUNCPTR funcPtr;
+    *((void **)&funcPtr) = funcStr;  // he he...
+    //
+    double *ptr = getPointer();
+    std::size_t nbOfComp = getNumberOfComponents();
+    mcIdType nbOfTuples = getNumberOfTuples();
+    std::size_t nbOfElems = nbOfTuples * nbOfComp;
+    for (std::size_t i = 0; i < nbOfElems; i++, ptr++) *ptr = funcPtr(*ptr);
+    declareAsNew();
 }
 
-void DataArrayDouble::applyFuncFast64(const std::string& func)
+void
+DataArrayDouble::applyFuncFast64(const std::string &func)
 {
-  checkAllocated();
-  INTERP_KERNEL::ExprParser expr(func);
-  expr.parse();
-  char *funcStr=expr.compileX86_64();
-  MYFUNCPTR funcPtr;
-  *((void **)&funcPtr)=funcStr;//he he...
-  //
-  double *ptr=getPointer();
-  std::size_t nbOfComp=getNumberOfComponents();
-  mcIdType nbOfTuples=getNumberOfTuples();
-  std::size_t nbOfElems=nbOfTuples*nbOfComp;
-  for(std::size_t i=0;i<nbOfElems;i++,ptr++)
-    *ptr=funcPtr(*ptr);
-  declareAsNew();
+    checkAllocated();
+    INTERP_KERNEL::ExprParser expr(func);
+    expr.parse();
+    char *funcStr = expr.compileX86_64();
+    MYFUNCPTR funcPtr;
+    *((void **)&funcPtr) = funcStr;  // he he...
+    //
+    double *ptr = getPointer();
+    std::size_t nbOfComp = getNumberOfComponents();
+    mcIdType nbOfTuples = getNumberOfTuples();
+    std::size_t nbOfElems = nbOfTuples * nbOfComp;
+    for (std::size_t i = 0; i < nbOfElems; i++, ptr++) *ptr = funcPtr(*ptr);
+    declareAsNew();
 }
 
 /*!
- * \return a new object that is the result of the symmetry along 3D plane defined by its normal vector \a normalVector and a point \a point.
+ * \return a new object that is the result of the symmetry along 3D plane defined by its normal vector \a normalVector
+ * and a point \a point.
  */
-MCAuto<DataArrayDouble> DataArrayDouble::symmetry3DPlane(const double point[3], const double normalVector[3]) const
+MCAuto<DataArrayDouble>
+DataArrayDouble::symmetry3DPlane(const double point[3], const double normalVector[3]) const
 {
-  checkAllocated();
-  if(getNumberOfComponents()!=3)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::symmetry3DPlane : this is excepted to have 3 components !");
-  mcIdType nbTuples(getNumberOfTuples());
-  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
-  ret->alloc(nbTuples,3);
-  Symmetry3DPlane(point,normalVector,nbTuples,begin(),ret->getPointer());
-  return ret;
+    checkAllocated();
+    if (getNumberOfComponents() != 3)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::symmetry3DPlane : this is excepted to have 3 components !");
+    mcIdType nbTuples(getNumberOfTuples());
+    MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+    ret->alloc(nbTuples, 3);
+    Symmetry3DPlane(point, normalVector, nbTuples, begin(), ret->getPointer());
+    return ret;
 }
 
-DataArrayDoubleIterator *DataArrayDouble::iterator()
+DataArrayDoubleIterator *
+DataArrayDouble::iterator()
 {
-  return new DataArrayDoubleIterator(this);
+    return new DataArrayDoubleIterator(this);
 }
 
 /*!
@@ -3044,18 +3444,20 @@ DataArrayDoubleIterator *DataArrayDouble::iterator()
  *  \ref py_mcdataarraydouble_getidsinrange "Here is a Python example".
  *  \endif
  */
-DataArrayIdType *DataArrayDouble::findIdsInRange(double vmin, double vmax) const
+DataArrayIdType *
+DataArrayDouble::findIdsInRange(double vmin, double vmax) const
 {
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::findIdsInRange : this must have exactly one component !");
-  const double *cptr(begin());
-  MCAuto<DataArrayIdType> ret(DataArrayIdType::New()); ret->alloc(0,1);
-  mcIdType nbOfTuples(getNumberOfTuples());
-  for(mcIdType i=0;i<nbOfTuples;i++,cptr++)
-    if(*cptr>=vmin && *cptr<=vmax)
-      ret->pushBackSilent(i);
-  return ret.retn();
+    checkAllocated();
+    if (getNumberOfComponents() != 1)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::findIdsInRange : this must have exactly one component !");
+    const double *cptr(begin());
+    MCAuto<DataArrayIdType> ret(DataArrayIdType::New());
+    ret->alloc(0, 1);
+    mcIdType nbOfTuples(getNumberOfTuples());
+    for (mcIdType i = 0; i < nbOfTuples; i++, cptr++)
+        if (*cptr >= vmin && *cptr <= vmax)
+            ret->pushBackSilent(i);
+    return ret.retn();
 }
 
 /*!
@@ -3070,18 +3472,20 @@ DataArrayIdType *DataArrayDouble::findIdsInRange(double vmin, double vmax) const
  *
  *  \sa DataArrayDouble::findIdsInRange
  */
-DataArrayIdType *DataArrayDouble::findIdsNotInRange(double vmin, double vmax) const
+DataArrayIdType *
+DataArrayDouble::findIdsNotInRange(double vmin, double vmax) const
 {
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::findIdsNotInRange : this must have exactly one component !");
-  const double *cptr(begin());
-  MCAuto<DataArrayIdType> ret(DataArrayIdType::New()); ret->alloc(0,1);
-  mcIdType nbOfTuples(getNumberOfTuples());
-  for(mcIdType i=0;i<nbOfTuples;i++,cptr++)
-    if(*cptr<vmin || *cptr>vmax)
-      ret->pushBackSilent(i);
-  return ret.retn();
+    checkAllocated();
+    if (getNumberOfComponents() != 1)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::findIdsNotInRange : this must have exactly one component !");
+    const double *cptr(begin());
+    MCAuto<DataArrayIdType> ret(DataArrayIdType::New());
+    ret->alloc(0, 1);
+    mcIdType nbOfTuples(getNumberOfTuples());
+    for (mcIdType i = 0; i < nbOfTuples; i++, cptr++)
+        if (*cptr < vmin || *cptr > vmax)
+            ret->pushBackSilent(i);
+    return ret.retn();
 }
 
 /*!
@@ -3098,11 +3502,13 @@ DataArrayIdType *DataArrayDouble::findIdsNotInRange(double vmin, double vmax) co
  *  \throw If both \a a1 and \a a2 are NULL.
  *  \throw If \a a1->getNumberOfComponents() != \a a2->getNumberOfComponents().
  */
-DataArrayDouble *DataArrayDouble::Aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2)
+DataArrayDouble *
+DataArrayDouble::Aggregate(const DataArrayDouble *a1, const DataArrayDouble *a2)
 {
-  std::vector<const DataArrayDouble *> tmp(2);
-  tmp[0]=a1; tmp[1]=a2;
-  return Aggregate(tmp);
+    std::vector<const DataArrayDouble *> tmp(2);
+    tmp[0] = a1;
+    tmp[1] = a2;
+    return Aggregate(tmp);
 }
 
 /*!
@@ -3120,30 +3526,35 @@ DataArrayDouble *DataArrayDouble::Aggregate(const DataArrayDouble *a1, const Dat
  *  \throw If all arrays within \a arr are NULL.
  *  \throw If getNumberOfComponents() of arrays within \a arr.
  */
-DataArrayDouble *DataArrayDouble::Aggregate(const std::vector<const DataArrayDouble *>& arr)
+DataArrayDouble *
+DataArrayDouble::Aggregate(const std::vector<const DataArrayDouble *> &arr)
 {
-  std::vector<const DataArrayDouble *> a;
-  for(std::vector<const DataArrayDouble *>::const_iterator it4=arr.begin();it4!=arr.end();it4++)
-    if(*it4)
-      a.push_back(*it4);
-  if(a.empty())
-    throw INTERP_KERNEL::Exception("DataArrayDouble::Aggregate : input list must contain at least one NON EMPTY DataArrayDouble !");
-  std::vector<const DataArrayDouble *>::const_iterator it=a.begin();
-  std::size_t nbOfComp((*it)->getNumberOfComponents());
-  mcIdType nbt=(*it++)->getNumberOfTuples();
-  for(mcIdType i=1;it!=a.end();it++,i++)
+    std::vector<const DataArrayDouble *> a;
+    for (std::vector<const DataArrayDouble *>::const_iterator it4 = arr.begin(); it4 != arr.end(); it4++)
+        if (*it4)
+            a.push_back(*it4);
+    if (a.empty())
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::Aggregate : input list must contain at least one NON EMPTY DataArrayDouble !"
+        );
+    std::vector<const DataArrayDouble *>::const_iterator it = a.begin();
+    std::size_t nbOfComp((*it)->getNumberOfComponents());
+    mcIdType nbt = (*it++)->getNumberOfTuples();
+    for (mcIdType i = 1; it != a.end(); it++, i++)
     {
-      if((*it)->getNumberOfComponents()!=nbOfComp)
-        throw INTERP_KERNEL::Exception("DataArrayDouble::Aggregate : Nb of components mismatch for array aggregation !");
-      nbt+=(*it)->getNumberOfTuples();
+        if ((*it)->getNumberOfComponents() != nbOfComp)
+            throw INTERP_KERNEL::Exception(
+                "DataArrayDouble::Aggregate : Nb of components mismatch for array aggregation !"
+            );
+        nbt += (*it)->getNumberOfTuples();
     }
-  MCAuto<DataArrayDouble> ret=DataArrayDouble::New();
-  ret->alloc(nbt,nbOfComp);
-  double *pt=ret->getPointer();
-  for(it=a.begin();it!=a.end();it++)
-    pt=std::copy((*it)->getConstPointer(),(*it)->getConstPointer()+(*it)->getNbOfElems(),pt);
-  ret->copyStringInfoFrom(*(a[0]));
-  return ret.retn();
+    MCAuto<DataArrayDouble> ret = DataArrayDouble::New();
+    ret->alloc(nbt, nbOfComp);
+    double *pt = ret->getPointer();
+    for (it = a.begin(); it != a.end(); it++)
+        pt = std::copy((*it)->getConstPointer(), (*it)->getConstPointer() + (*it)->getNbOfElems(), pt);
+    ret->copyStringInfoFrom(*(a[0]));
+    return ret.retn();
 }
 
 /*!
@@ -3162,32 +3573,32 @@ DataArrayDouble *DataArrayDouble::Aggregate(const std::vector<const DataArrayDou
  *  \throw If \a a1->getNumberOfTuples() != \a a2->getNumberOfTuples()
  *  \throw If \a a1->getNumberOfComponents() != \a a2->getNumberOfComponents()
  */
-DataArrayDouble *DataArrayDouble::Dot(const DataArrayDouble *a1, const DataArrayDouble *a2)
+DataArrayDouble *
+DataArrayDouble::Dot(const DataArrayDouble *a1, const DataArrayDouble *a2)
 {
-  if(!a1 || !a2)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::Dot : input DataArrayDouble instance is NULL !");
-  a1->checkAllocated();
-  a2->checkAllocated();
-  std::size_t nbOfComp(a1->getNumberOfComponents());
-  if(nbOfComp!=a2->getNumberOfComponents())
-    throw INTERP_KERNEL::Exception("Nb of components mismatch for array Dot !");
-  mcIdType nbOfTuple(a1->getNumberOfTuples());
-  if(nbOfTuple!=a2->getNumberOfTuples())
-    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Dot !");
-  DataArrayDouble *ret=DataArrayDouble::New();
-  ret->alloc(nbOfTuple,1);
-  double *retPtr=ret->getPointer();
-  const double *a1Ptr=a1->begin(),*a2Ptr(a2->begin());
-  for(mcIdType i=0;i<nbOfTuple;i++)
+    if (!a1 || !a2)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::Dot : input DataArrayDouble instance is NULL !");
+    a1->checkAllocated();
+    a2->checkAllocated();
+    std::size_t nbOfComp(a1->getNumberOfComponents());
+    if (nbOfComp != a2->getNumberOfComponents())
+        throw INTERP_KERNEL::Exception("Nb of components mismatch for array Dot !");
+    mcIdType nbOfTuple(a1->getNumberOfTuples());
+    if (nbOfTuple != a2->getNumberOfTuples())
+        throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Dot !");
+    DataArrayDouble *ret = DataArrayDouble::New();
+    ret->alloc(nbOfTuple, 1);
+    double *retPtr = ret->getPointer();
+    const double *a1Ptr = a1->begin(), *a2Ptr(a2->begin());
+    for (mcIdType i = 0; i < nbOfTuple; i++)
     {
-      double sum=0.;
-      for(std::size_t j=0;j<nbOfComp;j++)
-        sum+=a1Ptr[i*nbOfComp+j]*a2Ptr[i*nbOfComp+j];
-      retPtr[i]=sum;
+        double sum = 0.;
+        for (std::size_t j = 0; j < nbOfComp; j++) sum += a1Ptr[i * nbOfComp + j] * a2Ptr[i * nbOfComp + j];
+        retPtr[i] = sum;
     }
-  ret->setInfoOnComponent(0,a1->getInfoOnComponent(0));
-  ret->setName(a1->getName());
-  return ret;
+    ret->setInfoOnComponent(0, a1->getInfoOnComponent(0));
+    ret->setName(a1->getName());
+    return ret;
 }
 
 /*!
@@ -3207,30 +3618,31 @@ DataArrayDouble *DataArrayDouble::Dot(const DataArrayDouble *a1, const DataArray
  *  \throw If \a a1->getNumberOfComponents() != 3
  *  \throw If \a a2->getNumberOfComponents() != 3
  */
-DataArrayDouble *DataArrayDouble::CrossProduct(const DataArrayDouble *a1, const DataArrayDouble *a2)
+DataArrayDouble *
+DataArrayDouble::CrossProduct(const DataArrayDouble *a1, const DataArrayDouble *a2)
 {
-  if(!a1 || !a2)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::CrossProduct : input DataArrayDouble instance is NULL !");
-  std::size_t nbOfComp(a1->getNumberOfComponents());
-  if(nbOfComp!=a2->getNumberOfComponents())
-    throw INTERP_KERNEL::Exception("Nb of components mismatch for array crossProduct !");
-  if(nbOfComp!=3)
-    throw INTERP_KERNEL::Exception("Nb of components must be equal to 3 for array crossProduct !");
-  mcIdType nbOfTuple(a1->getNumberOfTuples());
-  if(nbOfTuple!=a2->getNumberOfTuples())
-    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array crossProduct !");
-  DataArrayDouble *ret=DataArrayDouble::New();
-  ret->alloc(nbOfTuple,3);
-  double *retPtr=ret->getPointer();
-  const double *a1Ptr(a1->begin()),*a2Ptr(a2->begin());
-  for(mcIdType i=0;i<nbOfTuple;i++)
+    if (!a1 || !a2)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::CrossProduct : input DataArrayDouble instance is NULL !");
+    std::size_t nbOfComp(a1->getNumberOfComponents());
+    if (nbOfComp != a2->getNumberOfComponents())
+        throw INTERP_KERNEL::Exception("Nb of components mismatch for array crossProduct !");
+    if (nbOfComp != 3)
+        throw INTERP_KERNEL::Exception("Nb of components must be equal to 3 for array crossProduct !");
+    mcIdType nbOfTuple(a1->getNumberOfTuples());
+    if (nbOfTuple != a2->getNumberOfTuples())
+        throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array crossProduct !");
+    DataArrayDouble *ret = DataArrayDouble::New();
+    ret->alloc(nbOfTuple, 3);
+    double *retPtr = ret->getPointer();
+    const double *a1Ptr(a1->begin()), *a2Ptr(a2->begin());
+    for (mcIdType i = 0; i < nbOfTuple; i++)
     {
-      retPtr[3*i]=a1Ptr[3*i+1]*a2Ptr[3*i+2]-a1Ptr[3*i+2]*a2Ptr[3*i+1];
-      retPtr[3*i+1]=a1Ptr[3*i+2]*a2Ptr[3*i]-a1Ptr[3*i]*a2Ptr[3*i+2];
-      retPtr[3*i+2]=a1Ptr[3*i]*a2Ptr[3*i+1]-a1Ptr[3*i+1]*a2Ptr[3*i];
+        retPtr[3 * i] = a1Ptr[3 * i + 1] * a2Ptr[3 * i + 2] - a1Ptr[3 * i + 2] * a2Ptr[3 * i + 1];
+        retPtr[3 * i + 1] = a1Ptr[3 * i + 2] * a2Ptr[3 * i] - a1Ptr[3 * i] * a2Ptr[3 * i + 2];
+        retPtr[3 * i + 2] = a1Ptr[3 * i] * a2Ptr[3 * i + 1] - a1Ptr[3 * i + 1] * a2Ptr[3 * i];
     }
-  ret->copyStringInfoFrom(*a1);
-  return ret;
+    ret->copyStringInfoFrom(*a1);
+    return ret;
 }
 
 /*!
@@ -3246,25 +3658,25 @@ DataArrayDouble *DataArrayDouble::CrossProduct(const DataArrayDouble *a1, const 
  *  \throw If \a a1->getNumberOfTuples() != \a a2->getNumberOfTuples()
  *  \throw If \a a1->getNumberOfComponents() != \a a2->getNumberOfComponents()
  */
-DataArrayDouble *DataArrayDouble::Max(const DataArrayDouble *a1, const DataArrayDouble *a2)
+DataArrayDouble *
+DataArrayDouble::Max(const DataArrayDouble *a1, const DataArrayDouble *a2)
 {
-  if(!a1 || !a2)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::Max : input DataArrayDouble instance is NULL !");
-  std::size_t nbOfComp(a1->getNumberOfComponents());
-  if(nbOfComp!=a2->getNumberOfComponents())
-    throw INTERP_KERNEL::Exception("Nb of components mismatch for array Max !");
-  mcIdType nbOfTuple(a1->getNumberOfTuples());
-  if(nbOfTuple!=a2->getNumberOfTuples())
-    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Max !");
-  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
-  ret->alloc(nbOfTuple,nbOfComp);
-  double *retPtr(ret->getPointer());
-  const double *a1Ptr(a1->begin()),*a2Ptr(a2->begin());
-  std::size_t nbElem(nbOfTuple*nbOfComp);
-  for(std::size_t i=0;i<nbElem;i++)
-    retPtr[i]=std::max(a1Ptr[i],a2Ptr[i]);
-  ret->copyStringInfoFrom(*a1);
-  return ret.retn();
+    if (!a1 || !a2)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::Max : input DataArrayDouble instance is NULL !");
+    std::size_t nbOfComp(a1->getNumberOfComponents());
+    if (nbOfComp != a2->getNumberOfComponents())
+        throw INTERP_KERNEL::Exception("Nb of components mismatch for array Max !");
+    mcIdType nbOfTuple(a1->getNumberOfTuples());
+    if (nbOfTuple != a2->getNumberOfTuples())
+        throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array Max !");
+    MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+    ret->alloc(nbOfTuple, nbOfComp);
+    double *retPtr(ret->getPointer());
+    const double *a1Ptr(a1->begin()), *a2Ptr(a2->begin());
+    std::size_t nbElem(nbOfTuple * nbOfComp);
+    for (std::size_t i = 0; i < nbElem; i++) retPtr[i] = std::max(a1Ptr[i], a2Ptr[i]);
+    ret->copyStringInfoFrom(*a1);
+    return ret.retn();
 }
 
 /*!
@@ -3280,25 +3692,25 @@ DataArrayDouble *DataArrayDouble::Max(const DataArrayDouble *a1, const DataArray
  *  \throw If \a a1->getNumberOfTuples() != \a a2->getNumberOfTuples()
  *  \throw If \a a1->getNumberOfComponents() != \a a2->getNumberOfComponents()
  */
-DataArrayDouble *DataArrayDouble::Min(const DataArrayDouble *a1, const DataArrayDouble *a2)
+DataArrayDouble *
+DataArrayDouble::Min(const DataArrayDouble *a1, const DataArrayDouble *a2)
 {
-  if(!a1 || !a2)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::Min : input DataArrayDouble instance is NULL !");
-  std::size_t nbOfComp(a1->getNumberOfComponents());
-  if(nbOfComp!=a2->getNumberOfComponents())
-    throw INTERP_KERNEL::Exception("Nb of components mismatch for array min !");
-  mcIdType nbOfTuple(a1->getNumberOfTuples());
-  if(nbOfTuple!=a2->getNumberOfTuples())
-    throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array min !");
-  MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
-  ret->alloc(nbOfTuple,nbOfComp);
-  double *retPtr(ret->getPointer());
-  const double *a1Ptr(a1->begin()),*a2Ptr(a2->begin());
-  std::size_t nbElem(nbOfTuple*nbOfComp);
-  for(std::size_t i=0;i<nbElem;i++)
-    retPtr[i]=std::min(a1Ptr[i],a2Ptr[i]);
-  ret->copyStringInfoFrom(*a1);
-  return ret.retn();
+    if (!a1 || !a2)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::Min : input DataArrayDouble instance is NULL !");
+    std::size_t nbOfComp(a1->getNumberOfComponents());
+    if (nbOfComp != a2->getNumberOfComponents())
+        throw INTERP_KERNEL::Exception("Nb of components mismatch for array min !");
+    mcIdType nbOfTuple(a1->getNumberOfTuples());
+    if (nbOfTuple != a2->getNumberOfTuples())
+        throw INTERP_KERNEL::Exception("Nb of tuples mismatch for array min !");
+    MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+    ret->alloc(nbOfTuple, nbOfComp);
+    double *retPtr(ret->getPointer());
+    const double *a1Ptr(a1->begin()), *a2Ptr(a2->begin());
+    std::size_t nbElem(nbOfTuple * nbOfComp);
+    for (std::size_t i = 0; i < nbElem; i++) retPtr[i] = std::min(a1Ptr[i], a2Ptr[i]);
+    ret->copyStringInfoFrom(*a1);
+    return ret.retn();
 }
 
 /*!
@@ -3315,34 +3727,39 @@ DataArrayDouble *DataArrayDouble::Min(const DataArrayDouble *a1, const DataArray
  *  \throw If \a a1->getNumberOfComponents() != 1 or \a a2->getNumberOfComponents() != 1.
  *  \throw If there is a negative value in \a a1.
  */
-DataArrayDouble *DataArrayDouble::Pow(const DataArrayDouble *a1, const DataArrayDouble *a2)
+DataArrayDouble *
+DataArrayDouble::Pow(const DataArrayDouble *a1, const DataArrayDouble *a2)
 {
-  if(!a1 || !a2)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::Pow : at least one of input instances is null !");
-  mcIdType nbOfTuple=a1->getNumberOfTuples();
-  mcIdType nbOfTuple2=a2->getNumberOfTuples();
-  std::size_t nbOfComp=a1->getNumberOfComponents();
-  std::size_t nbOfComp2=a2->getNumberOfComponents();
-  if(nbOfTuple!=nbOfTuple2)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::Pow : number of tuples mismatches !");
-  if(nbOfComp!=1 || nbOfComp2!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::Pow : number of components of both arrays must be equal to 1 !");
-  MCAuto<DataArrayDouble> ret=DataArrayDouble::New(); ret->alloc(nbOfTuple,1);
-  const double *ptr1(a1->begin()),*ptr2(a2->begin());
-  double *ptr=ret->getPointer();
-  for(mcIdType i=0;i<nbOfTuple;i++,ptr1++,ptr2++,ptr++)
+    if (!a1 || !a2)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::Pow : at least one of input instances is null !");
+    mcIdType nbOfTuple = a1->getNumberOfTuples();
+    mcIdType nbOfTuple2 = a2->getNumberOfTuples();
+    std::size_t nbOfComp = a1->getNumberOfComponents();
+    std::size_t nbOfComp2 = a2->getNumberOfComponents();
+    if (nbOfTuple != nbOfTuple2)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::Pow : number of tuples mismatches !");
+    if (nbOfComp != 1 || nbOfComp2 != 1)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::Pow : number of components of both arrays must be equal to 1 !"
+        );
+    MCAuto<DataArrayDouble> ret = DataArrayDouble::New();
+    ret->alloc(nbOfTuple, 1);
+    const double *ptr1(a1->begin()), *ptr2(a2->begin());
+    double *ptr = ret->getPointer();
+    for (mcIdType i = 0; i < nbOfTuple; i++, ptr1++, ptr2++, ptr++)
     {
-      if(*ptr1>=0)
+        if (*ptr1 >= 0)
         {
-          *ptr=pow(*ptr1,*ptr2);
+            *ptr = pow(*ptr1, *ptr2);
         }
-      else
+        else
         {
-          std::ostringstream oss; oss << "DataArrayDouble::Pow : on tuple #" << i << " of a1 value is < 0 (" << *ptr1 << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+            std::ostringstream oss;
+            oss << "DataArrayDouble::Pow : on tuple #" << i << " of a1 value is < 0 (" << *ptr1 << ") !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  return ret.retn();
+    return ret.retn();
 }
 
 /*!
@@ -3354,31 +3771,35 @@ DataArrayDouble *DataArrayDouble::Pow(const DataArrayDouble *a1, const DataArray
  *  \throw If \a this->getNumberOfComponents() != 1 or \a other->getNumberOfComponents() != 1
  *  \throw If there is a negative value in \a this.
  */
-void DataArrayDouble::powEqual(const DataArrayDouble *other)
+void
+DataArrayDouble::powEqual(const DataArrayDouble *other)
 {
-  if(!other)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::powEqual : input instance is null !");
-  mcIdType nbOfTuple=getNumberOfTuples();
-  mcIdType nbOfTuple2=other->getNumberOfTuples();
-  std::size_t nbOfComp=getNumberOfComponents();
-  std::size_t nbOfComp2=other->getNumberOfComponents();
-  if(nbOfTuple!=nbOfTuple2)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::powEqual : number of tuples mismatches !");
-  if(nbOfComp!=1 || nbOfComp2!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::powEqual : number of components of both arrays must be equal to 1 !");
-  double *ptr=getPointer();
-  const double *ptrc=other->begin();
-  for(mcIdType i=0;i<nbOfTuple;i++,ptrc++,ptr++)
+    if (!other)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::powEqual : input instance is null !");
+    mcIdType nbOfTuple = getNumberOfTuples();
+    mcIdType nbOfTuple2 = other->getNumberOfTuples();
+    std::size_t nbOfComp = getNumberOfComponents();
+    std::size_t nbOfComp2 = other->getNumberOfComponents();
+    if (nbOfTuple != nbOfTuple2)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::powEqual : number of tuples mismatches !");
+    if (nbOfComp != 1 || nbOfComp2 != 1)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayDouble::powEqual : number of components of both arrays must be equal to 1 !"
+        );
+    double *ptr = getPointer();
+    const double *ptrc = other->begin();
+    for (mcIdType i = 0; i < nbOfTuple; i++, ptrc++, ptr++)
     {
-      if(*ptr>=0)
-        *ptr=pow(*ptr,*ptrc);
-      else
+        if (*ptr >= 0)
+            *ptr = pow(*ptr, *ptrc);
+        else
         {
-          std::ostringstream oss; oss << "DataArrayDouble::powEqual : on tuple #" << i << " of this value is < 0 (" << *ptr << ") !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+            std::ostringstream oss;
+            oss << "DataArrayDouble::powEqual : on tuple #" << i << " of this value is < 0 (" << *ptr << ") !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  declareAsNew();
+    declareAsNew();
 }
 
 /*!
@@ -3389,45 +3810,49 @@ void DataArrayDouble::powEqual(const DataArrayDouble *other)
  * \throw if \a this is not allocated.
  * \throw if \a this has not exactly one component.
  */
-std::vector<bool> DataArrayDouble::toVectorOfBool(double eps) const
+std::vector<bool>
+DataArrayDouble::toVectorOfBool(double eps) const
 {
-  checkAllocated();
-  if(getNumberOfComponents()!=1)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::toVectorOfBool : must be applied on single component array !");
-  mcIdType nbt(getNumberOfTuples());
-  std::vector<bool> ret(nbt);
-  const double *pt(begin());
-  for(mcIdType i=0;i<nbt;i++)
+    checkAllocated();
+    if (getNumberOfComponents() != 1)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::toVectorOfBool : must be applied on single component array !");
+    mcIdType nbt(getNumberOfTuples());
+    std::vector<bool> ret(nbt);
+    const double *pt(begin());
+    for (mcIdType i = 0; i < nbt; i++)
     {
-      if(fabs(pt[i])<eps)
-        ret[i]=false;
-      else if(fabs(pt[i]-1.)<eps)
-        ret[i]=true;
-      else
+        if (fabs(pt[i]) < eps)
+            ret[i] = false;
+        else if (fabs(pt[i] - 1.) < eps)
+            ret[i] = true;
+        else
         {
-          std::ostringstream oss; oss << "DataArrayDouble::toVectorOfBool : the tuple #" << i << " has value " << pt[i] << " is invalid ! must be 0. or 1. !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+            std::ostringstream oss;
+            oss << "DataArrayDouble::toVectorOfBool : the tuple #" << i << " has value " << pt[i]
+                << " is invalid ! must be 0. or 1. !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  return ret;
+    return ret;
 }
 
 /*!
  * Useless method for end user. Only for MPI/Corba/File serialsation for multi arrays class.
  * Server side.
  */
-void DataArrayDouble::getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const
+void
+DataArrayDouble::getTinySerializationIntInformation(std::vector<mcIdType> &tinyInfo) const
 {
-  tinyInfo.resize(2);
-  if(isAllocated())
+    tinyInfo.resize(2);
+    if (isAllocated())
     {
-      tinyInfo[0]=getNumberOfTuples();
-      tinyInfo[1]=ToIdType(getNumberOfComponents());
+        tinyInfo[0] = getNumberOfTuples();
+        tinyInfo[1] = ToIdType(getNumberOfComponents());
     }
-  else
+    else
     {
-      tinyInfo[0]=-1;
-      tinyInfo[1]=-1;
+        tinyInfo[0] = -1;
+        tinyInfo[1] = -1;
     }
 }
 
@@ -3435,20 +3860,20 @@ void DataArrayDouble::getTinySerializationIntInformation(std::vector<mcIdType>& 
  * Useless method for end user. Only for MPI/Corba/File serialsation for multi arrays class.
  * Server side.
  */
-void DataArrayDouble::getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const
+void
+DataArrayDouble::getTinySerializationStrInformation(std::vector<std::string> &tinyInfo) const
 {
-  if(isAllocated())
+    if (isAllocated())
     {
-      std::size_t nbOfCompo(getNumberOfComponents());
-      tinyInfo.resize(nbOfCompo+1);
-      tinyInfo[0]=getName();
-      for(std::size_t i=0;i<nbOfCompo;i++)
-        tinyInfo[i+1]=getInfoOnComponent(i);
+        std::size_t nbOfCompo(getNumberOfComponents());
+        tinyInfo.resize(nbOfCompo + 1);
+        tinyInfo[0] = getName();
+        for (std::size_t i = 0; i < nbOfCompo; i++) tinyInfo[i + 1] = getInfoOnComponent(i);
     }
-  else
+    else
     {
-      tinyInfo.resize(1);
-      tinyInfo[0]=getName();
+        tinyInfo.resize(1);
+        tinyInfo[0] = getName();
     }
 }
 
@@ -3456,29 +3881,32 @@ void DataArrayDouble::getTinySerializationStrInformation(std::vector<std::string
  * Useless method for end user. Only for MPI/Corba/File serialsation for multi arrays class.
  * This method returns if a feeding is needed.
  */
-bool DataArrayDouble::resizeForUnserialization(const std::vector<mcIdType>& tinyInfoI)
+bool
+DataArrayDouble::resizeForUnserialization(const std::vector<mcIdType> &tinyInfoI)
 {
-  mcIdType nbOfTuple=tinyInfoI[0];
-  mcIdType nbOfComp=tinyInfoI[1];
-  if(nbOfTuple!=-1 || nbOfComp!=-1)
+    mcIdType nbOfTuple = tinyInfoI[0];
+    mcIdType nbOfComp = tinyInfoI[1];
+    if (nbOfTuple != -1 || nbOfComp != -1)
     {
-      alloc(nbOfTuple,nbOfComp);
-      return true;
+        alloc(nbOfTuple, nbOfComp);
+        return true;
     }
-  return false;
+    return false;
 }
 
 /*!
  * Useless method for end user. Only for MPI/Corba/File serialsation for multi arrays class.
  */
-void DataArrayDouble::finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<std::string>& tinyInfoS)
+void
+DataArrayDouble::finishUnserialization(
+    const std::vector<mcIdType> &tinyInfoI, const std::vector<std::string> &tinyInfoS
+)
 {
-  setName(tinyInfoS[0]);
-  if(isAllocated())
+    setName(tinyInfoS[0]);
+    if (isAllocated())
     {
-      std::size_t nbOfCompo(getNumberOfComponents());
-      for(std::size_t i=0;i<nbOfCompo;i++)
-        setInfoOnComponent(i,tinyInfoS[i+1]);
+        std::size_t nbOfCompo(getNumberOfComponents());
+        for (std::size_t i = 0; i < nbOfCompo; i++) setInfoOnComponent(i, tinyInfoS[i + 1]);
     }
 }
 
@@ -3486,154 +3914,216 @@ void DataArrayDouble::finishUnserialization(const std::vector<mcIdType>& tinyInf
  * Low static method that operates 3D rotation of 'nbNodes' 3D nodes whose coordinates are arranged in \a coordsIn
  * around an axe ( \a center, \a vect) and with angle \a angle.
  */
-void DataArrayDouble::Rotate3DAlg(const double *center, const double *vect, double angle, mcIdType nbNodes, const double *coordsIn, double *coordsOut)
+void
+DataArrayDouble::Rotate3DAlg(
+    const double *center, const double *vect, double angle, mcIdType nbNodes, const double *coordsIn, double *coordsOut
+)
 {
-  if(!center || !vect)
-    throw INTERP_KERNEL::Exception("DataArrayDouble::Rotate3DAlg : null vector in input !");
-  double sina(sin(angle));
-  double cosa(cos(angle));
-  double vectorNorm[3];
-  double matrix[9];
-  double matrixTmp[9];
-  double norm(sqrt(vect[0]*vect[0]+vect[1]*vect[1]+vect[2]*vect[2]));
-  if(norm<std::numeric_limits<double>::min())
-    throw INTERP_KERNEL::Exception("DataArrayDouble::Rotate3DAlg : magnitude of input vector is too close of 0. !");
-  std::transform(vect,vect+3,vectorNorm,std::bind(std::multiplies<double>(),std::placeholders::_1,1/norm));
-  //rotation matrix computation
-  matrix[0]=cosa; matrix[1]=0.; matrix[2]=0.; matrix[3]=0.; matrix[4]=cosa; matrix[5]=0.; matrix[6]=0.; matrix[7]=0.; matrix[8]=cosa;
-  matrixTmp[0]=vectorNorm[0]*vectorNorm[0]; matrixTmp[1]=vectorNorm[0]*vectorNorm[1]; matrixTmp[2]=vectorNorm[0]*vectorNorm[2];
-  matrixTmp[3]=vectorNorm[1]*vectorNorm[0]; matrixTmp[4]=vectorNorm[1]*vectorNorm[1]; matrixTmp[5]=vectorNorm[1]*vectorNorm[2];
-  matrixTmp[6]=vectorNorm[2]*vectorNorm[0]; matrixTmp[7]=vectorNorm[2]*vectorNorm[1]; matrixTmp[8]=vectorNorm[2]*vectorNorm[2];
-  std::transform(matrixTmp,matrixTmp+9,matrixTmp,std::bind(std::multiplies<double>(),std::placeholders::_1,1-cosa));
-  std::transform(matrix,matrix+9,matrixTmp,matrix,std::plus<double>());
-  matrixTmp[0]=0.; matrixTmp[1]=-vectorNorm[2]; matrixTmp[2]=vectorNorm[1];
-  matrixTmp[3]=vectorNorm[2]; matrixTmp[4]=0.; matrixTmp[5]=-vectorNorm[0];
-  matrixTmp[6]=-vectorNorm[1]; matrixTmp[7]=vectorNorm[0]; matrixTmp[8]=0.;
-  std::transform(matrixTmp,matrixTmp+9,matrixTmp,std::bind(std::multiplies<double>(),std::placeholders::_1,sina));
-  std::transform(matrix,matrix+9,matrixTmp,matrix,std::plus<double>());
-  //rotation matrix computed.
-  double tmp[3];
-  for(mcIdType i=0; i<nbNodes; i++)
+    if (!center || !vect)
+        throw INTERP_KERNEL::Exception("DataArrayDouble::Rotate3DAlg : null vector in input !");
+    double sina(sin(angle));
+    double cosa(cos(angle));
+    double vectorNorm[3];
+    double matrix[9];
+    double matrixTmp[9];
+    double norm(sqrt(vect[0] * vect[0] + vect[1] * vect[1] + vect[2] * vect[2]));
+    if (norm < std::numeric_limits<double>::min())
+        throw INTERP_KERNEL::Exception("DataArrayDouble::Rotate3DAlg : magnitude of input vector is too close of 0. !");
+    std::transform(vect, vect + 3, vectorNorm, std::bind(std::multiplies<double>(), std::placeholders::_1, 1 / norm));
+    // rotation matrix computation
+    matrix[0] = cosa;
+    matrix[1] = 0.;
+    matrix[2] = 0.;
+    matrix[3] = 0.;
+    matrix[4] = cosa;
+    matrix[5] = 0.;
+    matrix[6] = 0.;
+    matrix[7] = 0.;
+    matrix[8] = cosa;
+    matrixTmp[0] = vectorNorm[0] * vectorNorm[0];
+    matrixTmp[1] = vectorNorm[0] * vectorNorm[1];
+    matrixTmp[2] = vectorNorm[0] * vectorNorm[2];
+    matrixTmp[3] = vectorNorm[1] * vectorNorm[0];
+    matrixTmp[4] = vectorNorm[1] * vectorNorm[1];
+    matrixTmp[5] = vectorNorm[1] * vectorNorm[2];
+    matrixTmp[6] = vectorNorm[2] * vectorNorm[0];
+    matrixTmp[7] = vectorNorm[2] * vectorNorm[1];
+    matrixTmp[8] = vectorNorm[2] * vectorNorm[2];
+    std::transform(
+        matrixTmp, matrixTmp + 9, matrixTmp, std::bind(std::multiplies<double>(), std::placeholders::_1, 1 - cosa)
+    );
+    std::transform(matrix, matrix + 9, matrixTmp, matrix, std::plus<double>());
+    matrixTmp[0] = 0.;
+    matrixTmp[1] = -vectorNorm[2];
+    matrixTmp[2] = vectorNorm[1];
+    matrixTmp[3] = vectorNorm[2];
+    matrixTmp[4] = 0.;
+    matrixTmp[5] = -vectorNorm[0];
+    matrixTmp[6] = -vectorNorm[1];
+    matrixTmp[7] = vectorNorm[0];
+    matrixTmp[8] = 0.;
+    std::transform(
+        matrixTmp, matrixTmp + 9, matrixTmp, std::bind(std::multiplies<double>(), std::placeholders::_1, sina)
+    );
+    std::transform(matrix, matrix + 9, matrixTmp, matrix, std::plus<double>());
+    // rotation matrix computed.
+    double tmp[3];
+    for (mcIdType i = 0; i < nbNodes; i++)
     {
-      std::transform(coordsIn+i*3,coordsIn+(i+1)*3,center,tmp,std::minus<double>());
-      coordsOut[i*3]=matrix[0]*tmp[0]+matrix[1]*tmp[1]+matrix[2]*tmp[2]+center[0];
-      coordsOut[i*3+1]=matrix[3]*tmp[0]+matrix[4]*tmp[1]+matrix[5]*tmp[2]+center[1];
-      coordsOut[i*3+2]=matrix[6]*tmp[0]+matrix[7]*tmp[1]+matrix[8]*tmp[2]+center[2];
+        std::transform(coordsIn + i * 3, coordsIn + (i + 1) * 3, center, tmp, std::minus<double>());
+        coordsOut[i * 3] = matrix[0] * tmp[0] + matrix[1] * tmp[1] + matrix[2] * tmp[2] + center[0];
+        coordsOut[i * 3 + 1] = matrix[3] * tmp[0] + matrix[4] * tmp[1] + matrix[5] * tmp[2] + center[1];
+        coordsOut[i * 3 + 2] = matrix[6] * tmp[0] + matrix[7] * tmp[1] + matrix[8] * tmp[2] + center[2];
     }
 }
 
-void DataArrayDouble::Symmetry3DPlane(const double point[3], const double normalVector[3], mcIdType nbNodes, const double *coordsIn, double *coordsOut)
+void
+DataArrayDouble::Symmetry3DPlane(
+    const double point[3], const double normalVector[3], mcIdType nbNodes, const double *coordsIn, double *coordsOut
+)
 {
-  double matrix[9],matrix2[9],matrix3[9];
-  double vect[3],crossVect[3];
-  INTERP_KERNEL::orthogonalVect3(normalVector,vect);
-  crossVect[0]=normalVector[1]*vect[2]-normalVector[2]*vect[1];
-  crossVect[1]=normalVector[2]*vect[0]-normalVector[0]*vect[2];
-  crossVect[2]=normalVector[0]*vect[1]-normalVector[1]*vect[0];
-  double nv(INTERP_KERNEL::norm<3>(vect)),ni(INTERP_KERNEL::norm<3>(normalVector)),nc(INTERP_KERNEL::norm<3>(crossVect));
-  matrix[0]=vect[0]/nv; matrix[1]=crossVect[0]/nc; matrix[2]=-normalVector[0]/ni;
-  matrix[3]=vect[1]/nv; matrix[4]=crossVect[1]/nc; matrix[5]=-normalVector[1]/ni;
-  matrix[6]=vect[2]/nv; matrix[7]=crossVect[2]/nc; matrix[8]=-normalVector[2]/ni;
-  matrix2[0]=vect[0]/nv; matrix2[1]=vect[1]/nv; matrix2[2]=vect[2]/nv;
-  matrix2[3]=crossVect[0]/nc; matrix2[4]=crossVect[1]/nc; matrix2[5]=crossVect[2]/nc;
-  matrix2[6]=normalVector[0]/ni; matrix2[7]=normalVector[1]/ni; matrix2[8]=normalVector[2]/ni;
-  for(mcIdType i=0;i<3;i++)
-    for(mcIdType j=0;j<3;j++)
-      {
-        double val(0.);
-        for(mcIdType k=0;k<3;k++)
-          val+=matrix[3*i+k]*matrix2[3*k+j];
-        matrix3[3*i+j]=val;
-      }
-  //rotation matrix computed.
-  double tmp[3];
-  for(mcIdType i=0; i<nbNodes; i++)
+    double matrix[9], matrix2[9], matrix3[9];
+    double vect[3], crossVect[3];
+    INTERP_KERNEL::orthogonalVect3(normalVector, vect);
+    crossVect[0] = normalVector[1] * vect[2] - normalVector[2] * vect[1];
+    crossVect[1] = normalVector[2] * vect[0] - normalVector[0] * vect[2];
+    crossVect[2] = normalVector[0] * vect[1] - normalVector[1] * vect[0];
+    double nv(INTERP_KERNEL::norm<3>(vect)), ni(INTERP_KERNEL::norm<3>(normalVector)),
+        nc(INTERP_KERNEL::norm<3>(crossVect));
+    matrix[0] = vect[0] / nv;
+    matrix[1] = crossVect[0] / nc;
+    matrix[2] = -normalVector[0] / ni;
+    matrix[3] = vect[1] / nv;
+    matrix[4] = crossVect[1] / nc;
+    matrix[5] = -normalVector[1] / ni;
+    matrix[6] = vect[2] / nv;
+    matrix[7] = crossVect[2] / nc;
+    matrix[8] = -normalVector[2] / ni;
+    matrix2[0] = vect[0] / nv;
+    matrix2[1] = vect[1] / nv;
+    matrix2[2] = vect[2] / nv;
+    matrix2[3] = crossVect[0] / nc;
+    matrix2[4] = crossVect[1] / nc;
+    matrix2[5] = crossVect[2] / nc;
+    matrix2[6] = normalVector[0] / ni;
+    matrix2[7] = normalVector[1] / ni;
+    matrix2[8] = normalVector[2] / ni;
+    for (mcIdType i = 0; i < 3; i++)
+        for (mcIdType j = 0; j < 3; j++)
+        {
+            double val(0.);
+            for (mcIdType k = 0; k < 3; k++) val += matrix[3 * i + k] * matrix2[3 * k + j];
+            matrix3[3 * i + j] = val;
+        }
+    // rotation matrix computed.
+    double tmp[3];
+    for (mcIdType i = 0; i < nbNodes; i++)
     {
-      std::transform(coordsIn+i*3,coordsIn+(i+1)*3,point,tmp,std::minus<double>());
-      coordsOut[i*3]=matrix3[0]*tmp[0]+matrix3[1]*tmp[1]+matrix3[2]*tmp[2]+point[0];
-      coordsOut[i*3+1]=matrix3[3]*tmp[0]+matrix3[4]*tmp[1]+matrix3[5]*tmp[2]+point[1];
-      coordsOut[i*3+2]=matrix3[6]*tmp[0]+matrix3[7]*tmp[1]+matrix3[8]*tmp[2]+point[2];
+        std::transform(coordsIn + i * 3, coordsIn + (i + 1) * 3, point, tmp, std::minus<double>());
+        coordsOut[i * 3] = matrix3[0] * tmp[0] + matrix3[1] * tmp[1] + matrix3[2] * tmp[2] + point[0];
+        coordsOut[i * 3 + 1] = matrix3[3] * tmp[0] + matrix3[4] * tmp[1] + matrix3[5] * tmp[2] + point[1];
+        coordsOut[i * 3 + 2] = matrix3[6] * tmp[0] + matrix3[7] * tmp[1] + matrix3[8] * tmp[2] + point[2];
     }
 }
 
-void DataArrayDouble::GiveBaseForPlane(const double normalVector[3], double baseOfPlane[9])
+void
+DataArrayDouble::GiveBaseForPlane(const double normalVector[3], double baseOfPlane[9])
 {
-  double vect[3],crossVect[3];
-  INTERP_KERNEL::orthogonalVect3(normalVector,vect);
-  crossVect[0]=normalVector[1]*vect[2]-normalVector[2]*vect[1];
-  crossVect[1]=normalVector[2]*vect[0]-normalVector[0]*vect[2];
-  crossVect[2]=normalVector[0]*vect[1]-normalVector[1]*vect[0];
-  double nv(INTERP_KERNEL::norm<3>(vect)),ni(INTERP_KERNEL::norm<3>(normalVector)),nc(INTERP_KERNEL::norm<3>(crossVect));
-  baseOfPlane[0]=vect[0]/nv; baseOfPlane[1]=vect[1]/nv; baseOfPlane[2]=vect[2]/nv;
-  baseOfPlane[3]=crossVect[0]/nc; baseOfPlane[4]=crossVect[1]/nc; baseOfPlane[5]=crossVect[2]/nc;
-  baseOfPlane[6]=normalVector[0]/ni; baseOfPlane[7]=normalVector[1]/ni; baseOfPlane[8]=normalVector[2]/ni;
+    double vect[3], crossVect[3];
+    INTERP_KERNEL::orthogonalVect3(normalVector, vect);
+    crossVect[0] = normalVector[1] * vect[2] - normalVector[2] * vect[1];
+    crossVect[1] = normalVector[2] * vect[0] - normalVector[0] * vect[2];
+    crossVect[2] = normalVector[0] * vect[1] - normalVector[1] * vect[0];
+    double nv(INTERP_KERNEL::norm<3>(vect)), ni(INTERP_KERNEL::norm<3>(normalVector)),
+        nc(INTERP_KERNEL::norm<3>(crossVect));
+    baseOfPlane[0] = vect[0] / nv;
+    baseOfPlane[1] = vect[1] / nv;
+    baseOfPlane[2] = vect[2] / nv;
+    baseOfPlane[3] = crossVect[0] / nc;
+    baseOfPlane[4] = crossVect[1] / nc;
+    baseOfPlane[5] = crossVect[2] / nc;
+    baseOfPlane[6] = normalVector[0] / ni;
+    baseOfPlane[7] = normalVector[1] / ni;
+    baseOfPlane[8] = normalVector[2] / ni;
 }
 
 /*!
  * \param [in] seg2 : coordinates of input seg2 expected to have spacedim==2
  * \param [in] tri3 : coordinates of input tri3 also expected to have spacedim==2
- * \param [out] coeffs : the result of integration normalized to 1. along \a seg2 inside tri3 sorted by the node id of \a tri3
+ * \param [out] coeffs : the result of integration normalized to 1. along \a seg2 inside tri3 sorted by the node id of
+ * \a tri3
  * \param [out] length : the length of seg2. That is too say the length of integration
  */
-void DataArrayDouble::ComputeIntegralOfSeg2IntoTri3(const double seg2[4], const double tri3[6], double coeffs[3], double& length)
+void
+DataArrayDouble::ComputeIntegralOfSeg2IntoTri3(
+    const double seg2[4], const double tri3[6], double coeffs[3], double &length
+)
 {
-  length=INTERP_KERNEL::norme_vecteur(seg2,seg2+2);
-  double mid[2];
-  INTERP_KERNEL::mid_of_seg2(seg2,seg2+2,mid);
-  INTERP_KERNEL::barycentric_coords<2>(tri3,mid,coeffs); // integral along seg2 is equal to value at the center of SEG2 !
+    length = INTERP_KERNEL::norme_vecteur(seg2, seg2 + 2);
+    double mid[2];
+    INTERP_KERNEL::mid_of_seg2(seg2, seg2 + 2, mid);
+    INTERP_KERNEL::barycentric_coords<2>(
+        tri3, mid, coeffs
+    );  // integral along seg2 is equal to value at the center of SEG2 !
 }
 
 /*!
  * Low static method that operates 3D rotation of \a nbNodes 3D nodes whose coordinates are arranged in \a coords
  * around the center point \a center and with angle \a angle.
  */
-void DataArrayDouble::Rotate2DAlg(const double *center, double angle, mcIdType nbNodes, const double *coordsIn, double *coordsOut)
+void
+DataArrayDouble::Rotate2DAlg(
+    const double *center, double angle, mcIdType nbNodes, const double *coordsIn, double *coordsOut
+)
 {
-  double cosa=cos(angle);
-  double sina=sin(angle);
-  double matrix[4];
-  matrix[0]=cosa; matrix[1]=-sina; matrix[2]=sina; matrix[3]=cosa;
-  double tmp[2];
-  for(mcIdType i=0; i<nbNodes; i++)
+    double cosa = cos(angle);
+    double sina = sin(angle);
+    double matrix[4];
+    matrix[0] = cosa;
+    matrix[1] = -sina;
+    matrix[2] = sina;
+    matrix[3] = cosa;
+    double tmp[2];
+    for (mcIdType i = 0; i < nbNodes; i++)
     {
-      std::transform(coordsIn+i*2,coordsIn+(i+1)*2,center,tmp,std::minus<double>());
-      coordsOut[i*2]=matrix[0]*tmp[0]+matrix[1]*tmp[1]+center[0];
-      coordsOut[i*2+1]=matrix[2]*tmp[0]+matrix[3]*tmp[1]+center[1];
+        std::transform(coordsIn + i * 2, coordsIn + (i + 1) * 2, center, tmp, std::minus<double>());
+        coordsOut[i * 2] = matrix[0] * tmp[0] + matrix[1] * tmp[1] + center[0];
+        coordsOut[i * 2 + 1] = matrix[2] * tmp[0] + matrix[3] * tmp[1] + center[1];
     }
 }
 
-DataArrayDoubleIterator::DataArrayDoubleIterator(DataArrayDouble *da):DataArrayIterator<double>(da)
+DataArrayDoubleIterator::DataArrayDoubleIterator(DataArrayDouble *da) : DataArrayIterator<double>(da) {}
+
+DataArrayDoubleTuple::DataArrayDoubleTuple(double *pt, std::size_t nbOfComp) : DataArrayTuple<double>(pt, nbOfComp) {}
+
+std::string
+DataArrayDoubleTuple::repr() const
 {
+    std::ostringstream oss;
+    oss.precision(17);
+    oss << "(";
+    for (std::size_t i = 0; i < _nb_of_compo - 1; i++) oss << _pt[i] << ", ";
+    oss << _pt[_nb_of_compo - 1] << ")";
+    return oss.str();
 }
 
-DataArrayDoubleTuple::DataArrayDoubleTuple(double *pt, std::size_t nbOfComp):DataArrayTuple<double>(pt,nbOfComp)
+double
+DataArrayDoubleTuple::doubleValue() const
 {
-}
-
-
-std::string DataArrayDoubleTuple::repr() const
-{
-  std::ostringstream oss; oss.precision(17); oss << "(";
-  for(std::size_t i=0;i<_nb_of_compo-1;i++)
-    oss << _pt[i] << ", ";
-  oss << _pt[_nb_of_compo-1] << ")";
-  return oss.str();
-}
-
-double DataArrayDoubleTuple::doubleValue() const
-{
-  return this->zeValue();
+    return this->zeValue();
 }
 
 /*!
- * This method returns a newly allocated instance the caller should dealed with by a MEDCoupling::DataArrayDouble::decrRef.
- * This method performs \b no copy of data. The content is only referenced using MEDCoupling::DataArrayDouble::useArray with ownership set to \b false.
- * This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
+ * This method returns a newly allocated instance the caller should dealed with by a
+ * MEDCoupling::DataArrayDouble::decrRef. This method performs \b no copy of data. The content is only referenced using
+ * MEDCoupling::DataArrayDouble::useArray with ownership set to \b false. This method throws an INTERP_KERNEL::Exception
+ * is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
  * \b nbOfCompo=1 and \bnbOfTuples==this->_nb_of_elem.
  */
-DataArrayDouble *DataArrayDoubleTuple::buildDADouble(std::size_t nbOfTuples, std::size_t nbOfCompo) const
+DataArrayDouble *
+DataArrayDoubleTuple::buildDADouble(std::size_t nbOfTuples, std::size_t nbOfCompo) const
 {
-  return this->buildDA(nbOfTuples,nbOfCompo);
+    return this->buildDA(nbOfTuples, nbOfCompo);
 }
 
 /*!
@@ -3641,107 +4131,117 @@ DataArrayDouble *DataArrayDoubleTuple::buildDADouble(std::size_t nbOfTuples, std
  * \ref MEDCouplingArrayBasicsCopyDeep.
  *  \return DataArrayInt * - a new instance of DataArrayInt.
  */
-DataArrayInt32 *DataArrayInt32::deepCopy() const
+DataArrayInt32 *
+DataArrayInt32::deepCopy() const
 {
-  return new DataArrayInt32(*this);
+    return new DataArrayInt32(*this);
 }
 
-MCAuto<DataArrayInt64> DataArrayInt32::convertToInt64Arr() const
+MCAuto<DataArrayInt64>
+DataArrayInt32::convertToInt64Arr() const
 {
-  this->checkAllocated();
-  MCAuto<DataArrayInt64> ret(DataArrayInt64::New());
-  ret->alloc(this->getNumberOfTuples(),this->getNumberOfComponents());
-  ret->copyStringInfoFrom(*this);
-  const std::int32_t *pt(this->begin());
-  std::for_each(ret->getPointer(),ret->getPointer()+ret->getNbOfElems(),[&pt](std::int64_t& val) { val = std::int64_t(*pt++); });
-  return ret;
+    this->checkAllocated();
+    MCAuto<DataArrayInt64> ret(DataArrayInt64::New());
+    ret->alloc(this->getNumberOfTuples(), this->getNumberOfComponents());
+    ret->copyStringInfoFrom(*this);
+    const std::int32_t *pt(this->begin());
+    std::for_each(
+        ret->getPointer(),
+        ret->getPointer() + ret->getNbOfElems(),
+        [&pt](std::int64_t &val) { val = std::int64_t(*pt++); }
+    );
+    return ret;
 }
 
-DataArrayInt32Iterator *DataArrayInt32::iterator()
+DataArrayInt32Iterator *
+DataArrayInt32::iterator()
 {
-  return new DataArrayInt32Iterator(this);
+    return new DataArrayInt32Iterator(this);
 }
 
+DataArrayInt32Iterator::DataArrayInt32Iterator(DataArrayInt32 *da) : DataArrayIterator<Int32>(da) {}
 
-DataArrayInt32Iterator::DataArrayInt32Iterator(DataArrayInt32 *da):DataArrayIterator<Int32>(da)
+DataArrayInt32Tuple::DataArrayInt32Tuple(Int32 *pt, std::size_t nbOfComp) : DataArrayTuple<Int32>(pt, nbOfComp) {}
+
+std::string
+DataArrayInt32Tuple::repr() const
 {
+    std::ostringstream oss;
+    oss << "(";
+    for (std::size_t i = 0; i < _nb_of_compo - 1; i++) oss << _pt[i] << ", ";
+    oss << _pt[_nb_of_compo - 1] << ")";
+    return oss.str();
 }
 
-DataArrayInt32Tuple::DataArrayInt32Tuple(Int32 *pt, std::size_t nbOfComp):DataArrayTuple<Int32>(pt,nbOfComp)
+Int32
+DataArrayInt32Tuple::intValue() const
 {
-}
-
-std::string DataArrayInt32Tuple::repr() const
-{
-  std::ostringstream oss; oss << "(";
-  for(std::size_t i=0;i<_nb_of_compo-1;i++)
-    oss << _pt[i] << ", ";
-  oss << _pt[_nb_of_compo-1] << ")";
-  return oss.str();
-}
-
-Int32 DataArrayInt32Tuple::intValue() const
-{
-  return this->zeValue();
+    return this->zeValue();
 }
 
 /*!
  * This method returns a newly allocated instance the caller should dealed with by a MEDCoupling::DataArrayInt::decrRef.
- * This method performs \b no copy of data. The content is only referenced using MEDCoupling::DataArrayInt::useArray with ownership set to \b false.
- * This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
+ * This method performs \b no copy of data. The content is only referenced using MEDCoupling::DataArrayInt::useArray
+ * with ownership set to \b false. This method throws an INTERP_KERNEL::Exception is it is impossible to match sizes of
+ * \b this that is too say \b nbOfCompo=this->_nb_of_elem and \bnbOfTuples==1 or
  * \b nbOfCompo=1 and \bnbOfTuples==this->_nb_of_elem.
  */
-DataArrayInt32 *DataArrayInt32Tuple::buildDAInt(std::size_t nbOfTuples, std::size_t nbOfCompo) const
+DataArrayInt32 *
+DataArrayInt32Tuple::buildDAInt(std::size_t nbOfTuples, std::size_t nbOfCompo) const
 {
-  return this->buildDA(nbOfTuples,nbOfCompo);
+    return this->buildDA(nbOfTuples, nbOfCompo);
 }
 
-MCAuto<DataArrayInt32> DataArrayInt64::convertToInt32Arr() const
+MCAuto<DataArrayInt32>
+DataArrayInt64::convertToInt32Arr() const
 {
-  this->checkAllocated();
-  MCAuto<DataArrayInt32> ret(DataArrayInt32::New());
-  ret->alloc(this->getNumberOfTuples(),this->getNumberOfComponents());
-  ret->copyStringInfoFrom(*this);
-  const std::int64_t *pt(this->begin());
-  std::for_each(ret->getPointer(),ret->getPointer()+ret->getNbOfElems(),[&pt](std::int32_t& val) { val = std::int32_t(*pt++); });
-  return ret;
+    this->checkAllocated();
+    MCAuto<DataArrayInt32> ret(DataArrayInt32::New());
+    ret->alloc(this->getNumberOfTuples(), this->getNumberOfComponents());
+    ret->copyStringInfoFrom(*this);
+    const std::int64_t *pt(this->begin());
+    std::for_each(
+        ret->getPointer(),
+        ret->getPointer() + ret->getNbOfElems(),
+        [&pt](std::int32_t &val) { val = std::int32_t(*pt++); }
+    );
+    return ret;
 }
 
-DataArrayInt64Iterator *DataArrayInt64::iterator()
+DataArrayInt64Iterator *
+DataArrayInt64::iterator()
 {
-  return new DataArrayInt64Iterator(this);
+    return new DataArrayInt64Iterator(this);
 }
 
+DataArrayInt64Iterator::DataArrayInt64Iterator(DataArrayInt64 *da) : DataArrayIterator<Int64>(da) {}
 
-DataArrayInt64Iterator::DataArrayInt64Iterator(DataArrayInt64 *da):DataArrayIterator<Int64>(da)
+DataArrayInt64Tuple::DataArrayInt64Tuple(Int64 *pt, std::size_t nbOfComp) : DataArrayTuple<Int64>(pt, nbOfComp) {}
+
+std::string
+DataArrayInt64Tuple::repr() const
 {
+    std::ostringstream oss;
+    oss << "(";
+    for (std::size_t i = 0; i < _nb_of_compo - 1; i++) oss << _pt[i] << ", ";
+    oss << _pt[_nb_of_compo - 1] << ")";
+    return oss.str();
 }
 
-DataArrayInt64Tuple::DataArrayInt64Tuple(Int64 *pt, std::size_t nbOfComp):DataArrayTuple<Int64>(pt,nbOfComp)
+Int64
+DataArrayInt64Tuple::intValue() const
 {
+    return this->zeValue();
 }
 
-std::string DataArrayInt64Tuple::repr() const
+DataArrayInt64 *
+DataArrayInt64Tuple::buildDAInt(std::size_t nbOfTuples, std::size_t nbOfCompo) const
 {
-  std::ostringstream oss; oss << "(";
-  for(std::size_t i=0;i<_nb_of_compo-1;i++)
-    oss << _pt[i] << ", ";
-  oss << _pt[_nb_of_compo-1] << ")";
-  return oss.str();
+    return this->buildDA(nbOfTuples, nbOfCompo);
 }
 
-Int64 DataArrayInt64Tuple::intValue() const
+DataArrayInt64 *
+DataArrayInt64::deepCopy() const
 {
-  return this->zeValue();
-}
-
-DataArrayInt64 *DataArrayInt64Tuple::buildDAInt(std::size_t nbOfTuples, std::size_t nbOfCompo) const
-{
-  return this->buildDA(nbOfTuples,nbOfCompo);
-}
-
-
-DataArrayInt64 *DataArrayInt64::deepCopy() const
-{
-  return new DataArrayInt64(*this);
+    return new DataArrayInt64(*this);
 }

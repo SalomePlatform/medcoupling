@@ -35,7 +35,6 @@
 // use this define to enable CPPUNIT asserts and fails, showing bugs
 #define ENABLE_FORCED_FAILURES
 
-
 using namespace std;
 using namespace MEDCoupling;
 
@@ -59,65 +58,66 @@ using namespace MEDCoupling;
 
  */
 
-void ParaMEDMEMTest::testBlockTopology_constructor()
+void
+ParaMEDMEMTest::testBlockTopology_constructor()
 {
-  //test constructor
-  int size;
-  MPI_Comm_size(MPI_COMM_WORLD,&size);
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-  CommInterface interface;
-  MPIProcessorGroup group(interface);
-  BlockTopology blocktopo(group,1);
-  CPPUNIT_ASSERT_EQUAL(ToIdType(1),blocktopo.getNbLocalElements());
-  CPPUNIT_ASSERT_EQUAL(ToIdType(size),blocktopo.getNbElements());
-  CPPUNIT_ASSERT_EQUAL(1,blocktopo.getDimension());
+    // test constructor
+    int size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    CommInterface interface;
+    MPIProcessorGroup group(interface);
+    BlockTopology blocktopo(group, 1);
+    CPPUNIT_ASSERT_EQUAL(ToIdType(1), blocktopo.getNbLocalElements());
+    CPPUNIT_ASSERT_EQUAL(ToIdType(size), blocktopo.getNbElements());
+    CPPUNIT_ASSERT_EQUAL(1, blocktopo.getDimension());
 
-  //checking access methods
-  BlockTopology blocktopo2(group,2);
-  std::pair<int,int> local= blocktopo2.globalToLocal(0);
-  CPPUNIT_ASSERT_EQUAL(local.first,0);
-  CPPUNIT_ASSERT_EQUAL(local.second,0);
-  int global=blocktopo2.localToGlobal(local);
-  CPPUNIT_ASSERT_EQUAL(global,0);
+    // checking access methods
+    BlockTopology blocktopo2(group, 2);
+    std::pair<int, int> local = blocktopo2.globalToLocal(0);
+    CPPUNIT_ASSERT_EQUAL(local.first, 0);
+    CPPUNIT_ASSERT_EQUAL(local.second, 0);
+    int global = blocktopo2.localToGlobal(local);
+    CPPUNIT_ASSERT_EQUAL(global, 0);
 
-  local = blocktopo2.globalToLocal(1);
-  CPPUNIT_ASSERT_EQUAL(local.first,0);
-  CPPUNIT_ASSERT_EQUAL(local.second,1);
-  global=blocktopo2.localToGlobal(local);
-  CPPUNIT_ASSERT_EQUAL(global,1);
+    local = blocktopo2.globalToLocal(1);
+    CPPUNIT_ASSERT_EQUAL(local.first, 0);
+    CPPUNIT_ASSERT_EQUAL(local.second, 1);
+    global = blocktopo2.localToGlobal(local);
+    CPPUNIT_ASSERT_EQUAL(global, 1);
 
-  local = blocktopo2.globalToLocal(2*size-1);
-  CPPUNIT_ASSERT_EQUAL(local.first,size-1);
-  CPPUNIT_ASSERT_EQUAL(local.second,1);
-  global=blocktopo2.localToGlobal(local);
-  CPPUNIT_ASSERT_EQUAL(global,2*size-1);
+    local = blocktopo2.globalToLocal(2 * size - 1);
+    CPPUNIT_ASSERT_EQUAL(local.first, size - 1);
+    CPPUNIT_ASSERT_EQUAL(local.second, 1);
+    global = blocktopo2.localToGlobal(local);
+    CPPUNIT_ASSERT_EQUAL(global, 2 * size - 1);
 
-  std::vector<std::pair<int,mcIdType> > bounds = blocktopo2.getLocalArrayMinMax();
-  int vecsize = (int)bounds.size();
-  CPPUNIT_ASSERT_EQUAL(1,vecsize);
-  CPPUNIT_ASSERT_EQUAL(2*rank, (bounds[0]).first);
-  CPPUNIT_ASSERT_EQUAL(ToIdType(2*rank+2), (bounds[0]).second);
- }
+    std::vector<std::pair<int, mcIdType> > bounds = blocktopo2.getLocalArrayMinMax();
+    int vecsize = (int)bounds.size();
+    CPPUNIT_ASSERT_EQUAL(1, vecsize);
+    CPPUNIT_ASSERT_EQUAL(2 * rank, (bounds[0]).first);
+    CPPUNIT_ASSERT_EQUAL(ToIdType(2 * rank + 2), (bounds[0]).second);
+}
 
-void ParaMEDMEMTest::testBlockTopology_serialize()
+void
+ParaMEDMEMTest::testBlockTopology_serialize()
 {
+    int size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    CommInterface interface;
+    MPIProcessorGroup group(interface);
+    BlockTopology blocktopo(group, 3);
 
-  int size;
-  MPI_Comm_size(MPI_COMM_WORLD,&size);
-  int rank;
-  MPI_Comm_rank(MPI_COMM_WORLD,&rank);
-  CommInterface interface;
-  MPIProcessorGroup group(interface);
-  BlockTopology blocktopo(group,3);
-
-//testing the serialization process that is used to transfer a
-//block topology via a MPI_Send/Recv comm
-  BlockTopology blocktopo_recv;
-  mcIdType* serializer;
-  mcIdType sersize;
-  blocktopo.serialize(serializer,sersize);
-  blocktopo_recv.unserialize(serializer,interface);
-  CPPUNIT_ASSERT_EQUAL(blocktopo.getNbElements(),blocktopo_recv.getNbElements());
-  delete [] serializer;
+    // testing the serialization process that is used to transfer a
+    // block topology via a MPI_Send/Recv comm
+    BlockTopology blocktopo_recv;
+    mcIdType *serializer;
+    mcIdType sersize;
+    blocktopo.serialize(serializer, sersize);
+    blocktopo_recv.unserialize(serializer, interface);
+    CPPUNIT_ASSERT_EQUAL(blocktopo.getNbElements(), blocktopo_recv.getNbElements());
+    delete[] serializer;
 }

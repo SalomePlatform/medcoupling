@@ -60,4 +60,3 @@ Playing with regular hexagons using DataArrayDouble
 	m.checkConsistencyLight()
 	# Write the result into a VTU file that can be read with ParaView
 	m.writeVTK("My7hexagons.vtu")
-

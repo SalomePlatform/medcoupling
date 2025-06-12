@@ -28,23 +28,23 @@
 
 namespace MEDCoupling
 {
-    class ShapeRecognMeshBuilder;
-    class Areas;
+class ShapeRecognMeshBuilder;
+class Areas;
 
-    class SphereTest : public CppUnit::TestFixture
-    {
-        CPPUNIT_TEST_SUITE(SphereTest);
-        CPPUNIT_TEST(testArea);
-        CPPUNIT_TEST_SUITE_END();
+class SphereTest : public CppUnit::TestFixture
+{
+    CPPUNIT_TEST_SUITE(SphereTest);
+    CPPUNIT_TEST(testArea);
+    CPPUNIT_TEST_SUITE_END();
 
-    public:
-        void setUp() override;
-        void tearDown() override;
+   public:
+    void setUp() override;
+    void tearDown() override;
 
-        void testArea();
+    void testArea();
 
-    private:
-        std::unique_ptr<ShapeRecognMeshBuilder> srMesh;
-        const Areas *areas;
-    };
-}
+   private:
+    std::unique_ptr<ShapeRecognMeshBuilder> srMesh;
+    const Areas *areas;
+};
+}  // namespace MEDCoupling

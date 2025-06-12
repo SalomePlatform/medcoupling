@@ -77,4 +77,3 @@ msgid ""
 "First, this documentation introduces :doc:`fundamental concepts/objects "
 "<basic_concepts>`  of medcoupling for a better understanding of examples."
 msgstr ""
-

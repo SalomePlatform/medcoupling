@@ -27,54 +27,72 @@
 
 namespace INTERP_KERNEL
 {
-  /*!
-   * Relative LOC
-   */
-  typedef enum
-  {
-    IN              = 0,
-    OUT             = 1,
+/*!
+ * Relative LOC
+ */
+typedef enum
+{
+    IN = 0,
+    OUT = 1,
     ON_BOUNDARY_POS = 2,
     ON_BOUNDARY_NEG = 3
-  } Position;
+} Position;
 
-  class INTERPKERNEL_EXPORT Bounds
-  {
-  public:
-    Bounds():_x_min(0.),_x_max(0.),_y_min(0.),_y_max(0.) { }
+class INTERPKERNEL_EXPORT Bounds
+{
+   public:
+    Bounds() : _x_min(0.), _x_max(0.), _y_min(0.), _y_max(0.) {}
     double &operator[](int i);
-    const double& operator[](int i) const;
+    const double &operator[](int i) const;
     double getXMin() const { return _x_min; }
     double getXMax() const { return _x_max; }
     double getYMin() const { return _y_min; }
     double getYMax() const { return _y_max; }
     double getDiagonal() const;
-    void getBarycenter(double& xBary, double& yBary) const;
+    void getBarycenter(double &xBary, double &yBary) const;
     void applySimilarity(double xBary, double yBary, double dimChar);
     void unApplySimilarity(double xBary, double yBary, double dimChar);
-    Bounds& operator=(const Bounds& other) { _x_min=other._x_min; _x_max=other._x_max; _y_min=other._y_min; _y_max=other._y_max; return *this; }
-    Bounds(double xMin, double xMax, double yMin, double yMax):_x_min(xMin),_x_max(xMax),_y_min(yMin),_y_max(yMax) { }
-    void setValues(double xMin, double xMax, double yMin, double yMax) { _x_min=xMin; _x_max=xMax; _y_min=yMin; _y_max=yMax; }
+    Bounds &operator=(const Bounds &other)
+    {
+        _x_min = other._x_min;
+        _x_max = other._x_max;
+        _y_min = other._y_min;
+        _y_max = other._y_max;
+        return *this;
+    }
+    Bounds(double xMin, double xMax, double yMin, double yMax) : _x_min(xMin), _x_max(xMax), _y_min(yMin), _y_max(yMax)
+    {
+    }
+    void setValues(double xMin, double xMax, double yMin, double yMax)
+    {
+        _x_min = xMin;
+        _x_max = xMax;
+        _y_min = yMin;
+        _y_max = yMax;
+    }
     void prepareForAggregation();
-    void getInterceptedArc(const double *center, double radius, double& intrcptArcAngle0, double& intrcptArcDelta) const;
-    int fitXForXFig(double val, int res) const { return (int)fitXForXFigD(val,res); }
-    int fitYForXFig(double val, int res) const { return (int)fitYForXFigD(val,res); }
+    void getInterceptedArc(
+        const double *center, double radius, double &intrcptArcAngle0, double &intrcptArcDelta
+    ) const;
+    int fitXForXFig(double val, int res) const { return (int)fitXForXFigD(val, res); }
+    int fitYForXFig(double val, int res) const { return (int)fitYForXFigD(val, res); }
     double fitXForXFigD(double val, int res) const;
     double fitYForXFigD(double val, int res) const;
-    Bounds *nearlyAmIIntersectingWith(const Bounds& other) const;
-    Bounds *amIIntersectingWith(const Bounds& other) const;
+    Bounds *nearlyAmIIntersectingWith(const Bounds &other) const;
+    Bounds *amIIntersectingWith(const Bounds &other) const;
     //! No approximations.
     Position where(double x, double y) const;
     //! Idem where method but with approximations.
     Position nearlyWhere(double x, double y) const;
-    void aggregate(const Bounds& other);
-    double getCaracteristicDim() const { return std::max(_x_max-_x_min,_y_max-_y_min); }
-  protected:
+    void aggregate(const Bounds &other);
+    double getCaracteristicDim() const { return std::max(_x_max - _x_min, _y_max - _y_min); }
+
+   protected:
     double _x_min;
     double _x_max;
     double _y_min;
     double _y_max;
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

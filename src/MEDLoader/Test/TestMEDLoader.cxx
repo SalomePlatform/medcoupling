@@ -22,7 +22,7 @@
 #include "MEDLoaderTest.hxx"
 #include "CrackAlgoTest.hxx"
 
-CPPUNIT_TEST_SUITE_REGISTRATION( MEDCoupling::MEDLoaderTest );
-CPPUNIT_TEST_SUITE_REGISTRATION( MEDCoupling::CrackAlgoTest );
+CPPUNIT_TEST_SUITE_REGISTRATION(MEDCoupling::MEDLoaderTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(MEDCoupling::CrackAlgoTest);
 
 #include "BasicMainTest.hxx"

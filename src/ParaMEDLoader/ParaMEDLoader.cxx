@@ -29,38 +29,39 @@
 
 using namespace MEDCoupling;
 
-ParaMEDLoader::ParaMEDLoader()
-{
-}
+ParaMEDLoader::ParaMEDLoader() {}
 
-void ParaMEDLoader::WriteParaMesh(const char *fileName, MEDCoupling::ParaMESH *mesh)
+void
+ParaMEDLoader::WriteParaMesh(const char *fileName, MEDCoupling::ParaMESH *mesh)
 {
-  if(!mesh->getBlockTopology()->getProcGroup()->containsMyRank())
-    return ;
-  int myRank=mesh->getBlockTopology()->getProcGroup()->myRank();
-  int nbDomains=mesh->getBlockTopology()->getProcGroup()->size();
-  std::vector<std::string> fileNames(nbDomains);
-  for(int i=0;i<nbDomains;i++)
+    if (!mesh->getBlockTopology()->getProcGroup()->containsMyRank())
+        return;
+    int myRank = mesh->getBlockTopology()->getProcGroup()->myRank();
+    int nbDomains = mesh->getBlockTopology()->getProcGroup()->size();
+    std::vector<std::string> fileNames(nbDomains);
+    for (int i = 0; i < nbDomains; i++)
     {
-      std::ostringstream sstr;
-      sstr << fileName << i+1 << ".med";
-      fileNames[i]=sstr.str();
+        std::ostringstream sstr;
+        sstr << fileName << i + 1 << ".med";
+        fileNames[i] = sstr.str();
     }
-  if(myRank==0)
-    WriteMasterFile(fileName,fileNames,mesh->getCellMesh()->getName().c_str());
-  WriteUMesh(fileNames[myRank].c_str(),dynamic_cast<MEDCouplingUMesh *>(mesh->getCellMesh()),true);
+    if (myRank == 0)
+        WriteMasterFile(fileName, fileNames, mesh->getCellMesh()->getName().c_str());
+    WriteUMesh(fileNames[myRank].c_str(), dynamic_cast<MEDCouplingUMesh *>(mesh->getCellMesh()), true);
 }
 
 /*!
  * This method builds the master file 'fileName' of a parallel MED file defined in 'fileNames'.
  */
-void ParaMEDLoader::WriteMasterFile(const char *fileName, const std::vector<std::string>& fileNames, const char *meshName)
+void
+ParaMEDLoader::WriteMasterFile(const char *fileName, const std::vector<std::string> &fileNames, const char *meshName)
 {
-  std::size_t nbOfDom=fileNames.size();
-  std::ofstream fs(fileName);
-  fs << "#MED Fichier V 2.3" << " " << std::endl;
-  fs << "#"<<" " << std::endl;
-  fs << nbOfDom <<" " << std::endl;
-  for(std::size_t i=0;i<nbOfDom;i++)
-    fs << meshName << " " << i+1 << " " << meshName << "_" << i+1 << " localhost " << fileNames[i] << " " << std::endl;
+    std::size_t nbOfDom = fileNames.size();
+    std::ofstream fs(fileName);
+    fs << "#MED Fichier V 2.3" << " " << std::endl;
+    fs << "#" << " " << std::endl;
+    fs << nbOfDom << " " << std::endl;
+    for (std::size_t i = 0; i < nbOfDom; i++)
+        fs << meshName << " " << i + 1 << " " << meshName << "_" << i + 1 << " localhost " << fileNames[i] << " "
+           << std::endl;
 }

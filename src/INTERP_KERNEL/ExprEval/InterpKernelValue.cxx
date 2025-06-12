@@ -28,615 +28,738 @@
 
 using namespace INTERP_KERNEL;
 
-ValueDouble::ValueDouble():_data(std::numeric_limits<double>::max())
-{
-}
+ValueDouble::ValueDouble() : _data(std::numeric_limits<double>::max()) {}
 
-Value *ValueDouble::newInstance() const
+Value *
+ValueDouble::newInstance() const
 {
-  return new ValueDouble;
+    return new ValueDouble;
 }
 
-ValueDouble::ValueDouble(double val):_data(val)
-{
-}
+ValueDouble::ValueDouble(double val) : _data(val) {}
 
-void ValueDouble::setDouble(double val)
+void
+ValueDouble::setDouble(double val)
 {
-  _data=val;
+    _data = val;
 }
 
-void ValueDouble::setVarname(int fastPos, const std::string& var)
+void
+ValueDouble::setVarname(int fastPos, const std::string &var)
 {
-  std::string msg("Error var : "); msg+=var; msg+=" not numeric : use another expression evaluator !";
-  throw INTERP_KERNEL::Exception(msg.c_str());
+    std::string msg("Error var : ");
+    msg += var;
+    msg += " not numeric : use another expression evaluator !";
+    throw INTERP_KERNEL::Exception(msg.c_str());
 }
 
-void ValueDouble::positive()
+void
+ValueDouble::positive()
 {
 }
 
-void ValueDouble::negate()
+void
+ValueDouble::negate()
 {
-  _data=-_data;
+    _data = -_data;
 }
 
-void ValueDouble::sqrt()
+void
+ValueDouble::sqrt()
 {
-  _data=std::sqrt(_data);
+    _data = std::sqrt(_data);
 }
 
-void ValueDouble::cos()
+void
+ValueDouble::cos()
 {
-  _data=std::cos(_data);
+    _data = std::cos(_data);
 }
 
-void ValueDouble::sin()
+void
+ValueDouble::sin()
 {
-  _data=std::sin(_data);
+    _data = std::sin(_data);
 }
 
-void ValueDouble::tan()
+void
+ValueDouble::tan()
 {
-  _data=std::tan(_data);
+    _data = std::tan(_data);
 }
 
-void ValueDouble::acos()
+void
+ValueDouble::acos()
 {
-  _data=std::acos(_data);
+    _data = std::acos(_data);
 }
 
-void ValueDouble::asin()
+void
+ValueDouble::asin()
 {
-  _data=std::asin(_data);
+    _data = std::asin(_data);
 }
 
-void ValueDouble::atan()
+void
+ValueDouble::atan()
 {
-  _data=std::atan(_data);
+    _data = std::atan(_data);
 }
 
-void ValueDouble::cosh()
+void
+ValueDouble::cosh()
 {
-  _data=std::cosh(_data);
+    _data = std::cosh(_data);
 }
 
-void ValueDouble::sinh()
+void
+ValueDouble::sinh()
 {
-  _data=std::sinh(_data);
+    _data = std::sinh(_data);
 }
 
-void ValueDouble::tanh()
+void
+ValueDouble::tanh()
 {
-  _data=std::tanh(_data);
+    _data = std::tanh(_data);
 }
 
-void ValueDouble::abs()
+void
+ValueDouble::abs()
 {
-  if(_data<0.)
-    _data=-_data;
+    if (_data < 0.)
+        _data = -_data;
 }
 
-void ValueDouble::exp()
+void
+ValueDouble::exp()
 {
-  _data=std::exp(_data);
+    _data = std::exp(_data);
 }
 
-void ValueDouble::ln()
+void
+ValueDouble::ln()
 {
-  _data=std::log(_data);
+    _data = std::log(_data);
 }
 
-void ValueDouble::log10()
+void
+ValueDouble::log10()
 {
-  _data=std::log10(_data);
+    _data = std::log10(_data);
 }
 
-Value *ValueDouble::plus(const Value *other) const
+Value *
+ValueDouble::plus(const Value *other) const
 {
-  const ValueDouble *valC=checkSameType(other);
-  return new ValueDouble(_data+valC->_data);
+    const ValueDouble *valC = checkSameType(other);
+    return new ValueDouble(_data + valC->_data);
 }
 
-Value *ValueDouble::minus(const Value *other) const
+Value *
+ValueDouble::minus(const Value *other) const
 {
-  const ValueDouble *valC=checkSameType(other);
-  return new ValueDouble(_data-valC->_data);
+    const ValueDouble *valC = checkSameType(other);
+    return new ValueDouble(_data - valC->_data);
 }
 
-Value *ValueDouble::mult(const Value *other) const
+Value *
+ValueDouble::mult(const Value *other) const
 {
-  const ValueDouble *valC=checkSameType(other);
-  return new ValueDouble(_data*valC->_data);
+    const ValueDouble *valC = checkSameType(other);
+    return new ValueDouble(_data * valC->_data);
 }
 
-Value *ValueDouble::div(const Value *other) const
+Value *
+ValueDouble::div(const Value *other) const
 {
-  const ValueDouble *valC=checkSameType(other);
-  return new ValueDouble(_data/valC->_data);
+    const ValueDouble *valC = checkSameType(other);
+    return new ValueDouble(_data / valC->_data);
 }
 
-Value *ValueDouble::pow(const Value *other) const
+Value *
+ValueDouble::pow(const Value *other) const
 {
-  const ValueDouble *valC=checkSameType(other);
-  return new ValueDouble(std::pow(_data,valC->_data));
+    const ValueDouble *valC = checkSameType(other);
+    return new ValueDouble(std::pow(_data, valC->_data));
 }
 
-Value *ValueDouble::max(const Value *other) const
+Value *
+ValueDouble::max(const Value *other) const
 {
-  const ValueDouble *valC=checkSameType(other);
-  return new ValueDouble(std::max(_data,valC->_data));
+    const ValueDouble *valC = checkSameType(other);
+    return new ValueDouble(std::max(_data, valC->_data));
 }
 
-Value *ValueDouble::min(const Value *other) const
+Value *
+ValueDouble::min(const Value *other) const
 {
-  const ValueDouble *valC=checkSameType(other);
-  return new ValueDouble(std::min(_data,valC->_data));
+    const ValueDouble *valC = checkSameType(other);
+    return new ValueDouble(std::min(_data, valC->_data));
 }
 
-Value *ValueDouble::greaterThan(const Value *other) const
+Value *
+ValueDouble::greaterThan(const Value *other) const
 {
-  const ValueDouble *valC=checkSameType(other);
-  return new ValueDouble(_data>valC->_data?std::numeric_limits<double>::max():-std::numeric_limits<double>::max());
+    const ValueDouble *valC = checkSameType(other);
+    return new ValueDouble(
+        _data > valC->_data ? std::numeric_limits<double>::max() : -std::numeric_limits<double>::max()
+    );
 }
 
-Value *ValueDouble::lowerThan(const Value *other) const
+Value *
+ValueDouble::lowerThan(const Value *other) const
 {
-  const ValueDouble *valC=checkSameType(other);
-  return new ValueDouble(_data<valC->_data?std::numeric_limits<double>::max():-std::numeric_limits<double>::max());
+    const ValueDouble *valC = checkSameType(other);
+    return new ValueDouble(
+        _data < valC->_data ? std::numeric_limits<double>::max() : -std::numeric_limits<double>::max()
+    );
 }
 
-Value *ValueDouble::ifFunc(const Value *the, const Value *els) const
+Value *
+ValueDouble::ifFunc(const Value *the, const Value *els) const
 {
-  const ValueDouble *theC=checkSameType(the);
-  const ValueDouble *elsC=checkSameType(els);
-  if(_data==std::numeric_limits<double>::max())
-    return new ValueDouble(theC->_data);
-  if(_data==-std::numeric_limits<double>::max())
-    return new ValueDouble(elsC->_data);
-  throw INTERP_KERNEL::Exception("ValueDouble::ifFunc : The fist element of ternary function if is not a binary op !");
+    const ValueDouble *theC = checkSameType(the);
+    const ValueDouble *elsC = checkSameType(els);
+    if (_data == std::numeric_limits<double>::max())
+        return new ValueDouble(theC->_data);
+    if (_data == -std::numeric_limits<double>::max())
+        return new ValueDouble(elsC->_data);
+    throw INTERP_KERNEL::Exception(
+        "ValueDouble::ifFunc : The fist element of ternary function if is not a binary op !"
+    );
 }
 
-const ValueDouble *ValueDouble::checkSameType(const Value *val)
+const ValueDouble *
+ValueDouble::checkSameType(const Value *val)
 {
-  const ValueDouble *valC=dynamic_cast<const ValueDouble *>(val);
-  if(!valC)
-    throw INTERP_KERNEL::Exception("Trying to operate on non homogeneous Values (double with other type) !");
-  return valC;
+    const ValueDouble *valC = dynamic_cast<const ValueDouble *>(val);
+    if (!valC)
+        throw INTERP_KERNEL::Exception("Trying to operate on non homogeneous Values (double with other type) !");
+    return valC;
 }
 
-ValueUnit::ValueUnit()
-{
-}
+ValueUnit::ValueUnit() {}
 
-Value *ValueUnit::newInstance() const
+Value *
+ValueUnit::newInstance() const
 {
-  return new ValueUnit;
+    return new ValueUnit;
 }
 
-ValueUnit::ValueUnit(const DecompositionInUnitBase& unit):_data(unit)
-{
-}
+ValueUnit::ValueUnit(const DecompositionInUnitBase &unit) : _data(unit) {}
 
-void ValueUnit::setDouble(double val)
+void
+ValueUnit::setDouble(double val)
 {
-  _data.tryToConvertInUnit(val);
+    _data.tryToConvertInUnit(val);
 }
 
-void ValueUnit::setVarname(int fastPos, const std::string& var)
+void
+ValueUnit::setVarname(int fastPos, const std::string &var)
 {
-  double add,mul;
-  const short *projInBase=UnitDataBase::GetUniqueMapForExpr().getInfoForUnit(var,add,mul);
-  _data.setInfo(projInBase,add,mul);
+    double add, mul;
+    const short *projInBase = UnitDataBase::GetUniqueMapForExpr().getInfoForUnit(var, add, mul);
+    _data.setInfo(projInBase, add, mul);
 }
 
-void ValueUnit::positive()
+void
+ValueUnit::positive()
 {
-  unsupportedOp(PositiveFunction::REPR);
+    unsupportedOp(PositiveFunction::REPR);
 }
 
-void ValueUnit::negate()
+void
+ValueUnit::negate()
 {
-  _data.negate();
+    _data.negate();
 }
 
-void ValueUnit::sqrt()
+void
+ValueUnit::sqrt()
 {
-  unsupportedOp(SqrtFunction::REPR);
+    unsupportedOp(SqrtFunction::REPR);
 }
 
-void ValueUnit::cos()
+void
+ValueUnit::cos()
 {
-  unsupportedOp(CosFunction::REPR);
+    unsupportedOp(CosFunction::REPR);
 }
 
-void ValueUnit::sin()
+void
+ValueUnit::sin()
 {
-  unsupportedOp(SinFunction::REPR);
+    unsupportedOp(SinFunction::REPR);
 }
 
-void ValueUnit::tan()
+void
+ValueUnit::tan()
 {
-  unsupportedOp(TanFunction::REPR);
+    unsupportedOp(TanFunction::REPR);
 }
 
-void ValueUnit::acos()
+void
+ValueUnit::acos()
 {
-  unsupportedOp(ACosFunction::REPR);
+    unsupportedOp(ACosFunction::REPR);
 }
 
-void ValueUnit::asin()
+void
+ValueUnit::asin()
 {
-  unsupportedOp(ASinFunction::REPR);
+    unsupportedOp(ASinFunction::REPR);
 }
 
-void ValueUnit::atan()
+void
+ValueUnit::atan()
 {
-  unsupportedOp(ATanFunction::REPR);
+    unsupportedOp(ATanFunction::REPR);
 }
 
-void ValueUnit::cosh()
+void
+ValueUnit::cosh()
 {
-  unsupportedOp(CoshFunction::REPR);
+    unsupportedOp(CoshFunction::REPR);
 }
 
-void ValueUnit::sinh()
+void
+ValueUnit::sinh()
 {
-  unsupportedOp(SinhFunction::REPR);
+    unsupportedOp(SinhFunction::REPR);
 }
 
-void ValueUnit::tanh()
+void
+ValueUnit::tanh()
 {
-  unsupportedOp(TanhFunction::REPR);
+    unsupportedOp(TanhFunction::REPR);
 }
 
-void ValueUnit::abs()
+void
+ValueUnit::abs()
 {
-  unsupportedOp(AbsFunction::REPR);
+    unsupportedOp(AbsFunction::REPR);
 }
 
-void ValueUnit::exp()
+void
+ValueUnit::exp()
 {
-  unsupportedOp(ExpFunction::REPR);
+    unsupportedOp(ExpFunction::REPR);
 }
 
-void ValueUnit::ln()
+void
+ValueUnit::ln()
 {
-  unsupportedOp(LnFunction::REPR);
+    unsupportedOp(LnFunction::REPR);
 }
 
-void ValueUnit::log10()
+void
+ValueUnit::log10()
 {
-  unsupportedOp(Log10Function::REPR);
+    unsupportedOp(Log10Function::REPR);
 }
 
-Value *ValueUnit::plus(const Value *other) const
+Value *
+ValueUnit::plus(const Value *other) const
 {
-  unsupportedOp(PlusFunction::REPR);
-  return 0;
+    unsupportedOp(PlusFunction::REPR);
+    return 0;
 }
 
-Value *ValueUnit::minus(const Value *other) const
+Value *
+ValueUnit::minus(const Value *other) const
 {
-  unsupportedOp(MinusFunction::REPR);
-  return 0;
+    unsupportedOp(MinusFunction::REPR);
+    return 0;
 }
 
-Value *ValueUnit::greaterThan(const Value *other) const
+Value *
+ValueUnit::greaterThan(const Value *other) const
 {
-  unsupportedOp(GreaterThanFunction::REPR);
-  return 0;
+    unsupportedOp(GreaterThanFunction::REPR);
+    return 0;
 }
 
-Value *ValueUnit::lowerThan(const Value *other) const
+Value *
+ValueUnit::lowerThan(const Value *other) const
 {
-  unsupportedOp(LowerThanFunction::REPR);
-  return 0;
+    unsupportedOp(LowerThanFunction::REPR);
+    return 0;
 }
 
-Value *ValueUnit::ifFunc(const Value *the, const Value *els) const
+Value *
+ValueUnit::ifFunc(const Value *the, const Value *els) const
 {
-  unsupportedOp(IfFunction::REPR);
-  return 0;
+    unsupportedOp(IfFunction::REPR);
+    return 0;
 }
 
-Value *ValueUnit::mult(const Value *other) const
+Value *
+ValueUnit::mult(const Value *other) const
 {
-  const ValueUnit *valC=checkSameType(other);
-  DecompositionInUnitBase tmp=_data;
-  tmp*valC->getData();
-  return new ValueUnit(tmp);
+    const ValueUnit *valC = checkSameType(other);
+    DecompositionInUnitBase tmp = _data;
+    tmp * valC->getData();
+    return new ValueUnit(tmp);
 }
 
-Value *ValueUnit::div(const Value *other) const
+Value *
+ValueUnit::div(const Value *other) const
 {
-  const ValueUnit *valC=checkSameType(other);
-  DecompositionInUnitBase tmp=_data;
-  tmp/valC->getData();
-  return new ValueUnit(tmp);
+    const ValueUnit *valC = checkSameType(other);
+    DecompositionInUnitBase tmp = _data;
+    tmp / valC->getData();
+    return new ValueUnit(tmp);
 }
 
-Value *ValueUnit::pow(const Value *other) const
+Value *
+ValueUnit::pow(const Value *other) const
 {
-  const ValueUnit *valC=checkSameType(other);
-  DecompositionInUnitBase tmp=_data;
-  tmp^valC->getData();
-  return new ValueUnit(tmp);
+    const ValueUnit *valC = checkSameType(other);
+    DecompositionInUnitBase tmp = _data;
+    tmp ^ valC->getData();
+    return new ValueUnit(tmp);
 }
 
-Value *ValueUnit::max(const Value *other) const
+Value *
+ValueUnit::max(const Value *other) const
 {
-  unsupportedOp(MaxFunction::REPR);
-  return 0;
+    unsupportedOp(MaxFunction::REPR);
+    return 0;
 }
 
-Value *ValueUnit::min(const Value *other) const
+Value *
+ValueUnit::min(const Value *other) const
 {
-  unsupportedOp(MinFunction::REPR);
-  return 0;
+    unsupportedOp(MinFunction::REPR);
+    return 0;
 }
 
-const ValueUnit *ValueUnit::checkSameType(const Value *val)
+const ValueUnit *
+ValueUnit::checkSameType(const Value *val)
 {
-  const ValueUnit *valC=dynamic_cast<const ValueUnit *>(val);
-  if(!valC)
-    throw INTERP_KERNEL::Exception("Trying to operate on non homogeneous Values (Units with other type) !");
-  return valC;
+    const ValueUnit *valC = dynamic_cast<const ValueUnit *>(val);
+    if (!valC)
+        throw INTERP_KERNEL::Exception("Trying to operate on non homogeneous Values (Units with other type) !");
+    return valC;
 }
 
-void ValueUnit::unsupportedOp(const char *type)
+void
+ValueUnit::unsupportedOp(const char *type)
 {
-  const char msg[]="Unsupported operation for units :";
-  std::string msgStr(msg);
-  msgStr+=type;
-  throw INTERP_KERNEL::Exception(msgStr.c_str());
+    const char msg[] = "Unsupported operation for units :";
+    std::string msgStr(msg);
+    msgStr += type;
+    throw INTERP_KERNEL::Exception(msgStr.c_str());
 }
 
-ValueDoubleExpr::ValueDoubleExpr(int szDestData, const double *srcData):_sz_dest_data(szDestData),_dest_data(new double[_sz_dest_data]),_src_data(srcData)
+ValueDoubleExpr::ValueDoubleExpr(int szDestData, const double *srcData)
+    : _sz_dest_data(szDestData), _dest_data(new double[_sz_dest_data]), _src_data(srcData)
 {
 }
 
-ValueDoubleExpr::~ValueDoubleExpr()
-{
-  delete [] _dest_data;
-}
+ValueDoubleExpr::~ValueDoubleExpr() { delete[] _dest_data; }
 
-Value *ValueDoubleExpr::newInstance() const
+Value *
+ValueDoubleExpr::newInstance() const
 {
-  return new ValueDoubleExpr(_sz_dest_data,_src_data);
+    return new ValueDoubleExpr(_sz_dest_data, _src_data);
 }
 
-void ValueDoubleExpr::setDouble(double val)
+void
+ValueDoubleExpr::setDouble(double val)
 {
-  std::fill(_dest_data,_dest_data+_sz_dest_data,val);
+    std::fill(_dest_data, _dest_data + _sz_dest_data, val);
 }
 
-void ValueDoubleExpr::setVarname(int fastPos, const std::string& var)
+void
+ValueDoubleExpr::setVarname(int fastPos, const std::string &var)
 {
-  if(fastPos==-2)
-    std::copy(_src_data,_src_data+_sz_dest_data,_dest_data);
-  else if(fastPos>-2)
-    std::fill(_dest_data,_dest_data+_sz_dest_data,_src_data[fastPos]);
-  else
+    if (fastPos == -2)
+        std::copy(_src_data, _src_data + _sz_dest_data, _dest_data);
+    else if (fastPos > -2)
+        std::fill(_dest_data, _dest_data + _sz_dest_data, _src_data[fastPos]);
+    else
     {
-      std::fill(_dest_data,_dest_data+_sz_dest_data,0.);
-      _dest_data[-7-fastPos]=1.;
+        std::fill(_dest_data, _dest_data + _sz_dest_data, 0.);
+        _dest_data[-7 - fastPos] = 1.;
     }
 }
 
-void ValueDoubleExpr::positive()
+void
+ValueDoubleExpr::positive()
 {
 }
 
-void ValueDoubleExpr::negate()
+void
+ValueDoubleExpr::negate()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,std::negate<double>());
+    std::transform(_dest_data, _dest_data + _sz_dest_data, _dest_data, std::negate<double>());
 }
 
-void ValueDoubleExpr::sqrt()
+void
+ValueDoubleExpr::sqrt()
 {
-  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::less<double>(),std::placeholders::_1,0.));
-  if(it!=_dest_data+_sz_dest_data)
-    throw INTERP_KERNEL::Exception("Trying to apply sqrt on < 0. value !");
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::sqrt(c);});
+    double *it =
+        std::find_if(_dest_data, _dest_data + _sz_dest_data, std::bind(std::less<double>(), std::placeholders::_1, 0.));
+    if (it != _dest_data + _sz_dest_data)
+        throw INTERP_KERNEL::Exception("Trying to apply sqrt on < 0. value !");
+    std::transform(_dest_data, _dest_data + _sz_dest_data, _dest_data, [](double c) { return std::sqrt(c); });
 }
 
-void ValueDoubleExpr::cos()
+void
+ValueDoubleExpr::cos()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::cos(c);});
+    std::transform(_dest_data, _dest_data + _sz_dest_data, _dest_data, [](double c) { return std::cos(c); });
 }
 
-void ValueDoubleExpr::sin()
+void
+ValueDoubleExpr::sin()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::sin(c);});
+    std::transform(_dest_data, _dest_data + _sz_dest_data, _dest_data, [](double c) { return std::sin(c); });
 }
 
-void ValueDoubleExpr::tan()
+void
+ValueDoubleExpr::tan()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::tan(c);});
+    std::transform(_dest_data, _dest_data + _sz_dest_data, _dest_data, [](double c) { return std::tan(c); });
 }
 
-void ValueDoubleExpr::acos()
+void
+ValueDoubleExpr::acos()
 {
-  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::less<double>(),std::placeholders::_1,-1.));
-  if(it!=_dest_data+_sz_dest_data)
-    throw INTERP_KERNEL::Exception("Trying to apply acos on < 1. value !");
-  it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::greater<double>(),std::placeholders::_1,1.));
-  if(it!=_dest_data+_sz_dest_data)
-    throw INTERP_KERNEL::Exception("Trying to apply acos on > 1. value !");
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::acos(c);});
+    double *it = std::find_if(
+        _dest_data, _dest_data + _sz_dest_data, std::bind(std::less<double>(), std::placeholders::_1, -1.)
+    );
+    if (it != _dest_data + _sz_dest_data)
+        throw INTERP_KERNEL::Exception("Trying to apply acos on < 1. value !");
+    it = std::find_if(
+        _dest_data, _dest_data + _sz_dest_data, std::bind(std::greater<double>(), std::placeholders::_1, 1.)
+    );
+    if (it != _dest_data + _sz_dest_data)
+        throw INTERP_KERNEL::Exception("Trying to apply acos on > 1. value !");
+    std::transform(_dest_data, _dest_data + _sz_dest_data, _dest_data, [](double c) { return std::acos(c); });
 }
 
-void ValueDoubleExpr::asin()
+void
+ValueDoubleExpr::asin()
 {
-   double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::less<double>(),std::placeholders::_1,-1.));
-   if(it!=_dest_data+_sz_dest_data)
-    throw INTERP_KERNEL::Exception("Trying to apply asin on < 1. value !");
-  it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::greater<double>(),std::placeholders::_1,1.));
-  if(it!=_dest_data+_sz_dest_data)
-    throw INTERP_KERNEL::Exception("Trying to apply asin on > 1. value !");
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::asin(c);});
+    double *it = std::find_if(
+        _dest_data, _dest_data + _sz_dest_data, std::bind(std::less<double>(), std::placeholders::_1, -1.)
+    );
+    if (it != _dest_data + _sz_dest_data)
+        throw INTERP_KERNEL::Exception("Trying to apply asin on < 1. value !");
+    it = std::find_if(
+        _dest_data, _dest_data + _sz_dest_data, std::bind(std::greater<double>(), std::placeholders::_1, 1.)
+    );
+    if (it != _dest_data + _sz_dest_data)
+        throw INTERP_KERNEL::Exception("Trying to apply asin on > 1. value !");
+    std::transform(_dest_data, _dest_data + _sz_dest_data, _dest_data, [](double c) { return std::asin(c); });
 }
 
-void ValueDoubleExpr::atan()
+void
+ValueDoubleExpr::atan()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::atan(c);});
+    std::transform(_dest_data, _dest_data + _sz_dest_data, _dest_data, [](double c) { return std::atan(c); });
 }
 
-void ValueDoubleExpr::cosh()
+void
+ValueDoubleExpr::cosh()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::cosh(c);});
+    std::transform(_dest_data, _dest_data + _sz_dest_data, _dest_data, [](double c) { return std::cosh(c); });
 }
 
-void ValueDoubleExpr::sinh()
+void
+ValueDoubleExpr::sinh()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::sinh(c);});
+    std::transform(_dest_data, _dest_data + _sz_dest_data, _dest_data, [](double c) { return std::sinh(c); });
 }
 
-void ValueDoubleExpr::tanh()
+void
+ValueDoubleExpr::tanh()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::tanh(c);});
+    std::transform(_dest_data, _dest_data + _sz_dest_data, _dest_data, [](double c) { return std::tanh(c); });
 }
 
-void ValueDoubleExpr::abs()
+void
+ValueDoubleExpr::abs()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::fabs(c);});
+    std::transform(_dest_data, _dest_data + _sz_dest_data, _dest_data, [](double c) { return std::fabs(c); });
 }
 
-void ValueDoubleExpr::exp()
+void
+ValueDoubleExpr::exp()
 {
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::exp(c);});
+    std::transform(_dest_data, _dest_data + _sz_dest_data, _dest_data, [](double c) { return std::exp(c); });
 }
 
-void ValueDoubleExpr::ln()
+void
+ValueDoubleExpr::ln()
 {
-  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::less_equal<double>(),std::placeholders::_1,0.));
-  if(it!=_dest_data+_sz_dest_data)
-    throw INTERP_KERNEL::Exception("Trying to apply neperian/natural log on <= 0. value !");
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::log(c);});
+    double *it = std::find_if(
+        _dest_data, _dest_data + _sz_dest_data, std::bind(std::less_equal<double>(), std::placeholders::_1, 0.)
+    );
+    if (it != _dest_data + _sz_dest_data)
+        throw INTERP_KERNEL::Exception("Trying to apply neperian/natural log on <= 0. value !");
+    std::transform(_dest_data, _dest_data + _sz_dest_data, _dest_data, [](double c) { return std::log(c); });
 }
 
-void ValueDoubleExpr::log10()
+void
+ValueDoubleExpr::log10()
 {
-  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::less_equal<double>(),std::placeholders::_1,0.));
-  if(it!=_dest_data+_sz_dest_data)
-    throw INTERP_KERNEL::Exception("Trying to apply log10 on <= 0. value !");
-  std::transform(_dest_data,_dest_data+_sz_dest_data,_dest_data,[](double c){return std::log10(c);});
+    double *it = std::find_if(
+        _dest_data, _dest_data + _sz_dest_data, std::bind(std::less_equal<double>(), std::placeholders::_1, 0.)
+    );
+    if (it != _dest_data + _sz_dest_data)
+        throw INTERP_KERNEL::Exception("Trying to apply log10 on <= 0. value !");
+    std::transform(_dest_data, _dest_data + _sz_dest_data, _dest_data, [](double c) { return std::log10(c); });
 }
 
-Value *ValueDoubleExpr::plus(const Value *other) const
+Value *
+ValueDoubleExpr::plus(const Value *other) const
 {
-  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
-  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::plus<double>());
-  return ret;
+    const ValueDoubleExpr *otherC = static_cast<const ValueDoubleExpr *>(other);
+    ValueDoubleExpr *ret = new ValueDoubleExpr(_sz_dest_data, _src_data);
+    std::transform(_dest_data, _dest_data + _sz_dest_data, otherC->getData(), ret->getData(), std::plus<double>());
+    return ret;
 }
 
-Value *ValueDoubleExpr::minus(const Value *other) const
+Value *
+ValueDoubleExpr::minus(const Value *other) const
 {
-  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
-  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::minus<double>());
-  return ret;
+    const ValueDoubleExpr *otherC = static_cast<const ValueDoubleExpr *>(other);
+    ValueDoubleExpr *ret = new ValueDoubleExpr(_sz_dest_data, _src_data);
+    std::transform(_dest_data, _dest_data + _sz_dest_data, otherC->getData(), ret->getData(), std::minus<double>());
+    return ret;
 }
 
-Value *ValueDoubleExpr::mult(const Value *other) const
+Value *
+ValueDoubleExpr::mult(const Value *other) const
 {
-  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
-  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::multiplies<double>());
-  return ret;
+    const ValueDoubleExpr *otherC = static_cast<const ValueDoubleExpr *>(other);
+    ValueDoubleExpr *ret = new ValueDoubleExpr(_sz_dest_data, _src_data);
+    std::transform(
+        _dest_data, _dest_data + _sz_dest_data, otherC->getData(), ret->getData(), std::multiplies<double>()
+    );
+    return ret;
 }
 
-Value *ValueDoubleExpr::div(const Value *other) const
+Value *
+ValueDoubleExpr::div(const Value *other) const
 {
-  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
-  double *it=std::find(otherC->getData(),otherC->getData()+_sz_dest_data,0.);
-  if(it!=otherC->getData()+_sz_dest_data)
-    throw INTERP_KERNEL::Exception("Trying to operate division by 0. !");
-  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),std::divides<double>());
-  return ret;
+    const ValueDoubleExpr *otherC = static_cast<const ValueDoubleExpr *>(other);
+    double *it = std::find(otherC->getData(), otherC->getData() + _sz_dest_data, 0.);
+    if (it != otherC->getData() + _sz_dest_data)
+        throw INTERP_KERNEL::Exception("Trying to operate division by 0. !");
+    ValueDoubleExpr *ret = new ValueDoubleExpr(_sz_dest_data, _src_data);
+    std::transform(_dest_data, _dest_data + _sz_dest_data, otherC->getData(), ret->getData(), std::divides<double>());
+    return ret;
 }
 
-Value *ValueDoubleExpr::pow(const Value *other) const
+Value *
+ValueDoubleExpr::pow(const Value *other) const
 {
-  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
-  double p=otherC->getData()[0];
-  double *it=std::find_if(_dest_data,_dest_data+_sz_dest_data,std::bind(std::less<double>(),std::placeholders::_1,0.));
-  if(it!=_dest_data+_sz_dest_data)
-    throw INTERP_KERNEL::Exception("Trying to operate pow(a,b) with a<0. !");
-  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  std::transform(_dest_data,_dest_data+_sz_dest_data,ret->getData(),std::bind([](double x, double y){return std::pow(x,y);},std::placeholders::_1,p));
-  return ret;
+    const ValueDoubleExpr *otherC = static_cast<const ValueDoubleExpr *>(other);
+    double p = otherC->getData()[0];
+    double *it =
+        std::find_if(_dest_data, _dest_data + _sz_dest_data, std::bind(std::less<double>(), std::placeholders::_1, 0.));
+    if (it != _dest_data + _sz_dest_data)
+        throw INTERP_KERNEL::Exception("Trying to operate pow(a,b) with a<0. !");
+    ValueDoubleExpr *ret = new ValueDoubleExpr(_sz_dest_data, _src_data);
+    std::transform(
+        _dest_data,
+        _dest_data + _sz_dest_data,
+        ret->getData(),
+        std::bind([](double x, double y) { return std::pow(x, y); }, std::placeholders::_1, p)
+    );
+    return ret;
 }
 
-Value *ValueDoubleExpr::max(const Value *other) const
+Value *
+ValueDoubleExpr::max(const Value *other) const
 {
-  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
-  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),[](const double& x, const double& y){return std::max(x,y);});
-  return ret;
+    const ValueDoubleExpr *otherC = static_cast<const ValueDoubleExpr *>(other);
+    ValueDoubleExpr *ret = new ValueDoubleExpr(_sz_dest_data, _src_data);
+    std::transform(
+        _dest_data,
+        _dest_data + _sz_dest_data,
+        otherC->getData(),
+        ret->getData(),
+        [](const double &x, const double &y) { return std::max(x, y); }
+    );
+    return ret;
 }
 
-Value *ValueDoubleExpr::min(const Value *other) const
+Value *
+ValueDoubleExpr::min(const Value *other) const
 {
-  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
-  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  std::transform(_dest_data,_dest_data+_sz_dest_data,otherC->getData(),ret->getData(),[](const double& x, const double& y){return std::min(x,y);});
-  return ret;
+    const ValueDoubleExpr *otherC = static_cast<const ValueDoubleExpr *>(other);
+    ValueDoubleExpr *ret = new ValueDoubleExpr(_sz_dest_data, _src_data);
+    std::transform(
+        _dest_data,
+        _dest_data + _sz_dest_data,
+        otherC->getData(),
+        ret->getData(),
+        [](const double &x, const double &y) { return std::min(x, y); }
+    );
+    return ret;
 }
 
-Value *ValueDoubleExpr::greaterThan(const Value *other) const
+Value *
+ValueDoubleExpr::greaterThan(const Value *other) const
 {
-  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
-  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  for(int i=0;i<_sz_dest_data;i++)
-    if(_dest_data[i]<=otherC->getData()[i])
-      {
-        std::fill(ret->getData(),ret->getData()+_sz_dest_data,-std::numeric_limits<double>::max());
+    const ValueDoubleExpr *otherC = static_cast<const ValueDoubleExpr *>(other);
+    ValueDoubleExpr *ret = new ValueDoubleExpr(_sz_dest_data, _src_data);
+    for (int i = 0; i < _sz_dest_data; i++)
+        if (_dest_data[i] <= otherC->getData()[i])
+        {
+            std::fill(ret->getData(), ret->getData() + _sz_dest_data, -std::numeric_limits<double>::max());
+            return ret;
+        }
+    std::fill(ret->getData(), ret->getData() + _sz_dest_data, std::numeric_limits<double>::max());
+    return ret;
+}
+
+Value *
+ValueDoubleExpr::lowerThan(const Value *other) const
+{
+    const ValueDoubleExpr *otherC = static_cast<const ValueDoubleExpr *>(other);
+    ValueDoubleExpr *ret = new ValueDoubleExpr(_sz_dest_data, _src_data);
+    for (int i = 0; i < _sz_dest_data; i++)
+        if (_dest_data[i] >= otherC->getData()[i])
+        {
+            std::fill(ret->getData(), ret->getData() + _sz_dest_data, -std::numeric_limits<double>::max());
+            return ret;
+        }
+    std::fill(ret->getData(), ret->getData() + _sz_dest_data, std::numeric_limits<double>::max());
+    return ret;
+}
+
+Value *
+ValueDoubleExpr::ifFunc(const Value *the, const Value *els) const
+{
+    const ValueDoubleExpr *theC = static_cast<const ValueDoubleExpr *>(the);
+    const ValueDoubleExpr *elsC = static_cast<const ValueDoubleExpr *>(els);
+    ValueDoubleExpr *ret = new ValueDoubleExpr(_sz_dest_data, _src_data);
+    bool okmax = true;
+    bool okmin = true;
+    for (int i = 0; i < _sz_dest_data && (okmax || okmin); i++)
+    {
+        okmax = _dest_data[i] == std::numeric_limits<double>::max();
+        okmin = _dest_data[i] == -std::numeric_limits<double>::max();
+    }
+    if (okmax || okmin)
+    {
+        if (okmax)
+            std::copy(theC->getData(), theC->getData() + _sz_dest_data, ret->getData());
+        else
+            std::copy(elsC->getData(), elsC->getData() + _sz_dest_data, ret->getData());
         return ret;
-      }
-  std::fill(ret->getData(),ret->getData()+_sz_dest_data,std::numeric_limits<double>::max());
-  return ret;
-}
-
-Value *ValueDoubleExpr::lowerThan(const Value *other) const
-{
-  const ValueDoubleExpr *otherC=static_cast<const ValueDoubleExpr *>(other);
-  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  for(int i=0;i<_sz_dest_data;i++)
-    if(_dest_data[i]>=otherC->getData()[i])
-      {
-        std::fill(ret->getData(),ret->getData()+_sz_dest_data,-std::numeric_limits<double>::max());
-        return ret;
-      }
-  std::fill(ret->getData(),ret->getData()+_sz_dest_data,std::numeric_limits<double>::max());
-  return ret;
-}
-
-Value *ValueDoubleExpr::ifFunc(const Value *the, const Value *els) const
-{
-  const ValueDoubleExpr *theC=static_cast<const ValueDoubleExpr *>(the);
-  const ValueDoubleExpr *elsC=static_cast<const ValueDoubleExpr *>(els);
-  ValueDoubleExpr *ret=new ValueDoubleExpr(_sz_dest_data,_src_data);
-  bool okmax=true;
-  bool okmin=true;
-  for(int i=0;i<_sz_dest_data && (okmax || okmin);i++)
-    {
-      okmax=_dest_data[i]==std::numeric_limits<double>::max();
-      okmin=_dest_data[i]==-std::numeric_limits<double>::max();
     }
-  if(okmax || okmin)
+    else
     {
-      if(okmax)
-        std::copy(theC->getData(),theC->getData()+_sz_dest_data,ret->getData());
-      else
-        std::copy(elsC->getData(),elsC->getData()+_sz_dest_data,ret->getData());
-      return ret;
-    }
-  else
-    {
-      throw INTERP_KERNEL::Exception("ValueDoubleExpr::ifFunc : first parameter of ternary func is NOT a consequence of a boolean op !");
+        throw INTERP_KERNEL::Exception(
+            "ValueDoubleExpr::ifFunc : first parameter of ternary func is NOT a consequence of a boolean op !"
+        );
     }
 }

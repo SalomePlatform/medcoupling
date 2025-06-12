@@ -26,25 +26,26 @@
 
 namespace MEDCoupling
 {
-  class SauvLoaderTest : public CppUnit::TestFixture
-  {
+class SauvLoaderTest : public CppUnit::TestFixture
+{
     CPPUNIT_TEST_SUITE(SauvLoaderTest);
-    CPPUNIT_TEST( testSauv2Med );
-    CPPUNIT_TEST( testMed2Sauv );
-    CPPUNIT_TEST( testMed2SauvOnAMeshWithVoidFamily );
-    CPPUNIT_TEST( testSauv2MedOnA3SubsField );
-    CPPUNIT_TEST( testCellsWithLingNames );
+    CPPUNIT_TEST(testSauv2Med);
+    CPPUNIT_TEST(testMed2Sauv);
+    CPPUNIT_TEST(testMed2SauvOnAMeshWithVoidFamily);
+    CPPUNIT_TEST(testSauv2MedOnA3SubsField);
+    CPPUNIT_TEST(testCellsWithLingNames);
     CPPUNIT_TEST_SUITE_END();
-  public:
+
+   public:
     void testSauv2Med();
     void testMed2Sauv();
     void testMed2SauvOnAMeshWithVoidFamily();
     void testSauv2MedOnA3SubsField();
     void testCellsWithLingNames();
 
-  public:
+   public:
     void tearDown();
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

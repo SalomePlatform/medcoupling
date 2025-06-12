@@ -21,11 +21,30 @@
 
 from MEDLoader import *
 
+
 class CaseIO:
-    dictMCTyp_str={NORM_HEXA8:"hexa8",NORM_POLYHED:"nfaced",NORM_QUAD4:"quad4",NORM_POLYGON:"nsided",NORM_POINT1:"point",NORM_SEG2:"bar2",NORM_SEG3:"bar3",NORM_TRI3:"tria3",NORM_TRI6:"tria6",NORM_QUAD8:"quad8",NORM_TETRA4:"tetra4",NORM_TETRA10:"tetra10",NORM_PYRA5:"pyramid5",NORM_PYRA13:"pyramid13",NORM_PENTA6:"penta6",NORM_PENTA15:"penta15",NORM_HEXA20:"hexa20"}
-    dictMCTyp = {k:bytes(v, "ascii") for k, v in list(dictMCTyp_str.items())}
-    discSpatial={ON_CELLS:"element",ON_NODES:"node"}
-    dictCompo={1:"scalar",3:"vector",6:"tensor",9:"tensor9"}
-    dictMCTyp2 = {v:k for k, v in list(dictMCTyp.items())}
-    discSpatial2 = {v:k for k, v in list(discSpatial.items())}
-    dictCompo2 = {v:k for k, v in list(dictCompo.items())}
+    dictMCTyp_str = {
+        NORM_HEXA8: "hexa8",
+        NORM_POLYHED: "nfaced",
+        NORM_QUAD4: "quad4",
+        NORM_POLYGON: "nsided",
+        NORM_POINT1: "point",
+        NORM_SEG2: "bar2",
+        NORM_SEG3: "bar3",
+        NORM_TRI3: "tria3",
+        NORM_TRI6: "tria6",
+        NORM_QUAD8: "quad8",
+        NORM_TETRA4: "tetra4",
+        NORM_TETRA10: "tetra10",
+        NORM_PYRA5: "pyramid5",
+        NORM_PYRA13: "pyramid13",
+        NORM_PENTA6: "penta6",
+        NORM_PENTA15: "penta15",
+        NORM_HEXA20: "hexa20",
+    }
+    dictMCTyp = {k: bytes(v, "ascii") for k, v in list(dictMCTyp_str.items())}
+    discSpatial = {ON_CELLS: "element", ON_NODES: "node"}
+    dictCompo = {1: "scalar", 3: "vector", 6: "tensor", 9: "tensor9"}
+    dictMCTyp2 = {v: k for k, v in list(dictMCTyp.items())}
+    discSpatial2 = {v: k for k, v in list(discSpatial.items())}
+    dictCompo2 = {v: k for k, v in list(dictCompo.items())}

@@ -23,11 +23,15 @@
 from iterative_stats.iterative_mean import IterativeMean
 from iterative_stats.iterative_variance import IterativeVariance
 from iterative_stats.iterative_covariance import IterativeCovariance
-from iterative_stats.sensitivity.sensitivity_saltelli import IterativeSensitivitySaltelli
+from iterative_stats.sensitivity.sensitivity_saltelli import (
+    IterativeSensitivitySaltelli,
+)
 
 import numpy as np
+
 try:
     import openturns as ot
+
     have_ot = True
 except ImportError:
     have_ot = False
@@ -72,22 +76,45 @@ class IterativeFieldMoments:
             self._dim = values.getNumberOfComponents()
             self._size = values.getNumberOfTuples()
             if have_ot:
-                self._agg_mean = [ot.IterativeMoments(1, self._dim) for k in range(self._size)] if self._enable_mean else None
-                self._agg_variance = [ot.IterativeMoments(2, self._dim) for k in range(self._size)] if self._enable_variance else None
+                self._agg_mean = (
+                    [ot.IterativeMoments(1, self._dim) for k in range(self._size)]
+                    if self._enable_mean
+                    else None
+                )
+                self._agg_variance = (
+                    [ot.IterativeMoments(2, self._dim) for k in range(self._size)]
+                    if self._enable_variance
+                    else None
+                )
             else:
-                self._agg_mean = [IterativeMean(dim=self._dim) for k in range(self._size)] if self._enable_mean else None
-                self._agg_variance = [IterativeVariance(dim=self._dim) for k in range(self._size)] if self._enable_variance else None
+                self._agg_mean = (
+                    [IterativeMean(dim=self._dim) for k in range(self._size)]
+                    if self._enable_mean
+                    else None
+                )
+                self._agg_variance = (
+                    [IterativeVariance(dim=self._dim) for k in range(self._size)]
+                    if self._enable_variance
+                    else None
+                )
 
             if self._enable_covariance:
-                n_tri = (self._dim * (self._dim + 1) // 2)
-                self._agg_covariance = [[IterativeCovariance(dim=1) for i in range(n_tri)] for k in range(self._size)]
+                n_tri = self._dim * (self._dim + 1) // 2
+                self._agg_covariance = [
+                    [IterativeCovariance(dim=1) for i in range(n_tri)]
+                    for k in range(self._size)
+                ]
             else:
                 self._agg_covariance = None
 
         if values.getNumberOfComponents() != self._dim:
-            raise ValueError(f"Incorrect number of components {values.getNumberOfComponents()} expected {self._dim}")
+            raise ValueError(
+                f"Incorrect number of components {values.getNumberOfComponents()} expected {self._dim}"
+            )
         if values.getNumberOfTuples() != self._size:
-            raise ValueError(f"Incorrect number of tuples {values.getNumberOfTuples()} expected {self._size}")
+            raise ValueError(
+                f"Incorrect number of tuples {values.getNumberOfTuples()} expected {self._size}"
+            )
         for k in range(self._size):
             tk = values.getTuple(k)
             if self._enable_mean:
@@ -97,7 +124,9 @@ class IterativeFieldMoments:
             if self._enable_covariance:
                 for i in range(self._dim):
                     for j in range(i + 1):
-                        self._agg_covariance[k][i * (i + 1) // 2 + j].increment(tk[i], tk[j])
+                        self._agg_covariance[k][i * (i + 1) // 2 + j].increment(
+                            tk[i], tk[j]
+                        )
 
     def mean(self):
         """
@@ -182,6 +211,7 @@ class IterativeFieldSobol:
     nb_params : int
         Number of parameters of the field
     """
+
     def __init__(self, nb_parms: int):
         if nb_parms < 2:
             raise ValueError(f"Got {nb_parms} parameters, expected at least 2")
@@ -205,7 +235,10 @@ class IterativeFieldSobol:
         if self._dim == None:
             self._dim = fields[0].getArray().getNumberOfComponents()
             self._size = fields[0].getArray().getNumberOfTuples()
-            self._agg_sobol = [IterativeSensitivitySaltelli(self._nb_parms, dim=self._dim) for k in range(self._size)]
+            self._agg_sobol = [
+                IterativeSensitivitySaltelli(self._nb_parms, dim=self._dim)
+                for k in range(self._size)
+            ]
 
         for k in range(self._size):
             tks = np.array([field.getArray().getTuple(k) for field in fields])
@@ -227,5 +260,8 @@ class IterativeFieldSobol:
         """
         if self._agg_sobol is None:
             raise ValueError("No data aggregated")
-        result = self._agg_sobol[k].getFirstOrderIndices(), self._agg_sobol[k].getTotalOrderIndices()
+        result = (
+            self._agg_sobol[k].getFirstOrderIndices(),
+            self._agg_sobol[k].getTotalOrderIndices(),
+        )
         return result

@@ -45,6 +45,3 @@ MPI_AccessDEC :
   recvcount sont constants pendant toute la boucle de temps. Ainsi
   on n'allouerait les buffers qu'une fois au depart et ils ne seraient
   liberes qu'a la fin.
-
-
-

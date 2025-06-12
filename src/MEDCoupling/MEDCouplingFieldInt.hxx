@@ -24,5 +24,5 @@
 
 namespace MEDCoupling
 {
-    using MEDCouplingFieldInt = MEDCouplingFieldInt32;
+using MEDCouplingFieldInt = MEDCouplingFieldInt32;
 }

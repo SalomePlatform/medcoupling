@@ -29,50 +29,72 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyCMeshType, class MyUMeshType, class MyMatrix> class _StabIntersector;
+template <class MyCMeshType, class MyUMeshType, class MyMatrix>
+class _StabIntersector;
 
-  template<class MyCMeshType, class MyUMeshType, class MyMatrix, class ConcreteIntersector=_StabIntersector<MyCMeshType,MyUMeshType,MyMatrix> >
-  class IntersectorCU : public TargetIntersector<MyCMeshType,MyMatrix>
-  {
-  public:
-    static const int SPACEDIM=MyCMeshType::MY_SPACEDIM;
-    static const int MESHDIM=MyCMeshType::MY_MESHDIM;
+template <
+    class MyCMeshType,
+    class MyUMeshType,
+    class MyMatrix,
+    class ConcreteIntersector = _StabIntersector<MyCMeshType, MyUMeshType, MyMatrix> >
+class IntersectorCU : public TargetIntersector<MyCMeshType, MyMatrix>
+{
+   public:
+    static const int SPACEDIM = MyCMeshType::MY_SPACEDIM;
+    static const int MESHDIM = MyCMeshType::MY_MESHDIM;
     typedef typename MyUMeshType::MyConnType UConnType;
     typedef typename MyCMeshType::MyConnType CConnType;
-  public:
+
+   public:
     //! \addtogroup InterpKerGrpIntCU @{
-    IntersectorCU(const MyCMeshType& meshS, const MyUMeshType& meshT);
+    IntersectorCU(const MyCMeshType &meshS, const MyUMeshType &meshT);
     //! @}
     virtual ~IntersectorCU();
-    void getUElemBB(double* bb, UConnType iP);
-    void getUCoordinates(UConnType icell, std::vector<double>& coords);
+    void getUElemBB(double *bb, UConnType iP);
+    void getUCoordinates(UConnType icell, std::vector<double> &coords);
 
     CConnType getNumberOfRowsOfResMatrix() const;
     CConnType getNumberOfColsOfResMatrix() const;
-    void intersectCells(CConnType icellU, const std::vector<CConnType>& icellC, MyMatrix& res);
-    double intersectGeometry(CConnType icellT, const std::vector<CConnType>& icellC) { return asLeaf().intersectGeometry(icellT,icellC); }
-  protected:
-    ConcreteIntersector& asLeaf() { return static_cast<ConcreteIntersector&>(*this); }
+    void intersectCells(CConnType icellU, const std::vector<CConnType> &icellC, MyMatrix &res);
+    double intersectGeometry(CConnType icellT, const std::vector<CConnType> &icellC)
+    {
+        return asLeaf().intersectGeometry(icellT, icellC);
+    }
 
-  protected:
+   protected:
+    ConcreteIntersector &asLeaf() { return static_cast<ConcreteIntersector &>(*this); }
+
+   protected:
     const UConnType *_connectU;
     const UConnType *_connIndexU;
-    const double *  _coordsU;
-    const MyUMeshType& _meshU;
+    const double *_coordsU;
+    const MyUMeshType &_meshU;
 
-    const double *     _coordsC[SPACEDIM];
-    CConnType          _nbCellsC[SPACEDIM];
-    const MyCMeshType& _meshC;
-  };
+    const double *_coordsC[SPACEDIM];
+    CConnType _nbCellsC[SPACEDIM];
+    const MyCMeshType &_meshC;
+};
 
-  // class to enable usage of IntersectorCU not for intersection but for access to data it encapsulates
-  template<class MyCMeshType, class MyUMeshType, class MyMatrix>
-  class _StabIntersector: public IntersectorCU<MyCMeshType, MyUMeshType, MyMatrix, _StabIntersector<MyCMeshType, MyUMeshType, MyMatrix> >
-  {
-  public:
-    _StabIntersector(const MyCMeshType& meshS, const MyUMeshType& meshT) : IntersectorCU<MyCMeshType, MyUMeshType, MyMatrix, _StabIntersector<MyCMeshType, MyUMeshType, MyMatrix> >(meshS, meshT) {}
-    double intersectGeometry(typename MyUMeshType::MyConnType icellT, const std::vector<typename MyCMeshType::MyConnType>& icellC) { throw Exception("You must provide an intersector as the 4-th template argument of IntersectorCU"); return 0; }
-  };
-}
+// class to enable usage of IntersectorCU not for intersection but for access to data it encapsulates
+template <class MyCMeshType, class MyUMeshType, class MyMatrix>
+class _StabIntersector
+    : public IntersectorCU<MyCMeshType, MyUMeshType, MyMatrix, _StabIntersector<MyCMeshType, MyUMeshType, MyMatrix> >
+{
+   public:
+    _StabIntersector(const MyCMeshType &meshS, const MyUMeshType &meshT)
+        : IntersectorCU<MyCMeshType, MyUMeshType, MyMatrix, _StabIntersector<MyCMeshType, MyUMeshType, MyMatrix> >(
+              meshS, meshT
+          )
+    {
+    }
+    double intersectGeometry(
+        typename MyUMeshType::MyConnType icellT, const std::vector<typename MyCMeshType::MyConnType> &icellC
+    )
+    {
+        throw Exception("You must provide an intersector as the 4-th template argument of IntersectorCU");
+        return 0;
+    }
+};
+}  // namespace INTERP_KERNEL
 
 #endif

@@ -26,17 +26,18 @@
 
 namespace MEDCoupling
 {
-  class ParaMESH;
-  class ParaFIELD;
-}
+class ParaMESH;
+class ParaFIELD;
+}  // namespace MEDCoupling
 
 class ParaMEDLoader
 {
-public:
-  static void WriteParaMesh(const char *fileName, MEDCoupling::ParaMESH *mesh);
-  static void WriteMasterFile(const char *fileName, const std::vector<std::string>& fileNames, const char *meshName);
-private:
-  ParaMEDLoader();
+   public:
+    static void WriteParaMesh(const char *fileName, MEDCoupling::ParaMESH *mesh);
+    static void WriteMasterFile(const char *fileName, const std::vector<std::string> &fileNames, const char *meshName);
+
+   private:
+    ParaMEDLoader();
 };
 
 #endif

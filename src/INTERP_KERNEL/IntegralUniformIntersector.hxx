@@ -27,46 +27,56 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix>
-  class IntegralUniformIntersector : public TargetIntersector<MyMeshType,MyMatrix>
-  {
-  public:
+template <class MyMeshType, class MyMatrix>
+class IntegralUniformIntersector : public TargetIntersector<MyMeshType, MyMatrix>
+{
+   public:
     typedef typename MyMeshType::MyConnType ConnType;
-  public:
-    IntegralUniformIntersector(const MyMeshType& mesh, bool isAbs);
-    double performNormalization(double val) const { if(_is_abs) return fabs(val); else return val; }
-    void setFromTo(bool val) { _from_to=val; }
-    void putValueIn(ConnType i, double val, MyMatrix& res) const;
-  protected:
-    const MyMeshType& _mesh;
+
+   public:
+    IntegralUniformIntersector(const MyMeshType &mesh, bool isAbs);
+    double performNormalization(double val) const
+    {
+        if (_is_abs)
+            return fabs(val);
+        else
+            return val;
+    }
+    void setFromTo(bool val) { _from_to = val; }
+    void putValueIn(ConnType i, double val, MyMatrix &res) const;
+
+   protected:
+    const MyMeshType &_mesh;
     //! if false means fromIntegralUniform if true means toIntegralUniform
     bool _from_to;
     bool _is_abs;
-  };
+};
 
-  template<class MyMeshType, class MyMatrix>
-  class IntegralUniformIntersectorP0 : public IntegralUniformIntersector<MyMeshType,MyMatrix>
-  {
-  public:
+template <class MyMeshType, class MyMatrix>
+class IntegralUniformIntersectorP0 : public IntegralUniformIntersector<MyMeshType, MyMatrix>
+{
+   public:
     typedef typename MyMeshType::MyConnType ConnType;
-  public:
-    IntegralUniformIntersectorP0(const MyMeshType& mesh, bool isAbs);
+
+   public:
+    IntegralUniformIntersectorP0(const MyMeshType &mesh, bool isAbs);
     ConnType getNumberOfRowsOfResMatrix() const;
     ConnType getNumberOfColsOfResMatrix() const;
-    void intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res);
-  };
+    void intersectCells(ConnType targetCell, const std::vector<ConnType> &srcCells, MyMatrix &res);
+};
 
-  template<class MyMeshType, class MyMatrix>
-  class IntegralUniformIntersectorP1 : public IntegralUniformIntersector<MyMeshType,MyMatrix>
-  {
-  public:
+template <class MyMeshType, class MyMatrix>
+class IntegralUniformIntersectorP1 : public IntegralUniformIntersector<MyMeshType, MyMatrix>
+{
+   public:
     typedef typename MyMeshType::MyConnType ConnType;
-  public:
-    IntegralUniformIntersectorP1(const MyMeshType& mesh, bool isAbs);
+
+   public:
+    IntegralUniformIntersectorP1(const MyMeshType &mesh, bool isAbs);
     ConnType getNumberOfRowsOfResMatrix() const;
     ConnType getNumberOfColsOfResMatrix() const;
-    void intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res);
-  };
-}
+    void intersectCells(ConnType targetCell, const std::vector<ConnType> &srcCells, MyMatrix &res);
+};
+}  // namespace INTERP_KERNEL
 
 #endif

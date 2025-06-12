@@ -24,25 +24,25 @@
 
 namespace MEDCoupling
 {
-    class MathOpsTest : public CppUnit::TestFixture
-    {
-        CPPUNIT_TEST_SUITE(MathOpsTest);
-        CPPUNIT_TEST(testLstsq);
-        CPPUNIT_TEST(testLstsq2);
-        CPPUNIT_TEST(testLstsqBig);
-        CPPUNIT_TEST(testComputeCov);
-        CPPUNIT_TEST(testComputePCAFirstAxis);
-        CPPUNIT_TEST(testComputeAngles);
-        CPPUNIT_TEST(testComputeBaseFromNormal);
-        CPPUNIT_TEST_SUITE_END();
+class MathOpsTest : public CppUnit::TestFixture
+{
+    CPPUNIT_TEST_SUITE(MathOpsTest);
+    CPPUNIT_TEST(testLstsq);
+    CPPUNIT_TEST(testLstsq2);
+    CPPUNIT_TEST(testLstsqBig);
+    CPPUNIT_TEST(testComputeCov);
+    CPPUNIT_TEST(testComputePCAFirstAxis);
+    CPPUNIT_TEST(testComputeAngles);
+    CPPUNIT_TEST(testComputeBaseFromNormal);
+    CPPUNIT_TEST_SUITE_END();
 
-    public:
-        void testLstsq();
-        void testLstsq2();
-        void testLstsqBig();
-        void testComputeCov();
-        void testComputePCAFirstAxis();
-        void testComputeAngles();
-        void testComputeBaseFromNormal();
-    };
-}
+   public:
+    void testLstsq();
+    void testLstsq2();
+    void testLstsqBig();
+    void testComputeCov();
+    void testComputePCAFirstAxis();
+    void testComputeAngles();
+    void testComputeBaseFromNormal();
+};
+}  // namespace MEDCoupling

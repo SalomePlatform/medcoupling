@@ -25,20 +25,30 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix>
-  class PlanarIntersectorP1P0PL : public PlanarIntersector<MyMeshType,MyMatrix>
-  {
+template <class MyMeshType, class MyMatrix>
+class PlanarIntersectorP1P0PL : public PlanarIntersector<MyMeshType, MyMatrix>
+{
    public:
-    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+    static const int SPACEDIM = MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM = MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
-    static const NumberingPolicy numPol=MyMeshType::My_numPol;
-  public:
-    PlanarIntersectorP1P0PL(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double md3DSurf, double minDot3DSurf, double medianPlane, double precision, int orientation);
-    void intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res);
+    static const NumberingPolicy numPol = MyMeshType::My_numPol;
+
+   public:
+    PlanarIntersectorP1P0PL(
+        const MyMeshType &meshT,
+        const MyMeshType &meshS,
+        double dimCaracteristic,
+        double md3DSurf,
+        double minDot3DSurf,
+        double medianPlane,
+        double precision,
+        int orientation
+    );
+    void intersectCells(ConnType icellT, const std::vector<ConnType> &icellsS, MyMatrix &res);
     ConnType getNumberOfRowsOfResMatrix() const;
     ConnType getNumberOfColsOfResMatrix() const;
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

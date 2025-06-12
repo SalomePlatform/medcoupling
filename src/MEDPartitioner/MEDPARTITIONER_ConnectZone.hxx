@@ -26,9 +26,9 @@
 
 namespace MEDCoupling
 {
-  class MEDCouplingUMesh;
-  class MEDCouplingSkyLineArray;
-}
+class MEDCouplingUMesh;
+class MEDCouplingSkyLineArray;
+}  // namespace MEDCoupling
 
 #include <map>
 #include <vector>
@@ -38,69 +38,65 @@ using namespace MEDCoupling;
 
 namespace MEDPARTITIONER
 {
-  class MEDPARTITIONER_EXPORT ConnectZone
-  {
-  public :
+class MEDPARTITIONER_EXPORT ConnectZone
+{
+   public:
     ConnectZone();
     ~ConnectZone();
-    ConnectZone(const ConnectZone & myConnectZone);
+    ConnectZone(const ConnectZone &myConnectZone);
 
-    std::string getName() const ;
-    std::string getDescription() const ;
-    int getDistantDomainNumber() const ;
-    int getLocalDomainNumber() const ;
-    MEDCouplingUMesh *getLocalMesh() const ;
-    MEDCouplingUMesh *getDistantMesh() const ;
+    std::string getName() const;
+    std::string getDescription() const;
+    int getDistantDomainNumber() const;
+    int getLocalDomainNumber() const;
+    MEDCouplingUMesh *getLocalMesh() const;
+    MEDCouplingUMesh *getDistantMesh() const;
 
-    bool isEntityCorrespPresent(mcIdType localEntity,mcIdType distantEntity) const;
+    bool isEntityCorrespPresent(mcIdType localEntity, mcIdType distantEntity) const;
     const mcIdType *getNodeCorrespIndex() const;
     const mcIdType *getNodeCorrespValue() const;
     mcIdType getNodeNumber() const;
-    const MEDCouplingSkyLineArray * getNodeCorresp() const;
+    const MEDCouplingSkyLineArray *getNodeCorresp() const;
     const mcIdType *getFaceCorrespIndex() const;
     const mcIdType *getFaceCorrespValue() const;
     mcIdType getFaceNumber() const;
-    const MEDCouplingSkyLineArray * getFaceCorresp() const;
-    const mcIdType *getEntityCorrespIndex(mcIdType localEntity,
-                                          mcIdType distantEntity) const;
-    const mcIdType *getEntityCorrespValue(mcIdType localEntity,
-                                          mcIdType distantEntity) const;
-    mcIdType getEntityCorrespNumber(mcIdType localEntity,
-                                    mcIdType distantEntity) const;
-    mcIdType getEntityCorrespLength(mcIdType localEntity,
-                                    mcIdType distantEntity) const;
-    const MEDCouplingSkyLineArray * getEntityCorresp(mcIdType localEntity,
-                                                     mcIdType distantEntity) const;
-    std::vector< std::pair< mcIdType,mcIdType > > getEntities() const;
+    const MEDCouplingSkyLineArray *getFaceCorresp() const;
+    const mcIdType *getEntityCorrespIndex(mcIdType localEntity, mcIdType distantEntity) const;
+    const mcIdType *getEntityCorrespValue(mcIdType localEntity, mcIdType distantEntity) const;
+    mcIdType getEntityCorrespNumber(mcIdType localEntity, mcIdType distantEntity) const;
+    mcIdType getEntityCorrespLength(mcIdType localEntity, mcIdType distantEntity) const;
+    const MEDCouplingSkyLineArray *getEntityCorresp(mcIdType localEntity, mcIdType distantEntity) const;
+    std::vector<std::pair<mcIdType, mcIdType> > getEntities() const;
 
-    void setName(const std::string& name) ;
-    void setDescription(const std::string& description) ;
-    void setDistantDomainNumber(int distantDomainNumber) ;
-    void setLocalDomainNumber(int distantDomainNumber) ;
-    void setLocalMesh(MEDCouplingUMesh * localMesh) ;
-    void setDistantMesh(MEDCouplingUMesh * distantMesh) ;
+    void setName(const std::string &name);
+    void setDescription(const std::string &description);
+    void setDistantDomainNumber(int distantDomainNumber);
+    void setLocalDomainNumber(int distantDomainNumber);
+    void setLocalMesh(MEDCouplingUMesh *localMesh);
+    void setDistantMesh(MEDCouplingUMesh *distantMesh);
 
-    void setNodeCorresp(const mcIdType * nodeCorresp, mcIdType nbnode);
-    void setNodeCorresp(MEDCouplingSkyLineArray* array);
-    void setFaceCorresp(const mcIdType * faceCorresp, mcIdType nbface);
-    void setFaceCorresp(MEDCouplingSkyLineArray* array);
-    void setEntityCorresp(mcIdType localEntity, mcIdType distantEntity,
-                          const mcIdType * entityCorresp, mcIdType nbentity);
-    void setEntityCorresp(mcIdType localEntity, mcIdType distantEntity,
-                          MEDCouplingSkyLineArray *array);
-  private :
+    void setNodeCorresp(const mcIdType *nodeCorresp, mcIdType nbnode);
+    void setNodeCorresp(MEDCouplingSkyLineArray *array);
+    void setFaceCorresp(const mcIdType *faceCorresp, mcIdType nbface);
+    void setFaceCorresp(MEDCouplingSkyLineArray *array);
+    void setEntityCorresp(
+        mcIdType localEntity, mcIdType distantEntity, const mcIdType *entityCorresp, mcIdType nbentity
+    );
+    void setEntityCorresp(mcIdType localEntity, mcIdType distantEntity, MEDCouplingSkyLineArray *array);
+
+   private:
     std::string _name;
     std::string _description;
     int _local_domain_number;
     int _distant_domain_number;
 
-    MEDCouplingUMesh * _local_mesh;
-    MEDCouplingUMesh * _distant_mesh;
+    MEDCouplingUMesh *_local_mesh;
+    MEDCouplingUMesh *_distant_mesh;
 
     MCAuto<MEDCouplingSkyLineArray> _node_corresp;
     MCAuto<MEDCouplingSkyLineArray> _face_corresp;
 
-    std::map < std::pair <mcIdType,mcIdType>, MEDCouplingSkyLineArray * > _entity_corresp;
-  };
-}
-# endif
+    std::map<std::pair<mcIdType, mcIdType>, MEDCouplingSkyLineArray *> _entity_corresp;
+};
+}  // namespace MEDPARTITIONER
+#endif

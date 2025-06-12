@@ -19,4 +19,4 @@
 
 #include "TranslationRotationMatrix.hxx"
 
-const double INTERP_KERNEL::TranslationRotationMatrix::EPS=1e-12;
+const double INTERP_KERNEL::TranslationRotationMatrix::EPS = 1e-12;

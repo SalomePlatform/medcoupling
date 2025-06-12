@@ -20,20 +20,17 @@
 
 #include "InterpKernelGeo2DPrecision.hxx"
 
-double INTERP_KERNEL::QuadraticPlanarPrecision::_precision=1e-14;
+double INTERP_KERNEL::QuadraticPlanarPrecision::_precision = 1e-14;
 
-INTERP_KERNEL::QuadraticPlanarPrecision::QuadraticPlanarPrecision(double precision):
-    _initial_precision(_precision)
+INTERP_KERNEL::QuadraticPlanarPrecision::QuadraticPlanarPrecision(double precision) : _initial_precision(_precision)
 {
-  _precision=precision;
+    _precision = precision;
 }
 
-INTERP_KERNEL::QuadraticPlanarPrecision::~QuadraticPlanarPrecision()
-{
-  _precision = _initial_precision;
-}
+INTERP_KERNEL::QuadraticPlanarPrecision::~QuadraticPlanarPrecision() { _precision = _initial_precision; }
 
-void INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(double precision)
+void
+INTERP_KERNEL::QuadraticPlanarPrecision::setPrecision(double precision)
 {
-  _precision=precision;
+    _precision = precision;
 }

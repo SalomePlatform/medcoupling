@@ -24,24 +24,25 @@
 
 namespace INTERP_KERNEL
 {
-  template <class T>
-  class INTERPKERNEL_EXPORT DenseMatrixT
-  {
-  private:
+template <class T>
+class INTERPKERNEL_EXPORT DenseMatrixT
+{
+   private:
     mcIdType nn;
     mcIdType mm;
     T **v;
-  public:
+
+   public:
     DenseMatrixT();
     DenseMatrixT(mcIdType n, mcIdType m);
-    DenseMatrixT(mcIdType n, mcIdType m, const T &a);	
+    DenseMatrixT(mcIdType n, mcIdType m, const T &a);
     DenseMatrixT(mcIdType n, mcIdType m, const T *a);
     DenseMatrixT(const DenseMatrixT &rhs);
-    DenseMatrixT & operator=(const DenseMatrixT &rhs);
+    DenseMatrixT &operator=(const DenseMatrixT &rhs);
     using value_type = T;
     //! subscripting: pointer to row i
-    T* operator[](const mcIdType i) { return v[i]; }
-    const T* operator[](const mcIdType i) const { return v[i]; }
+    T *operator[](const mcIdType i) { return v[i]; }
+    const T *operator[](const mcIdType i) const { return v[i]; }
     mcIdType nrows() const { return nn; }
     mcIdType ncols() const { return mm; }
     void resize(mcIdType newn, mcIdType newm);
@@ -49,7 +50,7 @@ namespace INTERP_KERNEL
     ~DenseMatrixT();
     T determinant() const;
     T toJacobian() const;
-  };
+};
 
-  using DenseMatrix = DenseMatrixT<double>;
-}
+using DenseMatrix = DenseMatrixT<double>;
+}  // namespace INTERP_KERNEL

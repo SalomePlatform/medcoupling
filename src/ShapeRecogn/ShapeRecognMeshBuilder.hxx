@@ -31,56 +31,58 @@
 #include "ShapeRecognDefines.hxx"
 namespace MEDCoupling
 {
-    class MEDCouplingFieldInt32;
-    class MEDCouplingFieldInt64;
-    class MEDCouplingFieldDouble;
+class MEDCouplingFieldInt32;
+class MEDCouplingFieldInt64;
+class MEDCouplingFieldDouble;
 
-    class ShapeRecognMesh;
+class ShapeRecognMesh;
 
-    class SHAPE_RECOGNITION_EXPORT ShapeRecognMeshBuilder
-    {
-    public:
-        ShapeRecognMeshBuilder(MCAuto< MEDCouplingUMesh > mesh);
-        ShapeRecognMeshBuilder(MEDCouplingUMesh *mesh);
+class SHAPE_RECOGNITION_EXPORT ShapeRecognMeshBuilder
+{
+   public:
+    ShapeRecognMeshBuilder(MCAuto<MEDCouplingUMesh> mesh);
+    ShapeRecognMeshBuilder(MEDCouplingUMesh *mesh);
 
-        const Nodes *getNodes() const;
-        const Areas *getAreas() const;
+    const Nodes *getNodes() const;
+    const Areas *getAreas() const;
 
-        MCAuto<ShapeRecognMesh> recognize();
+    MCAuto<ShapeRecognMesh> recognize();
 
-        // Node properties
-        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> buildNodeWeakDirections() const;
-        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> buildNodeMainDirections() const;
+    // Node properties
+    MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> buildNodeWeakDirections() const;
+    MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> buildNodeMainDirections() const;
 
-        //Area properties
-        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> buildAreaAxisPoint() const;
-        MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> buildAreaAffinePoint() const;
-    private:
-        // Node properties
-        MEDCoupling::MEDCouplingFieldDouble *buildNodeK1() const;
-        MEDCoupling::MEDCouplingFieldDouble *buildNodeK2() const;
-        MEDCoupling::MEDCouplingFieldInt32  *buildNodePrimitiveType() const;
-        MEDCoupling::MEDCouplingFieldDouble *buildNodeNormal() const;
+    // Area properties
+    MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> buildAreaAxisPoint() const;
+    MEDCoupling::MCAuto<MEDCoupling::MEDCouplingFieldDouble> buildAreaAffinePoint() const;
 
-        // Area properties
-        MEDCoupling::MEDCouplingFieldInt32  *buildAreaId() const;
-        MEDCoupling::MEDCouplingFieldInt32  *buildAreaPrimitiveType() const;
-        MEDCoupling::MEDCouplingFieldDouble *buildAreaNormal() const;
-        MEDCoupling::MEDCouplingFieldDouble *buildMinorRadius() const;
-        MEDCoupling::MEDCouplingFieldDouble *buildRadius() const;
-        MEDCoupling::MEDCouplingFieldDouble *buildAngle() const;
-        MEDCoupling::MEDCouplingFieldDouble *buildCenter() const;
-        MEDCoupling::MEDCouplingFieldDouble *buildAxis() const;
-        MEDCoupling::MEDCouplingFieldDouble *buildApex() const;
+   private:
+    // Node properties
+    MEDCoupling::MEDCouplingFieldDouble *buildNodeK1() const;
+    MEDCoupling::MEDCouplingFieldDouble *buildNodeK2() const;
+    MEDCoupling::MEDCouplingFieldInt32 *buildNodePrimitiveType() const;
+    MEDCoupling::MEDCouplingFieldDouble *buildNodeNormal() const;
 
-        double *buildArea3DArray(std::function<std::array<double, 3>(Areas *, Int32)> areaFunc) const;
-        double *buildAreaArray(std::function<double(Areas *, Int32)> areaFunc) const;
-        void assign(MCAuto< MEDCouplingUMesh > mesh);
-        void checkNodesBeforeBuildingField() const;
-        void checkAreasBeforeBuildingField() const;
-    private:
-        MCConstAuto< MEDCouplingUMesh > mesh;
-        std::unique_ptr<Nodes> nodes;
-        std::unique_ptr<Areas> areas;
-    };
-}
+    // Area properties
+    MEDCoupling::MEDCouplingFieldInt32 *buildAreaId() const;
+    MEDCoupling::MEDCouplingFieldInt32 *buildAreaPrimitiveType() const;
+    MEDCoupling::MEDCouplingFieldDouble *buildAreaNormal() const;
+    MEDCoupling::MEDCouplingFieldDouble *buildMinorRadius() const;
+    MEDCoupling::MEDCouplingFieldDouble *buildRadius() const;
+    MEDCoupling::MEDCouplingFieldDouble *buildAngle() const;
+    MEDCoupling::MEDCouplingFieldDouble *buildCenter() const;
+    MEDCoupling::MEDCouplingFieldDouble *buildAxis() const;
+    MEDCoupling::MEDCouplingFieldDouble *buildApex() const;
+
+    double *buildArea3DArray(std::function<std::array<double, 3>(Areas *, Int32)> areaFunc) const;
+    double *buildAreaArray(std::function<double(Areas *, Int32)> areaFunc) const;
+    void assign(MCAuto<MEDCouplingUMesh> mesh);
+    void checkNodesBeforeBuildingField() const;
+    void checkAreasBeforeBuildingField() const;
+
+   private:
+    MCConstAuto<MEDCouplingUMesh> mesh;
+    std::unique_ptr<Nodes> nodes;
+    std::unique_ptr<Areas> areas;
+};
+}  // namespace MEDCoupling

@@ -64,11 +64,11 @@ Define the coordinates of the nodes of the 3D cube mesh, and then use the setCoo
 		for j in range(N):
 			for i in range(N):
 				coordinates.append(...)
-				
+
 	myCoords = mc.DataArrayDouble.New()
 	myCoords.setValues(coordinates,nbOfNodes,3)
 	mesh.setCoords(myCoords)
-	
+
 
 Definition of hexahedrons connectivity
 ``````````````````````````````````````
@@ -92,10 +92,10 @@ For each hexahedron of the mesh, you have to give its connectivity: the list of 
 	for i in range(nbOfCells):
 		mesh.insertNextCell(mc.NORM_HEXA8,8,connectivity[8*i:8*(i+1)])
 		pass
-		
+
 	# Check mesh consistency:
 	mesh.checkConsistencyLight()
-	
+
 Method by extrusion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -307,11 +307,11 @@ The connectivity must respect following figure:
 	#print(mesh2D)
 	mesh2D.setName("3Dcube")
 	mesh2D.checkConsistencyLight()
-	
+
 	medFileName = "MEDCoupling_cube3D.med"
 	meshes=[mesh2D,mesh]
 	mc.WriteUMeshes(medFileName,meshes,True)
-	
+
 Group Case
 ````````````
 ::

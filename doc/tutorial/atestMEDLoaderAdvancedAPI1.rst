@@ -43,7 +43,7 @@ Reading, Writing a MED file using MEDLoader advanced API
 	grp1_M1.setName("grp1_LevM1")
 	grp2_M1 = mc.DataArrayInt([1,2,3])
 	grp2_M1.setName("grp2_LevM1")
-	meshMEDFile.setGroupsAtLevel(-1,[grp0_M1,grp1_M1,grp2_M1])	
+	meshMEDFile.setGroupsAtLevel(-1,[grp0_M1,grp1_M1,grp2_M1])
 	# Write everything
 	meshMEDFile.write("TargetMesh2.med",2) # 2 stands for write from scratch
 	# Re-read and test equality
@@ -91,4 +91,3 @@ Reading, Writing a MED file using MEDLoader advanced API
 	fPartRead, pflRead = fMEDFileRead2.getFieldWithProfile(mc.ON_CELLS,0,meshMEDFileRead)
 	print("Is the partial field correctly read?", fPartRead.isEqualWithoutConsideringStr(fPart.getArray(),1e-12))
 	print("Is the list of cell identifiers matching?", pflRead.isEqualWithoutConsideringStr(pfl))
-	

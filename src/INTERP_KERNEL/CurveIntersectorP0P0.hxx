@@ -25,24 +25,29 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix>
-  class CurveIntersectorP0P0 : public CurveIntersector<MyMeshType,MyMatrix>
-  {
-  public:
-    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+template <class MyMeshType, class MyMatrix>
+class CurveIntersectorP0P0 : public CurveIntersector<MyMeshType, MyMatrix>
+{
+   public:
+    static const int SPACEDIM = MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM = MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
-    static const NumberingPolicy numPol=MyMeshType::My_numPol;
+    static const NumberingPolicy numPol = MyMeshType::My_numPol;
 
-    CurveIntersectorP0P0(const MyMeshType& meshT, const MyMeshType& meshS,
-                         double  precision, double tolerance,
-                         double medianLine, int printLevel);
-  public:
+    CurveIntersectorP0P0(
+        const MyMeshType &meshT,
+        const MyMeshType &meshS,
+        double precision,
+        double tolerance,
+        double medianLine,
+        int printLevel
+    );
+
+   public:
     ConnType getNumberOfRowsOfResMatrix() const;
     ConnType getNumberOfColsOfResMatrix() const;
-    void intersectCells(ConnType icellT,
-                        const std::vector<ConnType>& icellsS, MyMatrix& res);
-  };
-}
+    void intersectCells(ConnType icellT, const std::vector<ConnType> &icellsS, MyMatrix &res);
+};
+}  // namespace INTERP_KERNEL
 
 #endif

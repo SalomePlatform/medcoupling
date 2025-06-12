@@ -25,12 +25,12 @@
 
 namespace INTERP_KERNEL
 {
-  class Interpolation1D : public InterpolationCurve<Interpolation1D>
-  {
-  public:
-    Interpolation1D() { }
-    Interpolation1D(const InterpolationOptions& io):InterpolationCurve<Interpolation1D>(io) {}
-  };
-}
+class Interpolation1D : public InterpolationCurve<Interpolation1D>
+{
+   public:
+    Interpolation1D() {}
+    Interpolation1D(const InterpolationOptions &io) : InterpolationCurve<Interpolation1D>(io) {}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

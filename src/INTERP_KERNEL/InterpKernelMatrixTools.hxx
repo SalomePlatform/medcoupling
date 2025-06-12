@@ -26,9 +26,12 @@
 
 namespace INTERP_KERNEL
 {
-  void INTERPKERNEL_EXPORT matrixProduct(const double *A, mcIdType n1, mcIdType p1, const double *B, mcIdType n2, mcIdType p2, double *C);
-  void INTERPKERNEL_EXPORT inverseMatrix(const double *A, mcIdType n, double *iA);
-  void INTERPKERNEL_EXPORT daxpy(mcIdType n, double da, const double *dx, mcIdType incx, double *dy, mcIdType incy);
-}
+void INTERPKERNEL_EXPORT
+matrixProduct(const double *A, mcIdType n1, mcIdType p1, const double *B, mcIdType n2, mcIdType p2, double *C);
+void INTERPKERNEL_EXPORT
+inverseMatrix(const double *A, mcIdType n, double *iA);
+void INTERPKERNEL_EXPORT
+daxpy(mcIdType n, double da, const double *dx, mcIdType incx, double *dy, mcIdType incy);
+}  // namespace INTERP_KERNEL
 
 #endif

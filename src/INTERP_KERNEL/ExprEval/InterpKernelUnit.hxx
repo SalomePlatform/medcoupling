@@ -29,89 +29,95 @@
 
 namespace INTERP_KERNEL
 {
-  class UnitDataBase
-  {
-  public:
+class UnitDataBase
+{
+   public:
     INTERPKERNEL_EXPORT UnitDataBase();
-    INTERPKERNEL_EXPORT const short *getInfoForUnit(const std::string& unit, double& addFact, double& mFact) const;
-    INTERPKERNEL_EXPORT static const UnitDataBase& GetUniqueMapForExpr();
-    INTERPKERNEL_EXPORT static const int SIZE_OF_UNIT_BASE=5;
-  private:
-    std::map<std::string,double> _prefix_pow_10;
-    std::map<std::string,const short *> _units_semantic;
-    std::map<std::string,double> _units_mul;
-    std::map<std::string,double> _units_add;
-  private:
-    static const int NB_OF_PREF_POW10=22;
+    INTERPKERNEL_EXPORT const short *getInfoForUnit(const std::string &unit, double &addFact, double &mFact) const;
+    INTERPKERNEL_EXPORT static const UnitDataBase &GetUniqueMapForExpr();
+    INTERPKERNEL_EXPORT static const int SIZE_OF_UNIT_BASE = 5;
+
+   private:
+    std::map<std::string, double> _prefix_pow_10;
+    std::map<std::string, const short *> _units_semantic;
+    std::map<std::string, double> _units_mul;
+    std::map<std::string, double> _units_add;
+
+   private:
+    static const int NB_OF_PREF_POW10 = 22;
     static const char *PREF_POW10[NB_OF_PREF_POW10];
     static const double POW10[NB_OF_PREF_POW10];
-    static const int NB_OF_UNITS_RECOGN=29;
+    static const int NB_OF_UNITS_RECOGN = 29;
     static const char *UNITS_RECOGN[NB_OF_UNITS_RECOGN];
     static const short PROJ_IN_BASE[NB_OF_UNITS_RECOGN][SIZE_OF_UNIT_BASE];
     static const double MUL_COEFF[NB_OF_UNITS_RECOGN];
     static const double ADD_COEFF[NB_OF_UNITS_RECOGN];
-  };
+};
 
-  class DecompositionInUnitBase
-  {
-  public:
+class DecompositionInUnitBase
+{
+   public:
     INTERPKERNEL_EXPORT DecompositionInUnitBase();
     INTERPKERNEL_EXPORT void setInfo(const short *vals, double addFact, double mFact);
     short operator[](int i) const { return _value[i]; }
-    INTERPKERNEL_EXPORT bool operator==(const DecompositionInUnitBase& other) const;
-    INTERPKERNEL_EXPORT void getTranslationParams(const DecompositionInUnitBase& other, double& mul, double& add) const;
-    INTERPKERNEL_EXPORT bool isEqual(short mass, short lgth, short time, short intensity, short temp,
-                                     double add, double mult);
+    INTERPKERNEL_EXPORT bool operator==(const DecompositionInUnitBase &other) const;
+    INTERPKERNEL_EXPORT void getTranslationParams(const DecompositionInUnitBase &other, double &mul, double &add) const;
+    INTERPKERNEL_EXPORT bool isEqual(
+        short mass, short lgth, short time, short intensity, short temp, double add, double mult
+    );
     INTERPKERNEL_EXPORT bool isUnitary() const;
     //! \b WARNING no test is done on the fact that unit is adimensionnal.
     INTERPKERNEL_EXPORT void negate();
     INTERPKERNEL_EXPORT bool isAdimensional() const;
     INTERPKERNEL_EXPORT void tryToConvertInUnit(double val);
-    INTERPKERNEL_EXPORT DecompositionInUnitBase &operator*(const DecompositionInUnitBase& other);
-    INTERPKERNEL_EXPORT DecompositionInUnitBase &operator/(const DecompositionInUnitBase& other);
-    INTERPKERNEL_EXPORT DecompositionInUnitBase &operator^(const DecompositionInUnitBase& other);
-  private:
-    void dealWithAddFactor(const DecompositionInUnitBase& other);
+    INTERPKERNEL_EXPORT DecompositionInUnitBase &operator*(const DecompositionInUnitBase &other);
+    INTERPKERNEL_EXPORT DecompositionInUnitBase &operator/(const DecompositionInUnitBase &other);
+    INTERPKERNEL_EXPORT DecompositionInUnitBase &operator^(const DecompositionInUnitBase &other);
+
+   private:
+    void dealWithAddFactor(const DecompositionInUnitBase &other);
     static int couldItBeConsideredAsInt(double val);
     static bool areDoubleEquals(double a, double b);
     static double powInt(double val, int exp);
-  private:
+
+   private:
     short _value[UnitDataBase::SIZE_OF_UNIT_BASE];
     double _add_to_base;
     double _mult_fact_to_base;
-  };
+};
 
-  /*!
-   * This class deals with units.
-   * This class has two main responsibilities :
-   *      - interpret units by giving simply their representation in string type.
-   *      - performing operations on these units.
-   *
-   * All the possible units are represented with a unique tuple with 5 elements
-   * representing the unique decomposition of a unit in the following base.
-   *
-   * dimension 0 stands for mass in g (\b NOT kg to simplify parsing).
-   * dimension 1 stands for length in m.
-   * dimension 2 stands for time in s.
-   * dimension 3 stands for elec intensity A.
-   * dimension 4 stands for temperature in K.
-   */
-  class Unit
-  {
-  public:
-    INTERPKERNEL_EXPORT Unit(const char *reprC, bool tryToInterp=true);
-    INTERPKERNEL_EXPORT Unit(const char *reprFortran, int sizeOfRepr, bool tryToInterp=true);
+/*!
+ * This class deals with units.
+ * This class has two main responsibilities :
+ *      - interpret units by giving simply their representation in string type.
+ *      - performing operations on these units.
+ *
+ * All the possible units are represented with a unique tuple with 5 elements
+ * representing the unique decomposition of a unit in the following base.
+ *
+ * dimension 0 stands for mass in g (\b NOT kg to simplify parsing).
+ * dimension 1 stands for length in m.
+ * dimension 2 stands for time in s.
+ * dimension 3 stands for elec intensity A.
+ * dimension 4 stands for temperature in K.
+ */
+class Unit
+{
+   public:
+    INTERPKERNEL_EXPORT Unit(const char *reprC, bool tryToInterp = true);
+    INTERPKERNEL_EXPORT Unit(const char *reprFortran, int sizeOfRepr, bool tryToInterp = true);
     INTERPKERNEL_EXPORT void tryToInterprate() const;
     INTERPKERNEL_EXPORT bool isInterpretationOK() const;
-    INTERPKERNEL_EXPORT bool isCompatibleWith(const Unit& other) const;
-    INTERPKERNEL_EXPORT double convert(const Unit& target, double sourceVal) const;
+    INTERPKERNEL_EXPORT bool isCompatibleWith(const Unit &other) const;
+    INTERPKERNEL_EXPORT double convert(const Unit &target, double sourceVal) const;
     INTERPKERNEL_EXPORT std::string getCoarseRepr() const;
-  private:
+
+   private:
     std::string _coarse_repr;
     mutable bool _is_interpreted;
     mutable bool _is_interpretation_ok;
     mutable DecompositionInUnitBase _decomp_in_base;
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

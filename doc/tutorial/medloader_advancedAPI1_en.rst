@@ -76,7 +76,7 @@ Create 3 groups on level -1. The 1st called "grp0_LevM1" on cells [0,1], the 2nd
 	grp1_M1=mc.DataArrayInt.New([0,1,2]) ; grp1_M1.setName("grp1_LevM1")
 	grp2_M1=mc.DataArrayInt.New([1,2,3]) ; grp2_M1.setName("grp2_LevM1")
 	meshMEDFile.setGroupsAtLevel(-1,[grp0_M1,grp1_M1,grp2_M1])
-	
+
 
 Then trying to read it. ::
 
@@ -122,7 +122,7 @@ Read it : ::
 	fRead2=fMEDFileRead.getFieldAtLevel(mc.ON_CELLS,0) # like above but mesh is re-read from file...
 	print("Does the field f remain the same using fast method ? %s"%(fRead1.isEqual(f,1e-12,1e-12)))
 	print("Does the field f remain the same using slow method ? %s"%(fRead2.isEqual(f,1e-12,1e-12)))
-	
+
 Writing and Reading fields on a "profile"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

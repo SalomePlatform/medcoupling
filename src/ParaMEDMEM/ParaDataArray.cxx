@@ -27,12 +27,14 @@ template class MEDCoupling::ParaDataArrayTemplate<Int64>;
 template class MEDCoupling::ParaDataArrayDiscrete<Int32>;
 template class MEDCoupling::ParaDataArrayDiscrete<Int64>;
 
-ParaDataArrayInt32 *ParaDataArrayInt32::New(DataArrayInt32 *seqDa)
+ParaDataArrayInt32 *
+ParaDataArrayInt32::New(DataArrayInt32 *seqDa)
 {
     return new ParaDataArrayInt32(seqDa);
 }
 
-ParaDataArrayInt64 *ParaDataArrayInt64::New(DataArrayInt64 *seqDa)
+ParaDataArrayInt64 *
+ParaDataArrayInt64::New(DataArrayInt64 *seqDa)
 {
     return new ParaDataArrayInt64(seqDa);
 }

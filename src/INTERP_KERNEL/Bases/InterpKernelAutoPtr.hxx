@@ -23,68 +23,98 @@
 
 namespace INTERP_KERNEL
 {
-  template<class T>
-  class AutoPtr
-  {
-  public:
-    AutoPtr(T *ptr=0):_ptr(ptr) {  }
+template <class T>
+class AutoPtr
+{
+   public:
+    AutoPtr(T *ptr = 0) : _ptr(ptr) {}
     ~AutoPtr() { destroyPtr(); }
-    bool isNull() const { return _ptr==0; }
+    bool isNull() const { return _ptr == 0; }
     bool isNotNull() const { return !isNull(); }
-    AutoPtr &operator=(T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; } return *this; }
-    T *operator->() { return _ptr ; }
+    AutoPtr &operator=(T *ptr)
+    {
+        if (_ptr != ptr)
+        {
+            destroyPtr();
+            _ptr = ptr;
+        }
+        return *this;
+    }
+    T *operator->() { return _ptr; }
     const T *operator->() const { return _ptr; }
-    T& operator*() { return *_ptr; }
-    const T& operator*() const { return *_ptr; }
+    T &operator*() { return *_ptr; }
+    const T &operator*() const { return *_ptr; }
     operator T *() { return _ptr; }
     operator const T *() const { return _ptr; }
-  private:
-    void destroyPtr() { delete [] _ptr; }
-  private:
-    T *_ptr;
-  };
 
-  template<class T>
-  class AutoCppPtr
-  {
-  public:
-    AutoCppPtr(T *ptr=0):_ptr(ptr) {  }
+   private:
+    void destroyPtr() { delete[] _ptr; }
+
+   private:
+    T *_ptr;
+};
+
+template <class T>
+class AutoCppPtr
+{
+   public:
+    AutoCppPtr(T *ptr = 0) : _ptr(ptr) {}
     ~AutoCppPtr() { destroyPtr(); }
-    bool isNull() const { return _ptr==0; }
+    bool isNull() const { return _ptr == 0; }
     bool isNotNull() const { return !isNull(); }
-    AutoCppPtr &operator=(T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; } return *this; }
-    T *operator->() { return _ptr ; }
+    AutoCppPtr &operator=(T *ptr)
+    {
+        if (_ptr != ptr)
+        {
+            destroyPtr();
+            _ptr = ptr;
+        }
+        return *this;
+    }
+    T *operator->() { return _ptr; }
     const T *operator->() const { return _ptr; }
-    T& operator*() { return *_ptr; }
-    const T& operator*() const { return *_ptr; }
+    T &operator*() { return *_ptr; }
+    const T &operator*() const { return *_ptr; }
     operator T *() { return _ptr; }
     operator const T *() const { return _ptr; }
-  private:
-    void destroyPtr() { delete _ptr; }
-  private:
-    T *_ptr;
-  };
 
-  template<class T>
-  class AutoCPtr
-  {
-  public:
-    AutoCPtr(T *ptr=0):_ptr(ptr) {  }
+   private:
+    void destroyPtr() { delete _ptr; }
+
+   private:
+    T *_ptr;
+};
+
+template <class T>
+class AutoCPtr
+{
+   public:
+    AutoCPtr(T *ptr = 0) : _ptr(ptr) {}
     ~AutoCPtr() { destroyPtr(); }
-    bool isNull() const { return _ptr==0; }
+    bool isNull() const { return _ptr == 0; }
     bool isNotNull() const { return !isNull(); }
-    AutoCPtr &operator=(T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; } return *this; }
-    T *operator->() { return _ptr ; }
+    AutoCPtr &operator=(T *ptr)
+    {
+        if (_ptr != ptr)
+        {
+            destroyPtr();
+            _ptr = ptr;
+        }
+        return *this;
+    }
+    T *operator->() { return _ptr; }
     const T *operator->() const { return _ptr; }
-    T& operator*() { return *_ptr; }
-    const T& operator*() const { return *_ptr; }
+    T &operator*() { return *_ptr; }
+    const T &operator*() const { return *_ptr; }
     operator T *() { return _ptr; }
     operator const T *() const { return _ptr; }
-  private:
+
+   private:
     void destroyPtr() { free(_ptr); }
-  private:
+
+   private:
     T *_ptr;
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

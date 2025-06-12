@@ -2207,7 +2207,7 @@ namespace MEDCoupling
         MCAuto<MEDCouplingUMesh> ret( self->convertToQuadraticBasedOnSeg3(seg3) );
         return ret.retn();
       }
-      
+
       MEDCouplingUMesh *extrudeConnectivity(mcIdType nbOfCellsToExtrude) const
       {
         MCAuto<MEDCouplingUMesh> ret( self->extrudeConnectivity(nbOfCellsToExtrude) );

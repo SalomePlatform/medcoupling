@@ -30,13 +30,13 @@
 
 namespace MEDCoupling
 {
-  /*!
-   * User class.
-   */
-  class MEDFileData : public RefCountObject, public MEDFileWritableStandAlone
-  {
-  public:
-    MEDLOADER_EXPORT static MEDFileData *New(const std::string& fileName);
+/*!
+ * User class.
+ */
+class MEDFileData : public RefCountObject, public MEDFileWritableStandAlone
+{
+   public:
+    MEDLOADER_EXPORT static MEDFileData *New(const std::string &fileName);
     MEDLOADER_EXPORT static MEDFileData *New(med_idt fid);
     MEDLOADER_EXPORT static MEDFileData *New();
     MEDLOADER_EXPORT static MEDFileData *New(DataArrayByte *db) { return BuildFromMemoryChunk<MEDFileData>(db); }
@@ -56,29 +56,31 @@ namespace MEDCoupling
     MEDLOADER_EXPORT std::string simpleRepr() const;
     //
     MEDLOADER_EXPORT std::string getHeader() const;
-    MEDLOADER_EXPORT void setHeader(const std::string& header);
+    MEDLOADER_EXPORT void setHeader(const std::string &header);
     //
-    MEDLOADER_EXPORT bool changeMeshNames(const std::vector< std::pair<std::string,std::string> >& modifTab);
-    MEDLOADER_EXPORT bool changeMeshName(const std::string& oldMeshName, const std::string& newMeshName);
+    MEDLOADER_EXPORT bool changeMeshNames(const std::vector<std::pair<std::string, std::string> > &modifTab);
+    MEDLOADER_EXPORT bool changeMeshName(const std::string &oldMeshName, const std::string &newMeshName);
     MEDLOADER_EXPORT bool unPolyzeMeshes();
     MEDLOADER_EXPORT void dealWithStructureElements();
-    MEDLOADER_EXPORT static MCAuto<MEDFileData> Aggregate(const std::vector<const MEDFileData *>& mfds);
+    MEDLOADER_EXPORT static MCAuto<MEDFileData> Aggregate(const std::vector<const MEDFileData *> &mfds);
     //
     MEDLOADER_EXPORT void writeLL(med_idt fid) const;
-  private:
+
+   private:
     MEDFileData();
     MEDFileData(med_idt fid);
     void readHeader(med_idt fid);
     void writeHeader(med_idt fid) const;
     void readMeshSupports(med_idt fid);
-  private:
+
+   private:
     MCAuto<MEDFileFields> _fields;
     MCAuto<MEDFileMeshes> _meshes;
     MCAuto<MEDFileParameters> _params;
     MCAuto<MEDFileMeshSupports> _mesh_supports;
     MCAuto<MEDFileStructureElements> _struct_elems;
     std::string _header;
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

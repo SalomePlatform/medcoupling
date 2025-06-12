@@ -23,14 +23,10 @@
 
 namespace INTERP_KERNEL
 {
-  /**
-   * Default constructor
-   *
-   */
-  Interpolation3D::Interpolation3D()
-  {
-  }
-  Interpolation3D::Interpolation3D(const InterpolationOptions& io):Interpolation<Interpolation3D>(io)
-  {
-  }
-}
+/**
+ * Default constructor
+ *
+ */
+Interpolation3D::Interpolation3D() {}
+Interpolation3D::Interpolation3D(const InterpolationOptions &io) : Interpolation<Interpolation3D>(io) {}
+}  // namespace INTERP_KERNEL

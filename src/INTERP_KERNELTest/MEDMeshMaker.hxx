@@ -19,4 +19,5 @@
 
 #include "MEDCouplingUMesh.hxx"
 
-MEDCoupling::MEDCouplingUMesh *MEDMeshMaker(int dim, int nbedge);
+MEDCoupling::MEDCouplingUMesh *
+MEDMeshMaker(int dim, int nbedge);

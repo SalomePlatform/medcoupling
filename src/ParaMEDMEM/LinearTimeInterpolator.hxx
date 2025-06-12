@@ -27,26 +27,41 @@
 
 namespace MEDCoupling
 {
-  class DEC;
+class DEC;
 
-  /*!
-   * Internal class, not part of the public API.
-   *
-   * Linear interpolation of a block of data between two given times.
-   */
-  class LinearTimeInterpolator : public TimeInterpolator
-  {
-    public:
-      LinearTimeInterpolator( double InterpPrecision=0, int nStepBefore=1,
-                              int nStepAfter=1 ) ;
-      virtual ~LinearTimeInterpolator();
-      void doInterp( double time0, double time1, double time, int recvcount,
-                     int nbuff0, int nbuff1,
-                     int **recvbuff0, int **recvbuff1, int *result );
-      void doInterp( double time0, double time1, double time, int recvcount,
-                     int nbuff0, int nbuff1,
-                     double **recvbuff0, double **recvbuff1, double *result );
-  };
-}
+/*!
+ * Internal class, not part of the public API.
+ *
+ * Linear interpolation of a block of data between two given times.
+ */
+class LinearTimeInterpolator : public TimeInterpolator
+{
+   public:
+    LinearTimeInterpolator(double InterpPrecision = 0, int nStepBefore = 1, int nStepAfter = 1);
+    virtual ~LinearTimeInterpolator();
+    void doInterp(
+        double time0,
+        double time1,
+        double time,
+        int recvcount,
+        int nbuff0,
+        int nbuff1,
+        int **recvbuff0,
+        int **recvbuff1,
+        int *result
+    );
+    void doInterp(
+        double time0,
+        double time1,
+        double time,
+        int recvcount,
+        int nbuff0,
+        int nbuff1,
+        double **recvbuff0,
+        double **recvbuff1,
+        double *result
+    );
+};
+}  // namespace MEDCoupling
 
 #endif

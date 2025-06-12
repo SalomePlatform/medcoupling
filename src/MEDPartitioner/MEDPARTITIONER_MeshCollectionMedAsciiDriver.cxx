@@ -42,7 +42,8 @@
 
 using namespace MEDPARTITIONER;
 
-MeshCollectionMedAsciiDriver::MeshCollectionMedAsciiDriver(MeshCollection* collection):MeshCollectionDriver(collection)
+MeshCollectionMedAsciiDriver::MeshCollectionMedAsciiDriver(MeshCollection *collection)
+    : MeshCollectionDriver(collection)
 {
 }
 
@@ -53,31 +54,32 @@ MeshCollectionMedAsciiDriver::MeshCollectionMedAsciiDriver(MeshCollection* colle
  *\param filename ascii file containing the list of MED v2.3 files
  * */
 
-int MeshCollectionMedAsciiDriver::read(MEDCoupling::MEDFileData* filedata)
+int
+MeshCollectionMedAsciiDriver::read(MEDCoupling::MEDFileData *filedata)
 {
-  readMEDFileData(filedata);
+    readMEDFileData(filedata);
 
-  std::vector<MEDPARTITIONER::ConnectZone*> cz; // to fill from filedata
-  std::vector<mcIdType*> cellglobal;
-  std::vector<mcIdType*> nodeglobal;
-  std::vector<mcIdType*> faceglobal;
-  std::size_t size = _collection->getMesh().size();
-  cellglobal.resize(size);
-  nodeglobal.resize(size);
-  faceglobal.resize(size);
-  for ( unsigned int idomain = 0; idomain < size; ++idomain )
+    std::vector<MEDPARTITIONER::ConnectZone *> cz;  // to fill from filedata
+    std::vector<mcIdType *> cellglobal;
+    std::vector<mcIdType *> nodeglobal;
+    std::vector<mcIdType *> faceglobal;
+    std::size_t size = _collection->getMesh().size();
+    cellglobal.resize(size);
+    nodeglobal.resize(size);
+    faceglobal.resize(size);
+    for (unsigned int idomain = 0; idomain < size; ++idomain)
     {
-      cellglobal[idomain]=0;
-      faceglobal[idomain]=0;
-      nodeglobal[idomain]=0;
-      if ( (_collection->getMesh())[idomain] && (_collection->getMesh())[idomain]->getNumberOfNodes() > 0 )
-        _collection->setNonEmptyMesh(idomain);
+        cellglobal[idomain] = 0;
+        faceglobal[idomain] = 0;
+        nodeglobal[idomain] = 0;
+        if ((_collection->getMesh())[idomain] && (_collection->getMesh())[idomain]->getNumberOfNodes() > 0)
+            _collection->setNonEmptyMesh(idomain);
     }
-  //creation of topology from mesh and connect zones
-  ParallelTopology* aPT = new ParallelTopology((_collection->getMesh()), cz, cellglobal, nodeglobal, faceglobal);
-  _collection->setTopology(aPT,true);
+    // creation of topology from mesh and connect zones
+    ParallelTopology *aPT = new ParallelTopology((_collection->getMesh()), cz, cellglobal, nodeglobal, faceglobal);
+    _collection->setTopology(aPT, true);
 
-  return 0;
+    return 0;
 }
 
 /*!reads a MED File v>=2.3
@@ -87,121 +89,123 @@ int MeshCollectionMedAsciiDriver::read(MEDCoupling::MEDFileData* filedata)
  *\param filename ascii file containing the list of MED v2.3 files
  * */
 
-int MeshCollectionMedAsciiDriver::read(const char* filename, ParaDomainSelector* domainSelector)
+int
+MeshCollectionMedAsciiDriver::read(const char *filename, ParaDomainSelector *domainSelector)
 {
-  //distributed meshes
-  std::vector<mcIdType*> cellglobal;
-  std::vector<mcIdType*> nodeglobal;
-  std::vector<mcIdType*> faceglobal;
-  int nbdomain;
+    // distributed meshes
+    std::vector<mcIdType *> cellglobal;
+    std::vector<mcIdType *> nodeglobal;
+    std::vector<mcIdType *> faceglobal;
+    int nbdomain;
 
-  //reading ascii master file
-  try
+    // reading ascii master file
+    try
     {
-      std::ifstream asciiinput(filename);
-      if (!asciiinput)
-        throw INTERP_KERNEL::Exception("Master ASCII File does not exist");
-      char charbuffer[512];
-      asciiinput.getline(charbuffer,512);
+        std::ifstream asciiinput(filename);
+        if (!asciiinput)
+            throw INTERP_KERNEL::Exception("Master ASCII File does not exist");
+        char charbuffer[512];
+        asciiinput.getline(charbuffer, 512);
 
-      while (charbuffer[0]=='#')
+        while (charbuffer[0] == '#')
         {
-          asciiinput.getline(charbuffer,512);
+            asciiinput.getline(charbuffer, 512);
         }
 
-      //reading number of domains
-      nbdomain=atoi(charbuffer);
-      MyGlobals::_File_Names.resize(nbdomain);
-      MyGlobals::_Mesh_Names.resize(nbdomain);
-      (_collection->getMesh()).resize(nbdomain);
-      cellglobal.resize(nbdomain);
-      nodeglobal.resize(nbdomain);
-      faceglobal.resize(nbdomain);
+        // reading number of domains
+        nbdomain = atoi(charbuffer);
+        MyGlobals::_File_Names.resize(nbdomain);
+        MyGlobals::_Mesh_Names.resize(nbdomain);
+        (_collection->getMesh()).resize(nbdomain);
+        cellglobal.resize(nbdomain);
+        nodeglobal.resize(nbdomain);
+        faceglobal.resize(nbdomain);
 
-      if (nbdomain == 0)
-        throw INTERP_KERNEL::Exception("Empty ASCII master file");
-      for (int i=0; i<nbdomain;i++)
+        if (nbdomain == 0)
+            throw INTERP_KERNEL::Exception("Empty ASCII master file");
+        for (int i = 0; i < nbdomain; i++)
         {
-          //reading information about the domain
-          std::string mesh,host;
-          int idomain;
-          cellglobal[i]=0;
-          faceglobal[i]=0;
-          nodeglobal[i]=0;
+            // reading information about the domain
+            std::string mesh, host;
+            int idomain;
+            cellglobal[i] = 0;
+            faceglobal[i] = 0;
+            nodeglobal[i] = 0;
 
-          asciiinput >> mesh >> idomain >> MyGlobals::_Mesh_Names[i] >> host >> MyGlobals::_File_Names[i];
+            asciiinput >> mesh >> idomain >> MyGlobals::_Mesh_Names[i] >> host >> MyGlobals::_File_Names[i];
 
-          //Setting the name of the global mesh (which should be is the same for all the subdomains)
-          if (i==0)
-            _collection->setName(mesh);
+            // Setting the name of the global mesh (which should be is the same for all the subdomains)
+            if (i == 0)
+                _collection->setName(mesh);
 
-          if (idomain!=i+1)
+            if (idomain != i + 1)
             {
-              throw INTERP_KERNEL::Exception("domain must be written from 1 to N in ASCII file descriptor");
+                throw INTERP_KERNEL::Exception("domain must be written from 1 to N in ASCII file descriptor");
             }
-          if ( !domainSelector || domainSelector->isMyDomain(i))
-            readSubdomain(i);
+            if (!domainSelector || domainSelector->isMyDomain(i))
+                readSubdomain(i);
 
-        } //loop on domains
-    } //of try
-  catch(...)
+        }  // loop on domains
+    }  // of try
+    catch (...)
     {
-      throw INTERP_KERNEL::Exception("I/O error reading parallel MED file");
+        throw INTERP_KERNEL::Exception("I/O error reading parallel MED file");
     }
 
-  //creation of topology from mesh and connect zones
-  ParallelTopology* aPT = new ParallelTopology((_collection->getMesh()), (_collection->getCZ()), cellglobal, nodeglobal, faceglobal);
-  _collection->setTopology(aPT, true);
+    // creation of topology from mesh and connect zones
+    ParallelTopology *aPT =
+        new ParallelTopology((_collection->getMesh()), (_collection->getCZ()), cellglobal, nodeglobal, faceglobal);
+    _collection->setTopology(aPT, true);
 
-  for (int i=0; i<nbdomain; i++)
+    for (int i = 0; i < nbdomain; i++)
     {
-      delete [] cellglobal[i];
-      delete [] nodeglobal[i];
-      delete [] faceglobal[i];
+        delete[] cellglobal[i];
+        delete[] nodeglobal[i];
+        delete[] faceglobal[i];
     }
-  return 0;
+    return 0;
 }
 
 /*! writes the collection of meshes in a MED v2.3 file
  * with the connect zones being written as joints
  * \param filename name of the ascii file containing the meshes description
  */
-void MeshCollectionMedAsciiDriver::write(const char* filename, ParaDomainSelector* domainSelector) const
+void
+MeshCollectionMedAsciiDriver::write(const char *filename, ParaDomainSelector *domainSelector) const
 {
-  std::size_t nbdomains=_collection->getMesh().size();
-  std::vector<std::string> filenames;
-  filenames.resize(nbdomains);
+    std::size_t nbdomains = _collection->getMesh().size();
+    std::vector<std::string> filenames;
+    filenames.resize(nbdomains);
 
-  //loop on the domains
-  for (unsigned idomain=0; idomain<nbdomains; idomain++)
+    // loop on the domains
+    for (unsigned idomain = 0; idomain < nbdomains; idomain++)
     {
-      std::string distfilename;
-      std::ostringstream suffix;
-      suffix << filename << idomain+1 << ".med";
-      distfilename=suffix.str();
-      filenames[idomain]=distfilename;
+        std::string distfilename;
+        std::ostringstream suffix;
+        suffix << filename << idomain + 1 << ".med";
+        distfilename = suffix.str();
+        filenames[idomain] = distfilename;
 
-      if ( !domainSelector || domainSelector->isMyDomain( idomain ) )
+        if (!domainSelector || domainSelector->isMyDomain(idomain))
         {
-          // [ABN] spurious test in 8.2 - fixed as I think it should be:
-          if ( _collection->getMesh()[idomain]->getNumberOfCells() == 0 ) continue;
-          WriteUMesh(distfilename.c_str(),(_collection->getMesh())[idomain],true);
-          //writeSubdomain(idomain, nbdomains, distfilename.c_str(), domainSelector);
+            // [ABN] spurious test in 8.2 - fixed as I think it should be:
+            if (_collection->getMesh()[idomain]->getNumberOfCells() == 0)
+                continue;
+            WriteUMesh(distfilename.c_str(), (_collection->getMesh())[idomain], true);
+            // writeSubdomain(idomain, nbdomains, distfilename.c_str(), domainSelector);
         }
     }
 
-  //write master file
-  if ( !domainSelector || domainSelector->rank() == 0 )
+    // write master file
+    if (!domainSelector || domainSelector->rank() == 0)
     {
-      std::ofstream file(filename);
-      file << "#MED Fichier V 2.3"<<" " << std::endl;
-      file << "#" << " " << std::endl;
-      file << _collection->getMesh().size() << " " << std::endl;
+        std::ofstream file(filename);
+        file << "#MED Fichier V 2.3" << " " << std::endl;
+        file << "#" << " " << std::endl;
+        file << _collection->getMesh().size() << " " << std::endl;
 
-      for (std::size_t idomain=0; idomain<nbdomains; idomain++)
-        file << _collection->getName() <<" "<< idomain+1 << " "
-             << (_collection->getMesh())[idomain]->getName() << " localhost "
-             << filenames[idomain] << " "<< std::endl;
+        for (std::size_t idomain = 0; idomain < nbdomains; idomain++)
+            file << _collection->getName() << " " << idomain + 1 << " " << (_collection->getMesh())[idomain]->getName()
+                 << " localhost " << filenames[idomain] << " " << std::endl;
     }
-
 }

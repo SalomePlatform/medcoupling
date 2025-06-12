@@ -28,24 +28,61 @@
 
 namespace INTERP_KERNEL
 {
-  class INTERPKERNEL_EXPORT CellSimplify
-  {
-  public:
-    static INTERP_KERNEL::NormalizedCellType simplifyDegeneratedCell(INTERP_KERNEL::NormalizedCellType type, const mcIdType *conn, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
-    static mcIdType *getFullPolyh3DCell(INTERP_KERNEL::NormalizedCellType type, const mcIdType *conn, mcIdType lgth,
-                                   mcIdType& retNbOfFaces, mcIdType& retLgth);
-    static INTERP_KERNEL::NormalizedCellType tryToUnPoly2D(bool isQuad, const mcIdType *conn, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
-    static INTERP_KERNEL::NormalizedCellType tryToUnPoly3D(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
-    static INTERP_KERNEL::NormalizedCellType tryToUnPolyHex8(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
-    static INTERP_KERNEL::NormalizedCellType tryToUnPolyHexp12(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
-    static INTERP_KERNEL::NormalizedCellType tryToUnPolyPenta6(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
-    static INTERP_KERNEL::NormalizedCellType tryToUnPolyPyra5(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
-    static INTERP_KERNEL::NormalizedCellType tryToUnPolyTetra4(const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType& retLgth);
-    static bool tryToArrangeOppositeFace(const mcIdType *conn, mcIdType lgth, mcIdType lgthBaseFace, const mcIdType *baseFace, const mcIdType *oppFaceId, mcIdType nbOfFaces, mcIdType *retConnOfOppFace);
-    static bool isWellOriented(const mcIdType *baseFace, mcIdType *retConn, const mcIdType *sideFace, mcIdType lgthBaseFace);
-    static bool orientOppositeFace(const mcIdType *baseFace, mcIdType *retConn, const mcIdType *sideFace, mcIdType lgthBaseFace);
-    static bool isFlatCell(const mcIdType* conn, mcIdType pos, mcIdType lgth, NormalizedCellType type);
-  };
-}
+class INTERPKERNEL_EXPORT CellSimplify
+{
+   public:
+    static INTERP_KERNEL::NormalizedCellType simplifyDegeneratedCell(
+        INTERP_KERNEL::NormalizedCellType type,
+        const mcIdType *conn,
+        mcIdType lgth,
+        mcIdType *retConn,
+        mcIdType &retLgth
+    );
+    static mcIdType *getFullPolyh3DCell(
+        INTERP_KERNEL::NormalizedCellType type,
+        const mcIdType *conn,
+        mcIdType lgth,
+        mcIdType &retNbOfFaces,
+        mcIdType &retLgth
+    );
+    static INTERP_KERNEL::NormalizedCellType tryToUnPoly2D(
+        bool isQuad, const mcIdType *conn, mcIdType lgth, mcIdType *retConn, mcIdType &retLgth
+    );
+    static INTERP_KERNEL::NormalizedCellType tryToUnPoly3D(
+        const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType &retLgth
+    );
+    static INTERP_KERNEL::NormalizedCellType tryToUnPolyHex8(
+        const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType &retLgth
+    );
+    static INTERP_KERNEL::NormalizedCellType tryToUnPolyHexp12(
+        const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType &retLgth
+    );
+    static INTERP_KERNEL::NormalizedCellType tryToUnPolyPenta6(
+        const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType &retLgth
+    );
+    static INTERP_KERNEL::NormalizedCellType tryToUnPolyPyra5(
+        const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType &retLgth
+    );
+    static INTERP_KERNEL::NormalizedCellType tryToUnPolyTetra4(
+        const mcIdType *conn, mcIdType nbOfFaces, mcIdType lgth, mcIdType *retConn, mcIdType &retLgth
+    );
+    static bool tryToArrangeOppositeFace(
+        const mcIdType *conn,
+        mcIdType lgth,
+        mcIdType lgthBaseFace,
+        const mcIdType *baseFace,
+        const mcIdType *oppFaceId,
+        mcIdType nbOfFaces,
+        mcIdType *retConnOfOppFace
+    );
+    static bool isWellOriented(
+        const mcIdType *baseFace, mcIdType *retConn, const mcIdType *sideFace, mcIdType lgthBaseFace
+    );
+    static bool orientOppositeFace(
+        const mcIdType *baseFace, mcIdType *retConn, const mcIdType *sideFace, mcIdType lgthBaseFace
+    );
+    static bool isFlatCell(const mcIdType *conn, mcIdType pos, mcIdType lgth, NormalizedCellType type);
+};
+}  // namespace INTERP_KERNEL
 
 #endif

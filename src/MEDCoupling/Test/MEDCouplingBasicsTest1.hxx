@@ -28,72 +28,73 @@
 
 namespace MEDCoupling
 {
-  class DataArrayDouble;
-  class MEDCouplingUMesh;
-  class MEDCouplingFieldDouble;
-  class MEDCouplingMultiFields;
+class DataArrayDouble;
+class MEDCouplingUMesh;
+class MEDCouplingFieldDouble;
+class MEDCouplingMultiFields;
 
-  class MEDCouplingBasicsTest1 : public MEDCouplingBasicsTest
-  {
+class MEDCouplingBasicsTest1 : public MEDCouplingBasicsTest
+{
     CPPUNIT_TEST_SUITE(MEDCouplingBasicsTest1);
-    CPPUNIT_TEST( testArray );
-    CPPUNIT_TEST( testArray2 );
-    CPPUNIT_TEST( testArray3 );
-    CPPUNIT_TEST( testMesh );
-    CPPUNIT_TEST( testMeshPointsCloud );
-    CPPUNIT_TEST( testMeshM1D );
-    CPPUNIT_TEST( testDeepCopy );
-    CPPUNIT_TEST( testRevNodal );
-    CPPUNIT_TEST( testConvertToPolyTypes );
-    CPPUNIT_TEST( testDescConn2D );
-    CPPUNIT_TEST( testDescConn3D );
-    CPPUNIT_TEST( testFindBoundaryNodes );
-    CPPUNIT_TEST( testBoundaryMesh );
-    CPPUNIT_TEST( testBuildPartOfMySelf );
-    CPPUNIT_TEST( testBuildPartOfMySelfNode );
-    CPPUNIT_TEST( testZipCoords );
-    CPPUNIT_TEST( testZipConnectivity );
-    CPPUNIT_TEST( testEqualMesh );
-    CPPUNIT_TEST( testEqualFieldDouble );
-    CPPUNIT_TEST( testNatureChecking );
-    CPPUNIT_TEST( testBuildSubMeshData );
-    CPPUNIT_TEST( testExtrudedMesh1 );
-    CPPUNIT_TEST( testExtrudedMesh2 );
-    CPPUNIT_TEST( testExtrudedMesh3 );
-    CPPUNIT_TEST( testExtrudedMesh4 );
-    CPPUNIT_TEST( testFindCommonNodes );
-    CPPUNIT_TEST( testCheckButterflyCells );
-    CPPUNIT_TEST( testMergeMesh1 );
-    CPPUNIT_TEST( testMergeMeshOnSameCoords1 );
-    CPPUNIT_TEST( testMergeField1 );
-    CPPUNIT_TEST( testFillFromAnalytic );
-    CPPUNIT_TEST( testFillFromAnalytic2 );
-    CPPUNIT_TEST( testApplyFunc );
-    CPPUNIT_TEST( testApplyFunc2 );
-    CPPUNIT_TEST( testOperationsOnFields );
-    CPPUNIT_TEST( testOperationsOnFields2 );
-    CPPUNIT_TEST( testOperationsOnFields3 );
-    CPPUNIT_TEST( testOperationsOnFields4 );
-    CPPUNIT_TEST( testMergeNodesOnField );
-    CPPUNIT_TEST( testCheckConsecutiveCellTypes );
-    CPPUNIT_TEST( testRearrange2ConsecutiveCellTypes );
-    CPPUNIT_TEST( testSplitByType );
-    CPPUNIT_TEST( testFuseUMeshesOnSameCoords );
-    CPPUNIT_TEST( testFuseUMeshesOnSameCoords2 );
-    CPPUNIT_TEST( testBuildOrthogonalField );
-    CPPUNIT_TEST( testGetCellsContainingPoint );
-    CPPUNIT_TEST( testGetValueOn1 );
-    CPPUNIT_TEST( testCMesh0 );
-    CPPUNIT_TEST( testCMesh1 );
-    CPPUNIT_TEST( testCMesh2 );
-    CPPUNIT_TEST( testScale );
-    CPPUNIT_TEST( testTryToShareSameCoords );
-    CPPUNIT_TEST( testFindNodeOnPlane );
-    CPPUNIT_TEST( testRenumberCells );
-    CPPUNIT_TEST( testChangeSpaceDimension );
-    CPPUNIT_TEST( testSetConnectivity );
+    CPPUNIT_TEST(testArray);
+    CPPUNIT_TEST(testArray2);
+    CPPUNIT_TEST(testArray3);
+    CPPUNIT_TEST(testMesh);
+    CPPUNIT_TEST(testMeshPointsCloud);
+    CPPUNIT_TEST(testMeshM1D);
+    CPPUNIT_TEST(testDeepCopy);
+    CPPUNIT_TEST(testRevNodal);
+    CPPUNIT_TEST(testConvertToPolyTypes);
+    CPPUNIT_TEST(testDescConn2D);
+    CPPUNIT_TEST(testDescConn3D);
+    CPPUNIT_TEST(testFindBoundaryNodes);
+    CPPUNIT_TEST(testBoundaryMesh);
+    CPPUNIT_TEST(testBuildPartOfMySelf);
+    CPPUNIT_TEST(testBuildPartOfMySelfNode);
+    CPPUNIT_TEST(testZipCoords);
+    CPPUNIT_TEST(testZipConnectivity);
+    CPPUNIT_TEST(testEqualMesh);
+    CPPUNIT_TEST(testEqualFieldDouble);
+    CPPUNIT_TEST(testNatureChecking);
+    CPPUNIT_TEST(testBuildSubMeshData);
+    CPPUNIT_TEST(testExtrudedMesh1);
+    CPPUNIT_TEST(testExtrudedMesh2);
+    CPPUNIT_TEST(testExtrudedMesh3);
+    CPPUNIT_TEST(testExtrudedMesh4);
+    CPPUNIT_TEST(testFindCommonNodes);
+    CPPUNIT_TEST(testCheckButterflyCells);
+    CPPUNIT_TEST(testMergeMesh1);
+    CPPUNIT_TEST(testMergeMeshOnSameCoords1);
+    CPPUNIT_TEST(testMergeField1);
+    CPPUNIT_TEST(testFillFromAnalytic);
+    CPPUNIT_TEST(testFillFromAnalytic2);
+    CPPUNIT_TEST(testApplyFunc);
+    CPPUNIT_TEST(testApplyFunc2);
+    CPPUNIT_TEST(testOperationsOnFields);
+    CPPUNIT_TEST(testOperationsOnFields2);
+    CPPUNIT_TEST(testOperationsOnFields3);
+    CPPUNIT_TEST(testOperationsOnFields4);
+    CPPUNIT_TEST(testMergeNodesOnField);
+    CPPUNIT_TEST(testCheckConsecutiveCellTypes);
+    CPPUNIT_TEST(testRearrange2ConsecutiveCellTypes);
+    CPPUNIT_TEST(testSplitByType);
+    CPPUNIT_TEST(testFuseUMeshesOnSameCoords);
+    CPPUNIT_TEST(testFuseUMeshesOnSameCoords2);
+    CPPUNIT_TEST(testBuildOrthogonalField);
+    CPPUNIT_TEST(testGetCellsContainingPoint);
+    CPPUNIT_TEST(testGetValueOn1);
+    CPPUNIT_TEST(testCMesh0);
+    CPPUNIT_TEST(testCMesh1);
+    CPPUNIT_TEST(testCMesh2);
+    CPPUNIT_TEST(testScale);
+    CPPUNIT_TEST(testTryToShareSameCoords);
+    CPPUNIT_TEST(testFindNodeOnPlane);
+    CPPUNIT_TEST(testRenumberCells);
+    CPPUNIT_TEST(testChangeSpaceDimension);
+    CPPUNIT_TEST(testSetConnectivity);
     CPPUNIT_TEST_SUITE_END();
-  public:
+
+   public:
     void testArray();
     void testArray2();
     void testArray3();
@@ -150,7 +151,7 @@ namespace MEDCoupling
     void testRenumberCells();
     void testChangeSpaceDimension();
     void testSetConnectivity();
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

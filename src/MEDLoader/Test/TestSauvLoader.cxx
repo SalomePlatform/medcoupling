@@ -20,6 +20,6 @@
 #include "CppUnitTest.hxx"
 #include "SauvLoaderTest.hxx"
 
-CPPUNIT_TEST_SUITE_REGISTRATION( MEDCoupling::SauvLoaderTest );
+CPPUNIT_TEST_SUITE_REGISTRATION(MEDCoupling::SauvLoaderTest);
 
 #include "BasicMainTest.hxx"

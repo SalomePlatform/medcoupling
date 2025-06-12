@@ -31,73 +31,77 @@
 
 namespace MED_RENUMBER
 {
-  bool CompareRenumMeth(const std::string& s1, const char *s2)
-  {
-    std::string ss1(s1),ss2(s2);
+bool
+CompareRenumMeth(const std::string &s1, const char *s2)
+{
+    std::string ss1(s1), ss2(s2);
     std::transform(ss1.begin(), ss1.end(), ss1.begin(), ::tolower);
     std::transform(ss2.begin(), ss2.end(), ss2.begin(), ::tolower);
-    return ss1==ss2;
-  }
+    return ss1 == ss2;
+}
 
-  Renumbering* RenumberingFactory(const std::string &s)
-  {
+Renumbering *
+RenumberingFactory(const std::string &s)
+{
 #ifdef MED_ENABLE_METIS
 #ifdef ENABLE_BOOST
-    if ( CompareRenumMeth(s,METIS_ALG) )
-      {
+    if (CompareRenumMeth(s, METIS_ALG))
+    {
         return new METISRenumbering;
-      }
-    else if( CompareRenumMeth(s,BOOST_ALG) )
-      {
+    }
+    else if (CompareRenumMeth(s, BOOST_ALG))
+    {
         return new BOOSTRenumbering;
-      }
+    }
     else
-      {
+    {
         std::cerr << "The method has to be METIS or BOOST" << std::endl;
         return 0;
-      }
+    }
 #endif
 #ifndef ENABLE_BOOST
-    if ( CompareRenumMeth(s,METIS_ALG) )
-      {
+    if (CompareRenumMeth(s, METIS_ALG))
+    {
         return new METISRenumbering;
-      }
+    }
     else
-      {
+    {
         std::cerr << "The method has to be METIS!" << std::endl;
         return 0;
-      }
+    }
 #endif
 #endif
 #ifndef MED_ENABLE_METIS
 #ifdef ENABLE_BOOST
-    if ( CompareRenumMeth(s,BOOST_ALG) )
-      {
+    if (CompareRenumMeth(s, BOOST_ALG))
+    {
         return new BOOSTRenumbering;
-      }
+    }
     else
-      {
+    {
         std::cerr << "The method has to be BOOST!" << std::endl;
         return 0;
-      }
+    }
 #endif
 #ifndef ENABLE_BOOST
     std::cerr << "Error, no method compiled" << std::endl;
     return 0;
 #endif
 #endif
-  }
+}
 
-  std::vector<std::string> AllRenumberMethods()
-  {
+std::vector<std::string>
+AllRenumberMethods()
+{
     std::vector<std::string> ret;
     ret.push_back(std::string(BOOST_ALG));
     ret.push_back(std::string(METIS_ALG));
     return ret;
-  }
+}
 
-  std::vector<std::string> RenumberAvailableMethods()
-  {
+std::vector<std::string>
+RenumberAvailableMethods()
+{
     std::vector<std::string> ret;
 #ifdef ENABLE_BOOST
     ret.push_back(std::string(BOOST_ALG));
@@ -106,5 +110,5 @@ namespace MED_RENUMBER
     ret.push_back(std::string(METIS_ALG));
 #endif
     return ret;
-  }
 }
+}  // namespace MED_RENUMBER

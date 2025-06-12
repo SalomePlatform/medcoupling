@@ -25,27 +25,46 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix, class ConcreteP1P0Intersector>
-  class PlanarIntersectorP1P0 : public PlanarIntersector<MyMeshType,MyMatrix>
-  {
-  public:
-    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+template <class MyMeshType, class MyMatrix, class ConcreteP1P0Intersector>
+class PlanarIntersectorP1P0 : public PlanarIntersector<MyMeshType, MyMatrix>
+{
+   public:
+    static const int SPACEDIM = MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM = MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
-    static const NumberingPolicy numPol=MyMeshType::My_numPol;
-  protected:
-    PlanarIntersectorP1P0(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel);
-  public:
-    void intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res);
+    static const NumberingPolicy numPol = MyMeshType::My_numPol;
+
+   protected:
+    PlanarIntersectorP1P0(
+        const MyMeshType &meshT,
+        const MyMeshType &meshS,
+        double dimCaracteristic,
+        double precision,
+        double md3DSurf,
+        double minDot3DSurf,
+        double medianPlane,
+        bool doRotate,
+        int orientation,
+        int printLevel
+    );
+
+   public:
+    void intersectCells(ConnType icellT, const std::vector<ConnType> &icellsS, MyMatrix &res);
     ConnType getNumberOfRowsOfResMatrix() const;
     ConnType getNumberOfColsOfResMatrix() const;
     /*!
      * Contrary to intersectCells method here icellS and icellT are \b not in \b C mode but in mode of MyMeshType.
      */
-    double intersectGeometryWithQuadrangle(const double *quadrangle, const std::vector<double>& sourceCoords, bool isSourceQuad) { return asLeaf().intersectGeometryWithQuadrangle(quadrangle,sourceCoords,isSourceQuad); }
-  protected:
-    ConcreteP1P0Intersector& asLeaf() { return static_cast<ConcreteP1P0Intersector&>(*this); }
-  };
-}
+    double intersectGeometryWithQuadrangle(
+        const double *quadrangle, const std::vector<double> &sourceCoords, bool isSourceQuad
+    )
+    {
+        return asLeaf().intersectGeometryWithQuadrangle(quadrangle, sourceCoords, isSourceQuad);
+    }
+
+   protected:
+    ConcreteP1P0Intersector &asLeaf() { return static_cast<ConcreteP1P0Intersector &>(*this); }
+};
+}  // namespace INTERP_KERNEL
 
 #endif

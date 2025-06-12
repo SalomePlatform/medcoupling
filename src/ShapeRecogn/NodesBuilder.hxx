@@ -27,33 +27,34 @@
 #include "ShapeRecognDefines.hxx"
 namespace MEDCoupling
 {
-    class Nodes;
+class Nodes;
 
-    class SHAPE_RECOGNITION_EXPORT NodesBuilder
-    {
-    public:
-        NodesBuilder(const MEDCouplingUMesh *);
+class SHAPE_RECOGNITION_EXPORT NodesBuilder
+{
+   public:
+    NodesBuilder(const MEDCouplingUMesh *);
 
-        Nodes *build();
+    Nodes *build();
 
-    private:
-        void computeNormals();
-        void computeCurvatures(double tol = 0.000001);
-        void computeCurvatures(mcIdType nodeId, double tol);
-        PrimitiveType findPrimitiveType(double k1, double k2, double kdiff0, double kis0) const;
-        PrimitiveType findPrimitiveType2(double k1, double k2, double kdiff0, double kis0) const;
-        std::vector<double> computeNormalCurvatureCoefficients(
-            const std::vector<double> &discreteCurvatures,
-            const std::vector<double> &tangents,
-            const std::array<double, 3> &normal,
-            const std::array<double, 3> &e1) const;
-        void computeCellNormal(const std::vector<mcIdType> &nodeIds, std::array<double, 3> &cellNormal) const;
-        double computeAverageDistance(mcIdType nodeId, const std::vector<mcIdType> &neighborIds) const;
-        std::vector<double> computeDiscreteCurvatures(mcIdType nodeId, const std::vector<mcIdType> &neighborIds) const;
-        double computeDiscreteCurvature(mcIdType nodeId, mcIdType neighborId) const;
-        std::vector<double> computeTangentDirections(mcIdType nodeId, const std::vector<mcIdType> &neighborIds) const;
+   private:
+    void computeNormals();
+    void computeCurvatures(double tol = 0.000001);
+    void computeCurvatures(mcIdType nodeId, double tol);
+    PrimitiveType findPrimitiveType(double k1, double k2, double kdiff0, double kis0) const;
+    PrimitiveType findPrimitiveType2(double k1, double k2, double kdiff0, double kis0) const;
+    std::vector<double> computeNormalCurvatureCoefficients(
+        const std::vector<double> &discreteCurvatures,
+        const std::vector<double> &tangents,
+        const std::array<double, 3> &normal,
+        const std::array<double, 3> &e1
+    ) const;
+    void computeCellNormal(const std::vector<mcIdType> &nodeIds, std::array<double, 3> &cellNormal) const;
+    double computeAverageDistance(mcIdType nodeId, const std::vector<mcIdType> &neighborIds) const;
+    std::vector<double> computeDiscreteCurvatures(mcIdType nodeId, const std::vector<mcIdType> &neighborIds) const;
+    double computeDiscreteCurvature(mcIdType nodeId, mcIdType neighborId) const;
+    std::vector<double> computeTangentDirections(mcIdType nodeId, const std::vector<mcIdType> &neighborIds) const;
 
-        const MEDCouplingUMesh *mesh;
-        Nodes *nodes;
-    };
-}
+    const MEDCouplingUMesh *mesh;
+    Nodes *nodes;
+};
+}  // namespace MEDCoupling

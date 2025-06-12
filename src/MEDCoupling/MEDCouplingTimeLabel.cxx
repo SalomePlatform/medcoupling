@@ -28,85 +28,91 @@ using namespace MEDCoupling;
 
 std::atomic<std::size_t> TimeLabel::GLOBAL_TIME(0);
 
-TimeLabel::TimeLabel():_time(GLOBAL_TIME++)
+TimeLabel::TimeLabel() : _time(GLOBAL_TIME++) {}
+
+TimeLabel::~TimeLabel() {}
+
+TimeLabel &
+TimeLabel::operator=(const TimeLabel &other)
 {
+    _time = GLOBAL_TIME++;
+    return *this;
 }
 
-TimeLabel::~TimeLabel()
+void
+TimeLabel::declareAsNew() const
 {
+    _time = GLOBAL_TIME++;
 }
 
-TimeLabel& TimeLabel::operator=(const TimeLabel& other)
+void
+TimeLabel::updateTimeWith(const TimeLabel &other) const
 {
-  _time=GLOBAL_TIME++;
-  return *this;
-}
-
-void TimeLabel::declareAsNew() const
-{
-  _time=GLOBAL_TIME++;
-}
-
-void TimeLabel::updateTimeWith(const TimeLabel& other) const
-{
-  if(_time<other._time)
-    _time=other._time;
+    if (_time < other._time)
+        _time = other._time;
 }
 
 /*!
  * This method has to be called with a lot of care. It set aggressively the time in this with the
  * time in \a other.
  */
-void TimeLabel::forceTimeOfThis(const TimeLabel& other) const
+void
+TimeLabel::forceTimeOfThis(const TimeLabel &other) const
 {
-  _time=other._time;
+    _time = other._time;
 }
 
-TimeLabelConstOverseer::TimeLabelConstOverseer(const TimeLabel *tl):_tl(tl),_ref_time(std::numeric_limits<std::size_t>::max())
+TimeLabelConstOverseer::TimeLabelConstOverseer(const TimeLabel *tl)
+    : _tl(tl), _ref_time(std::numeric_limits<std::size_t>::max())
 {
-  if(!_tl)
-    throw INTERP_KERNEL::Exception("TimeLabelConstOverseer constructor : input instance must be not NULL !");
-  _tl->updateTime();
-  _ref_time=tl->getTimeOfThis();
+    if (!_tl)
+        throw INTERP_KERNEL::Exception("TimeLabelConstOverseer constructor : input instance must be not NULL !");
+    _tl->updateTime();
+    _ref_time = tl->getTimeOfThis();
 }
 
 /*!
  * This method checks that the tracked instance is not NULL and if not NULL that its internal state has not changed.
  */
-void TimeLabelConstOverseer::checkConst() const
+void
+TimeLabelConstOverseer::checkConst() const
 {
-  if(!_tl)
-    throw INTERP_KERNEL::Exception("TimeLabelConstOverseer::checkConst : NULL tracked instance !");
-  _tl->updateTime();
-  if(_ref_time!=_tl->getTimeOfThis())
-    throw INTERP_KERNEL::Exception("TimeLabelConstOverseer::checkConst : the state of the controlled instance of TimeLable has changed !");
+    if (!_tl)
+        throw INTERP_KERNEL::Exception("TimeLabelConstOverseer::checkConst : NULL tracked instance !");
+    _tl->updateTime();
+    if (_ref_time != _tl->getTimeOfThis())
+        throw INTERP_KERNEL::Exception(
+            "TimeLabelConstOverseer::checkConst : the state of the controlled instance of TimeLable has changed !"
+        );
 }
 
-bool TimeLabelConstOverseer::resetState()
+bool
+TimeLabelConstOverseer::resetState()
 {
-  if(_tl)
+    if (_tl)
     {
-      _tl->updateTime();
-      _ref_time=_tl->getTimeOfThis();
-      return true;
+        _tl->updateTime();
+        _ref_time = _tl->getTimeOfThis();
+        return true;
     }
-  else
-    return false;
+    else
+        return false;
 }
 
-bool TimeLabelConstOverseer::keepTrackOfNewTL(const TimeLabel *tl)
+bool
+TimeLabelConstOverseer::keepTrackOfNewTL(const TimeLabel *tl)
 {
-  if(_tl==tl)
-    return false;
-  _tl=tl;
-  if(_tl)
+    if (_tl == tl)
+        return false;
+    _tl = tl;
+    if (_tl)
     {
-      _tl->updateTime();
-      _ref_time=_tl->getTimeOfThis();
+        _tl->updateTime();
+        _ref_time = _tl->getTimeOfThis();
     }
-  else
+    else
     {
-      _ref_time=std::numeric_limits<std::size_t>::max();
+        _ref_time = std::numeric_limits<std::size_t>::max();
     }
-  return true;
+    return true;
 }

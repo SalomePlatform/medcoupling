@@ -30,12 +30,31 @@
 // TXX extension to avoid to be installed.
 
 // This macro calls safely MEDFile functions returning 0
-#define MEDFILESAFECALLER0(a,b) { med_err retCode(a b); \
-    if(retCode!=0) { std::ostringstream osszz; osszz << "Return code of MEDFile call \"" << #a << "\" is not 0 as expected ! ( Return code was "<< retCode << " at " << __FILE__ << ":" << __LINE__ << " )"; throw INTERP_KERNEL::Exception(osszz.str().c_str()); } }
+#define MEDFILESAFECALLER0(a, b)                                                                              \
+    {                                                                                                         \
+        med_err retCode(a b);                                                                                 \
+        if (retCode != 0)                                                                                     \
+        {                                                                                                     \
+            std::ostringstream osszz;                                                                         \
+            osszz << "Return code of MEDFile call \"" << #a << "\" is not 0 as expected ! ( Return code was " \
+                  << retCode << " at " << __FILE__ << ":" << __LINE__ << " )";                                \
+            throw INTERP_KERNEL::Exception(osszz.str().c_str());                                              \
+        }                                                                                                     \
+    }
 
-#define MEDFILESAFECALLERRD0(a,b) MEDFILESAFECALLER0(a,b)
+#define MEDFILESAFECALLERRD0(a, b) MEDFILESAFECALLER0(a, b)
 
-#define MEDFILESAFECALLERWR0(a,b) { med_err retCode(a b); \
-    if(retCode!=0) { std::ostringstream osszz; osszz << "Return code of MEDFile call \"" << #a << "\" is not 0 as expected during writing operation ! ( Return code was "<< retCode << " at " << __FILE__ << ":" << __LINE__ << " ). Check write access on MED file ?"; throw INTERP_KERNEL::Exception(osszz.str().c_str()); } }
+#define MEDFILESAFECALLERWR0(a, b)                                                                                \
+    {                                                                                                             \
+        med_err retCode(a b);                                                                                     \
+        if (retCode != 0)                                                                                         \
+        {                                                                                                         \
+            std::ostringstream osszz;                                                                             \
+            osszz << "Return code of MEDFile call \"" << #a                                                       \
+                  << "\" is not 0 as expected during writing operation ! ( Return code was " << retCode << " at " \
+                  << __FILE__ << ":" << __LINE__ << " ). Check write access on MED file ?";                       \
+            throw INTERP_KERNEL::Exception(osszz.str().c_str());                                                  \
+        }                                                                                                         \
+    }
 
 #endif

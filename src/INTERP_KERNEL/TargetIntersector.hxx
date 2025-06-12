@@ -27,33 +27,35 @@
 
 namespace INTERP_KERNEL
 {
-  /**
-   * \brief Abstract base class of Intersector classes.
-   * These classes represent a target element and calculate its intersection
-   * with the source elements.
-   */
-  template<class MyMeshType, class MyMatrix>
-  class TargetIntersector
-  {
-  public:
-    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
+/**
+ * \brief Abstract base class of Intersector classes.
+ * These classes represent a target element and calculate its intersection
+ * with the source elements.
+ */
+template <class MyMeshType, class MyMatrix>
+class TargetIntersector
+{
+   public:
+    static const int SPACEDIM = MyMeshType::MY_SPACEDIM;
     typedef typename MyMeshType::MyConnType ConnType;
-  public:
+
+   public:
     /*!
      * Tool for cell intersection, result is always positive.
      * @param targetCell id of cell in target mesh in \b C \b mode.
      * @param srcCells ids of cells in source mesh in \b C \b mode.
-     * @param res is an IN/OUT parameter that represents the icellTth row in final matrix, fed with at most icellsS elements.
+     * @param res is an IN/OUT parameter that represents the icellTth row in final matrix, fed with at most icellsS
+     * elements.
      */
-    virtual void intersectCells(ConnType targetCell, const std::vector<ConnType>& srcCells, MyMatrix& res) = 0;
+    virtual void intersectCells(ConnType targetCell, const std::vector<ConnType> &srcCells, MyMatrix &res) = 0;
 
     virtual ConnType getNumberOfRowsOfResMatrix() const = 0;
     virtual ConnType getNumberOfColsOfResMatrix() const = 0;
 
-    virtual ~TargetIntersector() { }
-    void adjustBoundingBoxes(std::vector<double>& bbox, double adjustmentEps, double adjustmentEpsAbs);
+    virtual ~TargetIntersector() {}
+    void adjustBoundingBoxes(std::vector<double> &bbox, double adjustmentEps, double adjustmentEpsAbs);
     void adjustBoundingBoxes(double *bbox, std::size_t sz, double adjustmentEps, double adjustmentEpsAbs);
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

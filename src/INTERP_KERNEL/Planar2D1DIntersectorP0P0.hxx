@@ -25,36 +25,51 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
-  class Planar2D1DIntersectorP0P0 : public PlanarIntersector<MyMeshType,MyMatrix>
-  {
-  public:
-    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+template <class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
+class Planar2D1DIntersectorP0P0 : public PlanarIntersector<MyMeshType, MyMatrix>
+{
+   public:
+    static const int SPACEDIM = MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM = MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
-    static const NumberingPolicy numPol=MyMeshType::My_numPol;
-  protected:
-    Planar2D1DIntersectorP0P0(const MyMeshType& meshT, const MyMeshType& meshS,
-                              double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel);
-  public:
+    static const NumberingPolicy numPol = MyMeshType::My_numPol;
+
+   protected:
+    Planar2D1DIntersectorP0P0(
+        const MyMeshType &meshT,
+        const MyMeshType &meshS,
+        double dimCaracteristic,
+        double precision,
+        double md3DSurf,
+        double minDot3DSurf,
+        double medianPlane,
+        bool doRotate,
+        int orientation,
+        int printLevel
+    );
+
+   public:
     ConnType getNumberOfRowsOfResMatrix() const;
     ConnType getNumberOfColsOfResMatrix() const;
-    const typename PlanarIntersector<MyMeshType,MyMatrix>::DuplicateFacesType* getIntersectFaces() const
+    const typename PlanarIntersector<MyMeshType, MyMatrix>::DuplicateFacesType *getIntersectFaces() const
     {
-      return &_intersect_faces;
+        return &_intersect_faces;
     }
-    void intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res);
+    void intersectCells(ConnType icellT, const std::vector<ConnType> &icellsS, MyMatrix &res);
     /*!
      * Contrary to intersectCells method here icellS and icellT are \b not in \b C mode but in mode of MyMeshType.
      */
-    double intersectGeometry1D(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS,
-                               bool& isColinear)
-      { return asLeaf().intersectGeometry1D(icellT,icellS,nbNodesT,nbNodesS, isColinear); }
-  protected:
-    ConcreteP0P0Intersector& asLeaf() { return static_cast<ConcreteP0P0Intersector&>(*this); }
-  private:
-    typename PlanarIntersector<MyMeshType,MyMatrix>::DuplicateFacesType _intersect_faces;
-  };
-}
+    double intersectGeometry1D(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS, bool &isColinear)
+    {
+        return asLeaf().intersectGeometry1D(icellT, icellS, nbNodesT, nbNodesS, isColinear);
+    }
+
+   protected:
+    ConcreteP0P0Intersector &asLeaf() { return static_cast<ConcreteP0P0Intersector &>(*this); }
+
+   private:
+    typename PlanarIntersector<MyMeshType, MyMatrix>::DuplicateFacesType _intersect_faces;
+};
+}  // namespace INTERP_KERNEL
 
 #endif

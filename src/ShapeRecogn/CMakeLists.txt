@@ -1,62 +1,64 @@
 # Copyright (C) 2024  CEA, EDF
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public License along
+# with this library; if not, write to the Free Software Foundation, Inc., 59
+# Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email :
+# webmaster.salome@opencascade.com
 #
 
-ADD_DEFINITIONS(${HDF5_DEFINITIONS} ${MEDFILE_DEFINITIONS})
+add_definitions(${HDF5_DEFINITIONS} ${MEDFILE_DEFINITIONS})
 
-IF (NOT DEFINED MSVC)
-  ADD_DEFINITIONS(-Wsign-compare -Wconversion)
-ENDIF()
+if(NOT DEFINED MSVC)
+  add_definitions(-Wsign-compare -Wconversion)
+endif()
 
-IF(MEDCOUPLING_ENABLE_PYTHON)
-  ADD_SUBDIRECTORY(Swig)
-ENDIF(MEDCOUPLING_ENABLE_PYTHON)
+if(MEDCOUPLING_ENABLE_PYTHON)
+  add_subdirectory(Swig)
+endif(MEDCOUPLING_ENABLE_PYTHON)
 
-IF(MEDCOUPLING_BUILD_TESTS)
-  ADD_SUBDIRECTORY(Test)
-ENDIF(MEDCOUPLING_BUILD_TESTS)
+if(MEDCOUPLING_BUILD_TESTS)
+  add_subdirectory(Test)
+endif(MEDCOUPLING_BUILD_TESTS)
 
-INCLUDE_DIRECTORIES(
+include_directories(
   ${MEDFILE_INCLUDE_DIRS}
   ${HDF5_INCLUDE_DIRS}
   ${LAPACKE_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/../MEDCoupling
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL
-  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Bases
-)
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Bases)
 
-SET(shaperecogn_SOURCES
-  MathOps.cxx
-  Nodes.cxx
-  NodesBuilder.cxx
-  Areas.cxx
-  AreasBuilder.cxx
-  ShapeRecognMeshBuilder.cxx
-  ShapeRecognMesh.cxx
-  PrimitiveType.cxx
-)
+set(shaperecogn_SOURCES
+    MathOps.cxx
+    Nodes.cxx
+    NodesBuilder.cxx
+    Areas.cxx
+    AreasBuilder.cxx
+    ShapeRecognMeshBuilder.cxx
+    ShapeRecognMesh.cxx
+    PrimitiveType.cxx)
 
-ADD_LIBRARY(shaperecogn ${shaperecogn_SOURCES})
-SET_TARGET_PROPERTIES(shaperecogn PROPERTIES COMPILE_FLAGS "")
-TARGET_LINK_LIBRARIES(shaperecogn medcouplingcpp ${LAPACK_LIBRARIES})
-INSTALL(TARGETS shaperecogn EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
+add_library(shaperecogn ${shaperecogn_SOURCES})
+set_target_properties(shaperecogn PROPERTIES COMPILE_FLAGS "")
+target_link_libraries(shaperecogn medcouplingcpp ${LAPACK_LIBRARIES})
+install(
+  TARGETS shaperecogn
+  EXPORT ${PROJECT_NAME}TargetGroup
+  DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
 
-FILE(GLOB shaperecogn_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
+file(GLOB shaperecogn_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
 
 # To allow usage as SWIG dependencies:
-SET(shaperecogn_HEADERS_HXX PARENT_SCOPE)
+set(shaperecogn_HEADERS_HXX PARENT_SCOPE)

@@ -24,31 +24,46 @@ using namespace std;
 namespace MEDCoupling
 {
 
-  LinearTimeInterpolator::LinearTimeInterpolator( double InterpPrecision, int nStepBefore,
-                                                  int nStepAfter ):
-    TimeInterpolator( InterpPrecision, nStepBefore, nStepAfter )
-  {
-  }
-
-  LinearTimeInterpolator::~LinearTimeInterpolator()
-  {
-  }
-
-  void LinearTimeInterpolator::doInterp( double time0, double time1, double time,
-                                         int recvcount , int nbuff0, int nbuff1,
-                                         int **recvbuff0, int **recvbuff1, int *result )
-  {
-    for(int i = 0 ; i < recvcount ; i++ )
-        result[i] = (int) ((recvbuff0[0][i]*(time1 - time) + recvbuff1[0][i]*(time - time0))/(time1 - time0) + _interp_precision);
-  }
-
-  void LinearTimeInterpolator::doInterp( double time0, double time1, double time,
-                                         int recvcount , int nbuff0, int nbuff1,
-                                         double **recvbuff0, double **recvbuff1,
-                                         double *result )
-  {
-    for(int i = 0 ; i < recvcount ; i++ )
-      result[i] = (recvbuff0[0][i]*(time1 - time) + recvbuff1[0][i]*(time - time0))/(time1 - time0);
-  }
-
+LinearTimeInterpolator::LinearTimeInterpolator(double InterpPrecision, int nStepBefore, int nStepAfter)
+    : TimeInterpolator(InterpPrecision, nStepBefore, nStepAfter)
+{
 }
+
+LinearTimeInterpolator::~LinearTimeInterpolator() {}
+
+void
+LinearTimeInterpolator::doInterp(
+    double time0,
+    double time1,
+    double time,
+    int recvcount,
+    int nbuff0,
+    int nbuff1,
+    int **recvbuff0,
+    int **recvbuff1,
+    int *result
+)
+{
+    for (int i = 0; i < recvcount; i++)
+        result[i] = (int)((recvbuff0[0][i] * (time1 - time) + recvbuff1[0][i] * (time - time0)) / (time1 - time0) +
+                          _interp_precision);
+}
+
+void
+LinearTimeInterpolator::doInterp(
+    double time0,
+    double time1,
+    double time,
+    int recvcount,
+    int nbuff0,
+    int nbuff1,
+    double **recvbuff0,
+    double **recvbuff1,
+    double *result
+)
+{
+    for (int i = 0; i < recvcount; i++)
+        result[i] = (recvbuff0[0][i] * (time1 - time) + recvbuff1[0][i] * (time - time0)) / (time1 - time0);
+}
+
+}  // namespace MEDCoupling

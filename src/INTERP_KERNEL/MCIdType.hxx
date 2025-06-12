@@ -42,15 +42,21 @@ typedef long long mcPyPtrType;
 typedef long mcPyPtrType;
 #endif
 
-template <class T> inline std::size_t ToSizeT(T val)
+template <class T>
+inline std::size_t
+ToSizeT(T val)
 {
-  return static_cast<std::size_t>(val);
+    return static_cast<std::size_t>(val);
 }
-template <class T> inline mcIdType ToIdType(T val)
+template <class T>
+inline mcIdType
+ToIdType(T val)
 {
-  return static_cast<mcIdType>(val);
+    return static_cast<mcIdType>(val);
 }
-template <class T> inline T FromIdType(mcIdType val)
+template <class T>
+inline T
+FromIdType(mcIdType val)
 {
-  return static_cast<T>(val);
+    return static_cast<T>(val);
 }

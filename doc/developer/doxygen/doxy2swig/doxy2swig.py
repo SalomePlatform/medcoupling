@@ -44,11 +44,12 @@ def my_open_read(source):
     else:
         return open(source)
 
+
 def my_open_write(dest):
     if hasattr(dest, "write"):
         return dest
     else:
-        return open(dest, 'w')
+        return open(dest, "w")
 
 
 class Doxy2SWIG:
@@ -74,26 +75,37 @@ class Doxy2SWIG:
         f.close()
 
         self.pieces = []
-        self.pieces.append('\n// File: %s\n'%\
-                           os.path.basename(f.name))
+        self.pieces.append("\n// File: %s\n" % os.path.basename(f.name))
 
-        self.space_re = re.compile(r'\s+')
+        self.space_re = re.compile(r"\s+")
         self.lead_spc = re.compile(r'^(%feature\S+\s+\S+\s*?)"\s+(\S)')
         self.multi = 0
-        self.ignores = ['inheritancegraph', 'param', 'listofallmembers',
-                        'innerclass', 'name', 'declname', 'incdepgraph',
-                        'invincdepgraph', 'programlisting', 'type',
-                        'references', 'referencedby', 'location',
-                        'collaborationgraph', 'reimplements',
-                        'reimplementedby', 'derivedcompoundref',
-                        'basecompoundref']
-        #self.generics = []
+        self.ignores = [
+            "inheritancegraph",
+            "param",
+            "listofallmembers",
+            "innerclass",
+            "name",
+            "declname",
+            "incdepgraph",
+            "invincdepgraph",
+            "programlisting",
+            "type",
+            "references",
+            "referencedby",
+            "location",
+            "collaborationgraph",
+            "reimplements",
+            "reimplementedby",
+            "derivedcompoundref",
+            "basecompoundref",
+        ]
+        # self.generics = []
         self.include_function_definition = include_function_definition
         if not include_function_definition:
-            self.ignores.append('argsstring')
+            self.ignores.append("argsstring")
 
         self.quiet = quiet
-
 
     def generate(self):
         """Parses the file set in the initialization.  The resulting
@@ -108,7 +120,7 @@ class Doxy2SWIG:
         nodes.
 
         """
-        pm = getattr(self, "parse_%s"%node.__class__.__name__)
+        pm = getattr(self, "parse_%s" % node.__class__.__name__)
         pm(node)
 
     def parse_Document(self, node):
@@ -116,8 +128,8 @@ class Doxy2SWIG:
 
     def parse_Text(self, node):
         txt = node.data
-        txt = txt.replace('\\', r'\\\\')
-        txt = txt.replace('"', r'\"')
+        txt = txt.replace("\\", r"\\\\")
+        txt = txt.replace('"', r"\"")
         # ignore pure whitespace
         m = self.space_re.match(txt)
         if m and len(m.group()) == len(txt):
@@ -142,7 +154,7 @@ class Doxy2SWIG:
             handlerMethod(node)
         else:
             self.generic_parse(node)
-            #if name not in self.generics: self.generics.append(name)
+            # if name not in self.generics: self.generics.append(name)
 
     def parse_Comment(self, node):
         """Parse a `COMMENT_NODE`.  This does nothing for now."""
@@ -161,9 +173,11 @@ class Doxy2SWIG:
         `ELEMENT_NODEs`, that have a `tagName` equal to the name.
 
         """
-        nodes = [(x.tagName, x) for x in node.childNodes \
-                 if x.nodeType == x.ELEMENT_NODE and \
-                 x.tagName in names]
+        nodes = [
+            (x.tagName, x)
+            for x in node.childNodes
+            if x.nodeType == x.ELEMENT_NODE and x.tagName in names
+        ]
         return dict(nodes)
 
     def generic_parse(self, node, pad=0):
@@ -184,15 +198,15 @@ class Doxy2SWIG:
         if pad:
             npiece = len(self.pieces)
             if pad == 2:
-                self.add_text('\n')
+                self.add_text("\n")
         for n in node.childNodes:
             self.parse(n)
         if pad:
             if len(self.pieces) > npiece:
-                self.add_text('\n')
+                self.add_text("\n")
 
     def space_parse(self, node):
-        self.add_text(' ')
+        self.add_text(" ")
         self.generic_parse(node)
 
     do_ref = space_parse
@@ -202,60 +216,67 @@ class Doxy2SWIG:
     do_formula = space_parse
 
     def do_compoundname(self, node):
-        self.add_text('\n\n')
+        self.add_text("\n\n")
         data = node.firstChild.data
-        self.add_text('%%feature("docstring") %s "\n'%data)
+        self.add_text('%%feature("docstring") %s "\n' % data)
 
     def do_compounddef(self, node):
-        kind = node.attributes['kind'].value
-        if kind in ('class', 'struct'):
-            prot = node.attributes['prot'].value
-            if prot != 'public':
+        kind = node.attributes["kind"].value
+        if kind in ("class", "struct"):
+            prot = node.attributes["prot"].value
+            if prot != "public":
                 return
-            names = ('compoundname', 'briefdescription',
-                     'detaileddescription', 'includes')
+            names = (
+                "compoundname",
+                "briefdescription",
+                "detaileddescription",
+                "includes",
+            )
             first = self.get_specific_nodes(node, names)
             for n in names:
                 if n in first:
                     self.parse(first[n])
-            self.add_text(['";','\n'])
+            self.add_text(['";', "\n"])
             for n in node.childNodes:
                 if n not in first.values():
                     self.parse(n)
-        elif kind in ('file', 'namespace'):
-            nodes = node.getElementsByTagName('sectiondef')
+        elif kind in ("file", "namespace"):
+            nodes = node.getElementsByTagName("sectiondef")
             for n in nodes:
                 self.parse(n)
 
     def do_includes(self, node):
-        self.add_text('C++ includes: ')
+        self.add_text("C++ includes: ")
         self.generic_parse(node, pad=1)
 
     def do_parameterlist(self, node):
-        text='unknown'
+        text = "unknown"
         for key, val in node.attributes.items():
-            if key == 'kind':
-                if val == 'param': text = 'Parameters'
-                elif val == 'exception': text = 'Exceptions'
-                else: text = val
+            if key == "kind":
+                if val == "param":
+                    text = "Parameters"
+                elif val == "exception":
+                    text = "Exceptions"
+                else:
+                    text = val
                 break
-        self.add_text(['\n', '\n', text, ':', '\n'])
+        self.add_text(["\n", "\n", text, ":", "\n"])
         self.generic_parse(node, pad=1)
 
     def do_para(self, node):
-        self.add_text('\n')
+        self.add_text("\n")
         self.generic_parse(node, pad=1)
 
     def do_parametername(self, node):
-        self.add_text('\n')
+        self.add_text("\n")
         try:
-            data=node.firstChild.data
-        except AttributeError: # perhaps a <ref> tag in it
-            data=node.firstChild.firstChild.data
-        if data.find('Exception') != -1:
+            data = node.firstChild.data
+        except AttributeError:  # perhaps a <ref> tag in it
+            data = node.firstChild.firstChild.data
+        if data.find("Exception") != -1:
             self.add_text(data)
         else:
-            self.add_text("%s: "%data)
+            self.add_text("%s: " % data)
 
     def do_parameterdefinition(self, node):
         self.generic_parse(node, pad=1)
@@ -267,58 +288,57 @@ class Doxy2SWIG:
         self.generic_parse(node, pad=1)
 
     def do_memberdef(self, node):
-        prot = node.attributes['prot'].value
-        id = node.attributes['id'].value
-        kind = node.attributes['kind'].value
+        prot = node.attributes["prot"].value
+        id = node.attributes["id"].value
+        kind = node.attributes["kind"].value
         tmp = node.parentNode.parentNode.parentNode
-        compdef = tmp.getElementsByTagName('compounddef')[0]
-        cdef_kind = compdef.attributes['kind'].value
+        compdef = tmp.getElementsByTagName("compounddef")[0]
+        cdef_kind = compdef.attributes["kind"].value
 
-        if prot == 'public':
-            first = self.get_specific_nodes(node, ('definition', 'name'))
-            name = first['name'].firstChild.data
-            if name[:8] == 'operator': # Don't handle operators yet.
+        if prot == "public":
+            first = self.get_specific_nodes(node, ("definition", "name"))
+            name = first["name"].firstChild.data
+            if name[:8] == "operator":  # Don't handle operators yet.
                 return
 
-            if 'definition' not in first or \
-                   kind in ['variable', 'typedef']:
+            if "definition" not in first or kind in ["variable", "typedef"]:
                 return
 
             if self.include_function_definition:
-                defn = first['definition'].firstChild.data
+                defn = first["definition"].firstChild.data
             else:
                 defn = ""
-            self.add_text('\n')
+            self.add_text("\n")
             self.add_text('%feature("docstring") ')
 
             anc = node.parentNode.parentNode
-            if cdef_kind in ('file', 'namespace'):
-                ns_node = anc.getElementsByTagName('innernamespace')
-                if not ns_node and cdef_kind == 'namespace':
-                    ns_node = anc.getElementsByTagName('compoundname')
+            if cdef_kind in ("file", "namespace"):
+                ns_node = anc.getElementsByTagName("innernamespace")
+                if not ns_node and cdef_kind == "namespace":
+                    ns_node = anc.getElementsByTagName("compoundname")
                 if ns_node:
                     ns = ns_node[0].firstChild.data
-                    self.add_text(' %s::%s "\n%s'%(ns, name, defn))
+                    self.add_text(' %s::%s "\n%s' % (ns, name, defn))
                 else:
-                    self.add_text(' %s "\n%s'%(name, defn))
-            elif cdef_kind in ('class', 'struct'):
+                    self.add_text(' %s "\n%s' % (name, defn))
+            elif cdef_kind in ("class", "struct"):
                 # Get the full function name.
-                anc_node = anc.getElementsByTagName('compoundname')
+                anc_node = anc.getElementsByTagName("compoundname")
                 cname = anc_node[0].firstChild.data
-                self.add_text(' %s::%s "\n%s'%(cname, name, defn))
+                self.add_text(' %s::%s "\n%s' % (cname, name, defn))
 
             for n in node.childNodes:
                 if n not in first.values():
                     self.parse(n)
-            self.add_text(['";', '\n'])
+            self.add_text(['";', "\n"])
 
     def do_definition(self, node):
         data = node.firstChild.data
-        self.add_text('%s "\n%s'%(data, data))
+        self.add_text('%s "\n%s' % (data, data))
 
     def do_sectiondef(self, node):
-        kind = node.attributes['kind'].value
-        if kind in ('public-static-func', 'public-func', 'func', 'user-defined', ''):
+        kind = node.attributes["kind"].value
+        if kind in ("public-static-func", "public-func", "func", "user-defined", ""):
             self.generic_parse(node)
 
     def do_header(self, node):
@@ -326,33 +346,33 @@ class Doxy2SWIG:
         which should not be printed as such, so we comment it in the
         output."""
         data = node.firstChild.data
-        self.add_text('\n/*\n %s \n*/\n'%data)
+        self.add_text("\n/*\n %s \n*/\n" % data)
         # If our immediate sibling is a 'description' node then we
         # should comment that out also and remove it from the parent
         # node's children.
         parent = node.parentNode
         idx = parent.childNodes.index(node)
         if len(parent.childNodes) >= idx + 2:
-            nd = parent.childNodes[idx+2]
-            if nd.nodeName == 'description':
+            nd = parent.childNodes[idx + 2]
+            if nd.nodeName == "description":
                 nd = parent.removeChild(nd)
-                self.add_text('\n/*')
+                self.add_text("\n/*")
                 self.generic_parse(nd)
-                self.add_text('\n*/\n')
+                self.add_text("\n*/\n")
 
     def do_simplesect(self, node):
-        kind = node.attributes['kind'].value
-        if kind in ('date', 'rcs', 'version'):
+        kind = node.attributes["kind"].value
+        if kind in ("date", "rcs", "version"):
             pass
-        elif kind == 'warning':
-            self.add_text(['\n', 'WARNING: '])
+        elif kind == "warning":
+            self.add_text(["\n", "WARNING: "])
             self.generic_parse(node)
-        elif kind == 'see':
-            self.add_text('\n')
-            self.add_text('See: ')
+        elif kind == "see":
+            self.add_text("\n")
+            self.add_text("See: ")
             self.generic_parse(node)
-        elif kind == 'return':
-            self.add_text(['\n', '===> Returns: '])
+        elif kind == "return":
+            self.add_text(["\n", "===> Returns: "])
             self.generic_parse(node)
         else:
             self.generic_parse(node)
@@ -361,21 +381,21 @@ class Doxy2SWIG:
         self.generic_parse(node, pad=1)
 
     def do_member(self, node):
-        kind = node.attributes['kind'].value
-        refid = node.attributes['refid'].value
-        if kind == 'function' and refid[:9] == 'namespace':
+        kind = node.attributes["kind"].value
+        refid = node.attributes["refid"].value
+        if kind == "function" and refid[:9] == "namespace":
             self.generic_parse(node)
 
     def do_doxygenindex(self, node):
         self.multi = 1
-        comps = node.getElementsByTagName('compound')
+        comps = node.getElementsByTagName("compound")
         for c in comps:
-            refid = c.attributes['refid'].value
-            fname = refid + '.xml'
+            refid = c.attributes["refid"].value
+            fname = refid + ".xml"
             if not os.path.exists(fname):
-                fname = os.path.join(self.my_dir,  fname)
+                fname = os.path.join(self.my_dir, fname)
             if not self.quiet:
-                print("parsing file: %s"%fname)
+                print("parsing file: %s" % fname)
             p = Doxy2SWIG(fname, self.include_function_definition, self.quiet)
             p.generate()
             self.pieces.extend(self.clean_pieces(p.pieces))
@@ -397,30 +417,30 @@ class Doxy2SWIG:
         ret = []
         count = 0
         for i in pieces:
-            if i == '\n':
+            if i == "\n":
                 count = count + 1
             else:
                 if i == '";':
                     if count:
-                        ret.append('\n')
+                        ret.append("\n")
                 elif count > 2:
-                    ret.append('\n\n')
+                    ret.append("\n\n")
                 elif count:
-                    ret.append('\n'*count)
+                    ret.append("\n" * count)
                 count = 0
                 ret.append(i)
 
         _data = "".join(ret)
         ret = []
-        for i in _data.split('\n\n'):
-            if i == 'Parameters:' or i == 'Exceptions:':
-                ret.extend([i, '\n-----------', '\n\n'])
-            elif i.find('// File:') > -1: # leave comments alone.
-                ret.extend([i, '\n'])
+        for i in _data.split("\n\n"):
+            if i == "Parameters:" or i == "Exceptions:":
+                ret.extend([i, "\n-----------", "\n\n"])
+            elif i.find("// File:") > -1:  # leave comments alone.
+                ret.extend([i, "\n"])
             else:
                 _tmp = textwrap.fill(i.strip(), break_long_words=False)
                 _tmp = self.lead_spc.sub(r'\1"\2', _tmp)
-                ret.extend([_tmp, '\n\n'])
+                ret.extend([_tmp, "\n\n"])
         return ret
 
 
@@ -429,19 +449,26 @@ def convert(input, output, include_function_definition=True, quiet=False):
     p.generate()
     p.write(output)
 
+
 def main():
     usage = __doc__
     parser = optparse.OptionParser(usage)
-    parser.add_option("-n", '--no-function-definition',
-                      action='store_true',
-                      default=False,
-                      dest='func_def',
-                      help='do not include doxygen function definitions')
-    parser.add_option("-q", '--quiet',
-                      action='store_true',
-                      default=False,
-                      dest='quiet',
-                      help='be quiet and minimize output')
+    parser.add_option(
+        "-n",
+        "--no-function-definition",
+        action="store_true",
+        default=False,
+        dest="func_def",
+        help="do not include doxygen function definitions",
+    )
+    parser.add_option(
+        "-q",
+        "--quiet",
+        action="store_true",
+        default=False,
+        dest="quiet",
+        help="be quiet and minimize output",
+    )
 
     options, args = parser.parse_args()
     if len(args) != 2:
@@ -450,6 +477,5 @@ def main():
     convert(args[0], args[1], not options.func_def, options.quiet)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-

@@ -28,57 +28,85 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix>
-  PlanarIntersectorP0P1PL<MyMeshType,MyMatrix>::PlanarIntersectorP0P1PL(const MyMeshType& meshT, const MyMeshType& meshS,
-                                                                        double dimCaracteristic, double md3DSurf, double minDot3DSurf,
-                                                                        double medianPlane, double precision, int orientation):
-    PlanarIntersector<MyMeshType,MyMatrix>(meshT,meshS,dimCaracteristic,precision,md3DSurf,minDot3DSurf,medianPlane,true,orientation,0)
-  {
-  }
+template <class MyMeshType, class MyMatrix>
+PlanarIntersectorP0P1PL<MyMeshType, MyMatrix>::PlanarIntersectorP0P1PL(
+    const MyMeshType &meshT,
+    const MyMeshType &meshS,
+    double dimCaracteristic,
+    double md3DSurf,
+    double minDot3DSurf,
+    double medianPlane,
+    double precision,
+    int orientation
+)
+    : PlanarIntersector<MyMeshType, MyMatrix>(
+          meshT, meshS, dimCaracteristic, precision, md3DSurf, minDot3DSurf, medianPlane, true, orientation, 0
+      )
+{
+}
 
-  template<class MyMeshType, class MyMatrix>
-  void PlanarIntersectorP0P1PL<MyMeshType,MyMatrix>::intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res)
-  {
-    std::vector< std::vector<double> > coordsOfSources(icellsS.size());
-    int ii=0;
-    for(typename std::vector<ConnType>::const_iterator iter=icellsS.begin();iter!=icellsS.end();iter++,ii++)
-      PlanarIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates(OTT<ConnType,numPol>::indFC(*iter),coordsOfSources[ii]);
-    const ConnType *startOfCellNodeConnT=PlanarIntersector<MyMeshType,MyMatrix>::_connectT+OTT<ConnType,numPol>::conn2C(PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT]);
+template <class MyMeshType, class MyMatrix>
+void
+PlanarIntersectorP0P1PL<MyMeshType, MyMatrix>::intersectCells(
+    ConnType icellT, const std::vector<ConnType> &icellsS, MyMatrix &res
+)
+{
+    std::vector<std::vector<double> > coordsOfSources(icellsS.size());
+    int ii = 0;
+    for (typename std::vector<ConnType>::const_iterator iter = icellsS.begin(); iter != icellsS.end(); iter++, ii++)
+        PlanarIntersector<MyMeshType, MyMatrix>::getRealSourceCoordinates(
+            OTT<ConnType, numPol>::indFC(*iter), coordsOfSources[ii]
+        );
+    const ConnType *startOfCellNodeConnT =
+        PlanarIntersector<MyMeshType, MyMatrix>::_connectT +
+        OTT<ConnType, numPol>::conn2C(PlanarIntersector<MyMeshType, MyMatrix>::_connIndexT[icellT]);
     std::vector<double> coordsTarget;
-    PlanarIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(OTT<ConnType,numPol>::indFC(icellT),coordsTarget);
-    ConnType nbNodesT=ToConnType(coordsTarget.size())/SPACEDIM;
-    ii=0;
-    for(typename std::vector<ConnType>::const_iterator iter2=icellsS.begin();iter2!=icellsS.end();iter2++,ii++)
-      {
+    PlanarIntersector<MyMeshType, MyMatrix>::getRealTargetCoordinates(
+        OTT<ConnType, numPol>::indFC(icellT), coordsTarget
+    );
+    ConnType nbNodesT = ToConnType(coordsTarget.size()) / SPACEDIM;
+    ii = 0;
+    for (typename std::vector<ConnType>::const_iterator iter2 = icellsS.begin(); iter2 != icellsS.end(); iter2++, ii++)
+    {
         std::vector<double> tmpSource(coordsOfSources[ii]);
         std::vector<double> tmpTarget(coordsTarget);
-        if(SPACEDIM==3)
-          PlanarIntersector<MyMeshType,MyMatrix>::projectionThis(&tmpSource[0],&tmpTarget[0],ToConnType(tmpSource.size())/SPACEDIM,nbNodesT);
-        for(ConnType nodeIdT=0;nodeIdT<nbNodesT;nodeIdT++)
-          {
-            if(PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2DSimple(&tmpTarget[0]+nodeIdT*SPACEDIM,&tmpSource[0],ToConnType(tmpSource.size())/SPACEDIM,PlanarIntersector<MyMeshType,MyMatrix>::_precision))
-              {
-                ConnType curNodeTInCmode=OTT<ConnType,numPol>::coo2C(startOfCellNodeConnT[nodeIdT]);
-                typename MyMatrix::value_type& resRow=res[curNodeTInCmode];
-                typename MyMatrix::value_type::const_iterator iterRes=resRow.find(OTT<ConnType,numPol>::indFC(*iter2));
-                if(iterRes==resRow.end())
-                  resRow.insert(std::make_pair(OTT<ConnType,numPol>::indFC(*iter2),1.));
-              }
-          }
-      }
-  }
-
-  template<class MyMeshType, class MyMatrix>
-  typename MyMeshType::MyConnType PlanarIntersectorP0P1PL<MyMeshType,MyMatrix>::getNumberOfRowsOfResMatrix() const
-  {
-    return PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getNumberOfNodes();
-  }
-
-  template<class MyMeshType, class MyMatrix>
-  typename MyMeshType::MyConnType PlanarIntersectorP0P1PL<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
-  {
-    return PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getNumberOfElements();
-  }
+        if (SPACEDIM == 3)
+            PlanarIntersector<MyMeshType, MyMatrix>::projectionThis(
+                &tmpSource[0], &tmpTarget[0], ToConnType(tmpSource.size()) / SPACEDIM, nbNodesT
+            );
+        for (ConnType nodeIdT = 0; nodeIdT < nbNodesT; nodeIdT++)
+        {
+            if (PointLocatorAlgos<MyMeshType>::isElementContainsPointAlg2DSimple(
+                    &tmpTarget[0] + nodeIdT * SPACEDIM,
+                    &tmpSource[0],
+                    ToConnType(tmpSource.size()) / SPACEDIM,
+                    PlanarIntersector<MyMeshType, MyMatrix>::_precision
+                ))
+            {
+                ConnType curNodeTInCmode = OTT<ConnType, numPol>::coo2C(startOfCellNodeConnT[nodeIdT]);
+                typename MyMatrix::value_type &resRow = res[curNodeTInCmode];
+                typename MyMatrix::value_type::const_iterator iterRes =
+                    resRow.find(OTT<ConnType, numPol>::indFC(*iter2));
+                if (iterRes == resRow.end())
+                    resRow.insert(std::make_pair(OTT<ConnType, numPol>::indFC(*iter2), 1.));
+            }
+        }
+    }
 }
+
+template <class MyMeshType, class MyMatrix>
+typename MyMeshType::MyConnType
+PlanarIntersectorP0P1PL<MyMeshType, MyMatrix>::getNumberOfRowsOfResMatrix() const
+{
+    return PlanarIntersector<MyMeshType, MyMatrix>::_meshT.getNumberOfNodes();
+}
+
+template <class MyMeshType, class MyMatrix>
+typename MyMeshType::MyConnType
+PlanarIntersectorP0P1PL<MyMeshType, MyMatrix>::getNumberOfColsOfResMatrix() const
+{
+    return PlanarIntersector<MyMeshType, MyMatrix>::_meshS.getNumberOfElements();
+}
+}  // namespace INTERP_KERNEL
 
 #endif

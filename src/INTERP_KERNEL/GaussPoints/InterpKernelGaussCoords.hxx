@@ -29,19 +29,20 @@
 
 namespace INTERP_KERNEL
 {
-  typedef std::vector<double> DataVector;
-  typedef std::vector<int>    IndexVector;
+typedef std::vector<double> DataVector;
+typedef std::vector<int> IndexVector;
 
-  //Class to store Gauss Points information
-  class GaussInfo
-  {
-  public:
-    INTERPKERNEL_EXPORT GaussInfo( NormalizedCellType theGeometry,
-                                   const DataVector& theGaussCoord,
-                                   int theNbGauss,
-                                   const DataVector& theReferenceCoord,
-                                   int theNbRef
-                                   );
+// Class to store Gauss Points information
+class GaussInfo
+{
+   public:
+    INTERPKERNEL_EXPORT GaussInfo(
+        NormalizedCellType theGeometry,
+        const DataVector &theGaussCoord,
+        int theNbGauss,
+        const DataVector &theReferenceCoord,
+        int theNbRef
+    );
     INTERPKERNEL_EXPORT ~GaussInfo();
 
     INTERPKERNEL_EXPORT NormalizedCellType getCellType() const;
@@ -57,18 +58,26 @@ namespace INTERP_KERNEL
 
     INTERPKERNEL_EXPORT GaussInfo convertToLinear() const;
 
-    INTERPKERNEL_EXPORT const double *getFunctionValues( const int theGaussId ) const;
-    INTERPKERNEL_EXPORT const double *getDerivativeOfShapeFunctionAt( const int theGaussId ) const;
+    INTERPKERNEL_EXPORT const double *getFunctionValues(const int theGaussId) const;
+    INTERPKERNEL_EXPORT const double *getDerivativeOfShapeFunctionAt(const int theGaussId) const;
 
     INTERPKERNEL_EXPORT void initLocalInfo();
 
-    INTERPKERNEL_EXPORT static std::vector<double> NormalizeCoordinatesIfNecessary(NormalizedCellType ct, int inputDim, const std::vector<double>& inputArray);
+    INTERPKERNEL_EXPORT static std::vector<double> NormalizeCoordinatesIfNecessary(
+        NormalizedCellType ct, int inputDim, const std::vector<double> &inputArray
+    );
     INTERPKERNEL_EXPORT static std::vector<double> GetDefaultReferenceCoordinatesOf(NormalizedCellType ct);
-    INTERPKERNEL_EXPORT static bool IsInOrOutForReference(NormalizedCellType ct, const double *refCoo, const double *ptInRefCoo, double eps);
-    INTERPKERNEL_EXPORT static void AdapatCoorForReference(NormalizedCellType ct, const double *refCoo, double *ptInRefCoo);
-    INTERPKERNEL_EXPORT static std::vector<double> GetReferenceCoordinatesOfBarycenterOf(NormalizedCellType ct, const double *refCoo);
+    INTERPKERNEL_EXPORT static bool IsInOrOutForReference(
+        NormalizedCellType ct, const double *refCoo, const double *ptInRefCoo, double eps
+    );
+    INTERPKERNEL_EXPORT static void AdapatCoorForReference(
+        NormalizedCellType ct, const double *refCoo, double *ptInRefCoo
+    );
+    INTERPKERNEL_EXPORT static std::vector<double> GetReferenceCoordinatesOfBarycenterOf(
+        NormalizedCellType ct, const double *refCoo
+    );
 
-  public:
+   public:
     static const double SEG2A_REF[2];
     static const double SEG2B_REF[2];
     static const double SEG3_REF[3];
@@ -102,19 +111,20 @@ namespace INTERP_KERNEL
     static const double HEXA20A_REF[60];
     static const double HEXA20B_REF[60];
     static const double HEXA27A_REF[81];
-  protected:
-    static bool IsSatisfy(const std::vector<double>& ref1, const std::vector<double>& ref2);
+
+   protected:
+    static bool IsSatisfy(const std::vector<double> &ref1, const std::vector<double> &ref2);
     bool isSatisfy();
 
     void point1Init();
 
-    //1D
+    // 1D
     void seg2aInit();
     void seg2bInit();
     void seg3Init();
     void seg4Init();
 
-    //2D
+    // 2D
     void tria3aInit();
     void tria3bInit();
     void tria6aInit();
@@ -122,18 +132,18 @@ namespace INTERP_KERNEL
     void tria7aInit();
 
     void quad4aInit();
-    static void Quad4aInit(GaussInfo& obj) { obj.quad4aInit(); }
+    static void Quad4aInit(GaussInfo &obj) { obj.quad4aInit(); }
     void quad4bInit();
-    static void Quad4bInit(GaussInfo& obj) { obj.quad4bInit(); }
+    static void Quad4bInit(GaussInfo &obj) { obj.quad4bInit(); }
     void quad4cInit();
-    static void Quad4cInit(GaussInfo& obj) { obj.quad4cInit(); }
+    static void Quad4cInit(GaussInfo &obj) { obj.quad4cInit(); }
     void quad4DegSeg2Init();
-    static void Quad4DegSeg2Init(GaussInfo& obj) { obj.quad4DegSeg2Init(); }
+    static void Quad4DegSeg2Init(GaussInfo &obj) { obj.quad4DegSeg2Init(); }
     void quad8aInit();
     void quad8bInit();
     void quad9aInit();
 
-    //3D
+    // 3D
     void tetra4aInit();
     void tetra4bInit();
     void tetra10aInit();
@@ -145,97 +155,105 @@ namespace INTERP_KERNEL
     void pyra13bInit();
 
     void penta6aInit();
-    static void Penta6aInit(GaussInfo& obj) { obj.penta6aInit(); }
+    static void Penta6aInit(GaussInfo &obj) { obj.penta6aInit(); }
     void penta6bInit();
-    static void Penta6bInit(GaussInfo& obj) { obj.penta6bInit(); }
+    static void Penta6bInit(GaussInfo &obj) { obj.penta6bInit(); }
     void penta6DegTria3aInit();
-    static void Penta6DegTria3aInit(GaussInfo& obj) { obj.penta6DegTria3aInit(); }
+    static void Penta6DegTria3aInit(GaussInfo &obj) { obj.penta6DegTria3aInit(); }
     void penta6DegTria3bInit();
-    static void Penta6DegTria3bInit(GaussInfo& obj) { obj.penta6DegTria3bInit(); }
+    static void Penta6DegTria3bInit(GaussInfo &obj) { obj.penta6DegTria3bInit(); }
 
     void penta15aInit();
-    static void Penta15aInit(GaussInfo& obj) { obj.penta15aInit(); }
+    static void Penta15aInit(GaussInfo &obj) { obj.penta15aInit(); }
     void penta15bInit();
-    static void Penta15bInit(GaussInfo& obj) { obj.penta15bInit(); }
+    static void Penta15bInit(GaussInfo &obj) { obj.penta15bInit(); }
     void penta18aInit();
-    static void Penta18aInit(GaussInfo& obj) { obj.penta18aInit(); }
+    static void Penta18aInit(GaussInfo &obj) { obj.penta18aInit(); }
     void penta18bInit();
-    static void Penta18bInit(GaussInfo& obj) { obj.penta18bInit(); }
+    static void Penta18bInit(GaussInfo &obj) { obj.penta18bInit(); }
 
     void hexa8aInit();
-    static void Hexa8aInit(GaussInfo& obj) { obj.hexa8aInit(); }
+    static void Hexa8aInit(GaussInfo &obj) { obj.hexa8aInit(); }
     void hexa8bInit();
-    static void Hexa8bInit(GaussInfo& obj) { obj.hexa8bInit(); }
+    static void Hexa8bInit(GaussInfo &obj) { obj.hexa8bInit(); }
     void hexa8DegQuad4aInit();
-    static void Hexa8DegQuad4aInit(GaussInfo& obj) { obj.hexa8DegQuad4aInit(); }
+    static void Hexa8DegQuad4aInit(GaussInfo &obj) { obj.hexa8DegQuad4aInit(); }
     void hexa8DegQuad4bInit();
-    static void Hexa8DegQuad4bInit(GaussInfo& obj) { obj.hexa8DegQuad4bInit(); }
+    static void Hexa8DegQuad4bInit(GaussInfo &obj) { obj.hexa8DegQuad4bInit(); }
     void hexa8DegQuad4cInit();
-    static void Hexa8DegQuad4cInit(GaussInfo& obj) { obj.hexa8DegQuad4cInit(); }
+    static void Hexa8DegQuad4cInit(GaussInfo &obj) { obj.hexa8DegQuad4cInit(); }
     void hexa20aInit();
     void hexa20bInit();
     void hexa27aInit();
 
-  private:
-    //INFORMATION from MEDMEM
-    NormalizedCellType _my_geometry;               //Cell type
+   private:
+    // INFORMATION from MEDMEM
+    NormalizedCellType _my_geometry;  // Cell type
 
-    int                _my_nb_gauss;                //Nb of the gauss points for element
-    DataVector         _my_gauss_coord;             //Gauss coordinates
+    int _my_nb_gauss;            // Nb of the gauss points for element
+    DataVector _my_gauss_coord;  // Gauss coordinates
 
-    int                _my_nb_ref;                  //Nb of the nodes for element:
-                                                 //NORM_SEG2 - 2
-                                                 //NORM_SEG3 - 3
-                                                 //NORM_TRI3 - 3
-                                                 //.............
+    int _my_nb_ref;  // Nb of the nodes for element:
+                     // NORM_SEG2 - 2
+                     // NORM_SEG3 - 3
+                     // NORM_TRI3 - 3
+                     //.............
 
-    DataVector         _my_reference_coord;         //Reference coordinates
+    DataVector _my_reference_coord;  // Reference coordinates
 
-    //LOCAL INFORMATION
-    DataVector         _my_local_reference_coord;    //Vector to store reference coordinates
-    int                _my_local_ref_dim;            //Dimension of the local reference coordinates:
-                                                 // (x)       - 1D case
-                                                 // (x, y)    - 2D case
-                                                 // (x, y, z) - 3D case
-    int                _my_local_nb_ref;             //Nb of the local reference coordinates
+    // LOCAL INFORMATION
+    DataVector _my_local_reference_coord;  // Vector to store reference coordinates
+    int _my_local_ref_dim;                 // Dimension of the local reference coordinates:
+                                           //  (x)       - 1D case
+                                           //  (x, y)    - 2D case
+                                           //  (x, y, z) - 3D case
+    int _my_local_nb_ref;                  // Nb of the local reference coordinates
 
-    DataVector         _my_function_value;          //Shape Function values
-    DataVector         _my_derivative_func_value;   //Derivative of the shape function
-  };
+    DataVector _my_function_value;         // Shape Function values
+    DataVector _my_derivative_func_value;  // Derivative of the shape function
+};
 
-
-  //Class for calculation of the coordinates of the gauss points
-  class GaussCoords
-  {
-  public:
-
+// Class for calculation of the coordinates of the gauss points
+class GaussCoords
+{
+   public:
     INTERPKERNEL_EXPORT GaussCoords();
     INTERPKERNEL_EXPORT ~GaussCoords();
 
-    INTERPKERNEL_EXPORT void addGaussInfo( NormalizedCellType theGeometry,
-                                           int coordDim,
-                                           const double* theGaussCoord,
-                                           mcIdType theNbGauss,
-                                           const double* theReferenceCoord,
-                                           mcIdType theNbRef);
+    INTERPKERNEL_EXPORT void addGaussInfo(
+        NormalizedCellType theGeometry,
+        int coordDim,
+        const double *theGaussCoord,
+        mcIdType theNbGauss,
+        const double *theReferenceCoord,
+        mcIdType theNbRef
+    );
 
-    INTERPKERNEL_EXPORT double* calculateCoords( NormalizedCellType theGeometry,
-                                                 const double* theNodeCoords,
-                                                 const int theSpaceDim,
-                                                 const mcIdType* theIndex);
+    INTERPKERNEL_EXPORT double *calculateCoords(
+        NormalizedCellType theGeometry, const double *theNodeCoords, const int theSpaceDim, const mcIdType *theIndex
+    );
 
-    INTERPKERNEL_EXPORT void calculateCoords( NormalizedCellType theGeometry,
-                                              const double* theNodeCoords,
-                                              const int theSpaceDim,
-                                              const mcIdType* theIndex,
-                                              double *result);
-  private:
+    INTERPKERNEL_EXPORT void calculateCoords(
+        NormalizedCellType theGeometry,
+        const double *theNodeCoords,
+        const int theSpaceDim,
+        const mcIdType *theIndex,
+        double *result
+    );
+
+   private:
     const GaussInfo *getInfoGivenCellType(NormalizedCellType cellType);
-    void calculateCoordsAlg(const GaussInfo *info, const double* theNodeCoords, const int theSpaceDim, const mcIdType *theIndex,
-                            double *result);
-  private:
-    typedef std::vector<GaussInfo*> GaussInfoVector;
+    void calculateCoordsAlg(
+        const GaussInfo *info,
+        const double *theNodeCoords,
+        const int theSpaceDim,
+        const mcIdType *theIndex,
+        double *result
+    );
+
+   private:
+    typedef std::vector<GaussInfo *> GaussInfoVector;
     GaussInfoVector _my_gauss_info;
-  };
-}
-#endif //INTERPKERNELGAUSSCOORDS
+};
+}  // namespace INTERP_KERNEL
+#endif  // INTERPKERNELGAUSSCOORDS

@@ -29,27 +29,30 @@
 
 namespace MEDCoupling
 {
-  /*!
-   * Parallel representation of a SkyLineArray
-   *
-   * This class is very specific to the requirement of parallel code computations.
-   */
-  class ParaSkyLineArray : public RefCountObject
-  {
-  public:
+/*!
+ * Parallel representation of a SkyLineArray
+ *
+ * This class is very specific to the requirement of parallel code computations.
+ */
+class ParaSkyLineArray : public RefCountObject
+{
+   public:
     static ParaSkyLineArray *New(MEDCouplingSkyLineArray *ska, DataArrayIdType *globalIds);
     MCAuto<ParaSkyLineArray> equiRedistribute(mcIdType nbOfEntities) const;
     MEDCouplingSkyLineArray *getSkyLineArray() const;
     DataArrayIdType *getGlobalIdsArray() const;
-    virtual ~ParaSkyLineArray() { }
-  private:
+    virtual ~ParaSkyLineArray() {}
+
+   private:
     ParaSkyLineArray(MEDCouplingSkyLineArray *ska, DataArrayIdType *globalIds);
-  protected:
+
+   protected:
     std::string getClassName() const override { return "ParaSkyLineArray"; }
     std::size_t getHeapMemorySizeWithoutChildren() const override;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
-  private:
+
+   private:
     MCAuto<MEDCouplingSkyLineArray> _ska;
     MCAuto<DataArrayIdType> _global_ids;
-  };
-}
+};
+}  // namespace MEDCoupling

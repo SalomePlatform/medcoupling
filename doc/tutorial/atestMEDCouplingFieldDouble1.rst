@@ -7,7 +7,7 @@ Playing with fields
 ::
 
 	import medcoupling as mc
-	
+
 	# Create an unstructured mesh from a Cartesian one
 	xarr = mc.DataArrayDouble.New(11,1)
 	xarr.iota(0.)
@@ -53,7 +53,7 @@ Playing with fields
 	integ1 = fPart12.integral(0,True)
 	integ1_bis = fPart12.getArray().accumulate()[0]
 	print("First integral matching ?", ( abs(integ1 - integ1_bis) < 1e-8 ))
-	fPart12.getMesh().scale([0.,0.,0.], 1.2)	
+	fPart12.getMesh().scale([0.,0.,0.], 1.2)
 	integ2 = fPart12.integral(0,True)
 	print("Second integral matching ?", ( abs(integ2-integ1_bis*1.2*1.2*1.2) < 1e-8 ))
 	# Explosion of field
@@ -70,5 +70,3 @@ Playing with fields
 	meshFVecPart1Exploded = mc.MEDCouplingUMesh.MergeUMeshes(cells)
 	fPart1.setMesh(meshFVecPart1Exploded)
 	fPart1.writeVTK("ExoField_fPart1_explo.vtu")
-	
-

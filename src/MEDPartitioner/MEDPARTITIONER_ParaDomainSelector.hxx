@@ -28,93 +28,93 @@
 
 namespace MEDCoupling
 {
-  class MEDCouplingUMesh;
+class MEDCouplingUMesh;
 }
 
 namespace MEDPARTITIONER
 {
-  class Graph;
-  class JointExchangeData;
+class Graph;
+class JointExchangeData;
 
-  /*!
-   * \brief Communication helper in parallel mode
-   */
-  class MEDPARTITIONER_EXPORT ParaDomainSelector
-  {
-  public:
-    ParaDomainSelector(bool mesure_memory=false);
+/*!
+ * \brief Communication helper in parallel mode
+ */
+class MEDPARTITIONER_EXPORT ParaDomainSelector
+{
+   public:
+    ParaDomainSelector(bool mesure_memory = false);
     ~ParaDomainSelector();
 
-    //processor rank
+    // processor rank
     int rank() const { return _rank; }
-    //number of processors
+    // number of processors
     int nbProcs() const { return _world_size; }
-    //true if is running on different hosts
+    // true if is running on different hosts
     bool isOnDifferentHosts() const;
-    //true if the domain with domainIndex is to be loaded on this proc
+    // true if the domain with domainIndex is to be loaded on this proc
     bool isMyDomain(int domainIndex) const;
-    //processor id where the domain with domainIndex resides
+    // processor id where the domain with domainIndex resides
     int getProcessorID(int domainIndex) const;
-    //Set nb of required domains. (Used to sort joints via jointId())
+    // Set nb of required domains. (Used to sort joints via jointId())
     void setNbDomains(int nb) { _nb_result_domains = nb; }
-    //identifier for a joint
-    int jointId( int local_domain, int distant_domain ) const;
+    // identifier for a joint
+    int jointId(int local_domain, int distant_domain) const;
 
     mcIdType getNbTotalCells() { return _cell_shift_by_domain.back(); }
     mcIdType getNbTotalNodes() { return _node_shift_by_domain.back(); };
     mcIdType getNbTotalFaces() { return _face_shift_by_domain.back(); };
 
-    //Collect nb of entities on procs
-    void gatherNbOf(const std::vector<MEDCoupling::MEDCouplingUMesh*>& domain_meshes);
+    // Collect nb of entities on procs
+    void gatherNbOf(const std::vector<MEDCoupling::MEDCouplingUMesh *> &domain_meshes);
 
-    //distribution of the graph vertices among the processors
-    mcIdType* getProcVtxdist() const;
+    // distribution of the graph vertices among the processors
+    mcIdType *getProcVtxdist() const;
 
-    //nb of nodes on processors with lower rank
+    // nb of nodes on processors with lower rank
     mcIdType getProcNodeShift() const;
-    //nb of cells in domains with lower index
+    // nb of cells in domains with lower index
     mcIdType getDomainCellShift(int domainIndex) const;
-    //nb of nodes in domains with lower index
+    // nb of nodes in domains with lower index
     mcIdType getDomainNodeShift(int domainIndex) const;
 
-    //Gather graphs from all processors into one
-    std::unique_ptr<Graph> gatherGraph(const Graph* graph) const;
+    // Gather graphs from all processors into one
+    std::unique_ptr<Graph> gatherGraph(const Graph *graph) const;
 
-    //Set nb of cell/cell pairs in a joint between domains
-    void setNbCellPairs( mcIdType nb_cell_pairs, int dist_domain, int loc_domain );
-    //Gather size of each proc/proc joint
+    // Set nb of cell/cell pairs in a joint between domains
+    void setNbCellPairs(mcIdType nb_cell_pairs, int dist_domain, int loc_domain);
+    // Gather size of each proc/proc joint
     void gatherNbCellPairs();
-    //nb of cell/cell pairs in a joint between domains on different procs
-    mcIdType getNbCellPairs( int dist_domain, int loc_domain ) const;
+    // nb of cell/cell pairs in a joint between domains on different procs
+    mcIdType getNbCellPairs(int dist_domain, int loc_domain) const;
 
-    //get the first global id of sub-entity for the joint
-    mcIdType getFisrtGlobalIdOfSubentity( int loc_domain, int dist_domain ) const;
-    //Send-receive local ids of joint faces
-    int* exchangeSubentityIds( int loc_domain, int dist_domain,
-                               const std::vector<int>& loc_ids_here ) const;
-    //time passed from construction in seconds
+    // get the first global id of sub-entity for the joint
+    mcIdType getFisrtGlobalIdOfSubentity(int loc_domain, int dist_domain) const;
+    // Send-receive local ids of joint faces
+    int *exchangeSubentityIds(int loc_domain, int dist_domain, const std::vector<int> &loc_ids_here) const;
+    // time passed from construction in seconds
     double getPassedTime() const;
 
-    //Evaluate current memory usage and return the maximal one in KB
+    // Evaluate current memory usage and return the maximal one in KB
     int evaluateMemory() const;
 
-    void sendMesh(const MEDCoupling::MEDCouplingUMesh& mesh, int target) const;
-    void recvMesh(MEDCoupling::MEDCouplingUMesh*& mesh, int source) const;
-  private:
-    int _rank; //my rank
-    int _world_size; //nb of processors
-    int _nb_result_domains; //required nb of domains
+    void sendMesh(const MEDCoupling::MEDCouplingUMesh &mesh, int target) const;
+    void recvMesh(MEDCoupling::MEDCouplingUMesh *&mesh, int source) const;
 
-    std::vector< mcIdType > _nb_cell_pairs_by_joint;
-    std::vector< mcIdType > _nb_vert_of_procs; //graph vertices
-    std::vector< mcIdType > _cell_shift_by_domain;
-    std::vector< mcIdType > _node_shift_by_domain;
-    std::vector< mcIdType > _face_shift_by_domain;
+   private:
+    int _rank;               // my rank
+    int _world_size;         // nb of processors
+    int _nb_result_domains;  // required nb of domains
+
+    std::vector<mcIdType> _nb_cell_pairs_by_joint;
+    std::vector<mcIdType> _nb_vert_of_procs;  // graph vertices
+    std::vector<mcIdType> _cell_shift_by_domain;
+    std::vector<mcIdType> _node_shift_by_domain;
+    std::vector<mcIdType> _face_shift_by_domain;
 
     double _init_time;
     bool _mesure_memory;
     mutable int _init_memory;
     mutable int _max_memory;
-  };
-}
+};
+}  // namespace MEDPARTITIONER
 #endif

@@ -66,7 +66,7 @@ Faire un bon gros copier-coller des lignes suivantes pour construire la mesh (l'
         renum[30:45]=list(range(45,60))
         renum[45:]=list(range(30,45))
 	mesh3D.renumberNodes(renum,60)
-	
+
 Convertir les unités
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -78,7 +78,7 @@ Cela paraît idiot mais c'est un très grand classique du couplage ... ::
 
 .. note:: Il est important de mettre à jour les informations sur les composantes des coordonnées (les unités) pour éviter toute ambiguïté.
 	INTERP_KERNEL library inclut un évaluateur d'unité.
-	
+
 .. note:: Noter l'astuce sur la première ligne ``[:]`` afin de récupérer la version inscriptible des coordonnées
 	(et non une copie temporaire)
 
@@ -107,7 +107,7 @@ Il y a 3 possibilités pour faire cela. Nous allons les voir du plus simple au p
 	La méthode retourne deux choses : le maillage de coupe ``tmp`` (un maillage de mesh-dimension 2, mais de dimension spatiale
 	3) et pour chaque cellule 3D surfacique de ``tmp``, l'identifiant de la cellule 3D (=un volume) coupée dans le
 	maillage de départ  ::
-	
+
 		tmp, cellIdsSol1 = mesh3D.buildSlice3D([0.,0.,(zLev[1]+zLev[2])/2], [0.,0.,1.], 1e-12)
 
 * En utilisant les barycentres des cellules de ``mesh3D`` :
@@ -115,12 +115,12 @@ Il y a 3 possibilités pour faire cela. Nous allons les voir du plus simple au p
 	critères géométriques.
 	Il s'agit d'abord de calculer les barycentres des cellules 3D de ``mesh3D`` (méthode
 	``MEDCouplingUMesh.computeCellCenterOfMass()``).
-	
+
 	Ensuite sélectionner la composante #2 des barycentres des cellules et mettre le résultat dans ``baryZ``.
 	Ensuite il suffit de selectionner dans ``baryZ`` les tuples qui sont dans l'intervalle ``[zLev[1], zLev[2]]``.
 	Les identifiants de ces tuples (i.e. leur index dans ``baryZ``) est directement un identifiant de cellule
 	car ``computeCellCenterOfMass()`` retourne un tableau indéxé par les numéros de cellule.::
-	
+
 		bary = mesh3D.computeCellCenterOfMass()
 		baryZ = bary[:,2]
 		cellIdsSol2 = baryZ.findIdsInRange(zLev[1], zLev[2])
@@ -134,22 +134,22 @@ Il y a 3 possibilités pour faire cela. Nous allons les voir du plus simple au p
 	à 1e-10 près de plan de vecteur normal ``[0.,0.,1.]`` et passant
 	par ``[0.,0.,zLev[0]]`` (``MEDCouplingUMesh.findNodesOnPlane()``). Ensuite appeler ``MEDCouplingUMesh.buildFacePartOfMySelfNode()``
 	pour construire ``mesh2D`` (lire la doc de la fonction). ::
-	
+
 		nodeIds = mesh3D.findNodesOnPlane([0., 0., zLev[0]], [0.,0.,1.], 1e-10)
 		mesh2D = mesh3D.buildFacePartOfMySelfNode(nodeIds, True)
-		
+
 
 	Il est alors possible de construire un maillage extrudé ``extMesh`` à partir de ``mesh3D`` et de ``mesh2D``.
 	Un maillage extrudé se construit en *reconnaissant* un maillage non structuré comme étant l'extrusion d'un maillage
 	de dimension ``n-1`` (avec ``n`` la dimension initiale de ``mesh3D``, ici 3). Si cela n'est pas le cas, la construction
 	plante. Le maillage 2D est forcément en haut ou en bas du 3D volumique, et le dernier entier spécifie la cellule à partir
 	de laquelle le fil de fer 1D guidant l'extrusion sera construit : ::
-	
+
 		extMesh = mc.MEDCouplingMappedExtrudedMesh(mesh3D, mesh2D, 0)
-	
+
 	On a alors la garantie que, dans ``extMesh``,  les cellules sont ordonnées par niveau Z croissant.
 	Il suffit de récupérer le 2ème niveau (``MEDCouplingMappedExtrudedMesh.getMesh3DIds()``). ::
-	
+
 		n_cells = mesh2D.getNumberOfCells()
 		cellIdsSol3 = extMesh.getMesh3DIds()[n_cells:2*n_cells]
 
@@ -167,7 +167,7 @@ Utiliser les identifiants de cellules ``cellIdsSol2`` obtenus précédemment pou
 c'est-à-dire un maillage avec un sous-ensemble des cellules de ``mesh3D``. ::
 
 	mesh3DPart = mesh3D[cellIdsSol2]
-	
+
 .. note:: En C++ la méthode sous-jacente invoquée (et par ailleurs aussi disponible en Python) s'appelle
 	``mesh3DPart = mesh3D.buildPartOfMySelf(cellIdsSol2,True)``
 
@@ -188,7 +188,7 @@ alors important de voir si ``mesh3DPart`` est bien ordonné, c'est-à-dire si se
 On commence par inspecter l'état actuel : ::
 
 	print(mesh3DPart.advancedRepr())
-	
+
 La fonction suivante fait le même travail : ::
 
 	print(mesh3DPart.checkConsecutiveCellTypesAndOrder([mc.NORM_HEXA8, mc.NORM_POLYHED]))
@@ -214,7 +214,7 @@ Il y a deux solutions.
 	baryXY -= [250.,150.]
 	magn = baryXY.magnitude()
 	cellIds2Sol1 = magn.findIdsInRange(0.,1e-12)
-	
+
 * utiliser le maillage extrudé ``extMesh`` : partant de l'unique cellule dans ``mesh2D`` dont le centre est
   en ``[250.,150.,0.]``, la méthdode ``MEDCouplingMappedExtrudedMesh.getMesh3DIds()`` retourne les identifiants de
   cellules rangée par rangée. ::
@@ -283,7 +283,7 @@ Ce lien est exprimé au format *indirect index* vu dans le premier exercice :ref
 	cellIds = numberOf3DCellSharing.findIdsNotEqual(1)
 	mesh3DSurfInside = mesh3DSurf[cellIds]
 	mesh3DSurfInside.writeVTK("mesh3DSurfInside.vtu")
-	
+
 Ce genre de manipulation est très utile pour accéder au voisinage d'une ou plusieurs cellules d'un maillage non-structuré.
 
 .. image:: images/mesh3DSurfInside.jpg

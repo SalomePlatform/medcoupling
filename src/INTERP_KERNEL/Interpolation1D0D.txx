@@ -36,23 +36,26 @@
 
 namespace INTERP_KERNEL
 {
-  /**
-   *  Very similar to Interpolation3D::interpolateMeshes, except for the bounding boxes that can be
-   *  adjusted in a similar fashion as in InterpolationPlanar::performAdjustmentOfBB()
-   **/
-  template<class MyMeshType, class MatrixType>
-  typename MyMeshType::MyConnType Interpolation1D0D::interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const std::string& method)
-  {
-    constexpr int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    using ConnType=typename MyMeshType::MyConnType;
-    IKAssert(SPACEDIM==3);
+/**
+ *  Very similar to Interpolation3D::interpolateMeshes, except for the bounding boxes that can be
+ *  adjusted in a similar fashion as in InterpolationPlanar::performAdjustmentOfBB()
+ **/
+template <class MyMeshType, class MatrixType>
+typename MyMeshType::MyConnType
+Interpolation1D0D::interpolateMeshes(
+    const MyMeshType &srcMesh, const MyMeshType &targetMesh, MatrixType &result, const std::string &method
+)
+{
+    constexpr int SPACEDIM = MyMeshType::MY_SPACEDIM;
+    using ConnType = typename MyMeshType::MyConnType;
+    IKAssert(SPACEDIM == 3);
 
-    if(InterpolationOptions::getIntersectionType() != PointLocator)
-      INTERP_KERNEL::Exception("Invalid 1D/0D intersection type specified : must be PointLocator.");
+    if (InterpolationOptions::getIntersectionType() != PointLocator)
+        INTERP_KERNEL::Exception("Invalid 1D/0D intersection type specified : must be PointLocator.");
 
-    std::string methC ( InterpolationOptions::filterInterpolationMethod(method) );
-    if(methC!="P1P1")
-      throw Exception("Invalid method chosen must be in \"P1P1\".");
+    std::string methC(InterpolationOptions::filterInterpolationMethod(method));
+    if (methC != "P1P1")
+        throw Exception("Invalid method chosen must be in \"P1P1\".");
 
     const double epsilon(getPrecision());
     // create MeshElement objects corresponding to each element of the two meshes
@@ -60,57 +63,60 @@ namespace INTERP_KERNEL
 
     LOG(2, "Source mesh has " << numSrcElems << " elements and target mesh has " << numTargetElems << " elements ");
 
-    std::vector<MeshElement<ConnType>*> srcElems(numSrcElems);
+    std::vector<MeshElement<ConnType> *> srcElems(numSrcElems);
 
-    std::map<MeshElement<ConnType>*, int> indices;
+    std::map<MeshElement<ConnType> *, int> indices;
 
-    for(ConnType i = 0 ; i < numSrcElems ; ++i)
-      srcElems[i] = new MeshElement<ConnType>(i, srcMesh);
+    for (ConnType i = 0; i < numSrcElems; ++i) srcElems[i] = new MeshElement<ConnType>(i, srcMesh);
 
     // create empty maps for all source elements
     result.resize(targetMesh.getNumberOfNodes());
 
     // create BBTree structure
     // - get bounding boxes
-    std::vector<double> bboxes(2*SPACEDIM*numSrcElems);
-    for(ConnType i = 0; i < numSrcElems ; ++i)
-      {
+    std::vector<double> bboxes(2 * SPACEDIM * numSrcElems);
+    for (ConnType i = 0; i < numSrcElems; ++i)
+    {
         // get source bboxes in right order
-        srcElems[i]->getBoundingBox()->toCompactData(bboxes.data()+6*i);
-      }
+        srcElems[i]->getBoundingBox()->toCompactData(bboxes.data() + 6 * i);
+    }
 
     adjustBoundingBoxes(bboxes);
     const double *bboxPtr(nullptr);
-    if(numSrcElems>0)
-      bboxPtr=&bboxes[0];
-    BBTree<SPACEDIM,ConnType> tree(bboxPtr, nullptr, 0, numSrcElems);
-    const ConnType *trgConnPtr(targetMesh.getConnectivityPtr()),*trgConnIPtr(targetMesh.getConnectivityIndexPtr());
-    const ConnType *srcConnPtr(srcMesh.getConnectivityPtr()),*srcConnIPtr(srcMesh.getConnectivityIndexPtr());
-    const double *trgCooPtr(targetMesh.getCoordinatesPtr()),*srcCooPtr(srcMesh.getCoordinatesPtr());
-    for(ConnType i = 0; i < numTargetElems; ++i)
-      {
-        IKAssert(trgConnIPtr[i+1]==i+1 && trgConnIPtr[i]==i);
+    if (numSrcElems > 0)
+        bboxPtr = &bboxes[0];
+    BBTree<SPACEDIM, ConnType> tree(bboxPtr, nullptr, 0, numSrcElems);
+    const ConnType *trgConnPtr(targetMesh.getConnectivityPtr()), *trgConnIPtr(targetMesh.getConnectivityIndexPtr());
+    const ConnType *srcConnPtr(srcMesh.getConnectivityPtr()), *srcConnIPtr(srcMesh.getConnectivityIndexPtr());
+    const double *trgCooPtr(targetMesh.getCoordinatesPtr()), *srcCooPtr(srcMesh.getCoordinatesPtr());
+    for (ConnType i = 0; i < numTargetElems; ++i)
+    {
+        IKAssert(trgConnIPtr[i + 1] == i + 1 && trgConnIPtr[i] == i);
         std::vector<ConnType> srcSegCondidates;
-        const double *trgCellPosition(trgCooPtr+SPACEDIM*trgConnPtr[i]);
-        typename MatrixType::value_type& resRow(result[trgConnPtr[i]]);
+        const double *trgCellPosition(trgCooPtr + SPACEDIM * trgConnPtr[i]);
+        typename MatrixType::value_type &resRow(result[trgConnPtr[i]]);
         tree.getElementsAroundPoint(trgCellPosition, srcSegCondidates);
-        for(auto srcSeg: srcSegCondidates)
-          {
-            IKAssertMsg(srcConnIPtr[srcSeg+1]==2*(srcSeg+1) && srcConnIPtr[srcSeg]==2*srcSeg,"Only implemented for linear 1D source");
-            double bc0(0.),bc1(0.);
-            ConnType srcNode0(srcConnPtr[2*srcSeg]),srcNode1(srcConnPtr[2*srcSeg+1]);
-            if(IsPointOn3DSeg(srcCooPtr+SPACEDIM*srcNode0,srcCooPtr+SPACEDIM*srcNode1,trgCellPosition,epsilon,bc0,bc1))
-              {
-                resRow.insert(std::make_pair(srcNode0,bc0));
-                resRow.insert(std::make_pair(srcNode1,bc1));
+        for (auto srcSeg : srcSegCondidates)
+        {
+            IKAssertMsg(
+                srcConnIPtr[srcSeg + 1] == 2 * (srcSeg + 1) && srcConnIPtr[srcSeg] == 2 * srcSeg,
+                "Only implemented for linear 1D source"
+            );
+            double bc0(0.), bc1(0.);
+            ConnType srcNode0(srcConnPtr[2 * srcSeg]), srcNode1(srcConnPtr[2 * srcSeg + 1]);
+            if (IsPointOn3DSeg(
+                    srcCooPtr + SPACEDIM * srcNode0, srcCooPtr + SPACEDIM * srcNode1, trgCellPosition, epsilon, bc0, bc1
+                ))
+            {
+                resRow.insert(std::make_pair(srcNode0, bc0));
+                resRow.insert(std::make_pair(srcNode1, bc1));
                 continue;
-              }
-          }
-      }
-    for(ConnType i = 0 ; i < numSrcElems ; ++i)
-      delete srcElems[i];
+            }
+        }
+    }
+    for (ConnType i = 0; i < numSrcElems; ++i) delete srcElems[i];
     return srcMesh.getNumberOfNodes();
-  }
 }
+}  // namespace INTERP_KERNEL
 
 #endif

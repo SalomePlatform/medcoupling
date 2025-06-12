@@ -27,68 +27,109 @@
 
 namespace MEDCoupling
 {
-  /*!
-   * Class in charge to implement FE functions with shape functions
-   */
-  class MEDCouplingFieldDiscretizationOnNodesFE : public MEDCouplingFieldDiscretizationOnNodes
-  {
-    public:
-      TypeOfField getEnum() const override { return TYPE; }
-      std::string getClassName() const override { return std::string("MEDCouplingFieldDiscretizationOnNodesFE"); }
-      MEDCOUPLING_EXPORT  const char *getRepr() const override;
-      MEDCOUPLING_EXPORT std::string getStringRepr() const override;
-      MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const override;
-      MEDCOUPLING_EXPORT MCAuto<MEDCouplingFieldDiscretization> aggregate(std::vector<const MEDCouplingFieldDiscretization *>& fds) const override;
-      MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingFieldDiscretization *other, double eps, std::string& reason) const override;
-      MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *clone() const override;
-      MEDCOUPLING_EXPORT void checkCompatibilityWithNature(NatureOfField nat) const override;
-      MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const override;
-      MEDCOUPLING_EXPORT void getValueOn(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res) const override;
-      MEDCOUPLING_EXPORT DataArrayDouble *getValueOnMulti(const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, mcIdType nbOfPoints) const override;
-    public:
-      MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> getCooInRefElement(const MEDCouplingMesh *mesh, const double *loc, mcIdType nbOfPoints) const;
-      MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> getClosestCooInRefElement(const MEDCouplingMesh *mesh, const double *loc, mcIdType nbOfPoints) const;
+/*!
+ * Class in charge to implement FE functions with shape functions
+ */
+class MEDCouplingFieldDiscretizationOnNodesFE : public MEDCouplingFieldDiscretizationOnNodes
+{
+   public:
+    TypeOfField getEnum() const override { return TYPE; }
+    std::string getClassName() const override { return std::string("MEDCouplingFieldDiscretizationOnNodesFE"); }
+    MEDCOUPLING_EXPORT const char *getRepr() const override;
+    MEDCOUPLING_EXPORT std::string getStringRepr() const override;
+    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream &stream) const override;
+    MEDCOUPLING_EXPORT MCAuto<MEDCouplingFieldDiscretization> aggregate(
+        std::vector<const MEDCouplingFieldDiscretization *> &fds
+    ) const override;
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(
+        const MEDCouplingFieldDiscretization *other, double eps, std::string &reason
+    ) const override;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDiscretization *clone() const override;
+    MEDCOUPLING_EXPORT void checkCompatibilityWithNature(NatureOfField nat) const override;
+    MEDCOUPLING_EXPORT MEDCouplingFieldDouble *getMeasureField(const MEDCouplingMesh *mesh, bool isAbs) const override;
+    MEDCOUPLING_EXPORT void getValueOn(
+        const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, double *res
+    ) const override;
+    MEDCOUPLING_EXPORT DataArrayDouble *getValueOnMulti(
+        const DataArrayDouble *arr, const MEDCouplingMesh *mesh, const double *loc, mcIdType nbOfPoints
+    ) const override;
 
-    public:
-      MEDCOUPLING_EXPORT static void
-      GetRefCoordOfListOfPts(const MEDCouplingUMesh *umesh, const double *ptsCoo, mcIdType nbOfPts,
-                             std::function<void(const MEDCouplingGaussLocalization &, const std::vector<mcIdType> &)> customFunc);
-      MEDCOUPLING_EXPORT static void
-      GetClosestRefCoordOfListOfPts(const MEDCouplingUMesh *umesh, const double *ptsCoo, mcIdType nbOfPts,
-                                    std::function<void(const MEDCouplingGaussLocalization &, const std::vector<mcIdType> &)> customFunc);
-      MEDCOUPLING_EXPORT static void computeCrudeMatrix(const MEDCouplingUMesh *srcMesh, const double *ptsCoo, const mcIdType nbOfPts,
-                                                        std::vector<std::map<mcIdType, double>> &matrix, const INTERP_KERNEL::FEInterpolationOptions& option);
+   public:
+    MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> getCooInRefElement(
+        const MEDCouplingMesh *mesh, const double *loc, mcIdType nbOfPoints
+    ) const;
+    MEDCOUPLING_EXPORT MCAuto<DataArrayDouble> getClosestCooInRefElement(
+        const MEDCouplingMesh *mesh, const double *loc, mcIdType nbOfPoints
+    ) const;
 
-    private:
-      const MEDCouplingUMesh *checkConfig(const MEDCouplingMesh *mesh) const;
-      const MEDCouplingUMesh *checkConfigSurf(const MEDCouplingMesh *mesh) const;
-      template <int SPACEDIM>
-      MEDCOUPLING_EXPORT static void
-      GetRefCoordOfListOfNDPtsInND(const MEDCouplingUMesh *umesh, const double *ptsCoo, mcIdType nbOfPts,
-                                   std::function<void(const MEDCouplingGaussLocalization &, const std::vector<mcIdType> &)> customFunc);
+   public:
+    MEDCOUPLING_EXPORT static void GetRefCoordOfListOfPts(
+        const MEDCouplingUMesh *umesh,
+        const double *ptsCoo,
+        mcIdType nbOfPts,
+        std::function<void(const MEDCouplingGaussLocalization &, const std::vector<mcIdType> &)> customFunc
+    );
+    MEDCOUPLING_EXPORT static void GetClosestRefCoordOfListOfPts(
+        const MEDCouplingUMesh *umesh,
+        const double *ptsCoo,
+        mcIdType nbOfPts,
+        std::function<void(const MEDCouplingGaussLocalization &, const std::vector<mcIdType> &)> customFunc
+    );
+    MEDCOUPLING_EXPORT static void computeCrudeMatrix(
+        const MEDCouplingUMesh *srcMesh,
+        const double *ptsCoo,
+        const mcIdType nbOfPts,
+        std::vector<std::map<mcIdType, double>> &matrix,
+        const INTERP_KERNEL::FEInterpolationOptions &option
+    );
 
-      template <typename BBTree>
-      MEDCOUPLING_EXPORT static void
-      GetRefCoordOfListOf1PtInND(const MEDCouplingUMesh *umesh, const BBTree &tree, const std::vector<double> &ptCoor,
-                                 std::function<void(const MEDCouplingGaussLocalization &, const std::vector<mcIdType> &)> customFunc);
+   private:
+    const MEDCouplingUMesh *checkConfig(const MEDCouplingMesh *mesh) const;
+    const MEDCouplingUMesh *checkConfigSurf(const MEDCouplingMesh *mesh) const;
+    template <int SPACEDIM>
+    MEDCOUPLING_EXPORT static void GetRefCoordOfListOfNDPtsInND(
+        const MEDCouplingUMesh *umesh,
+        const double *ptsCoo,
+        mcIdType nbOfPts,
+        std::function<void(const MEDCouplingGaussLocalization &, const std::vector<mcIdType> &)> customFunc
+    );
 
-      template <int SPACEDIM>
-      MEDCOUPLING_EXPORT static void
-      GetClosestRefCoordOfListOfNDPtsInND(const MEDCouplingUMesh *umesh, const double *ptsCoo, mcIdType nbOfPts,
-                                          std::function<void(const MEDCouplingGaussLocalization &, const std::vector<mcIdType> &)> customFunc);
+    template <typename BBTree>
+    MEDCOUPLING_EXPORT static void GetRefCoordOfListOf1PtInND(
+        const MEDCouplingUMesh *umesh,
+        const BBTree &tree,
+        const std::vector<double> &ptCoor,
+        std::function<void(const MEDCouplingGaussLocalization &, const std::vector<mcIdType> &)> customFunc
+    );
 
-      template <typename BBTree>
-      MEDCOUPLING_EXPORT static void
-      GetClosestRefCoordOfListOf1PtInND(const MEDCouplingUMesh *umesh, const BBTree &tree, const std::vector<double> &ptCoor,
-                                        std::function<void(const MEDCouplingGaussLocalization &, const std::vector<mcIdType> &)> customFunc,
-                                        const double dist_max = std::numeric_limits<double>::max());
+    template <int SPACEDIM>
+    MEDCOUPLING_EXPORT static void GetClosestRefCoordOfListOfNDPtsInND(
+        const MEDCouplingUMesh *umesh,
+        const double *ptsCoo,
+        mcIdType nbOfPts,
+        std::function<void(const MEDCouplingGaussLocalization &, const std::vector<mcIdType> &)> customFunc
+    );
 
-      template <int SPACEDIM>
-      MEDCOUPLING_EXPORT static void computeCrudeMatrixNd(const MEDCouplingUMesh *srcMesh, const double *ptsCoo, const mcIdType nbOfPts,
-                                                          std::vector<std::map<mcIdType, double>> &matrix, const INTERP_KERNEL::FEInterpolationOptions& option);
+    template <typename BBTree>
+    MEDCOUPLING_EXPORT static void GetClosestRefCoordOfListOf1PtInND(
+        const MEDCouplingUMesh *umesh,
+        const BBTree &tree,
+        const std::vector<double> &ptCoor,
+        std::function<void(const MEDCouplingGaussLocalization &, const std::vector<mcIdType> &)> customFunc,
+        const double dist_max = std::numeric_limits<double>::max()
+    );
 
-    public:
-      static const char REPR[];
-      static constexpr TypeOfField TYPE = ON_NODES_FE;
-  };
-}
+    template <int SPACEDIM>
+    MEDCOUPLING_EXPORT static void computeCrudeMatrixNd(
+        const MEDCouplingUMesh *srcMesh,
+        const double *ptsCoo,
+        const mcIdType nbOfPts,
+        std::vector<std::map<mcIdType, double>> &matrix,
+        const INTERP_KERNEL::FEInterpolationOptions &option
+    );
+
+   public:
+    static const char REPR[];
+    static constexpr TypeOfField TYPE = ON_NODES_FE;
+};
+}  // namespace MEDCoupling

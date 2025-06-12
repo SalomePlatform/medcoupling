@@ -27,30 +27,33 @@
 
 class vtkUnstructuredGrid;
 
-template<int MESHDIM>
+template <int MESHDIM>
 class INTERPKERNEL_EXPORT VTKNormalizedUnstructuredMesh
 {
-public:
-  static const int MY_SPACEDIM=3;
-  static const int MY_MESHDIM=MESHDIM;
-  typedef vtkIdType MyConnType;
-  static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
-public:
-  VTKNormalizedUnstructuredMesh(vtkUnstructuredGrid *mesh);
-  ~VTKNormalizedUnstructuredMesh();
-  void getBoundingBox(double *boundingBox) const;
-  NormalizedCellType getTypeOfElement(vtkIdType eltId) const;
-  unsigned long getNumberOfElements() const;
-  unsigned long getNumberOfNodes() const;
-  const vtkIdType *getConnectivityPtr() const;
-  const double *getCoordinatesPtr() const;
-  const vtkIdType *getConnectivityIndexPtr() const;
-  void releaseTempArrays();
-protected:
-  void putinMEDFormat() const;
-protected:
-  vtkUnstructuredGrid *_mesh_in_vtk_mode;
-  mutable vtkIdType *_tmp_index_array;
+   public:
+    static const int MY_SPACEDIM = 3;
+    static const int MY_MESHDIM = MESHDIM;
+    typedef vtkIdType MyConnType;
+    static const INTERP_KERNEL::NumberingPolicy My_numPol = INTERP_KERNEL::ALL_C_MODE;
+
+   public:
+    VTKNormalizedUnstructuredMesh(vtkUnstructuredGrid *mesh);
+    ~VTKNormalizedUnstructuredMesh();
+    void getBoundingBox(double *boundingBox) const;
+    NormalizedCellType getTypeOfElement(vtkIdType eltId) const;
+    unsigned long getNumberOfElements() const;
+    unsigned long getNumberOfNodes() const;
+    const vtkIdType *getConnectivityPtr() const;
+    const double *getCoordinatesPtr() const;
+    const vtkIdType *getConnectivityIndexPtr() const;
+    void releaseTempArrays();
+
+   protected:
+    void putinMEDFormat() const;
+
+   protected:
+    vtkUnstructuredGrid *_mesh_in_vtk_mode;
+    mutable vtkIdType *_tmp_index_array;
 };
 
 #endif

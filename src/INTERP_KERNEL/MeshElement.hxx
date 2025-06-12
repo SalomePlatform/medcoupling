@@ -26,24 +26,23 @@
 namespace INTERP_KERNEL
 {
 
-  /**
-   * \brief Class representing a single element of a mesh together with its bounding box.
-   * It gives access to the element's global number, type and bounding box and allows
-   * easy bounding box intersection tests between MeshElements and collections of MeshElement (MeshRegions)
-   */
-  template<class ConnType, int SPACEDIM>
-  class MeshElementT
-  {
-
-  public:
+/**
+ * \brief Class representing a single element of a mesh together with its bounding box.
+ * It gives access to the element's global number, type and bounding box and allows
+ * easy bounding box intersection tests between MeshElements and collections of MeshElement (MeshRegions)
+ */
+template <class ConnType, int SPACEDIM>
+class MeshElementT
+{
+   public:
     using nbnodesincelltype = std::uint32_t;
-    template<class MyMeshType>
-    MeshElementT(const ConnType index, const MyMeshType& mesh);
+    template <class MyMeshType>
+    MeshElementT(const ConnType index, const MyMeshType &mesh);
 
     MeshElementT() = default;
 
-    template<class MyMeshType>
-    void assign(const ConnType index, const MyMeshType& mesh);
+    template <class MyMeshType>
+    void assign(const ConnType index, const MyMeshType &mesh);
 
     ~MeshElementT() = default;
 
@@ -51,39 +50,38 @@ namespace INTERP_KERNEL
 
     const BoundingBoxT<SPACEDIM> *getBoundingBox() const { return &_box; }
 
-    MeshElementT& operator=(const MeshElementT& elem) = delete;
+    MeshElementT &operator=(const MeshElementT &elem) = delete;
 
-  private:
+   private:
     /// disallow copying
-    MeshElementT(const MeshElementT& elem) = delete;
+    MeshElementT(const MeshElementT &elem) = delete;
 
     nbnodesincelltype _number;
 
     /// bounding box of the element - does not change after having been initialised
     BoundingBoxT<SPACEDIM> _box;
-  };
+};
 
-  template<class ConnType>
-  using MeshElement = MeshElementT<ConnType,3>;
+template <class ConnType>
+using MeshElement = MeshElementT<ConnType, 3>;
 
-  /**
-   * \brief Class defining an order for MeshElements based on their bounding boxes.
-   * The order defined between two elements is that between a given coordinate of
-   * their bounding boxes. For instance, if the order is based on YMIN, an element whose boxes
-   * has a smaller YMIN is sorted before one with a larger YMIN.
-   *
-   */
-  class ElementBBoxOrder
-  {
-  public :
-
+/**
+ * \brief Class defining an order for MeshElements based on their bounding boxes.
+ * The order defined between two elements is that between a given coordinate of
+ * their bounding boxes. For instance, if the order is based on YMIN, an element whose boxes
+ * has a smaller YMIN is sorted before one with a larger YMIN.
+ *
+ */
+class ElementBBoxOrder
+{
+   public:
     ElementBBoxOrder(BoundingBox::BoxCoord coord);
-    template<class ConnType>
-    bool operator()(MeshElement<ConnType>* elem1, MeshElement<ConnType>* elem2);
+    template <class ConnType>
+    bool operator()(MeshElement<ConnType> *elem1, MeshElement<ConnType> *elem2);
 
-  private :
+   private:
     /// BoundingBox coordinate (XMIN, XMAX, etc) on which to base the ordering
     BoundingBox::BoxCoord _coord;
-  };
+};
 
-}
+}  // namespace INTERP_KERNEL

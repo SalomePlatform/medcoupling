@@ -29,71 +29,78 @@
 
 namespace ICoCo
 {
-  class MEDDoubleField;
+class MEDDoubleField;
 }
 
 namespace MEDCoupling
 {
-  class ProcessorGroup;
-  class ParaFIELD;
+class ProcessorGroup;
+class ParaFIELD;
 
-  /*!
-   * \anchor DisjointDEC-det
-   * \class DisjointDEC
-   *
-   * \section DisjointDEC-over Overview
-   *
-   * Abstract interface class representing a link between two
-   * processor groups for exchanging mesh or field data. The two processor groups must
-   * have a void intersection (\ref MEDCoupling::OverlapDEC "OverlapDEC" is to be considered otherwise).
-   * The %DEC is initialized by attaching a field on the receiving or on the
-   * sending side.
-   *
-   * The data is sent or received through calls to the (abstract) methods recvData() and sendData().
-   *
-   * One can attach either a \c MEDCoupling::ParaFIELD, or a
-   * \c ICoCo::Field, or directly a \c MEDCoupling::MEDCouplingFieldDouble instance.
-   * See the various signatures of the method DisjointDEC::attachLocalField()
-   *
-   * The derivations of this class should be considered for practical instantiation:
-   * - \ref InterpKernelDEC-det "InterpKernelDEC"
-   * - \ref ExplicitCoincidentDEC-det "ExplicitCoincidentDEC"
-   * - \ref StructuredCoincidentDEC-det "StructuredCoincidentDEC"
-   *
-   * \section DisjointDEC-options DisjointDEC options
-   * The options supported by %DisjointDEC objects are the same that the ones supported for all
-   * DECs in general and are all inherited from the class \ref MEDCoupling::DECOptions "DECOptions"
-   *
-  */
+/*!
+ * \anchor DisjointDEC-det
+ * \class DisjointDEC
+ *
+ * \section DisjointDEC-over Overview
+ *
+ * Abstract interface class representing a link between two
+ * processor groups for exchanging mesh or field data. The two processor groups must
+ * have a void intersection (\ref MEDCoupling::OverlapDEC "OverlapDEC" is to be considered otherwise).
+ * The %DEC is initialized by attaching a field on the receiving or on the
+ * sending side.
+ *
+ * The data is sent or received through calls to the (abstract) methods recvData() and sendData().
+ *
+ * One can attach either a \c MEDCoupling::ParaFIELD, or a
+ * \c ICoCo::Field, or directly a \c MEDCoupling::MEDCouplingFieldDouble instance.
+ * See the various signatures of the method DisjointDEC::attachLocalField()
+ *
+ * The derivations of this class should be considered for practical instantiation:
+ * - \ref InterpKernelDEC-det "InterpKernelDEC"
+ * - \ref ExplicitCoincidentDEC-det "ExplicitCoincidentDEC"
+ * - \ref StructuredCoincidentDEC-det "StructuredCoincidentDEC"
+ *
+ * \section DisjointDEC-options DisjointDEC options
+ * The options supported by %DisjointDEC objects are the same that the ones supported for all
+ * DECs in general and are all inherited from the class \ref MEDCoupling::DECOptions "DECOptions"
+ *
+ */
 
-  class DisjointDEC : public DEC
-  {
-  public:
-    DisjointDEC():_local_field(0),_union_group(0),_source_group(0),_target_group(0),
-    _comm_interface(0),
-    _owns_field(false),_owns_groups(false),
-    _union_comm(MPI_COMM_NULL)
-    { }
-    DisjointDEC(ProcessorGroup& source_group, ProcessorGroup& target_group);
-    DisjointDEC(const DisjointDEC&);
-    DisjointDEC &operator=(const DisjointDEC& s);
-    DisjointDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids,
-                const MPI_Comm& world_comm=MPI_COMM_WORLD);
+class DisjointDEC : public DEC
+{
+   public:
+    DisjointDEC()
+        : _local_field(0),
+          _union_group(0),
+          _source_group(0),
+          _target_group(0),
+          _comm_interface(0),
+          _owns_field(false),
+          _owns_groups(false),
+          _union_comm(MPI_COMM_NULL)
+    {
+    }
+    DisjointDEC(ProcessorGroup &source_group, ProcessorGroup &target_group);
+    DisjointDEC(const DisjointDEC &);
+    DisjointDEC &operator=(const DisjointDEC &s);
+    DisjointDEC(
+        const std::set<int> &src_ids, const std::set<int> &trg_ids, const MPI_Comm &world_comm = MPI_COMM_WORLD
+    );
     virtual ~DisjointDEC();
 
     void setNature(NatureOfField nature);
-    void attachLocalField( MEDCouplingFieldDouble *field);
-    void attachLocalField(const ParaFIELD *field, bool ownPt=false);
+    void attachLocalField(MEDCouplingFieldDouble *field);
+    void attachLocalField(const ParaFIELD *field, bool ownPt = false);
     void attachLocalField(const ICoCo::MEDDoubleField *field);
 
     virtual void prepareSourceDE() = 0;
     virtual void prepareTargetDE() = 0;
     virtual void recvData() = 0;
     virtual void sendData() = 0;
-    void sendRecvData(bool way=true);
+    void sendRecvData(bool way = true);
     virtual void synchronize() = 0;
 
-    virtual void computeProcGroup() { }
+    virtual void computeProcGroup() {}
     void renormalizeTargetField(bool isWAbs);
     //
     ProcessorGroup *getSourceGrp() const { return _source_group; }
@@ -101,23 +108,25 @@ namespace MEDCoupling
     bool isInSourceSide() const;
     bool isInTargetSide() const;
     bool isInUnion() const;
-  protected:
+
+   protected:
     void compareFieldAndMethod() const;
     void cleanInstance();
-    void copyInstance(const DisjointDEC& other);
+    void copyInstance(const DisjointDEC &other);
     void checkPartitionGroup() const;
-  protected:
-    const ParaFIELD* _local_field;
-    //! Processor group representing the union of target and source processors
-    ProcessorGroup* _union_group;
-    ProcessorGroup* _source_group;
-    ProcessorGroup* _target_group;
 
-    const CommInterface* _comm_interface;
+   protected:
+    const ParaFIELD *_local_field;
+    //! Processor group representing the union of target and source processors
+    ProcessorGroup *_union_group;
+    ProcessorGroup *_source_group;
+    ProcessorGroup *_target_group;
+
+    const CommInterface *_comm_interface;
     bool _owns_field;
     bool _owns_groups;
     MPI_Comm _union_comm;
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

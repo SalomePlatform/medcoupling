@@ -26,51 +26,53 @@
 #include "IntersectorCU2D.hxx"
 #include "IntersectorCU.txx"
 
-#define IntersectorCU2D_TEMPLATE template<class MyCMeshType, class MyUMeshType, class MyMatrix>
-#define INTERSECTOR_CU2D IntersectorCU2D<MyCMeshType, MyUMeshType, MyMatrix >
-#define INTER_CU IntersectorCU<MyCMeshType,MyUMeshType,MyMatrix,IntersectorCU2D<MyCMeshType,MyUMeshType,MyMatrix> >
-
+#define IntersectorCU2D_TEMPLATE template <class MyCMeshType, class MyUMeshType, class MyMatrix>
+#define INTERSECTOR_CU2D IntersectorCU2D<MyCMeshType, MyUMeshType, MyMatrix>
+#define INTER_CU IntersectorCU<MyCMeshType, MyUMeshType, MyMatrix, IntersectorCU2D<MyCMeshType, MyUMeshType, MyMatrix> >
 
 namespace INTERP_KERNEL
 {
-  IntersectorCU2D_TEMPLATE
-  INTERSECTOR_CU2D::IntersectorCU2D(const MyCMeshType& meshS,
-                                    const MyUMeshType& meshT):
-    IntersectorCU<MyCMeshType, MyUMeshType, MyMatrix, IntersectorCU2D<MyCMeshType,MyUMeshType,MyMatrix> >( meshS, meshT ),
-    _intersector(meshT, meshT, 0,0,0,0,0,0,0 )
-  {
-    if ( MyCMeshType::MY_SPACEDIM != 2 || MyCMeshType::MY_MESHDIM != 2 ||
-         MyUMeshType::MY_SPACEDIM != 2 || MyUMeshType::MY_MESHDIM != 2 )
-      throw Exception("IntersectorCU2D(): Invalid mesh dimension, it must be 2");
-  }
+IntersectorCU2D_TEMPLATE
+INTERSECTOR_CU2D::IntersectorCU2D(const MyCMeshType &meshS, const MyUMeshType &meshT)
+    : IntersectorCU<MyCMeshType, MyUMeshType, MyMatrix, IntersectorCU2D<MyCMeshType, MyUMeshType, MyMatrix> >(
+          meshS, meshT
+      ),
+      _intersector(meshT, meshT, 0, 0, 0, 0, 0, 0, 0)
+{
+    if (MyCMeshType::MY_SPACEDIM != 2 || MyCMeshType::MY_MESHDIM != 2 || MyUMeshType::MY_SPACEDIM != 2 ||
+        MyUMeshType::MY_MESHDIM != 2)
+        throw Exception("IntersectorCU2D(): Invalid mesh dimension, it must be 2");
+}
 
+//================================================================================
+/*!
+ * \brief Calculate area of intersection of an unstructured cell and a cartesian one.
+ * The cartesian cell is given by its [i,j] indices
+ */
+//================================================================================
 
-  //================================================================================
-  /*!
-   * \brief Calculate area of intersection of an unstructured cell and a cartesian one.
-   * The cartesian cell is given by its [i,j] indices
-   */
-  //================================================================================
-
-  IntersectorCU2D_TEMPLATE
-  double INTERSECTOR_CU2D::intersectGeometry(UConnType                     icellT,
-                                             const std::vector<CConnType>& icellS)
-  {
+IntersectorCU2D_TEMPLATE double
+INTERSECTOR_CU2D::intersectGeometry(UConnType icellT, const std::vector<CConnType> &icellS)
+{
     std::vector<double> uCoords;
-    this->getUCoordinates( icellT, uCoords );
+    this->getUCoordinates(icellT, uCoords);
 
-    NormalizedCellType tT = INTER_CU::_meshU.getTypeOfElement( _TMIU(icellT));
+    NormalizedCellType tT = INTER_CU::_meshU.getTypeOfElement(_TMIU(icellT));
     bool is_tgt_quad = CellModel::GetCellModel(tT).isQuadratic();
 
-    double quad[8] = { INTER_CU::_coordsC[0][icellS[0]],   INTER_CU::_coordsC[1][icellS[1]],
-                       INTER_CU::_coordsC[0][icellS[0]+1], INTER_CU::_coordsC[1][icellS[1]],
-                       INTER_CU::_coordsC[0][icellS[0]+1], INTER_CU::_coordsC[1][icellS[1]+1],
-                       INTER_CU::_coordsC[0][icellS[0]],   INTER_CU::_coordsC[1][icellS[1]+1] };
+    double quad[8] = {
+        INTER_CU::_coordsC[0][icellS[0]],
+        INTER_CU::_coordsC[1][icellS[1]],
+        INTER_CU::_coordsC[0][icellS[0] + 1],
+        INTER_CU::_coordsC[1][icellS[1]],
+        INTER_CU::_coordsC[0][icellS[0] + 1],
+        INTER_CU::_coordsC[1][icellS[1] + 1],
+        INTER_CU::_coordsC[0][icellS[0]],
+        INTER_CU::_coordsC[1][icellS[1] + 1]
+    };
 
-    double surf = _intersector.intersectGeometryWithQuadrangle( quad,
-                                                                uCoords,
-                                                                is_tgt_quad);
+    double surf = _intersector.intersectGeometryWithQuadrangle(quad, uCoords, is_tgt_quad);
     return surf;
-  }
 }
+}  // namespace INTERP_KERNEL
 #endif

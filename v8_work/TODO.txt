@@ -143,5 +143,3 @@ MEDFileMesh
 -----------
     setAxType / setAxisType
     getAxType / getAxisType
-
-

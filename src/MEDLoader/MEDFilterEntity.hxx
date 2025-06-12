@@ -28,84 +28,126 @@
 namespace MEDCoupling
 {
 
-  /*!
-   *
-   * This class encapsulates the med_filter object to create the appropriate filter based on the partition given as input:
-   * if the partition represents a slice of values, then it's more efficient to have a block filter (to treat a block of data)
-   * otherwise, a generic filter is necessary
-   *
-   */
-  class MEDFilterEntity
-  {
-  public:
+/*!
+ *
+ * This class encapsulates the med_filter object to create the appropriate filter based on the partition given as input:
+ * if the partition represents a slice of values, then it's more efficient to have a block filter (to treat a block of
+ * data) otherwise, a generic filter is necessary
+ *
+ */
+class MEDFilterEntity
+{
+   public:
     inline MEDFilterEntity();
-    ~MEDFilterEntity() { if (_filter != nullptr) MEDfilterClose(_filter.get()); }
+    ~MEDFilterEntity()
+    {
+        if (_filter != nullptr)
+            MEDfilterClose(_filter.get());
+    }
 
-    inline void fill(med_idt fid, mcIdType nbOfEntity, mcIdType nbOfValuesPerEntity, mcIdType nbOfConstituentPerValue,
-                     const med_int constituentSelect, const med_switch_mode switchMode, const med_storage_mode storageMode, const char * const profileName,
-                     const PartDefinition* pd);
+    inline void fill(
+        med_idt fid,
+        mcIdType nbOfEntity,
+        mcIdType nbOfValuesPerEntity,
+        mcIdType nbOfConstituentPerValue,
+        const med_int constituentSelect,
+        const med_switch_mode switchMode,
+        const med_storage_mode storageMode,
+        const char *const profileName,
+        const PartDefinition *pd
+    );
     const med_filter *getPtr() const { return _filter.get(); }
 
-  private:
+   private:
     std::shared_ptr<med_filter> _filter;
-  };
+};
 
-  MEDFilterEntity::MEDFilterEntity() : _filter(std::make_shared<med_filter>())
-  {
-    med_filter& ref = *_filter.get();
+MEDFilterEntity::MEDFilterEntity() : _filter(std::make_shared<med_filter>())
+{
+    med_filter &ref = *_filter.get();
 
     // gcc < 9.x compilers are not able to assign to the shared_ptr th med_filter structure
 #if defined(WIN32)
     ref = MED_FILTER_INIT;
 #else
     ref = (med_filter)MED_FILTER_INIT;
-#endif // WIN32
-  }
+#endif  // WIN32
+}
 
-  void MEDFilterEntity::fill(med_idt fid, mcIdType nbOfEntity, mcIdType nbOfValuesPerEntity, mcIdType nbOfConstituentPerValue,
-                             const med_int constituentSelect, const med_switch_mode switchMode, const med_storage_mode storageMode, const char * const profileName,
-                             const PartDefinition* pd)
-  {
+void
+MEDFilterEntity::fill(
+    med_idt fid,
+    mcIdType nbOfEntity,
+    mcIdType nbOfValuesPerEntity,
+    mcIdType nbOfConstituentPerValue,
+    const med_int constituentSelect,
+    const med_switch_mode switchMode,
+    const med_storage_mode storageMode,
+    const char *const profileName,
+    const PartDefinition *pd
+)
+{
     const SlicePartDefinition *spd(dynamic_cast<const SlicePartDefinition *>(pd));
-    if(spd)
-      {
-        //Here, pd contains a slice, so it's more efficient to define a filter of block
+    if (spd)
+    {
+        // Here, pd contains a slice, so it's more efficient to define a filter of block
         //(which will load contiguous values)
         mcIdType nbOfEltsToLoad = spd->getNumberOfElems();
-        mcIdType strt,end,step;
-        spd->getSlice(strt,end,step);
-        if(strt<0)
-          throw INTERP_KERNEL::Exception("MEDFilterEntity::fill : start pos is negative !");
-        if(end>nbOfEntity)
-          throw INTERP_KERNEL::Exception("MEDFilterEntity::fill : end is after the authorized range !");
-        MEDfilterBlockOfEntityCr(fid,ToMedInt(nbOfEntity),ToMedInt(nbOfValuesPerEntity),ToMedInt(nbOfConstituentPerValue),
-                                 constituentSelect,switchMode,storageMode,profileName,
-                                 /*start*/ToMedInt(strt+1),/*stride*/ToMedInt(step),/*count*/1,/*blocksize*/ToMedInt(nbOfEltsToLoad),
-                                 /*lastblocksize=useless because count=1*/0,_filter.get());
+        mcIdType strt, end, step;
+        spd->getSlice(strt, end, step);
+        if (strt < 0)
+            throw INTERP_KERNEL::Exception("MEDFilterEntity::fill : start pos is negative !");
+        if (end > nbOfEntity)
+            throw INTERP_KERNEL::Exception("MEDFilterEntity::fill : end is after the authorized range !");
+        MEDfilterBlockOfEntityCr(
+            fid,
+            ToMedInt(nbOfEntity),
+            ToMedInt(nbOfValuesPerEntity),
+            ToMedInt(nbOfConstituentPerValue),
+            constituentSelect,
+            switchMode,
+            storageMode,
+            profileName,
+            /*start*/ ToMedInt(strt + 1),
+            /*stride*/ ToMedInt(step),
+            /*count*/ 1,
+            /*blocksize*/ ToMedInt(nbOfEltsToLoad),
+            /*lastblocksize=useless because count=1*/ 0,
+            _filter.get()
+        );
         return;
-      }
+    }
     const DataArrayPartDefinition *dpd(dynamic_cast<const DataArrayPartDefinition *>(pd));
-    if(dpd)
-      {
+    if (dpd)
+    {
         mcIdType nbOfEltsToLoad = dpd->getNumberOfElems();
 
-      //convert to fortran indexing
-      std::vector<mcIdType> dpdPlus1;
-      MCAuto<DataArrayIdType> partition(pd->toDAI());
-      std::copy(partition->begin(), partition->end(), std::back_inserter(dpdPlus1));
-      std::for_each(dpdPlus1.begin(), dpdPlus1.end(), [](mcIdType &node){ node+=1; });
+        // convert to fortran indexing
+        std::vector<mcIdType> dpdPlus1;
+        MCAuto<DataArrayIdType> partition(pd->toDAI());
+        std::copy(partition->begin(), partition->end(), std::back_inserter(dpdPlus1));
+        std::for_each(dpdPlus1.begin(), dpdPlus1.end(), [](mcIdType &node) { node += 1; });
 
-        //Here, pd contains a random selection of non-contiguous values:
-        //we need to use a more generic filter (less efficient)
-        MEDfilterEntityCr(fid,ToMedInt(nbOfEntity),ToMedInt(nbOfValuesPerEntity),ToMedInt(nbOfConstituentPerValue),
-                          constituentSelect,switchMode,storageMode,profileName,
-                          ToMedInt(nbOfEltsToLoad), dpdPlus1.data(),
-                          _filter.get());
+        // Here, pd contains a random selection of non-contiguous values:
+        // we need to use a more generic filter (less efficient)
+        MEDfilterEntityCr(
+            fid,
+            ToMedInt(nbOfEntity),
+            ToMedInt(nbOfValuesPerEntity),
+            ToMedInt(nbOfConstituentPerValue),
+            constituentSelect,
+            switchMode,
+            storageMode,
+            profileName,
+            ToMedInt(nbOfEltsToLoad),
+            dpdPlus1.data(),
+            _filter.get()
+        );
         return;
-      }
+    }
     throw INTERP_KERNEL::Exception("MEDFilterEntity::fill : empty part definition !");
-  }
+}
 
-} // namespace
+}  // namespace MEDCoupling
 
 #endif

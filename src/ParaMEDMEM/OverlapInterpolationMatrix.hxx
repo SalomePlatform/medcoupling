@@ -28,34 +28,42 @@
 
 namespace MEDCoupling
 {
-  class ParaFIELD;
-  class MEDCouplingPointSet;
+class ParaFIELD;
+class MEDCouplingPointSet;
 
-  /*!
-   * Internal class, not part of the public API.
-   *
-   * Similar to InterpolationMatrix, but for the OverlapDEC instead of the InterpKernelDEC.
-   */
-  class OverlapInterpolationMatrix : public INTERP_KERNEL::InterpolationOptions,
-                                     public DECOptions
-  {
-  public:
-
-    OverlapInterpolationMatrix(ParaFIELD *source_field,
-                               ParaFIELD *target_field,
-                               const ProcessorGroup& group,
-                               const DECOptions& dec_opt,
-                               const InterpolationOptions& i_opt,
-                               const OverlapElementLocator & loc);
+/*!
+ * Internal class, not part of the public API.
+ *
+ * Similar to InterpolationMatrix, but for the OverlapDEC instead of the InterpKernelDEC.
+ */
+class OverlapInterpolationMatrix : public INTERP_KERNEL::InterpolationOptions, public DECOptions
+{
+   public:
+    OverlapInterpolationMatrix(
+        ParaFIELD *source_field,
+        ParaFIELD *target_field,
+        const ProcessorGroup &group,
+        const DECOptions &dec_opt,
+        const InterpolationOptions &i_opt,
+        const OverlapElementLocator &loc
+    );
 
     void keepTracksOfSourceIds(int procId, DataArrayIdType *ids);
 
     void keepTracksOfTargetIds(int procId, DataArrayIdType *ids);
 
-    void computeLocalIntersection(const MEDCouplingPointSet *src, const DataArrayIdType *srcIds, const std::string& srcMeth, int srcProcId,
-                         const MEDCouplingPointSet *trg, const DataArrayIdType *trgIds, const std::string& trgMeth, int trgProcId);
+    void computeLocalIntersection(
+        const MEDCouplingPointSet *src,
+        const DataArrayIdType *srcIds,
+        const std::string &srcMeth,
+        int srcProcId,
+        const MEDCouplingPointSet *trg,
+        const DataArrayIdType *trgIds,
+        const std::string &trgMeth,
+        int trgProcId
+    );
 
-    void prepare(const std::vector< int > & procsToSendField);
+    void prepare(const std::vector<int> &procsToSendField);
 
     void computeSurfacesAndDeno();
 
@@ -64,17 +72,19 @@ namespace MEDCoupling
     void transposeMultiply();
 
     virtual ~OverlapInterpolationMatrix();
-  private:
 
-    static void TransposeMatrix(const std::vector<SparseDoubleVec>& matIn, mcIdType nbColsMatIn,
-                                std::vector<SparseDoubleVec>& matOut);
-  private:
-    ParaFIELD           *_source_field;
-    ParaFIELD           *_target_field;
+   private:
+    static void TransposeMatrix(
+        const std::vector<SparseDoubleVec> &matIn, mcIdType nbColsMatIn, std::vector<SparseDoubleVec> &matOut
+    );
+
+   private:
+    ParaFIELD *_source_field;
+    ParaFIELD *_target_field;
     MEDCouplingPointSet *_source_support;
     MEDCouplingPointSet *_target_support;
-    OverlapMapping      _mapping;
-  };
-}
+    OverlapMapping _mapping;
+};
+}  // namespace MEDCoupling
 
 #endif

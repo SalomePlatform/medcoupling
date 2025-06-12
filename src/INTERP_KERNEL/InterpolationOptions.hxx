@@ -26,153 +26,174 @@
 
 namespace INTERP_KERNEL
 {
-  typedef enum { Triangulation, Convex, Geometric2D, PointLocator, Barycentric, BarycentricGeo2D, MappedBarycentric } IntersectionType;
+typedef enum
+{
+    Triangulation,
+    Convex,
+    Geometric2D,
+    PointLocator,
+    Barycentric,
+    BarycentricGeo2D,
+    MappedBarycentric
+} IntersectionType;
 
-  class INTERPKERNEL_EXPORT FEInterpolationOptionsAbstract
-  {
-    public:
-      virtual double getProjectionMaxDistance() const = 0;
-      virtual void setProjectionMaxDistance(double projDistMax) = 0;
-      virtual bool getProjectionOnSurfStatus() const = 0;
-      virtual void setProjectionOnSurfStatus(bool projOnSurfStatus) = 0;
-      virtual bool getMaxDistanceStatus() const = 0;
-      virtual void setMaxDistanceStatus(bool maxDistStatus) = 0;
-  };
+class INTERPKERNEL_EXPORT FEInterpolationOptionsAbstract
+{
+   public:
+    virtual double getProjectionMaxDistance() const = 0;
+    virtual void setProjectionMaxDistance(double projDistMax) = 0;
+    virtual bool getProjectionOnSurfStatus() const = 0;
+    virtual void setProjectionOnSurfStatus(bool projOnSurfStatus) = 0;
+    virtual bool getMaxDistanceStatus() const = 0;
+    virtual void setMaxDistanceStatus(bool maxDistStatus) = 0;
+};
 
-  class INTERPKERNEL_EXPORT FEInterpolationOptions : public FEInterpolationOptionsAbstract
-  {
-    public:
-      FEInterpolationOptions();
-      double getProjectionMaxDistance() const override { return _proj_dist_max; }
-      void setProjectionMaxDistance(double projDistMax) override { _proj_dist_max = projDistMax; }
-      bool getProjectionOnSurfStatus() const override { return _proj_on_surf; }
-      void setProjectionOnSurfStatus(bool projOnSurfStatus) override { _proj_on_surf = projOnSurfStatus; }
-      bool getMaxDistanceStatus() const override { return _use_dist_max; }
-      void setMaxDistanceStatus(bool maxDistStatus) override { _use_dist_max = maxDistStatus; }
-    private:
-      //! used if _proj_on_surf and use_dist_max are on. Specify max distance below which the projetction on surface will be computed. Beyond point is not projected.
-      double _proj_dist_max;
-      //! specify if projection on surface is activated
-      bool _proj_on_surf;
-      //! specify if _proj_dist_max is considered or not
-      bool _use_dist_max;
-    public:
-     static double PROJ_DIST_MAX_DFT;
-     static bool PROJ_DIST_ON_SURF_DFT;
-     static bool PROJ_USE_DIST_MAX_DFT;
-  };
+class INTERPKERNEL_EXPORT FEInterpolationOptions : public FEInterpolationOptionsAbstract
+{
+   public:
+    FEInterpolationOptions();
+    double getProjectionMaxDistance() const override { return _proj_dist_max; }
+    void setProjectionMaxDistance(double projDistMax) override { _proj_dist_max = projDistMax; }
+    bool getProjectionOnSurfStatus() const override { return _proj_on_surf; }
+    void setProjectionOnSurfStatus(bool projOnSurfStatus) override { _proj_on_surf = projOnSurfStatus; }
+    bool getMaxDistanceStatus() const override { return _use_dist_max; }
+    void setMaxDistanceStatus(bool maxDistStatus) override { _use_dist_max = maxDistStatus; }
 
-  /*!
-   * Class defining the options for all interpolation algorithms used in the \ref remapper "remapper" and
-   * in some of the \ref para-dec "DECs".
-   *
-   * List of options, possible values and default values can be found on this page:
-   * \ref InterpKerIntersectors
-   */
-  class INTERPKERNEL_EXPORT InterpolationOptions : public FEInterpolationOptionsAbstract
-  {
-  private:
-    int _print_level ;
+   private:
+    //! used if _proj_on_surf and use_dist_max are on. Specify max distance below which the projetction on surface will
+    //! be computed. Beyond point is not projected.
+    double _proj_dist_max;
+    //! specify if projection on surface is activated
+    bool _proj_on_surf;
+    //! specify if _proj_dist_max is considered or not
+    bool _use_dist_max;
+
+   public:
+    static double PROJ_DIST_MAX_DFT;
+    static bool PROJ_DIST_ON_SURF_DFT;
+    static bool PROJ_USE_DIST_MAX_DFT;
+};
+
+/*!
+ * Class defining the options for all interpolation algorithms used in the \ref remapper "remapper" and
+ * in some of the \ref para-dec "DECs".
+ *
+ * List of options, possible values and default values can be found on this page:
+ * \ref InterpKerIntersectors
+ */
+class INTERPKERNEL_EXPORT InterpolationOptions : public FEInterpolationOptionsAbstract
+{
+   private:
+    int _print_level;
     IntersectionType _intersection_type;
     double _precision;
-    double _median_plane ;
-    bool _do_rotate ;
+    double _median_plane;
+    bool _do_rotate;
     //! this measure is relative to the caracteristic dimension
-    double _bounding_box_adjustment ;
+    double _bounding_box_adjustment;
     //! this measure is absolute \b not relative to the cell size
-    double _bounding_box_adjustment_abs ;
+    double _bounding_box_adjustment_abs;
     double _max_distance_for_3Dsurf_intersect;
     double _min_dot_btw_3Dsurf_intersect;
-    int _orientation ;
+    int _orientation;
     bool _measure_abs;
-    SplittingPolicy _splitting_policy ;
-    FEInterpolationOptions _fe_options ;
-  public:
+    SplittingPolicy _splitting_policy;
+    FEInterpolationOptions _fe_options;
+
+   public:
     InterpolationOptions() { init(); }
-    InterpolationOptions(const InterpolationOptions& other) = default;
+    InterpolationOptions(const InterpolationOptions &other) = default;
     ~InterpolationOptions() = default;
-    InterpolationOptions& operator=(const InterpolationOptions& other) = default;
+    InterpolationOptions &operator=(const InterpolationOptions &other) = default;
     int getPrintLevel() const { return _print_level; }
-    void setPrintLevel(int pl) { _print_level=pl; }
+    void setPrintLevel(int pl) { _print_level = pl; }
 
     IntersectionType getIntersectionType() const { return _intersection_type; }
-    void setIntersectionType(IntersectionType it) { _intersection_type=it; }
+    void setIntersectionType(IntersectionType it) { _intersection_type = it; }
     std::string getIntersectionTypeRepr() const;
 
     double getPrecision() const { return _precision; }
-    void setPrecision(double p) { _precision=p; }
+    void setPrecision(double p) { _precision = p; }
 
     double getMedianPlane() const { return _median_plane; }
-    void setMedianPlane(double mp) { _median_plane=mp; }
+    void setMedianPlane(double mp) { _median_plane = mp; }
 
     bool getDoRotate() const { return _do_rotate; }
-    void setDoRotate( bool dr) { _do_rotate = dr; }
+    void setDoRotate(bool dr) { _do_rotate = dr; }
 
     double getBoundingBoxAdjustment() const { return _bounding_box_adjustment; }
-    void setBoundingBoxAdjustment(double bba) { _bounding_box_adjustment=bba; }
+    void setBoundingBoxAdjustment(double bba) { _bounding_box_adjustment = bba; }
 
     double getBoundingBoxAdjustmentAbs() const { return _bounding_box_adjustment_abs; }
-    void setBoundingBoxAdjustmentAbs(double bba) { _bounding_box_adjustment_abs=bba; }
+    void setBoundingBoxAdjustmentAbs(double bba) { _bounding_box_adjustment_abs = bba; }
 
     double getMaxDistance3DSurfIntersect() const { return _max_distance_for_3Dsurf_intersect; }
-    void setMaxDistance3DSurfIntersect(double bba) { _max_distance_for_3Dsurf_intersect=bba; }
+    void setMaxDistance3DSurfIntersect(double bba) { _max_distance_for_3Dsurf_intersect = bba; }
 
     double getMinDotBtwPlane3DSurfIntersect() const { return _min_dot_btw_3Dsurf_intersect; }
-    void setMinDotBtwPlane3DSurfIntersect(double v) { _min_dot_btw_3Dsurf_intersect=v; }
+    void setMinDotBtwPlane3DSurfIntersect(double v) { _min_dot_btw_3Dsurf_intersect = v; }
 
     int getOrientation() const { return _orientation; }
-    void setOrientation(int o) { _orientation=o; }
+    void setOrientation(int o) { _orientation = o; }
 
     bool getMeasureAbsStatus() const { return _measure_abs; }
-    void setMeasureAbsStatus(bool newStatus) { _measure_abs=newStatus; }
+    void setMeasureAbsStatus(bool newStatus) { _measure_abs = newStatus; }
 
     // FE part
 
-    const FEInterpolationOptions& getFEOptions() const { return _fe_options; }
+    const FEInterpolationOptions &getFEOptions() const { return _fe_options; }
 
     double getProjectionMaxDistance() const override { return _fe_options.getProjectionMaxDistance(); }
     void setProjectionMaxDistance(double projDistMax) override { _fe_options.setProjectionMaxDistance(projDistMax); }
 
     bool getProjectionOnSurfStatus() const override { return _fe_options.getProjectionOnSurfStatus(); }
-    void setProjectionOnSurfStatus(bool projOnSurfStatus) override { _fe_options.setProjectionOnSurfStatus(projOnSurfStatus); }
-    
+    void setProjectionOnSurfStatus(bool projOnSurfStatus) override
+    {
+        _fe_options.setProjectionOnSurfStatus(projOnSurfStatus);
+    }
+
     bool getMaxDistanceStatus() const override { return _fe_options.getMaxDistanceStatus(); }
     void setMaxDistanceStatus(bool maxDistStatus) override { _fe_options.setMaxDistanceStatus(maxDistStatus); }
 
     //
 
     SplittingPolicy getSplittingPolicy() const { return _splitting_policy; }
-    void setSplittingPolicy(SplittingPolicy sp) { _splitting_policy=sp; }
+    void setSplittingPolicy(SplittingPolicy sp) { _splitting_policy = sp; }
     std::string getSplittingPolicyRepr() const;
 
-    std::string filterInterpolationMethod(const std::string& meth) const;
+    std::string filterInterpolationMethod(const std::string &meth) const;
 
     void init();
 
-    bool setInterpolationOptions(int print_level,
-                                 std::string intersection_type,
-                                 double precision,
-                                 double median_plane,
-                                 bool do_rotate,
-                                 double bounding_box_adjustment,
-                                 double bounding_box_adjustment_abs,
-                                 double max_distance_for_3Dsurf_intersect,
-                                 int orientation,
-                                 bool measure_abs,
-                                 std::string splitting_policy);
-    void copyOptions(const InterpolationOptions & other) { *this = other; }
-    bool setOptionDouble(const std::string& key, double value);
-    bool setOptionInt(const std::string& key, int value);
-    bool setOptionString(const std::string& key, const std::string& value);
+    bool setInterpolationOptions(
+        int print_level,
+        std::string intersection_type,
+        double precision,
+        double median_plane,
+        bool do_rotate,
+        double bounding_box_adjustment,
+        double bounding_box_adjustment_abs,
+        double max_distance_for_3Dsurf_intersect,
+        int orientation,
+        bool measure_abs,
+        std::string splitting_policy
+    );
+    void copyOptions(const InterpolationOptions &other) { *this = other; }
+    bool setOptionDouble(const std::string &key, double value);
+    bool setOptionInt(const std::string &key, int value);
+    bool setOptionString(const std::string &key, const std::string &value);
     std::string printOptions() const;
-  public:
-    static void CheckAndSplitInterpolationMethod(const std::string& method, std::string& srcMeth, std::string& trgMeth);
-  private:
+
+   public:
+    static void CheckAndSplitInterpolationMethod(const std::string &method, std::string &srcMeth, std::string &trgMeth);
+
+   private:
     static const double DFT_MEDIAN_PLANE;
     static const double DFT_SURF3D_ADJ_EPS;
     static const double DFT_MAX_DIST_3DSURF_INTERSECT;
     static const double DFT_MIN_DOT_BTW_3DSURF_INTERSECT;
-  public:
+
+   public:
     static const char PRECISION_STR[];
     static const char MEDIANE_PLANE_STR[];
     static const char BOUNDING_BOX_ADJ_STR[];
@@ -195,6 +216,6 @@ namespace INTERP_KERNEL
     static const char PLANAR_SPLIT_FACE_6_STR[];
     static const char GENERAL_SPLIT_24_STR[];
     static const char GENERAL_SPLIT_48_STR[];
-  };
+};
 
-}
+}  // namespace INTERP_KERNEL

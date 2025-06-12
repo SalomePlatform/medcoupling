@@ -27,109 +27,116 @@
 
 namespace INTERP_KERNEL
 {
-  class OrientationInverter
-  {
-  public:
+class OrientationInverter
+{
+   public:
     INTERPKERNEL_EXPORT static OrientationInverter *BuildInstanceFrom(NormalizedCellType gt);
-    virtual ~OrientationInverter() { }
+    virtual ~OrientationInverter() {}
     INTERPKERNEL_EXPORT virtual void operate(mcIdType *beginPt, mcIdType *endPt) const = 0;
-  };
+};
 
-  class OrientationInverterChecker : public OrientationInverter
-  {
-  public:
-    OrientationInverterChecker(unsigned nbNodes):_nb_nodes(nbNodes) { }
-    void operate(mcIdType *beginPt, mcIdType *endPt) const { check(beginPt,endPt); operateAndShutUp(beginPt); }
+class OrientationInverterChecker : public OrientationInverter
+{
+   public:
+    OrientationInverterChecker(unsigned nbNodes) : _nb_nodes(nbNodes) {}
+    void operate(mcIdType *beginPt, mcIdType *endPt) const
+    {
+        check(beginPt, endPt);
+        operateAndShutUp(beginPt);
+    }
     virtual void operateAndShutUp(mcIdType *beginPt) const = 0;
-  protected:
+
+   protected:
     unsigned getNbNodes() const { return _nb_nodes; }
-  private:
+
+   private:
     INTERPKERNEL_EXPORT void check(mcIdType *beginPt, mcIdType *endPt) const;
-  private:
+
+   private:
     unsigned _nb_nodes;
-  };
+};
 
-  class OrientationInverterSEG2 : public OrientationInverterChecker
-  {
-  public:
-    OrientationInverterSEG2():OrientationInverterChecker(2u) { }
+class OrientationInverterSEG2 : public OrientationInverterChecker
+{
+   public:
+    OrientationInverterSEG2() : OrientationInverterChecker(2u) {}
     INTERPKERNEL_EXPORT void operateAndShutUp(mcIdType *beginPt) const;
-  };
+};
 
-  class OrientationInverterSEG3 : public OrientationInverterChecker
-  {
-  public:
-    OrientationInverterSEG3():OrientationInverterChecker(3u) { }
+class OrientationInverterSEG3 : public OrientationInverterChecker
+{
+   public:
+    OrientationInverterSEG3() : OrientationInverterChecker(3u) {}
     INTERPKERNEL_EXPORT void operateAndShutUp(mcIdType *beginPt) const;
-  };
+};
 
-  class OrientationInverter2DLinear : public OrientationInverterChecker
-  {
-  public:
-    OrientationInverter2DLinear(unsigned nbNodes):OrientationInverterChecker(nbNodes) { }
+class OrientationInverter2DLinear : public OrientationInverterChecker
+{
+   public:
+    OrientationInverter2DLinear(unsigned nbNodes) : OrientationInverterChecker(nbNodes) {}
     INTERPKERNEL_EXPORT void operateAndShutUp(mcIdType *beginPt) const;
-  };
+};
 
-  class OrientationInverter2DQuadratic : public OrientationInverterChecker
-  {
-  public:
-    OrientationInverter2DQuadratic(unsigned nbNodes):OrientationInverterChecker(nbNodes) { }
+class OrientationInverter2DQuadratic : public OrientationInverterChecker
+{
+   public:
+    OrientationInverter2DQuadratic(unsigned nbNodes) : OrientationInverterChecker(nbNodes) {}
     INTERPKERNEL_EXPORT void operateAndShutUp(mcIdType *beginPt) const;
-  };
+};
 
-  class OrientationInverterPolygon : public OrientationInverter
-  {
-  public:
+class OrientationInverterPolygon : public OrientationInverter
+{
+   public:
     INTERPKERNEL_EXPORT void operate(mcIdType *beginPt, mcIdType *endPt) const;
-  };
+};
 
-  class OrientationInverterQPolygon : public OrientationInverter
-  {
-  public:
+class OrientationInverterQPolygon : public OrientationInverter
+{
+   public:
     INTERPKERNEL_EXPORT void operate(mcIdType *beginPt, mcIdType *endPt) const;
-  };
+};
 
-  class OrientationInverterTetra4 : public OrientationInverterChecker
-  {
-  public:
-    OrientationInverterTetra4():OrientationInverterChecker(4u) { }
+class OrientationInverterTetra4 : public OrientationInverterChecker
+{
+   public:
+    OrientationInverterTetra4() : OrientationInverterChecker(4u) {}
     INTERPKERNEL_EXPORT void operateAndShutUp(mcIdType *beginPt) const;
-  };
+};
 
-  class OrientationInverterTetra10 : public OrientationInverterChecker
-  {
-  public:
-    OrientationInverterTetra10():OrientationInverterChecker(10u) { }
+class OrientationInverterTetra10 : public OrientationInverterChecker
+{
+   public:
+    OrientationInverterTetra10() : OrientationInverterChecker(10u) {}
     INTERPKERNEL_EXPORT void operateAndShutUp(mcIdType *beginPt) const;
-  };
+};
 
-  class OrientationInverterPyra5 : public OrientationInverterChecker
-  {
-  public:
-    OrientationInverterPyra5():OrientationInverterChecker(5u) { }
+class OrientationInverterPyra5 : public OrientationInverterChecker
+{
+   public:
+    OrientationInverterPyra5() : OrientationInverterChecker(5u) {}
     INTERPKERNEL_EXPORT void operateAndShutUp(mcIdType *beginPt) const;
-  };
+};
 
-  class OrientationInverterPyra13 : public OrientationInverterChecker
-  {
-  public:
-    OrientationInverterPyra13():OrientationInverterChecker(13u) { }
+class OrientationInverterPyra13 : public OrientationInverterChecker
+{
+   public:
+    OrientationInverterPyra13() : OrientationInverterChecker(13u) {}
     INTERPKERNEL_EXPORT void operateAndShutUp(mcIdType *beginPt) const;
-  };
+};
 
-  class OrientationInverter3DExtrusionLinear : public OrientationInverterChecker
-  {
-  public:
-    OrientationInverter3DExtrusionLinear(unsigned nbNodes):OrientationInverterChecker(nbNodes) { }
+class OrientationInverter3DExtrusionLinear : public OrientationInverterChecker
+{
+   public:
+    OrientationInverter3DExtrusionLinear(unsigned nbNodes) : OrientationInverterChecker(nbNodes) {}
     INTERPKERNEL_EXPORT void operateAndShutUp(mcIdType *beginPt) const;
-  };
+};
 
-  class OrientationInverter3DExtrusionQuadratic : public OrientationInverterChecker
-  {
-  public:
-    OrientationInverter3DExtrusionQuadratic(unsigned nbNodes):OrientationInverterChecker(nbNodes) { }
+class OrientationInverter3DExtrusionQuadratic : public OrientationInverterChecker
+{
+   public:
+    OrientationInverter3DExtrusionQuadratic(unsigned nbNodes) : OrientationInverterChecker(nbNodes) {}
     INTERPKERNEL_EXPORT void operateAndShutUp(mcIdType *beginPt) const;
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

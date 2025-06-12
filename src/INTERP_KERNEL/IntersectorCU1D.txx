@@ -26,57 +26,53 @@
 #include "IntersectorCU1D.hxx"
 #include "IntersectorCU.txx"
 
-#define  IntersectorCU1D_TEMPLATE template<class MyCMeshType, class MyUMeshType, class MyMatrix>
-#define  INTERSECTOR_CU1D IntersectorCU1D<MyCMeshType,MyUMeshType,MyMatrix >
-#define _INTER_CU         IntersectorCU  <MyCMeshType,MyUMeshType,MyMatrix,IntersectorCU1D<MyCMeshType,MyUMeshType,MyMatrix> >
+#define IntersectorCU1D_TEMPLATE template <class MyCMeshType, class MyUMeshType, class MyMatrix>
+#define INTERSECTOR_CU1D IntersectorCU1D<MyCMeshType, MyUMeshType, MyMatrix>
+#define _INTER_CU \
+    IntersectorCU<MyCMeshType, MyUMeshType, MyMatrix, IntersectorCU1D<MyCMeshType, MyUMeshType, MyMatrix> >
 
 namespace INTERP_KERNEL
 {
-  //================================================================================
-  /*!
-   * \brief intersector of the unstructured mesh and the cartesian mesh in 1D
-   */
-  //================================================================================
+//================================================================================
+/*!
+ * \brief intersector of the unstructured mesh and the cartesian mesh in 1D
+ */
+//================================================================================
 
-  IntersectorCU1D_TEMPLATE
-  INTERSECTOR_CU1D::IntersectorCU1D(const MyCMeshType& meshS,
-                                    const MyUMeshType& meshT):
-    _INTER_CU( meshS, meshT )
-  {
-    if ( MyCMeshType::MY_SPACEDIM != 1 || MyCMeshType::MY_MESHDIM != 1 ||
-         MyUMeshType::MY_SPACEDIM != 1 || MyUMeshType::MY_MESHDIM != 1 )
-      throw Exception("IntersectorCU1D(): Invalid mesh dimension, it must be 1");
-  }
+IntersectorCU1D_TEMPLATE
+INTERSECTOR_CU1D::IntersectorCU1D(const MyCMeshType &meshS, const MyUMeshType &meshT)
+    : _INTER_CU(meshS, meshT)
+{
+    if (MyCMeshType::MY_SPACEDIM != 1 || MyCMeshType::MY_MESHDIM != 1 || MyUMeshType::MY_SPACEDIM != 1 ||
+        MyUMeshType::MY_MESHDIM != 1)
+        throw Exception("IntersectorCU1D(): Invalid mesh dimension, it must be 1");
+}
 
-  //================================================================================
-  /*!
-   * \brief destructor
-   */
-  //================================================================================
+//================================================================================
+/*!
+ * \brief destructor
+ */
+//================================================================================
 
-  IntersectorCU1D_TEMPLATE
-  INTERSECTOR_CU1D::~IntersectorCU1D()
-  {
-  }
+IntersectorCU1D_TEMPLATE INTERSECTOR_CU1D::~IntersectorCU1D() {}
 
-  //================================================================================
-  /*!
-   * \brief Calculate length of intersection of an unstructured cell and a cartesian one.
-   * The cartesian cell is given by its [i,j,k] indices
-   */
-  //================================================================================
+//================================================================================
+/*!
+ * \brief Calculate length of intersection of an unstructured cell and a cartesian one.
+ * The cartesian cell is given by its [i,j,k] indices
+ */
+//================================================================================
 
-  IntersectorCU1D_TEMPLATE
-  double INTERSECTOR_CU1D::intersectGeometry(UConnType                     icellT,
-                                             const std::vector<CConnType>& icellS)
-  {
+IntersectorCU1D_TEMPLATE double
+INTERSECTOR_CU1D::intersectGeometry(UConnType icellT, const std::vector<CConnType> &icellS)
+{
     std::vector<double> coordsU;
     _INTER_CU::getUCoordinates(icellT, coordsU);
 
-    const double* coordsC = & _INTER_CU::_coordsC[0][ _FMIC(icellS[0]) ];
+    const double *coordsC = &_INTER_CU::_coordsC[0][_FMIC(icellS[0])];
 
-    double res = std::min( coordsU[1], coordsC[1] ) - std::max( coordsU[0], coordsC[0] );
+    double res = std::min(coordsU[1], coordsC[1]) - std::max(coordsU[0], coordsC[0]);
     return res;
-  }
 }
+}  // namespace INTERP_KERNEL
 #endif

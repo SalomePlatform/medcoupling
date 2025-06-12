@@ -27,25 +27,25 @@
 
 namespace MEDCoupling
 {
-  template<class T>
-  std::vector< const T * > VecAutoToVecOfCstPt(const std::vector< typename MEDCoupling::MCAuto<T> >& vect)
-  {
+template <class T>
+std::vector<const T *>
+VecAutoToVecOfCstPt(const std::vector<typename MEDCoupling::MCAuto<T> > &vect)
+{
     std::size_t sz(vect.size());
-    std::vector< const T * > ret(sz);
-    for(std::size_t i=0;i<sz;i++)
-      ret[i]=(const T *)vect[i];
+    std::vector<const T *> ret(sz);
+    for (std::size_t i = 0; i < sz; i++) ret[i] = (const T *)vect[i];
     return ret;
-  }
-
-  template<class T>
-  std::vector< T * > VecAutoToVecOfPt(const std::vector< typename MEDCoupling::MCAuto<T> >& vect)
-  {
-    std::size_t sz(vect.size());
-    std::vector< T * > ret(sz);
-    for(std::size_t i=0;i<sz;i++)
-      ret[i]=(T *)vect[i];
-    return ret;
-  }
 }
+
+template <class T>
+std::vector<T *>
+VecAutoToVecOfPt(const std::vector<typename MEDCoupling::MCAuto<T> > &vect)
+{
+    std::size_t sz(vect.size());
+    std::vector<T *> ret(sz);
+    for (std::size_t i = 0; i < sz; i++) ret[i] = (T *)vect[i];
+    return ret;
+}
+}  // namespace MEDCoupling
 
 #endif

@@ -29,28 +29,49 @@
 
 namespace INTERP_KERNEL
 {
-  class QuadraticPolygon;
+class QuadraticPolygon;
 
-  template<class MyMeshType, class MyMatrix, template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType>
-  class PointLocator2DIntersector : public InterpType<MyMeshType,MyMatrix,PointLocator2DIntersector<MyMeshType,MyMatrix,InterpType> >
-  {
-  public:
-    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+template <
+    class MyMeshType,
+    class MyMatrix,
+    template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType>
+class PointLocator2DIntersector
+    : public InterpType<MyMeshType, MyMatrix, PointLocator2DIntersector<MyMeshType, MyMatrix, InterpType> >
+{
+   public:
+    static const int SPACEDIM = MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM = MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
-    static const NumberingPolicy numPol=MyMeshType::My_numPol;
-  public:
-    PointLocator2DIntersector(const MyMeshType& meshT, const MyMeshType& meshS,
-                           double dimCaracteristic, double md3DSurf, double minDot3DSurf, double medianPlane, double precision, int orientation);
+    static const NumberingPolicy numPol = MyMeshType::My_numPol;
+
+   public:
+    PointLocator2DIntersector(
+        const MyMeshType &meshT,
+        const MyMeshType &meshS,
+        double dimCaracteristic,
+        double md3DSurf,
+        double minDot3DSurf,
+        double medianPlane,
+        double precision,
+        int orientation
+    );
     double intersectGeometry(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS);
-    double intersectGeometryWithQuadrangle(const double *quadrangle, const std::vector<double>& sourceCoords, bool isSourceQuad);
-    double intersectGeometryGeneral(const std::vector<double>& targetCoords, const std::vector<double>& sourceCoords);
-    double intersectGeoBary(const std::vector<double>& targetCell, bool targetCellQuadratic, const double *sourceCell, std::vector<double>& res);
-  private:
-    QuadraticPolygon *buildPolygonFrom(const std::vector<double>& coords, NormalizedCellType type);
+    double intersectGeometryWithQuadrangle(
+        const double *quadrangle, const std::vector<double> &sourceCoords, bool isSourceQuad
+    );
+    double intersectGeometryGeneral(const std::vector<double> &targetCoords, const std::vector<double> &sourceCoords);
+    double intersectGeoBary(
+        const std::vector<double> &targetCell,
+        bool targetCellQuadratic,
+        const double *sourceCell,
+        std::vector<double> &res
+    );
+
+   private:
+    QuadraticPolygon *buildPolygonFrom(const std::vector<double> &coords, NormalizedCellType type);
     QuadraticPolygon *buildPolygonAFrom(ConnType cell, int nbOfPoints, NormalizedCellType type);
     QuadraticPolygon *buildPolygonBFrom(ConnType cell, int nbOfPoints, NormalizedCellType type);
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

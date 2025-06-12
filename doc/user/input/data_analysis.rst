@@ -589,4 +589,3 @@ on the fly according to these generated parameters combinations.
 .. literalinclude:: ../../../src/Stat/Test/TestMEDCouplingIterativeStatistics.py
    :start-after: UG_MEDCouplingIterativeStatistics_2
    :end-before:  UG_MEDCouplingIterativeStatistics_2
-

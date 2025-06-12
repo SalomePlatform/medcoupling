@@ -28,22 +28,20 @@
 namespace INTERP_TEST
 {
 
-  /**
-   * \brief Test suite testing some of the low level methods of TransformedTriangle.
-   *
-   */
-  class INTERPKERNELTEST_EXPORT BBTreeTest : public CppUnit::TestFixture
-  {
-
-    CPPUNIT_TEST_SUITE( BBTreeTest );
-    CPPUNIT_TEST( test_BBTree );
-    CPPUNIT_TEST( test_DirectedBB_1D );
-    CPPUNIT_TEST( test_DirectedBB_2D );
-    CPPUNIT_TEST( test_DirectedBB_3D );
+/**
+ * \brief Test suite testing some of the low level methods of TransformedTriangle.
+ *
+ */
+class INTERPKERNELTEST_EXPORT BBTreeTest : public CppUnit::TestFixture
+{
+    CPPUNIT_TEST_SUITE(BBTreeTest);
+    CPPUNIT_TEST(test_BBTree);
+    CPPUNIT_TEST(test_DirectedBB_1D);
+    CPPUNIT_TEST(test_DirectedBB_2D);
+    CPPUNIT_TEST(test_DirectedBB_3D);
     CPPUNIT_TEST_SUITE_END();
 
-
-  public:
+   public:
     void setUp();
 
     void tearDown();
@@ -53,14 +51,8 @@ namespace INTERP_TEST
     void test_DirectedBB_1D();
     void test_DirectedBB_2D();
     void test_DirectedBB_3D();
+};
 
-  };
-
-
-
-
-}
-
-
+}  // namespace INTERP_TEST
 
 #endif

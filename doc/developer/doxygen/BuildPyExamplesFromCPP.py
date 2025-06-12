@@ -27,6 +27,7 @@ import os
 # END_CPP_ONLY strings respectively, will only appear in C++ documentation.
 # The same rule applies for Python-specific contents.
 
+
 def Cpp2Python(contents):
     cpp_only = False
     output = []
@@ -36,16 +37,18 @@ def Cpp2Python(contents):
         elif "END_CPP_ONLY" in st:
             cpp_only = False
         elif not cpp_only:
-            st=st.replace("C++","Python")
-            st=st.replace("Cxx","Py")
-            st=st.replace("Cpp","Py")
-            st=st.replace("cxx","py")
-            st=st.replace("cpp","py")
+            st = st.replace("C++", "Python")
+            st = st.replace("Cxx", "Py")
+            st = st.replace("Cpp", "Py")
+            st = st.replace("cxx", "py")
+            st = st.replace("cpp", "py")
             output.append(st)
             pass
         pass
 
     return output
+
+
 #
 def discardPythonFrom(contents):
     python_only = False
@@ -62,22 +65,26 @@ def discardPythonFrom(contents):
 
     return output
     #
+
+
 #
 
 # Usage: BuildPyExamplesFromCPP.py <examples.in> <output directory>
 
 with open(sys.argv[1], "r") as fCpp:
     cppCont = fCpp.readlines()
-pyCont=cppCont[:]
-pyCont=[elt.replace("medcouplingcppexamples","medcouplingpyexamples") for elt in pyCont]
-pyCont=Cpp2Python(pyCont)
+pyCont = cppCont[:]
+pyCont = [
+    elt.replace("medcouplingcppexamples", "medcouplingpyexamples") for elt in pyCont
+]
+pyCont = Cpp2Python(pyCont)
 
-s= "Be sure to take a look at the page \\ref python-api before proceeding."
+s = "Be sure to take a look at the page \\ref python-api before proceeding."
 pyCont.insert(2, s)
-cppCont=discardPythonFrom(cppCont) # remove Python-only contents from Cpp
+cppCont = discardPythonFrom(cppCont)  # remove Python-only contents from Cpp
 
 # Save CPP and PY examples in two separate dox files
-outFileName=os.path.join(sys.argv[2],os.path.basename(sys.argv[1]))
+outFileName = os.path.join(sys.argv[2], os.path.basename(sys.argv[1]))
 
 with open(os.path.splitext(outFileName)[0] + "CPP.dox", "w") as f:
     f.writelines(cppCont)

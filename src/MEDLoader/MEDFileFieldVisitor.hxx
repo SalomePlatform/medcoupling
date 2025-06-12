@@ -26,15 +26,15 @@
 
 namespace MEDCoupling
 {
-  class MEDFileFieldPerMesh;
-  class MEDFileAnyTypeField1TSWithoutSDA;
-  class MEDFileAnyTypeFieldMultiTSWithoutSDA;
-  class MEDFileFieldPerMeshPerTypeCommon;
-  class MEDFileFieldPerMeshPerTypePerDisc;
+class MEDFileFieldPerMesh;
+class MEDFileAnyTypeField1TSWithoutSDA;
+class MEDFileAnyTypeFieldMultiTSWithoutSDA;
+class MEDFileFieldPerMeshPerTypeCommon;
+class MEDFileFieldPerMeshPerTypePerDisc;
 
-  class MEDFileFieldVisitor
-  {
-  public:
+class MEDFileFieldVisitor
+{
+   public:
     virtual void newFieldEntry(const MEDFileAnyTypeFieldMultiTSWithoutSDA *field) = 0;
     virtual void endFieldEntry(const MEDFileAnyTypeFieldMultiTSWithoutSDA *field) = 0;
     //
@@ -48,8 +48,8 @@ namespace MEDCoupling
     virtual void endPerMeshPerTypeEntry(const MEDFileFieldPerMeshPerTypeCommon *pmpt) = 0;
     //
     virtual void newPerMeshPerTypePerDisc(const MEDFileFieldPerMeshPerTypePerDisc *pmptpd) = 0;
-    virtual ~MEDFileFieldVisitor() { }
-  };
-}
+    virtual ~MEDFileFieldVisitor() {}
+};
+}  // namespace MEDCoupling
 
 #endif

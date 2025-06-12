@@ -30,22 +30,25 @@
 
 namespace INTERP_KERNEL
 {
-  /**
-   * \class Interpolation1D0D
-   * \brief Class used to calculate the interpolation between a 1D mesh and 0D mesh (in 3D space)
-   * Can be seen as a specialization of Interpolation3D, and allows notably the adjustment of bounind boxes.
-   *
-   */
-  class INTERPKERNEL_EXPORT Interpolation1D0D : public Interpolation<Interpolation1D0D>
-  {
-  public:
+/**
+ * \class Interpolation1D0D
+ * \brief Class used to calculate the interpolation between a 1D mesh and 0D mesh (in 3D space)
+ * Can be seen as a specialization of Interpolation3D, and allows notably the adjustment of bounind boxes.
+ *
+ */
+class INTERPKERNEL_EXPORT Interpolation1D0D : public Interpolation<Interpolation1D0D>
+{
+   public:
     Interpolation1D0D();
-    Interpolation1D0D(const InterpolationOptions& io);
-    template<class MyMeshType, class MatrixType>
-    typename MyMeshType::MyConnType interpolateMeshes(const MyMeshType& srcMesh, const MyMeshType& targetMesh, MatrixType& result, const std::string& method);
-  private:
-    void adjustBoundingBoxes(std::vector<double>& bbox);
-  };
-}
+    Interpolation1D0D(const InterpolationOptions &io);
+    template <class MyMeshType, class MatrixType>
+    typename MyMeshType::MyConnType interpolateMeshes(
+        const MyMeshType &srcMesh, const MyMeshType &targetMesh, MatrixType &result, const std::string &method
+    );
+
+   private:
+    void adjustBoundingBoxes(std::vector<double> &bbox);
+};
+}  // namespace INTERP_KERNEL
 
 #endif

@@ -28,35 +28,43 @@
 
 namespace INTERP_KERNEL
 {
-  class ElementaryEdge
-  {
-  public:
-    ElementaryEdge(Edge *ptr, bool direction):_direction(direction),_ptr(ptr) { }
-    INTERPKERNEL_EXPORT ElementaryEdge(const ElementaryEdge& other);
+class ElementaryEdge
+{
+   public:
+    ElementaryEdge(Edge *ptr, bool direction) : _direction(direction), _ptr(ptr) {}
+    INTERPKERNEL_EXPORT ElementaryEdge(const ElementaryEdge &other);
     INTERPKERNEL_EXPORT ~ElementaryEdge();
     bool isThereStartPoint() const { return _iterator.isValid(); }
-    IteratorOnComposedEdge& getIterator() { return _iterator; }
+    IteratorOnComposedEdge &getIterator() { return _iterator; }
     bool completed() const { return false; }
     void declareOn() const { _ptr->declareOn(); }
     void declareIn() const { _ptr->declareIn(); }
     void declareOut() const { _ptr->declareOut(); }
     TypeOfEdgeLocInPolygon getLoc() const { return _ptr->getLoc(); }
     Edge *getPtr() const { return _ptr; }
-    void reverse() { _direction=(!_direction); }
+    void reverse() { _direction = (!_direction); }
     INTERPKERNEL_EXPORT bool isNodeIn(Node *n) const;
-    double getAreaOfZone() const { double ret=_ptr->getAreaOfZone(); return _direction?ret:-ret; }
+    double getAreaOfZone() const
+    {
+        double ret = _ptr->getAreaOfZone();
+        return _direction ? ret : -ret;
+    }
     INTERPKERNEL_EXPORT void getBarycenterOfZone(double *bary) const;
-    INTERPKERNEL_EXPORT void fillBounds(Bounds& output) const;
-    void applySimilarity(double xBary, double yBary, double dimChar) { _ptr->applySimilarity(xBary,yBary,dimChar); }
-    void unApplySimilarity(double xBary, double yBary, double dimChar) { _ptr->unApplySimilarity(xBary,yBary,dimChar); }
-    INTERPKERNEL_EXPORT void getAllNodes(std::set<Node *>& output) const;
-    INTERPKERNEL_EXPORT bool hasSameExtremities(const ElementaryEdge& other) const;
-    INTERPKERNEL_EXPORT void getBarycenter(double *bary, double& weigh) const;
+    INTERPKERNEL_EXPORT void fillBounds(Bounds &output) const;
+    void applySimilarity(double xBary, double yBary, double dimChar) { _ptr->applySimilarity(xBary, yBary, dimChar); }
+    void unApplySimilarity(double xBary, double yBary, double dimChar)
+    {
+        _ptr->unApplySimilarity(xBary, yBary, dimChar);
+    }
+    INTERPKERNEL_EXPORT void getAllNodes(std::set<Node *> &output) const;
+    INTERPKERNEL_EXPORT bool hasSameExtremities(const ElementaryEdge &other) const;
+    INTERPKERNEL_EXPORT void getBarycenter(double *bary, double &weigh) const;
     INTERPKERNEL_EXPORT ElementaryEdge *clone() const;
     INTERPKERNEL_EXPORT void initLocations() const;
     INTERPKERNEL_EXPORT int size() const;
-    INTERPKERNEL_EXPORT TypeOfEdgeLocInPolygon locateFullyMySelfAbsolute(const ComposedEdge& pol) const;
-    INTERPKERNEL_EXPORT TypeOfEdgeLocInPolygon locateFullyMySelf(const ComposedEdge& pol, TypeOfEdgeLocInPolygon precEdgeLoc) const;
+    INTERPKERNEL_EXPORT TypeOfEdgeLocInPolygon locateFullyMySelfAbsolute(const ComposedEdge &pol) const;
+    INTERPKERNEL_EXPORT TypeOfEdgeLocInPolygon
+    locateFullyMySelf(const ComposedEdge &pol, TypeOfEdgeLocInPolygon precEdgeLoc) const;
     INTERPKERNEL_EXPORT Node *getEndNode() const;
     INTERPKERNEL_EXPORT Node *getStartNode() const;
     double getCurveLength() const { return _ptr->getCurveLength(); }
@@ -64,23 +72,47 @@ namespace INTERP_KERNEL
     INTERPKERNEL_EXPORT bool changeStartNodeWith(Node *node) const;
     INTERPKERNEL_EXPORT bool intresicEqual(const ElementaryEdge *other) const;
     INTERPKERNEL_EXPORT bool intresicEqualDirSensitive(const ElementaryEdge *other) const;
-    INTERPKERNEL_EXPORT void dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const;
-    INTERPKERNEL_EXPORT void dumpToCout(const std::map<INTERP_KERNEL::Node *,int>& mapp, int index) const;
+    INTERPKERNEL_EXPORT void dumpInXfigFile(std::ostream &stream, int resolution, const Bounds &box) const;
+    INTERPKERNEL_EXPORT void dumpToCout(const std::map<INTERP_KERNEL::Node *, int> &mapp, int index) const;
     bool getDirection() const { return _direction; }
     INTERPKERNEL_EXPORT bool intresincEqCoarse(const Edge *other) const;
-    INTERPKERNEL_EXPORT bool isEqual(const ElementaryEdge& other) const;
-  public:
-    INTERPKERNEL_EXPORT void fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,mcIdType>& mapThis, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapOther, mcIdType offset1, mcIdType offset2, double fact, double baryX, double baryY,
-                                               std::vector<mcIdType>& edgesThis, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType> mapAddCoo) const;
-    INTERPKERNEL_EXPORT void fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,mcIdType>& mapThis, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapOther, mcIdType offset1, mcIdType offset2, double fact, double baryX, double baryY,
-                                                short skipStartOrEnd,
-                                                std::vector<mcIdType>& edgesOther, std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType>& mapAddCoo) const;
-    INTERPKERNEL_EXPORT static ElementaryEdge *BuildEdgeFromStartEndDir(bool direction, INTERP_KERNEL::Node *start, INTERP_KERNEL::Node *end);
-  private:
+    INTERPKERNEL_EXPORT bool isEqual(const ElementaryEdge &other) const;
+
+   public:
+    INTERPKERNEL_EXPORT void fillGlobalInfoAbs(
+        const std::map<INTERP_KERNEL::Node *, mcIdType> &mapThis,
+        const std::map<INTERP_KERNEL::Node *, mcIdType> &mapOther,
+        mcIdType offset1,
+        mcIdType offset2,
+        double fact,
+        double baryX,
+        double baryY,
+        std::vector<mcIdType> &edgesThis,
+        std::vector<double> &addCoo,
+        std::map<INTERP_KERNEL::Node *, mcIdType> mapAddCoo
+    ) const;
+    INTERPKERNEL_EXPORT void fillGlobalInfoAbs2(
+        const std::map<INTERP_KERNEL::Node *, mcIdType> &mapThis,
+        const std::map<INTERP_KERNEL::Node *, mcIdType> &mapOther,
+        mcIdType offset1,
+        mcIdType offset2,
+        double fact,
+        double baryX,
+        double baryY,
+        short skipStartOrEnd,
+        std::vector<mcIdType> &edgesOther,
+        std::vector<double> &addCoo,
+        std::map<INTERP_KERNEL::Node *, mcIdType> &mapAddCoo
+    ) const;
+    INTERPKERNEL_EXPORT static ElementaryEdge *BuildEdgeFromStartEndDir(
+        bool direction, INTERP_KERNEL::Node *start, INTERP_KERNEL::Node *end
+    );
+
+   private:
     bool _direction;
     Edge *_ptr;
     IteratorOnComposedEdge _iterator;
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

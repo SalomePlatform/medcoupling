@@ -26,19 +26,20 @@
 
 namespace INTERP_KERNEL
 {
-  struct QRDecomp
-  {
-  private:
+struct QRDecomp
+{
+   private:
     mcIdType n;
     INTERP_KERNEL::DenseMatrix qt;
     INTERP_KERNEL::DenseMatrix r;
     bool sing;
-  public:
-    QRDecomp(const INTERP_KERNEL::DenseMatrix& a);
-    void solve(const std::vector<double>& b, std::vector<double> &x);
-    void qtmult(const std::vector<double>& b, std::vector<double> &x);
-    void rsolve(const std::vector<double>& b, std::vector<double> &x);
-    void update(const std::vector<double>& u, const std::vector<double>& v);
+
+   public:
+    QRDecomp(const INTERP_KERNEL::DenseMatrix &a);
+    void solve(const std::vector<double> &b, std::vector<double> &x);
+    void qtmult(const std::vector<double> &b, std::vector<double> &x);
+    void rsolve(const std::vector<double> &b, std::vector<double> &x);
+    void update(const std::vector<double> &u, const std::vector<double> &v);
     void rotate(const mcIdType i, const double a, const double b);
-  };
-}
+};
+}  // namespace INTERP_KERNEL

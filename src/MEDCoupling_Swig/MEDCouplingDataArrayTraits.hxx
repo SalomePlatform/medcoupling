@@ -28,46 +28,47 @@
 #ifdef WITH_NUMPY
 #include <numpy/arrayobject.h>
 #if NPY_API_VERSION <= 0x00000006
-#  define MED_NUMPY_OWNDATA NPY_OWNDATA
+#define MED_NUMPY_OWNDATA NPY_OWNDATA
 #else
-#  define MED_NUMPY_OWNDATA NPY_ARRAY_OWNDATA
+#define MED_NUMPY_OWNDATA NPY_ARRAY_OWNDATA
 #endif
 #endif
 
 #ifdef WITH_NUMPY
-// specific DataArray deallocator callback. This deallocator is used both in the constructor of DataArray and in the toNumPyArr
-// method. This dellocator uses weakref to determine if the linked numArr is still alive or not. If alive the ownership is given to it.
-// if no more alive the "standard" DataArray deallocator is called.
-void numarrdeal(void *pt, void *wron)
+// specific DataArray deallocator callback. This deallocator is used both in the constructor of DataArray and in the
+// toNumPyArr method. This dellocator uses weakref to determine if the linked numArr is still alive or not. If alive the
+// ownership is given to it. if no more alive the "standard" DataArray deallocator is called.
+void
+numarrdeal(void *pt, void *wron)
 {
-  void **wronc=(void **)wron;
-  PyObject *weakRefOnOwner=reinterpret_cast<PyObject *>(wronc[0]);
-  PyObject *obj=PyWeakref_GetObject(weakRefOnOwner);
-  int64_t *offset=reinterpret_cast<int64_t*>(wronc[2]);
-  if(obj!=Py_None)
+    void **wronc = (void **)wron;
+    PyObject *weakRefOnOwner = reinterpret_cast<PyObject *>(wronc[0]);
+    PyObject *obj = PyWeakref_GetObject(weakRefOnOwner);
+    int64_t *offset = reinterpret_cast<int64_t *>(wronc[2]);
+    if (obj != Py_None)
     {
-      Py_XINCREF(obj);
-      PyArrayObject *objC=reinterpret_cast<PyArrayObject *>(obj);
-      objC->flags|=MED_NUMPY_OWNDATA;
-      Py_XDECREF(weakRefOnOwner);
-      Py_XDECREF(obj);
+        Py_XINCREF(obj);
+        PyArrayObject *objC = reinterpret_cast<PyArrayObject *>(obj);
+        objC->flags |= MED_NUMPY_OWNDATA;
+        Py_XDECREF(weakRefOnOwner);
+        Py_XDECREF(obj);
     }
-  else
+    else
     {
-      typedef void (*MyDeallocator)(void *,void *);
-      MyDeallocator deall=(MyDeallocator)wronc[1];
-      deall(pt,offset);
-      Py_XDECREF(weakRefOnOwner);
+        typedef void (*MyDeallocator)(void *, void *);
+        MyDeallocator deall = (MyDeallocator)wronc[1];
+        deall(pt, offset);
+        Py_XDECREF(weakRefOnOwner);
     }
-  delete offset;
-  delete [] wronc;
+    delete offset;
+    delete[] wronc;
 }
 #endif
 
-template<class MCData>
-struct PyCallBackDataArraySt {
-    PyObject_HEAD
-    MCData *_pt_mc;
+template <class MCData>
+struct PyCallBackDataArraySt
+{
+    PyObject_HEAD MCData *_pt_mc;
 };
 
 typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayByte> PyCallBackDataArrayChar;
@@ -78,358 +79,352 @@ typedef struct PyCallBackDataArraySt<MEDCoupling::DataArrayDouble> PyCallBackDat
 
 extern "C"
 {
-  static int callbackmcdataarray___init__(PyObject *self, PyObject *args, PyObject *kwargs) { return 0; }
+    static int callbackmcdataarray___init__(PyObject *self, PyObject *args, PyObject *kwargs) { return 0; }
 
-  static PyObject *callbackmcdataarraychar___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
-  {
-    PyCallBackDataArrayChar *self = (PyCallBackDataArrayChar *) ( type->tp_alloc(type, 0) );
-    return (PyObject *)self;
-  }
+    static PyObject *callbackmcdataarraychar___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+    {
+        PyCallBackDataArrayChar *self = (PyCallBackDataArrayChar *)(type->tp_alloc(type, 0));
+        return (PyObject *)self;
+    }
 
-  static PyObject *callbackmcdataarrayint32___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
-  {
-    PyCallBackDataArrayInt32 *self = (PyCallBackDataArrayInt32 *) ( type->tp_alloc(type, 0) );
-    return (PyObject *)self;
-  }
+    static PyObject *callbackmcdataarrayint32___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+    {
+        PyCallBackDataArrayInt32 *self = (PyCallBackDataArrayInt32 *)(type->tp_alloc(type, 0));
+        return (PyObject *)self;
+    }
 
-  static PyObject *callbackmcdataarrayint64___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
-  {
-    PyCallBackDataArrayInt64 *self = (PyCallBackDataArrayInt64 *) ( type->tp_alloc(type, 0) );
-    return (PyObject *)self;
-  }
+    static PyObject *callbackmcdataarrayint64___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+    {
+        PyCallBackDataArrayInt64 *self = (PyCallBackDataArrayInt64 *)(type->tp_alloc(type, 0));
+        return (PyObject *)self;
+    }
 
-  static PyObject *callbackmcdataarrayfloat___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
-  {
-    PyCallBackDataArrayFloat *self = (PyCallBackDataArrayFloat *) ( type->tp_alloc(type, 0) );
-    return (PyObject *)self;
-  }
+    static PyObject *callbackmcdataarrayfloat___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+    {
+        PyCallBackDataArrayFloat *self = (PyCallBackDataArrayFloat *)(type->tp_alloc(type, 0));
+        return (PyObject *)self;
+    }
 
-  static PyObject *callbackmcdataarraydouble___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
-  {
-    PyCallBackDataArrayDouble *self = (PyCallBackDataArrayDouble *) ( type->tp_alloc(type, 0) );
-    return (PyObject *)self;
-  }
+    static PyObject *callbackmcdataarraydouble___new__(PyTypeObject *type, PyObject *args, PyObject *kwargs)
+    {
+        PyCallBackDataArrayDouble *self = (PyCallBackDataArrayDouble *)(type->tp_alloc(type, 0));
+        return (PyObject *)self;
+    }
 
-  static void callbackmcdataarray_dealloc(PyObject *self)
-  {
-    Py_TYPE(self)->tp_free(self);
-  }
+    static void callbackmcdataarray_dealloc(PyObject *self) { Py_TYPE(self)->tp_free(self); }
 
+    // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
+    // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of
+    // these "weak" clients.
+    static PyObject *callbackmcdataarraychar_call(PyCallBackDataArrayChar *self, PyObject *args, PyObject *kw)
+    {
+        if (self->_pt_mc)
+        {
+            MEDCoupling::MemArray<char> &mma = self->_pt_mc->accessToMemArray();
+            mma.destroy();
+        }
+        Py_XINCREF(Py_None);
+        return Py_None;
+    }
 
-  // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
-  // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
-  static PyObject *callbackmcdataarraychar_call(PyCallBackDataArrayChar *self, PyObject *args, PyObject *kw)
-  {
-    if(self->_pt_mc)
-      {
-        MEDCoupling::MemArray<char>& mma=self->_pt_mc->accessToMemArray();
-        mma.destroy();
-      }
-    Py_XINCREF(Py_None);
-    return Py_None;
-  }
+    // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
+    // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of
+    // these "weak" clients.
+    static PyObject *callbackmcdataarrayint32_call(PyCallBackDataArrayInt32 *self, PyObject *args, PyObject *kw)
+    {
+        if (self->_pt_mc)
+        {
+            MEDCoupling::MemArray<int> &mma = self->_pt_mc->accessToMemArray();
+            mma.destroy();
+        }
+        Py_XINCREF(Py_None);
+        return Py_None;
+    }
 
-  // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
-  // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
-  static PyObject *callbackmcdataarrayint32_call(PyCallBackDataArrayInt32 *self, PyObject *args, PyObject *kw)
-  {
-    if(self->_pt_mc)
-      {
-        MEDCoupling::MemArray<int>& mma=self->_pt_mc->accessToMemArray();
-        mma.destroy();
-      }
-    Py_XINCREF(Py_None);
-    return Py_None;
-  }
+    // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
+    // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of
+    // these "weak" clients.
+    static PyObject *callbackmcdataarrayint64_call(PyCallBackDataArrayInt64 *self, PyObject *args, PyObject *kw)
+    {
+        if (self->_pt_mc)
+        {
+            MEDCoupling::MemArray<MEDCoupling::Int64> &mma = self->_pt_mc->accessToMemArray();
+            mma.destroy();
+        }
+        Py_XINCREF(Py_None);
+        return Py_None;
+    }
 
-  // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
-  // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
-  static PyObject *callbackmcdataarrayint64_call(PyCallBackDataArrayInt64 *self, PyObject *args, PyObject *kw)
-  {
-    if(self->_pt_mc)
-      {	
-        MEDCoupling::MemArray<MEDCoupling::Int64>& mma=self->_pt_mc->accessToMemArray();
-        mma.destroy();
-      }
-    Py_XINCREF(Py_None);
-    return Py_None;
-  }
+    // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
+    // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of
+    // these "weak" clients.
+    static PyObject *callbackmcdataarrayfloat_call(PyCallBackDataArrayFloat *self, PyObject *args, PyObject *kw)
+    {
+        if (self->_pt_mc)
+        {
+            MEDCoupling::MemArray<float> &mma = self->_pt_mc->accessToMemArray();
+            mma.destroy();
+        }
+        Py_XINCREF(Py_None);
+        return Py_None;
+    }
 
-  // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
-  // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
-  static PyObject *callbackmcdataarrayfloat_call(PyCallBackDataArrayFloat *self, PyObject *args, PyObject *kw)
-  {
-    if(self->_pt_mc)
-      {
-        MEDCoupling::MemArray<float>& mma=self->_pt_mc->accessToMemArray();
-        mma.destroy();
-      }
-    Py_XINCREF(Py_None);
-    return Py_None;
-  }
-
-  // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
-  // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of these "weak" clients.
-  static PyObject *callbackmcdataarraydouble_call(PyCallBackDataArrayDouble *self, PyObject *args, PyObject *kw)
-  {
-    if(self->_pt_mc)
-      {
-        MEDCoupling::MemArray<double>& mma=self->_pt_mc->accessToMemArray();
-        mma.destroy();
-      }
-    Py_XINCREF(Py_None);
-    return Py_None;
-  }
+    // real callback called when a numpy arr having more than one DataArray instance client on it is destroyed.
+    // In this case, all the "weak" clients, except the first one, invoke this call back that desable the content of
+    // these "weak" clients.
+    static PyObject *callbackmcdataarraydouble_call(PyCallBackDataArrayDouble *self, PyObject *args, PyObject *kw)
+    {
+        if (self->_pt_mc)
+        {
+            MEDCoupling::MemArray<double> &mma = self->_pt_mc->accessToMemArray();
+            mma.destroy();
+        }
+        Py_XINCREF(Py_None);
+        return Py_None;
+    }
 }
 
 PyTypeObject PyCallBackDataArrayChar_RefType = {
-  PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "callbackmcdataarraychar",
-  sizeof(PyCallBackDataArrayChar),
-  0,
-  callbackmcdataarray_dealloc,            /*tp_dealloc*/
-  0,                          /*tp_print*/
-  0,                          /*tp_getattr*/
-  0,                          /*tp_setattr*/
-  0,                          /*tp_compare*/
-  0,                          /*tp_repr*/
-  0,                          /*tp_as_number*/
-  0,                          /*tp_as_sequence*/
-  0,                          /*tp_as_mapping*/
-  0,                          /*tp_hash*/
-  (ternaryfunc)callbackmcdataarraychar_call,  /*tp_call*/
-  0,                          /*tp_str*/
-  0,                          /*tp_getattro*/
-  0,                          /*tp_setattro*/
-  0,                          /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE,  /*tp_flags*/
-  0,                          /*tp_doc*/
-  0,                          /*tp_traverse*/
-  0,                          /*tp_clear*/
-  0,                          /*tp_richcompare*/
-  0,                          /*tp_weaklistoffset*/
-  0,                          /*tp_iter*/
-  0,                          /*tp_iternext*/
-  0,                          /*tp_methods*/
-  0,                          /*tp_members*/
-  0,                          /*tp_getset*/
-  0,                          /*tp_base*/
-  0,                          /*tp_dict*/
-  0,                          /*tp_descr_get*/
-  0,                          /*tp_descr_set*/
-  0,                          /*tp_dictoffset*/
-  callbackmcdataarray___init__,           /*tp_init*/
-  PyType_GenericAlloc,        /*tp_alloc*/
-  callbackmcdataarraychar___new__,            /*tp_new*/
-  PyObject_GC_Del,            /*tp_free*/
+    PyVarObject_HEAD_INIT(&PyType_Type, 0) "callbackmcdataarraychar",
+    sizeof(PyCallBackDataArrayChar),
+    0,
+    callbackmcdataarray_dealloc,                                   /*tp_dealloc*/
+    0,                                                             /*tp_print*/
+    0,                                                             /*tp_getattr*/
+    0,                                                             /*tp_setattr*/
+    0,                                                             /*tp_compare*/
+    0,                                                             /*tp_repr*/
+    0,                                                             /*tp_as_number*/
+    0,                                                             /*tp_as_sequence*/
+    0,                                                             /*tp_as_mapping*/
+    0,                                                             /*tp_hash*/
+    (ternaryfunc)callbackmcdataarraychar_call,                     /*tp_call*/
+    0,                                                             /*tp_str*/
+    0,                                                             /*tp_getattro*/
+    0,                                                             /*tp_setattro*/
+    0,                                                             /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    0,                                                             /*tp_doc*/
+    0,                                                             /*tp_traverse*/
+    0,                                                             /*tp_clear*/
+    0,                                                             /*tp_richcompare*/
+    0,                                                             /*tp_weaklistoffset*/
+    0,                                                             /*tp_iter*/
+    0,                                                             /*tp_iternext*/
+    0,                                                             /*tp_methods*/
+    0,                                                             /*tp_members*/
+    0,                                                             /*tp_getset*/
+    0,                                                             /*tp_base*/
+    0,                                                             /*tp_dict*/
+    0,                                                             /*tp_descr_get*/
+    0,                                                             /*tp_descr_set*/
+    0,                                                             /*tp_dictoffset*/
+    callbackmcdataarray___init__,                                  /*tp_init*/
+    PyType_GenericAlloc,                                           /*tp_alloc*/
+    callbackmcdataarraychar___new__,                               /*tp_new*/
+    PyObject_GC_Del,                                               /*tp_free*/
 };
-
 
 PyTypeObject PyCallBackDataArrayInt32_RefType = {
-  PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "callbackmcdataarrayint32",
-  sizeof(PyCallBackDataArrayInt32),
-  0,
-  callbackmcdataarray_dealloc,            /*tp_dealloc*/
-  0,                          /*tp_print*/
-  0,                          /*tp_getattr*/
-  0,                          /*tp_setattr*/
-  0,                          /*tp_compare*/
-  0,                          /*tp_repr*/
-  0,                          /*tp_as_number*/
-  0,                          /*tp_as_sequence*/
-  0,                          /*tp_as_mapping*/
-  0,                          /*tp_hash*/
-  (ternaryfunc)callbackmcdataarrayint32_call,  /*tp_call*/
-  0,                          /*tp_str*/
-  0,                          /*tp_getattro*/
-  0,                          /*tp_setattro*/
-  0,                          /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE,  /*tp_flags*/
-  0,                          /*tp_doc*/
-  0,                          /*tp_traverse*/
-  0,                          /*tp_clear*/
-  0,                          /*tp_richcompare*/
-  0,                          /*tp_weaklistoffset*/
-  0,                          /*tp_iter*/
-  0,                          /*tp_iternext*/
-  0,                          /*tp_methods*/
-  0,                          /*tp_members*/
-  0,                          /*tp_getset*/
-  0,                          /*tp_base*/
-  0,                          /*tp_dict*/
-  0,                          /*tp_descr_get*/
-  0,                          /*tp_descr_set*/
-  0,                          /*tp_dictoffset*/
-  callbackmcdataarray___init__,           /*tp_init*/
-  PyType_GenericAlloc,        /*tp_alloc*/
-  callbackmcdataarrayint32___new__,            /*tp_new*/
-  PyObject_GC_Del,            /*tp_free*/
+    PyVarObject_HEAD_INIT(&PyType_Type, 0) "callbackmcdataarrayint32",
+    sizeof(PyCallBackDataArrayInt32),
+    0,
+    callbackmcdataarray_dealloc,                                   /*tp_dealloc*/
+    0,                                                             /*tp_print*/
+    0,                                                             /*tp_getattr*/
+    0,                                                             /*tp_setattr*/
+    0,                                                             /*tp_compare*/
+    0,                                                             /*tp_repr*/
+    0,                                                             /*tp_as_number*/
+    0,                                                             /*tp_as_sequence*/
+    0,                                                             /*tp_as_mapping*/
+    0,                                                             /*tp_hash*/
+    (ternaryfunc)callbackmcdataarrayint32_call,                    /*tp_call*/
+    0,                                                             /*tp_str*/
+    0,                                                             /*tp_getattro*/
+    0,                                                             /*tp_setattro*/
+    0,                                                             /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    0,                                                             /*tp_doc*/
+    0,                                                             /*tp_traverse*/
+    0,                                                             /*tp_clear*/
+    0,                                                             /*tp_richcompare*/
+    0,                                                             /*tp_weaklistoffset*/
+    0,                                                             /*tp_iter*/
+    0,                                                             /*tp_iternext*/
+    0,                                                             /*tp_methods*/
+    0,                                                             /*tp_members*/
+    0,                                                             /*tp_getset*/
+    0,                                                             /*tp_base*/
+    0,                                                             /*tp_dict*/
+    0,                                                             /*tp_descr_get*/
+    0,                                                             /*tp_descr_set*/
+    0,                                                             /*tp_dictoffset*/
+    callbackmcdataarray___init__,                                  /*tp_init*/
+    PyType_GenericAlloc,                                           /*tp_alloc*/
+    callbackmcdataarrayint32___new__,                              /*tp_new*/
+    PyObject_GC_Del,                                               /*tp_free*/
 };
 
-
 PyTypeObject PyCallBackDataArrayInt64_RefType = {
-  PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "callbackmcdataarrayint64",
-  sizeof(PyCallBackDataArrayInt64),
-  0,
-  callbackmcdataarray_dealloc,            /*tp_dealloc*/
-  0,                          /*tp_print*/
-  0,                          /*tp_getattr*/
-  0,                          /*tp_setattr*/
-  0,                          /*tp_compare*/
-  0,                          /*tp_repr*/
-  0,                          /*tp_as_number*/
-  0,                          /*tp_as_sequence*/
-  0,                          /*tp_as_mapping*/
-  0,                          /*tp_hash*/
-  (ternaryfunc)callbackmcdataarrayint64_call,  /*tp_call*/
-  0,                          /*tp_str*/
-  0,                          /*tp_getattro*/
-  0,                          /*tp_setattro*/
-  0,                          /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE,  /*tp_flags*/
-  0,                          /*tp_doc*/
-  0,                          /*tp_traverse*/
-  0,                          /*tp_clear*/
-  0,                          /*tp_richcompare*/
-  0,                          /*tp_weaklistoffset*/
-  0,                          /*tp_iter*/
-  0,                          /*tp_iternext*/
-  0,                          /*tp_methods*/
-  0,                          /*tp_members*/
-  0,                          /*tp_getset*/
-  0,                          /*tp_base*/
-  0,                          /*tp_dict*/
-  0,                          /*tp_descr_get*/
-  0,                          /*tp_descr_set*/
-  0,                          /*tp_dictoffset*/
-  callbackmcdataarray___init__,           /*tp_init*/
-  PyType_GenericAlloc,        /*tp_alloc*/
-  callbackmcdataarrayint64___new__,            /*tp_new*/
-  PyObject_GC_Del,            /*tp_free*/
+    PyVarObject_HEAD_INIT(&PyType_Type, 0) "callbackmcdataarrayint64",
+    sizeof(PyCallBackDataArrayInt64),
+    0,
+    callbackmcdataarray_dealloc,                                   /*tp_dealloc*/
+    0,                                                             /*tp_print*/
+    0,                                                             /*tp_getattr*/
+    0,                                                             /*tp_setattr*/
+    0,                                                             /*tp_compare*/
+    0,                                                             /*tp_repr*/
+    0,                                                             /*tp_as_number*/
+    0,                                                             /*tp_as_sequence*/
+    0,                                                             /*tp_as_mapping*/
+    0,                                                             /*tp_hash*/
+    (ternaryfunc)callbackmcdataarrayint64_call,                    /*tp_call*/
+    0,                                                             /*tp_str*/
+    0,                                                             /*tp_getattro*/
+    0,                                                             /*tp_setattro*/
+    0,                                                             /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    0,                                                             /*tp_doc*/
+    0,                                                             /*tp_traverse*/
+    0,                                                             /*tp_clear*/
+    0,                                                             /*tp_richcompare*/
+    0,                                                             /*tp_weaklistoffset*/
+    0,                                                             /*tp_iter*/
+    0,                                                             /*tp_iternext*/
+    0,                                                             /*tp_methods*/
+    0,                                                             /*tp_members*/
+    0,                                                             /*tp_getset*/
+    0,                                                             /*tp_base*/
+    0,                                                             /*tp_dict*/
+    0,                                                             /*tp_descr_get*/
+    0,                                                             /*tp_descr_set*/
+    0,                                                             /*tp_dictoffset*/
+    callbackmcdataarray___init__,                                  /*tp_init*/
+    PyType_GenericAlloc,                                           /*tp_alloc*/
+    callbackmcdataarrayint64___new__,                              /*tp_new*/
+    PyObject_GC_Del,                                               /*tp_free*/
 };
 
 PyTypeObject PyCallBackDataArrayFloat_RefType = {
-  PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "callbackmcdataarraydouble",
-  sizeof(PyCallBackDataArrayFloat),
-  0,
-  callbackmcdataarray_dealloc,            /*tp_dealloc*/
-  0,                          /*tp_print*/
-  0,                          /*tp_getattr*/
-  0,                          /*tp_setattr*/
-  0,                          /*tp_compare*/
-  0,                          /*tp_repr*/
-  0,                          /*tp_as_number*/
-  0,                          /*tp_as_sequence*/
-  0,                          /*tp_as_mapping*/
-  0,                          /*tp_hash*/
-  (ternaryfunc)callbackmcdataarraydouble_call,  /*tp_call*/
-  0,                          /*tp_str*/
-  0,                          /*tp_getattro*/
-  0,                          /*tp_setattro*/
-  0,                          /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE,  /*tp_flags*/
-  0,                          /*tp_doc*/
-  0,                          /*tp_traverse*/
-  0,                          /*tp_clear*/
-  0,                          /*tp_richcompare*/
-  0,                          /*tp_weaklistoffset*/
-  0,                          /*tp_iter*/
-  0,                          /*tp_iternext*/
-  0,                          /*tp_methods*/
-  0,                          /*tp_members*/
-  0,                          /*tp_getset*/
-  0,                          /*tp_base*/
-  0,                          /*tp_dict*/
-  0,                          /*tp_descr_get*/
-  0,                          /*tp_descr_set*/
-  0,                          /*tp_dictoffset*/
-  callbackmcdataarray___init__,           /*tp_init*/
-  PyType_GenericAlloc,        /*tp_alloc*/
-  callbackmcdataarrayfloat___new__,            /*tp_new*/
-  PyObject_GC_Del,            /*tp_free*/
+    PyVarObject_HEAD_INIT(&PyType_Type, 0) "callbackmcdataarraydouble",
+    sizeof(PyCallBackDataArrayFloat),
+    0,
+    callbackmcdataarray_dealloc,                                   /*tp_dealloc*/
+    0,                                                             /*tp_print*/
+    0,                                                             /*tp_getattr*/
+    0,                                                             /*tp_setattr*/
+    0,                                                             /*tp_compare*/
+    0,                                                             /*tp_repr*/
+    0,                                                             /*tp_as_number*/
+    0,                                                             /*tp_as_sequence*/
+    0,                                                             /*tp_as_mapping*/
+    0,                                                             /*tp_hash*/
+    (ternaryfunc)callbackmcdataarraydouble_call,                   /*tp_call*/
+    0,                                                             /*tp_str*/
+    0,                                                             /*tp_getattro*/
+    0,                                                             /*tp_setattro*/
+    0,                                                             /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    0,                                                             /*tp_doc*/
+    0,                                                             /*tp_traverse*/
+    0,                                                             /*tp_clear*/
+    0,                                                             /*tp_richcompare*/
+    0,                                                             /*tp_weaklistoffset*/
+    0,                                                             /*tp_iter*/
+    0,                                                             /*tp_iternext*/
+    0,                                                             /*tp_methods*/
+    0,                                                             /*tp_members*/
+    0,                                                             /*tp_getset*/
+    0,                                                             /*tp_base*/
+    0,                                                             /*tp_dict*/
+    0,                                                             /*tp_descr_get*/
+    0,                                                             /*tp_descr_set*/
+    0,                                                             /*tp_dictoffset*/
+    callbackmcdataarray___init__,                                  /*tp_init*/
+    PyType_GenericAlloc,                                           /*tp_alloc*/
+    callbackmcdataarrayfloat___new__,                              /*tp_new*/
+    PyObject_GC_Del,                                               /*tp_free*/
 };
 
 PyTypeObject PyCallBackDataArrayDouble_RefType = {
-  PyVarObject_HEAD_INIT(&PyType_Type, 0)
-  "callbackmcdataarraydouble",
-  sizeof(PyCallBackDataArrayDouble),
-  0,
-  callbackmcdataarray_dealloc,            /*tp_dealloc*/
-  0,                          /*tp_print*/
-  0,                          /*tp_getattr*/
-  0,                          /*tp_setattr*/
-  0,                          /*tp_compare*/
-  0,                          /*tp_repr*/
-  0,                          /*tp_as_number*/
-  0,                          /*tp_as_sequence*/
-  0,                          /*tp_as_mapping*/
-  0,                          /*tp_hash*/
-  (ternaryfunc)callbackmcdataarraydouble_call,  /*tp_call*/
-  0,                          /*tp_str*/
-  0,                          /*tp_getattro*/
-  0,                          /*tp_setattro*/
-  0,                          /*tp_as_buffer*/
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE,  /*tp_flags*/
-  0,                          /*tp_doc*/
-  0,                          /*tp_traverse*/
-  0,                          /*tp_clear*/
-  0,                          /*tp_richcompare*/
-  0,                          /*tp_weaklistoffset*/
-  0,                          /*tp_iter*/
-  0,                          /*tp_iternext*/
-  0,                          /*tp_methods*/
-  0,                          /*tp_members*/
-  0,                          /*tp_getset*/
-  0,                          /*tp_base*/
-  0,                          /*tp_dict*/
-  0,                          /*tp_descr_get*/
-  0,                          /*tp_descr_set*/
-  0,                          /*tp_dictoffset*/
-  callbackmcdataarray___init__,           /*tp_init*/
-  PyType_GenericAlloc,        /*tp_alloc*/
-  callbackmcdataarraydouble___new__,            /*tp_new*/
-  PyObject_GC_Del,            /*tp_free*/
+    PyVarObject_HEAD_INIT(&PyType_Type, 0) "callbackmcdataarraydouble",
+    sizeof(PyCallBackDataArrayDouble),
+    0,
+    callbackmcdataarray_dealloc,                                   /*tp_dealloc*/
+    0,                                                             /*tp_print*/
+    0,                                                             /*tp_getattr*/
+    0,                                                             /*tp_setattr*/
+    0,                                                             /*tp_compare*/
+    0,                                                             /*tp_repr*/
+    0,                                                             /*tp_as_number*/
+    0,                                                             /*tp_as_sequence*/
+    0,                                                             /*tp_as_mapping*/
+    0,                                                             /*tp_hash*/
+    (ternaryfunc)callbackmcdataarraydouble_call,                   /*tp_call*/
+    0,                                                             /*tp_str*/
+    0,                                                             /*tp_getattro*/
+    0,                                                             /*tp_setattro*/
+    0,                                                             /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_BASETYPE, /*tp_flags*/
+    0,                                                             /*tp_doc*/
+    0,                                                             /*tp_traverse*/
+    0,                                                             /*tp_clear*/
+    0,                                                             /*tp_richcompare*/
+    0,                                                             /*tp_weaklistoffset*/
+    0,                                                             /*tp_iter*/
+    0,                                                             /*tp_iternext*/
+    0,                                                             /*tp_methods*/
+    0,                                                             /*tp_members*/
+    0,                                                             /*tp_getset*/
+    0,                                                             /*tp_base*/
+    0,                                                             /*tp_dict*/
+    0,                                                             /*tp_descr_get*/
+    0,                                                             /*tp_descr_set*/
+    0,                                                             /*tp_dictoffset*/
+    callbackmcdataarray___init__,                                  /*tp_init*/
+    PyType_GenericAlloc,                                           /*tp_alloc*/
+    callbackmcdataarraydouble___new__,                             /*tp_new*/
+    PyObject_GC_Del,                                               /*tp_free*/
 };
 
 #ifdef WITH_NUMPY
-template<class T>
+template <class T>
 struct NPYTraits
 {
 };
 
-template<>
+template <>
 struct NPYTraits<double>
 {
-  static const int NPYObjectType=NPY_DOUBLE;
-  static PyTypeObject *NPYFunc;
-  static PyObject *Array_SWIGTYPE;
+    static const int NPYObjectType = NPY_DOUBLE;
+    static PyTypeObject *NPYFunc;
+    static PyObject *Array_SWIGTYPE;
 };
 
-template<>
+template <>
 struct NPYTraits<float>
 {
-  static const int NPYObjectType=NPY_FLOAT;
-  static PyTypeObject *NPYFunc;
-  static PyObject *Array_SWIGTYPE;
+    static const int NPYObjectType = NPY_FLOAT;
+    static PyTypeObject *NPYFunc;
+    static PyObject *Array_SWIGTYPE;
 };
 
-template<>
+template <>
 struct NPYTraits<int>
 {
-  static const int NPYObjectType=NPY_INT32;
-  static PyTypeObject *NPYFunc;
-  static PyObject *Array_SWIGTYPE;
+    static const int NPYObjectType = NPY_INT32;
+    static PyTypeObject *NPYFunc;
+    static PyObject *Array_SWIGTYPE;
 };
 
-template<>
+template <>
 struct NPYTraits<MEDCoupling::Int64>
 {
-  static const int NPYObjectType=NPY_INT64;
-  static PyTypeObject *NPYFunc;
-  static PyObject *Array_SWIGTYPE;
+    static const int NPYObjectType = NPY_INT64;
+    static PyTypeObject *NPYFunc;
+    static PyObject *Array_SWIGTYPE;
 };
 #endif
 

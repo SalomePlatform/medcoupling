@@ -29,24 +29,24 @@
 
 namespace MEDCoupling
 {
-  class MEDCouplingFieldInt32;
+class MEDCouplingFieldInt32;
 }
 
 namespace ICoCo
 {
-  /*! @brief Field data stored internally as a MEDCoupling object.
-   *
-   * This class is a wrapper around a MEDCoupling::MEDCouplingFieldInt32 object, which holds the field data.
-   * In version 2 of ICoCo, MEDCoupling objects are not anymore exposed directly into the API
-   * of ICoCo::Problem. The rationale is to make the interface ICoCo::Problem free of external dependencies
-   * (MEDCoupling particularly).
-   *
-   * @sa the MEDCoupling documentation, notably the reference counter mechanism used to manage the lifecycle of
-   * MEDCoupling objects.
-   */
-  class ICOCO_EXPORT MEDIntField : public ICoCo::Field
-  {
-  public:
+/*! @brief Field data stored internally as a MEDCoupling object.
+ *
+ * This class is a wrapper around a MEDCoupling::MEDCouplingFieldInt32 object, which holds the field data.
+ * In version 2 of ICoCo, MEDCoupling objects are not anymore exposed directly into the API
+ * of ICoCo::Problem. The rationale is to make the interface ICoCo::Problem free of external dependencies
+ * (MEDCoupling particularly).
+ *
+ * @sa the MEDCoupling documentation, notably the reference counter mechanism used to manage the lifecycle of
+ * MEDCoupling objects.
+ */
+class ICOCO_EXPORT MEDIntField : public ICoCo::Field
+{
+   public:
     /*! Builds an empty field (internal MEDCoupling object not set).
      */
     MEDIntField();
@@ -58,17 +58,17 @@ namespace ICoCo
      *
      * @param field MEDCoupling field instance to use for field data. The field reference counter is incremented.
      */
-    MEDIntField(MEDCoupling::MEDCouplingFieldInt32* field);
+    MEDIntField(MEDCoupling::MEDCouplingFieldInt32 *field);
 
     /*! @brief Copy construcotr.
      */
-    MEDIntField(const MEDIntField& field);
+    MEDIntField(const MEDIntField &field);
 
     /*! @brief Assignement operator.
      * @param field another MEDDoubleField instance. The previous internal MEDCoupling field reference (if any) has
      * its counter decremented.
      */
-    MEDIntField& operator=(const MEDIntField& field);
+    MEDIntField &operator=(const MEDIntField &field);
 
     /*! @brief Destructor.
      */
@@ -91,11 +91,11 @@ namespace ICoCo
      *
      * @param field MEDCouplingFieldDouble object to be used.
      */
-    void setMCField(MEDCoupling::MEDCouplingFieldInt32 * f);
+    void setMCField(MEDCoupling::MEDCouplingFieldInt32 *f);
 
-  private:
+   private:
     MEDCoupling::MEDCouplingFieldInt32 *_field;
-  };
-} // namespace ICoCo
+};
+}  // namespace ICoCo
 
 #endif

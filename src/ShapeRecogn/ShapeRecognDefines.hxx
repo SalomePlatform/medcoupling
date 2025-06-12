@@ -21,13 +21,13 @@
 #define __SHAPE_RECOGNITION_DEFINES_HXX__
 
 #ifdef WIN32
-# if defined shaperecogn_EXPORTS || TestShapeRecogn_EXPORTS
-#  define SHAPE_RECOGNITION_EXPORT __declspec(dllexport)
-# else
-#  define SHAPE_RECOGNITION_EXPORT __declspec(dllimport)
-# endif
+#if defined shaperecogn_EXPORTS || TestShapeRecogn_EXPORTS
+#define SHAPE_RECOGNITION_EXPORT __declspec(dllexport)
 #else
-# define SHAPE_RECOGNITION_EXPORT
+#define SHAPE_RECOGNITION_EXPORT __declspec(dllimport)
+#endif
+#else
+#define SHAPE_RECOGNITION_EXPORT
 #endif
 
 #endif

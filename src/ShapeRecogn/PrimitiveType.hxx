@@ -25,23 +25,28 @@
 #include "ShapeRecognDefines.hxx"
 namespace MEDCoupling
 {
-  enum class SHAPE_RECOGNITION_EXPORT PrimitiveType : unsigned char
-  {
+enum class SHAPE_RECOGNITION_EXPORT PrimitiveType : unsigned char
+{
     Plane = 0,
     Sphere = 1,
     Cylinder = 2,
     Cone = 3,
     Torus = 4,
     Unknown = 5
-  };
-
-  SHAPE_RECOGNITION_EXPORT std::vector<PrimitiveType> AllManagedPrimitives();
-
-  SHAPE_RECOGNITION_EXPORT std::vector<std::string> AllManagedPrimitivesStr();
-
-  SHAPE_RECOGNITION_EXPORT std::string ConvertPrimitiveToString(PrimitiveType type);
-
-  SHAPE_RECOGNITION_EXPORT PrimitiveType ConvertStringToPrimitive(const std::string& type);
-
-  SHAPE_RECOGNITION_EXPORT int ConvertPrimitiveToInt(PrimitiveType type);
 };
+
+SHAPE_RECOGNITION_EXPORT std::vector<PrimitiveType>
+AllManagedPrimitives();
+
+SHAPE_RECOGNITION_EXPORT std::vector<std::string>
+AllManagedPrimitivesStr();
+
+SHAPE_RECOGNITION_EXPORT std::string
+ConvertPrimitiveToString(PrimitiveType type);
+
+SHAPE_RECOGNITION_EXPORT PrimitiveType
+ConvertStringToPrimitive(const std::string &type);
+
+SHAPE_RECOGNITION_EXPORT int
+ConvertPrimitiveToInt(PrimitiveType type);
+};  // namespace MEDCoupling

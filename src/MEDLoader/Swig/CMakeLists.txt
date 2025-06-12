@@ -1,48 +1,49 @@
 # Copyright (C) 2012-2025  CEA, EDF
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public License along
+# with this library; if not, write to the Free Software Foundation, Inc., 59
+# Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email :
+# webmaster.salome@opencascade.com
 #
 # Author : Anthony Geay (CEA/DEN)
 
-FIND_PACKAGE(SWIG REQUIRED)
-INCLUDE(${SWIG_USE_FILE})
+find_package(SWIG REQUIRED)
+include(${SWIG_USE_FILE})
 
-IF(MEDCOUPLING_BUILD_PY_TESTS)
-    INCLUDE(tests.set)
-ENDIF()
+if(MEDCOUPLING_BUILD_PY_TESTS)
+  include(tests.set)
+endif()
 
-ADD_DEFINITIONS(${PYTHON_DEFINITIONS} ${NUMPY_DEFINITIONS} ${SCIPY_DEFINITIONS})
+add_definitions(${PYTHON_DEFINITIONS} ${NUMPY_DEFINITIONS} ${SCIPY_DEFINITIONS})
 
-SET_SOURCE_FILES_PROPERTIES(MEDLoader.i PROPERTIES CPLUSPLUS ON)
-IF ("${PYTHON_VERSION_MAJOR}" STREQUAL "3")
-  SET_SOURCE_FILES_PROPERTIES(MEDLoader.i PROPERTIES SWIG_FLAGS "-py3")
-ELSE()
-  SET_SOURCE_FILES_PROPERTIES(MEDLoader.i PROPERTIES SWIG_DEFINITIONS "-shadow")
-ENDIF()
-SET(SWIG_MODULE_MEDLoader_EXTRA_FLAGS "${NUMPY_DEFINITIONS};${SCIPY_DEFINITIONS}")
-IF(MEDCOUPLING_USE_64BIT_IDS)
-  STRING(APPEND SWIG_MODULE_MEDLoader_EXTRA_FLAGS ";-DMEDCOUPLING_USE_64BIT_IDS")
-ENDIF(MEDCOUPLING_USE_64BIT_IDS)
+set_source_files_properties(MEDLoader.i PROPERTIES CPLUSPLUS ON)
+if("${PYTHON_VERSION_MAJOR}" STREQUAL "3")
+  set_source_files_properties(MEDLoader.i PROPERTIES SWIG_FLAGS "-py3")
+else()
+  set_source_files_properties(MEDLoader.i PROPERTIES SWIG_DEFINITIONS "-shadow")
+endif()
+set(SWIG_MODULE_MEDLoader_EXTRA_FLAGS
+    "${NUMPY_DEFINITIONS};${SCIPY_DEFINITIONS}")
+if(MEDCOUPLING_USE_64BIT_IDS)
+  string(APPEND SWIG_MODULE_MEDLoader_EXTRA_FLAGS
+         ";-DMEDCOUPLING_USE_64BIT_IDS")
+endif(MEDCOUPLING_USE_64BIT_IDS)
 
-SET (MEDLoader_SWIG_DPYS_FILES
-    MEDLoaderCommon.i
-    MEDLoaderTypemaps.i)
+set(MEDLoader_SWIG_DPYS_FILES MEDLoaderCommon.i MEDLoaderTypemaps.i)
 
-INCLUDE_DIRECTORIES(
+include_directories(
   ${NUMPY_INCLUDE_DIR}
   ${PYTHON_INCLUDE_DIRS}
   ${MEDFILE_INCLUDE_DIRS}
@@ -56,88 +57,134 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../../INTERP_KERNEL/Geometric2D
   ${CMAKE_CURRENT_SOURCE_DIR}/../../INTERP_KERNEL/ExprEval
   ${CMAKE_CURRENT_SOURCE_DIR}/../../INTERP_KERNEL/GaussPoints
-  ${PROJECT_BINARY_DIR}/doc
-)
+  ${PROJECT_BINARY_DIR}/doc)
 
-SET (SWIG_MODULE_MEDLoader_EXTRA_DEPS ${MEDLoader_SWIG_DPYS_FILES}
-    ${medloader_HEADERS_HXX}
+set(SWIG_MODULE_MEDLoader_EXTRA_DEPS
+    ${MEDLoader_SWIG_DPYS_FILES} ${medloader_HEADERS_HXX}
     ${medcoupling_HEADERS_HXX} ${medcoupling_HEADERS_TXX}
     ${interpkernel_HEADERS_HXX} ${interpkernel_HEADERS_TXX})
 
-# SWIG must run after the doc if we want to have the docstrings extracted from Doxygen
-# into the Python module:
-IF(MEDCOUPLING_BUILD_DOC)
-    LIST(APPEND SWIG_MODULE_MEDLoader_EXTRA_FLAGS -DWITH_DOCSTRINGS)
-    LIST(APPEND SWIG_MODULE_MEDLoader_EXTRA_DEPS
-        ${PROJECT_BINARY_DIR}/doc/MEDLoader_doc.i
-        swig_ready)
-ENDIF()
+# SWIG must run after the doc if we want to have the docstrings extracted from
+# Doxygen into the Python module:
+if(MEDCOUPLING_BUILD_DOC)
+  list(APPEND SWIG_MODULE_MEDLoader_EXTRA_FLAGS -DWITH_DOCSTRINGS)
+  list(APPEND SWIG_MODULE_MEDLoader_EXTRA_DEPS
+       ${PROJECT_BINARY_DIR}/doc/MEDLoader_doc.i swig_ready)
+endif()
 
-IF(WIN32)
-  SET_PROPERTY(SOURCE MEDLoader.i PROPERTY COMPILE_DEFINITIONS WIN32)
-ENDIF()
+if(WIN32)
+  set_property(SOURCE MEDLoader.i PROPERTY COMPILE_DEFINITIONS WIN32)
+endif()
 
-IF(${CMAKE_VERSION} VERSION_LESS "3.8.0")
-  SWIG_ADD_MODULE(MEDLoader python MEDLoader.i)
-ELSE()
-  SWIG_ADD_LIBRARY(MEDLoader LANGUAGE python SOURCES MEDLoader.i)
-ENDIF()
+if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
+  swig_add_module(MEDLoader python MEDLoader.i)
+else()
+  swig_add_library(
+    MEDLoader
+    LANGUAGE python
+    SOURCES MEDLoader.i)
+endif()
 
-SWIG_LINK_LIBRARIES(MEDLoader ${PLATFORM_LIBS} medloader medcouplingcpp)
-IF (WIN32 OR CYGWIN)
-  # PYTHON_LIBRARIES only needed on win32 see https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
-  SWIG_LINK_LIBRARIES(MEDLoader ${PYTHON_LIBRARIES})
-ENDIF()
+swig_link_libraries(MEDLoader ${PLATFORM_LIBS} medloader medcouplingcpp)
+if(WIN32 OR CYGWIN)
+  # PYTHON_LIBRARIES only needed on win32 see
+  # https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
+  swig_link_libraries(MEDLoader ${PYTHON_LIBRARIES})
+endif()
 
-SWIG_CHECK_GENERATION(MEDLoader)
-IF(WIN32 AND NOT MINGW)
-  SET_TARGET_PROPERTIES(_MEDLoader PROPERTIES DEBUG_OUTPUT_NAME _MEDLoader_d)
-  # To increase the size of the .obj file on Windows because MEDLoaderPYTHON_wrap.cxx, generated by SWIG, is too big
-  TARGET_COMPILE_OPTIONS(_MEDLoader PRIVATE /bigobj)
-ENDIF(WIN32 AND NOT MINGW)
+swig_check_generation(MEDLoader)
+if(WIN32 AND NOT MINGW)
+  set_target_properties(_MEDLoader PROPERTIES DEBUG_OUTPUT_NAME _MEDLoader_d)
+  # To increase the size of the .obj file on Windows because
+  # MEDLoaderPYTHON_wrap.cxx, generated by SWIG, is too big
+  target_compile_options(_MEDLoader PRIVATE /bigobj)
+endif(WIN32 AND NOT MINGW)
 
-INSTALL(TARGETS _MEDLoader DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
-INSTALL(FILES MEDLoader.i MEDLoaderTypemaps.i MEDLoaderCommon.i MEDLoaderFinalize.i DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
+install(TARGETS _MEDLoader DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
+install(FILES MEDLoader.i MEDLoaderTypemaps.i MEDLoaderCommon.i
+              MEDLoaderFinalize.i DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
 
-SALOME_INSTALL_SCRIPTS(${CMAKE_CURRENT_BINARY_DIR}/MEDLoader.py ${MEDCOUPLING_INSTALL_PYTHON} EXTRA_DPYS "${SWIG_MODULE_MEDLoader_REAL_NAME}")
+salome_install_scripts(
+  ${CMAKE_CURRENT_BINARY_DIR}/MEDLoader.py ${MEDCOUPLING_INSTALL_PYTHON}
+  EXTRA_DPYS "${SWIG_MODULE_MEDLoader_REAL_NAME}")
 
-INSTALL(FILES MEDLoaderSplitter.py MEDLoaderFinalize.py MCMailFileReader.py DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
+install(FILES MEDLoaderSplitter.py MEDLoaderFinalize.py MCMailFileReader.py
+        DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
+install(
+  FILES ${ALL_TESTS}
+        MEDLoaderDataForTest.py
+        MEDLoaderTest1.py
+        MEDLoaderTest2.py
+        MEDLoaderTest3.py
+        CrackAlongTest.py
+        MailFileTest.py
+  DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_SCRIPTS})
 
-INSTALL(FILES ${ALL_TESTS} MEDLoaderDataForTest.py MEDLoaderTest1.py MEDLoaderTest2.py MEDLoaderTest3.py CrackAlongTest.py MailFileTest.py DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_SCRIPTS})
+install(FILES CaseIO.py CaseReader.py CaseWriter.py VTKReader.py
+        DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
-INSTALL(FILES CaseIO.py CaseReader.py CaseWriter.py VTKReader.py DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
+install(
+  FILES case2med
+  PERMISSIONS
+    OWNER_EXECUTE
+    OWNER_WRITE
+    OWNER_READ
+    GROUP_EXECUTE
+    GROUP_READ
+    WORLD_EXECUTE
+    WORLD_READ
+  DESTINATION ${MEDCOUPLING_INSTALL_BINS})
+install(
+  FILES med2case
+  PERMISSIONS
+    OWNER_EXECUTE
+    OWNER_WRITE
+    OWNER_READ
+    GROUP_EXECUTE
+    GROUP_READ
+    WORLD_EXECUTE
+    WORLD_READ
+  DESTINATION ${MEDCOUPLING_INSTALL_BINS})
+install(
+  FILES ConvertMEDFileTo33.py ConvertMEDFileTo30.py
+  PERMISSIONS
+    OWNER_EXECUTE
+    OWNER_WRITE
+    OWNER_READ
+    GROUP_EXECUTE
+    GROUP_READ
+    WORLD_EXECUTE
+    WORLD_READ
+  DESTINATION ${MEDCOUPLING_INSTALL_BINS})
 
-INSTALL(FILES case2med PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ DESTINATION ${MEDCOUPLING_INSTALL_BINS} )
-INSTALL(FILES med2case PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ DESTINATION ${MEDCOUPLING_INSTALL_BINS} )
-INSTALL(FILES ConvertMEDFileTo33.py ConvertMEDFileTo30.py PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ DESTINATION ${MEDCOUPLING_INSTALL_BINS} )
+salome_generate_tests_environment(tests_env)
 
-SALOME_GENERATE_TESTS_ENVIRONMENT(tests_env)
+foreach(test ${BASE_TESTS})
+  get_filename_component(testname ${test} NAME_WE)
+  add_test(NAME ${testname} COMMAND ${PYTHON_EXECUTABLE}
+                                    ${CMAKE_CURRENT_SOURCE_DIR}/${test})
+  set_tests_properties(${testname} PROPERTIES ENVIRONMENT "${tests_env}")
+endforeach()
 
-FOREACH(test ${BASE_TESTS})
-  GET_FILENAME_COMPONENT(testname ${test} NAME_WE)
-  ADD_TEST(NAME ${testname}
-           COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${test})
-  SET_TESTS_PROPERTIES(${testname} PROPERTIES ENVIRONMENT "${tests_env}")
-ENDFOREACH()
-
-IF(NUMPY_FOUND)
+if(NUMPY_FOUND)
   # Add Remapper to the Python path:
-  SALOME_ACCUMULATE_ENVIRONMENT(PYTHONPATH NOCHECK "${CMAKE_CURRENT_BINARY_DIR}/../../MEDCoupling_Swig")
-  SALOME_GENERATE_TESTS_ENVIRONMENT(tests_env)
-  FOREACH(test ${NUMPY_TESTS})
-    GET_FILENAME_COMPONENT(testname ${test} NAME_WE)
-    ADD_TEST(NAME ${testname}
-             COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${test})
-    SET_TESTS_PROPERTIES(${testname} PROPERTIES ENVIRONMENT "${tests_env}")
-  ENDFOREACH()
-ENDIF(NUMPY_FOUND)
+  salome_accumulate_environment(
+    PYTHONPATH NOCHECK "${CMAKE_CURRENT_BINARY_DIR}/../../MEDCoupling_Swig")
+  salome_generate_tests_environment(tests_env)
+  foreach(test ${NUMPY_TESTS})
+    get_filename_component(testname ${test} NAME_WE)
+    add_test(NAME ${testname} COMMAND ${PYTHON_EXECUTABLE}
+                                      ${CMAKE_CURRENT_SOURCE_DIR}/${test})
+    set_tests_properties(${testname} PROPERTIES ENVIRONMENT "${tests_env}")
+  endforeach()
+endif(NUMPY_FOUND)
 
 # Application tests
 
-SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/MEDLoader_Swig)
+set(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/MEDLoader_Swig)
 
-SET(MEDLOADER_TEST_FILES
+set(MEDLOADER_TEST_FILES
     ${ALL_TESTS}
     MEDLoaderDataForTest.py
     MEDLoaderTest1.py
@@ -152,12 +199,12 @@ SET(MEDLOADER_TEST_FILES
     CaseReader.py
     CaseWriter.py
     VTKReader.py
-    MEDLoaderSplitter.py
-)
+    MEDLoaderSplitter.py)
 
-INSTALL(FILES ${MEDLOADER_TEST_FILES} DESTINATION ${TEST_INSTALL_DIRECTORY})
+install(FILES ${MEDLOADER_TEST_FILES} DESTINATION ${TEST_INSTALL_DIRECTORY})
 
-INSTALL(FILES CTestTestfileInstall.cmake
-        DESTINATION ${TEST_INSTALL_DIRECTORY}
-        RENAME CTestTestfile.cmake)
-INSTALL(FILES tests.set DESTINATION ${TEST_INSTALL_DIRECTORY})
+install(
+  FILES CTestTestfileInstall.cmake
+  DESTINATION ${TEST_INSTALL_DIRECTORY}
+  RENAME CTestTestfile.cmake)
+install(FILES tests.set DESTINATION ${TEST_INSTALL_DIRECTORY})

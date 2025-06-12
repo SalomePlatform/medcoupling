@@ -20,4 +20,3 @@
 SET(ALL_TESTS
   ICoCoMEDFieldTest.py
 )
-

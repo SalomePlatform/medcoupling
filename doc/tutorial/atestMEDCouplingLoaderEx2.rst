@@ -7,7 +7,7 @@ Intersection géométrique de maillages
 ::
 
 	import medcoupling as mc
-	
+
 	def displayVTK(m,fname):
 		tmp = m.deepCopy()
 		tmp.tessellate2D(0.1)

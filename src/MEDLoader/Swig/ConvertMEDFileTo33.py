@@ -23,26 +23,41 @@
 import MEDLoader as ml
 import os
 
+
 def ConvertTo33(nameOfMEDFile):
-    fn,ext=os.path.splitext(nameOfMEDFile)
-    assert(ext in [".med",".rmed"])
-    realFnOut=fn+"_33.med"
+    fn, ext = os.path.splitext(nameOfMEDFile)
+    assert ext in [".med", ".rmed"]
+    realFnOut = fn + "_33.med"
     #
-    initalVersion=ml.MEDFileVersionOfFileStr(nameOfMEDFile)
+    initalVersion = ml.MEDFileVersionOfFileStr(nameOfMEDFile)
     #
-    mfd=ml.MEDFileData(nameOfMEDFile)
-    mfd.write33(realFnOut,2)
+    mfd = ml.MEDFileData(nameOfMEDFile)
+    mfd.write33(realFnOut, 2)
     #
-    finalVersion=ml.MEDFileVersionOfFileStr(realFnOut)
+    finalVersion = ml.MEDFileVersionOfFileStr(realFnOut)
     #
-    print(("File \"%s\" has been successfully converted to 3.3 ( %s -> %s ) !\nOutput file is here : \"%s\" !"%(fn,initalVersion,finalVersion,realFnOut)))
+    print(
+        (
+            'File "%s" has been successfully converted to 3.3 ( %s -> %s ) !\nOutput file is here : "%s" !'
+            % (fn, initalVersion, finalVersion, realFnOut)
+        )
+    )
     pass
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     import argparse
-    parser=argparse.ArgumentParser(description='Convert a MED file into a MED file with 3.3 version (3.3.1)')
-    parser.add_argument('nameOfMEDFile', type=str, nargs=1,help='File name of the MED file to be converted into 3.3.')
-    args=parser.parse_args()
-    nameOfMEDFile=args.nameOfMEDFile[0]
+
+    parser = argparse.ArgumentParser(
+        description="Convert a MED file into a MED file with 3.3 version (3.3.1)"
+    )
+    parser.add_argument(
+        "nameOfMEDFile",
+        type=str,
+        nargs=1,
+        help="File name of the MED file to be converted into 3.3.",
+    )
+    args = parser.parse_args()
+    nameOfMEDFile = args.nameOfMEDFile[0]
     ConvertTo33(nameOfMEDFile)
     pass

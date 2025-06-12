@@ -25,7 +25,7 @@
 				coordinates.append(float(i))
 				coordinates.append(float(j))
 				coordinates.append(float(k))
-				
+
 	print("2 ********************")
 	# Creation of meshing : need following initialisations
 	# => Definition of the mesh dimension
@@ -192,7 +192,7 @@
 
 	medFileName = "MEDCoupling_Extrudedcube3D.med"
 	mc.WriteUMeshesPartition(medFileName,"Extrusion",[m3,meshGroup],True)
-	
+
 
 ::
 
@@ -250,4 +250,3 @@
 
 	medFileName = "MEDCoupling_Gridcube3D.med"
 	fmeshU.write(medFileName,2)
-

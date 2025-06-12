@@ -22,40 +22,40 @@
 
 using namespace MEDCoupling;
 
-const char Traits<double>::ArrayTypeName[]="DataArrayDouble";
+const char Traits<double>::ArrayTypeName[] = "DataArrayDouble";
 
-const char Traits<double>::FieldTypeName[]="MEDCouplingFieldDouble";
+const char Traits<double>::FieldTypeName[] = "MEDCouplingFieldDouble";
 
-const char Traits<double>::NPYStr[]="FLOAT64";
+const char Traits<double>::NPYStr[] = "FLOAT64";
 
-const char Traits<double>::ReprStr[]="double";
+const char Traits<double>::ReprStr[] = "double";
 
-const char Traits<float>::ArrayTypeName[]="DataArrayFloat";
+const char Traits<float>::ArrayTypeName[] = "DataArrayFloat";
 
-const char Traits<float>::FieldTypeName[]="MEDCouplingFieldFloat";
+const char Traits<float>::FieldTypeName[] = "MEDCouplingFieldFloat";
 
-const char Traits<float>::NPYStr[]="FLOAT32";
+const char Traits<float>::NPYStr[] = "FLOAT32";
 
-const char Traits<float>::ReprStr[]="float";
+const char Traits<float>::ReprStr[] = "float";
 
-const char Traits<int>::ArrayTypeName[]="DataArrayInt";
+const char Traits<int>::ArrayTypeName[] = "DataArrayInt";
 
-const char Traits<int>::FieldTypeName[]="MEDCouplingFieldInt";
+const char Traits<int>::FieldTypeName[] = "MEDCouplingFieldInt";
 
-const char Traits<int>::NPYStr[]="INT32";
+const char Traits<int>::NPYStr[] = "INT32";
 
-const char Traits<int>::ReprStr[]="int";
+const char Traits<int>::ReprStr[] = "int";
 
-const char Traits<int>::VTKReprStr[]="Int32";
+const char Traits<int>::VTKReprStr[] = "Int32";
 
-const char Traits<char>::ArrayTypeName[]="DataArrayChar";
+const char Traits<char>::ArrayTypeName[] = "DataArrayChar";
 
-const char Traits<Int64>::ArrayTypeName[]="DataArrayInt64";
+const char Traits<Int64>::ArrayTypeName[] = "DataArrayInt64";
 
-const char Traits<Int64>::FieldTypeName[]="MEDCouplingFieldInt64";
+const char Traits<Int64>::FieldTypeName[] = "MEDCouplingFieldInt64";
 
-const char Traits<Int64>::NPYStr[]="INT64";
+const char Traits<Int64>::NPYStr[] = "INT64";
 
-const char Traits<Int64>::ReprStr[]="int64";
+const char Traits<Int64>::ReprStr[] = "int64";
 
-const char Traits<Int64>::VTKReprStr[]="Int64";
+const char Traits<Int64>::VTKReprStr[] = "Int64";

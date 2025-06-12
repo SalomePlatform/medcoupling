@@ -98,11 +98,11 @@ aux cellules [1,2,3] : ::
 	grp2_M1 = mc.DataArrayInt([1,2,3])
 	grp2_M1.setName("grp2_LevM1")
 	meshMEDFile.setGroupsAtLevel(-1,[grp0_M1,grp1_M1,grp2_M1])
-	
+
 Ecrivons le tout : ::
-	
+
 	meshMEDFile.write("TargetMesh2.med",2)         # 2 stands for 'write from scratch'
-	
+
 Nous pouvons ensuite re-lire le fichier MED : ::
 
 	meshMEDFileRead = mc.MEDFileMesh.New("TargetMesh2.med") # a new is needed because it returns a MEDFileUMesh (MEDFileMesh is abstract)
@@ -150,7 +150,7 @@ Lire le champ : ::
 	fRead2 = fMEDFileRead.getFieldAtLevel(mc.ON_CELLS,0)                       # Like above, but this time the mesh is read!
 	print("Does the field remain OK with the quick method?", fRead1.isEqual(f,1e-12,1e-12))
 	print("Does the field remain OK with the slow method?", fRead2.isEqual(f,1e-12,1e-12))
-	
+
 Lire/écrire un champ sur un "profil"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -184,4 +184,3 @@ Solution
 ~~~~~~~~
 
 :ref:`python_testMEDLoaderAdvancedAPI1_solution`
-

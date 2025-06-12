@@ -23,10 +23,16 @@
 #include "RENUMBERDefines.hxx"
 #include "RENUMBER_Renumbering.hxx"
 
-class RENUMBER_EXPORT BOOSTRenumbering:public Renumbering
+class RENUMBER_EXPORT BOOSTRenumbering : public Renumbering
 {
-public:
-  void renumber(const mcIdType *graph, const mcIdType *index_graph, mcIdType nbCell, MEDCoupling::DataArrayIdType *&iperm, MEDCoupling::DataArrayIdType *&perm);
+   public:
+    void renumber(
+        const mcIdType *graph,
+        const mcIdType *index_graph,
+        mcIdType nbCell,
+        MEDCoupling::DataArrayIdType *&iperm,
+        MEDCoupling::DataArrayIdType *&perm
+    );
 };
 
 #endif /*BOOSTRENUMBERING_HXX_*/

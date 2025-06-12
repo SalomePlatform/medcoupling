@@ -26,23 +26,25 @@
 
 class MPI2Connector
 {
-public:
-  MPI2Connector();
-  ~MPI2Connector();
-  // MPI2 connection
-  MPI_Comm remoteMPI2Connect(const std::string& service);
-  // MPI2 disconnection
-  void remoteMPI2Disconnect(const std::string& service);
-private:
-  // Processus id
-  int _num_proc;
-  // Processus size
-  int _nb_proc;
-  MPI_Comm _gcom;
-  bool _srv;
-  std::string _port_name;
-private:
-  static const int TIMEOUT=5;
+   public:
+    MPI2Connector();
+    ~MPI2Connector();
+    // MPI2 connection
+    MPI_Comm remoteMPI2Connect(const std::string &service);
+    // MPI2 disconnection
+    void remoteMPI2Disconnect(const std::string &service);
+
+   private:
+    // Processus id
+    int _num_proc;
+    // Processus size
+    int _nb_proc;
+    MPI_Comm _gcom;
+    bool _srv;
+    std::string _port_name;
+
+   private:
+    static const int TIMEOUT = 5;
 };
 
 #endif

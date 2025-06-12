@@ -26,34 +26,34 @@
 
 namespace MEDCoupling
 {
-  template<class T>
-  struct MEDCOUPLING_EXPORT Traits
-  {
+template <class T>
+struct MEDCOUPLING_EXPORT Traits
+{
     using EltType = T;
-  };
+};
 
-  class DataArrayInt32;
-  class DataArrayFloat;
-  class DataArrayDouble;
-  class DataArrayChar;
-  class DataArrayByte;
-  class DataArrayInt64;
-  class MEDCouplingFieldDouble;
-  class MEDCouplingFieldFloat;
-  class MEDCouplingFieldInt32;
-  class MEDCouplingFieldInt64;
-  class DataArrayInt32Tuple;
-  class DataArrayInt64Tuple;
-  class DataArrayFloatTuple;
-  class DataArrayDoubleTuple;
-  class DataArrayByteTuple;
-  class DataArrayInt32Iterator;
-  class DataArrayInt64Iterator;
-  class DataArrayByteIterator;
+class DataArrayInt32;
+class DataArrayFloat;
+class DataArrayDouble;
+class DataArrayChar;
+class DataArrayByte;
+class DataArrayInt64;
+class MEDCouplingFieldDouble;
+class MEDCouplingFieldFloat;
+class MEDCouplingFieldInt32;
+class MEDCouplingFieldInt64;
+class DataArrayInt32Tuple;
+class DataArrayInt64Tuple;
+class DataArrayFloatTuple;
+class DataArrayDoubleTuple;
+class DataArrayByteTuple;
+class DataArrayInt32Iterator;
+class DataArrayInt64Iterator;
+class DataArrayByteIterator;
 
-  template<>
-  struct MEDCOUPLING_EXPORT Traits<double>
-  {
+template <>
+struct MEDCOUPLING_EXPORT Traits<double>
+{
     static const char ArrayTypeName[];
     static const char FieldTypeName[];
     static const char NPYStr[];
@@ -62,11 +62,11 @@ namespace MEDCoupling
     using ArrayTypeCh = DataArrayDouble;
     using FieldType = MEDCouplingFieldDouble;
     using ArrayTuple = DataArrayDoubleTuple;
-  };
+};
 
-  template<>
-  struct MEDCOUPLING_EXPORT Traits<float>
-  {
+template <>
+struct MEDCOUPLING_EXPORT Traits<float>
+{
     static const char ArrayTypeName[];
     static const char FieldTypeName[];
     static const char NPYStr[];
@@ -75,11 +75,11 @@ namespace MEDCoupling
     using ArrayTypeCh = DataArrayFloat;
     using FieldType = MEDCouplingFieldFloat;
     using ArrayTuple = DataArrayFloatTuple;
-  };
+};
 
-  template<>
-  struct MEDCOUPLING_EXPORT Traits<Int32>
-  {
+template <>
+struct MEDCOUPLING_EXPORT Traits<Int32>
+{
     static const char ArrayTypeName[];
     static const char FieldTypeName[];
     static const char NPYStr[];
@@ -90,11 +90,11 @@ namespace MEDCoupling
     using FieldType = MEDCouplingFieldInt32;
     using ArrayTuple = DataArrayInt32Tuple;
     using IteratorType = DataArrayInt32Iterator;
-  };
+};
 
-  template<>
-  struct MEDCOUPLING_EXPORT Traits<Int64>
-  {
+template <>
+struct MEDCOUPLING_EXPORT Traits<Int64>
+{
     static const char ArrayTypeName[];
     static const char FieldTypeName[];
     static const char NPYStr[];
@@ -105,15 +105,15 @@ namespace MEDCoupling
     using FieldType = MEDCouplingFieldInt64;
     using ArrayTuple = DataArrayInt64Tuple;
     using IteratorType = DataArrayInt64Iterator;
-  };
+};
 
-  template<>
-  struct MEDCOUPLING_EXPORT Traits<char>
-  {
+template <>
+struct MEDCOUPLING_EXPORT Traits<char>
+{
     static const char ArrayTypeName[];
     using ArrayTypeCh = DataArrayByte;
     using ArrayType = DataArrayChar;
     using ArrayTuple = DataArrayByteTuple;
     using IteratorType = DataArrayByteIterator;
-  };
-}
+};
+}  // namespace MEDCoupling

@@ -499,4 +499,3 @@ To read a time step with a known *iteration* and *order* MEDFileField1TS can be 
 .. literalinclude:: ../../../src/MEDLoader/Swig/UsersGuideExamplesTest_ML.py
    :start-after: UG_RWFieldAdv_5
    :end-before:  UG_RWFieldAdv_5
-

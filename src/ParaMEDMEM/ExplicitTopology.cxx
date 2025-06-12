@@ -33,82 +33,78 @@ using namespace std;
 namespace MEDCoupling
 {
 
-ExplicitTopology::ExplicitTopology():
-   _proc_group(NULL), _nb_elems(0), _nb_components(0),
-   _loc2glob(NULL), _glob2loc()
-  {}
-
-ExplicitTopology::ExplicitTopology(const ParaMESH& paramesh ):
-_proc_group(paramesh.getBlockTopology()->getProcGroup()),
-_nb_components(1)
+ExplicitTopology::ExplicitTopology() : _proc_group(NULL), _nb_elems(0), _nb_components(0), _loc2glob(NULL), _glob2loc()
 {
-  _nb_elems=paramesh.getCellMesh()->getNumberOfCells();
-  const mcIdType* global=paramesh.getGlobalNumberingCell();
-  _loc2glob=new mcIdType[_nb_elems];
+}
 
-    for (mcIdType i=0; i<_nb_elems; i++)
+ExplicitTopology::ExplicitTopology(const ParaMESH &paramesh)
+    : _proc_group(paramesh.getBlockTopology()->getProcGroup()), _nb_components(1)
+{
+    _nb_elems = paramesh.getCellMesh()->getNumberOfCells();
+    const mcIdType *global = paramesh.getGlobalNumberingCell();
+    _loc2glob = new mcIdType[_nb_elems];
+
+    for (mcIdType i = 0; i < _nb_elems; i++)
     {
-      _loc2glob[i]=global[i];
-      _glob2loc[global[i]]=i;
+        _loc2glob[i] = global[i];
+        _glob2loc[global[i]] = i;
     }
 }
 
-ExplicitTopology::ExplicitTopology(const ExplicitTopology& topo, int nb_components)
+ExplicitTopology::ExplicitTopology(const ExplicitTopology &topo, int nb_components)
 {
-  _proc_group = topo._proc_group;
-  _nb_elems = topo._nb_elems;
-  _nb_components = nb_components;
-  _loc2glob=new mcIdType[_nb_elems];
-  for (mcIdType i=0; i<_nb_elems; i++)
+    _proc_group = topo._proc_group;
+    _nb_elems = topo._nb_elems;
+    _nb_components = nb_components;
+    _loc2glob = new mcIdType[_nb_elems];
+    for (mcIdType i = 0; i < _nb_elems; i++)
     {
-      _loc2glob[i]=topo._loc2glob[i];
+        _loc2glob[i] = topo._loc2glob[i];
     }
-  _glob2loc=topo._glob2loc;
+    _glob2loc = topo._glob2loc;
 }
-
 
 ExplicitTopology::~ExplicitTopology()
 {
-  if (_loc2glob != 0) delete[] _loc2glob;
+    if (_loc2glob != 0)
+        delete[] _loc2glob;
 }
-
 
 /*! Serializes the data contained in the Explicit Topology
  * for communication purposes*/
-void ExplicitTopology::serialize(mcIdType* & serializer, mcIdType& size) const
+void
+ExplicitTopology::serialize(mcIdType *&serializer, mcIdType &size) const
 {
-  vector <mcIdType> buffer;
+    vector<mcIdType> buffer;
 
-  buffer.push_back(_nb_elems);
-  for (mcIdType i=0; i<_nb_elems; i++)
-  {
-    buffer.push_back(_loc2glob[i]);
-  }
+    buffer.push_back(_nb_elems);
+    for (mcIdType i = 0; i < _nb_elems; i++)
+    {
+        buffer.push_back(_loc2glob[i]);
+    }
 
-  serializer=new mcIdType[buffer.size()];
-  size=ToIdType(buffer.size());
-  copy(buffer.begin(), buffer.end(), serializer);
-
+    serializer = new mcIdType[buffer.size()];
+    size = ToIdType(buffer.size());
+    copy(buffer.begin(), buffer.end(), serializer);
 }
 /*! Unserializes the data contained in the Explicit Topology
  * after communication. Uses the same structure as the one used for serialize()
  *
  * */
-void ExplicitTopology::unserialize(const mcIdType* serializer,const CommInterface& comm_interface)
+void
+ExplicitTopology::unserialize(const mcIdType *serializer, const CommInterface &comm_interface)
 {
-  const mcIdType* ptr_serializer=serializer;
-  cout << "unserialize..."<<endl;
-  _nb_elems=*ptr_serializer++;
-  cout << "nbelems "<<_nb_elems<<endl;
-  _loc2glob=new mcIdType[_nb_elems];
-  for (mcIdType i=0; i<_nb_elems; i++)
-  {
-    _loc2glob[i]=*ptr_serializer;
-    _glob2loc[*ptr_serializer]=i;
-    ptr_serializer++;
-
-  }
-
+    const mcIdType *ptr_serializer = serializer;
+    cout << "unserialize..." << endl;
+    _nb_elems = *ptr_serializer++;
+    cout << "nbelems " << _nb_elems << endl;
+    _loc2glob = new mcIdType[_nb_elems];
+    for (mcIdType i = 0; i < _nb_elems; i++)
+    {
+        _loc2glob[i] = *ptr_serializer;
+        _glob2loc[*ptr_serializer] = i;
+        ptr_serializer++;
+    }
 }
 
-}
+}  // namespace MEDCoupling

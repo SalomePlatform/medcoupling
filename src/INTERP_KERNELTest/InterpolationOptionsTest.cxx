@@ -32,59 +32,65 @@ using namespace MEDCoupling;
 
 namespace INTERP_TEST
 {
-  void InterpolationOptionsTest::setUp()
-  {
-  }
+void
+InterpolationOptionsTest::setUp()
+{
+}
 
+void
+InterpolationOptionsTest::tearDown()
+{
+}
 
-  void InterpolationOptionsTest::tearDown()
-  {
-  }
+/**
+ * Test that creates a tree in 2D and check that
+ * the results are correct in three
+ * cases :
+ * a non matching search
+ * a standard case
+ * a bbox overlapping the bboxes of the tree
+ */
+void
+InterpolationOptionsTest::test_InterpolationOptions()
+{
+    std::string sourcename = INTERP_TEST::getResourceFile("square1.med");
+    MEDFileUMesh *source_mesh = MEDFileUMesh::New(sourcename.c_str(), "Mesh_2");
 
-  /**
-   * Test that creates a tree in 2D and check that
-   * the results are correct in three
-   * cases :
-   * a non matching search
-   * a standard case
-   * a bbox overlapping the bboxes of the tree
-   */
-  void InterpolationOptionsTest::test_InterpolationOptions()
-  {
-    std::string sourcename=INTERP_TEST::getResourceFile("square1.med");
-    MEDFileUMesh *source_mesh=MEDFileUMesh::New(sourcename.c_str(),"Mesh_2");
+    std::string targetname = INTERP_TEST::getResourceFile("square2.med");
+    MEDFileUMesh *target_mesh = MEDFileUMesh::New(targetname.c_str(), "Mesh_3");
 
-    std::string targetname=INTERP_TEST::getResourceFile("square2.med");
-    MEDFileUMesh *target_mesh=MEDFileUMesh::New(targetname.c_str(),"Mesh_3");
-
-    MEDCouplingUMesh *source_mesh_mc=source_mesh->getMeshAtLevel(0);
-    MEDCouplingFieldDouble *source_field=MEDCouplingFieldDouble::New(ON_CELLS);
-    source_field->setMesh(source_mesh_mc); source_mesh_mc->decrRef();
-    DataArrayDouble *arr=DataArrayDouble::New(); arr->alloc(source_mesh_mc->getNumberOfCells(),1);
-    source_field->setArray(arr); arr->decrRef();
-    double *value=arr->getPointer();
-    for(int i=0; i<source_mesh_mc->getNumberOfCells(); i++)
-      value[i]=1.0;
-    MEDCouplingUMesh *target_mesh_mc=target_mesh->getMeshAtLevel(0);
-    MEDCouplingFieldDouble *target_field=MEDCouplingFieldDouble::New(ON_CELLS);
-    target_field->setMesh(target_mesh_mc); target_mesh_mc->decrRef();
-    arr=DataArrayDouble::New(); arr->alloc(target_mesh_mc->getNumberOfCells(),1);
-    target_field->setArray(arr); arr->decrRef();
-    double* targetvalue=arr->getPointer();
-    for(int i=0; i<target_mesh_mc->getNumberOfCells(); i++)
-      targetvalue[i]=0.0;
+    MEDCouplingUMesh *source_mesh_mc = source_mesh->getMeshAtLevel(0);
+    MEDCouplingFieldDouble *source_field = MEDCouplingFieldDouble::New(ON_CELLS);
+    source_field->setMesh(source_mesh_mc);
+    source_mesh_mc->decrRef();
+    DataArrayDouble *arr = DataArrayDouble::New();
+    arr->alloc(source_mesh_mc->getNumberOfCells(), 1);
+    source_field->setArray(arr);
+    arr->decrRef();
+    double *value = arr->getPointer();
+    for (int i = 0; i < source_mesh_mc->getNumberOfCells(); i++) value[i] = 1.0;
+    MEDCouplingUMesh *target_mesh_mc = target_mesh->getMeshAtLevel(0);
+    MEDCouplingFieldDouble *target_field = MEDCouplingFieldDouble::New(ON_CELLS);
+    target_field->setMesh(target_mesh_mc);
+    target_mesh_mc->decrRef();
+    arr = DataArrayDouble::New();
+    arr->alloc(target_mesh_mc->getNumberOfCells(), 1);
+    target_field->setArray(arr);
+    arr->decrRef();
+    double *targetvalue = arr->getPointer();
+    for (int i = 0; i < target_mesh_mc->getNumberOfCells(); i++) targetvalue[i] = 0.0;
     // Ok at this point we have our mesh in MED-Memory format.
     // Go to wrap med_source_mesh and med_target_mesh.
-    MEDCouplingNormalizedUnstructuredMesh<2,2> wrap_source_mesh(source_mesh_mc);
-    MEDCouplingNormalizedUnstructuredMesh<2,2> wrap_target_mesh(target_mesh_mc);
+    MEDCouplingNormalizedUnstructuredMesh<2, 2> wrap_source_mesh(source_mesh_mc);
+    MEDCouplingNormalizedUnstructuredMesh<2, 2> wrap_target_mesh(target_mesh_mc);
     // Go for interpolation...
     INTERP_KERNEL::Interpolation2D myInterpolator;
-    //optional call to parametrize your interpolation. First precision, tracelevel, intersector wanted.
+    // optional call to parametrize your interpolation. First precision, tracelevel, intersector wanted.
     myInterpolator.setPrecision(1e-7);
     myInterpolator.setPrintLevel(1);
     source_mesh->decrRef();
     source_field->decrRef();
     target_field->decrRef();
     target_mesh->decrRef();
-  }
 }
+}  // namespace INTERP_TEST

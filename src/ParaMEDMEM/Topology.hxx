@@ -24,24 +24,24 @@
 
 namespace MEDCoupling
 {
-  class ProcessorGroup;
+class ProcessorGroup;
 
-  /*!
-   * Topology of a group of processors within a processor group. Abstract class, see derivations.
-   *
-   * \sa BlockTopology
-   * \sa ExplicitTopology
-   * \sa MPIProcessorGroup
-   */
-  class Topology
-  {
-  public:
-    Topology() { }
-    virtual ~Topology() { }
+/*!
+ * Topology of a group of processors within a processor group. Abstract class, see derivations.
+ *
+ * \sa BlockTopology
+ * \sa ExplicitTopology
+ * \sa MPIProcessorGroup
+ */
+class Topology
+{
+   public:
+    Topology() {}
+    virtual ~Topology() {}
     virtual mcIdType getNbElements() const = 0;
-    virtual mcIdType getNbLocalElements() const  = 0;
-    virtual const ProcessorGroup* getProcGroup()const  = 0;
-  };
-}
+    virtual mcIdType getNbLocalElements() const = 0;
+    virtual const ProcessorGroup *getProcGroup() const = 0;
+};
+}  // namespace MEDCoupling
 
 #endif

@@ -32,23 +32,23 @@
 
 namespace INTERP_KERNEL
 {
-  class UnitTetraIntersectionBary : protected TransformedTriangle
-  {
-  public:
-    INTERPKERNEL_EXPORT UnitTetraIntersectionBary(bool isTetraInversed=false);
+class UnitTetraIntersectionBary : protected TransformedTriangle
+{
+   public:
+    INTERPKERNEL_EXPORT UnitTetraIntersectionBary(bool isTetraInversed = false);
 
-    INTERPKERNEL_EXPORT void init(bool isTetraInversed=false);
+    INTERPKERNEL_EXPORT void init(bool isTetraInversed = false);
     /*!
      * \brief Stores a part of triangle common with the unit tetrahedron
      *  \param triangle - triangle side of other cell, whose calculateIntersectionVolume()
      *                    must have already been called
      */
-    INTERPKERNEL_EXPORT void addSide(const TransformedTriangle& triangle);
+    INTERPKERNEL_EXPORT void addSide(const TransformedTriangle &triangle);
 
     /*!
      * \brief Computes and return coordinates of barycentre
      */
-    INTERPKERNEL_EXPORT bool getBary(double* baryCenter);
+    INTERPKERNEL_EXPORT bool getBary(double *baryCenter);
 
     /*!
      * \brief Returns volume of intersection
@@ -58,24 +58,23 @@ namespace INTERP_KERNEL
 
     INTERPKERNEL_EXPORT virtual ~UnitTetraIntersectionBary();
 
-  private:
-
+   private:
     int addSideFaces();
 
     void setTriangleOnSide(int i);
 
-    void clearPolygons(bool andFaces=false);
+    void clearPolygons(bool andFaces = false);
 
     /// volume of intersection
-    double  _int_volume;
+    double _int_volume;
 
     /// faces of intersection polyhedron
-    std::list< std::vector< double* > >   _faces;
-    std::vector< std::vector< double > >  _polyNormals;
+    std::list<std::vector<double *> > _faces;
+    std::vector<std::vector<double> > _polyNormals;
 
     bool _isTetraInversed;
-  };
+};
 
-}
+}  // namespace INTERP_KERNEL
 
 #endif

@@ -23,22 +23,26 @@ from medcoupling import *
 
 import unittest
 
+
 def WriteInTmpDir(func):
-    def decoratedFunc(*args,**kwargs):
-        import tempfile,os, sys
+    def decoratedFunc(*args, **kwargs):
+        import tempfile, os, sys
+
         ret = None
         with tempfile.TemporaryDirectory() as tmpdirname:
             os.chdir(tmpdirname)
-            ret = func(*args,**kwargs)
+            ret = func(*args, **kwargs)
             os.chdir(os.path.dirname(tmpdirname))
             pass
         return ret
+
     return decoratedFunc
 
+
 class FileCreator(object):
-    def __init__(self,tester,fname):
-        self._tester=tester
-        self._fname=fname
+    def __init__(self, tester, fname):
+        self._tester = tester
+        self._fname = fname
         pass
 
     def fileName(self):
@@ -46,6 +50,7 @@ class FileCreator(object):
 
     def __enter__(self):
         import os
+
         if os.path.exists(self._fname):
             os.remove(self._fname)
             pass
@@ -53,6 +58,7 @@ class FileCreator(object):
 
     def __exit__(self, type, value, traceback):
         import os
+
         if not os.path.exists(self._fname):
             self._tester.assertTrue(False)
             pass
@@ -60,120 +66,152 @@ class FileCreator(object):
             os.remove(self._fname)
         pass
 
-class medcouplingTest(unittest.TestCase):
 
+class medcouplingTest(unittest.TestCase):
     def test0(self):
-        """ Unconditional test : medcoupling "kernel" classes """
-        f=MEDCouplingFieldDouble(ON_CELLS)
-        g=DataArrayDouble(10,2)
-        h=MEDCouplingUMesh("mesh",3)
-        hh=MEDCouplingRemapper()
-        ee=InterpKernelException("ee")
+        """Unconditional test : medcoupling "kernel" classes"""
+        f = MEDCouplingFieldDouble(ON_CELLS)
+        g = DataArrayDouble(10, 2)
+        h = MEDCouplingUMesh("mesh", 3)
+        hh = MEDCouplingRemapper()
+        ee = InterpKernelException("ee")
         pass
 
-    @unittest.skipUnless(HasMEDFileExt(),"Requires link to MED file")
+    @unittest.skipUnless(HasMEDFileExt(), "Requires link to MED file")
     @WriteInTmpDir
     def test1(self):
         import sys
-        fname="mctest1.med"
-        arr=DataArrayDouble(10) ; arr.iota()
-        m=MEDCouplingCMesh()
-        m.setCoords(arr,arr)
+
+        fname = "mctest1.med"
+        arr = DataArrayDouble(10)
+        arr.iota()
+        m = MEDCouplingCMesh()
+        m.setCoords(arr, arr)
         m.setName("mesh")
-        with FileCreator(self,fname) as fc:
+        with FileCreator(self, fname) as fc:
             m.write(fc.fileName())
-        m=m.buildUnstructured()
-        with FileCreator(self,fname) as fc:
+        m = m.buildUnstructured()
+        with FileCreator(self, fname) as fc:
             m.write(fc.fileName())
-        f=MEDCouplingFieldDouble(ON_NODES) ; f.setMesh(m) ; f.setArray(m.getCoords()) ; f.setName("field")
-        with FileCreator(self,fname) as fc:
+        f = MEDCouplingFieldDouble(ON_NODES)
+        f.setMesh(m)
+        f.setArray(m.getCoords())
+        f.setName("field")
+        with FileCreator(self, fname) as fc:
             f.write(fc.fileName())
-        f=MEDCouplingFieldFloat(ON_NODES) ; f.setMesh(m)
-        d=DataArrayFloat(m.getNumberOfNodes()) ; d.iota()
-        f.setArray(d) ; f.setName("field1")
-        with FileCreator(self,fname) as fc:
+        f = MEDCouplingFieldFloat(ON_NODES)
+        f.setMesh(m)
+        d = DataArrayFloat(m.getNumberOfNodes())
+        d.iota()
+        f.setArray(d)
+        f.setName("field1")
+        with FileCreator(self, fname) as fc:
             f.write(fc.fileName())
         pass
 
-    @unittest.skipUnless(HasRenumberExt(),"Requires Boost or Metis to activate Renumberer")
+    @unittest.skipUnless(
+        HasRenumberExt(), "Requires Boost or Metis to activate Renumberer"
+    )
     def test2(self):
-        arr=DataArrayDouble(10) ; arr.iota()
-        m=MEDCouplingCMesh() ; m.setCoords(arr,arr)
-        m=m.buildUnstructured() ; m.setName("mesh")
+        arr = DataArrayDouble(10)
+        arr.iota()
+        m = MEDCouplingCMesh()
+        m.setCoords(arr, arr)
+        m = m.buildUnstructured()
+        m.setName("mesh")
         #
-        renf=RenumberingFactory("Boost")
-        neigh,neighi=m.computeNeighborsOfCells()
-        n2o,o2n=renf.renumber(neigh,neighi)
-        mRenum=m[n2o]
+        renf = RenumberingFactory("Boost")
+        neigh, neighi = m.computeNeighborsOfCells()
+        n2o, o2n = renf.renumber(neigh, neighi)
+        mRenum = m[n2o]
         pass
 
-    @unittest.skipUnless(HasPartitionerExt(),"Requires Partitioner activation")
+    @unittest.skipUnless(HasPartitionerExt(), "Requires Partitioner activation")
     def test3(self):
         for alg in MEDPartitioner.AvailableAlgorithms():
-            st="Graph.%s"%alg.upper()
+            st = "Graph.%s" % alg.upper()
             print(st)
             self.partitionerTesterHelper(eval(st))
             pass
         pass
 
-    @unittest.skipUnless(HasParallelInterpolatorExt(),"Requires // interpolator activated")
+    @unittest.skipUnless(
+        HasParallelInterpolatorExt(), "Requires // interpolator activated"
+    )
     def test4(self):
-        interface=CommInterface()
+        interface = CommInterface()
         pass
 
-    @unittest.skipUnless(HasMEDFileExt(),"Requires link to MED file")
+    @unittest.skipUnless(HasMEDFileExt(), "Requires link to MED file")
     def test5(self):
-        f=MEDCouplingFieldDouble(ON_NODES)
-        f.setTime(1.25,3,6)
-        a,b,c=f.getTime()
-        self.assertEqual(b,3) ; self.assertEqual(c,6) ; self.assertAlmostEqual(a,1.25,14)
-        f1ts=MEDFileField1TS()
-        f1ts.setTime(10,13,10.75)
+        f = MEDCouplingFieldDouble(ON_NODES)
+        f.setTime(1.25, 3, 6)
+        a, b, c = f.getTime()
+        self.assertEqual(b, 3)
+        self.assertEqual(c, 6)
+        self.assertAlmostEqual(a, 1.25, 14)
+        f1ts = MEDFileField1TS()
+        f1ts.setTime(10, 13, 10.75)
         f.copyTimeInfoFrom(f1ts)
-        a,b,c=f.getTime()
-        self.assertEqual(b,10) ; self.assertEqual(c,13) ; self.assertAlmostEqual(a,10.75,14)
-        f2=MEDCouplingFieldInt(ON_NODES)
+        a, b, c = f.getTime()
+        self.assertEqual(b, 10)
+        self.assertEqual(c, 13)
+        self.assertAlmostEqual(a, 10.75, 14)
+        f2 = MEDCouplingFieldInt(ON_NODES)
         f2.copyTimeInfoFrom(f1ts)
-        a,b,c=f2.getTime()
-        self.assertEqual(b,10) ; self.assertEqual(c,13) ; self.assertAlmostEqual(a,10.75,14)
-        f3=MEDCouplingFieldFloat(ON_NODES)
+        a, b, c = f2.getTime()
+        self.assertEqual(b, 10)
+        self.assertEqual(c, 13)
+        self.assertAlmostEqual(a, 10.75, 14)
+        f3 = MEDCouplingFieldFloat(ON_NODES)
         f3.copyTimeInfoFrom(f1ts)
-        a,b,c=f3.getTime()
-        self.assertEqual(b,10) ; self.assertEqual(c,13) ; self.assertAlmostEqual(a,10.75,14)
+        a, b, c = f3.getTime()
+        self.assertEqual(b, 10)
+        self.assertEqual(c, 13)
+        self.assertAlmostEqual(a, 10.75, 14)
         pass
 
-    @unittest.skipUnless(HasShapeRecognitionExt(),"Requires Shape recognition extension activated")
+    @unittest.skipUnless(
+        HasShapeRecognitionExt(), "Requires Shape recognition extension activated"
+    )
     def test6(self):
         m = MEDCouplingCMesh()
-        arr = DataArrayDouble(5) ; arr.iota()
-        m.setCoords(arr,arr)
+        arr = DataArrayDouble(5)
+        arr.iota()
+        m.setCoords(arr, arr)
         m = m.buildUnstructured()
         m.simplexize(0)
-        m.changeSpaceDimension(3,0.)
-        srMesh = ShapeRecognMeshBuilder( m )
+        m.changeSpaceDimension(3, 0.0)
+        srMesh = ShapeRecognMeshBuilder(m)
         rem = srMesh.recognize()
 
-    def partitionerTesterHelper(self,algoSelected):
-        arr=DataArrayDouble(10) ; arr.iota()
-        m=MEDCouplingCMesh() ; m.setCoords(arr,arr)
-        m=m.buildUnstructured() ; m.setName("mesh")
-        a,b=m.computeNeighborsOfCells()
-        sk=MEDCouplingSkyLineArray(b,a)
-        g=MEDPartitioner.Graph(sk,algoSelected)
+    def partitionerTesterHelper(self, algoSelected):
+        arr = DataArrayDouble(10)
+        arr.iota()
+        m = MEDCouplingCMesh()
+        m.setCoords(arr, arr)
+        m = m.buildUnstructured()
+        m.setName("mesh")
+        a, b = m.computeNeighborsOfCells()
+        sk = MEDCouplingSkyLineArray(b, a)
+        g = MEDPartitioner.Graph(sk, algoSelected)
         g.partGraph(4)
-        procIdOnCells=g.getPartition().getValuesArray()
-        m0=m[procIdOnCells.findIdsEqual(0)] ; m0.setName("m0")
+        procIdOnCells = g.getPartition().getValuesArray()
+        m0 = m[procIdOnCells.findIdsEqual(0)]
+        m0.setName("m0")
         pass
 
     pass
 
+
 if __name__ == "__main__":
     if HasParallelInterpolatorExt():
         try:
-            from mpi4py import MPI # if not imported test3 may failed due to MPI call of partitioner algorithms.
+            from mpi4py import (
+                MPI,
+            )  # if not imported test3 may failed due to MPI call of partitioner algorithms.
         except:
             pass
         pass
     unittest.main()
     pass
-

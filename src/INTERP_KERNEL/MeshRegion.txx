@@ -27,80 +27,86 @@
 namespace INTERP_KERNEL
 {
 
-  /**
-   * Default constructor
-   *
-   */
-  template<class ConnType>
-  MeshRegion<ConnType>::MeshRegion():_box(0)
-  {
-  }
+/**
+ * Default constructor
+ *
+ */
+template <class ConnType>
+MeshRegion<ConnType>::MeshRegion() : _box(0)
+{
+}
 
-  /**
-   * Destructor
-   *
-   */
-  template<class ConnType>
-  MeshRegion<ConnType>::~MeshRegion()
-  {
+/**
+ * Destructor
+ *
+ */
+template <class ConnType>
+MeshRegion<ConnType>::~MeshRegion()
+{
     delete _box;
-  }
+}
 
-  /**
-   * Adds an element to the region, updating the bounding box. If the bounding box does not yet
-   * exist, it is created here. This creation is delayed to make it possible to have empty MeshRegions
-   *
-   * @param element pointer to element to add to region
-   * @param mesh    mesh to which element belongs
-   *
-   */
-  template<class ConnType>
-  template<class MyMeshType>
-  void MeshRegion<ConnType>::addElement(MeshElement<ConnType>* const element, const MyMeshType& mesh)
-  {
+/**
+ * Adds an element to the region, updating the bounding box. If the bounding box does not yet
+ * exist, it is created here. This creation is delayed to make it possible to have empty MeshRegions
+ *
+ * @param element pointer to element to add to region
+ * @param mesh    mesh to which element belongs
+ *
+ */
+template <class ConnType>
+template <class MyMeshType>
+void
+MeshRegion<ConnType>::addElement(MeshElement<ConnType> *const element, const MyMeshType &mesh)
+{
     _elements.push_back(element);
 
     const unsigned char numNodes = element->getNumberOfNodes();
     const ConnType elemIdx = element->getIndex();
 
-    if(_box == 0)
-      {
-        const double** pts = new const double*[numNodes];
+    if (_box == 0)
+    {
+        const double **pts = new const double *[numNodes];
 
         // get coordinates of the nodes of the element
-        for(unsigned char i = 0 ; i < numNodes ; ++i)
-          {
-            pts[i] = getCoordsOfNode(i, OTT<typename MyMeshType::MyConnType,MyMeshType::My_numPol>::indFC(elemIdx), mesh);
-          }
+        for (unsigned char i = 0; i < numNodes; ++i)
+        {
+            pts[i] =
+                getCoordsOfNode(i, OTT<typename MyMeshType::MyConnType, MyMeshType::My_numPol>::indFC(elemIdx), mesh);
+        }
 
         _box = new BoundingBox(pts, numNodes);
-        delete [] pts;
-
-      } else {
-
-      for(unsigned char i = 0 ; i < numNodes ; ++i)
+        delete[] pts;
+    }
+    else
+    {
+        for (unsigned char i = 0; i < numNodes; ++i)
         {
-          const double* pt = getCoordsOfNode(i, OTT<typename MyMeshType::MyConnType,MyMeshType::My_numPol>::indFC(elemIdx), mesh);
-          _box->updateWithPoint(pt);
+            const double *pt =
+                getCoordsOfNode(i, OTT<typename MyMeshType::MyConnType, MyMeshType::My_numPol>::indFC(elemIdx), mesh);
+            _box->updateWithPoint(pt);
         }
     }
-  }
+}
 
-  /**
-   * Splits the region in two along the given axis, copying the elements with bounding boxes whose maximum
-   * coordinate along the axis are smaller than the middle of the bounding box of this region in region1. The
-   * rest of the elements are copied to region2.
-   *
-   * @param region1 region in which to store one half of this region
-   * @param region2 region in which to store the other of this region
-   * @param coord   coordinate of BoundingBox to use when splitting the region
-   * @param mesh    mesh to which region belongs
-   *
-   */
-  template<class ConnType>
-  template<class MyMeshType>
-  void MeshRegion<ConnType>::split(MeshRegion<ConnType>& region1, MeshRegion<ConnType>& region2, BoundingBox::BoxCoord coord, const MyMeshType& mesh)
-  {
+/**
+ * Splits the region in two along the given axis, copying the elements with bounding boxes whose maximum
+ * coordinate along the axis are smaller than the middle of the bounding box of this region in region1. The
+ * rest of the elements are copied to region2.
+ *
+ * @param region1 region in which to store one half of this region
+ * @param region2 region in which to store the other of this region
+ * @param coord   coordinate of BoundingBox to use when splitting the region
+ * @param mesh    mesh to which region belongs
+ *
+ */
+template <class ConnType>
+template <class MyMeshType>
+void
+MeshRegion<ConnType>::split(
+    MeshRegion<ConnType> &region1, MeshRegion<ConnType> &region2, BoundingBox::BoxCoord coord, const MyMeshType &mesh
+)
+{
     // create ordering
     ElementBBoxOrder cmp(coord);
 
@@ -109,45 +115,45 @@ namespace INTERP_KERNEL
 
     // put the first half of the elements in region1 and the
     // rest in region2
-    typename std::vector< MeshElement<ConnType> *>::const_iterator iter = _elements.begin();
+    typename std::vector<MeshElement<ConnType> *>::const_iterator iter = _elements.begin();
     int elemCount = 0;
 
-    while(elemCount < static_cast<int>(_elements.size() / 2))
-      {
+    while (elemCount < static_cast<int>(_elements.size() / 2))
+    {
         region1.addElement(*iter, mesh);
         ++iter;
         ++elemCount;
-      }
+    }
 
-    while(iter != _elements.end())
-      {
+    while (iter != _elements.end())
+    {
         region2.addElement(*iter, mesh);
         ++iter;
-      }
-  }
+    }
+}
 
-  /**
-   * Determines if a given element can intersect the elements of this region by
-   * testing whether the bounding box of the region intersects the bounding box of the element.
-   * Note that the test is only true in one direction : if the bounding boxes are disjoint, the
-   * element cannot intersect any of the elements in the region, but if they are not disjoint, the
-   * element may or may not do so.
-   *
-   * @param   elem  Element with which to test for disjoint-ness
-   * @return  true if the bounding box of the element is disjoint with the bounding box of the region, false otherwise
-   */
-  template<class ConnType>
-  bool MeshRegion<ConnType>::isDisjointWithElementBoundingBox(const MeshElement<ConnType>& elem) const
-  {
-    const BoundingBox* elemBox = elem.getBoundingBox();
+/**
+ * Determines if a given element can intersect the elements of this region by
+ * testing whether the bounding box of the region intersects the bounding box of the element.
+ * Note that the test is only true in one direction : if the bounding boxes are disjoint, the
+ * element cannot intersect any of the elements in the region, but if they are not disjoint, the
+ * element may or may not do so.
+ *
+ * @param   elem  Element with which to test for disjoint-ness
+ * @return  true if the bounding box of the element is disjoint with the bounding box of the region, false otherwise
+ */
+template <class ConnType>
+bool
+MeshRegion<ConnType>::isDisjointWithElementBoundingBox(const MeshElement<ConnType> &elem) const
+{
+    const BoundingBox *elemBox = elem.getBoundingBox();
 
     assert(_box != 0);
     assert(elemBox != 0);
 
     return _box->isDisjointWith(*elemBox);
-  }
-
-
 }
+
+}  // namespace INTERP_KERNEL
 
 #endif

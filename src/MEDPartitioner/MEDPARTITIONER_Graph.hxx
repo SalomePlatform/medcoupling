@@ -28,47 +28,52 @@
 
 namespace MEDCoupling
 {
-  class MEDCouplingSkyLineArray;
+class MEDCouplingSkyLineArray;
 }
 
 using namespace MEDCoupling;
 
 namespace MEDPARTITIONER
 {
-  class ParaDomainSelector;
-  class MEDPARTITIONER_EXPORT Graph
-  {
-  public:
-    typedef enum {METIS,SCOTCH,PTSCOTCH} splitter_type;
+class ParaDomainSelector;
+class MEDPARTITIONER_EXPORT Graph
+{
+   public:
+    typedef enum
+    {
+        METIS,
+        SCOTCH,
+        PTSCOTCH
+    } splitter_type;
 
     Graph();
-    //creates a graph from a SKYLINEARRAY- WARNING!! Graph takes ownership of the array.
-    Graph(MEDCouplingSkyLineArray* graph, int* edgeweight=0);
+    // creates a graph from a SKYLINEARRAY- WARNING!! Graph takes ownership of the array.
+    Graph(MEDCouplingSkyLineArray *graph, int *edgeweight = 0);
     virtual ~Graph();
 
-    void setEdgesWeights(int *edgeweight) { _edge_weight=edgeweight; }
-    void setVerticesWeights(int *cellweight) { _cell_weight=cellweight; }
+    void setEdgesWeights(int *edgeweight) { _edge_weight = edgeweight; }
+    void setVerticesWeights(int *cellweight) { _cell_weight = cellweight; }
 
-    //computes partitioning of the graph
-    virtual void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector *sel=0) = 0;
+    // computes partitioning of the graph
+    virtual void partGraph(int ndomain, const std::string &options_string = "", ParaDomainSelector *sel = 0) = 0;
 
-    //returns the partitioning
+    // returns the partitioning
     const mcIdType *getPart() const;
 
-    //returns the number of graph vertices (which can correspond to the cells in the mesh!)
+    // returns the number of graph vertices (which can correspond to the cells in the mesh!)
     mcIdType nbVertices() const;
 
     // returns nb of domains in _partition
     int nbDomains() const;
 
-    const MEDCouplingSkyLineArray *getGraph() const { return (const MEDCouplingSkyLineArray*)_graph; }
-    const MEDCouplingSkyLineArray *getPartition() const { return (const MEDCouplingSkyLineArray*)_partition; }
+    const MEDCouplingSkyLineArray *getGraph() const { return (const MEDCouplingSkyLineArray *)_graph; }
+    const MEDCouplingSkyLineArray *getPartition() const { return (const MEDCouplingSkyLineArray *)_partition; }
 
-  protected:
+   protected:
     MCAuto<MEDCouplingSkyLineArray> _graph;
     MCAuto<MEDCouplingSkyLineArray> _partition;
-    int* _edge_weight;
-    int* _cell_weight;
-  };
-}
+    int *_edge_weight;
+    int *_cell_weight;
+};
+}  // namespace MEDPARTITIONER
 #endif

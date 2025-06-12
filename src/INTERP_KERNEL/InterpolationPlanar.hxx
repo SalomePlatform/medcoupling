@@ -28,40 +28,46 @@
 
 namespace INTERP_KERNEL
 {
-  /**
-   * \defgroup interpolationPlanar InterpolationPlanar
-   *
-   * \class InterpolationPlanar
-   * \brief Class used to compute the coefficients of the interpolation matrix between
-   * two local meshes in two dimensions. Meshes can contain mixed triangular and quadrangular elements.
-   */
+/**
+ * \defgroup interpolationPlanar InterpolationPlanar
+ *
+ * \class InterpolationPlanar
+ * \brief Class used to compute the coefficients of the interpolation matrix between
+ * two local meshes in two dimensions. Meshes can contain mixed triangular and quadrangular elements.
+ */
 
-  template<class RealPlanar>
-  class InterpolationPlanar : public Interpolation< InterpolationPlanar<RealPlanar> >
-  {
-  private:
+template <class RealPlanar>
+class InterpolationPlanar : public Interpolation<InterpolationPlanar<RealPlanar> >
+{
+   private:
     double _dim_caracteristic;
-  public:
+
+   public:
     InterpolationPlanar();
-    InterpolationPlanar(const InterpolationOptions & io);
+    InterpolationPlanar(const InterpolationOptions &io);
 
     // geometric precision, debug print level, choice of the median plane, intersection etc ...
-    void setOptions(double precision, int printLevel,
-                    IntersectionType intersectionType, int orientation=0);
+    void setOptions(double precision, int printLevel, IntersectionType intersectionType, int orientation = 0);
 
     // Main function to interpolate triangular and quadratic meshes
-    template<class MyMeshType, class MatrixType>
-    typename MyMeshType::MyConnType interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT, MatrixType& result, const std::string& method);
-  public:
+    template <class MyMeshType, class MatrixType>
+    typename MyMeshType::MyConnType interpolateMeshes(
+        const MyMeshType &meshS, const MyMeshType &meshT, MatrixType &result, const std::string &method
+    );
+
+   public:
     bool doRotate() const { return asLeafInterpPlanar().doRotate(); }
     double medianPlane() const { return asLeafInterpPlanar().medianPlane(); }
-    template<class MyMeshType, class MyMatrixRow>
-      void performAdjustmentOfBB(PlanarIntersector<MyMeshType,MyMatrixRow>* intersector, std::vector<double>& bbox) const
-    { return asLeafInterpPlanar().performAdjustmentOfBB(intersector,bbox); }
-  protected:
-    RealPlanar& asLeafInterpPlanar() { return static_cast<RealPlanar&>(*this); }
-    const RealPlanar& asLeafInterpPlanar() const { return static_cast< const RealPlanar& >(*this); }
-  };
-}
+    template <class MyMeshType, class MyMatrixRow>
+    void performAdjustmentOfBB(PlanarIntersector<MyMeshType, MyMatrixRow> *intersector, std::vector<double> &bbox) const
+    {
+        return asLeafInterpPlanar().performAdjustmentOfBB(intersector, bbox);
+    }
+
+   protected:
+    RealPlanar &asLeafInterpPlanar() { return static_cast<RealPlanar &>(*this); }
+    const RealPlanar &asLeafInterpPlanar() const { return static_cast<const RealPlanar &>(*this); }
+};
+}  // namespace INTERP_KERNEL
 
 #endif

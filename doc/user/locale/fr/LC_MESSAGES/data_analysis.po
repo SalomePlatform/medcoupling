@@ -839,4 +839,3 @@ msgstr ""
 #: ../../../../MEDCOUPLING_SRC/doc/user/input/data_analysis.rst:556
 msgid "To get value of a *field* at certain *points* call"
 msgstr ""
-

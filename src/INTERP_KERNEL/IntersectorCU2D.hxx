@@ -28,20 +28,21 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyCMeshType, class MyUMeshType, class MyMatrix >
-  class IntersectorCU2D : public IntersectorCU<MyCMeshType,MyUMeshType,MyMatrix,IntersectorCU2D<MyCMeshType,MyUMeshType,MyMatrix> >
-  {
-  public:
+template <class MyCMeshType, class MyUMeshType, class MyMatrix>
+class IntersectorCU2D
+    : public IntersectorCU<MyCMeshType, MyUMeshType, MyMatrix, IntersectorCU2D<MyCMeshType, MyUMeshType, MyMatrix> >
+{
+   public:
     typedef typename MyUMeshType::MyConnType UConnType;
     typedef typename MyCMeshType::MyConnType CConnType;
-  public:
-    IntersectorCU2D(const MyCMeshType& meshS, const MyUMeshType& meshT);
-    double intersectGeometry(UConnType icellT, const std::vector<CConnType>& icellC);
 
-  private:
-    TriangulationIntersector<MyUMeshType,MyMatrix,PlanarIntersectorP0P0> _intersector;
-  };
-}
+   public:
+    IntersectorCU2D(const MyCMeshType &meshS, const MyUMeshType &meshT);
+    double intersectGeometry(UConnType icellT, const std::vector<CConnType> &icellC);
 
+   private:
+    TriangulationIntersector<MyUMeshType, MyMatrix, PlanarIntersectorP0P0> _intersector;
+};
+}  // namespace INTERP_KERNEL
 
 #endif

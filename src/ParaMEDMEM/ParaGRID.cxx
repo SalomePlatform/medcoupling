@@ -31,20 +31,19 @@ using namespace std;
 namespace MEDCoupling
 {
 
-  ParaGRID::ParaGRID(MEDCouplingCMesh* global_grid, Topology* topology) :
-    _global_axis()
-  {
-    _block_topology = dynamic_cast<BlockTopology*>(topology);
-    if(_block_topology==0)
-      throw INTERP_KERNEL::Exception(LOCALIZED("ParaGRID::ParaGRID topology must be block topology"));
+ParaGRID::ParaGRID(MEDCouplingCMesh *global_grid, Topology *topology) : _global_axis()
+{
+    _block_topology = dynamic_cast<BlockTopology *>(topology);
+    if (_block_topology == 0)
+        throw INTERP_KERNEL::Exception(LOCALIZED("ParaGRID::ParaGRID topology must be block topology"));
 
     if (!_block_topology->getProcGroup()->containsMyRank())
-      return;
+        return;
 
-    int dimension=_block_topology->getDimension() ;
+    int dimension = _block_topology->getDimension();
     if (dimension != global_grid->getSpaceDimension())
-      throw INTERP_KERNEL::Exception(LOCALIZED("ParaGrid::ParaGrid incompatible topology"));
-    _grid=global_grid;
+        throw INTERP_KERNEL::Exception(LOCALIZED("ParaGrid::ParaGrid incompatible topology"));
+    _grid = global_grid;
     _grid->incrRef();
     /*vector<vector<double> > xyz_array(dimension);
       vector<pair<int,int> > local_indices = _block_topology->getLocalArrayMinMax();
@@ -64,11 +63,11 @@ namespace MEDCoupling
       _grid->set(xyz_array, coordinates_names,coordinates_units);
       _grid->setName(global_grid->getName());
       _grid->setDescription(global_grid->getDescription());*/
-  }
-
-  ParaGRID::~ParaGRID()
-  {
-    if(_grid)
-      _grid->decrRef();
-  }
 }
+
+ParaGRID::~ParaGRID()
+{
+    if (_grid)
+        _grid->decrRef();
+}
+}  // namespace MEDCoupling

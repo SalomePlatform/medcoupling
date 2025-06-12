@@ -24,4 +24,5 @@
 #include <string>
 #include <memory>
 
-std::unique_ptr<MEDCoupling::ShapeRecognMeshBuilder> BuildShapeRecognMeshBuilderFromFile(const std::string& fileName, int meshDimRelToMax = 0);
+std::unique_ptr<MEDCoupling::ShapeRecognMeshBuilder>
+BuildShapeRecognMeshBuilderFromFile(const std::string &fileName, int meshDimRelToMax = 0);

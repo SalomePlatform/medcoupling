@@ -29,47 +29,74 @@
 
 namespace INTERP_KERNEL
 {
-  class TranslationRotationMatrix;
+class TranslationRotationMatrix;
 
-  template<class MyMeshType, class MyMatrix>
-  class PlanarIntersector : public TargetIntersector<MyMeshType,MyMatrix>
-  {
-  public:
-    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+template <class MyMeshType, class MyMatrix>
+class PlanarIntersector : public TargetIntersector<MyMeshType, MyMatrix>
+{
+   public:
+    static const int SPACEDIM = MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM = MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
-    static const NumberingPolicy numPol=MyMeshType::My_numPol;
-    typedef typename std::map<ConnType,std::set<ConnType> > DuplicateFacesType;
-  public:
-    PlanarIntersector(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel);
+    static const NumberingPolicy numPol = MyMeshType::My_numPol;
+    typedef typename std::map<ConnType, std::set<ConnType> > DuplicateFacesType;
+
+   public:
+    PlanarIntersector(
+        const MyMeshType &meshT,
+        const MyMeshType &meshS,
+        double dimCaracteristic,
+        double precision,
+        double md3DSurf,
+        double minDot3DSurf,
+        double medianPlane,
+        bool doRotate,
+        int orientation,
+        int printLevel
+    );
     virtual ~PlanarIntersector();
-    void createBoundingBoxes(const MyMeshType& mesh, std::vector<double>& bbox);
-    inline void getElemBB(double* bb, const MyMeshType& mesh, ConnType iP, ConnType nb_nodes);
-    static int Projection(double *Coords_A, double *Coords_B,
-                          ConnType nb_NodesA, ConnType nb_NodesB, double epsilon, double md3DSurf, double minDot3DSurf, double median_plane, bool do_rotate);
-    virtual const DuplicateFacesType* getIntersectFaces() const
-    {
-      return NULL;
-    }
-  protected :
+    void createBoundingBoxes(const MyMeshType &mesh, std::vector<double> &bbox);
+    inline void getElemBB(double *bb, const MyMeshType &mesh, ConnType iP, ConnType nb_nodes);
+    static int Projection(
+        double *Coords_A,
+        double *Coords_B,
+        ConnType nb_NodesA,
+        ConnType nb_NodesB,
+        double epsilon,
+        double md3DSurf,
+        double minDot3DSurf,
+        double median_plane,
+        bool do_rotate
+    );
+    virtual const DuplicateFacesType *getIntersectFaces() const { return NULL; }
+
+   protected:
     int projectionThis(double *Coords_A, double *Coords_B, ConnType nb_NodesA, ConnType nb_NodesB);
-    void getRealTargetCoordinates(ConnType icellT, std::vector<double>& coordsT);
-    void getRealSourceCoordinates(ConnType icellS, std::vector<double>& coordsS);
-    void getRealTargetCoordinatesPermute(ConnType icellT, ConnType offset, std::vector<double>& coordsT);
-    void getRealSourceCoordinatesPermute(ConnType icellS, ConnType offset, std::vector<double>& coordsS);
-    void getRealCoordinates(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS, std::vector<double>& coordsT, std::vector<double>& coordsS, int& orientation);
+    void getRealTargetCoordinates(ConnType icellT, std::vector<double> &coordsT);
+    void getRealSourceCoordinates(ConnType icellS, std::vector<double> &coordsS);
+    void getRealTargetCoordinatesPermute(ConnType icellT, ConnType offset, std::vector<double> &coordsT);
+    void getRealSourceCoordinatesPermute(ConnType icellS, ConnType offset, std::vector<double> &coordsS);
+    void getRealCoordinates(
+        ConnType icellT,
+        ConnType icellS,
+        ConnType nbNodesT,
+        ConnType nbNodesS,
+        std::vector<double> &coordsT,
+        std::vector<double> &coordsS,
+        int &orientation
+    );
     double getValueRegardingOption(double val) const;
-    static void Rotate3DTriangle( double* PP1, double*PP2, double*PP3,
-                                  TranslationRotationMatrix& rotation_matrix);
-  protected:
+    static void Rotate3DTriangle(double *PP1, double *PP2, double *PP3, TranslationRotationMatrix &rotation_matrix);
+
+   protected:
     const ConnType *_connectT;
     const ConnType *_connectS;
     const double *_coordsT;
     const double *_coordsS;
     const ConnType *_connIndexT;
     const ConnType *_connIndexS;
-    const MyMeshType& _meshT;
-    const MyMeshType& _meshS;
+    const MyMeshType &_meshT;
+    const MyMeshType &_meshS;
     double _dim_caracteristic;
     double _max_distance_3Dsurf_intersect;
     double _min_dot_btw_3Dsurf_intersect;
@@ -78,7 +105,7 @@ namespace INTERP_KERNEL
     bool _do_rotate;
     int _orientation;
     int _print_level;
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

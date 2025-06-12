@@ -25,27 +25,44 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
-  class PlanarIntersectorP0P0 : public PlanarIntersector<MyMeshType,MyMatrix>
-  {
-  public:
-    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+template <class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
+class PlanarIntersectorP0P0 : public PlanarIntersector<MyMeshType, MyMatrix>
+{
+   public:
+    static const int SPACEDIM = MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM = MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
-    static const NumberingPolicy numPol=MyMeshType::My_numPol;
-  protected:
-    PlanarIntersectorP0P0(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel);
-  public:
+    static const NumberingPolicy numPol = MyMeshType::My_numPol;
+
+   protected:
+    PlanarIntersectorP0P0(
+        const MyMeshType &meshT,
+        const MyMeshType &meshS,
+        double dimCaracteristic,
+        double precision,
+        double md3DSurf,
+        double minDot3DSurf,
+        double medianPlane,
+        bool doRotate,
+        int orientation,
+        int printLevel
+    );
+
+   public:
     ConnType getNumberOfRowsOfResMatrix() const;
     ConnType getNumberOfColsOfResMatrix() const;
-    void intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res);
+    void intersectCells(ConnType icellT, const std::vector<ConnType> &icellsS, MyMatrix &res);
     /*!
      * Contrary to intersectCells method here icellS and icellT are \b not in \b C mode but in mode of MyMeshType.
      */
-    double intersectGeometry(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS) { return asLeaf().intersectGeometry(icellT,icellS,nbNodesT,nbNodesS); }
-  protected:
-    ConcreteP0P0Intersector& asLeaf() { return static_cast<ConcreteP0P0Intersector&>(*this); }
-  };
-}
+    double intersectGeometry(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS)
+    {
+        return asLeaf().intersectGeometry(icellT, icellS, nbNodesT, nbNodesS);
+    }
+
+   protected:
+    ConcreteP0P0Intersector &asLeaf() { return static_cast<ConcreteP0P0Intersector &>(*this); }
+};
+}  // namespace INTERP_KERNEL
 
 #endif

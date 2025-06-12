@@ -28,53 +28,53 @@
 #include "ShapeRecognDefines.hxx"
 namespace MEDCoupling
 {
-    class SHAPE_RECOGNITION_EXPORT ShapeRecognMesh : public RefCountObject
-    {
-        friend class ShapeRecognMeshBuilder;
+class SHAPE_RECOGNITION_EXPORT ShapeRecognMesh : public RefCountObject
+{
+    friend class ShapeRecognMeshBuilder;
 
-    public:
-        static ShapeRecognMesh *New();
-        std::size_t getHeapMemorySizeWithoutChildren() const;
-        std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+   public:
+    static ShapeRecognMesh *New();
+    std::size_t getHeapMemorySizeWithoutChildren() const;
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
 
-        // Node properties
-        const MEDCouplingFieldDouble *getNodeK1() const;
-        const MEDCouplingFieldDouble *getNodeK2() const;
-        const MEDCouplingFieldInt32  *getNodePrimitiveType() const;
-        const MEDCouplingFieldDouble *getNodeNormal() const;
-        // see ShapeRecognMeshBuilder::buildNodeWeakDirections
-        // see ShapeRecognMeshBuilder::buildNodeMainDirections
+    // Node properties
+    const MEDCouplingFieldDouble *getNodeK1() const;
+    const MEDCouplingFieldDouble *getNodeK2() const;
+    const MEDCouplingFieldInt32 *getNodePrimitiveType() const;
+    const MEDCouplingFieldDouble *getNodeNormal() const;
+    // see ShapeRecognMeshBuilder::buildNodeWeakDirections
+    // see ShapeRecognMeshBuilder::buildNodeMainDirections
 
-        // Area properties
-        const MEDCouplingFieldInt32  *getAreaId() const;
-        const MEDCouplingFieldInt32  *getAreaPrimitiveType() const;
-        const MEDCouplingFieldDouble *getAreaNormal() const;
-        const MEDCouplingFieldDouble *getMinorRadius() const;
-        const MEDCouplingFieldDouble *getRadius() const;
-        const MEDCouplingFieldDouble *getAngle() const;
-        const MEDCouplingFieldDouble *getCenter() const;
-        const MEDCouplingFieldDouble *getAxis() const;
-        const MEDCouplingFieldDouble *getApex() const;
+    // Area properties
+    const MEDCouplingFieldInt32 *getAreaId() const;
+    const MEDCouplingFieldInt32 *getAreaPrimitiveType() const;
+    const MEDCouplingFieldDouble *getAreaNormal() const;
+    const MEDCouplingFieldDouble *getMinorRadius() const;
+    const MEDCouplingFieldDouble *getRadius() const;
+    const MEDCouplingFieldDouble *getAngle() const;
+    const MEDCouplingFieldDouble *getCenter() const;
+    const MEDCouplingFieldDouble *getAxis() const;
+    const MEDCouplingFieldDouble *getApex() const;
 
-        // see ShapeRecognMeshBuilder::buildAreaAxisPoint
-        // see ShapeRecognMeshBuilder::buildAreaAffinePoint
+    // see ShapeRecognMeshBuilder::buildAreaAxisPoint
+    // see ShapeRecognMeshBuilder::buildAreaAffinePoint
 
-    protected:
-        ShapeRecognMesh();
+   protected:
+    ShapeRecognMesh();
 
-    private:
-        MCAuto<MEDCouplingFieldDouble> nodeK1;
-        MCAuto<MEDCouplingFieldDouble> nodeK2;
-        MCAuto<MEDCouplingFieldInt32>  nodePrimitiveType;
-        MCAuto<MEDCouplingFieldDouble> nodeNormal;
-        MCAuto<MEDCouplingFieldInt32>  areaId;
-        MCAuto<MEDCouplingFieldInt32>  areaPrimitiveType;
-        MCAuto<MEDCouplingFieldDouble> areaNormal;
-        MCAuto<MEDCouplingFieldDouble> minorRadius;
-        MCAuto<MEDCouplingFieldDouble> radius;
-        MCAuto<MEDCouplingFieldDouble> angle;
-        MCAuto<MEDCouplingFieldDouble> center;
-        MCAuto<MEDCouplingFieldDouble> axis;
-        MCAuto<MEDCouplingFieldDouble> apex;
-    };
-}
+   private:
+    MCAuto<MEDCouplingFieldDouble> nodeK1;
+    MCAuto<MEDCouplingFieldDouble> nodeK2;
+    MCAuto<MEDCouplingFieldInt32> nodePrimitiveType;
+    MCAuto<MEDCouplingFieldDouble> nodeNormal;
+    MCAuto<MEDCouplingFieldInt32> areaId;
+    MCAuto<MEDCouplingFieldInt32> areaPrimitiveType;
+    MCAuto<MEDCouplingFieldDouble> areaNormal;
+    MCAuto<MEDCouplingFieldDouble> minorRadius;
+    MCAuto<MEDCouplingFieldDouble> radius;
+    MCAuto<MEDCouplingFieldDouble> angle;
+    MCAuto<MEDCouplingFieldDouble> center;
+    MCAuto<MEDCouplingFieldDouble> axis;
+    MCAuto<MEDCouplingFieldDouble> apex;
+};
+}  // namespace MEDCoupling

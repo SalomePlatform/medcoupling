@@ -29,21 +29,26 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix>
-  CurveIntersector<MyMeshType,MyMatrix>
-  ::CurveIntersector(const MyMeshType& meshT, const MyMeshType& meshS,
-                     double precision, double tolerance, double medianLine, int printLevel):
-    _meshT(meshT),
-    _meshS(meshS),
-    _tolerance(tolerance),
-    _precision(precision),
-    _median_line(medianLine),
-    _print_level(printLevel)
-  {
-    if ( SPACEDIM != 1 && SPACEDIM != 2 && SPACEDIM != 3 )
-      throw Exception("CurveIntersector(): space dimension of mesh must be 1 or 2 or 3");
-    if ( MESHDIM != 1 )
-      throw Exception("CurveIntersector(): mesh dimension must be 1");
+template <class MyMeshType, class MyMatrix>
+CurveIntersector<MyMeshType, MyMatrix>::CurveIntersector(
+    const MyMeshType &meshT,
+    const MyMeshType &meshS,
+    double precision,
+    double tolerance,
+    double medianLine,
+    int printLevel
+)
+    : _meshT(meshT),
+      _meshS(meshS),
+      _tolerance(tolerance),
+      _precision(precision),
+      _median_line(medianLine),
+      _print_level(printLevel)
+{
+    if (SPACEDIM != 1 && SPACEDIM != 2 && SPACEDIM != 3)
+        throw Exception("CurveIntersector(): space dimension of mesh must be 1 or 2 or 3");
+    if (MESHDIM != 1)
+        throw Exception("CurveIntersector(): mesh dimension must be 1");
 
     _connectT = meshT.getConnectivityPtr();
     _connectS = meshS.getConnectivityPtr();
@@ -51,363 +56,426 @@ namespace INTERP_KERNEL
     _connIndexS = meshS.getConnectivityIndexPtr();
     _coordsT = meshT.getCoordinatesPtr();
     _coordsS = meshS.getCoordinatesPtr();
-  }
+}
 
-  template<class MyMeshType, class MyMatrix>
-  CurveIntersector<MyMeshType,MyMatrix>::~CurveIntersector()
-  {
-  }
+template <class MyMeshType, class MyMatrix>
+CurveIntersector<MyMeshType, MyMatrix>::~CurveIntersector()
+{
+}
 
-  //================================================================================
-  /*!
-    \brief creates the bounding boxes for all the cells of mesh \a mesh
+//================================================================================
+/*!
+  \brief creates the bounding boxes for all the cells of mesh \a mesh
 
-    \param mesh structure pointing to the mesh
-    \param bbox vector containing the bounding boxes
-  */
-  //================================================================================
+  \param mesh structure pointing to the mesh
+  \param bbox vector containing the bounding boxes
+*/
+//================================================================================
 
-  template<class MyMeshType, class MyMatrix>
-  void CurveIntersector<MyMeshType,MyMatrix>::createBoundingBoxes (const MyMeshType&    mesh,
-                                                                   std::vector<double>& bbox)
-  {
+template <class MyMeshType, class MyMatrix>
+void
+CurveIntersector<MyMeshType, MyMatrix>::createBoundingBoxes(const MyMeshType &mesh, std::vector<double> &bbox)
+{
     long nbelems = mesh.getNumberOfElements();
-    bbox.resize(2*SPACEDIM* nbelems);
-    const double* coords = mesh.getCoordinatesPtr();
-    const ConnType* conn = mesh.getConnectivityPtr();
-    const ConnType* conn_index = mesh.getConnectivityIndexPtr();
-    int ibox=0;
-    for(long icell=0; icell<nbelems; icell++)
-      {
-        ConnType nb_nodes_per_elem = conn_index[icell+1]-conn_index[icell];
-        //initializing bounding box limits
-        for(int idim=0; idim<SPACEDIM; idim++)
-          {
-            bbox[2*SPACEDIM*ibox+2*idim]   =  std::numeric_limits<double>::max();
-            bbox[2*SPACEDIM*ibox+2*idim+1] = -std::numeric_limits<double>::max();
-          }
-        //updating the bounding box with each node of the element
-        for (ConnType j=0; j<nb_nodes_per_elem; j++)
-          {
-            const double* coord_node = coords +
-              SPACEDIM*OTT<ConnType,numPol>
-              ::coo2C(conn[OTT<ConnType,numPol>::conn2C(conn_index[icell]+j)]);
-            for(int idim=0; idim<SPACEDIM; idim++)
-              {
-                double x = *(coord_node+idim);
-                bbox[ibox*2*SPACEDIM + 2*idim]   =
-                  ( bbox[ibox*2*SPACEDIM + 2*idim] < x ) ? bbox[ibox*2*SPACEDIM + 2*idim] : x;
-                bbox[ibox*2*SPACEDIM + 2*idim+1] =
-                  ( bbox[ibox*2*SPACEDIM + 2*idim+1] > x ) ? bbox[ibox*2*SPACEDIM + 2*idim+1] : x;
-              }
-          }
+    bbox.resize(2 * SPACEDIM * nbelems);
+    const double *coords = mesh.getCoordinatesPtr();
+    const ConnType *conn = mesh.getConnectivityPtr();
+    const ConnType *conn_index = mesh.getConnectivityIndexPtr();
+    int ibox = 0;
+    for (long icell = 0; icell < nbelems; icell++)
+    {
+        ConnType nb_nodes_per_elem = conn_index[icell + 1] - conn_index[icell];
+        // initializing bounding box limits
+        for (int idim = 0; idim < SPACEDIM; idim++)
+        {
+            bbox[2 * SPACEDIM * ibox + 2 * idim] = std::numeric_limits<double>::max();
+            bbox[2 * SPACEDIM * ibox + 2 * idim + 1] = -std::numeric_limits<double>::max();
+        }
+        // updating the bounding box with each node of the element
+        for (ConnType j = 0; j < nb_nodes_per_elem; j++)
+        {
+            const double *coord_node =
+                coords +
+                SPACEDIM * OTT<ConnType, numPol>::coo2C(conn[OTT<ConnType, numPol>::conn2C(conn_index[icell] + j)]);
+            for (int idim = 0; idim < SPACEDIM; idim++)
+            {
+                double x = *(coord_node + idim);
+                bbox[ibox * 2 * SPACEDIM + 2 * idim] =
+                    (bbox[ibox * 2 * SPACEDIM + 2 * idim] < x) ? bbox[ibox * 2 * SPACEDIM + 2 * idim] : x;
+                bbox[ibox * 2 * SPACEDIM + 2 * idim + 1] =
+                    (bbox[ibox * 2 * SPACEDIM + 2 * idim + 1] > x) ? bbox[ibox * 2 * SPACEDIM + 2 * idim + 1] : x;
+            }
+        }
         ibox++;
-      }
-  }
+    }
+}
 
-  /*!
-    Computes the bounding box of a given element. iP in numPol mode.
-  */
-  template<class MyMeshType, class MyMatrix>
-  void CurveIntersector<MyMeshType,MyMatrix>::getElemBB (double*           bb,
-                                                         const MyMeshType& mesh,
-                                                         ConnType          iP,
-                                                         ConnType          nb_nodes)
-  {
-    const double* coords = mesh.getCoordinatesPtr();
-    const ConnType* conn_index = mesh.getConnectivityIndexPtr();
-    const ConnType* conn = mesh.getConnectivityPtr();
-    //initializing bounding box limits
-    for(int idim=0; idim<SPACEDIM; idim++)
-      {
-        bb[2*idim  ] =  std::numeric_limits<double>::max();
-        bb[2*idim+1] = -std::numeric_limits<double>::max();
-      }
+/*!
+  Computes the bounding box of a given element. iP in numPol mode.
+*/
+template <class MyMeshType, class MyMatrix>
+void
+CurveIntersector<MyMeshType, MyMatrix>::getElemBB(double *bb, const MyMeshType &mesh, ConnType iP, ConnType nb_nodes)
+{
+    const double *coords = mesh.getCoordinatesPtr();
+    const ConnType *conn_index = mesh.getConnectivityIndexPtr();
+    const ConnType *conn = mesh.getConnectivityPtr();
+    // initializing bounding box limits
+    for (int idim = 0; idim < SPACEDIM; idim++)
+    {
+        bb[2 * idim] = std::numeric_limits<double>::max();
+        bb[2 * idim + 1] = -std::numeric_limits<double>::max();
+    }
 
-    for (ConnType i=0; i<nb_nodes; i++)
-      {
-        //MN: iP= cell index, not node index, use of connectivity array ?
-        const double* coord_node = coords +
-          SPACEDIM*(OTT<ConnType,numPol>::coo2C(conn[OTT<ConnType,numPol>::conn2C(conn_index[OTT<ConnType,numPol>::ind2C(iP)]+i)]));
-        for(int idim=0; idim<SPACEDIM; idim++)
-          {
-            double x = *(coord_node+idim);
-            bb[2*idim  ] = (x<bb[2*idim  ]) ? x : bb[2*idim  ];
-            bb[2*idim+1] = (x>bb[2*idim+1]) ? x : bb[2*idim+1];
-          }
-      }
-  }
+    for (ConnType i = 0; i < nb_nodes; i++)
+    {
+        // MN: iP= cell index, not node index, use of connectivity array ?
+        const double *coord_node =
+            coords +
+            SPACEDIM * (OTT<ConnType, numPol>::coo2C(
+                           conn[OTT<ConnType, numPol>::conn2C(conn_index[OTT<ConnType, numPol>::ind2C(iP)] + i)]
+                       ));
+        for (int idim = 0; idim < SPACEDIM; idim++)
+        {
+            double x = *(coord_node + idim);
+            bb[2 * idim] = (x < bb[2 * idim]) ? x : bb[2 * idim];
+            bb[2 * idim + 1] = (x > bb[2 * idim + 1]) ? x : bb[2 * idim + 1];
+        }
+    }
+}
 
-  /*!
-   * \param [in] startOfSeg - input coming from intersectSegments or intersectSegmentsInternal
-   * \param [in] endOfSeg - input coming from intersectSegments or intersectSegmentsInternal. NO Assume about sort
-   * \param [in] pt - position of point that the method computes the bary coords for.
-   */
-  template<class MyMeshType, class MyMatrix>
-  void CurveIntersector<MyMeshType,MyMatrix>::ComputeBaryCoordsOf(double startOfSeg, double endOfSeg, double pt, double& startPos, double& endPos)
-  {
-    double deno(endOfSeg-startOfSeg);
-    startPos = (endOfSeg-pt)/deno;
-    startPos = std::max(startPos,0.); startPos = std::min(startPos,1.);
-    endPos=1.-startPos;
-  }
+/*!
+ * \param [in] startOfSeg - input coming from intersectSegments or intersectSegmentsInternal
+ * \param [in] endOfSeg - input coming from intersectSegments or intersectSegmentsInternal. NO Assume about sort
+ * \param [in] pt - position of point that the method computes the bary coords for.
+ */
+template <class MyMeshType, class MyMatrix>
+void
+CurveIntersector<MyMeshType, MyMatrix>::ComputeBaryCoordsOf(
+    double startOfSeg, double endOfSeg, double pt, double &startPos, double &endPos
+)
+{
+    double deno(endOfSeg - startOfSeg);
+    startPos = (endOfSeg - pt) / deno;
+    startPos = std::max(startPos, 0.);
+    startPos = std::min(startPos, 1.);
+    endPos = 1. - startPos;
+}
 
-  /*!
-   * @param icellT id in target mesh in format of MyMeshType.
-   * @param coordsT output val that stores coordinates of the target cell
-   * automatically resized to the right length.
-   * @return true if segment is quadratic and in this case coordinates of medium node
-   * are placed in the middle of coordsT
-   */
-  template<class MyMeshType, class MyMatrix>
-  bool CurveIntersector<MyMeshType,MyMatrix>::getRealTargetCoordinates(ConnType icellT, std::vector<double>& coordsT) const
-  {
-    ConnType nbNodesT(_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)+1] - _connIndexT[OTT<ConnType,numPol>::ind2C(icellT)]);
-    coordsT.resize(SPACEDIM*nbNodesT);
-    for (ConnType iT=0; iT<nbNodesT; iT++)
-      {
-        for(int idim=0; idim<SPACEDIM; idim++)
-          {
-            coordsT[SPACEDIM*iT+idim] =
-              _coordsT[SPACEDIM*OTT<ConnType,numPol>::coo2C(_connectT[OTT<ConnType,numPol>::conn2C(_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)]+iT)])+idim];
-          }
-      }
-    if ( nbNodesT > 2 )
-      {
-        for(int idim=0; idim<SPACEDIM; idim++)
-          std::swap( coordsT[SPACEDIM*1+idim], coordsT[SPACEDIM*2+idim]);
+/*!
+ * @param icellT id in target mesh in format of MyMeshType.
+ * @param coordsT output val that stores coordinates of the target cell
+ * automatically resized to the right length.
+ * @return true if segment is quadratic and in this case coordinates of medium node
+ * are placed in the middle of coordsT
+ */
+template <class MyMeshType, class MyMatrix>
+bool
+CurveIntersector<MyMeshType, MyMatrix>::getRealTargetCoordinates(ConnType icellT, std::vector<double> &coordsT) const
+{
+    ConnType nbNodesT(
+        _connIndexT[OTT<ConnType, numPol>::ind2C(icellT) + 1] - _connIndexT[OTT<ConnType, numPol>::ind2C(icellT)]
+    );
+    coordsT.resize(SPACEDIM * nbNodesT);
+    for (ConnType iT = 0; iT < nbNodesT; iT++)
+    {
+        for (int idim = 0; idim < SPACEDIM; idim++)
+        {
+            coordsT[SPACEDIM * iT + idim] = _coordsT
+                [SPACEDIM * OTT<ConnType, numPol>::coo2C(
+                                _connectT[OTT<ConnType, numPol>::
+                                              conn2C(_connIndexT[OTT<ConnType, numPol>::ind2C(icellT)] + iT)]
+                            ) +
+                 idim];
+        }
+    }
+    if (nbNodesT > 2)
+    {
+        for (int idim = 0; idim < SPACEDIM; idim++)
+            std::swap(coordsT[SPACEDIM * 1 + idim], coordsT[SPACEDIM * 2 + idim]);
         return true;
-      }
+    }
     return false;
-  }
+}
 
-  template<class MyMeshType, class MyMatrix>
-  typename MyMeshType::MyConnType CurveIntersector<MyMeshType,MyMatrix>::getNodeIdOfTargetCellAt(ConnType icellT, ConnType nodeIdInCellT) const
-  {
-    ConnType nbNodesT(_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)+1] - _connIndexT[OTT<ConnType,numPol>::ind2C(icellT)]);
-    if(nodeIdInCellT>=0 && nodeIdInCellT<nbNodesT)
-      return OTT<ConnType,numPol>::coo2C(_connectT[OTT<ConnType,numPol>::conn2C(_connIndexT[OTT<ConnType,numPol>::ind2C(icellT)]+nodeIdInCellT)]);
+template <class MyMeshType, class MyMatrix>
+typename MyMeshType::MyConnType
+CurveIntersector<MyMeshType, MyMatrix>::getNodeIdOfTargetCellAt(ConnType icellT, ConnType nodeIdInCellT) const
+{
+    ConnType nbNodesT(
+        _connIndexT[OTT<ConnType, numPol>::ind2C(icellT) + 1] - _connIndexT[OTT<ConnType, numPol>::ind2C(icellT)]
+    );
+    if (nodeIdInCellT >= 0 && nodeIdInCellT < nbNodesT)
+        return OTT<ConnType, numPol>::coo2C(
+            _connectT[OTT<ConnType, numPol>::conn2C(_connIndexT[OTT<ConnType, numPol>::ind2C(icellT)] + nodeIdInCellT)]
+        );
     else
-      throw Exception("getNodeIdOfTargetCellAt : error in nodeId in cell");
-  }
+        throw Exception("getNodeIdOfTargetCellAt : error in nodeId in cell");
+}
 
-  /*!
-   * @param icellS id in source mesh in format of MyMeshType.
-   * @param coordsS output val that stores coordinates of the source cell automatically resized to the right length.
-   * @return true if segment is quadratic and in this case coordinates of medium node
-   * are placed in the middle of coordsS
-   */
-  template<class MyMeshType, class MyMatrix>
-  bool CurveIntersector<MyMeshType,MyMatrix>::getRealSourceCoordinates(ConnType icellS, std::vector<double>& coordsS) const
-  {
-    ConnType nbNodesS = _connIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1] - _connIndexS[OTT<ConnType,numPol>::ind2C(icellS)];
-    coordsS.resize(SPACEDIM*nbNodesS);
-    for(ConnType iS=0; iS<nbNodesS; iS++)
-      {
-        for(int idim=0; idim<SPACEDIM; idim++)
-          {
-            coordsS[SPACEDIM*iS+idim] =
-              _coordsS[SPACEDIM*OTT<ConnType,numPol>::coo2C(_connectS[OTT<ConnType,numPol>::conn2C(_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)]+iS)])+idim];
-          }
-      }
-    if ( nbNodesS > 2 )
-      {
-        for(int idim=0; idim<SPACEDIM; idim++)
-          std::swap( coordsS[SPACEDIM*1+idim], coordsS[SPACEDIM*2+idim]);
+/*!
+ * @param icellS id in source mesh in format of MyMeshType.
+ * @param coordsS output val that stores coordinates of the source cell automatically resized to the right length.
+ * @return true if segment is quadratic and in this case coordinates of medium node
+ * are placed in the middle of coordsS
+ */
+template <class MyMeshType, class MyMatrix>
+bool
+CurveIntersector<MyMeshType, MyMatrix>::getRealSourceCoordinates(ConnType icellS, std::vector<double> &coordsS) const
+{
+    ConnType nbNodesS =
+        _connIndexS[OTT<ConnType, numPol>::ind2C(icellS) + 1] - _connIndexS[OTT<ConnType, numPol>::ind2C(icellS)];
+    coordsS.resize(SPACEDIM * nbNodesS);
+    for (ConnType iS = 0; iS < nbNodesS; iS++)
+    {
+        for (int idim = 0; idim < SPACEDIM; idim++)
+        {
+            coordsS[SPACEDIM * iS + idim] = _coordsS
+                [SPACEDIM * OTT<ConnType, numPol>::coo2C(
+                                _connectS[OTT<ConnType, numPol>::
+                                              conn2C(_connIndexS[OTT<ConnType, numPol>::ind2C(icellS)] + iS)]
+                            ) +
+                 idim];
+        }
+    }
+    if (nbNodesS > 2)
+    {
+        for (int idim = 0; idim < SPACEDIM; idim++)
+            std::swap(coordsS[SPACEDIM * 1 + idim], coordsS[SPACEDIM * 2 + idim]);
         return true;
-      }
+    }
     return false;
-  }
+}
 
-  template<class MyMeshType, class MyMatrix>
-  typename MyMeshType::MyConnType CurveIntersector<MyMeshType,MyMatrix>::getNodeIdOfSourceCellAt(ConnType icellS, ConnType nodeIdInCellS) const
-  {
-    ConnType nbNodesS(_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)+1] - _connIndexS[OTT<ConnType,numPol>::ind2C(icellS)]);
-    if(nodeIdInCellS>=0 && nodeIdInCellS<nbNodesS)
-      return OTT<ConnType,numPol>::coo2C(_connectS[OTT<ConnType,numPol>::conn2C(_connIndexS[OTT<ConnType,numPol>::ind2C(icellS)]+nodeIdInCellS)]);
+template <class MyMeshType, class MyMatrix>
+typename MyMeshType::MyConnType
+CurveIntersector<MyMeshType, MyMatrix>::getNodeIdOfSourceCellAt(ConnType icellS, ConnType nodeIdInCellS) const
+{
+    ConnType nbNodesS(
+        _connIndexS[OTT<ConnType, numPol>::ind2C(icellS) + 1] - _connIndexS[OTT<ConnType, numPol>::ind2C(icellS)]
+    );
+    if (nodeIdInCellS >= 0 && nodeIdInCellS < nbNodesS)
+        return OTT<ConnType, numPol>::coo2C(
+            _connectS[OTT<ConnType, numPol>::conn2C(_connIndexS[OTT<ConnType, numPol>::ind2C(icellS)] + nodeIdInCellS)]
+        );
     else
-      throw Exception("getNodeIdOfSourceCellAt : error in nodeId in cell");
-  }
+        throw Exception("getNodeIdOfSourceCellAt : error in nodeId in cell");
+}
 
-  /*!
-   * \brief Return dual segments of given segment
-   *  \param icell - given segment in C mode
-   *  \param mesh - mesh
-   *  \param segments - dual segments
-   */
-  template<class MyMeshType, class MyMatrix>
-  void CurveIntersector<MyMeshType,MyMatrix>::getDualSegments(ConnType                   icell,
-                                                              const MyMeshType&          mesh,
-                                                              std::vector<TDualSegment>& segments)
-  {
+/*!
+ * \brief Return dual segments of given segment
+ *  \param icell - given segment in C mode
+ *  \param mesh - mesh
+ *  \param segments - dual segments
+ */
+template <class MyMeshType, class MyMatrix>
+void
+CurveIntersector<MyMeshType, MyMatrix>::getDualSegments(
+    ConnType icell, const MyMeshType &mesh, std::vector<TDualSegment> &segments
+)
+{
     // get coordinates of cell nodes
     ConnType nbNodes;
-    std::vector<double>   ncoords;
+    std::vector<double> ncoords;
     std::vector<ConnType> nodeIds;
     {
-      const ConnType *connect   = mesh.getConnectivityPtr();
-      const ConnType *connIndex = mesh.getConnectivityIndexPtr();
-      const double *coords      = mesh.getCoordinatesPtr();
+        const ConnType *connect = mesh.getConnectivityPtr();
+        const ConnType *connIndex = mesh.getConnectivityIndexPtr();
+        const double *coords = mesh.getCoordinatesPtr();
 
-      nbNodes = connIndex[icell+1] - connIndex[icell];
+        nbNodes = connIndex[icell + 1] - connIndex[icell];
 
-      ncoords.resize(SPACEDIM*nbNodes);
-      nodeIds.resize(nbNodes);
+        ncoords.resize(SPACEDIM * nbNodes);
+        nodeIds.resize(nbNodes);
 
-      for(ConnType i=0; i<nbNodes; i++)
-        for(int idim=0; idim<SPACEDIM; idim++)
-          {
-            nodeIds[i] = connect[OTT<ConnType,numPol>::conn2C(connIndex[OTT<ConnType,numPol>::ind2C(icell)]+i)];
-            ncoords[SPACEDIM*i+idim] = coords[SPACEDIM*OTT<ConnType,numPol>::coo2C(nodeIds[i])+idim];
-          }
-      if ( nbNodes > 2 ) // quadratic segment, put medium node in the middle
+        for (ConnType i = 0; i < nbNodes; i++)
+            for (int idim = 0; idim < SPACEDIM; idim++)
+            {
+                nodeIds[i] = connect[OTT<ConnType, numPol>::conn2C(connIndex[OTT<ConnType, numPol>::ind2C(icell)] + i)];
+                ncoords[SPACEDIM * i + idim] = coords[SPACEDIM * OTT<ConnType, numPol>::coo2C(nodeIds[i]) + idim];
+            }
+        if (nbNodes > 2)  // quadratic segment, put medium node in the middle
         {
-          for(int idim=0; idim<SPACEDIM; idim++)
-            std::swap( ncoords[SPACEDIM*1+idim], ncoords[SPACEDIM*2+idim]);
-          std::swap( nodeIds[1], nodeIds[2] );
+            for (int idim = 0; idim < SPACEDIM; idim++)
+                std::swap(ncoords[SPACEDIM * 1 + idim], ncoords[SPACEDIM * 2 + idim]);
+            std::swap(nodeIds[1], nodeIds[2]);
         }
     }
 
     // fill segments
     segments.clear();
-    segments.reserve( 2*nbNodes );
-    for(ConnType i=0; i<nbNodes-1; i++)
-      {
+    segments.reserve(2 * nbNodes);
+    for (ConnType i = 0; i < nbNodes - 1; i++)
+    {
         segments.push_back(TDualSegment());
-        TDualSegment& seg1 = segments.back();
+        TDualSegment &seg1 = segments.back();
         segments.push_back(TDualSegment());
-        TDualSegment& seg2 = segments.back();
+        TDualSegment &seg2 = segments.back();
 
         seg1._nodeId = nodeIds[i];
-        seg2._nodeId = nodeIds[i+1];
+        seg2._nodeId = nodeIds[i + 1];
 
-        seg1._coords.resize( SPACEDIM * 2 );
-        seg2._coords.resize( SPACEDIM * 2 );
+        seg1._coords.resize(SPACEDIM * 2);
+        seg2._coords.resize(SPACEDIM * 2);
 
-        for(int idim=0; idim<SPACEDIM; idim++)
-          {
-            double c1 = ncoords[SPACEDIM*i+idim];
-            double c2 = ncoords[SPACEDIM*(i+1)+idim];
-            double m = 0.5 * ( c1 + c2 );
-            seg1._coords[ idim ] = c1;
-            seg1._coords[ SPACEDIM + idim ] = m;
-            seg2._coords[ idim ] = m;
-            seg2._coords[ SPACEDIM + idim ] = c2;
-          }
-      }
-  }
-
-  template<class MyMeshType, class MyMatrix>
-  bool CurveIntersector<MyMeshType,MyMatrix>::projectionThis(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt) const
-  {
-    enum { X=0, Y };
-    switch(SPACEDIM)
-      {
-      case 1:
+        for (int idim = 0; idim < SPACEDIM; idim++)
         {
-          xt  = coordsT[0];
-          xs0 = coordsS[0]; xs1 = coordsS[1];
-          return true;
+            double c1 = ncoords[SPACEDIM * i + idim];
+            double c2 = ncoords[SPACEDIM * (i + 1) + idim];
+            double m = 0.5 * (c1 + c2);
+            seg1._coords[idim] = c1;
+            seg1._coords[SPACEDIM + idim] = m;
+            seg2._coords[idim] = m;
+            seg2._coords[SPACEDIM + idim] = c2;
         }
-      case 2:
-        {
-          const double *s0(coordsS),*s1(coordsS + 2);
-          double s01[2] = { s1[X]-s0[X], s1[Y]-s0[Y] }; // src segment direction
-          double sSize = sqrt( s01[X]*s01[X] + s01[Y]*s01[Y] ); // src segment size
-          if( sSize < this->_precision )
-            return false;
-          s01[X] /= sSize; s01[Y] /= sSize; // normalize s01
-          double t[2] = { coordsT[X]-s0[X], coordsT[Y]-s0[Y] };
-          xs0 = 0. ; xs1 = sSize; xt = s01[X]*t[X] + s01[Y]*t[Y];
-          double proj_t_on_s[2] = { s0[X]+xt*s01[X], s0[Y]+xt*s01[Y] };
-          double dist_t_s_vect[2] = { coordsT[X]-proj_t_on_s[X], coordsT[Y]-proj_t_on_s[Y] };
-          double dist_t_s = sqrt( dist_t_s_vect[X]*dist_t_s_vect[X]+dist_t_s_vect[Y]*dist_t_s_vect[Y] );
-          return dist_t_s < this->_precision;
-        }
-      default:
-        throw Exception("CurveIntersector::projectionThis : space dimension of mesh must be 1 or 2");
-      }
-  }
+    }
+}
 
-  template<class MyMeshType, class MyMatrix>
-  bool CurveIntersector<MyMeshType,MyMatrix>::projectionThis(const double *coordsT, const double *coordsS,
-                                                             double& xs0, double& xs1, double& xt0, double& xt1) const
-  {
-    xt0 = coordsT[0]; xt1 = coordsT[1];
-    xs0 = coordsS[0]; xs1 = coordsS[1];
-    if ( SPACEDIM == 2 )
-      {
-        return INTERP_KERNEL::CurveIntersectorInternal::CurveIntersectorInternalProjectionThis2D(coordsT,coordsS, _tolerance, _precision, _median_line,
-        xs0,xs1,xt0,xt1);
-      }
-    if ( SPACEDIM == 3 )
+template <class MyMeshType, class MyMatrix>
+bool
+CurveIntersector<MyMeshType, MyMatrix>::projectionThis(
+    const double *coordsT, const double *coordsS, double &xs0, double &xs1, double &xt
+) const
+{
+    enum
     {
-      double coordsT2D[4], coordsS2D[4];
-      double dist = INTERP_KERNEL::CurveIntersectorInternal::InternalProjectionFrom3DTo2D(coordsT,coordsS,_tolerance,coordsT2D,coordsS2D);
-      if( dist >= this->_precision )
-        return false;
-      return INTERP_KERNEL::CurveIntersectorInternal::CurveIntersectorInternalProjectionThis2D(coordsT2D,coordsS2D,_tolerance,_precision,_median_line,xs0,xs1,xt0,xt1);
+        X = 0,
+        Y
+    };
+    switch (SPACEDIM)
+    {
+        case 1:
+        {
+            xt = coordsT[0];
+            xs0 = coordsS[0];
+            xs1 = coordsS[1];
+            return true;
+        }
+        case 2:
+        {
+            const double *s0(coordsS), *s1(coordsS + 2);
+            double s01[2] = {s1[X] - s0[X], s1[Y] - s0[Y]};          // src segment direction
+            double sSize = sqrt(s01[X] * s01[X] + s01[Y] * s01[Y]);  // src segment size
+            if (sSize < this->_precision)
+                return false;
+            s01[X] /= sSize;
+            s01[Y] /= sSize;  // normalize s01
+            double t[2] = {coordsT[X] - s0[X], coordsT[Y] - s0[Y]};
+            xs0 = 0.;
+            xs1 = sSize;
+            xt = s01[X] * t[X] + s01[Y] * t[Y];
+            double proj_t_on_s[2] = {s0[X] + xt * s01[X], s0[Y] + xt * s01[Y]};
+            double dist_t_s_vect[2] = {coordsT[X] - proj_t_on_s[X], coordsT[Y] - proj_t_on_s[Y]};
+            double dist_t_s = sqrt(dist_t_s_vect[X] * dist_t_s_vect[X] + dist_t_s_vect[Y] * dist_t_s_vect[Y]);
+            return dist_t_s < this->_precision;
+        }
+        default:
+            throw Exception("CurveIntersector::projectionThis : space dimension of mesh must be 1 or 2");
+    }
+}
+
+template <class MyMeshType, class MyMatrix>
+bool
+CurveIntersector<MyMeshType, MyMatrix>::projectionThis(
+    const double *coordsT, const double *coordsS, double &xs0, double &xs1, double &xt0, double &xt1
+) const
+{
+    xt0 = coordsT[0];
+    xt1 = coordsT[1];
+    xs0 = coordsS[0];
+    xs1 = coordsS[1];
+    if (SPACEDIM == 2)
+    {
+        return INTERP_KERNEL::CurveIntersectorInternal::CurveIntersectorInternalProjectionThis2D(
+            coordsT, coordsS, _tolerance, _precision, _median_line, xs0, xs1, xt0, xt1
+        );
+    }
+    if (SPACEDIM == 3)
+    {
+        double coordsT2D[4], coordsS2D[4];
+        double dist = INTERP_KERNEL::CurveIntersectorInternal::InternalProjectionFrom3DTo2D(
+            coordsT, coordsS, _tolerance, coordsT2D, coordsS2D
+        );
+        if (dist >= this->_precision)
+            return false;
+        return INTERP_KERNEL::CurveIntersectorInternal::CurveIntersectorInternalProjectionThis2D(
+            coordsT2D, coordsS2D, _tolerance, _precision, _median_line, xs0, xs1, xt0, xt1
+        );
     }
     return true;
-  }
+}
 
-  /*!
-   * \brief Return length of intersection of two segments
-   */
-  template<class MyMeshType, class MyMatrix>
-  double CurveIntersector<MyMeshType,MyMatrix>::intersectSegmentsInternal(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt0, double& xt1) const
-  {
-    if(!projectionThis(coordsT,coordsS,xs0,xs1,xt0,xt1))
-      return 0.;
+/*!
+ * \brief Return length of intersection of two segments
+ */
+template <class MyMeshType, class MyMatrix>
+double
+CurveIntersector<MyMeshType, MyMatrix>::intersectSegmentsInternal(
+    const double *coordsT, const double *coordsS, double &xs0, double &xs1, double &xt0, double &xt1
+) const
+{
+    if (!projectionThis(coordsT, coordsS, xs0, xs1, xt0, xt1))
+        return 0.;
 
-    if ( xt0 > xt1 ) std::swap( xt0, xt1 );
-    if ( xs0 > xs1 ) std::swap( xs0, xs1 );
+    if (xt0 > xt1)
+        std::swap(xt0, xt1);
+    if (xs0 > xs1)
+        std::swap(xs0, xs1);
 
-    double x0 = std::max( xt0, xs0 );
-    double x1 = std::min( xt1, xs1 );
-    return ( x0 < x1 ) ? ( x1 - x0 ) : 0.;
-  }
+    double x0 = std::max(xt0, xs0);
+    double x1 = std::min(xt1, xs1);
+    return (x0 < x1) ? (x1 - x0) : 0.;
+}
 
-  template<class MyMeshType>
-  class DummyMyMeshType1D
-  {
-  public:
-    static const int MY_SPACEDIM=1;
-    static const int MY_MESHDIM=8;
+template <class MyMeshType>
+class DummyMyMeshType1D
+{
+   public:
+    static const int MY_SPACEDIM = 1;
+    static const int MY_MESHDIM = 8;
     typedef mcIdType MyConnType;
-    static const INTERP_KERNEL::NumberingPolicy My_numPol=MyMeshType::My_numPol;
+    static const INTERP_KERNEL::NumberingPolicy My_numPol = MyMeshType::My_numPol;
     // begin
     // useless, but for windows compilation ...
     const double *getCoordinatesPtr() const { return nullptr; }
     const MyConnType *getConnectivityPtr() const { return nullptr; }
     const MyConnType *getConnectivityIndexPtr() const { return nullptr; }
-    INTERP_KERNEL::NormalizedCellType getTypeOfElement(MyConnType) const { return (INTERP_KERNEL::NormalizedCellType)0; }
+    INTERP_KERNEL::NormalizedCellType getTypeOfElement(MyConnType) const
+    {
+        return (INTERP_KERNEL::NormalizedCellType)0;
+    }
     // end
-  };
+};
 
-  /*!
-   * This method determines if a target point ( \a coordsT ) is in source seg2 contained in \a coordsS. To do so _precision attribute is used.
-   * If target point is in, \a xs0, \a xs1 and \a xt are set to 1D referential for a further barycentric computation.
-   * This method deals with SPACEDIM == 2 (see projectionThis).
-   */
-  template<class MyMeshType, class MyMatrix>
-  bool CurveIntersector<MyMeshType,MyMatrix>::isPtIncludedInSeg(const double *coordsT, const double *coordsS, double& xs0, double& xs1, double& xt) const
-  {
-    if(!projectionThis(coordsT,coordsS,xs0,xs1,xt))
-      return false;
-    constexpr ConnType TAB[2]={0,1};
-    const double coordsS_1D[2]={xs0,xs1};
+/*!
+ * This method determines if a target point ( \a coordsT ) is in source seg2 contained in \a coordsS. To do so
+ * _precision attribute is used. If target point is in, \a xs0, \a xs1 and \a xt are set to 1D referential for a further
+ * barycentric computation. This method deals with SPACEDIM == 2 (see projectionThis).
+ */
+template <class MyMeshType, class MyMatrix>
+bool
+CurveIntersector<MyMeshType, MyMatrix>::isPtIncludedInSeg(
+    const double *coordsT, const double *coordsS, double &xs0, double &xs1, double &xt
+) const
+{
+    if (!projectionThis(coordsT, coordsS, xs0, xs1, xt))
+        return false;
+    constexpr ConnType TAB[2] = {0, 1};
+    const double coordsS_1D[2] = {xs0, xs1};
     const double *coordsT_1D(&xt);
-    return PointLocatorAlgos<DummyMyMeshType1D<MyMeshType>>::isElementContainsPoint(coordsT_1D,NORM_SEG2,coordsS_1D,TAB,2,this->_precision);
-  }
-
-  /*!
-   * \brief Return length of intersection of two segments
-   */
-  template<class MyMeshType, class MyMatrix>
-  double CurveIntersector<MyMeshType,MyMatrix>::intersectSegments(const double *coordsT, const double *coordsS) const
-  {
-    double xs0,xs1,xt0,xt1;
-    return intersectSegmentsInternal(coordsT,coordsS,xs0,xs1,xt0,xt1);
-  }
+    return PointLocatorAlgos<DummyMyMeshType1D<MyMeshType>>::isElementContainsPoint(
+        coordsT_1D, NORM_SEG2, coordsS_1D, TAB, 2, this->_precision
+    );
 }
+
+/*!
+ * \brief Return length of intersection of two segments
+ */
+template <class MyMeshType, class MyMatrix>
+double
+CurveIntersector<MyMeshType, MyMatrix>::intersectSegments(const double *coordsT, const double *coordsS) const
+{
+    double xs0, xs1, xt0, xt1;
+    return intersectSegmentsInternal(coordsT, coordsS, xs0, xs1, xt0, xt1);
+}
+}  // namespace INTERP_KERNEL

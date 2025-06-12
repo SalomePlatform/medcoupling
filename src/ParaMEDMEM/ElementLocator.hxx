@@ -30,42 +30,47 @@
 
 namespace MEDCoupling
 {
-  class ParaFIELD;
-  class ProcessorGroup;
-  class InterpolationMatrix;
-  class MEDCouplingPointSet;
-  class DataArrayInt;
+class ParaFIELD;
+class ProcessorGroup;
+class InterpolationMatrix;
+class MEDCouplingPointSet;
+class DataArrayInt;
 
-  /*! Internal class, not part of the public API. Used in InterpolationMatrix.
-   *
-   */
-  class ElementLocator : public INTERP_KERNEL::InterpolationOptions
-  {
-  public:
-    ElementLocator(const ParaFIELD& sourceField, const ProcessorGroup& distant_group, const ProcessorGroup& local_group);
+/*! Internal class, not part of the public API. Used in InterpolationMatrix.
+ *
+ */
+class ElementLocator : public INTERP_KERNEL::InterpolationOptions
+{
+   public:
+    ElementLocator(
+        const ParaFIELD &sourceField, const ProcessorGroup &distant_group, const ProcessorGroup &local_group
+    );
 
     virtual ~ElementLocator();
-    void exchangeMesh(int idistantrank,
-                      MEDCouplingPointSet*& target_mesh,
-                      mcIdType*& distant_ids);
-    void exchangeMethod(const std::string& sourceMeth, int idistantrank, std::string& targetMeth);
-    const std::vector<int>& getDistantProcIds() const { return _distant_proc_ids; }
+    void exchangeMesh(int idistantrank, MEDCouplingPointSet *&target_mesh, mcIdType *&distant_ids);
+    void exchangeMethod(const std::string &sourceMeth, int idistantrank, std::string &targetMeth);
+    const std::vector<int> &getDistantProcIds() const { return _distant_proc_ids; }
     const MPI_Comm *getCommunicator() const;
     NatureOfField getLocalNature() const;
     //! This method is used to informed if there is -1D mesh on distant_group side or on local_group side.
     bool isM1DCorr() const { return _is_m1d_corr; }
-    //Working side methods
-    void recvPolicyFromLazySideW(std::vector<int>& policy);
-    void sendSumToLazySideW(const std::vector< std::vector<mcIdType> >& distantLocEltIds, const std::vector< std::vector<double> >& partialSumRelToDistantIds);
-    void recvSumFromLazySideW(std::vector< std::vector<double> >& globalSumRelToDistantIds);
-    void sendCandidatesForAddElementsW(const std::vector<mcIdType>& distantGlobIds);
-    void recvAddElementsFromLazyProcsW(std::vector<std::vector<mcIdType> >& elementsToAdd);
+    // Working side methods
+    void recvPolicyFromLazySideW(std::vector<int> &policy);
+    void sendSumToLazySideW(
+        const std::vector<std::vector<mcIdType> > &distantLocEltIds,
+        const std::vector<std::vector<double> > &partialSumRelToDistantIds
+    );
+    void recvSumFromLazySideW(std::vector<std::vector<double> > &globalSumRelToDistantIds);
+    void sendCandidatesForAddElementsW(const std::vector<mcIdType> &distantGlobIds);
+    void recvAddElementsFromLazyProcsW(std::vector<std::vector<mcIdType> > &elementsToAdd);
     //
-    void sendLocalIdsToLazyProcsW(const std::vector< std::vector<mcIdType> >& distantLocEltIds);
-    void recvGlobalIdsFromLazyProcsW(const std::vector< std::vector<mcIdType> >& distantLocEltIds, std::vector< std::vector<mcIdType> >& globalIds);
-    void recvCandidatesGlobalIdsFromLazyProcsW(std::vector< std::vector<mcIdType> >& globalIds);
-    void sendPartialSumToLazyProcsW(const std::vector<mcIdType>& distantGlobIds, const std::vector<double>& sum);
-    //Lazy side methods
+    void sendLocalIdsToLazyProcsW(const std::vector<std::vector<mcIdType> > &distantLocEltIds);
+    void recvGlobalIdsFromLazyProcsW(
+        const std::vector<std::vector<mcIdType> > &distantLocEltIds, std::vector<std::vector<mcIdType> > &globalIds
+    );
+    void recvCandidatesGlobalIdsFromLazyProcsW(std::vector<std::vector<mcIdType> > &globalIds);
+    void sendPartialSumToLazyProcsW(const std::vector<mcIdType> &distantGlobIds, const std::vector<double> &sum);
+    // Lazy side methods
     int sendPolicyToWorkingSideL();
     void recvFromWorkingSideL();
     void sendToWorkingSideL();
@@ -77,36 +82,43 @@ namespace MEDCoupling
     void recvSumFromWorkingSideL();
     void recvCandidatesForAddElementsL();
     void sendAddElementsToWorkingSideL();
-  private:
+
+   private:
     void _computeBoundingBoxes();
     bool _intersectsBoundingBox(int irank);
-    void _exchangeMesh(MEDCouplingPointSet* local_mesh, MEDCouplingPointSet*& distant_mesh,
-                       int iproc_distant, const DataArrayIdType* distant_ids_send,
-                       mcIdType*& distant_ids_recv);
-  private:
-    const ParaFIELD&  _local_para_field ;
-    MEDCouplingPointSet* _local_cell_mesh;
+    void _exchangeMesh(
+        MEDCouplingPointSet *local_mesh,
+        MEDCouplingPointSet *&distant_mesh,
+        int iproc_distant,
+        const DataArrayIdType *distant_ids_send,
+        mcIdType *&distant_ids_recv
+    );
+
+   private:
+    const ParaFIELD &_local_para_field;
+    MEDCouplingPointSet *_local_cell_mesh;
     int _local_cell_mesh_space_dim;
     bool _is_m1d_corr;
-    MEDCouplingPointSet* _local_face_mesh;
-    std::vector<MEDCouplingPointSet*> _distant_cell_meshes;
-    std::vector<MEDCouplingPointSet*> _distant_face_meshes;
-    double* _domain_bounding_boxes;
-    const ProcessorGroup& _distant_group;
-    const ProcessorGroup& _local_group;
-    ProcessorGroup* _union_group;
+    MEDCouplingPointSet *_local_face_mesh;
+    std::vector<MEDCouplingPointSet *> _distant_cell_meshes;
+    std::vector<MEDCouplingPointSet *> _distant_face_meshes;
+    double *_domain_bounding_boxes;
+    const ProcessorGroup &_distant_group;
+    const ProcessorGroup &_local_group;
+    ProcessorGroup *_union_group;
     std::vector<int> _distant_proc_ids;
     const MPI_Comm *_comm;
-    //Attributes only used by lazy side
+    // Attributes only used by lazy side
     std::vector<double> _values_added;
-    std::vector< std::vector<mcIdType> > _ids_per_working_proc;
-    std::vector< std::vector<mcIdType> > _ids_per_working_proc3;
-    std::vector< std::vector<double> > _values_per_working_proc;
-  public:
-    static const int CUMULATIVE_POLICY=3;
-    static const int NO_POST_TREATMENT_POLICY=7;
-  };
+    std::vector<std::vector<mcIdType> > _ids_per_working_proc;
+    std::vector<std::vector<mcIdType> > _ids_per_working_proc3;
+    std::vector<std::vector<double> > _values_per_working_proc;
 
-}
+   public:
+    static const int CUMULATIVE_POLICY = 3;
+    static const int NO_POST_TREATMENT_POLICY = 7;
+};
+
+}  // namespace MEDCoupling
 
 #endif

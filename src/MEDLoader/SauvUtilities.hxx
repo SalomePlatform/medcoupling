@@ -32,83 +32,96 @@
 
 namespace SauvUtilities
 {
-  INTERP_KERNEL::NormalizedCellType MEDLOADER_EXPORT gibi2medGeom( size_t gibiType );
-  int med2gibiGeom( INTERP_KERNEL::NormalizedCellType medGeomType );
-  const int * getGibi2MedQuadraticInterlace( INTERP_KERNEL::NormalizedCellType type );
-  unsigned getDimension( INTERP_KERNEL::NormalizedCellType type );
+INTERP_KERNEL::NormalizedCellType MEDLOADER_EXPORT
+gibi2medGeom(size_t gibiType);
+int
+med2gibiGeom(INTERP_KERNEL::NormalizedCellType medGeomType);
+const int *
+getGibi2MedQuadraticInterlace(INTERP_KERNEL::NormalizedCellType type);
+unsigned
+getDimension(INTERP_KERNEL::NormalizedCellType type);
 
-  enum Readable_Piles
-    {
-      PILE_SOUS_MAILLAGE=1 ,
-      PILE_NODES_FIELD  =2 ,
-      PILE_TABLES       =10,
-      PILE_LREEL        =18,
-      PILE_LOGIQUES     =24,
-      PILE_FLOATS       =25,
-      PILE_INTEGERS     =26,
-      PILE_STRINGS      =27,
-      PILE_LMOTS        =29,
-      PILE_NOEUDS       =32,
-      PILE_COORDONNEES  =33,
-      PILE_MODL         =38,
-      PILE_FIELD        =39,
-      PILE_LAST_READABLE=39
-    };
+enum Readable_Piles
+{
+    PILE_SOUS_MAILLAGE = 1,
+    PILE_NODES_FIELD = 2,
+    PILE_TABLES = 10,
+    PILE_LREEL = 18,
+    PILE_LOGIQUES = 24,
+    PILE_FLOATS = 25,
+    PILE_INTEGERS = 26,
+    PILE_STRINGS = 27,
+    PILE_LMOTS = 29,
+    PILE_NOEUDS = 32,
+    PILE_COORDONNEES = 33,
+    PILE_MODL = 38,
+    PILE_FIELD = 39,
+    PILE_LAST_READABLE = 39
+};
 
-  //================================================================================
-  /*!
-   * \brief Converts anything to string
-   */
-  //================================================================================
+//================================================================================
+/*!
+ * \brief Converts anything to string
+ */
+//================================================================================
 
-  template<class T> std::string toString(const T& anything)
-  {
-    std::ostringstream s; s << anything; return s.str();
-  }
+template <class T>
+std::string
+toString(const T &anything)
+{
+    std::ostringstream s;
+    s << anything;
+    return s.str();
+}
 
-  // ==============================================================================
-  // IMP 0020434: mapping GIBI names to MED names
-  struct nameGIBItoMED
-  {
+// ==============================================================================
+// IMP 0020434: mapping GIBI names to MED names
+struct nameGIBItoMED
+{
     // GIBI value
-    int gibi_pile;    // PILE_SOUS_MAILLAGE or PILE_FIELD/PILE_NODES_FIELD, or PILE_STRINGS(for components)
+    int gibi_pile;  // PILE_SOUS_MAILLAGE or PILE_FIELD/PILE_NODES_FIELD, or PILE_STRINGS(for components)
     int gibi_id;
-    std::string gibi_name; // used only for components
+    std::string gibi_name;  // used only for components
     // MED value
     // med_pile = 27; // PILE_STRINGS
-    int         med_id;    // used only on reading
+    int med_id;            // used only on reading
     std::string med_name;  // used only on writing
-  };
+};
 
-  // ==============================================================================
-  /*!
-   * \brief Base class for ASCII and XDR file readers
-   */
-  class FileReader : public MEDCoupling::RefCountObject
-  {
-  public:
-    FileReader(const char* fileName);
+// ==============================================================================
+/*!
+ * \brief Base class for ASCII and XDR file readers
+ */
+class FileReader : public MEDCoupling::RefCountObject
+{
+   public:
+    FileReader(const char *fileName);
     virtual ~FileReader() {}
     virtual bool isASCII() const = 0;
 
     virtual bool open() = 0;
-    virtual bool getNextLine (char* & line, bool raiseOEF = true ) = 0;
+    virtual bool getNextLine(char *&line, bool raiseOEF = true) = 0;
     virtual void initNameReading(int nbValues, int width = 8) = 0;
     virtual void initIntReading(int nbValues) = 0;
     virtual void initDoubleReading(int nbValues) = 0;
     virtual bool more() const = 0;
     virtual void next() = 0;
-    virtual int  index() const { return _iRead; }
-    virtual int    getInt() const = 0;
-    virtual float  getFloat() const = 0;
+    virtual int index() const { return _iRead; }
+    virtual int getInt() const = 0;
+    virtual float getFloat() const = 0;
     virtual double getDouble() const = 0;
     virtual std::string getName() const = 0;
-  protected:
+
+   protected:
     std::size_t getHeapMemorySizeWithoutChildren() const { return 0; }
-    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const { return std::vector<const BigMemoryObject *>(); }
-  protected:
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const
+    {
+        return std::vector<const BigMemoryObject *>();
+    }
+
+   protected:
     std::string _fileName;
     int _iRead, _nbToRead;
-  };
-}
+};
+}  // namespace SauvUtilities
 #endif

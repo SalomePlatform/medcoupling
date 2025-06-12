@@ -24,34 +24,40 @@
 #include "MEDCouplingNormalizedCartesianMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
 
-template<int SPACEDIM>
-MEDCouplingNormalizedCartesianMesh<SPACEDIM>::MEDCouplingNormalizedCartesianMesh(const MEDCoupling::MEDCouplingCMesh *mesh):_mesh(mesh)
+template <int SPACEDIM>
+MEDCouplingNormalizedCartesianMesh<SPACEDIM>::MEDCouplingNormalizedCartesianMesh(
+    const MEDCoupling::MEDCouplingCMesh *mesh
+)
+    : _mesh(mesh)
 {
-  if(_mesh)
-    _mesh->incrRef();
+    if (_mesh)
+        _mesh->incrRef();
 }
 
-template<int SPACEDIM>
+template <int SPACEDIM>
 MEDCouplingNormalizedCartesianMesh<SPACEDIM>::~MEDCouplingNormalizedCartesianMesh()
 {
-  if(_mesh)
-    _mesh->decrRef();
+    if (_mesh)
+        _mesh->decrRef();
 }
 
-template<int SPACEDIM>
-mcIdType MEDCouplingNormalizedCartesianMesh<SPACEDIM>::getNumberOfElements() const
+template <int SPACEDIM>
+mcIdType
+MEDCouplingNormalizedCartesianMesh<SPACEDIM>::getNumberOfElements() const
 {
-  return _mesh->getNumberOfCells();
+    return _mesh->getNumberOfCells();
 }
 
-template<int SPACEDIM>
-mcIdType MEDCouplingNormalizedCartesianMesh<SPACEDIM>::nbCellsAlongAxis(int axis) const
+template <int SPACEDIM>
+mcIdType
+MEDCouplingNormalizedCartesianMesh<SPACEDIM>::nbCellsAlongAxis(int axis) const
 {
-  return _mesh->getCoordsAt(axis)->getNumberOfTuples() - 1;
+    return _mesh->getCoordsAt(axis)->getNumberOfTuples() - 1;
 }
 
-template<int SPACEDIM>
-const double * MEDCouplingNormalizedCartesianMesh<SPACEDIM>::getCoordsAlongAxis(int axis) const
+template <int SPACEDIM>
+const double *
+MEDCouplingNormalizedCartesianMesh<SPACEDIM>::getCoordsAlongAxis(int axis) const
 {
-  return _mesh->getCoordsAt(axis)->getConstPointer();
+    return _mesh->getCoordsAt(axis)->getConstPointer();
 }

@@ -28,14 +28,13 @@
 namespace INTERP_TEST
 {
 
-  /**
-   * \brief Base class for planar mesh intersection test suites.
-   *
-   */
-  class InterpolationPlanarTestSuite : public CppUnit::TestFixture
-  {
-
-  public:
+/**
+ * \brief Base class for planar mesh intersection test suites.
+ *
+ */
+class InterpolationPlanarTestSuite : public CppUnit::TestFixture
+{
+   public:
     double _Epsilon;
     double _Precision;
 
@@ -45,10 +44,10 @@ namespace INTERP_TEST
      */
     void setUp()
     {
-      _Epsilon = 1.e-6;
-      _Precision = 1.e-6;
+        _Epsilon = 1.e-6;
+        _Precision = 1.e-6;
     }
-    void tearDown()  {}
+    void tearDown() {}
 
     //     bool checkDequesEqual(std::deque< double > deque1, std::deque< double > deque2, double epsilon);
     //     bool checkVectorsEqual(std::vector< double > Vect1, std::vector< double > Vect2, double epsilon);
@@ -56,55 +55,51 @@ namespace INTERP_TEST
     //     void vectPrintOut(std::vector< double > vect);
     //     void tabPrintOut( const double * tab, int size);
 
-    bool checkDequesEqual(std::deque< double > deque1,
-                          std::deque< double > deque2, double epsilon)
+    bool checkDequesEqual(std::deque<double> deque1, std::deque<double> deque2, double epsilon)
     {
-      std::size_t size1 = deque1.size();
-      std::size_t size2 = deque2.size();
-      bool are_equal = size1 == size2;
+        std::size_t size1 = deque1.size();
+        std::size_t size2 = deque2.size();
+        bool are_equal = size1 == size2;
 
-      if(are_equal)
-        for(std::size_t i = 0; i < size1 && are_equal; i++)
-          are_equal = fabs(deque1[i] - deque2[i]) < epsilon;
+        if (are_equal)
+            for (std::size_t i = 0; i < size1 && are_equal; i++) are_equal = fabs(deque1[i] - deque2[i]) < epsilon;
 
-      return are_equal;
+        return are_equal;
     }
-    bool checkVectorsEqual(std::vector< double > vect1,
-                           std::vector< double > vect2, double epsilon)
+    bool checkVectorsEqual(std::vector<double> vect1, std::vector<double> vect2, double epsilon)
     {
-      std::size_t size1 = vect1.size();
-      std::size_t size2 = vect2.size();
-      bool are_equal = size1 == size2;
+        std::size_t size1 = vect1.size();
+        std::size_t size2 = vect2.size();
+        bool are_equal = size1 == size2;
 
-      if(are_equal)
-        for(std::size_t i = 0; i < size1 && are_equal; i++)
-          are_equal = fabs(vect1[i] - vect2[i]) < epsilon;
+        if (are_equal)
+            for (std::size_t i = 0; i < size1 && are_equal; i++) are_equal = fabs(vect1[i] - vect2[i]) < epsilon;
 
-      return are_equal;
+        return are_equal;
     }
-    void dequePrintOut(std::deque< double > deque1)
+    void dequePrintOut(std::deque<double> deque1)
     {
-      for(std::size_t i = 0; i< deque1.size(); i++)
+        for (std::size_t i = 0; i < deque1.size(); i++)
         {
-          std::cerr << deque1[i] << " ";
+            std::cerr << deque1[i] << " ";
         }
-      std::cerr<< std::endl;
+        std::cerr << std::endl;
     }
-    void vectPrintOut(std::vector< double > vect)
+    void vectPrintOut(std::vector<double> vect)
     {
-      for(std::size_t i = 0; i< vect.size(); i++)
+        for (std::size_t i = 0; i < vect.size(); i++)
         {
-          std::cerr << vect[i] << " ";
+            std::cerr << vect[i] << " ";
         }
-      std::cerr<< std::endl;
+        std::cerr << std::endl;
     }
-    void tabPrintOut( const double * tab,int size)
+    void tabPrintOut(const double *tab, int size)
     {
-      for(int i = 0; i< size; i++)
+        for (int i = 0; i < size; i++)
         {
-          std::cerr << tab[i] << " ";
+            std::cerr << tab[i] << " ";
         }
-      std::cerr<< std::endl;
+        std::cerr << std::endl;
     }
 
     /**
@@ -116,12 +111,9 @@ namespace INTERP_TEST
     //       delete _testTools;
     //     }
 
-
-
     //   protected:
     //     /// MeshTestToolkit object to which the tests are delegated
     //     MeshTestToolkit* _testTools;
-
-  };
-}
+};
+}  // namespace INTERP_TEST
 #endif

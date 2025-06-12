@@ -33,54 +33,58 @@
 namespace INTERP_KERNEL
 {
 
-  /**
-   * Constructor
-   *
-   * @param index   global number of element in the mesh in C mode.
-   * @param mesh    mesh that the element belongs to
-   */
-  template<class ConnType, int SPACEDIM>
-  template<class MyMeshType>
-  MeshElementT<ConnType,SPACEDIM>::MeshElementT(const ConnType index, const MyMeshType& mesh): _number( 0 )
-  {
-    this->assign(index,mesh);
-  }
+/**
+ * Constructor
+ *
+ * @param index   global number of element in the mesh in C mode.
+ * @param mesh    mesh that the element belongs to
+ */
+template <class ConnType, int SPACEDIM>
+template <class MyMeshType>
+MeshElementT<ConnType, SPACEDIM>::MeshElementT(const ConnType index, const MyMeshType &mesh) : _number(0)
+{
+    this->assign(index, mesh);
+}
 
-  template<class ConnType, int SPACEDIM>
-  template<class MyMeshType>
-  void MeshElementT<ConnType,SPACEDIM>::assign(const ConnType index, const MyMeshType& mesh)
-  {
-    auto numberCore = mesh.getNumberOfNodesOfElement(OTT<typename MyMeshType::MyConnType,MyMeshType::My_numPol>::indFC(index));
-    if(numberCore < std::numeric_limits<nbnodesincelltype>::max())
+template <class ConnType, int SPACEDIM>
+template <class MyMeshType>
+void
+MeshElementT<ConnType, SPACEDIM>::assign(const ConnType index, const MyMeshType &mesh)
+{
+    auto numberCore =
+        mesh.getNumberOfNodesOfElement(OTT<typename MyMeshType::MyConnType, MyMeshType::My_numPol>::indFC(index));
+    if (numberCore < std::numeric_limits<nbnodesincelltype>::max())
     {
-      _number = static_cast< nbnodesincelltype >(numberCore);
-      std::unique_ptr<const double*[]> vertices( new const double*[_number] );
-      for( nbnodesincelltype i = 0 ; i < _number ; ++i)
-        vertices[i] = getCoordsOfNode(i , OTT<typename MyMeshType::MyConnType,MyMeshType::My_numPol>::indFC(index), mesh);
-      // create bounding box
-      _box.initializeWith(vertices.get(),_number);
+        _number = static_cast<nbnodesincelltype>(numberCore);
+        std::unique_ptr<const double *[]> vertices(new const double *[_number]);
+        for (nbnodesincelltype i = 0; i < _number; ++i)
+            vertices[i] =
+                getCoordsOfNode(i, OTT<typename MyMeshType::MyConnType, MyMeshType::My_numPol>::indFC(index), mesh);
+        // create bounding box
+        _box.initializeWith(vertices.get(), _number);
     }
     else
     {
-      THROW_IK_EXCEPTION("ERROR at index " << index << " : exceeding capacity !");
+        THROW_IK_EXCEPTION("ERROR at index " << index << " : exceeding capacity !");
     }
-  }
+}
 
-  /////////////////////////////////////////////////////////////////////
-  /// ElementBBoxOrder                                    /////////////
-  /////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+/// ElementBBoxOrder                                    /////////////
+/////////////////////////////////////////////////////////////////////
 
-  /**
-   * Comparison operator based on the bounding boxes of the elements
-   *
-   * @return true if the coordinate _coord of the bounding box of elem1 is
-   *          strictly smaller than that of the bounding box of elem2
-   */
-  template<class ConnType>
-  bool ElementBBoxOrder::operator()( MeshElement<ConnType>* elem1, MeshElement<ConnType>* elem2)
-  {
-    const BoundingBox* box1 = elem1->getBoundingBox();
-    const BoundingBox* box2 = elem2->getBoundingBox();
+/**
+ * Comparison operator based on the bounding boxes of the elements
+ *
+ * @return true if the coordinate _coord of the bounding box of elem1 is
+ *          strictly smaller than that of the bounding box of elem2
+ */
+template <class ConnType>
+bool
+ElementBBoxOrder::operator()(MeshElement<ConnType> *elem1, MeshElement<ConnType> *elem2)
+{
+    const BoundingBox *box1 = elem1->getBoundingBox();
+    const BoundingBox *box2 = elem2->getBoundingBox();
 
     assert(elem1 != 0);
     assert(elem2 != 0);
@@ -91,6 +95,6 @@ namespace INTERP_KERNEL
     const double coord2 = box2->getCoordinate(_coord);
 
     return coord1 < coord2;
-  }
-
 }
+
+}  // namespace INTERP_KERNEL

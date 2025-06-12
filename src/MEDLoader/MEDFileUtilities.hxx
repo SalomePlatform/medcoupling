@@ -31,69 +31,78 @@
 
 namespace MEDFileUtilities
 {
-  med_access_mode TraduceWriteMode(int medloaderwritemode);
-  const char *GetReadableMEDFieldType(med_field_type ft);
-  void CheckMEDCode(int code, med_idt fid, const std::string& msg);
-  void CheckFileForRead(const std::string& fileName);
+med_access_mode
+TraduceWriteMode(int medloaderwritemode);
+const char *
+GetReadableMEDFieldType(med_field_type ft);
+void
+CheckMEDCode(int code, med_idt fid, const std::string &msg);
+void
+CheckFileForRead(const std::string &fileName);
 
-  class AutoFid
-  {
-  public:
+class AutoFid
+{
+   public:
     AutoFid(med_idt fid);
     operator med_idt() const { return _fid; }
     ~AutoFid();
-  private:
+
+   private:
     med_idt _fid;
-  };
-}
+};
+}  // namespace MEDFileUtilities
 
 namespace MEDCoupling
 {
-  class MEDLOADER_EXPORT MEDFileWritable
-  {
-  public:
+class MEDLOADER_EXPORT MEDFileWritable
+{
+   public:
     MEDFileWritable();
     virtual ~MEDFileWritable() {}
-    void copyOptionsFrom(const MEDFileWritable& other) const;
+    void copyOptionsFrom(const MEDFileWritable &other) const;
     int getTooLongStrPolicy() const;
     void setTooLongStrPolicy(int newVal);
     int getZipConnPolicy();
     void setZipConnPolicy(int newVal);
     static std::string FileNameFromFID(med_idt fid);
-  protected://policies on write
+
+   protected:  // policies on write
     mutable int _too_long_str;
     mutable int _zipconn_pol;
-  };
+};
 
-  class MEDFileWritableStandAlone : public MEDFileWritable
-  {
-  public:
+class MEDFileWritableStandAlone : public MEDFileWritable
+{
+   public:
     MEDLOADER_EXPORT virtual void writeLL(med_idt fid) const = 0;
-    MEDLOADER_EXPORT virtual void write(const std::string& fileName, int mode) const;
-    MEDLOADER_EXPORT virtual void write33(const std::string& fileName, int mode) const;
-    MEDLOADER_EXPORT virtual void write30(const std::string& fileName, int mode) const;
-    MEDLOADER_EXPORT virtual void write40(const std::string& fileName, int mode) const;
-    MEDLOADER_EXPORT virtual void write41(const std::string& fileName, int mode) const;
-    MEDLOADER_EXPORT void writeXX(const std::string& fileName, int mode, int maj, int min, int rel) const;
+    MEDLOADER_EXPORT virtual void write(const std::string &fileName, int mode) const;
+    MEDLOADER_EXPORT virtual void write33(const std::string &fileName, int mode) const;
+    MEDLOADER_EXPORT virtual void write30(const std::string &fileName, int mode) const;
+    MEDLOADER_EXPORT virtual void write40(const std::string &fileName, int mode) const;
+    MEDLOADER_EXPORT virtual void write41(const std::string &fileName, int mode) const;
+    MEDLOADER_EXPORT void writeXX(const std::string &fileName, int mode, int maj, int min, int rel) const;
     MEDLOADER_EXPORT MCAuto<DataArrayByte> serialize() const;
     MEDLOADER_EXPORT static std::string GenerateUniqueDftFileNameInMem();
-  public:
-    MEDLOADER_EXPORT static const char DFT_FILENAME_IN_MEM[];
-    template<class T>
-    static T *BuildFromMemoryChunk(DataArrayByte *db);
-  };
 
-  class MEDFileCapability
-  {
-  public:
+   public:
+    MEDLOADER_EXPORT static const char DFT_FILENAME_IN_MEM[];
+    template <class T>
+    static T *BuildFromMemoryChunk(DataArrayByte *db);
+};
+
+class MEDFileCapability
+{
+   public:
     MEDFileCapability(med_idt fid);
-    bool isFastReader() const { return _maj>=4 && _min >=1; }
-  private:
+    bool isFastReader() const { return _maj >= 4 && _min >= 1; }
+
+   private:
     med_int _maj;
     med_int _min;
     med_int _rel;
-  };
-  MEDFileUtilities::AutoFid OpenMEDFileForRead(const std::string& fileName);
-}
+};
+MEDFileUtilities::AutoFid
+OpenMEDFileForRead(const std::string &fileName);
+}  // namespace MEDCoupling
 
 #endif

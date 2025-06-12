@@ -29,24 +29,24 @@
 
 using namespace std;
 
-
-
 /*!
  *  Tool to remove temporary files.
  *  Allows automatique removal of temporary files in case of test failure.
  */
 MPIAccessTest_TmpFilesRemover::~MPIAccessTest_TmpFilesRemover()
 {
-  set<string>::iterator it = myTmpFiles.begin();
-  for (; it != myTmpFiles.end(); it++) {
-    if (access((*it).data(), F_OK) == 0)
-      remove((*it).data());
-  }
-  myTmpFiles.clear();
-  //cout << "~MPIAccessTest_TmpFilesRemover()" << endl;
+    set<string>::iterator it = myTmpFiles.begin();
+    for (; it != myTmpFiles.end(); it++)
+    {
+        if (access((*it).data(), F_OK) == 0)
+            remove((*it).data());
+    }
+    myTmpFiles.clear();
+    // cout << "~MPIAccessTest_TmpFilesRemover()" << endl;
 }
 
-bool MPIAccessTest_TmpFilesRemover::Register(const string theTmpFile)
+bool
+MPIAccessTest_TmpFilesRemover::Register(const string theTmpFile)
 {
-  return (myTmpFiles.insert(theTmpFile)).second;
+    return (myTmpFiles.insert(theTmpFile)).second;
 }

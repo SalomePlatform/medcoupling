@@ -28,26 +28,26 @@
 
 namespace MEDPARTITIONER
 {
-  class Topology;
-  class MeshCollection;
-  class ParaDomainSelector;
+class Topology;
+class MeshCollection;
+class ParaDomainSelector;
 
-  class MEDPARTITIONER_EXPORT JointFinder
-  {
-  public:
-    JointFinder(const MeshCollection& mc);
+class MEDPARTITIONER_EXPORT JointFinder
+{
+   public:
+    JointFinder(const MeshCollection &mc);
     ~JointFinder();
     void findCommonDistantNodes();
     void print();
-    std::vector<std::vector<std::multimap<mcIdType,mcIdType> > >& getDistantNodeCell();
-    std::vector<std::vector<std::vector<std::pair<mcIdType,mcIdType> > > >& getNodeNode();
-  private:
-    const MeshCollection& _mesh_collection;
+    std::vector<std::vector<std::multimap<mcIdType, mcIdType> > > &getDistantNodeCell();
+    std::vector<std::vector<std::vector<std::pair<mcIdType, mcIdType> > > > &getNodeNode();
+
+   private:
+    const MeshCollection &_mesh_collection;
     const ParaDomainSelector *_domain_selector;
     const Topology *_topology;
-    std::vector<std::vector<std::multimap<mcIdType,mcIdType> > > _distant_node_cell;
-    std::vector<std::vector<std::vector<std::pair<mcIdType,mcIdType> > > > _node_node;
-
-  };
-}
+    std::vector<std::vector<std::multimap<mcIdType, mcIdType> > > _distant_node_cell;
+    std::vector<std::vector<std::vector<std::pair<mcIdType, mcIdType> > > > _node_node;
+};
+}  // namespace MEDPARTITIONER
 #endif

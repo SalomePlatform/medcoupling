@@ -38,4 +38,3 @@ using namespace INTERP_KERNEL;
 %rename (InterpKernelException) INTERP_KERNEL::Exception;
 
 %include "MEDPartitionerCommon.i"
-

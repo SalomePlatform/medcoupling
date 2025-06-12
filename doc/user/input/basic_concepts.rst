@@ -86,4 +86,3 @@ gateways between medcoupling arrays and numpy.
 medcoupling arrays implement different algorithms like reordering,
 cloud comparisons, arithmetic, geometry helpers in addition to algorithms
 proposed by numpy.
-

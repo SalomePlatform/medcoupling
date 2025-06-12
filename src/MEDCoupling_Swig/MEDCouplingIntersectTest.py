@@ -22,376 +22,3750 @@
 import sys
 from medcoupling import *
 import unittest
-from math import pi,e,sqrt,cos,sin
+from math import pi, e, sqrt, cos, sin
 from datetime import datetime
 from MEDCouplingDataForTest import MEDCouplingDataForTest
-import rlcompleter,readline # this line has to be here, to ensure a usability of MEDCoupling/MEDLoader. B4 removing it please notify to anthony.geay@edf.fr
+import rlcompleter, readline  # this line has to be here, to ensure a usability of MEDCoupling/MEDLoader. B4 removing it please notify to anthony.geay@edf.fr
+
 
 class MEDCouplingIntersectTest(unittest.TestCase):
     def testSwig2NonRegressionBugIntersectMeshes1(self):
-        src=MEDCouplingUMesh("src",2)
-        src.setCoords(DataArrayDouble([-2.5,-3,-2.5,3,2.5,3],3,2))
+        src = MEDCouplingUMesh("src", 2)
+        src.setCoords(DataArrayDouble([-2.5, -3, -2.5, 3, 2.5, 3], 3, 2))
         src.allocateCells()
-        src.insertNextCell(NORM_TRI3,[0,1,2])
+        src.insertNextCell(NORM_TRI3, [0, 1, 2])
         #
-        trg=MEDCouplingUMesh("trg",2)
-        trg.setCoords(DataArrayDouble([-2.5,-3.,0.,-3.,0.,-2.,-2.,0.,-2.25,0.,-2.5,0.,-2.5,-1.5,0.,-2.5,-1.25,-3.,-1.414213562373095,-1.414213562373095],10,2))
+        trg = MEDCouplingUMesh("trg", 2)
+        trg.setCoords(
+            DataArrayDouble(
+                [
+                    -2.5,
+                    -3.0,
+                    0.0,
+                    -3.0,
+                    0.0,
+                    -2.0,
+                    -2.0,
+                    0.0,
+                    -2.25,
+                    0.0,
+                    -2.5,
+                    0.0,
+                    -2.5,
+                    -1.5,
+                    0.0,
+                    -2.5,
+                    -1.25,
+                    -3.0,
+                    -1.414213562373095,
+                    -1.414213562373095,
+                ],
+                10,
+                2,
+            )
+        )
         trg.allocateCells()
-        trg.insertNextCell(NORM_QPOLYG,[2,1,0,5,3,7,8,6,4,9])
+        trg.insertNextCell(NORM_QPOLYG, [2, 1, 0, 5, 3, 7, 8, 6, 4, 9])
         #
-        a,b,c=MEDCouplingUMesh.Intersect2DMeshes(src,trg,1.0e-8)
+        a, b, c = MEDCouplingUMesh.Intersect2DMeshes(src, trg, 1.0e-8)
         a.mergeNodes(1e-8)
-        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([-2.5,-3.,-2.5,3.,2.5,3.,0.,-3.,0.,-2.,-2.,0.,-2.25,0.,-2.5,0.,-2.5,-1.5,0.,-2.5,-1.25,-3.,-1.414213562373095,-1.414213562373095,-1.2803687993289596,-1.5364425591947515,-1.8901843996644798,-2.2682212795973755,-1.81117884244736,-0.8483107924994473,-2.5,1.5,0.,3.,0.6098156003355202,0.7317787204026243],18,2),1e-12))
-        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([32,12,0,7,5,13,8,6,14,32,7,1,2,12,5,15,16,17,14,6])))
-        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,9,20])))
-        self.assertTrue(b.isEqual(DataArrayInt([0,0])))
-        self.assertTrue(c.isEqual(DataArrayInt([0,-1])))
+        self.assertTrue(
+            a.getCoords().isEqual(
+                DataArrayDouble(
+                    [
+                        -2.5,
+                        -3.0,
+                        -2.5,
+                        3.0,
+                        2.5,
+                        3.0,
+                        0.0,
+                        -3.0,
+                        0.0,
+                        -2.0,
+                        -2.0,
+                        0.0,
+                        -2.25,
+                        0.0,
+                        -2.5,
+                        0.0,
+                        -2.5,
+                        -1.5,
+                        0.0,
+                        -2.5,
+                        -1.25,
+                        -3.0,
+                        -1.414213562373095,
+                        -1.414213562373095,
+                        -1.2803687993289596,
+                        -1.5364425591947515,
+                        -1.8901843996644798,
+                        -2.2682212795973755,
+                        -1.81117884244736,
+                        -0.8483107924994473,
+                        -2.5,
+                        1.5,
+                        0.0,
+                        3.0,
+                        0.6098156003355202,
+                        0.7317787204026243,
+                    ],
+                    18,
+                    2,
+                ),
+                1e-12,
+            )
+        )
+        self.assertTrue(
+            a.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        32,
+                        12,
+                        0,
+                        7,
+                        5,
+                        13,
+                        8,
+                        6,
+                        14,
+                        32,
+                        7,
+                        1,
+                        2,
+                        12,
+                        5,
+                        15,
+                        16,
+                        17,
+                        14,
+                        6,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 9, 20])))
+        self.assertTrue(b.isEqual(DataArrayInt([0, 0])))
+        self.assertTrue(c.isEqual(DataArrayInt([0, -1])))
         pass
 
     def testIntersect2DMeshesTmp1(self):
-        m1c=MEDCouplingCMesh.New()
-        coordsX=DataArrayDouble.New()
-        arrX=[ -1., 1., 2., 4. ]
-        coordsX.setValues(arrX,4,1)
-        m1c.setCoordsAt(0,coordsX)
-        coordsY=DataArrayDouble.New()
-        arrY=[ -2., 2., 4., 8. ]
-        coordsY.setValues(arrY,4,1)
-        m1c.setCoordsAt(1,coordsY)
-        m1=m1c.buildUnstructured()
-        m1bis=m1.buildPartOfMySelf([3,4,5],False)
-        m2=m1.deepCopy()
-        m2=m2.buildPartOfMySelf([0,1,2],False)
-        m2.translate([0.5,0.5])
+        m1c = MEDCouplingCMesh.New()
+        coordsX = DataArrayDouble.New()
+        arrX = [-1.0, 1.0, 2.0, 4.0]
+        coordsX.setValues(arrX, 4, 1)
+        m1c.setCoordsAt(0, coordsX)
+        coordsY = DataArrayDouble.New()
+        arrY = [-2.0, 2.0, 4.0, 8.0]
+        coordsY.setValues(arrY, 4, 1)
+        m1c.setCoordsAt(1, coordsY)
+        m1 = m1c.buildUnstructured()
+        m1bis = m1.buildPartOfMySelf([3, 4, 5], False)
+        m2 = m1.deepCopy()
+        m2 = m2.buildPartOfMySelf([0, 1, 2], False)
+        m2.translate([0.5, 0.5])
         #
-        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1bis,m2,1e-10)
-        expected1=[0,0,1,1,1,2,2,2]
-        expected2=[0,-1,0,1,-1,1,2,-1]
-        self.assertEqual(8,d1.getNumberOfTuples())
-        self.assertEqual(8,d2.getNumberOfTuples())
-        self.assertEqual(8,m3.getNumberOfCells())
-        self.assertEqual(22,m3.getNumberOfNodes())
-        self.assertEqual(2,m3.getSpaceDimension())
-        self.assertEqual(expected1,d1.getValues())
-        self.assertEqual(expected2,d2.getValues())
-        expected3=[5,17,1,16,12,5,16,0,4,5,17,12,5,18,1,17,13,5,19,2,18,13,5,17,5,6,19,13,5,20,2,19,14,5,21,3,20,14,5,19,6,7,21,14]
-        expected4=[0,5,12,17,22,28,33,38,44]
-        expected5=[-1.0,2.0,1.0,2.0,2.0,2.0,4.0,2.0,-1.0,4.0,1.0,4.0,2.0,4.0,4.0,4.0,-0.5,-1.5,1.5,-1.5,2.5,-1.5,4.5,-1.5,-0.5,2.5,1.5,2.5,2.5,2.5,4.5,2.5,-0.5,2.0,1.0,2.5,1.5,2.0,2.0,2.5,2.5,2.0,4.0,2.5]
-        self.assertEqual(44,m3.getNodalConnectivity().getNumberOfTuples())
-        self.assertEqual(9,m3.getNodalConnectivityIndex().getNumberOfTuples())
-        self.assertEqual(expected3,m3.getNodalConnectivity().getValues())
-        self.assertEqual(expected4,m3.getNodalConnectivityIndex().getValues())
+        m3, d1, d2 = MEDCouplingUMesh.Intersect2DMeshes(m1bis, m2, 1e-10)
+        expected1 = [0, 0, 1, 1, 1, 2, 2, 2]
+        expected2 = [0, -1, 0, 1, -1, 1, 2, -1]
+        self.assertEqual(8, d1.getNumberOfTuples())
+        self.assertEqual(8, d2.getNumberOfTuples())
+        self.assertEqual(8, m3.getNumberOfCells())
+        self.assertEqual(22, m3.getNumberOfNodes())
+        self.assertEqual(2, m3.getSpaceDimension())
+        self.assertEqual(expected1, d1.getValues())
+        self.assertEqual(expected2, d2.getValues())
+        expected3 = [
+            5,
+            17,
+            1,
+            16,
+            12,
+            5,
+            16,
+            0,
+            4,
+            5,
+            17,
+            12,
+            5,
+            18,
+            1,
+            17,
+            13,
+            5,
+            19,
+            2,
+            18,
+            13,
+            5,
+            17,
+            5,
+            6,
+            19,
+            13,
+            5,
+            20,
+            2,
+            19,
+            14,
+            5,
+            21,
+            3,
+            20,
+            14,
+            5,
+            19,
+            6,
+            7,
+            21,
+            14,
+        ]
+        expected4 = [0, 5, 12, 17, 22, 28, 33, 38, 44]
+        expected5 = [
+            -1.0,
+            2.0,
+            1.0,
+            2.0,
+            2.0,
+            2.0,
+            4.0,
+            2.0,
+            -1.0,
+            4.0,
+            1.0,
+            4.0,
+            2.0,
+            4.0,
+            4.0,
+            4.0,
+            -0.5,
+            -1.5,
+            1.5,
+            -1.5,
+            2.5,
+            -1.5,
+            4.5,
+            -1.5,
+            -0.5,
+            2.5,
+            1.5,
+            2.5,
+            2.5,
+            2.5,
+            4.5,
+            2.5,
+            -0.5,
+            2.0,
+            1.0,
+            2.5,
+            1.5,
+            2.0,
+            2.0,
+            2.5,
+            2.5,
+            2.0,
+            4.0,
+            2.5,
+        ]
+        self.assertEqual(44, m3.getNodalConnectivity().getNumberOfTuples())
+        self.assertEqual(9, m3.getNodalConnectivityIndex().getNumberOfTuples())
+        self.assertEqual(expected3, m3.getNodalConnectivity().getValues())
+        self.assertEqual(expected4, m3.getNodalConnectivityIndex().getValues())
         for i in range(44):
-            self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12)
+            self.assertAlmostEqual(expected5[i], m3.getCoords().getIJ(0, i), 12)
             pass
         pass
 
     def testIntersect2DMeshesTmp2(self):
-        m1c=MEDCouplingCMesh.New()
-        coordsX1=DataArrayDouble.New()
-        arrX1=[ 0., 1., 1.5, 2. ]
-        coordsX1.setValues(arrX1,4,1)
-        m1c.setCoordsAt(0,coordsX1)
-        coordsY1=DataArrayDouble.New()
-        arrY1=[ 0., 1.5, 3.]
-        coordsY1.setValues(arrY1,3,1)
-        m1c.setCoordsAt(1,coordsY1)
-        m1=m1c.buildUnstructured()
-        m2c=MEDCouplingCMesh.New()
-        coordsX2=DataArrayDouble.New()
-        arrX2=[ 0., 1., 2. ]
-        coordsX2.setValues(arrX2,3,1)
-        m2c.setCoordsAt(0,coordsX2)
-        coordsY2=DataArrayDouble.New()
-        arrY2=[ 0., 1., 3.]
-        coordsY2.setValues(arrY2,3,1)
-        m2c.setCoordsAt(1,coordsY2)
-        m2=m2c.buildUnstructured()
+        m1c = MEDCouplingCMesh.New()
+        coordsX1 = DataArrayDouble.New()
+        arrX1 = [0.0, 1.0, 1.5, 2.0]
+        coordsX1.setValues(arrX1, 4, 1)
+        m1c.setCoordsAt(0, coordsX1)
+        coordsY1 = DataArrayDouble.New()
+        arrY1 = [0.0, 1.5, 3.0]
+        coordsY1.setValues(arrY1, 3, 1)
+        m1c.setCoordsAt(1, coordsY1)
+        m1 = m1c.buildUnstructured()
+        m2c = MEDCouplingCMesh.New()
+        coordsX2 = DataArrayDouble.New()
+        arrX2 = [0.0, 1.0, 2.0]
+        coordsX2.setValues(arrX2, 3, 1)
+        m2c.setCoordsAt(0, coordsX2)
+        coordsY2 = DataArrayDouble.New()
+        arrY2 = [0.0, 1.0, 3.0]
+        coordsY2.setValues(arrY2, 3, 1)
+        m2c.setCoordsAt(1, coordsY2)
+        m2 = m2c.buildUnstructured()
         #
-        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1,m2,1e-10)
+        m3, d1, d2 = MEDCouplingUMesh.Intersect2DMeshes(m1, m2, 1e-10)
         #
-        expected1=[0,0,1,1,2,2,3,4,5]
-        expected2=[0,2,1,3,1,3,2,3,3]
-        self.assertEqual(9,d1.getNumberOfTuples())
-        self.assertEqual(9,d2.getNumberOfTuples())
-        self.assertEqual(9,m3.getNumberOfCells())
-        self.assertEqual(22,m3.getNumberOfNodes())
-        self.assertEqual(2,m3.getSpaceDimension())
-        self.assertEqual(expected1,d1.getValues())
-        self.assertEqual(expected2,d2.getValues())
-        expected3=[5,16,13,12,15,5,15,4,5,16,5,21,2,13,16,5,16,5,6,21,5,17,14,2,21,5,21,6,7,17,5,4,18,19,5,5,5,19,10,6,5,6,10,20,7]
-        expected4=[0,5,10,15,20,25,30,35,40,45]
-        expected5=[0.0,0.0,1.0,0.0,1.5,0.0,2.0,0.0,0.0,1.5,1.0,1.5,1.5,1.5,2.0,1.5,0.0,3.0,1.0,3.0,1.5,3.0,2.0,3.0,0.0,0.0,1.0,0.0,2.0,0.0,0.0,1.0,1.0,1.0,2.0,1.0,0.0,3.0,1.0,3.0,2.0,3.0,1.5,1.0]
-        self.assertEqual(45,m3.getNodalConnectivity().getNumberOfTuples())
-        self.assertEqual(10,m3.getNodalConnectivityIndex().getNumberOfTuples())
-        self.assertEqual(expected3,m3.getNodalConnectivity().getValues())
-        self.assertEqual(expected4,m3.getNodalConnectivityIndex().getValues())
+        expected1 = [0, 0, 1, 1, 2, 2, 3, 4, 5]
+        expected2 = [0, 2, 1, 3, 1, 3, 2, 3, 3]
+        self.assertEqual(9, d1.getNumberOfTuples())
+        self.assertEqual(9, d2.getNumberOfTuples())
+        self.assertEqual(9, m3.getNumberOfCells())
+        self.assertEqual(22, m3.getNumberOfNodes())
+        self.assertEqual(2, m3.getSpaceDimension())
+        self.assertEqual(expected1, d1.getValues())
+        self.assertEqual(expected2, d2.getValues())
+        expected3 = [
+            5,
+            16,
+            13,
+            12,
+            15,
+            5,
+            15,
+            4,
+            5,
+            16,
+            5,
+            21,
+            2,
+            13,
+            16,
+            5,
+            16,
+            5,
+            6,
+            21,
+            5,
+            17,
+            14,
+            2,
+            21,
+            5,
+            21,
+            6,
+            7,
+            17,
+            5,
+            4,
+            18,
+            19,
+            5,
+            5,
+            5,
+            19,
+            10,
+            6,
+            5,
+            6,
+            10,
+            20,
+            7,
+        ]
+        expected4 = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45]
+        expected5 = [
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            1.5,
+            0.0,
+            2.0,
+            0.0,
+            0.0,
+            1.5,
+            1.0,
+            1.5,
+            1.5,
+            1.5,
+            2.0,
+            1.5,
+            0.0,
+            3.0,
+            1.0,
+            3.0,
+            1.5,
+            3.0,
+            2.0,
+            3.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            2.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            1.0,
+            2.0,
+            1.0,
+            0.0,
+            3.0,
+            1.0,
+            3.0,
+            2.0,
+            3.0,
+            1.5,
+            1.0,
+        ]
+        self.assertEqual(45, m3.getNodalConnectivity().getNumberOfTuples())
+        self.assertEqual(10, m3.getNodalConnectivityIndex().getNumberOfTuples())
+        self.assertEqual(expected3, m3.getNodalConnectivity().getValues())
+        self.assertEqual(expected4, m3.getNodalConnectivityIndex().getValues())
         for i in range(44):
-            self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12)
+            self.assertAlmostEqual(expected5[i], m3.getCoords().getIJ(0, i), 12)
             pass
         pass
 
     def testIntersect2DMeshesTmp3(self):
-        m1Coords=[0.,0.,1.,0.,1.5,0.,0.,1.,0.,1.5,-1.,0.,-1.5,0.,0.,-1,0.,-1.5,0.5,0.,1.25,0.,0.70710678118654757,0.70710678118654757,1.0606601717798214,1.0606601717798214,0.,0.5,0.,1.25,-0.70710678118654757,0.70710678118654757,-1.0606601717798214,1.0606601717798214,-0.5,0.,-1.25,0.,-0.70710678118654757,-0.70710678118654757,-1.0606601717798214,-1.0606601717798214,0.,-0.5,0.,-1.25,0.70710678118654757,-0.70710678118654757,1.0606601717798214,-1.0606601717798214]
-        m1Conn=[0,3,1,13,11,9, 3,4,2,1,14,12,10,11, 5,3,0,15,13,17, 6,4,3,5,16,14,15,18, 5,0,7,17,21,19, 6,5,7,8,18,19,22,20, 0,1,7,9,23,21, 1,2,8,7,10,24,22,23]
-        m1=MEDCouplingUMesh.New()
+        m1Coords = [
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            1.5,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            1.5,
+            -1.0,
+            0.0,
+            -1.5,
+            0.0,
+            0.0,
+            -1,
+            0.0,
+            -1.5,
+            0.5,
+            0.0,
+            1.25,
+            0.0,
+            0.70710678118654757,
+            0.70710678118654757,
+            1.0606601717798214,
+            1.0606601717798214,
+            0.0,
+            0.5,
+            0.0,
+            1.25,
+            -0.70710678118654757,
+            0.70710678118654757,
+            -1.0606601717798214,
+            1.0606601717798214,
+            -0.5,
+            0.0,
+            -1.25,
+            0.0,
+            -0.70710678118654757,
+            -0.70710678118654757,
+            -1.0606601717798214,
+            -1.0606601717798214,
+            0.0,
+            -0.5,
+            0.0,
+            -1.25,
+            0.70710678118654757,
+            -0.70710678118654757,
+            1.0606601717798214,
+            -1.0606601717798214,
+        ]
+        m1Conn = [
+            0,
+            3,
+            1,
+            13,
+            11,
+            9,
+            3,
+            4,
+            2,
+            1,
+            14,
+            12,
+            10,
+            11,
+            5,
+            3,
+            0,
+            15,
+            13,
+            17,
+            6,
+            4,
+            3,
+            5,
+            16,
+            14,
+            15,
+            18,
+            5,
+            0,
+            7,
+            17,
+            21,
+            19,
+            6,
+            5,
+            7,
+            8,
+            18,
+            19,
+            22,
+            20,
+            0,
+            1,
+            7,
+            9,
+            23,
+            21,
+            1,
+            2,
+            8,
+            7,
+            10,
+            24,
+            22,
+            23,
+        ]
+        m1 = MEDCouplingUMesh.New()
         m1.setMeshDimension(2)
         m1.allocateCells(8)
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[0:6])
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[6:14])
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[14:20])
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[20:28])
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[28:34])
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[34:42])
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[42:48])
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[48:56])
+        m1.insertNextCell(NORM_TRI6, 6, m1Conn[0:6])
+        m1.insertNextCell(NORM_QUAD8, 8, m1Conn[6:14])
+        m1.insertNextCell(NORM_TRI6, 6, m1Conn[14:20])
+        m1.insertNextCell(NORM_QUAD8, 8, m1Conn[20:28])
+        m1.insertNextCell(NORM_TRI6, 6, m1Conn[28:34])
+        m1.insertNextCell(NORM_QUAD8, 8, m1Conn[34:42])
+        m1.insertNextCell(NORM_TRI6, 6, m1Conn[42:48])
+        m1.insertNextCell(NORM_QUAD8, 8, m1Conn[48:56])
         m1.finishInsertingCells()
-        myCoords1=DataArrayDouble.New()
-        myCoords1.setValues(m1Coords,25,2)
+        myCoords1 = DataArrayDouble.New()
+        myCoords1.setValues(m1Coords, 25, 2)
         m1.setCoords(myCoords1)
         #
-        m2Coords=[0.,0.,1.1,0.,1.1,1.,0.,1.,1.7,0.,1.7,1.,-1.1,1.,-1.1,0.,-1.7,0.,-1.7,1.,-1.7,-1,-1.1,-1.,0.,-1.,1.1,-1,1.7,-1.]
-        m2Conn=[0,3,2,1, 1,2,5,4, 7,6,3,0, 8,9,6,7, 7,0,12,11, 8,7,11,10, 0,1,13,12, 1,4,14,13]
-        m2=MEDCouplingUMesh.New()
+        m2Coords = [
+            0.0,
+            0.0,
+            1.1,
+            0.0,
+            1.1,
+            1.0,
+            0.0,
+            1.0,
+            1.7,
+            0.0,
+            1.7,
+            1.0,
+            -1.1,
+            1.0,
+            -1.1,
+            0.0,
+            -1.7,
+            0.0,
+            -1.7,
+            1.0,
+            -1.7,
+            -1,
+            -1.1,
+            -1.0,
+            0.0,
+            -1.0,
+            1.1,
+            -1,
+            1.7,
+            -1.0,
+        ]
+        m2Conn = [
+            0,
+            3,
+            2,
+            1,
+            1,
+            2,
+            5,
+            4,
+            7,
+            6,
+            3,
+            0,
+            8,
+            9,
+            6,
+            7,
+            7,
+            0,
+            12,
+            11,
+            8,
+            7,
+            11,
+            10,
+            0,
+            1,
+            13,
+            12,
+            1,
+            4,
+            14,
+            13,
+        ]
+        m2 = MEDCouplingUMesh.New()
         m2.setMeshDimension(2)
         m2.allocateCells(8)
         for i in range(8):
-            m2.insertNextCell(NORM_QUAD4,4,m2Conn[4*i:4*(i+1)])
+            m2.insertNextCell(NORM_QUAD4, 4, m2Conn[4 * i : 4 * (i + 1)])
             pass
         m2.finishInsertingCells()
-        myCoords2=DataArrayDouble.New()
-        myCoords2.setValues(m2Coords,15,2)
+        myCoords2 = DataArrayDouble.New()
+        myCoords2.setValues(m2Coords, 15, 2)
         m2.setCoords(myCoords2)
         #
-        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1,m2,1e-10)
+        m3, d1, d2 = MEDCouplingUMesh.Intersect2DMeshes(m1, m2, 1e-10)
         m3.unPolyze()
         #
-        expected1=[0,1,1,1,2,3,3,3,4,5,5,5,6,7,7,7]
-        expected2=[0,0,1,-1,2,2,3,-1,4,4,5,-1,6,6,7,-1]
-        self.assertEqual(16,d1.getNumberOfTuples())
-        self.assertEqual(16,d2.getNumberOfTuples())
-        self.assertEqual(16,m3.getNumberOfCells())
-        self.assertEqual(104,m3.getNumberOfNodes())
-        self.assertEqual(2,m3.getSpaceDimension())
-        self.assertEqual(expected1,d1.getValues())
-        self.assertEqual(expected2,d2.getValues())
-        expected3=[6,28,1,25,44,45,46,8,26,1,28,27,47,48,49,50,8,40,2,26,27,51,52,53,54,8,28,4,40,27,55,56,57,58,6,28,25,5,59,60,61,8,28,5,32,31,62,63,64,65,8,32,6,41,31,66,67,68,69,8,41,4,28,31,70,71,72,73,6,25,37,5,74,75,76,8,32,5,37,36,77,78,79,80,8,42,6,32,36,81,82,83,84,8,37,8,42,36,85,86,87,88,6,1,37,25,89,90,91,8,37,1,26,38,92,93,94,95,8,26,2,43,38,96,97,98,99,8,43,8,37,38,100,101,102,103]
-        expected4=[0,7,16,25,34,41,50,59,68,75,84,93,102,109,118,127,136]
-        expected5=[0.,0.,1.,0.,1.5,0.,0.,1.,0.,1.5,-1.,0.,-1.5,0.,0.,-1.,0.,-1.5,0.5,0.,1.25,0.,0.7071067811865476,0.7071067811865476,1.0606601717798214,1.0606601717798214,0.,0.5,0.,1.25,-0.7071067811865476,0.7071067811865476,-1.0606601717798214,1.0606601717798214,-0.5,0.,-1.25,0.,-0.7071067811865476,-0.7071067811865476,-1.0606601717798214,-1.0606601717798214,0.,-0.5,0.,-1.25,0.7071067811865476,-0.7071067811865476,1.0606601717798214,-1.0606601717798214,0.,0.,1.1,0.,1.1,1.,0.,1.,1.7,0.,1.7,1.,-1.1,1.,-1.1,0.,-1.7,0.,-1.7,1.,-1.7,-1.,-1.1,-1.,0.,-1.,1.1,-1.,1.7,-1.,1.118033988749895,1.,-1.118033988749895,1.,-1.118033988749895,-1.,1.118033988749895,-1.,0.7071067811865477,0.7071067811865476,0.5,0.,0.,0.5,1.05,0.,0.7071067811865475,0.7071067811865477,0.55,1.,1.1,0.5,1.4012585384440737,0.535233134659635,1.3,0.,1.1,0.5,1.1090169943749475,1.,0.,1.25,0.6123724356957946,1.369306393762915,1.1090169943749475,1.,0.55,1.,0.,0.5,-0.5,0.,-0.7071067811865477,0.7071067811865476,-0.7071067811865475,0.7071067811865477,-1.05,0.,-1.1,0.5,-0.55,1.,-1.3,0.,-1.4012585384440737,0.5352331346596344,-1.1090169943749475,1.,-1.1,0.5,-0.6123724356957941,1.3693063937629155,0.,1.25,-0.55,1.,-1.1090169943749475,1.,0.,-0.5,-0.7071067811865475,-0.7071067811865477,-0.5,0.,-1.05,0.,-0.7071067811865478,-0.7071067811865475,-0.55,-1.,-1.1,-0.5,-1.4012585384440734,-0.5352331346596354,-1.3,0.,-1.1,-0.5,-1.1090169943749475,-1.,0.,-1.25,-0.6123724356957945,-1.369306393762915,-1.1090169943749475,-1.,-0.55,-1.,0.7071067811865475,-0.7071067811865477,0.,-0.5,0.5,0.,0.7071067811865477,-0.7071067811865475,1.05,0.,1.1,-0.5,0.55,-1.,1.3,0.,1.4012585384440737,-0.535233134659635,1.1090169943749475,-1.,1.1,-0.5,0.6123724356957946,-1.369306393762915,0.,-1.25,0.55,-1.,1.1090169943749475,-1.0]
-        self.assertEqual(136,m3.getNodalConnectivity().getNumberOfTuples())
-        self.assertEqual(17,m3.getNodalConnectivityIndex().getNumberOfTuples())
-        self.assertEqual(expected3,m3.getNodalConnectivity().getValues())
-        self.assertEqual(expected4,m3.getNodalConnectivityIndex().getValues())
+        expected1 = [0, 1, 1, 1, 2, 3, 3, 3, 4, 5, 5, 5, 6, 7, 7, 7]
+        expected2 = [0, 0, 1, -1, 2, 2, 3, -1, 4, 4, 5, -1, 6, 6, 7, -1]
+        self.assertEqual(16, d1.getNumberOfTuples())
+        self.assertEqual(16, d2.getNumberOfTuples())
+        self.assertEqual(16, m3.getNumberOfCells())
+        self.assertEqual(104, m3.getNumberOfNodes())
+        self.assertEqual(2, m3.getSpaceDimension())
+        self.assertEqual(expected1, d1.getValues())
+        self.assertEqual(expected2, d2.getValues())
+        expected3 = [
+            6,
+            28,
+            1,
+            25,
+            44,
+            45,
+            46,
+            8,
+            26,
+            1,
+            28,
+            27,
+            47,
+            48,
+            49,
+            50,
+            8,
+            40,
+            2,
+            26,
+            27,
+            51,
+            52,
+            53,
+            54,
+            8,
+            28,
+            4,
+            40,
+            27,
+            55,
+            56,
+            57,
+            58,
+            6,
+            28,
+            25,
+            5,
+            59,
+            60,
+            61,
+            8,
+            28,
+            5,
+            32,
+            31,
+            62,
+            63,
+            64,
+            65,
+            8,
+            32,
+            6,
+            41,
+            31,
+            66,
+            67,
+            68,
+            69,
+            8,
+            41,
+            4,
+            28,
+            31,
+            70,
+            71,
+            72,
+            73,
+            6,
+            25,
+            37,
+            5,
+            74,
+            75,
+            76,
+            8,
+            32,
+            5,
+            37,
+            36,
+            77,
+            78,
+            79,
+            80,
+            8,
+            42,
+            6,
+            32,
+            36,
+            81,
+            82,
+            83,
+            84,
+            8,
+            37,
+            8,
+            42,
+            36,
+            85,
+            86,
+            87,
+            88,
+            6,
+            1,
+            37,
+            25,
+            89,
+            90,
+            91,
+            8,
+            37,
+            1,
+            26,
+            38,
+            92,
+            93,
+            94,
+            95,
+            8,
+            26,
+            2,
+            43,
+            38,
+            96,
+            97,
+            98,
+            99,
+            8,
+            43,
+            8,
+            37,
+            38,
+            100,
+            101,
+            102,
+            103,
+        ]
+        expected4 = [
+            0,
+            7,
+            16,
+            25,
+            34,
+            41,
+            50,
+            59,
+            68,
+            75,
+            84,
+            93,
+            102,
+            109,
+            118,
+            127,
+            136,
+        ]
+        expected5 = [
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            1.5,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            1.5,
+            -1.0,
+            0.0,
+            -1.5,
+            0.0,
+            0.0,
+            -1.0,
+            0.0,
+            -1.5,
+            0.5,
+            0.0,
+            1.25,
+            0.0,
+            0.7071067811865476,
+            0.7071067811865476,
+            1.0606601717798214,
+            1.0606601717798214,
+            0.0,
+            0.5,
+            0.0,
+            1.25,
+            -0.7071067811865476,
+            0.7071067811865476,
+            -1.0606601717798214,
+            1.0606601717798214,
+            -0.5,
+            0.0,
+            -1.25,
+            0.0,
+            -0.7071067811865476,
+            -0.7071067811865476,
+            -1.0606601717798214,
+            -1.0606601717798214,
+            0.0,
+            -0.5,
+            0.0,
+            -1.25,
+            0.7071067811865476,
+            -0.7071067811865476,
+            1.0606601717798214,
+            -1.0606601717798214,
+            0.0,
+            0.0,
+            1.1,
+            0.0,
+            1.1,
+            1.0,
+            0.0,
+            1.0,
+            1.7,
+            0.0,
+            1.7,
+            1.0,
+            -1.1,
+            1.0,
+            -1.1,
+            0.0,
+            -1.7,
+            0.0,
+            -1.7,
+            1.0,
+            -1.7,
+            -1.0,
+            -1.1,
+            -1.0,
+            0.0,
+            -1.0,
+            1.1,
+            -1.0,
+            1.7,
+            -1.0,
+            1.118033988749895,
+            1.0,
+            -1.118033988749895,
+            1.0,
+            -1.118033988749895,
+            -1.0,
+            1.118033988749895,
+            -1.0,
+            0.7071067811865477,
+            0.7071067811865476,
+            0.5,
+            0.0,
+            0.0,
+            0.5,
+            1.05,
+            0.0,
+            0.7071067811865475,
+            0.7071067811865477,
+            0.55,
+            1.0,
+            1.1,
+            0.5,
+            1.4012585384440737,
+            0.535233134659635,
+            1.3,
+            0.0,
+            1.1,
+            0.5,
+            1.1090169943749475,
+            1.0,
+            0.0,
+            1.25,
+            0.6123724356957946,
+            1.369306393762915,
+            1.1090169943749475,
+            1.0,
+            0.55,
+            1.0,
+            0.0,
+            0.5,
+            -0.5,
+            0.0,
+            -0.7071067811865477,
+            0.7071067811865476,
+            -0.7071067811865475,
+            0.7071067811865477,
+            -1.05,
+            0.0,
+            -1.1,
+            0.5,
+            -0.55,
+            1.0,
+            -1.3,
+            0.0,
+            -1.4012585384440737,
+            0.5352331346596344,
+            -1.1090169943749475,
+            1.0,
+            -1.1,
+            0.5,
+            -0.6123724356957941,
+            1.3693063937629155,
+            0.0,
+            1.25,
+            -0.55,
+            1.0,
+            -1.1090169943749475,
+            1.0,
+            0.0,
+            -0.5,
+            -0.7071067811865475,
+            -0.7071067811865477,
+            -0.5,
+            0.0,
+            -1.05,
+            0.0,
+            -0.7071067811865478,
+            -0.7071067811865475,
+            -0.55,
+            -1.0,
+            -1.1,
+            -0.5,
+            -1.4012585384440734,
+            -0.5352331346596354,
+            -1.3,
+            0.0,
+            -1.1,
+            -0.5,
+            -1.1090169943749475,
+            -1.0,
+            0.0,
+            -1.25,
+            -0.6123724356957945,
+            -1.369306393762915,
+            -1.1090169943749475,
+            -1.0,
+            -0.55,
+            -1.0,
+            0.7071067811865475,
+            -0.7071067811865477,
+            0.0,
+            -0.5,
+            0.5,
+            0.0,
+            0.7071067811865477,
+            -0.7071067811865475,
+            1.05,
+            0.0,
+            1.1,
+            -0.5,
+            0.55,
+            -1.0,
+            1.3,
+            0.0,
+            1.4012585384440737,
+            -0.535233134659635,
+            1.1090169943749475,
+            -1.0,
+            1.1,
+            -0.5,
+            0.6123724356957946,
+            -1.369306393762915,
+            0.0,
+            -1.25,
+            0.55,
+            -1.0,
+            1.1090169943749475,
+            -1.0,
+        ]
+        self.assertEqual(136, m3.getNodalConnectivity().getNumberOfTuples())
+        self.assertEqual(17, m3.getNodalConnectivityIndex().getNumberOfTuples())
+        self.assertEqual(expected3, m3.getNodalConnectivity().getValues())
+        self.assertEqual(expected4, m3.getNodalConnectivityIndex().getValues())
         for i in range(208):
-            self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12)
+            self.assertAlmostEqual(expected5[i], m3.getCoords().getIJ(0, i), 12)
             pass
         pass
 
     def testIntersect2DMeshesTmp4(self):
-        m1Coords=[0.,0.,1.,0.,1.5,0.,0.,1.,0.,1.5,-1.,0.,-1.5,0.,0.,-1,0.,-1.5,0.5,0.,1.25,0.,0.70710678118654757,0.70710678118654757,1.0606601717798214,1.0606601717798214,0.,0.5,0.,1.25,-0.70710678118654757,0.70710678118654757,-1.0606601717798214,1.0606601717798214,-0.5,0.,-1.25,0.,-0.70710678118654757,-0.70710678118654757,-1.0606601717798214,-1.0606601717798214,0.,-0.5,0.,-1.25,0.70710678118654757,-0.70710678118654757,1.0606601717798214,-1.0606601717798214]
-        m1Conn=[0,3,1,13,11,9, 3,4,2,1,14,12,10,11, 5,3,0,15,13,17, 6,4,3,5,16,14,15,18, 5,0,7,17,21,19, 6,5,7,8,18,19,22,20, 0,1,7,9,23,21, 1,2,8,7,10,24,22,23]
-        m1=MEDCouplingUMesh.New()
+        m1Coords = [
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            1.5,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            1.5,
+            -1.0,
+            0.0,
+            -1.5,
+            0.0,
+            0.0,
+            -1,
+            0.0,
+            -1.5,
+            0.5,
+            0.0,
+            1.25,
+            0.0,
+            0.70710678118654757,
+            0.70710678118654757,
+            1.0606601717798214,
+            1.0606601717798214,
+            0.0,
+            0.5,
+            0.0,
+            1.25,
+            -0.70710678118654757,
+            0.70710678118654757,
+            -1.0606601717798214,
+            1.0606601717798214,
+            -0.5,
+            0.0,
+            -1.25,
+            0.0,
+            -0.70710678118654757,
+            -0.70710678118654757,
+            -1.0606601717798214,
+            -1.0606601717798214,
+            0.0,
+            -0.5,
+            0.0,
+            -1.25,
+            0.70710678118654757,
+            -0.70710678118654757,
+            1.0606601717798214,
+            -1.0606601717798214,
+        ]
+        m1Conn = [
+            0,
+            3,
+            1,
+            13,
+            11,
+            9,
+            3,
+            4,
+            2,
+            1,
+            14,
+            12,
+            10,
+            11,
+            5,
+            3,
+            0,
+            15,
+            13,
+            17,
+            6,
+            4,
+            3,
+            5,
+            16,
+            14,
+            15,
+            18,
+            5,
+            0,
+            7,
+            17,
+            21,
+            19,
+            6,
+            5,
+            7,
+            8,
+            18,
+            19,
+            22,
+            20,
+            0,
+            1,
+            7,
+            9,
+            23,
+            21,
+            1,
+            2,
+            8,
+            7,
+            10,
+            24,
+            22,
+            23,
+        ]
+        m1 = MEDCouplingUMesh.New()
         m1.setMeshDimension(2)
         m1.allocateCells(8)
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[0:6])
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[6:14])
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[14:20])
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[20:28])
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[28:34])
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[34:42])
-        m1.insertNextCell(NORM_TRI6,6,m1Conn[42:48])
-        m1.insertNextCell(NORM_QUAD8,8,m1Conn[48:56])
+        m1.insertNextCell(NORM_TRI6, 6, m1Conn[0:6])
+        m1.insertNextCell(NORM_QUAD8, 8, m1Conn[6:14])
+        m1.insertNextCell(NORM_TRI6, 6, m1Conn[14:20])
+        m1.insertNextCell(NORM_QUAD8, 8, m1Conn[20:28])
+        m1.insertNextCell(NORM_TRI6, 6, m1Conn[28:34])
+        m1.insertNextCell(NORM_QUAD8, 8, m1Conn[34:42])
+        m1.insertNextCell(NORM_TRI6, 6, m1Conn[42:48])
+        m1.insertNextCell(NORM_QUAD8, 8, m1Conn[48:56])
         m1.finishInsertingCells()
-        myCoords1=DataArrayDouble.New()
-        myCoords1.setValues(m1Coords,25,2)
+        myCoords1 = DataArrayDouble.New()
+        myCoords1.setValues(m1Coords, 25, 2)
         m1.setCoords(myCoords1)
         #
-        m2Coords=[0.,0.,1.1,0.,1.1,1.,0.,1.,1.7,0.,1.7,1.,-1.1,1.,-1.1,0.,-1.7,0.,-1.7,1.,-1.7,-1,-1.1,-1.,0.,-1.,1.1,-1,1.7,-1.]
-        m2Conn=[0,3,2,1, 1,2,5,4, 7,6,3,0, 8,9,6,7, 7,0,12,11, 8,7,11,10, 0,1,13,12, 1,4,14,13]
-        m2=MEDCouplingUMesh.New()
+        m2Coords = [
+            0.0,
+            0.0,
+            1.1,
+            0.0,
+            1.1,
+            1.0,
+            0.0,
+            1.0,
+            1.7,
+            0.0,
+            1.7,
+            1.0,
+            -1.1,
+            1.0,
+            -1.1,
+            0.0,
+            -1.7,
+            0.0,
+            -1.7,
+            1.0,
+            -1.7,
+            -1,
+            -1.1,
+            -1.0,
+            0.0,
+            -1.0,
+            1.1,
+            -1,
+            1.7,
+            -1.0,
+        ]
+        m2Conn = [
+            0,
+            3,
+            2,
+            1,
+            1,
+            2,
+            5,
+            4,
+            7,
+            6,
+            3,
+            0,
+            8,
+            9,
+            6,
+            7,
+            7,
+            0,
+            12,
+            11,
+            8,
+            7,
+            11,
+            10,
+            0,
+            1,
+            13,
+            12,
+            1,
+            4,
+            14,
+            13,
+        ]
+        m2 = MEDCouplingUMesh.New()
         m2.setMeshDimension(2)
         m2.allocateCells(8)
         for i in range(8):
-            m2.insertNextCell(NORM_QUAD4,4,m2Conn[4*i:4*(i+1)])
+            m2.insertNextCell(NORM_QUAD4, 4, m2Conn[4 * i : 4 * (i + 1)])
             pass
         m2.finishInsertingCells()
-        myCoords2=DataArrayDouble.New()
-        myCoords2.setValues(m2Coords,15,2)
+        myCoords2 = DataArrayDouble.New()
+        myCoords2.setValues(m2Coords, 15, 2)
         m2.setCoords(myCoords2)
         #
-        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m2,m1,1e-10)
+        m3, d1, d2 = MEDCouplingUMesh.Intersect2DMeshes(m2, m1, 1e-10)
         m3.unPolyze()
         #
-        expected1=[0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7]
-        expected2=[0,1,1,-1,2,3,3,-1,4,5,5,-1,6,7,7,-1]
-        self.assertEqual(16,d1.getNumberOfTuples())
-        self.assertEqual(16,d2.getNumberOfTuples())
-        self.assertEqual(16,m3.getNumberOfCells())
-        self.assertEqual(104,m3.getNumberOfNodes())
-        self.assertEqual(2,m3.getSpaceDimension())
-        self.assertEqual(expected1,d1.getValues())
-        self.assertEqual(expected2,d2.getValues())
-        expected3=[6,16,15,18,44,45,46,8,18,2,1,16,47,48,49,50,8,17,1,2,40,51,52,53,54,8,40,5,4,17,55,56,57,58,6,18,15,20,59,60,61,8,20,7,6,18,62,63,64,65,8,41,6,7,21,66,67,68,69,8,21,8,9,41,70,71,72,73,6,20,15,22,74,75,76,8,22,11,7,20,77,78,79,80,8,21,7,11,42,81,82,83,84,8,42,10,8,21,85,86,87,88,6,22,15,16,89,90,91,8,16,1,13,22,92,93,94,95,8,43,13,1,17,96,97,98,99,8,17,4,14,43,100,101,102,103]
-        expected4=[0,7,16,25,34,41,50,59,68,75,84,93,102,109,118,127,136]
-        expected5=[0.,0.,1.1, 0.,1.1,1.,0.,1.,1.7,0.,1.7,1.,-1.1,1.,-1.1,0.,-1.7,0.,-1.7,1.,-1.7,-1.,-1.1,-1.,0.,-1.,1.1,-1.,1.7,-1.,0.,0.,1.,0.,1.5,0.,0.,1.,0.,1.5,-1.,0.,-1.5,0.,0.,-1.,0.,-1.5,0.5,0.,1.25,0.,0.7071067811865476,0.7071067811865476,1.0606601717798214,1.0606601717798214,0.,0.5,0.,1.25,-0.7071067811865476,0.7071067811865476,-1.0606601717798214,1.0606601717798214,-0.5,0.,-1.25,0.,-0.7071067811865476,-0.7071067811865476,-1.0606601717798214,-1.0606601717798214,0.,-0.5,0.,-1.25,0.7071067811865476,-0.7071067811865476,1.0606601717798214,-1.0606601717798214,1.1180339887498951,1.,-1.1180339887498951,1.,-1.1180339887498951,-1.,1.1180339887498951,-1.,0.5,0.,0.,0.5,0.7071067811865477,0.7071067811865476,0.55,1.,1.1,0.5,1.05,0.,0.7071067811865477,0.7071067811865475,1.3,0.,1.1,0.5,1.1090169943749475,1.,1.4012585384440737,0.535233134659635,1.4090169943749475,1.,1.7,0.5,1.6,0.,1.4012585384440737,0.535233134659635,0.,0.5,-0.5,0.,-0.7071067811865477,0.7071067811865476,-1.05,0.,-1.1,0.5,-0.55,1.,-0.7071067811865478,0.7071067811865475,-1.1090169943749475,1.,-1.1,0.5,-1.3,0.,-1.4012585384440737,0.5352331346596344,-1.6,0.,-1.7,0.5,-1.4090169943749475,1.,-1.4012585384440737,0.5352331346596344,-0.5,0.,0.,-0.5,-0.7071067811865475,-0.7071067811865477,-0.55,-1.,-1.1,-0.5,-1.05,0.,-0.7071067811865475,-0.7071067811865477,-1.3,0.,-1.1,-0.5,-1.1090169943749475,-1.,-1.4012585384440734,-0.5352331346596354,-1.4090169943749475,-1.,-1.7,-0.5,-1.6,0.,-1.4012585384440732,-0.5352331346596354,0.,-0.5,0.5,0.,0.7071067811865475,-0.7071067811865477,1.05,0.,1.1,-0.5,0.55,-1.,0.7071067811865475,-0.7071067811865477,1.1090169943749475,-1.,1.1,-0.5,1.3,0.,1.4012585384440737,-0.535233134659635,1.6,0.,1.7,-0.5,1.4090169943749475,-1.,1.4012585384440737,-0.535233134659635]
-        self.assertEqual(136,m3.getNodalConnectivity().getNumberOfTuples())
-        self.assertEqual(17,m3.getNodalConnectivityIndex().getNumberOfTuples())
-        self.assertEqual(expected3,m3.getNodalConnectivity().getValues())
-        self.assertEqual(expected4,m3.getNodalConnectivityIndex().getValues())
+        expected1 = [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7]
+        expected2 = [0, 1, 1, -1, 2, 3, 3, -1, 4, 5, 5, -1, 6, 7, 7, -1]
+        self.assertEqual(16, d1.getNumberOfTuples())
+        self.assertEqual(16, d2.getNumberOfTuples())
+        self.assertEqual(16, m3.getNumberOfCells())
+        self.assertEqual(104, m3.getNumberOfNodes())
+        self.assertEqual(2, m3.getSpaceDimension())
+        self.assertEqual(expected1, d1.getValues())
+        self.assertEqual(expected2, d2.getValues())
+        expected3 = [
+            6,
+            16,
+            15,
+            18,
+            44,
+            45,
+            46,
+            8,
+            18,
+            2,
+            1,
+            16,
+            47,
+            48,
+            49,
+            50,
+            8,
+            17,
+            1,
+            2,
+            40,
+            51,
+            52,
+            53,
+            54,
+            8,
+            40,
+            5,
+            4,
+            17,
+            55,
+            56,
+            57,
+            58,
+            6,
+            18,
+            15,
+            20,
+            59,
+            60,
+            61,
+            8,
+            20,
+            7,
+            6,
+            18,
+            62,
+            63,
+            64,
+            65,
+            8,
+            41,
+            6,
+            7,
+            21,
+            66,
+            67,
+            68,
+            69,
+            8,
+            21,
+            8,
+            9,
+            41,
+            70,
+            71,
+            72,
+            73,
+            6,
+            20,
+            15,
+            22,
+            74,
+            75,
+            76,
+            8,
+            22,
+            11,
+            7,
+            20,
+            77,
+            78,
+            79,
+            80,
+            8,
+            21,
+            7,
+            11,
+            42,
+            81,
+            82,
+            83,
+            84,
+            8,
+            42,
+            10,
+            8,
+            21,
+            85,
+            86,
+            87,
+            88,
+            6,
+            22,
+            15,
+            16,
+            89,
+            90,
+            91,
+            8,
+            16,
+            1,
+            13,
+            22,
+            92,
+            93,
+            94,
+            95,
+            8,
+            43,
+            13,
+            1,
+            17,
+            96,
+            97,
+            98,
+            99,
+            8,
+            17,
+            4,
+            14,
+            43,
+            100,
+            101,
+            102,
+            103,
+        ]
+        expected4 = [
+            0,
+            7,
+            16,
+            25,
+            34,
+            41,
+            50,
+            59,
+            68,
+            75,
+            84,
+            93,
+            102,
+            109,
+            118,
+            127,
+            136,
+        ]
+        expected5 = [
+            0.0,
+            0.0,
+            1.1,
+            0.0,
+            1.1,
+            1.0,
+            0.0,
+            1.0,
+            1.7,
+            0.0,
+            1.7,
+            1.0,
+            -1.1,
+            1.0,
+            -1.1,
+            0.0,
+            -1.7,
+            0.0,
+            -1.7,
+            1.0,
+            -1.7,
+            -1.0,
+            -1.1,
+            -1.0,
+            0.0,
+            -1.0,
+            1.1,
+            -1.0,
+            1.7,
+            -1.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            1.5,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            1.5,
+            -1.0,
+            0.0,
+            -1.5,
+            0.0,
+            0.0,
+            -1.0,
+            0.0,
+            -1.5,
+            0.5,
+            0.0,
+            1.25,
+            0.0,
+            0.7071067811865476,
+            0.7071067811865476,
+            1.0606601717798214,
+            1.0606601717798214,
+            0.0,
+            0.5,
+            0.0,
+            1.25,
+            -0.7071067811865476,
+            0.7071067811865476,
+            -1.0606601717798214,
+            1.0606601717798214,
+            -0.5,
+            0.0,
+            -1.25,
+            0.0,
+            -0.7071067811865476,
+            -0.7071067811865476,
+            -1.0606601717798214,
+            -1.0606601717798214,
+            0.0,
+            -0.5,
+            0.0,
+            -1.25,
+            0.7071067811865476,
+            -0.7071067811865476,
+            1.0606601717798214,
+            -1.0606601717798214,
+            1.1180339887498951,
+            1.0,
+            -1.1180339887498951,
+            1.0,
+            -1.1180339887498951,
+            -1.0,
+            1.1180339887498951,
+            -1.0,
+            0.5,
+            0.0,
+            0.0,
+            0.5,
+            0.7071067811865477,
+            0.7071067811865476,
+            0.55,
+            1.0,
+            1.1,
+            0.5,
+            1.05,
+            0.0,
+            0.7071067811865477,
+            0.7071067811865475,
+            1.3,
+            0.0,
+            1.1,
+            0.5,
+            1.1090169943749475,
+            1.0,
+            1.4012585384440737,
+            0.535233134659635,
+            1.4090169943749475,
+            1.0,
+            1.7,
+            0.5,
+            1.6,
+            0.0,
+            1.4012585384440737,
+            0.535233134659635,
+            0.0,
+            0.5,
+            -0.5,
+            0.0,
+            -0.7071067811865477,
+            0.7071067811865476,
+            -1.05,
+            0.0,
+            -1.1,
+            0.5,
+            -0.55,
+            1.0,
+            -0.7071067811865478,
+            0.7071067811865475,
+            -1.1090169943749475,
+            1.0,
+            -1.1,
+            0.5,
+            -1.3,
+            0.0,
+            -1.4012585384440737,
+            0.5352331346596344,
+            -1.6,
+            0.0,
+            -1.7,
+            0.5,
+            -1.4090169943749475,
+            1.0,
+            -1.4012585384440737,
+            0.5352331346596344,
+            -0.5,
+            0.0,
+            0.0,
+            -0.5,
+            -0.7071067811865475,
+            -0.7071067811865477,
+            -0.55,
+            -1.0,
+            -1.1,
+            -0.5,
+            -1.05,
+            0.0,
+            -0.7071067811865475,
+            -0.7071067811865477,
+            -1.3,
+            0.0,
+            -1.1,
+            -0.5,
+            -1.1090169943749475,
+            -1.0,
+            -1.4012585384440734,
+            -0.5352331346596354,
+            -1.4090169943749475,
+            -1.0,
+            -1.7,
+            -0.5,
+            -1.6,
+            0.0,
+            -1.4012585384440732,
+            -0.5352331346596354,
+            0.0,
+            -0.5,
+            0.5,
+            0.0,
+            0.7071067811865475,
+            -0.7071067811865477,
+            1.05,
+            0.0,
+            1.1,
+            -0.5,
+            0.55,
+            -1.0,
+            0.7071067811865475,
+            -0.7071067811865477,
+            1.1090169943749475,
+            -1.0,
+            1.1,
+            -0.5,
+            1.3,
+            0.0,
+            1.4012585384440737,
+            -0.535233134659635,
+            1.6,
+            0.0,
+            1.7,
+            -0.5,
+            1.4090169943749475,
+            -1.0,
+            1.4012585384440737,
+            -0.535233134659635,
+        ]
+        self.assertEqual(136, m3.getNodalConnectivity().getNumberOfTuples())
+        self.assertEqual(17, m3.getNodalConnectivityIndex().getNumberOfTuples())
+        self.assertEqual(expected3, m3.getNodalConnectivity().getValues())
+        self.assertEqual(expected4, m3.getNodalConnectivityIndex().getValues())
         for i in range(208):
-            self.assertAlmostEqual(expected5[i],m3.getCoords().getIJ(0,i),12)
+            self.assertAlmostEqual(expected5[i], m3.getCoords().getIJ(0, i), 12)
             pass
         pass
 
     def testIntersect2DMeshesTmp5(self):
-        coords=DataArrayDouble.New([41,0,42,0,0,42,0,41,41.5,0,29.698484809834998,29.698484809834994,0,41.5,28.991378028648452,28.991378028648445,-42,0,-41,0,-29.698484809834994,29.698484809834998,-41.5,0,-28.991378028648445,28.991378028648452,0,-42,0,-41,-29.698484809835001,-29.698484809834994,0,-41.5,-28.991378028648455,-28.991378028648445,29.698484809834987,-29.698484809835001,28.991378028648441,-28.991378028648455,43,0,0,43,42.5,0,30.405591591021544,30.40559159102154,0,42.5,-43,0,-30.40559159102154,30.405591591021544,-42.5,0,0,-43,-30.405591591021551,-30.40559159102154,0,-42.5,30.405591591021537,-30.405591591021551,44,0,0,44,43.5,0,31.112698372208094,31.112698372208087,0,43.5,-44,0,-31.112698372208087,31.112698372208094,-43.5,0,0,-44,-31.112698372208097,-31.112698372208087,0,-43.5,31.112698372208083,-31.112698372208097,45,0,0,45,44.5,0,31.81980515339464,31.819805153394636,0,44.5,-45,0,-31.819805153394636,31.81980515339464,-44.5,0,0,-45,-31.819805153394647,-31.819805153394636,0,-44.5,31.819805153394629,-31.819805153394647,47,0,0,47,46,0,33.234018715767739,33.234018715767732,0,46,-47,0,-33.234018715767732,33.234018715767739,-46,0,0,-47,-33.234018715767739,-33.234018715767732,0,-46,33.234018715767725,-33.234018715767739,49,0,0,49,48,0,34.648232278140831,34.648232278140824,0,48,-49,0,-34.648232278140824,34.648232278140831,-48,0,0,-49,-34.648232278140839,-34.648232278140824,0,-48,34.648232278140817,-34.648232278140839,51,0,0,51,50,0,36.062445840513924,36.062445840513924,0,50,-51,0,-36.062445840513924,36.062445840513924,-50,0,0,-51,-36.062445840513931,-36.062445840513924,0,-50,36.062445840513917,-36.062445840513931,53,0,0,53,52,0,37.476659402887023,37.476659402887016,0,52,-53,0,-37.476659402887016,37.476659402887023,-52,0,0,-53,-37.47665940288703,-37.476659402887016,0,-52,37.476659402887009,-37.47665940288703,55,0,0,55,54,0,38.890872965260115,38.890872965260108,0,54,-55,0,-38.890872965260108,38.890872965260115,-54,0,0,-55,-38.890872965260122,-38.890872965260108,0,-54,38.890872965260101,-38.890872965260122,59,0,0,59,57,0,41.719300090006307,41.7193000900063,0,57,-59,0,-41.7193000900063,41.719300090006307,-57,0,0,-59,-41.719300090006314,-41.7193000900063,0,-57,41.719300090006293,-41.719300090006314,63,0,0,63,61,0,44.547727214752499,44.547727214752491,0,61,-63,0,-44.547727214752491,44.547727214752499,-61,0,0,-63,-44.547727214752506,-44.547727214752491,0,-61,44.547727214752484,-44.547727214752506,67,0,0,67,65,0,47.37615433949869,47.376154339498683,0,65,-67,0,-47.376154339498683,47.37615433949869,-65,0,0,-67,-47.376154339498697,-47.376154339498683,0,-65,47.376154339498676,-47.376154339498697,71,0,0,71,69,0,50.204581464244875,50.204581464244868,0,69,-71,0,-50.204581464244868,50.204581464244875,-69,0,0,-71,-50.204581464244889,-50.204581464244868,0,-69,50.20458146424486,-50.204581464244889,75,0,0,75,73,0,53.033008588991066,53.033008588991059,0,73,-75,0,-53.033008588991059,53.033008588991066,-73,0,0,-75,-53.033008588991073,-53.033008588991059,0,-73,53.033008588991052,-53.033008588991073,80,0,0,80,77.5,0,56.568542494923804,56.568542494923797,0,77.5,-80,0,-56.568542494923797,56.568542494923804,-77.5,0,0,-80,-56.568542494923818,-56.568542494923797,0,-77.5,56.56854249492379,-56.568542494923818],188,2)
-        conn=DataArrayInt.New([8,0,1,2,3,4,5,6,7,8,3,2,8,9,6,10,11,12,8,9,8,13,14,11,15,16,17,8,14,13,1,0,16,18,4,19,8,1,20,21,2,22,23,24,5,8,2,21,25,8,24,26,27,10,8,8,25,28,13,27,29,30,15,8,13,28,20,1,30,31,22,18,8,20,32,33,21,34,35,36,23,8,21,33,37,25,36,38,39,26,8,25,37,40,28,39,41,42,29,8,28,40,32,20,42,43,34,31,8,32,44,45,33,46,47,48,35,8,33,45,49,37,48,50,51,38,8,37,49,52,40,51,53,54,41,8,40,52,44,32,54,55,46,43,8,44,56,57,45,58,59,60,47,8,45,57,61,49,60,62,63,50,8,49,61,64,52,63,65,66,53,8,52,64,56,44,66,67,58,55,8,56,68,69,57,70,71,72,59,8,57,69,73,61,72,74,75,62,8,61,73,76,64,75,77,78,65,8,64,76,68,56,78,79,70,67,8,68,80,81,69,82,83,84,71,8,69,81,85,73,84,86,87,74,8,73,85,88,76,87,89,90,77,8,76,88,80,68,90,91,82,79,8,80,92,93,81,94,95,96,83,8,81,93,97,85,96,98,99,86,8,85,97,100,88,99,101,102,89,8,88,100,92,80,102,103,94,91,8,92,104,105,93,106,107,108,95,8,93,105,109,97,108,110,111,98,8,97,109,112,100,111,113,114,101,8,100,112,104,92,114,115,106,103,8,104,116,117,105,118,119,120,107,8,105,117,121,109,120,122,123,110,8,109,121,124,112,123,125,126,113,8,112,124,116,104,126,127,118,115,8,116,128,129,117,130,131,132,119,8,117,129,133,121,132,134,135,122,8,121,133,136,124,135,137,138,125,8,124,136,128,116,138,139,130,127,8,128,140,141,129,142,143,144,131,8,129,141,145,133,144,146,147,134,8,133,145,148,136,147,149,150,137,8,136,148,140,128,150,151,142,139,8,140,152,153,141,154,155,156,143,8,141,153,157,145,156,158,159,146,8,145,157,160,148,159,161,162,149,8,148,160,152,140,162,163,154,151,8,152,164,165,153,166,167,168,155,8,153,165,169,157,168,170,171,158,8,157,169,172,160,171,173,174,161,8,160,172,164,152,174,175,166,163,8,164,176,177,165,178,179,180,167,8,165,177,181,169,180,182,183,170,8,169,181,184,172,183,185,186,173,8,172,184,176,164,186,187,178,175],540)
-        connI=DataArrayInt.New([0,9,18,27,36,45,54,63,72,81,90,99,108,117,126,135,144,153,162,171,180,189,198,207,216,225,234,243,252,261,270,279,288,297,306,315,324,333,342,351,360,369,378,387,396,405,414,423,432,441,450,459,468,477,486,495,504,513,522,531,540],61)
+        coords = DataArrayDouble.New(
+            [
+                41,
+                0,
+                42,
+                0,
+                0,
+                42,
+                0,
+                41,
+                41.5,
+                0,
+                29.698484809834998,
+                29.698484809834994,
+                0,
+                41.5,
+                28.991378028648452,
+                28.991378028648445,
+                -42,
+                0,
+                -41,
+                0,
+                -29.698484809834994,
+                29.698484809834998,
+                -41.5,
+                0,
+                -28.991378028648445,
+                28.991378028648452,
+                0,
+                -42,
+                0,
+                -41,
+                -29.698484809835001,
+                -29.698484809834994,
+                0,
+                -41.5,
+                -28.991378028648455,
+                -28.991378028648445,
+                29.698484809834987,
+                -29.698484809835001,
+                28.991378028648441,
+                -28.991378028648455,
+                43,
+                0,
+                0,
+                43,
+                42.5,
+                0,
+                30.405591591021544,
+                30.40559159102154,
+                0,
+                42.5,
+                -43,
+                0,
+                -30.40559159102154,
+                30.405591591021544,
+                -42.5,
+                0,
+                0,
+                -43,
+                -30.405591591021551,
+                -30.40559159102154,
+                0,
+                -42.5,
+                30.405591591021537,
+                -30.405591591021551,
+                44,
+                0,
+                0,
+                44,
+                43.5,
+                0,
+                31.112698372208094,
+                31.112698372208087,
+                0,
+                43.5,
+                -44,
+                0,
+                -31.112698372208087,
+                31.112698372208094,
+                -43.5,
+                0,
+                0,
+                -44,
+                -31.112698372208097,
+                -31.112698372208087,
+                0,
+                -43.5,
+                31.112698372208083,
+                -31.112698372208097,
+                45,
+                0,
+                0,
+                45,
+                44.5,
+                0,
+                31.81980515339464,
+                31.819805153394636,
+                0,
+                44.5,
+                -45,
+                0,
+                -31.819805153394636,
+                31.81980515339464,
+                -44.5,
+                0,
+                0,
+                -45,
+                -31.819805153394647,
+                -31.819805153394636,
+                0,
+                -44.5,
+                31.819805153394629,
+                -31.819805153394647,
+                47,
+                0,
+                0,
+                47,
+                46,
+                0,
+                33.234018715767739,
+                33.234018715767732,
+                0,
+                46,
+                -47,
+                0,
+                -33.234018715767732,
+                33.234018715767739,
+                -46,
+                0,
+                0,
+                -47,
+                -33.234018715767739,
+                -33.234018715767732,
+                0,
+                -46,
+                33.234018715767725,
+                -33.234018715767739,
+                49,
+                0,
+                0,
+                49,
+                48,
+                0,
+                34.648232278140831,
+                34.648232278140824,
+                0,
+                48,
+                -49,
+                0,
+                -34.648232278140824,
+                34.648232278140831,
+                -48,
+                0,
+                0,
+                -49,
+                -34.648232278140839,
+                -34.648232278140824,
+                0,
+                -48,
+                34.648232278140817,
+                -34.648232278140839,
+                51,
+                0,
+                0,
+                51,
+                50,
+                0,
+                36.062445840513924,
+                36.062445840513924,
+                0,
+                50,
+                -51,
+                0,
+                -36.062445840513924,
+                36.062445840513924,
+                -50,
+                0,
+                0,
+                -51,
+                -36.062445840513931,
+                -36.062445840513924,
+                0,
+                -50,
+                36.062445840513917,
+                -36.062445840513931,
+                53,
+                0,
+                0,
+                53,
+                52,
+                0,
+                37.476659402887023,
+                37.476659402887016,
+                0,
+                52,
+                -53,
+                0,
+                -37.476659402887016,
+                37.476659402887023,
+                -52,
+                0,
+                0,
+                -53,
+                -37.47665940288703,
+                -37.476659402887016,
+                0,
+                -52,
+                37.476659402887009,
+                -37.47665940288703,
+                55,
+                0,
+                0,
+                55,
+                54,
+                0,
+                38.890872965260115,
+                38.890872965260108,
+                0,
+                54,
+                -55,
+                0,
+                -38.890872965260108,
+                38.890872965260115,
+                -54,
+                0,
+                0,
+                -55,
+                -38.890872965260122,
+                -38.890872965260108,
+                0,
+                -54,
+                38.890872965260101,
+                -38.890872965260122,
+                59,
+                0,
+                0,
+                59,
+                57,
+                0,
+                41.719300090006307,
+                41.7193000900063,
+                0,
+                57,
+                -59,
+                0,
+                -41.7193000900063,
+                41.719300090006307,
+                -57,
+                0,
+                0,
+                -59,
+                -41.719300090006314,
+                -41.7193000900063,
+                0,
+                -57,
+                41.719300090006293,
+                -41.719300090006314,
+                63,
+                0,
+                0,
+                63,
+                61,
+                0,
+                44.547727214752499,
+                44.547727214752491,
+                0,
+                61,
+                -63,
+                0,
+                -44.547727214752491,
+                44.547727214752499,
+                -61,
+                0,
+                0,
+                -63,
+                -44.547727214752506,
+                -44.547727214752491,
+                0,
+                -61,
+                44.547727214752484,
+                -44.547727214752506,
+                67,
+                0,
+                0,
+                67,
+                65,
+                0,
+                47.37615433949869,
+                47.376154339498683,
+                0,
+                65,
+                -67,
+                0,
+                -47.376154339498683,
+                47.37615433949869,
+                -65,
+                0,
+                0,
+                -67,
+                -47.376154339498697,
+                -47.376154339498683,
+                0,
+                -65,
+                47.376154339498676,
+                -47.376154339498697,
+                71,
+                0,
+                0,
+                71,
+                69,
+                0,
+                50.204581464244875,
+                50.204581464244868,
+                0,
+                69,
+                -71,
+                0,
+                -50.204581464244868,
+                50.204581464244875,
+                -69,
+                0,
+                0,
+                -71,
+                -50.204581464244889,
+                -50.204581464244868,
+                0,
+                -69,
+                50.20458146424486,
+                -50.204581464244889,
+                75,
+                0,
+                0,
+                75,
+                73,
+                0,
+                53.033008588991066,
+                53.033008588991059,
+                0,
+                73,
+                -75,
+                0,
+                -53.033008588991059,
+                53.033008588991066,
+                -73,
+                0,
+                0,
+                -75,
+                -53.033008588991073,
+                -53.033008588991059,
+                0,
+                -73,
+                53.033008588991052,
+                -53.033008588991073,
+                80,
+                0,
+                0,
+                80,
+                77.5,
+                0,
+                56.568542494923804,
+                56.568542494923797,
+                0,
+                77.5,
+                -80,
+                0,
+                -56.568542494923797,
+                56.568542494923804,
+                -77.5,
+                0,
+                0,
+                -80,
+                -56.568542494923818,
+                -56.568542494923797,
+                0,
+                -77.5,
+                56.56854249492379,
+                -56.568542494923818,
+            ],
+            188,
+            2,
+        )
+        conn = DataArrayInt.New(
+            [
+                8,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                3,
+                2,
+                8,
+                9,
+                6,
+                10,
+                11,
+                12,
+                8,
+                9,
+                8,
+                13,
+                14,
+                11,
+                15,
+                16,
+                17,
+                8,
+                14,
+                13,
+                1,
+                0,
+                16,
+                18,
+                4,
+                19,
+                8,
+                1,
+                20,
+                21,
+                2,
+                22,
+                23,
+                24,
+                5,
+                8,
+                2,
+                21,
+                25,
+                8,
+                24,
+                26,
+                27,
+                10,
+                8,
+                8,
+                25,
+                28,
+                13,
+                27,
+                29,
+                30,
+                15,
+                8,
+                13,
+                28,
+                20,
+                1,
+                30,
+                31,
+                22,
+                18,
+                8,
+                20,
+                32,
+                33,
+                21,
+                34,
+                35,
+                36,
+                23,
+                8,
+                21,
+                33,
+                37,
+                25,
+                36,
+                38,
+                39,
+                26,
+                8,
+                25,
+                37,
+                40,
+                28,
+                39,
+                41,
+                42,
+                29,
+                8,
+                28,
+                40,
+                32,
+                20,
+                42,
+                43,
+                34,
+                31,
+                8,
+                32,
+                44,
+                45,
+                33,
+                46,
+                47,
+                48,
+                35,
+                8,
+                33,
+                45,
+                49,
+                37,
+                48,
+                50,
+                51,
+                38,
+                8,
+                37,
+                49,
+                52,
+                40,
+                51,
+                53,
+                54,
+                41,
+                8,
+                40,
+                52,
+                44,
+                32,
+                54,
+                55,
+                46,
+                43,
+                8,
+                44,
+                56,
+                57,
+                45,
+                58,
+                59,
+                60,
+                47,
+                8,
+                45,
+                57,
+                61,
+                49,
+                60,
+                62,
+                63,
+                50,
+                8,
+                49,
+                61,
+                64,
+                52,
+                63,
+                65,
+                66,
+                53,
+                8,
+                52,
+                64,
+                56,
+                44,
+                66,
+                67,
+                58,
+                55,
+                8,
+                56,
+                68,
+                69,
+                57,
+                70,
+                71,
+                72,
+                59,
+                8,
+                57,
+                69,
+                73,
+                61,
+                72,
+                74,
+                75,
+                62,
+                8,
+                61,
+                73,
+                76,
+                64,
+                75,
+                77,
+                78,
+                65,
+                8,
+                64,
+                76,
+                68,
+                56,
+                78,
+                79,
+                70,
+                67,
+                8,
+                68,
+                80,
+                81,
+                69,
+                82,
+                83,
+                84,
+                71,
+                8,
+                69,
+                81,
+                85,
+                73,
+                84,
+                86,
+                87,
+                74,
+                8,
+                73,
+                85,
+                88,
+                76,
+                87,
+                89,
+                90,
+                77,
+                8,
+                76,
+                88,
+                80,
+                68,
+                90,
+                91,
+                82,
+                79,
+                8,
+                80,
+                92,
+                93,
+                81,
+                94,
+                95,
+                96,
+                83,
+                8,
+                81,
+                93,
+                97,
+                85,
+                96,
+                98,
+                99,
+                86,
+                8,
+                85,
+                97,
+                100,
+                88,
+                99,
+                101,
+                102,
+                89,
+                8,
+                88,
+                100,
+                92,
+                80,
+                102,
+                103,
+                94,
+                91,
+                8,
+                92,
+                104,
+                105,
+                93,
+                106,
+                107,
+                108,
+                95,
+                8,
+                93,
+                105,
+                109,
+                97,
+                108,
+                110,
+                111,
+                98,
+                8,
+                97,
+                109,
+                112,
+                100,
+                111,
+                113,
+                114,
+                101,
+                8,
+                100,
+                112,
+                104,
+                92,
+                114,
+                115,
+                106,
+                103,
+                8,
+                104,
+                116,
+                117,
+                105,
+                118,
+                119,
+                120,
+                107,
+                8,
+                105,
+                117,
+                121,
+                109,
+                120,
+                122,
+                123,
+                110,
+                8,
+                109,
+                121,
+                124,
+                112,
+                123,
+                125,
+                126,
+                113,
+                8,
+                112,
+                124,
+                116,
+                104,
+                126,
+                127,
+                118,
+                115,
+                8,
+                116,
+                128,
+                129,
+                117,
+                130,
+                131,
+                132,
+                119,
+                8,
+                117,
+                129,
+                133,
+                121,
+                132,
+                134,
+                135,
+                122,
+                8,
+                121,
+                133,
+                136,
+                124,
+                135,
+                137,
+                138,
+                125,
+                8,
+                124,
+                136,
+                128,
+                116,
+                138,
+                139,
+                130,
+                127,
+                8,
+                128,
+                140,
+                141,
+                129,
+                142,
+                143,
+                144,
+                131,
+                8,
+                129,
+                141,
+                145,
+                133,
+                144,
+                146,
+                147,
+                134,
+                8,
+                133,
+                145,
+                148,
+                136,
+                147,
+                149,
+                150,
+                137,
+                8,
+                136,
+                148,
+                140,
+                128,
+                150,
+                151,
+                142,
+                139,
+                8,
+                140,
+                152,
+                153,
+                141,
+                154,
+                155,
+                156,
+                143,
+                8,
+                141,
+                153,
+                157,
+                145,
+                156,
+                158,
+                159,
+                146,
+                8,
+                145,
+                157,
+                160,
+                148,
+                159,
+                161,
+                162,
+                149,
+                8,
+                148,
+                160,
+                152,
+                140,
+                162,
+                163,
+                154,
+                151,
+                8,
+                152,
+                164,
+                165,
+                153,
+                166,
+                167,
+                168,
+                155,
+                8,
+                153,
+                165,
+                169,
+                157,
+                168,
+                170,
+                171,
+                158,
+                8,
+                157,
+                169,
+                172,
+                160,
+                171,
+                173,
+                174,
+                161,
+                8,
+                160,
+                172,
+                164,
+                152,
+                174,
+                175,
+                166,
+                163,
+                8,
+                164,
+                176,
+                177,
+                165,
+                178,
+                179,
+                180,
+                167,
+                8,
+                165,
+                177,
+                181,
+                169,
+                180,
+                182,
+                183,
+                170,
+                8,
+                169,
+                181,
+                184,
+                172,
+                183,
+                185,
+                186,
+                173,
+                8,
+                172,
+                184,
+                176,
+                164,
+                186,
+                187,
+                178,
+                175,
+            ],
+            540,
+        )
+        connI = DataArrayInt.New(
+            [
+                0,
+                9,
+                18,
+                27,
+                36,
+                45,
+                54,
+                63,
+                72,
+                81,
+                90,
+                99,
+                108,
+                117,
+                126,
+                135,
+                144,
+                153,
+                162,
+                171,
+                180,
+                189,
+                198,
+                207,
+                216,
+                225,
+                234,
+                243,
+                252,
+                261,
+                270,
+                279,
+                288,
+                297,
+                306,
+                315,
+                324,
+                333,
+                342,
+                351,
+                360,
+                369,
+                378,
+                387,
+                396,
+                405,
+                414,
+                423,
+                432,
+                441,
+                450,
+                459,
+                468,
+                477,
+                486,
+                495,
+                504,
+                513,
+                522,
+                531,
+                540,
+            ],
+            61,
+        )
         #
-        m1=MEDCouplingUMesh.New("Fix",2)
+        m1 = MEDCouplingUMesh.New("Fix", 2)
         m1.setCoords(coords)
-        m1.setConnectivity(conn,connI,True)
+        m1.setConnectivity(conn, connI, True)
         #
-        coords=DataArrayDouble([46.5,-2.5,53.5,-2.5,53.5,2.5,46.5,2.5,50,-2.5,53.5,0,50,2.5,46.5,0,60.5,-2.5,60.5,2.5,57,-2.5,60.5,0,57,2.5,53.5,7.5,46.5,7.5,53.5,5,50,7.5,46.5,5,60.5,7.5,60.5,5,57,7.5,-2,47,2,47,2,53,-2,53,0,47,2,50,0,53,-2,50,6,47,6,53,4,47,6,50,4,53,2,59,-2,59,2,56,0,59,-2,56,6,59,6,56,4,59],42,2)
+        coords = DataArrayDouble(
+            [
+                46.5,
+                -2.5,
+                53.5,
+                -2.5,
+                53.5,
+                2.5,
+                46.5,
+                2.5,
+                50,
+                -2.5,
+                53.5,
+                0,
+                50,
+                2.5,
+                46.5,
+                0,
+                60.5,
+                -2.5,
+                60.5,
+                2.5,
+                57,
+                -2.5,
+                60.5,
+                0,
+                57,
+                2.5,
+                53.5,
+                7.5,
+                46.5,
+                7.5,
+                53.5,
+                5,
+                50,
+                7.5,
+                46.5,
+                5,
+                60.5,
+                7.5,
+                60.5,
+                5,
+                57,
+                7.5,
+                -2,
+                47,
+                2,
+                47,
+                2,
+                53,
+                -2,
+                53,
+                0,
+                47,
+                2,
+                50,
+                0,
+                53,
+                -2,
+                50,
+                6,
+                47,
+                6,
+                53,
+                4,
+                47,
+                6,
+                50,
+                4,
+                53,
+                2,
+                59,
+                -2,
+                59,
+                2,
+                56,
+                0,
+                59,
+                -2,
+                56,
+                6,
+                59,
+                6,
+                56,
+                4,
+                59,
+            ],
+            42,
+            2,
+        )
         # connectivity
-        conn=DataArrayInt([8,0,1,2,3,4,5,6,7,8,1,8,9,2,10,11,12,5,8,3,2,13,14,6,15,16,17,8,2,9,18,13,12,19,20,15,8,21,22,23,24,25,26,27,28,8,22,29,30,23,31,32,33,26,8,24,23,34,35,27,36,37,38,8,23,30,39,34,33,40,41,36],72)
+        conn = DataArrayInt(
+            [
+                8,
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                1,
+                8,
+                9,
+                2,
+                10,
+                11,
+                12,
+                5,
+                8,
+                3,
+                2,
+                13,
+                14,
+                6,
+                15,
+                16,
+                17,
+                8,
+                2,
+                9,
+                18,
+                13,
+                12,
+                19,
+                20,
+                15,
+                8,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                8,
+                22,
+                29,
+                30,
+                23,
+                31,
+                32,
+                33,
+                26,
+                8,
+                24,
+                23,
+                34,
+                35,
+                27,
+                36,
+                37,
+                38,
+                8,
+                23,
+                30,
+                39,
+                34,
+                33,
+                40,
+                41,
+                36,
+            ],
+            72,
+        )
         conn.setName("")
-        connI=DataArrayInt([0,9,18,27,36,45,54,63,72],9)
-        m2=MEDCouplingUMesh.New("Mobile",2)
+        connI = DataArrayInt([0, 9, 18, 27, 36, 45, 54, 63, 72], 9)
+        m2 = MEDCouplingUMesh.New("Mobile", 2)
         m2.setCoords(coords)
-        m2.setConnectivity(conn,connI,True)
+        m2.setConnectivity(conn, connI, True)
         #
-        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1,m2,1e-10)
-        self.assertEqual(105,m3.getNumberOfCells())
-        self.assertEqual(105,d1.getNumberOfTuples())
-        self.assertEqual(105,d2.getNumberOfTuples())
-        self.assertEqual(704,m3.getNumberOfNodes())
+        m3, d1, d2 = MEDCouplingUMesh.Intersect2DMeshes(m1, m2, 1e-10)
+        self.assertEqual(105, m3.getNumberOfCells())
+        self.assertEqual(105, d1.getNumberOfTuples())
+        self.assertEqual(105, d2.getNumberOfTuples())
+        self.assertEqual(704, m3.getNumberOfNodes())
         #
-        areaExpected=[-65.18804756198824,-65.18804756198824,-65.18804756198824,-65.18804756198824,-66.75884388878285,-66.75884388878285,-66.7588438887833,-66.75884388878308,-68.32964021557768,-68.32964021557768,-68.32964021557814,-68.32964021557791,-69.9004365423732,-69.9004365423732,-69.90043654237297,-69.90043654237297,-1.194568659706448,-1.0869994447159463,-142.2316939607081,-144.51326206513068,-144.5132620651309,-1.1945686597064424,-143.3186934054243,-5.002264310862817,-10.0261332846393,-3.9727823117092953,-7.290862524642649,-124.504404940456,-3.9727823117093237,-146.82366506060032,-150.79644737231024,-5.002264310862776,-145.79418306144626,-5.00208651738126,-10.054764051268958,-4.001067863263231,-8.027932154428669,-129.99378209314813,-4.001067863263216,-153.07856481622616,-157.0796326794898,-5.0020865173811915,-152.07754616210832,-5.001928880064381,-10.050590216368969,-4.00098721602491,-8.025810856794209,-136.28350081741684,-4.000987216024939,-159.36183077064402,-163.36281798667005,-5.0019288800643285,-158.36088910660442,-1.2991516319851801,-3.702636830195414,-3.7815130030068254,-6.265364371195623,-0.02516260900254963,-0.6553944641345026,-3.975752765070567,-7.368528340442765,-142.57249927881398,-0.02516260900254963,-3.9757527650706095,-165.64508791977525,-169.64600329384803,-1.299151631985167,-3.7026368301953885,-164.6442148316677,-10.00321285677458,-20.08414323176165,-8.001644468035863,-16.042954878437143,-304.0096070742277,-8.00164446803587,-350.1399180412005,-358.1415625092368,-10.003212856774468,-348.13834965246224,-3.794150313030109,-8.65049239704272,-0.02260276689354157,-0.5885167811200915,-370.2185414798688,-0.022602766893559393,-383.2517009710623,-383.2743037379555,-3.7941503130300576,-379.48015342492505,-408.40704496667513,-408.4070449666742,-408.4070449666742,-408.4070449666742,-433.53978619538975,-433.5397861953902,-433.5397861953911,-433.53978619539066,-458.67252742410983,-458.6725274241094,-458.67252742410983,-458.6725274241089,-608.6835766330232,-608.6835766330232,-608.6835766330232,-608.6835766330241]
-        expected1=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,16,16,17,18,19,19,20,20,20,20,20,21,21,22,23,23,24,24,24,24,24,25,25,26,27,27,28,28,28,28,28,29,29,30,31,31,32,32,32,32,32,32,32,32,32,33,33,33,34,35,35,35,36,36,36,36,36,37,37,38,39,39,40,40,40,40,40,41,41,42,43,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59]
-        expected2=[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,2,-1,-1,-1,0,-1,0,2,4,5,-1,4,-1,-1,0,-1,0,2,4,5,-1,4,-1,-1,0,-1,0,2,4,5,-1,4,-1,-1,0,-1,0,1,2,3,4,5,6,7,-1,4,6,-1,-1,0,1,-1,1,3,6,7,-1,6,-1,-1,1,-1,1,3,6,7,-1,6,-1,-1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
-        f3=m3.getMeasureField(False).getArray().getValues()
+        areaExpected = [
+            -65.18804756198824,
+            -65.18804756198824,
+            -65.18804756198824,
+            -65.18804756198824,
+            -66.75884388878285,
+            -66.75884388878285,
+            -66.7588438887833,
+            -66.75884388878308,
+            -68.32964021557768,
+            -68.32964021557768,
+            -68.32964021557814,
+            -68.32964021557791,
+            -69.9004365423732,
+            -69.9004365423732,
+            -69.90043654237297,
+            -69.90043654237297,
+            -1.194568659706448,
+            -1.0869994447159463,
+            -142.2316939607081,
+            -144.51326206513068,
+            -144.5132620651309,
+            -1.1945686597064424,
+            -143.3186934054243,
+            -5.002264310862817,
+            -10.0261332846393,
+            -3.9727823117092953,
+            -7.290862524642649,
+            -124.504404940456,
+            -3.9727823117093237,
+            -146.82366506060032,
+            -150.79644737231024,
+            -5.002264310862776,
+            -145.79418306144626,
+            -5.00208651738126,
+            -10.054764051268958,
+            -4.001067863263231,
+            -8.027932154428669,
+            -129.99378209314813,
+            -4.001067863263216,
+            -153.07856481622616,
+            -157.0796326794898,
+            -5.0020865173811915,
+            -152.07754616210832,
+            -5.001928880064381,
+            -10.050590216368969,
+            -4.00098721602491,
+            -8.025810856794209,
+            -136.28350081741684,
+            -4.000987216024939,
+            -159.36183077064402,
+            -163.36281798667005,
+            -5.0019288800643285,
+            -158.36088910660442,
+            -1.2991516319851801,
+            -3.702636830195414,
+            -3.7815130030068254,
+            -6.265364371195623,
+            -0.02516260900254963,
+            -0.6553944641345026,
+            -3.975752765070567,
+            -7.368528340442765,
+            -142.57249927881398,
+            -0.02516260900254963,
+            -3.9757527650706095,
+            -165.64508791977525,
+            -169.64600329384803,
+            -1.299151631985167,
+            -3.7026368301953885,
+            -164.6442148316677,
+            -10.00321285677458,
+            -20.08414323176165,
+            -8.001644468035863,
+            -16.042954878437143,
+            -304.0096070742277,
+            -8.00164446803587,
+            -350.1399180412005,
+            -358.1415625092368,
+            -10.003212856774468,
+            -348.13834965246224,
+            -3.794150313030109,
+            -8.65049239704272,
+            -0.02260276689354157,
+            -0.5885167811200915,
+            -370.2185414798688,
+            -0.022602766893559393,
+            -383.2517009710623,
+            -383.2743037379555,
+            -3.7941503130300576,
+            -379.48015342492505,
+            -408.40704496667513,
+            -408.4070449666742,
+            -408.4070449666742,
+            -408.4070449666742,
+            -433.53978619538975,
+            -433.5397861953902,
+            -433.5397861953911,
+            -433.53978619539066,
+            -458.67252742410983,
+            -458.6725274241094,
+            -458.67252742410983,
+            -458.6725274241089,
+            -608.6835766330232,
+            -608.6835766330232,
+            -608.6835766330232,
+            -608.6835766330241,
+        ]
+        expected1 = [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            16,
+            16,
+            17,
+            18,
+            19,
+            19,
+            20,
+            20,
+            20,
+            20,
+            20,
+            21,
+            21,
+            22,
+            23,
+            23,
+            24,
+            24,
+            24,
+            24,
+            24,
+            25,
+            25,
+            26,
+            27,
+            27,
+            28,
+            28,
+            28,
+            28,
+            28,
+            29,
+            29,
+            30,
+            31,
+            31,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            32,
+            33,
+            33,
+            33,
+            34,
+            35,
+            35,
+            35,
+            36,
+            36,
+            36,
+            36,
+            36,
+            37,
+            37,
+            38,
+            39,
+            39,
+            40,
+            40,
+            40,
+            40,
+            40,
+            41,
+            41,
+            42,
+            43,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+        ]
+        expected2 = [
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            0,
+            2,
+            -1,
+            -1,
+            -1,
+            0,
+            -1,
+            0,
+            2,
+            4,
+            5,
+            -1,
+            4,
+            -1,
+            -1,
+            0,
+            -1,
+            0,
+            2,
+            4,
+            5,
+            -1,
+            4,
+            -1,
+            -1,
+            0,
+            -1,
+            0,
+            2,
+            4,
+            5,
+            -1,
+            4,
+            -1,
+            -1,
+            0,
+            -1,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            -1,
+            4,
+            6,
+            -1,
+            -1,
+            0,
+            1,
+            -1,
+            1,
+            3,
+            6,
+            7,
+            -1,
+            6,
+            -1,
+            -1,
+            1,
+            -1,
+            1,
+            3,
+            6,
+            7,
+            -1,
+            6,
+            -1,
+            -1,
+            1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+            -1,
+        ]
+        f3 = m3.getMeasureField(False).getArray().getValues()
         for i in range(105):
-            self.assertAlmostEqual(areaExpected[i],f3[i],10)
+            self.assertAlmostEqual(areaExpected[i], f3[i], 10)
             pass
-        self.assertEqual(expected1,d1.getValues())
-        self.assertEqual(expected2,d2.getValues())
+        self.assertEqual(expected1, d1.getValues())
+        self.assertEqual(expected2, d2.getValues())
         pass
 
     def testIntersect2DMeshesTmp6(self):
         # coordinates
-        coords=DataArrayDouble.New([2.7554552980815448e-15,45,-45,5.5109105961630896e-15,-31.819805153394636,31.81980515339464,2.8779199779962799e-15,47,2.8166876380389124e-15,46,-47,5.7558399559925599e-15,-33.234018715767732,33.234018715767739,-46,5.6333752760778247e-15],8,2)
+        coords = DataArrayDouble.New(
+            [
+                2.7554552980815448e-15,
+                45,
+                -45,
+                5.5109105961630896e-15,
+                -31.819805153394636,
+                31.81980515339464,
+                2.8779199779962799e-15,
+                47,
+                2.8166876380389124e-15,
+                46,
+                -47,
+                5.7558399559925599e-15,
+                -33.234018715767732,
+                33.234018715767739,
+                -46,
+                5.6333752760778247e-15,
+            ],
+            8,
+            2,
+        )
         # connectivity
-        conn=DataArrayInt.New([8,0,3,5,1,4,6,7,2])
-        connI=DataArrayInt.New([0,9])
-        m1=MEDCouplingUMesh.New("Fixe",2)
+        conn = DataArrayInt.New([8, 0, 3, 5, 1, 4, 6, 7, 2])
+        connI = DataArrayInt.New([0, 9])
+        m1 = MEDCouplingUMesh.New("Fixe", 2)
         m1.setCoords(coords)
-        m1.setConnectivity(conn,connI,True)
+        m1.setConnectivity(conn, connI, True)
         #
-        coords=DataArrayDouble.New([-7.3800475508445391,41.854329503018846,-3.7041190667754655,42.338274668899189,-3.7041190667754655,45.338274668899189,-7.3800475508445382,44.854329503018839,-5.5473631693521845,42.136406608386956,-3.7041190667754655,43.838274668899189,-5.5420833088100014,45.09630208595901,-7.3800475508445382,43.354329503018839,-3.7041190667754651,52.338274668899189,-7.3800475508445382,51.854329503018839,-3.7041190667754655,48.838274668899189,-5.5420833088100014,52.09630208595901,-7.3800475508445382,48.354329503018839],13,2)
+        coords = DataArrayDouble.New(
+            [
+                -7.3800475508445391,
+                41.854329503018846,
+                -3.7041190667754655,
+                42.338274668899189,
+                -3.7041190667754655,
+                45.338274668899189,
+                -7.3800475508445382,
+                44.854329503018839,
+                -5.5473631693521845,
+                42.136406608386956,
+                -3.7041190667754655,
+                43.838274668899189,
+                -5.5420833088100014,
+                45.09630208595901,
+                -7.3800475508445382,
+                43.354329503018839,
+                -3.7041190667754651,
+                52.338274668899189,
+                -7.3800475508445382,
+                51.854329503018839,
+                -3.7041190667754655,
+                48.838274668899189,
+                -5.5420833088100014,
+                52.09630208595901,
+                -7.3800475508445382,
+                48.354329503018839,
+            ],
+            13,
+            2,
+        )
         # connectivity
-        conn=DataArrayInt.New([8,0,1,2,3,4,5,6,7,8,3,2,8,9,6,10,11,12])
-        connI=DataArrayInt.New([0,9,18])
+        conn = DataArrayInt.New(
+            [8, 0, 1, 2, 3, 4, 5, 6, 7, 8, 3, 2, 8, 9, 6, 10, 11, 12]
+        )
+        connI = DataArrayInt.New([0, 9, 18])
         #
-        m2=MEDCouplingUMesh.New("Mobile",2)
+        m2 = MEDCouplingUMesh.New("Mobile", 2)
         m2.setCoords(coords)
-        m2.setConnectivity(conn,connI,True)
+        m2.setConnectivity(conn, connI, True)
         #
-        m3,d1,d2=MEDCouplingUMesh.Intersect2DMeshes(m1,m2,1e-10)
-        self.assertTrue(d1.isEqual(DataArrayInt([0,0,0,0])))
-        self.assertTrue(d2.isEqual(DataArrayInt([0,1,-1,-1])))
-        self.assertEqual(4,m3.getNumberOfCells())
-        self.assertEqual(4,d1.getNumberOfTuples())
-        self.assertEqual(4,d2.getNumberOfTuples())
-        self.assertEqual(43,m3.getNumberOfNodes())
-        dI,areMerged,newNbOfNodes=m3.mergeNodes(1e-12)
-        self.assertEqual(35,m3.getNumberOfNodes())
+        m3, d1, d2 = MEDCouplingUMesh.Intersect2DMeshes(m1, m2, 1e-10)
+        self.assertTrue(d1.isEqual(DataArrayInt([0, 0, 0, 0])))
+        self.assertTrue(d2.isEqual(DataArrayInt([0, 1, -1, -1])))
+        self.assertEqual(4, m3.getNumberOfCells())
+        self.assertEqual(4, d1.getNumberOfTuples())
+        self.assertEqual(4, d2.getNumberOfTuples())
+        self.assertEqual(43, m3.getNumberOfNodes())
+        dI, areMerged, newNbOfNodes = m3.mergeNodes(1e-12)
+        self.assertEqual(35, m3.getNumberOfNodes())
         m3.zipCoords()
-        self.assertEqual(23,m3.getNumberOfNodes())
+        self.assertEqual(23, m3.getNumberOfNodes())
         #
-        f=m3.getMeasureField(True)
-        valuesExpected=DataArrayDouble([1.6603638692585716,5.747555728471923,129.68907101754394,7.4162714498559694])
-        self.assertTrue(f.getArray().isEqual(valuesExpected,1e-12))
+        f = m3.getMeasureField(True)
+        valuesExpected = DataArrayDouble(
+            [
+                1.6603638692585716,
+                5.747555728471923,
+                129.68907101754394,
+                7.4162714498559694,
+            ]
+        )
+        self.assertTrue(f.getArray().isEqual(valuesExpected, 1e-12))
         pass
 
     def testIntersect2DMeshes7(self):
-        """ Quadratic precision values were improperly reset before testing colinearities """
+        """Quadratic precision values were improperly reset before testing colinearities"""
         eps = 1.0e-08
-        mesh1 = MEDCouplingUMesh('assemblyGrid_Pij', 2)
-        coo = DataArrayDouble([(10.80630000000000,10.80630000000000),(9.48750000000000,10.80630000000000),(10.75250000000000,10.80630000000000),(9.48750000000000,9.48750000000000),(10.75250000000000,9.48750000000000),(10.80630000000000,9.48750000000000),(9.48750000000000,10.75250000000000),(10.75250000000000,10.75250000000000),(10.80630000000000,10.75250000000000)])
+        mesh1 = MEDCouplingUMesh("assemblyGrid_Pij", 2)
+        coo = DataArrayDouble(
+            [
+                (10.80630000000000, 10.80630000000000),
+                (9.48750000000000, 10.80630000000000),
+                (10.75250000000000, 10.80630000000000),
+                (9.48750000000000, 9.48750000000000),
+                (10.75250000000000, 9.48750000000000),
+                (10.80630000000000, 9.48750000000000),
+                (9.48750000000000, 10.75250000000000),
+                (10.75250000000000, 10.75250000000000),
+                (10.80630000000000, 10.75250000000000),
+            ]
+        )
         mesh1.setCoords(coo)
         c = DataArrayInt([5, 4, 3, 6, 7, 5, 5, 4, 7, 8, 5, 1, 2, 7, 6, 5, 2, 0, 8, 7])
         cI = DataArrayInt([0, 5, 10, 15, 20])
         mesh1.setConnectivity(c, cI)
-        mesh2 = MEDCouplingUMesh('merge', 2)
-        coo = DataArrayDouble([(9.48750000000001,9.48750000000001),(10.75249999999975,9.48749999999955),(10.12000000000001,9.48750000000001),(10.80629999999976,9.48749999999955),(8.22250000000029,10.75250000000028),(9.48749999999961,10.75249999999971),(8.85500000000029,10.75250000000028),(9.48750000000001,10.12000000000001),(10.75249999999338,10.75249999999338),(10.41000000000001,10.12000000000001),(10.32506096654411,10.32506096654411),(10.12000000000001,10.41000000000001),(9.91493903345591,10.32506096654411),(9.83000000000001,10.12000000000001),(9.91493903345591,9.91493903345591),(10.12000000000001,9.83000000000001),(10.32506096654411,9.91493903345591),(10.11999999999961,10.75249999999971),(10.75249999999975,10.11999999999958),(10.49000000000001,10.12000000000001),(10.38162950903903,10.38162950903903),(10.12000000000001,10.49000000000001),(9.85837049096099,10.38162950903903),(9.75000000000001,10.12000000000001),(9.85837049096099,9.85837049096099),(10.12000000000001,9.75000000000001),(10.38162950903903,9.85837049096099),(9.88665476220845,10.35334523779157),(9.88665476220845,9.88665476220845),(9.67293524548050,9.67293524548050),(9.67293524548050,10.56706475451952),(10.80629999999339,10.75249999999338),(8.22250000000029,10.80630000000028),(9.48749999999961,10.80629999999971),(10.75249999999338,10.80629999999339),(10.80629999999339,10.80629999999339),(10.77939999999976,9.48749999999955),(10.77939999999339,10.75249999999338),(10.80629999999976,10.11999999999958),(8.22250000000029,10.77940000000028),(8.85500000000029,10.80630000000028),(9.48749999999961,10.77939999999971),(10.11999999999961,10.80629999999971),(10.75249999999338,10.77939999999339),(10.77939999999339,10.80629999999339),(10.80629999999339,10.77939999999339)])
+        mesh2 = MEDCouplingUMesh("merge", 2)
+        coo = DataArrayDouble(
+            [
+                (9.48750000000001, 9.48750000000001),
+                (10.75249999999975, 9.48749999999955),
+                (10.12000000000001, 9.48750000000001),
+                (10.80629999999976, 9.48749999999955),
+                (8.22250000000029, 10.75250000000028),
+                (9.48749999999961, 10.75249999999971),
+                (8.85500000000029, 10.75250000000028),
+                (9.48750000000001, 10.12000000000001),
+                (10.75249999999338, 10.75249999999338),
+                (10.41000000000001, 10.12000000000001),
+                (10.32506096654411, 10.32506096654411),
+                (10.12000000000001, 10.41000000000001),
+                (9.91493903345591, 10.32506096654411),
+                (9.83000000000001, 10.12000000000001),
+                (9.91493903345591, 9.91493903345591),
+                (10.12000000000001, 9.83000000000001),
+                (10.32506096654411, 9.91493903345591),
+                (10.11999999999961, 10.75249999999971),
+                (10.75249999999975, 10.11999999999958),
+                (10.49000000000001, 10.12000000000001),
+                (10.38162950903903, 10.38162950903903),
+                (10.12000000000001, 10.49000000000001),
+                (9.85837049096099, 10.38162950903903),
+                (9.75000000000001, 10.12000000000001),
+                (9.85837049096099, 9.85837049096099),
+                (10.12000000000001, 9.75000000000001),
+                (10.38162950903903, 9.85837049096099),
+                (9.88665476220845, 10.35334523779157),
+                (9.88665476220845, 9.88665476220845),
+                (9.67293524548050, 9.67293524548050),
+                (9.67293524548050, 10.56706475451952),
+                (10.80629999999339, 10.75249999999338),
+                (8.22250000000029, 10.80630000000028),
+                (9.48749999999961, 10.80629999999971),
+                (10.75249999999338, 10.80629999999339),
+                (10.80629999999339, 10.80629999999339),
+                (10.77939999999976, 9.48749999999955),
+                (10.77939999999339, 10.75249999999338),
+                (10.80629999999976, 10.11999999999958),
+                (8.22250000000029, 10.77940000000028),
+                (8.85500000000029, 10.80630000000028),
+                (9.48749999999961, 10.77939999999971),
+                (10.11999999999961, 10.80629999999971),
+                (10.75249999999338, 10.77939999999339),
+                (10.77939999999339, 10.80629999999339),
+                (10.80629999999339, 10.77939999999339),
+            ]
+        )
         mesh2.setCoords(coo)
-        c = DataArrayInt([32, 4, 32, 33, 5, 39, 40, 41, 6, 32, 5, 33, 34, 8, 41, 42, 43, 17, 32, 8, 34, 35, 31, 43, 44, 45, 37, 32, 14, 12, 10, 16, 13, 11, 9, 15, 32, 22, 12, 14, 24, 27, 13, 28, 23, 32, 24, 0, 5, 22, 29, 7, 30, 23, 32, 24, 14, 16, 10, 12, 22, 20, 26, 28, 15, 9, 11, 27, 21, 19, 25, 32, 22, 5, 8, 1, 0, 24, 26, 20, 30, 17, 18, 2, 29, 25, 19, 21, 32, 1, 8, 31, 3, 18, 37, 38, 36])
+        c = DataArrayInt(
+            [
+                32,
+                4,
+                32,
+                33,
+                5,
+                39,
+                40,
+                41,
+                6,
+                32,
+                5,
+                33,
+                34,
+                8,
+                41,
+                42,
+                43,
+                17,
+                32,
+                8,
+                34,
+                35,
+                31,
+                43,
+                44,
+                45,
+                37,
+                32,
+                14,
+                12,
+                10,
+                16,
+                13,
+                11,
+                9,
+                15,
+                32,
+                22,
+                12,
+                14,
+                24,
+                27,
+                13,
+                28,
+                23,
+                32,
+                24,
+                0,
+                5,
+                22,
+                29,
+                7,
+                30,
+                23,
+                32,
+                24,
+                14,
+                16,
+                10,
+                12,
+                22,
+                20,
+                26,
+                28,
+                15,
+                9,
+                11,
+                27,
+                21,
+                19,
+                25,
+                32,
+                22,
+                5,
+                8,
+                1,
+                0,
+                24,
+                26,
+                20,
+                30,
+                17,
+                18,
+                2,
+                29,
+                25,
+                19,
+                21,
+                32,
+                1,
+                8,
+                31,
+                3,
+                18,
+                37,
+                38,
+                36,
+            ]
+        )
         cI = DataArrayInt([0, 9, 18, 27, 36, 45, 54, 71, 88, 97])
         mesh2.setConnectivity(c, cI)
-        result, mapResToInit, mapResToRef = MEDCouplingUMesh.Intersect2DMeshes(mesh1, mesh2, eps)
+        result, mapResToInit, mapResToRef = MEDCouplingUMesh.Intersect2DMeshes(
+            mesh1, mesh2, eps
+        )
         result.zipCoords()
-        exp_coo = [9.48750000000001, 9.48750000000001, 10.75249999999975, 9.48749999999955, 10.80629999999976, 9.48749999999955, 9.48749999999961, 10.75249999999971, 10.75249999999338, 10.75249999999338, 10.32506096654411, 10.32506096654411, 9.91493903345591, 10.32506096654411, 9.91493903345591, 9.91493903345591, 10.32506096654411, 9.91493903345591, 10.38162950903903, 10.38162950903903, 9.85837049096099, 10.38162950903903, 9.85837049096099, 9.85837049096099, 10.38162950903903, 9.85837049096099, 10.80629999999339, 10.75249999999338, 9.48749999999961, 10.80629999999971, 10.75249999999338, 10.80629999999339, 10.80629999999339, 10.80629999999339, 9.830000000000023, 10.120000000000008, 10.120000000000008, 10.410000000000004, 10.41000000000001, 10.120000000000008, 10.120000000000008, 9.830000000000013, 9.886654762208451, 10.353345237791569, 9.830000000000023, 10.120000000000008, 9.886654762208451, 9.886654762208451, 9.750000000000005, 10.12000000000001, 9.487499999999809, 10.11999999999986, 9.6729352454803, 10.56706475451937, 9.750000000000005, 10.12000000000001, 9.672935245480499, 9.672935245480499, 9.886654762208451, 9.886654762208451, 10.120000000000008, 9.830000000000013, 10.41000000000001, 10.120000000000008, 10.120000000000008, 10.410000000000004, 9.886654762208451, 10.353345237791569, 10.120000000000013, 10.490000000000004, 10.489999999999988, 10.120000000000013, 10.120000000000017, 9.750000000000021, 10.119999999996494, 10.752499999996544, 10.752499999996566, 10.119999999996466, 10.11999999999988, 9.48749999999978, 9.672935245480499, 9.672935245480499, 10.120000000000017, 9.750000000000021, 10.489999999999988, 10.120000000000013, 10.120000000000013, 10.490000000000004, 9.6729352454803, 10.56706475451937]
+        exp_coo = [
+            9.48750000000001,
+            9.48750000000001,
+            10.75249999999975,
+            9.48749999999955,
+            10.80629999999976,
+            9.48749999999955,
+            9.48749999999961,
+            10.75249999999971,
+            10.75249999999338,
+            10.75249999999338,
+            10.32506096654411,
+            10.32506096654411,
+            9.91493903345591,
+            10.32506096654411,
+            9.91493903345591,
+            9.91493903345591,
+            10.32506096654411,
+            9.91493903345591,
+            10.38162950903903,
+            10.38162950903903,
+            9.85837049096099,
+            10.38162950903903,
+            9.85837049096099,
+            9.85837049096099,
+            10.38162950903903,
+            9.85837049096099,
+            10.80629999999339,
+            10.75249999999338,
+            9.48749999999961,
+            10.80629999999971,
+            10.75249999999338,
+            10.80629999999339,
+            10.80629999999339,
+            10.80629999999339,
+            9.830000000000023,
+            10.120000000000008,
+            10.120000000000008,
+            10.410000000000004,
+            10.41000000000001,
+            10.120000000000008,
+            10.120000000000008,
+            9.830000000000013,
+            9.886654762208451,
+            10.353345237791569,
+            9.830000000000023,
+            10.120000000000008,
+            9.886654762208451,
+            9.886654762208451,
+            9.750000000000005,
+            10.12000000000001,
+            9.487499999999809,
+            10.11999999999986,
+            9.6729352454803,
+            10.56706475451937,
+            9.750000000000005,
+            10.12000000000001,
+            9.672935245480499,
+            9.672935245480499,
+            9.886654762208451,
+            9.886654762208451,
+            10.120000000000008,
+            9.830000000000013,
+            10.41000000000001,
+            10.120000000000008,
+            10.120000000000008,
+            10.410000000000004,
+            9.886654762208451,
+            10.353345237791569,
+            10.120000000000013,
+            10.490000000000004,
+            10.489999999999988,
+            10.120000000000013,
+            10.120000000000017,
+            9.750000000000021,
+            10.119999999996494,
+            10.752499999996544,
+            10.752499999996566,
+            10.119999999996466,
+            10.11999999999988,
+            9.48749999999978,
+            9.672935245480499,
+            9.672935245480499,
+            10.120000000000017,
+            9.750000000000021,
+            10.489999999999988,
+            10.120000000000013,
+            10.120000000000013,
+            10.490000000000004,
+            9.6729352454803,
+            10.56706475451937,
+        ]
         e1 = [0, 0, 0, 0, 0, 1, 2, 3]
         e2 = [3, 4, 5, 6, 7, 8, 1, 2]
-        valuesExpected=DataArrayDouble(exp_coo, len(exp_coo)//2, 2)
-        self.assertTrue(result.getCoords().isEqual(valuesExpected,1e-12))
+        valuesExpected = DataArrayDouble(exp_coo, len(exp_coo) // 2, 2)
+        self.assertTrue(result.getCoords().isEqual(valuesExpected, 1e-12))
         self.assertEqual(e1, mapResToInit.getValues())
         self.assertEqual(e2, mapResToRef.getValues())
         pass
 
     def testIntersect2DMeshes8(self):
-        """ Quadratic precision values were improperly reset before testing colinearities
-        This was also impacting the mapping computation. """
+        """Quadratic precision values were improperly reset before testing colinearities
+        This was also impacting the mapping computation."""
         eps = 1.0e-8
-        mesh1 = MEDCouplingUMesh('assemblyGrid_Pij', 2)
-        coo = DataArrayDouble([(10.80630000000000,-10.80630000000000),(9.48750000000000,-10.80630000000000),(10.75250000000000,-10.80630000000000),(9.48750000000000,-10.75250000000000),(10.75250000000000,-10.75250000000000),(10.80630000000000,-10.75250000000000),(9.48750000000000,-9.48750000000000),(10.75250000000000,-9.48750000000000),(10.80630000000000,-9.48750000000000)])
+        mesh1 = MEDCouplingUMesh("assemblyGrid_Pij", 2)
+        coo = DataArrayDouble(
+            [
+                (10.80630000000000, -10.80630000000000),
+                (9.48750000000000, -10.80630000000000),
+                (10.75250000000000, -10.80630000000000),
+                (9.48750000000000, -10.75250000000000),
+                (10.75250000000000, -10.75250000000000),
+                (10.80630000000000, -10.75250000000000),
+                (9.48750000000000, -9.48750000000000),
+                (10.75250000000000, -9.48750000000000),
+                (10.80630000000000, -9.48750000000000),
+            ]
+        )
         mesh1.setCoords(coo)
         c = DataArrayInt([5, 2, 1, 3, 4, 5, 0, 2, 4, 5, 5, 4, 3, 6, 7, 5, 5, 4, 7, 8])
         cI = DataArrayInt([0, 5, 10, 15, 20])
         mesh1.setConnectivity(c, cI)
-        mesh2 = MEDCouplingUMesh('merge', 2)
-        coo = DataArrayDouble([(9.48749999999998,-10.75249999999999),(9.48750000000018,-10.80629999999998),(10.75250000000047,-10.75250000000063),(10.75249999999318,-10.80629999999318),(10.80630000000048,-10.75250000000063),(10.80629999999318,-10.80629999999318),(9.48750000000001,-9.48750000000001),(9.48749999999998,-10.11999999999999),(10.75249999999975,-9.48750000000004),(10.40999999999999,-10.11999999999999),(10.32506096654408,-9.91493903345589),(10.11999999999999,-9.82999999999999),(9.91493903345589,-9.91493903345589),(9.82999999999998,-10.11999999999999),(9.91493903345589,-10.32506096654409),(10.11999999999999,-10.40999999999999),(10.32506096654408,-10.32506096654409),(10.12000000000001,-9.48750000000001),(10.75250000000047,-10.12000000000058),(10.12000000000018,-10.75249999999998),(9.70121951672794,-10.53878048327204),(9.70121951672794,-9.70121951672794),(10.80629999999976,-9.48750000000004),(9.48750000000018,-10.77939999999998),(10.75249999999318,-10.77939999999318),(10.12000000000018,-10.80629999999998),(10.77940000000048,-10.75250000000063),(10.80629999999318,-10.77939999999318),(10.77939999999318,-10.80629999999318),(10.77939999999976,-9.48750000000004),(10.80630000000048,-10.12000000000058)])
+        mesh2 = MEDCouplingUMesh("merge", 2)
+        coo = DataArrayDouble(
+            [
+                (9.48749999999998, -10.75249999999999),
+                (9.48750000000018, -10.80629999999998),
+                (10.75250000000047, -10.75250000000063),
+                (10.75249999999318, -10.80629999999318),
+                (10.80630000000048, -10.75250000000063),
+                (10.80629999999318, -10.80629999999318),
+                (9.48750000000001, -9.48750000000001),
+                (9.48749999999998, -10.11999999999999),
+                (10.75249999999975, -9.48750000000004),
+                (10.40999999999999, -10.11999999999999),
+                (10.32506096654408, -9.91493903345589),
+                (10.11999999999999, -9.82999999999999),
+                (9.91493903345589, -9.91493903345589),
+                (9.82999999999998, -10.11999999999999),
+                (9.91493903345589, -10.32506096654409),
+                (10.11999999999999, -10.40999999999999),
+                (10.32506096654408, -10.32506096654409),
+                (10.12000000000001, -9.48750000000001),
+                (10.75250000000047, -10.12000000000058),
+                (10.12000000000018, -10.75249999999998),
+                (9.70121951672794, -10.53878048327204),
+                (9.70121951672794, -9.70121951672794),
+                (10.80629999999976, -9.48750000000004),
+                (9.48750000000018, -10.77939999999998),
+                (10.75249999999318, -10.77939999999318),
+                (10.12000000000018, -10.80629999999998),
+                (10.77940000000048, -10.75250000000063),
+                (10.80629999999318, -10.77939999999318),
+                (10.77939999999318, -10.80629999999318),
+                (10.77939999999976, -9.48750000000004),
+                (10.80630000000048, -10.12000000000058),
+            ]
+        )
         mesh2.setCoords(coo)
-        c = DataArrayInt([32, 1, 0, 2, 3, 23, 19, 24, 25, 32, 3, 2, 4, 5, 24, 26, 27, 28, 32, 16, 14, 12, 10, 15, 13, 11, 9, 32, 0, 6, 12, 14, 7, 21, 13, 20, 32, 6, 8, 2, 0, 14, 16, 10, 12, 17, 18, 19, 20, 15, 9, 11, 21, 32, 2, 8, 22, 4, 18, 29, 30, 26])
+        c = DataArrayInt(
+            [
+                32,
+                1,
+                0,
+                2,
+                3,
+                23,
+                19,
+                24,
+                25,
+                32,
+                3,
+                2,
+                4,
+                5,
+                24,
+                26,
+                27,
+                28,
+                32,
+                16,
+                14,
+                12,
+                10,
+                15,
+                13,
+                11,
+                9,
+                32,
+                0,
+                6,
+                12,
+                14,
+                7,
+                21,
+                13,
+                20,
+                32,
+                6,
+                8,
+                2,
+                0,
+                14,
+                16,
+                10,
+                12,
+                17,
+                18,
+                19,
+                20,
+                15,
+                9,
+                11,
+                21,
+                32,
+                2,
+                8,
+                22,
+                4,
+                18,
+                29,
+                30,
+                26,
+            ]
+        )
         cI = DataArrayInt([0, 9, 18, 27, 36, 53, 62])
         mesh2.setConnectivity(c, cI)
-        result, mapResToInit, mapResToRef = MEDCouplingUMesh.Intersect2DMeshes(mesh1, mesh2, eps)
+        result, mapResToInit, mapResToRef = MEDCouplingUMesh.Intersect2DMeshes(
+            mesh1, mesh2, eps
+        )
         result.zipCoords()
-        exp_coo = [9.48749999999998, -10.75249999999999, 9.48750000000018, -10.80629999999998, 10.75250000000047, -10.75250000000063, 10.75249999999318, -10.80629999999318, 10.80630000000048, -10.75250000000063, 10.80629999999318, -10.80629999999318, 9.48750000000001, -9.48750000000001, 10.75249999999975, -9.48750000000004, 10.32506096654408, -9.91493903345589, 9.91493903345589, -9.91493903345589, 9.91493903345589, -10.32506096654409, 10.32506096654408, -10.32506096654409, 10.80629999999976, -9.48750000000004, 10.119999999999989, -10.409999999999961, 9.829999999999997, -10.11999999999999, 10.119999999999983, -9.830000000000005, 10.409999999999968, -10.119999999999987, 9.487499999999994, -10.120000000000001, 9.70121951672795, -9.70121951672795, 9.829999999999997, -10.11999999999999, 9.701219516727935, -10.53878048327204, 10.11999999999988, -9.487500000000026, 10.752500000000111, -10.120000000000335, 10.120000000000225, -10.75250000000031, 9.701219516727935, -10.53878048327204, 10.119999999999989, -10.409999999999961, 10.409999999999968, -10.119999999999987, 10.119999999999983, -9.830000000000005, 9.70121951672795, -9.70121951672795]
+        exp_coo = [
+            9.48749999999998,
+            -10.75249999999999,
+            9.48750000000018,
+            -10.80629999999998,
+            10.75250000000047,
+            -10.75250000000063,
+            10.75249999999318,
+            -10.80629999999318,
+            10.80630000000048,
+            -10.75250000000063,
+            10.80629999999318,
+            -10.80629999999318,
+            9.48750000000001,
+            -9.48750000000001,
+            10.75249999999975,
+            -9.48750000000004,
+            10.32506096654408,
+            -9.91493903345589,
+            9.91493903345589,
+            -9.91493903345589,
+            9.91493903345589,
+            -10.32506096654409,
+            10.32506096654408,
+            -10.32506096654409,
+            10.80629999999976,
+            -9.48750000000004,
+            10.119999999999989,
+            -10.409999999999961,
+            9.829999999999997,
+            -10.11999999999999,
+            10.119999999999983,
+            -9.830000000000005,
+            10.409999999999968,
+            -10.119999999999987,
+            9.487499999999994,
+            -10.120000000000001,
+            9.70121951672795,
+            -9.70121951672795,
+            9.829999999999997,
+            -10.11999999999999,
+            9.701219516727935,
+            -10.53878048327204,
+            10.11999999999988,
+            -9.487500000000026,
+            10.752500000000111,
+            -10.120000000000335,
+            10.120000000000225,
+            -10.75250000000031,
+            9.701219516727935,
+            -10.53878048327204,
+            10.119999999999989,
+            -10.409999999999961,
+            10.409999999999968,
+            -10.119999999999987,
+            10.119999999999983,
+            -9.830000000000005,
+            9.70121951672795,
+            -9.70121951672795,
+        ]
         e1 = [0, 1, 2, 2, 2, 3]
         e2 = [0, 1, 2, 3, 4, 5]
-        valuesExpected=DataArrayDouble(exp_coo, len(exp_coo)//2, 2)
-        self.assertTrue(result.getCoords().isEqual(valuesExpected,1e-10))
+        valuesExpected = DataArrayDouble(exp_coo, len(exp_coo) // 2, 2)
+        self.assertTrue(result.getCoords().isEqual(valuesExpected, 1e-10))
         self.assertEqual(e1, mapResToInit.getValues())
         self.assertEqual(e2, mapResToRef.getValues())
         pass
 
     def testIntersect2DMeshes9(self):
-        """ Last part of the intersection algorithm was not properly dealing with residual cells when
-        it was a quad polygon just made of 2 edges. Was throwing an exception. """
+        """Last part of the intersection algorithm was not properly dealing with residual cells when
+        it was a quad polygon just made of 2 edges. Was throwing an exception."""
         eps = 1e-6
-        back = MEDCouplingUMesh('crh7_rse1', 2)
-        coo = DataArrayDouble([(71.6187499999999915,-10.6521000000000008),(71.0937370510802538,-12.6114750000000022),(71.4852218317702608,-11.6663471329955062),(72.0541666666666600,-10.6521000000000008),(71.8364583333333258,-10.6521000000000008),(71.4708189456447371,-12.8291833333333365),(71.2822779983625026,-12.7203291666666694),(71.9058020353005816,-11.7790412588839590)])
+        back = MEDCouplingUMesh("crh7_rse1", 2)
+        coo = DataArrayDouble(
+            [
+                (71.6187499999999915, -10.6521000000000008),
+                (71.0937370510802538, -12.6114750000000022),
+                (71.4852218317702608, -11.6663471329955062),
+                (72.0541666666666600, -10.6521000000000008),
+                (71.8364583333333258, -10.6521000000000008),
+                (71.4708189456447371, -12.8291833333333365),
+                (71.2822779983625026, -12.7203291666666694),
+                (71.9058020353005816, -11.7790412588839590),
+            ]
+        )
         back.setCoords(coo)
         c = DataArrayInt([32, 1, 0, 3, 5, 2, 4, 7, 6])
         cI = DataArrayInt([0, 9])
         back.setConnectivity(c, cI)
-        tool = MEDCouplingUMesh('merge', 2)
-        coo = DataArrayDouble([(71.5737767246627783,-14.0122818133993299),(72.5920244490449136,-7.0390015370978469),(47.7780086628800404,-4.6328708831306278)])
+        tool = MEDCouplingUMesh("merge", 2)
+        coo = DataArrayDouble(
+            [
+                (71.5737767246627783, -14.0122818133993299),
+                (72.5920244490449136, -7.0390015370978469),
+                (47.7780086628800404, -4.6328708831306278),
+            ]
+        )
         tool.setCoords(coo)
         c = DataArrayInt([5, 1, 0, 2])
         cI = DataArrayInt([0, 4])
         tool.setConnectivity(c, cI)
 
         result, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(back, tool, eps)
-        exp_coo = [71.61874999999999, -10.6521, 71.09373705108025, -12.611475000000002, 71.48522183177026, -11.666347132995506, 72.05416666666666, -10.6521, 71.83645833333333, -10.6521, 71.47081894564474, -12.829183333333336, 71.2822779983625, -12.72032916666667, 71.90580203530058, -11.779041258883959, 71.57377672466278, -14.01228181339933, 72.59202444904491, -7.039001537097847, 47.77800866288004, -4.632870883130628, 72.05352566581652, -10.726810361986129, 71.8931109163297, -11.825380957175156, 71.71347100577636, -12.340536509586565, 71.2822779983625, -12.72032916666667, 71.48522183177026, -11.666347132995508, 71.83645833333333, -10.6521, 72.0540064135051, -10.689456555884437, 71.97331829107311, -11.276095659580642, 72.0084757809432, -11.281229403333473, 71.97331829107311, -11.276095659580642]
+        exp_coo = [
+            71.61874999999999,
+            -10.6521,
+            71.09373705108025,
+            -12.611475000000002,
+            71.48522183177026,
+            -11.666347132995506,
+            72.05416666666666,
+            -10.6521,
+            71.83645833333333,
+            -10.6521,
+            71.47081894564474,
+            -12.829183333333336,
+            71.2822779983625,
+            -12.72032916666667,
+            71.90580203530058,
+            -11.779041258883959,
+            71.57377672466278,
+            -14.01228181339933,
+            72.59202444904491,
+            -7.039001537097847,
+            47.77800866288004,
+            -4.632870883130628,
+            72.05352566581652,
+            -10.726810361986129,
+            71.8931109163297,
+            -11.825380957175156,
+            71.71347100577636,
+            -12.340536509586565,
+            71.2822779983625,
+            -12.72032916666667,
+            71.48522183177026,
+            -11.666347132995508,
+            71.83645833333333,
+            -10.6521,
+            72.0540064135051,
+            -10.689456555884437,
+            71.97331829107311,
+            -11.276095659580642,
+            72.0084757809432,
+            -11.281229403333473,
+            71.97331829107311,
+            -11.276095659580642,
+        ]
         c = [32, 12, 5, 1, 0, 3, 11, 13, 14, 15, 16, 17, 18, 32, 11, 12, 19, 20]
         cI = [0, 13, 18]
         e1 = [0, 0]
         e2 = [0, -1]
-        valuesExpected = DataArrayDouble(exp_coo, len(exp_coo)//2, 2)
-        self.assertTrue(result.getCoords().isEqual(valuesExpected,1e-10))
+        valuesExpected = DataArrayDouble(exp_coo, len(exp_coo) // 2, 2)
+        self.assertTrue(result.getCoords().isEqual(valuesExpected, 1e-10))
         self.assertEqual(c, result.getNodalConnectivity().getValues())
         self.assertEqual(cI, result.getNodalConnectivityIndex().getValues())
         self.assertEqual(e1, res2Back.getValues())
@@ -399,37 +3773,83 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         pass
 
     def testIntersect2DMeshes10(self):
-        """ Edge::sortIdAbs() was merging points too agressively. This is not the job of the intersector,
+        """Edge::sortIdAbs() was merging points too agressively. This is not the job of the intersector,
         user should call mergeNodes afterwards. Was throwing an exception later in the algorithm because
         it had to deal with a degenerated cell.
         """
         eps = 1e-6
-        back = MEDCouplingUMesh('crh7_rse1', 2)
-        coo = DataArrayDouble([(-31.31375453845049250,-32.51281383633234157),(-31.69083643301495812,-32.73052216966566874),(-31.50229548573272353,-32.62166800299900871),(-31.53146287178381968,-32.88989573089681073),(-31.62164061609212951,-32.82069991397399633),(-31.42260870511715609,-32.70135478361457615)])
+        back = MEDCouplingUMesh("crh7_rse1", 2)
+        coo = DataArrayDouble(
+            [
+                (-31.31375453845049250, -32.51281383633234157),
+                (-31.69083643301495812, -32.73052216966566874),
+                (-31.50229548573272353, -32.62166800299900871),
+                (-31.53146287178381968, -32.88989573089681073),
+                (-31.62164061609212951, -32.82069991397399633),
+                (-31.42260870511715609, -32.70135478361457615),
+            ]
+        )
         back.setCoords(coo)
         c = DataArrayInt([32, 0, 3, 1, 5, 4, 2])
         cI = DataArrayInt([0, 7])
         back.setConnectivity(c, cI)
-        tool = MEDCouplingUMesh('merge', 2)
-        coo = DataArrayDouble([(-29.70769086373595513,-38.08598700945959337),(-27.13627518201525746,-36.53626696210140778),(-35.49132481798474714,-28.48933303789858940)])
+        tool = MEDCouplingUMesh("merge", 2)
+        coo = DataArrayDouble(
+            [
+                (-29.70769086373595513, -38.08598700945959337),
+                (-27.13627518201525746, -36.53626696210140778),
+                (-35.49132481798474714, -28.48933303789858940),
+            ]
+        )
         tool.setCoords(coo)
         c = DataArrayInt([5, 0, 2, 1])
         cI = DataArrayInt([0, 4])
         tool.setConnectivity(c, cI)
 
         result, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(back, tool, eps)
-#         print result.getCoords().getValues()
-#         print result.getNodalConnectivity().getValues()
-#         print result.getNodalConnectivityIndex().getValues()
-#         print res2Back.getValues()
-#         print res2Tool.getValues()
-        exp_coo = [-31.313754538450493, -32.51281383633234, -31.690836433014958, -32.73052216966567, -31.502295485732724, -32.62166800299901, -31.53146287178382, -32.88989573089681, -31.62164061609213, -32.820699913973996, -31.422608705117156, -32.701354783614576, -29.707690863735955, -38.08598700945959, -27.136275182015257, -36.53626696210141, -35.49132481798475, -28.48933303789859, -31.31376565042576, -32.51283308283808, -31.313773979690932, -32.51282506073775, -31.42261426110479, -32.70136440686744, -31.62164061609211, -32.82069991397398, -31.502305206352943, -32.62167361520171, -31.313769815058347, -32.51282907178791]
+        #         print result.getCoords().getValues()
+        #         print result.getNodalConnectivity().getValues()
+        #         print result.getNodalConnectivityIndex().getValues()
+        #         print res2Back.getValues()
+        #         print res2Tool.getValues()
+        exp_coo = [
+            -31.313754538450493,
+            -32.51281383633234,
+            -31.690836433014958,
+            -32.73052216966567,
+            -31.502295485732724,
+            -32.62166800299901,
+            -31.53146287178382,
+            -32.88989573089681,
+            -31.62164061609213,
+            -32.820699913973996,
+            -31.422608705117156,
+            -32.701354783614576,
+            -29.707690863735955,
+            -38.08598700945959,
+            -27.136275182015257,
+            -36.53626696210141,
+            -35.49132481798475,
+            -28.48933303789859,
+            -31.31376565042576,
+            -32.51283308283808,
+            -31.313773979690932,
+            -32.51282506073775,
+            -31.42261426110479,
+            -32.70136440686744,
+            -31.62164061609211,
+            -32.82069991397398,
+            -31.502305206352943,
+            -32.62167361520171,
+            -31.313769815058347,
+            -32.51282907178791,
+        ]
         c = [32, 9, 3, 1, 10, 11, 12, 13, 14, 5, 10, 0, 9]
         cI = [0, 9, 13]
         e1 = [0, 0]
         e2 = [0, -1]
-        valuesExpected = DataArrayDouble(exp_coo, len(exp_coo)//2, 2)
-        self.assertTrue(result.getCoords().isEqual(valuesExpected,1e-10))
+        valuesExpected = DataArrayDouble(exp_coo, len(exp_coo) // 2, 2)
+        self.assertTrue(result.getCoords().isEqual(valuesExpected, 1e-10))
         self.assertEqual(c, result.getNodalConnectivity().getValues())
         self.assertEqual(cI, result.getNodalConnectivityIndex().getValues())
         self.assertEqual(e1, res2Back.getValues())
@@ -437,55 +3857,124 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         pass
 
     def testIntersect2DMeshes11(self):
-        """ Dealing properly with respective polygon orientation in QuadraticPolygon::haveIAChanceToBeCompletedBy()
+        """Dealing properly with respective polygon orientation in QuadraticPolygon::haveIAChanceToBeCompletedBy()
         The two polygons below have same orientation, but one edge of pol1 is colinear to pol2 in opposite directions.
         """
         eps = 1.0e-8
-        back = MEDCouplingUMesh('lback', 2)
-        coo = DataArrayDouble([(-2.5,-2.5),(-2.5,2.5),(2.5,2.5),(2.5,-2.5),(0,0),(0,1.66667),(1.66667,1.66667),(1.66667,0)])
+        back = MEDCouplingUMesh("lback", 2)
+        coo = DataArrayDouble(
+            [
+                (-2.5, -2.5),
+                (-2.5, 2.5),
+                (2.5, 2.5),
+                (2.5, -2.5),
+                (0, 0),
+                (0, 1.66667),
+                (1.66667, 1.66667),
+                (1.66667, 0),
+            ]
+        )
         back.setCoords(coo)
         c = DataArrayInt([5, 6, 7, 4, 5, 2, 3, 7, 6, 5, 3, 0, 1, 2, 6, 4, 7])
         cI = DataArrayInt([0, 4, 9, 17])
         back.setConnectivity(c, cI)
 
-        tool = MEDCouplingUMesh('ltool', 2)
-        coo = DataArrayDouble([(0,0),(0,2.5),(2.5,2.5),(2.5,0)])
+        tool = MEDCouplingUMesh("ltool", 2)
+        coo = DataArrayDouble([(0, 0), (0, 2.5), (2.5, 2.5), (2.5, 0)])
         tool.setCoords(coo)
         c = DataArrayInt([5, 0, 1, 2, 3])
         cI = DataArrayInt([0, 5])
         tool.setConnectivity(c, cI)
 
         result, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(back, tool, eps)
-        self.assertEqual(result.getNodalConnectivity().getValues(), [5, 7, 8, 6, 5, 7, 6, 10, 11, 5, 11, 3, 7, 5, 9, 10, 6, 8, 5, 8, 7, 3, 0, 1, 9])
-        self.assertEqual(result.getNodalConnectivityIndex().getValues(), [0, 4, 9, 13, 18, 25])
+        self.assertEqual(
+            result.getNodalConnectivity().getValues(),
+            [
+                5,
+                7,
+                8,
+                6,
+                5,
+                7,
+                6,
+                10,
+                11,
+                5,
+                11,
+                3,
+                7,
+                5,
+                9,
+                10,
+                6,
+                8,
+                5,
+                8,
+                7,
+                3,
+                0,
+                1,
+                9,
+            ],
+        )
+        self.assertEqual(
+            result.getNodalConnectivityIndex().getValues(), [0, 4, 9, 13, 18, 25]
+        )
         self.assertEqual(res2Back.getValues(), [0, 1, 1, 2, 2])
         self.assertEqual(res2Tool.getValues(), [0, 0, -1, 0, -1])
         pass
 
     def testSwig2Intersect2DMeshesQuadra1(self):
         import cmath
-        def createDiagCircle(lX, lY, R, cells=[0,1]):
-            """ A circle in a square box, cut along the diagonal.
-            """
+
+        def createDiagCircle(lX, lY, R, cells=[0, 1]):
+            """A circle in a square box, cut along the diagonal."""
             c = []
             for i in range(8):
-              c.append(cmath.rect(R, i*pi/4))
+                c.append(cmath.rect(R, i * pi / 4))
 
-            coords = [0.0,0.0,          c[3].real,c[3].imag,       -lX/2.0, lY/2.0,
-                      0.0, lY/2.0,      lX/2.0,lY/2.0,             lX/2.0,0.0,
-                      #   6                  7                              8
-                      lX/2.0,-lY/2.0,   c[7].real,c[7].imag,       c[1].real,c[1].imag,
-                      #   9                  10                            11
-                      c[5].real,c[5].imag,   -lX/2.0,-lY/2.0,      0.0, -lY/2.0,
-                      #   12                  13                            14
-                      -lX/2.0,0.0,         0.0,0.0,                  0.0, 0.0]
+            coords = [
+                0.0,
+                0.0,
+                c[3].real,
+                c[3].imag,
+                -lX / 2.0,
+                lY / 2.0,
+                0.0,
+                lY / 2.0,
+                lX / 2.0,
+                lY / 2.0,
+                lX / 2.0,
+                0.0,
+                #   6                  7                              8
+                lX / 2.0,
+                -lY / 2.0,
+                c[7].real,
+                c[7].imag,
+                c[1].real,
+                c[1].imag,
+                #   9                  10                            11
+                c[5].real,
+                c[5].imag,
+                -lX / 2.0,
+                -lY / 2.0,
+                0.0,
+                -lY / 2.0,
+                #   12                  13                            14
+                -lX / 2.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+            ]
             # Points 13 (reps. 14) are average of points (6,7) (resp (1,2))
-            coords[13*2]   = 0.5*(coords[6*2]+coords[7*2])
-            coords[13*2+1] = 0.5*(coords[6*2+1]+coords[7*2+1])
-            coords[14*2]   = 0.5*(coords[1*2]+coords[2*2])
-            coords[14*2+1] = 0.5*(coords[1*2+1]+coords[2*2+1])
-            connec  = [1,7,8,0]      # half circle up right
-            connec3 = [6,7,1,2,4,13,8,14,3,5]
+            coords[13 * 2] = 0.5 * (coords[6 * 2] + coords[7 * 2])
+            coords[13 * 2 + 1] = 0.5 * (coords[6 * 2 + 1] + coords[7 * 2 + 1])
+            coords[14 * 2] = 0.5 * (coords[1 * 2] + coords[2 * 2])
+            coords[14 * 2 + 1] = 0.5 * (coords[1 * 2 + 1] + coords[2 * 2 + 1])
+            connec = [1, 7, 8, 0]  # half circle up right
+            connec3 = [6, 7, 1, 2, 4, 13, 8, 14, 3, 5]
 
             baseMesh = MEDCouplingUMesh.New("box_circle", 2)
             baseMesh.allocateCells(2)
@@ -494,17 +3983,17 @@ class MEDCouplingIntersectTest(unittest.TestCase):
             baseMesh.setCoords(meshCoords)
 
             if 0 in cells:
-              baseMesh.insertNextCell(NORM_QPOLYG, connec)
+                baseMesh.insertNextCell(NORM_QPOLYG, connec)
             if 1 in cells:
-              baseMesh.insertNextCell(NORM_QPOLYG, connec3)
+                baseMesh.insertNextCell(NORM_QPOLYG, connec3)
             baseMesh.finishInsertingCells()
             baseMesh.checkConsistencyLight()
             return baseMesh
 
         eps = 1.0e-7
-        m1 = createDiagCircle(1.0, 1.0, 0.5*0.90, cells=[0,1])
-        m2 = createDiagCircle(1.0, 1.0, 0.5*0.95, cells=[0])
-        m3, _, _= MEDCouplingUMesh.Intersect2DMeshes(m1, m2, eps)
+        m1 = createDiagCircle(1.0, 1.0, 0.5 * 0.90, cells=[0, 1])
+        m2 = createDiagCircle(1.0, 1.0, 0.5 * 0.95, cells=[0])
+        m3, _, _ = MEDCouplingUMesh.Intersect2DMeshes(m1, m2, eps)
         m3.mergeNodes(eps)
         m3.convertDegeneratedCells()
         m3.zipCoords()
@@ -517,7 +4006,7 @@ class MEDCouplingIntersectTest(unittest.TestCase):
 
     def testIntersect2DMeshesTmp7(self):
         eps = 1.0e-8
-        coords = [-0.5,-0.5,   -0.5, 0.5, 0.5, 0.5,    0.5,-0.5]
+        coords = [-0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5]
         connec = list(range(4))
         m1 = MEDCouplingUMesh.New("box", 2)
         m1.allocateCells(1)
@@ -530,15 +4019,76 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         # Was looping indefinitely:
         m_intersec, resToM1, resToM2 = MEDCouplingUMesh.Intersect2DMeshes(m1, m2, eps)
         m_intersec.zipCoords()
-        coo_tgt = DataArrayDouble([-0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, -0.03284271247461901, 0.4828427124746191,
-          -0.014575131106459124, 0.5000000000000001, 0.5, -0.11224989991991996, 0.24271243444677046, 0.5, 0.5, 0.19387505004004,
-          -0.04799910280454185, -0.06682678787499614, -0.023843325638122054, 0.4915644577163915, 0.5, -0.30612494995996, 0.0, -0.5,
-          -0.5, 0.0, -0.25728756555322957, 0.5, -0.023843325638122026, 0.49156445771639157, -0.04799910280454181, -0.06682678787499613], 17 ,2)
-        conn_tgt = [32, 5, 2, 6, 4, 7, 8, 9, 10, 32, 6, 3, 0, 1, 5, 4, 11, 12, 13, 14, 15, 16]
+        coo_tgt = DataArrayDouble(
+            [
+                -0.5,
+                -0.5,
+                -0.5,
+                0.5,
+                0.5,
+                0.5,
+                0.5,
+                -0.5,
+                -0.03284271247461901,
+                0.4828427124746191,
+                -0.014575131106459124,
+                0.5000000000000001,
+                0.5,
+                -0.11224989991991996,
+                0.24271243444677046,
+                0.5,
+                0.5,
+                0.19387505004004,
+                -0.04799910280454185,
+                -0.06682678787499614,
+                -0.023843325638122054,
+                0.4915644577163915,
+                0.5,
+                -0.30612494995996,
+                0.0,
+                -0.5,
+                -0.5,
+                0.0,
+                -0.25728756555322957,
+                0.5,
+                -0.023843325638122026,
+                0.49156445771639157,
+                -0.04799910280454181,
+                -0.06682678787499613,
+            ],
+            17,
+            2,
+        )
+        conn_tgt = [
+            32,
+            5,
+            2,
+            6,
+            4,
+            7,
+            8,
+            9,
+            10,
+            32,
+            6,
+            3,
+            0,
+            1,
+            5,
+            4,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+        ]
         connI_tgt = [0, 9, 22]
-        res1_tgt  = [0, 0]
+        res1_tgt = [0, 0]
         res2_tgt = [0, -1]
-        self.assertTrue(coo_tgt.isEqualWithoutConsideringStr(m_intersec.getCoords(), 1e-12))
+        self.assertTrue(
+            coo_tgt.isEqualWithoutConsideringStr(m_intersec.getCoords(), 1e-12)
+        )
         self.assertEqual(conn_tgt, m_intersec.getNodalConnectivity().getValues())
         self.assertEqual(connI_tgt, m_intersec.getNodalConnectivityIndex().getValues())
         self.assertEqual(res1_tgt, resToM1.getValues())
@@ -546,49 +4096,125 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         pass
 
     def testIntersect2DMeshesTmp8(self):
-        """ Arc of circle #5 in m2 was wrongly linearized and this was crashing the intersector. """
-        m1 = MEDCouplingUMesh('mesh', 2)
-        coo = DataArrayDouble([(-18.20296424065728,-16.39845900000000),(-18.15483625715243,-16.37067229576792),(-18.17890024890485,-16.38456564788396),(-18.86345900000000,-13.93345900000000),(-18.80788559153584,-13.93345900000000),(-18.64179353311466,-15.19505343584364),(-18.83567229576791,-13.93345900000000),(-18.69547332360511,-15.20943689235543)])
+        """Arc of circle #5 in m2 was wrongly linearized and this was crashing the intersector."""
+        m1 = MEDCouplingUMesh("mesh", 2)
+        coo = DataArrayDouble(
+            [
+                (-18.20296424065728, -16.39845900000000),
+                (-18.15483625715243, -16.37067229576792),
+                (-18.17890024890485, -16.38456564788396),
+                (-18.86345900000000, -13.93345900000000),
+                (-18.80788559153584, -13.93345900000000),
+                (-18.64179353311466, -15.19505343584364),
+                (-18.83567229576791, -13.93345900000000),
+                (-18.69547332360511, -15.20943689235543),
+            ]
+        )
         m1.setCoords(coo)
         c = DataArrayInt([32, 0, 3, 4, 1, 7, 6, 5, 2])
         cI = DataArrayInt([0, 9])
         m1.setConnectivity(c, cI)
 
-        m2 = MEDCouplingUMesh('tool', 2)
-        coo = DataArrayDouble([-18.863459, -13.933459, -18.71895791290684, -15.11832192648871, -18.76569937343606, -12.95654908944806, -9.00470518045063,
-                                  -13.8226177338691, -17.88089225139922, -16.8868757883568, -18.3878542250287, -16.04610264700759, -18.71815899226182, -15.12154400708064,
-                                  -18.83895821216178, -13.44256442936377, -18.15535493732867, -16.47914057756773, -18.57607919534293, -15.59206616319266, -18.82720039287268, -14.53027989414214, -18.71855872378567, -15.11993303402953,
-                                  0.,0.,0.,0.], 14, 2)
+        m2 = MEDCouplingUMesh("tool", 2)
+        coo = DataArrayDouble(
+            [
+                -18.863459,
+                -13.933459,
+                -18.71895791290684,
+                -15.11832192648871,
+                -18.76569937343606,
+                -12.95654908944806,
+                -9.00470518045063,
+                -13.8226177338691,
+                -17.88089225139922,
+                -16.8868757883568,
+                -18.3878542250287,
+                -16.04610264700759,
+                -18.71815899226182,
+                -15.12154400708064,
+                -18.83895821216178,
+                -13.44256442936377,
+                -18.15535493732867,
+                -16.47914057756773,
+                -18.57607919534293,
+                -15.59206616319266,
+                -18.82720039287268,
+                -14.53027989414214,
+                -18.71855872378567,
+                -15.11993303402953,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+            ],
+            14,
+            2,
+        )
         m2.setCoords(coo)
-        c = DataArrayInt([32, 1, 0, 2, 4, 5, 6,      #  offset 8:  9, 8, 10, 12, 13, 14
-                            10, 7, 3, 8, 9, 11])     #            18, 15, 11, 16, 17, 19
+        c = DataArrayInt(
+            [
+                32,
+                1,
+                0,
+                2,
+                4,
+                5,
+                6,  #  offset 8:  9, 8, 10, 12, 13, 14
+                10,
+                7,
+                3,
+                8,
+                9,
+                11,
+            ]
+        )  #            18, 15, 11, 16, 17, 19
         cI = DataArrayInt([0, 13])
         m2.setConnectivity(c, cI)
         inter, map1, map2 = MEDCouplingUMesh.Intersect2DMeshes(m1, m2, 1.0e-8)
-        self.assertEqual(inter.getNodalConnectivity().getValues(), [32, 13, 14, 9, 8, 4, 1, 0, 22, 23, 24, 25, 26, 27, 28])
-        self.assertEqual(inter.getNodalConnectivityIndex().getValues(), [0,15])
+        self.assertEqual(
+            inter.getNodalConnectivity().getValues(),
+            [32, 13, 14, 9, 8, 4, 1, 0, 22, 23, 24, 25, 26, 27, 28],
+        )
+        self.assertEqual(inter.getNodalConnectivityIndex().getValues(), [0, 15])
         self.assertEqual(map1.getValues(), [0])
         self.assertEqual(map2.getValues(), [0])
         pass
 
     def testIntersect2DMeshesTmp9(self):
-        """ Tricky case: two triangular shapes intersecting, but not perfectly, at their tips. Several issues fixed:
-            - Bug fix: seg seg intersector epsilon is to be taken absolutely for colinearity test (even for very small vectors
-            we don't want to have false positive on colinearity. So go back to a comparison with an angle.)
-            - when intersecting nodes are merged, they were not properly added on pol2.
-            - bug fix in compute residual: the stop condition is really on pol1Zip only.
-            - correcting polygons with flat corners, they were crashing residual computation
+        """Tricky case: two triangular shapes intersecting, but not perfectly, at their tips. Several issues fixed:
+        - Bug fix: seg seg intersector epsilon is to be taken absolutely for colinearity test (even for very small vectors
+        we don't want to have false positive on colinearity. So go back to a comparison with an angle.)
+        - when intersecting nodes are merged, they were not properly added on pol2.
+        - bug fix in compute residual: the stop condition is really on pol1Zip only.
+        - correcting polygons with flat corners, they were crashing residual computation
         """
         eps = 1.0e-6  # This is the key parameter. DO NOT CHANGE IT.
-        back = MEDCouplingUMesh('crh8_rse3', 2)
-        coo = DataArrayDouble([(-31.313754538446631,-32.512813836330515),(-31.531462871779969,-32.135731941766032),(-31.422608705113298,-32.324272889048274),(-31.690836433011114,-32.295105502997181),(-31.621640616088342,-32.204927758688783),(-31.502295485728872,-32.403959669663848)])
+        back = MEDCouplingUMesh("crh8_rse3", 2)
+        coo = DataArrayDouble(
+            [
+                (-31.313754538446631, -32.512813836330515),
+                (-31.531462871779969, -32.135731941766032),
+                (-31.422608705113298, -32.324272889048274),
+                (-31.690836433011114, -32.295105502997181),
+                (-31.621640616088342, -32.204927758688783),
+                (-31.502295485728872, -32.403959669663848),
+            ]
+        )
         back.setCoords(coo)
         c = DataArrayInt([32, 0, 3, 1, 5, 4, 2])
         cI = DataArrayInt([0, 7])
         back.setConnectivity(c, cI)
 
-        tool = MEDCouplingUMesh('TA-536193G_expl_20181022_merged', 2)
-        coo = DataArrayDouble([(-29.918137808525149,-26.883223901634544),(-32.919909136264039,-26.939612990540404),(-27.866900000000001,-28.016680435212603),(-31.313800000000001,-32.512799999999999),(-27.866900000000001,-28.933918793630923)])
+        tool = MEDCouplingUMesh("TA-536193G_expl_20181022_merged", 2)
+        coo = DataArrayDouble(
+            [
+                (-29.918137808525149, -26.883223901634544),
+                (-32.919909136264039, -26.939612990540404),
+                (-27.866900000000001, -28.016680435212603),
+                (-31.313800000000001, -32.512799999999999),
+                (-27.866900000000001, -28.933918793630923),
+            ]
+        )
         tool.setCoords(coo)
         c = DataArrayInt([5, 1, 0, 3, 5, 0, 2, 3, 5, 4, 3, 2])
         cI = DataArrayInt([0, 4, 8, 12])
@@ -596,127 +4222,456 @@ class MEDCouplingIntersectTest(unittest.TestCase):
 
         inter, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(back, tool, eps)
 
-        self.assertEqual(inter.getNodalConnectivity().getValues(), [5, 14, 13, 11, 12, 5, 13, 15, 11, 32, 12, 3, 1, 14, 16, 17, 18, 19, 5, 15, 0, 11])
-        self.assertEqual(inter.getNodalConnectivityIndex().getValues(), [0, 5, 9, 18, 22])
+        self.assertEqual(
+            inter.getNodalConnectivity().getValues(),
+            [
+                5,
+                14,
+                13,
+                11,
+                12,
+                5,
+                13,
+                15,
+                11,
+                32,
+                12,
+                3,
+                1,
+                14,
+                16,
+                17,
+                18,
+                19,
+                5,
+                15,
+                0,
+                11,
+            ],
+        )
+        self.assertEqual(
+            inter.getNodalConnectivityIndex().getValues(), [0, 5, 9, 18, 22]
+        )
         self.assertEqual(res2Back.getValues(), [0, 0, 0, 0])
         self.assertEqual(res2Tool.getValues(), [0, 1, -1, -1])
         pass
 
     def testIntersect2DMeshesTmp10(self):
-        """ Fixing issues when one of the quadratic point of the tool mesh also serves as a regular point somewhere else.
-        WARNING : the tool mesh is not conform, but this was NOT the initial cause of the problem """
+        """Fixing issues when one of the quadratic point of the tool mesh also serves as a regular point somewhere else.
+        WARNING : the tool mesh is not conform, but this was NOT the initial cause of the problem"""
         eps = 1.0e-6
-        back = MEDCouplingUMesh('layer_1', 2)
-        coo = DataArrayDouble([(0.000000000000000,0.000000000000000),(0.000000000000007,113.449999999999960),(113.449999999999960,0.000000000000000),(80.221264325613788,80.221264325613788),(0.000000000000003,56.724999999999980),(56.724999999999980,0.000000000000000)])
+        back = MEDCouplingUMesh("layer_1", 2)
+        coo = DataArrayDouble(
+            [
+                (0.000000000000000, 0.000000000000000),
+                (0.000000000000007, 113.449999999999960),
+                (113.449999999999960, 0.000000000000000),
+                (80.221264325613788, 80.221264325613788),
+                (0.000000000000003, 56.724999999999980),
+                (56.724999999999980, 0.000000000000000),
+            ]
+        )
         back.setCoords(coo)
         c = DataArrayInt([32, 0, 1, 2, 4, 3, 5])
         cI = DataArrayInt([0, 7])
         back.setConnectivity(c, cI)
 
-        tool = MEDCouplingUMesh('layer_2', 2)
-        coo = DataArrayDouble([(35.499999704817512,0.000000000000011),(35.413523784223756,2.476354817916448),(35.478374361065050,1.238932132335084),(35.563158391762734,2.486818288978067),(35.649999999999999,0.000000000000000),(35.628282983230761,1.244167057444159),(35.488341087993248,2.481586553447257),(35.575000000000003,0.000000000000000),(35.154516440325750,4.940645084082323),(35.305526997492230,3.710760415787641),(35.154516440325743,-4.940645084082338),(34.960674956295250,-6.164510258681856),(35.413523784223763,-2.476354817916429),(35.305526997492230,-3.710760415787643),(35.563158391762734,-2.486818288978048),(35.488341087993248,-2.481586553447238),(35.478374361018354,-1.238932133672371),(35.628282983230761,-1.244167057444150)])
+        tool = MEDCouplingUMesh("layer_2", 2)
+        coo = DataArrayDouble(
+            [
+                (35.499999704817512, 0.000000000000011),
+                (35.413523784223756, 2.476354817916448),
+                (35.478374361065050, 1.238932132335084),
+                (35.563158391762734, 2.486818288978067),
+                (35.649999999999999, 0.000000000000000),
+                (35.628282983230761, 1.244167057444159),
+                (35.488341087993248, 2.481586553447257),
+                (35.575000000000003, 0.000000000000000),
+                (35.154516440325750, 4.940645084082323),
+                (35.305526997492230, 3.710760415787641),
+                (35.154516440325743, -4.940645084082338),
+                (34.960674956295250, -6.164510258681856),
+                (35.413523784223763, -2.476354817916429),
+                (35.305526997492230, -3.710760415787643),
+                (35.563158391762734, -2.486818288978048),
+                (35.488341087993248, -2.481586553447238),
+                (35.478374361018354, -1.238932133672371),
+                (35.628282983230761, -1.244167057444150),
+            ]
+        )
         tool.setCoords(coo)
-        c = DataArrayInt([32, 0, 1, 3, 4, 2, 6, 5, 7,        # 32,  6, 7, 9, 10, 8, 12, 11, 13
-                             32, 12, 0, 4, 14, 16, 7, 17, 15,   # 32,  18, 6, 10, 20, 22, 13, 23, 21
-                             32, 8, 1, 12, 10, 9, 0, 13, 11])   # 32,  14, 7, 18, 16, 15, 6, 19, 17
+        c = DataArrayInt(
+            [
+                32,
+                0,
+                1,
+                3,
+                4,
+                2,
+                6,
+                5,
+                7,  # 32,  6, 7, 9, 10, 8, 12, 11, 13
+                32,
+                12,
+                0,
+                4,
+                14,
+                16,
+                7,
+                17,
+                15,  # 32,  18, 6, 10, 20, 22, 13, 23, 21
+                32,
+                8,
+                1,
+                12,
+                10,
+                9,
+                0,
+                13,
+                11,
+            ]
+        )  # 32,  14, 7, 18, 16, 15, 6, 19, 17
         cI = DataArrayInt([0, 9, 18, 27])
         tool.setConnectivity(c, cI)
         result, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(back, tool, eps)
 
-        self.assertEqual(result.getNodalConnectivity().getValues(), [32, 10, 6, 7, 9, 25, 26, 27, 28 ,
-                                                        32, 6, 0, 24, 14, 7, 29, 30, 31, 32, 33,
-                                                        32, 24, 1, 2, 10, 9, 7,   14, 34, 35, 36, 37, 38, 39, 40])
+        self.assertEqual(
+            result.getNodalConnectivity().getValues(),
+            [
+                32,
+                10,
+                6,
+                7,
+                9,
+                25,
+                26,
+                27,
+                28,
+                32,
+                6,
+                0,
+                24,
+                14,
+                7,
+                29,
+                30,
+                31,
+                32,
+                33,
+                32,
+                24,
+                1,
+                2,
+                10,
+                9,
+                7,
+                14,
+                34,
+                35,
+                36,
+                37,
+                38,
+                39,
+                40,
+            ],
+        )
         self.assertEqual(result.getNodalConnectivityIndex().getValues(), [0, 9, 20, 35])
         self.assertEqual(res2Back.getValues(), [0, 0, 0])
         self.assertEqual(res2Tool.getValues(), [0, 2, -1])
         pass
 
     def testIntersect2DMeshesTmp11(self):
-        """ BuildIntersectMeshes() was merging points too aggressively (again). """
+        """BuildIntersectMeshes() was merging points too aggressively (again)."""
         eps = 1.0e-6
-        back = MEDCouplingUMesh('TA-536193G_expl_20180605_merged', 2)
-        coo = DataArrayDouble([(10.19999332472057,-27.86690000000001),(12.56691001291914,-29.23343998708087),(13.93345000000000,-24.13344332472058)])
+        back = MEDCouplingUMesh("TA-536193G_expl_20180605_merged", 2)
+        coo = DataArrayDouble(
+            [
+                (10.19999332472057, -27.86690000000001),
+                (12.56691001291914, -29.23343998708087),
+                (13.93345000000000, -24.13344332472058),
+            ]
+        )
         back.setCoords(coo)
         c = DataArrayInt([5, 2, 1, 0])
         cI = DataArrayInt([0, 4])
         back.setConnectivity(c, cI)
 
-        tool = MEDCouplingUMesh('layer_1', 2)
-        cooT = DataArrayDouble([(10.44742256875032,-27.61949543124968),(18.71050449103792,-25.35195658988450),(19.05428526420611,-25.33852836835490),(18.88239487762202,-25.34524247911970),(12.62880992941098,-19.37921975458838),(18.06779356578989,-20.52447528153846),(19.22203188321684,-22.45963506363725),(19.48103923179737,-24.51987105082425),(10.50946417376372,-28.13689270184920),(13.33582148027124,-18.82710073137066),(14.70572820761054,-18.80259652845168),(17.10708000587671,-19.67863183066471),(8.97033515262005,-22.58570640281439),(15.95921032839811,-19.09586394516776),(19.45191696393912,-23.47713337575327),(17.61005728815709,-20.07586106738862),(18.53287284946306,-21.55888206618472),(19.21102524614600,-24.89967567708313),(10.47844337125702,-27.87819406654944),(14.02163025718330,-18.86267048150560)])
+        tool = MEDCouplingUMesh("layer_1", 2)
+        cooT = DataArrayDouble(
+            [
+                (10.44742256875032, -27.61949543124968),
+                (18.71050449103792, -25.35195658988450),
+                (19.05428526420611, -25.33852836835490),
+                (18.88239487762202, -25.34524247911970),
+                (12.62880992941098, -19.37921975458838),
+                (18.06779356578989, -20.52447528153846),
+                (19.22203188321684, -22.45963506363725),
+                (19.48103923179737, -24.51987105082425),
+                (10.50946417376372, -28.13689270184920),
+                (13.33582148027124, -18.82710073137066),
+                (14.70572820761054, -18.80259652845168),
+                (17.10708000587671, -19.67863183066471),
+                (8.97033515262005, -22.58570640281439),
+                (15.95921032839811, -19.09586394516776),
+                (19.45191696393912, -23.47713337575327),
+                (17.61005728815709, -20.07586106738862),
+                (18.53287284946306, -21.55888206618472),
+                (19.21102524614600, -24.89967567708313),
+                (10.47844337125702, -27.87819406654944),
+                (14.02163025718330, -18.86267048150560),
+            ]
+        )
         tool.setCoords(cooT)
         c = DataArrayInt([32, 2, 1, 0, 8, 9, 3, 4, 18, 12, 11])
         cI = DataArrayInt([0, 11])
         tool.setConnectivity(c, cI)
 
         result, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(back, tool, eps)
-        self.assertEqual(result.getNodalConnectivity().getValues(), [32, 26, 25, 3, 23, 24, 27, 28, 29, 30, 31, 32, 24, 0, 26, 32, 33, 34, 32, 25, 2, 1, 23, 3, 35, 36, 37, 38, 39])
-        self.assertEqual(result.getNodalConnectivityIndex().getValues(), [0, 11, 18, 29])
+        self.assertEqual(
+            result.getNodalConnectivity().getValues(),
+            [
+                32,
+                26,
+                25,
+                3,
+                23,
+                24,
+                27,
+                28,
+                29,
+                30,
+                31,
+                32,
+                24,
+                0,
+                26,
+                32,
+                33,
+                34,
+                32,
+                25,
+                2,
+                1,
+                23,
+                3,
+                35,
+                36,
+                37,
+                38,
+                39,
+            ],
+        )
+        self.assertEqual(
+            result.getNodalConnectivityIndex().getValues(), [0, 11, 18, 29]
+        )
         self.assertEqual(res2Back.getValues(), [0, 0, 0])
         self.assertEqual(res2Tool.getValues(), [0, -1, -1])
 
         # Now the same with point #0 shifted so to almost match intersection point: the intersector should then merge
         # with point from mesh 1:
-        cooT[0,:] = [10.44741058, -27.61948395]
+        cooT[0, :] = [10.44741058, -27.61948395]
         result, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(back, tool, eps)
-        self.assertEqual(result.getNodalConnectivity().getValues(), [32, 25, 3, 23, 24, 26, 27, 28, 29, 32, 24, 0, 25, 30, 31, 32, 32, 3, 2, 1, 23, 33, 34, 35, 36])
+        self.assertEqual(
+            result.getNodalConnectivity().getValues(),
+            [
+                32,
+                25,
+                3,
+                23,
+                24,
+                26,
+                27,
+                28,
+                29,
+                32,
+                24,
+                0,
+                25,
+                30,
+                31,
+                32,
+                32,
+                3,
+                2,
+                1,
+                23,
+                33,
+                34,
+                35,
+                36,
+            ],
+        )
         self.assertEqual(result.getNodalConnectivityIndex().getValues(), [0, 9, 16, 25])
         self.assertEqual(res2Back.getValues(), [0, 0, 0])
         self.assertEqual(res2Tool.getValues(), [0, -1, -1])
         pass
 
     def testIntersect2DMeshesTmp12(self):
-        """ Optimisation of SegSeg and ArcCSeg intersector which also allows to handle some degenerated cases.
-        See method identifyEarlyIntersection() in C++ """
+        """Optimisation of SegSeg and ArcCSeg intersector which also allows to handle some degenerated cases.
+        See method identifyEarlyIntersection() in C++"""
         eps = 1e-6
-        back = MEDCouplingUMesh('merge', 2)
-        coo = DataArrayDouble([(-22.20967875173176154,32.26829201778234335),(-16.84032124826824273,35.36829201778233767),(-19.52500000000000213,33.81829201778234051),(-22.09987113059642283,32.67809963891765790),(-17.25012886940356438,35.47809963891765506),(-19.67499999999999361,34.07809963891765648),(-16.98614843981577138,35.62087212266773406),(-22.46315640161999028,32.70732818597191027)])
+        back = MEDCouplingUMesh("merge", 2)
+        coo = DataArrayDouble(
+            [
+                (-22.20967875173176154, 32.26829201778234335),
+                (-16.84032124826824273, 35.36829201778233767),
+                (-19.52500000000000213, 33.81829201778234051),
+                (-22.09987113059642283, 32.67809963891765790),
+                (-17.25012886940356438, 35.47809963891765506),
+                (-19.67499999999999361, 34.07809963891765648),
+                (-16.98614843981577138, 35.62087212266773406),
+                (-22.46315640161999028, 32.70732818597191027),
+            ]
+        )
         back.setCoords(coo)
-        c = DataArrayInt([32, 1, 0, 3, 4,    2, 7, 5, 6])
+        c = DataArrayInt([32, 1, 0, 3, 4, 2, 7, 5, 6])
         cI = DataArrayInt([0, 9])
         back.setConnectivity(c, cI)
         back.checkConsistency()
 
-        tool = MEDCouplingUMesh('layer_2', 2)
-        coo = DataArrayDouble([(-16.84032124826824273,35.36829201778233767),(-19.52500000000000924,33.81829201778234051),(-19.46500000000013841,33.71436896932812743),(-22.58118035378681299,31.71175166763502418),(-16.17259236578203740,35.41175166763498083),(-21.04692233083152786,32.75014443326846703),(-17.83899589140436603,34.60224162661226899),(-19.49500000000007560,33.76633049355523042),(-22.64145235112855659,31.81614582930458823),(-16.23286436312378100,35.51614582930454134),(-21.10697925592403834,32.85419191960125573),(-17.89907519522208545,34.70627619258202401),(-22.61131635245768479,31.76394874846980798),(-16.20272836445290920,35.46394874846976109),(-19.07887754666707991,34.07586093630563795),(-19.52453703982536481,33.81855930796379539),(-19.93627714687611530,33.92725120783563142),(-19.50943608541021135,34.17368800957415687),(-17.95959939746765599,34.72207647704399136),(-16.53659280569601009,35.44221892354343595),(-19.30170729324622414,33.94721012213472022),(-19.72285661614316155,34.05046960870489414),(-19.29415681603864741,34.12477447293989741),(-19.73040709335074183,33.87290525789970985),(-19.52476851991268703,33.81842566287306795)])
+        tool = MEDCouplingUMesh("layer_2", 2)
+        coo = DataArrayDouble(
+            [
+                (-16.84032124826824273, 35.36829201778233767),
+                (-19.52500000000000924, 33.81829201778234051),
+                (-19.46500000000013841, 33.71436896932812743),
+                (-22.58118035378681299, 31.71175166763502418),
+                (-16.17259236578203740, 35.41175166763498083),
+                (-21.04692233083152786, 32.75014443326846703),
+                (-17.83899589140436603, 34.60224162661226899),
+                (-19.49500000000007560, 33.76633049355523042),
+                (-22.64145235112855659, 31.81614582930458823),
+                (-16.23286436312378100, 35.51614582930454134),
+                (-21.10697925592403834, 32.85419191960125573),
+                (-17.89907519522208545, 34.70627619258202401),
+                (-22.61131635245768479, 31.76394874846980798),
+                (-16.20272836445290920, 35.46394874846976109),
+                (-19.07887754666707991, 34.07586093630563795),
+                (-19.52453703982536481, 33.81855930796379539),
+                (-19.93627714687611530, 33.92725120783563142),
+                (-19.50943608541021135, 34.17368800957415687),
+                (-17.95959939746765599, 34.72207647704399136),
+                (-16.53659280569601009, 35.44221892354343595),
+                (-19.30170729324622414, 33.94721012213472022),
+                (-19.72285661614316155, 34.05046960870489414),
+                (-19.29415681603864741, 34.12477447293989741),
+                (-19.73040709335074183, 33.87290525789970985),
+                (-19.52476851991268703, 33.81842566287306795),
+            ]
+        )
         tool.setCoords(coo)
-        c = DataArrayInt([8, 14, 15, 16, 17,   20, 23, 21, 22,
-                             32, 2, 3, 8, 1,    5, 12, 10, 7,
-                             32, 4, 2, 1, 9,    6, 7, 11, 13,
-                             32, 9, 1, 15, 14, 0,     11, 24, 20, 18, 19])
+        c = DataArrayInt(
+            [
+                8,
+                14,
+                15,
+                16,
+                17,
+                20,
+                23,
+                21,
+                22,
+                32,
+                2,
+                3,
+                8,
+                1,
+                5,
+                12,
+                10,
+                7,
+                32,
+                4,
+                2,
+                1,
+                9,
+                6,
+                7,
+                11,
+                13,
+                32,
+                9,
+                1,
+                15,
+                14,
+                0,
+                11,
+                24,
+                20,
+                18,
+                19,
+            ]
+        )
         cI = DataArrayInt([0, 9, 18, 27, 38])
         tool.setConnectivity(c, cI)
 
         result, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(back, tool, eps)
 
-        self.assertEqual(result.getNodalConnectivity().getValues(), [5, 24, 25, 22, 23, 32, 23, 9, 0, 3, 24, 33, 34, 35, 36, 37, 32, 25, 4, 8, 22, 38, 39, 40, 41])
+        self.assertEqual(
+            result.getNodalConnectivity().getValues(),
+            [
+                5,
+                24,
+                25,
+                22,
+                23,
+                32,
+                23,
+                9,
+                0,
+                3,
+                24,
+                33,
+                34,
+                35,
+                36,
+                37,
+                32,
+                25,
+                4,
+                8,
+                22,
+                38,
+                39,
+                40,
+                41,
+            ],
+        )
         self.assertEqual(result.getNodalConnectivityIndex().getValues(), [0, 5, 16, 25])
         self.assertEqual(res2Back.getValues(), [0, 0, 0])
         self.assertEqual(res2Tool.getValues(), [0, -1, -1])
         pass
 
     def testIntersect2DMeshesTmp13(self):
-        """ Bug fix: when part of mesh2 is fully included in mesh1 and some points of mesh2 are touching edges of mesh1, reconstruction of
+        """Bug fix: when part of mesh2 is fully included in mesh1 and some points of mesh2 are touching edges of mesh1, reconstruction of
         residual cells was not properly done.
         """
         eps = 1.0e-6
         # First case: only two points of mesh2 touching edges of mesh1
-        coo1 = DataArrayDouble([(0,0) , (1,1),  (1,0)])
+        coo1 = DataArrayDouble([(0, 0), (1, 1), (1, 0)])
         mesh1 = MEDCouplingUMesh("mesh1", 2)
         mesh1.setCoords(coo1)
-        c = DataArrayInt([NORM_TRI3, 0,1,2])
-        cI = DataArrayInt([0,4])
+        c = DataArrayInt([NORM_TRI3, 0, 1, 2])
+        cI = DataArrayInt([0, 4])
         mesh1.setConnectivity(c, cI)
 
-        coo2 = DataArrayDouble([(0.5,0) , (0.5,0.5),  (0.7,0.25)])
+        coo2 = DataArrayDouble([(0.5, 0), (0.5, 0.5), (0.7, 0.25)])
         mesh2 = MEDCouplingUMesh("mesh1", 2)
         mesh2.setCoords(coo2)
-        c = DataArrayInt([NORM_TRI3, 0,1,2])
-        cI = DataArrayInt([0,4])
+        c = DataArrayInt([NORM_TRI3, 0, 1, 2])
+        cI = DataArrayInt([0, 4])
         mesh2.setConnectivity(c, cI)
 
-        meshinter, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(mesh1,mesh2,eps)
-        self.assertEqual(meshinter.getNodalConnectivity().getValues(), [5, 3, 4, 5, 5, 4, 1, 2, 3, 5, 5, 3, 0, 4])
-        self.assertEqual(meshinter.getNodalConnectivityIndex().getValues(), [0, 4, 10, 14])
+        meshinter, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(
+            mesh1, mesh2, eps
+        )
+        self.assertEqual(
+            meshinter.getNodalConnectivity().getValues(),
+            [5, 3, 4, 5, 5, 4, 1, 2, 3, 5, 5, 3, 0, 4],
+        )
+        self.assertEqual(
+            meshinter.getNodalConnectivityIndex().getValues(), [0, 4, 10, 14]
+        )
         self.assertEqual(res2Back.getValues(), [0, 0, 0])
         self.assertEqual(res2Tool.getValues(), [0, -1, -1])
 
@@ -724,721 +4679,4352 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         coo2[2, 0] = 1.0
         mesh2.setConnectivity(c, cI)
 
-        meshinter, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(mesh1,mesh2,eps)
-        self.assertEqual(meshinter.getNodalConnectivity().getValues(), [5, 3, 4, 5, 5, 4, 1, 5, 5, 5, 2, 3, 5, 3, 0, 4])
-        self.assertEqual(meshinter.getNodalConnectivityIndex().getValues(), [0, 4, 8, 12, 16])
-        self.assertEqual(res2Back.getValues(), [0,0,0,0])
-        self.assertEqual(res2Tool.getValues(), [0,-1,-1,-1])
+        meshinter, res2Back, res2Tool = MEDCouplingUMesh.Intersect2DMeshes(
+            mesh1, mesh2, eps
+        )
+        self.assertEqual(
+            meshinter.getNodalConnectivity().getValues(),
+            [5, 3, 4, 5, 5, 4, 1, 5, 5, 5, 2, 3, 5, 3, 0, 4],
+        )
+        self.assertEqual(
+            meshinter.getNodalConnectivityIndex().getValues(), [0, 4, 8, 12, 16]
+        )
+        self.assertEqual(res2Back.getValues(), [0, 0, 0, 0])
+        self.assertEqual(res2Tool.getValues(), [0, -1, -1, -1])
         pass
 
     def testSwig2Intersect2DMeshWith1DLine1(self):
         """A basic test with no colinearity between m1 and m2."""
-        i=MEDCouplingIMesh("mesh",2,[5,5],[0.,0.],[1.,1.])
-        m1=i.buildUnstructured()
-        m2=MEDCouplingUMesh("mesh",1) ; m2.setCoords(DataArrayDouble([0.75,3.5,3.75,1.75],2,2)) ; m2.allocateCells() ; m2.insertNextCell(NORM_SEG2,[0,1])
-        a,b,c,d=MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1,m2,1e-12)
-        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([4,1,0,5,6,4,2,1,6,7,4,3,2,7,8,4,4,3,8,9,4,6,5,10,11,4,7,6,11,12,4,8,7,12,13,4,11,10,15,16,4,18,17,22,23,4,19,18,23,24,5,16,15,20,21,31,5,21,22,17,28,31,5,16,31,28,5,17,29,28,5,12,11,16,28,29,5,17,18,30,29,5,13,12,29,30,5,18,19,14,27,30,5,13,30,27,5,9,8,13,27,14])))
-        self.assertTrue(b.getNodalConnectivity().isEqual(DataArrayInt([1,25,31,1,31,28,1,28,29,1,29,30,1,30,27,1,27,26])))
-        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,10,15,20,25,30,35,40,45,50,56,62,66,70,76,81,86,92,96,102])))
-        self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6,9,12,15,18])))
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(a.getCoords()[:25].isEqual(m1.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[25:25+2].isEqualWithoutConsideringStr(m2.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[27:].isEqualWithoutConsideringStr(DataArrayDouble([(3.3214285714285716,2.),(1.6071428571428572,3.),(2.,2.7708333333333335),(3.,2.1875),(1.,3.354166666666667)]),1e-12))
-        self.assertTrue(c.isEqual(DataArrayInt([0,1,2,3,4,5,6,8,14,15,12,13,13,9,9,10,10,11,11,7])))
-        self.assertTrue(d.isEqual(DataArrayInt([(10,10),(11,12),(13,14),(15,16),(17,18),(19,19)])))
+        i = MEDCouplingIMesh("mesh", 2, [5, 5], [0.0, 0.0], [1.0, 1.0])
+        m1 = i.buildUnstructured()
+        m2 = MEDCouplingUMesh("mesh", 1)
+        m2.setCoords(DataArrayDouble([0.75, 3.5, 3.75, 1.75], 2, 2))
+        m2.allocateCells()
+        m2.insertNextCell(NORM_SEG2, [0, 1])
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-12)
+        self.assertTrue(
+            a.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        4,
+                        1,
+                        0,
+                        5,
+                        6,
+                        4,
+                        2,
+                        1,
+                        6,
+                        7,
+                        4,
+                        3,
+                        2,
+                        7,
+                        8,
+                        4,
+                        4,
+                        3,
+                        8,
+                        9,
+                        4,
+                        6,
+                        5,
+                        10,
+                        11,
+                        4,
+                        7,
+                        6,
+                        11,
+                        12,
+                        4,
+                        8,
+                        7,
+                        12,
+                        13,
+                        4,
+                        11,
+                        10,
+                        15,
+                        16,
+                        4,
+                        18,
+                        17,
+                        22,
+                        23,
+                        4,
+                        19,
+                        18,
+                        23,
+                        24,
+                        5,
+                        16,
+                        15,
+                        20,
+                        21,
+                        31,
+                        5,
+                        21,
+                        22,
+                        17,
+                        28,
+                        31,
+                        5,
+                        16,
+                        31,
+                        28,
+                        5,
+                        17,
+                        29,
+                        28,
+                        5,
+                        12,
+                        11,
+                        16,
+                        28,
+                        29,
+                        5,
+                        17,
+                        18,
+                        30,
+                        29,
+                        5,
+                        13,
+                        12,
+                        29,
+                        30,
+                        5,
+                        18,
+                        19,
+                        14,
+                        27,
+                        30,
+                        5,
+                        13,
+                        30,
+                        27,
+                        5,
+                        9,
+                        8,
+                        13,
+                        27,
+                        14,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            b.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [1, 25, 31, 1, 31, 28, 1, 28, 29, 1, 29, 30, 1, 30, 27, 1, 27, 26]
+                )
+            )
+        )
+        self.assertTrue(
+            a.getNodalConnectivityIndex().isEqual(
+                DataArrayInt(
+                    [
+                        0,
+                        5,
+                        10,
+                        15,
+                        20,
+                        25,
+                        30,
+                        35,
+                        40,
+                        45,
+                        50,
+                        56,
+                        62,
+                        66,
+                        70,
+                        76,
+                        81,
+                        86,
+                        92,
+                        96,
+                        102,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            b.getNodalConnectivityIndex().isEqual(
+                DataArrayInt([0, 3, 6, 9, 12, 15, 18])
+            )
+        )
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(a.getCoords()[:25].isEqual(m1.getCoords(), 1e-12))
+        self.assertTrue(
+            a.getCoords()[25 : 25 + 2].isEqualWithoutConsideringStr(
+                m2.getCoords(), 1e-12
+            )
+        )
+        self.assertTrue(
+            a.getCoords()[27:].isEqualWithoutConsideringStr(
+                DataArrayDouble(
+                    [
+                        (3.3214285714285716, 2.0),
+                        (1.6071428571428572, 3.0),
+                        (2.0, 2.7708333333333335),
+                        (3.0, 2.1875),
+                        (1.0, 3.354166666666667),
+                    ]
+                ),
+                1e-12,
+            )
+        )
+        self.assertTrue(
+            c.isEqual(
+                DataArrayInt(
+                    [
+                        0,
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        8,
+                        14,
+                        15,
+                        12,
+                        13,
+                        13,
+                        9,
+                        9,
+                        10,
+                        10,
+                        11,
+                        11,
+                        7,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            d.isEqual(
+                DataArrayInt(
+                    [(10, 10), (11, 12), (13, 14), (15, 16), (17, 18), (19, 19)]
+                )
+            )
+        )
         pass
 
     def testSwig2Intersect2DMeshWith1DLine2(self):
         """A basic test with colinearity between m1 and m2 and the last cell of m2 outside m1."""
-        i=MEDCouplingIMesh("mesh",2,[5,5],[0.,0.],[1.,1.])
-        m1=i.buildUnstructured()
-        m2=MEDCouplingUMesh("mesh",1) ; m2.setCoords(DataArrayDouble([0.5,2.,2.25,2.,2.5,2.,2.75,2.,3.,2.,4.,2.,5.,2.],7,2)) ; m2.allocateCells()
+        i = MEDCouplingIMesh("mesh", 2, [5, 5], [0.0, 0.0], [1.0, 1.0])
+        m1 = i.buildUnstructured()
+        m2 = MEDCouplingUMesh("mesh", 1)
+        m2.setCoords(
+            DataArrayDouble(
+                [
+                    0.5,
+                    2.0,
+                    2.25,
+                    2.0,
+                    2.5,
+                    2.0,
+                    2.75,
+                    2.0,
+                    3.0,
+                    2.0,
+                    4.0,
+                    2.0,
+                    5.0,
+                    2.0,
+                ],
+                7,
+                2,
+            )
+        )
+        m2.allocateCells()
         for i in range(6):
-            m2.insertNextCell(NORM_SEG2,[i,i+1])
+            m2.insertNextCell(NORM_SEG2, [i, i + 1])
             pass
-        a,b,c,d=MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1,m2,1e-12)
-        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([4,1,0,5,6,4,2,1,6,7,4,3,2,7,8,4,4,3,8,9,4,16,15,20,21,4,17,16,21,22,4,18,17,22,23,4,19,18,23,24,5,6,5,10,25,11,5,7,6,11,12,5,8,7,12,26,27,28,13,5,9,8,13,14,5,11,25,10,15,16,5,12,11,16,17,5,13,28,27,26,12,17,18,5,14,13,18,19])))
-        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,10,15,20,25,30,35,40,46,51,59,64,70,75,83,88])))
-        self.assertTrue(b.getNodalConnectivity().isEqual(DataArrayInt([1,25,11,1,11,12,1,12,26,1,26,27,1,27,28,1,28,13,1,13,14,1,14,31])))
-        self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6,9,12,15,18,21,24])))
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(a.getCoords()[:25].isEqual(m1.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[25:].isEqualWithoutConsideringStr(m2.getCoords(),1e-12))
-        self.assertTrue(c.isEqual(DataArrayInt([0,1,2,3,12,13,14,15,4,5,6,7,8,9,10,11])))
-        self.assertTrue(d.isEqual(DataArrayInt([(12,8),(13,9),(14,10),(14,10),(14,10),(14,10),(15,11),(-1,-1)])))
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-12)
+        self.assertTrue(
+            a.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        4,
+                        1,
+                        0,
+                        5,
+                        6,
+                        4,
+                        2,
+                        1,
+                        6,
+                        7,
+                        4,
+                        3,
+                        2,
+                        7,
+                        8,
+                        4,
+                        4,
+                        3,
+                        8,
+                        9,
+                        4,
+                        16,
+                        15,
+                        20,
+                        21,
+                        4,
+                        17,
+                        16,
+                        21,
+                        22,
+                        4,
+                        18,
+                        17,
+                        22,
+                        23,
+                        4,
+                        19,
+                        18,
+                        23,
+                        24,
+                        5,
+                        6,
+                        5,
+                        10,
+                        25,
+                        11,
+                        5,
+                        7,
+                        6,
+                        11,
+                        12,
+                        5,
+                        8,
+                        7,
+                        12,
+                        26,
+                        27,
+                        28,
+                        13,
+                        5,
+                        9,
+                        8,
+                        13,
+                        14,
+                        5,
+                        11,
+                        25,
+                        10,
+                        15,
+                        16,
+                        5,
+                        12,
+                        11,
+                        16,
+                        17,
+                        5,
+                        13,
+                        28,
+                        27,
+                        26,
+                        12,
+                        17,
+                        18,
+                        5,
+                        14,
+                        13,
+                        18,
+                        19,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            a.getNodalConnectivityIndex().isEqual(
+                DataArrayInt(
+                    [0, 5, 10, 15, 20, 25, 30, 35, 40, 46, 51, 59, 64, 70, 75, 83, 88]
+                )
+            )
+        )
+        self.assertTrue(
+            b.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        1,
+                        25,
+                        11,
+                        1,
+                        11,
+                        12,
+                        1,
+                        12,
+                        26,
+                        1,
+                        26,
+                        27,
+                        1,
+                        27,
+                        28,
+                        1,
+                        28,
+                        13,
+                        1,
+                        13,
+                        14,
+                        1,
+                        14,
+                        31,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            b.getNodalConnectivityIndex().isEqual(
+                DataArrayInt([0, 3, 6, 9, 12, 15, 18, 21, 24])
+            )
+        )
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(a.getCoords()[:25].isEqual(m1.getCoords(), 1e-12))
+        self.assertTrue(
+            a.getCoords()[25:].isEqualWithoutConsideringStr(m2.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            c.isEqual(
+                DataArrayInt([0, 1, 2, 3, 12, 13, 14, 15, 4, 5, 6, 7, 8, 9, 10, 11])
+            )
+        )
+        self.assertTrue(
+            d.isEqual(
+                DataArrayInt(
+                    [
+                        (12, 8),
+                        (13, 9),
+                        (14, 10),
+                        (14, 10),
+                        (14, 10),
+                        (14, 10),
+                        (15, 11),
+                        (-1, -1),
+                    ]
+                )
+            )
+        )
         pass
 
     def testSwig2Intersect2DMeshWith1DLine3(self):
         """m2 fully included in cell #12. of m1"""
-        i=MEDCouplingIMesh("mesh",2,[5,5],[0.,0.],[1.,1.])
-        m1=i.buildUnstructured()
-        m2=MEDCouplingUMesh("mesh",1) ; m2.setCoords(DataArrayDouble([(0.75,3.25),(0.5,3.5),(0.25,3.25)])) ; m2.allocateCells()
+        i = MEDCouplingIMesh("mesh", 2, [5, 5], [0.0, 0.0], [1.0, 1.0])
+        m1 = i.buildUnstructured()
+        m2 = MEDCouplingUMesh("mesh", 1)
+        m2.setCoords(DataArrayDouble([(0.75, 3.25), (0.5, 3.5), (0.25, 3.25)]))
+        m2.allocateCells()
         for i in range(2):
-            m2.insertNextCell(NORM_SEG2,[i,i+1])
+            m2.insertNextCell(NORM_SEG2, [i, i + 1])
             pass
-        a,b,c,d=MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1,m2,1e-12)
-        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([4,1,0,5,6,4,2,1,6,7,4,3,2,7,8,4,4,3,8,9,4,6,5,10,11,4,7,6,11,12,4,8,7,12,13,4,9,8,13,14,4,11,10,15,16,4,12,11,16,17,4,13,12,17,18,4,14,13,18,19,4,17,16,21,22,4,18,17,22,23,4,19,18,23,24,5,16,15,20,21])))
-        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80])))
-        self.assertTrue(b.getNodalConnectivity().isEqual(DataArrayInt([1,25,26,1,26,27])))
-        self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6])))
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(a.getCoords()[:25].isEqual(m1.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[25:].isEqualWithoutConsideringStr(m2.getCoords(),1e-12))
-        self.assertTrue(c.isEqual(DataArrayInt([0,1,2,3,4,5,6,7,8,9,10,11,13,14,15,12])))
-        self.assertTrue(d.isEqual(DataArrayInt([(15,15),(15,15)])))
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-12)
+        self.assertTrue(
+            a.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        4,
+                        1,
+                        0,
+                        5,
+                        6,
+                        4,
+                        2,
+                        1,
+                        6,
+                        7,
+                        4,
+                        3,
+                        2,
+                        7,
+                        8,
+                        4,
+                        4,
+                        3,
+                        8,
+                        9,
+                        4,
+                        6,
+                        5,
+                        10,
+                        11,
+                        4,
+                        7,
+                        6,
+                        11,
+                        12,
+                        4,
+                        8,
+                        7,
+                        12,
+                        13,
+                        4,
+                        9,
+                        8,
+                        13,
+                        14,
+                        4,
+                        11,
+                        10,
+                        15,
+                        16,
+                        4,
+                        12,
+                        11,
+                        16,
+                        17,
+                        4,
+                        13,
+                        12,
+                        17,
+                        18,
+                        4,
+                        14,
+                        13,
+                        18,
+                        19,
+                        4,
+                        17,
+                        16,
+                        21,
+                        22,
+                        4,
+                        18,
+                        17,
+                        22,
+                        23,
+                        4,
+                        19,
+                        18,
+                        23,
+                        24,
+                        5,
+                        16,
+                        15,
+                        20,
+                        21,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            a.getNodalConnectivityIndex().isEqual(
+                DataArrayInt(
+                    [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]
+                )
+            )
+        )
+        self.assertTrue(
+            b.getNodalConnectivity().isEqual(DataArrayInt([1, 25, 26, 1, 26, 27]))
+        )
+        self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 3, 6])))
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(a.getCoords()[:25].isEqual(m1.getCoords(), 1e-12))
+        self.assertTrue(
+            a.getCoords()[25:].isEqualWithoutConsideringStr(m2.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            c.isEqual(
+                DataArrayInt([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 12])
+            )
+        )
+        self.assertTrue(d.isEqual(DataArrayInt([(15, 15), (15, 15)])))
         pass
 
     def testSwig2Intersect2DMeshWith1DLine4(self):
         """A special case where an edge is simultaneously a cut and colinear. This tests also checks negative values in descending edges of m1."""
-        i=MEDCouplingIMesh("mesh",2,[5,5],[0.,0.],[1.,1.])
-        m1=i.buildUnstructured()
-        part=DataArrayInt([0,1,2,3,4,7,8,11,12,13,14,15])
-        m1_1=m1[part]
-        m1_2=m1[part.buildComplement(m1.getNumberOfCells())]
-        m1=MEDCouplingUMesh.MergeUMeshesOnSameCoords(m1_1,m1_2.buildSpreadZonesWithPoly())
+        i = MEDCouplingIMesh("mesh", 2, [5, 5], [0.0, 0.0], [1.0, 1.0])
+        m1 = i.buildUnstructured()
+        part = DataArrayInt([0, 1, 2, 3, 4, 7, 8, 11, 12, 13, 14, 15])
+        m1_1 = m1[part]
+        m1_2 = m1[part.buildComplement(m1.getNumberOfCells())]
+        m1 = MEDCouplingUMesh.MergeUMeshesOnSameCoords(
+            m1_1, m1_2.buildSpreadZonesWithPoly()
+        )
         m1.zipCoords()
-        m2=MEDCouplingUMesh("mesh",1) ; m2.setCoords(DataArrayDouble([(3.5,2.),(0.5,2.)])) ; m2.allocateCells()
-        m2.insertNextCell(NORM_SEG2,[0,1])
-        a,b,c,d=MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1,m2,1e-12)
-        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([4,1,0,5,6,4,2,1,6,7,4,3,2,7,8,4,4,3,8,9,4,15,14,19,20,4,16,15,20,21,4,17,16,21,22,4,18,17,22,23,5,6,5,10,25,11,5,9,8,12,24,13,5,11,25,10,14,15,5,13,24,12,17,18,5,8,7,6,11,12,5,15,16,17,12,11])))
-        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,10,15,20,25,30,35,40,46,52,58,64,70,76])))
-        self.assertTrue(b.getNodalConnectivity().isEqual(DataArrayInt([1,24,12,1,12,11,1,11,25])))
-        self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6,9])))
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(a.getCoords()[:24].isEqual(m1.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[24:].isEqualWithoutConsideringStr(m2.getCoords(),1e-12))
-        self.assertTrue(c.isEqual(DataArrayInt([0,1,2,3,8,9,10,11,4,5,6,7,12,12])))
-        self.assertTrue(d.isEqual(DataArrayInt([(9,11),(12,13),(8,10)])))
+        m2 = MEDCouplingUMesh("mesh", 1)
+        m2.setCoords(DataArrayDouble([(3.5, 2.0), (0.5, 2.0)]))
+        m2.allocateCells()
+        m2.insertNextCell(NORM_SEG2, [0, 1])
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-12)
+        self.assertTrue(
+            a.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        4,
+                        1,
+                        0,
+                        5,
+                        6,
+                        4,
+                        2,
+                        1,
+                        6,
+                        7,
+                        4,
+                        3,
+                        2,
+                        7,
+                        8,
+                        4,
+                        4,
+                        3,
+                        8,
+                        9,
+                        4,
+                        15,
+                        14,
+                        19,
+                        20,
+                        4,
+                        16,
+                        15,
+                        20,
+                        21,
+                        4,
+                        17,
+                        16,
+                        21,
+                        22,
+                        4,
+                        18,
+                        17,
+                        22,
+                        23,
+                        5,
+                        6,
+                        5,
+                        10,
+                        25,
+                        11,
+                        5,
+                        9,
+                        8,
+                        12,
+                        24,
+                        13,
+                        5,
+                        11,
+                        25,
+                        10,
+                        14,
+                        15,
+                        5,
+                        13,
+                        24,
+                        12,
+                        17,
+                        18,
+                        5,
+                        8,
+                        7,
+                        6,
+                        11,
+                        12,
+                        5,
+                        15,
+                        16,
+                        17,
+                        12,
+                        11,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            a.getNodalConnectivityIndex().isEqual(
+                DataArrayInt([0, 5, 10, 15, 20, 25, 30, 35, 40, 46, 52, 58, 64, 70, 76])
+            )
+        )
+        self.assertTrue(
+            b.getNodalConnectivity().isEqual(
+                DataArrayInt([1, 24, 12, 1, 12, 11, 1, 11, 25])
+            )
+        )
+        self.assertTrue(
+            b.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 3, 6, 9]))
+        )
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(a.getCoords()[:24].isEqual(m1.getCoords(), 1e-12))
+        self.assertTrue(
+            a.getCoords()[24:].isEqualWithoutConsideringStr(m2.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            c.isEqual(DataArrayInt([0, 1, 2, 3, 8, 9, 10, 11, 4, 5, 6, 7, 12, 12]))
+        )
+        self.assertTrue(d.isEqual(DataArrayInt([(9, 11), (12, 13), (8, 10)])))
         pass
 
     def testSwig2Intersect2DMeshWith1DLine5(self):
         """A test focusing on a special case for cut."""
-        i=MEDCouplingIMesh("mesh",2,[5,5],[0.,0.],[1.,1.])
-        m1=i.buildUnstructured()
-        m2=MEDCouplingUMesh("mesh",1) ; m2.setCoords(DataArrayDouble([(1.,0.),(3.,2.),(1.,4.)])) ; m2.allocateCells()
+        i = MEDCouplingIMesh("mesh", 2, [5, 5], [0.0, 0.0], [1.0, 1.0])
+        m1 = i.buildUnstructured()
+        m2 = MEDCouplingUMesh("mesh", 1)
+        m2.setCoords(DataArrayDouble([(1.0, 0.0), (3.0, 2.0), (1.0, 4.0)]))
+        m2.allocateCells()
         for i in range(2):
-            m2.insertNextCell(NORM_SEG2,[i,i+1])
+            m2.insertNextCell(NORM_SEG2, [i, i + 1])
             pass
-        a,b,c,d=MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1,m2,1e-12)
-        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([4,1,0,5,6,4,3,2,7,8,4,4,3,8,9,4,6,5,10,11,4,7,6,11,12,4,9,8,13,14,4,11,10,15,16,4,12,11,16,17,4,14,13,18,19,4,16,15,20,21,4,18,17,22,23,4,19,18,23,24,5,6,7,1,5,2,1,7,5,12,13,7,5,8,7,13,5,12,17,13,5,18,13,17,5,16,21,17,5,22,17,21])))
-        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,10,15,20,25,30,35,40,45,50,55,60,64,68,72,76,80,84,88,92])))
-        self.assertTrue(b.getNodalConnectivity().isEqual(DataArrayInt([1,1,7,1,7,13,1,13,17,1,17,21])))
-        self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6,9,12])))
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(a.getCoords()[:25].isEqual(m1.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[25:].isEqualWithoutConsideringStr(m2.getCoords(),1e-12))
-        self.assertTrue(c.isEqual(DataArrayInt([0,2,3,4,5,7,8,9,11,12,14,15,1,1,6,6,10,10,13,13])))
-        self.assertTrue(d.isEqual(DataArrayInt([(12,13),(14,15),(16,17),(18,19)])))
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-12)
+        self.assertTrue(
+            a.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        4,
+                        1,
+                        0,
+                        5,
+                        6,
+                        4,
+                        3,
+                        2,
+                        7,
+                        8,
+                        4,
+                        4,
+                        3,
+                        8,
+                        9,
+                        4,
+                        6,
+                        5,
+                        10,
+                        11,
+                        4,
+                        7,
+                        6,
+                        11,
+                        12,
+                        4,
+                        9,
+                        8,
+                        13,
+                        14,
+                        4,
+                        11,
+                        10,
+                        15,
+                        16,
+                        4,
+                        12,
+                        11,
+                        16,
+                        17,
+                        4,
+                        14,
+                        13,
+                        18,
+                        19,
+                        4,
+                        16,
+                        15,
+                        20,
+                        21,
+                        4,
+                        18,
+                        17,
+                        22,
+                        23,
+                        4,
+                        19,
+                        18,
+                        23,
+                        24,
+                        5,
+                        6,
+                        7,
+                        1,
+                        5,
+                        2,
+                        1,
+                        7,
+                        5,
+                        12,
+                        13,
+                        7,
+                        5,
+                        8,
+                        7,
+                        13,
+                        5,
+                        12,
+                        17,
+                        13,
+                        5,
+                        18,
+                        13,
+                        17,
+                        5,
+                        16,
+                        21,
+                        17,
+                        5,
+                        22,
+                        17,
+                        21,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            a.getNodalConnectivityIndex().isEqual(
+                DataArrayInt(
+                    [
+                        0,
+                        5,
+                        10,
+                        15,
+                        20,
+                        25,
+                        30,
+                        35,
+                        40,
+                        45,
+                        50,
+                        55,
+                        60,
+                        64,
+                        68,
+                        72,
+                        76,
+                        80,
+                        84,
+                        88,
+                        92,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            b.getNodalConnectivity().isEqual(
+                DataArrayInt([1, 1, 7, 1, 7, 13, 1, 13, 17, 1, 17, 21])
+            )
+        )
+        self.assertTrue(
+            b.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 3, 6, 9, 12]))
+        )
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(a.getCoords()[:25].isEqual(m1.getCoords(), 1e-12))
+        self.assertTrue(
+            a.getCoords()[25:].isEqualWithoutConsideringStr(m2.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            c.isEqual(
+                DataArrayInt(
+                    [0, 2, 3, 4, 5, 7, 8, 9, 11, 12, 14, 15, 1, 1, 6, 6, 10, 10, 13, 13]
+                )
+            )
+        )
+        self.assertTrue(
+            d.isEqual(DataArrayInt([(12, 13), (14, 15), (16, 17), (18, 19)]))
+        )
         pass
 
     def testIntersect2DMeshWith1DLine6(self):
-        """ Basic test for Intersect2DMeshWith1DLine: a vertical line intersecting a square. """
+        """Basic test for Intersect2DMeshWith1DLine: a vertical line intersecting a square."""
         m1c = MEDCouplingCMesh()
-        coordX = DataArrayDouble([-1., 1., 2])
-        m1c.setCoordsAt(0,coordX)
-        coordY = DataArrayDouble([0., 2.])
-        m1c.setCoordsAt(1,coordY)
+        coordX = DataArrayDouble([-1.0, 1.0, 2])
+        m1c.setCoordsAt(0, coordX)
+        coordY = DataArrayDouble([0.0, 2.0])
+        m1c.setCoordsAt(1, coordY)
         m1 = m1c.buildUnstructured()
 
         # A simple line:
         m2 = MEDCouplingUMesh("bla", 1)
-        coord2 = DataArrayDouble([0.,-1.0,  0.,1.,  0.,3.,  0.5,2.2], 4, 2)
-        conn2 = DataArrayInt([NORM_SEG2,0,1,NORM_SEG3,1,2,3])
-        connI2 = DataArrayInt([0,3,7])
+        coord2 = DataArrayDouble([0.0, -1.0, 0.0, 1.0, 0.0, 3.0, 0.5, 2.2], 4, 2)
+        conn2 = DataArrayInt([NORM_SEG2, 0, 1, NORM_SEG3, 1, 2, 3])
+        connI2 = DataArrayInt([0, 3, 7])
         m2.setCoords(coord2)
         m2.setConnectivity(conn2, connI2)
 
         # End of construction of input meshes m1bis and m2 -> start of specific part of the test
-        a,b,c,d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-10)
-        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([4,2,1,4,5,32,0,3,11,7,10,14,15,16,17,18,32,4,1,10,7,11,19,20,21,22,23])))
-        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,16,27])))
-        self.assertTrue(b.getNodalConnectivity().isEqual(DataArrayInt([1,6,10,1,10,7,2,7,11,12,2,11,8,13])))
-        self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6,10,14])))
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(a.getCoords()[:6].isEqual(m1.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[6:10].isEqual(m2.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[10:].isEqual(DataArrayDouble([(0.,0.),(0.5164175471673584,2.),(0.3796918047064557,1.43726403104512),(0.3796918047064557,2.56273596895488),(-1.,1.),(-0.24179122641632078,2.),(0.3796918047064558,1.4372640310451201),(0.,0.5),(-0.5,0.),(1.,1.),(0.5,0.),(0.,0.5),(0.3796918047064558,1.4372640310451201),(0.7582087735836792,2.)]),1e-12))
-        self.assertTrue(c.isEqual(DataArrayInt([1,0,0])))
-        self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(1,2),(1,2),(-1,-1)])))
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-10)
+        self.assertTrue(
+            a.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        4,
+                        2,
+                        1,
+                        4,
+                        5,
+                        32,
+                        0,
+                        3,
+                        11,
+                        7,
+                        10,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        32,
+                        4,
+                        1,
+                        10,
+                        7,
+                        11,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            a.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 5, 16, 27]))
+        )
+        self.assertTrue(
+            b.getNodalConnectivity().isEqual(
+                DataArrayInt([1, 6, 10, 1, 10, 7, 2, 7, 11, 12, 2, 11, 8, 13])
+            )
+        )
+        self.assertTrue(
+            b.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 3, 6, 10, 14]))
+        )
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(a.getCoords()[:6].isEqual(m1.getCoords(), 1e-12))
+        self.assertTrue(a.getCoords()[6:10].isEqual(m2.getCoords(), 1e-12))
+        self.assertTrue(
+            a.getCoords()[10:].isEqual(
+                DataArrayDouble(
+                    [
+                        (0.0, 0.0),
+                        (0.5164175471673584, 2.0),
+                        (0.3796918047064557, 1.43726403104512),
+                        (0.3796918047064557, 2.56273596895488),
+                        (-1.0, 1.0),
+                        (-0.24179122641632078, 2.0),
+                        (0.3796918047064558, 1.4372640310451201),
+                        (0.0, 0.5),
+                        (-0.5, 0.0),
+                        (1.0, 1.0),
+                        (0.5, 0.0),
+                        (0.0, 0.5),
+                        (0.3796918047064558, 1.4372640310451201),
+                        (0.7582087735836792, 2.0),
+                    ]
+                ),
+                1e-12,
+            )
+        )
+        self.assertTrue(c.isEqual(DataArrayInt([1, 0, 0])))
+        self.assertTrue(d.isEqual(DataArrayInt([(-1, -1), (1, 2), (1, 2), (-1, -1)])))
         pass
 
     def testSwig2Intersect2DMeshWith1DLine7(self):
-        """ Star pattern (a triangle intersecting another one upside down) """
-        coords1 = DataArrayDouble([-2.,1.,   2.,1.,  0.,-2.], 3,2)
-        coords2 = DataArrayDouble([0.,2.,   2.,-1.,  -2.,-1.,  0.,3.], 4,2)
+        """Star pattern (a triangle intersecting another one upside down)"""
+        coords1 = DataArrayDouble([-2.0, 1.0, 2.0, 1.0, 0.0, -2.0], 3, 2)
+        coords2 = DataArrayDouble([0.0, 2.0, 2.0, -1.0, -2.0, -1.0, 0.0, 3.0], 4, 2)
         m1 = MEDCouplingUMesh("triangle", 2)
         m2 = MEDCouplingUMesh("tri_line", 1)
         m1.setCoords(coords1)
         m2.setCoords(coords2)
-        m1.setConnectivity(DataArrayInt([NORM_TRI3, 0,1,2]), DataArrayInt([0,4]))
-        m2.setConnectivity(DataArrayInt([NORM_SEG2,0,1,NORM_SEG2,1,2,NORM_SEG2,2,3]), DataArrayInt([0,3,6,9]))
-    # End of construction of input meshes m1bis and m2 -> start of specific part of the test
-        a,b,c,d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-10)
-        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([5,1,9,7,5,2,11,10,5,0,8,12,5,7,9,10,11,12,8])))
-        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,4,8,12,19])))
-        self.assertTrue(b.getNodalConnectivity().isEqual(DataArrayInt([1,3,7,1,7,9,1,9,4,1,4,10,1,10,11,1,11,5,1,5,12,1,12,8,1,8,6])))
-        self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6,9,12,15,18,21,24,27])))
-        self.assertTrue(a.getCoords()[:3].isEqual(m1.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[3:7].isEqual(m2.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[7:].isEqual(DataArrayDouble([(0.6666666666666666,1.),(-1.,1.),(1.3333333333333333,1.1102230246251565e-16),(0.6666666666666665,-0.9999999999999996),(-0.6666666666666667,-1.),(-1.4285714285714284,0.14285714285714302)]),1e-12))
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(c.isEqual(DataArrayInt([0,0,0,0])))
-        self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(0,3),(-1,-1),(-1,-1),(1,3),(-1,-1),(-1,-1),(2,3),(-1,-1)])))
+        m1.setConnectivity(DataArrayInt([NORM_TRI3, 0, 1, 2]), DataArrayInt([0, 4]))
+        m2.setConnectivity(
+            DataArrayInt([NORM_SEG2, 0, 1, NORM_SEG2, 1, 2, NORM_SEG2, 2, 3]),
+            DataArrayInt([0, 3, 6, 9]),
+        )
+        # End of construction of input meshes m1bis and m2 -> start of specific part of the test
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-10)
+        self.assertTrue(
+            a.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [5, 1, 9, 7, 5, 2, 11, 10, 5, 0, 8, 12, 5, 7, 9, 10, 11, 12, 8]
+                )
+            )
+        )
+        self.assertTrue(
+            a.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 4, 8, 12, 19]))
+        )
+        self.assertTrue(
+            b.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        1,
+                        3,
+                        7,
+                        1,
+                        7,
+                        9,
+                        1,
+                        9,
+                        4,
+                        1,
+                        4,
+                        10,
+                        1,
+                        10,
+                        11,
+                        1,
+                        11,
+                        5,
+                        1,
+                        5,
+                        12,
+                        1,
+                        12,
+                        8,
+                        1,
+                        8,
+                        6,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            b.getNodalConnectivityIndex().isEqual(
+                DataArrayInt([0, 3, 6, 9, 12, 15, 18, 21, 24, 27])
+            )
+        )
+        self.assertTrue(a.getCoords()[:3].isEqual(m1.getCoords(), 1e-12))
+        self.assertTrue(a.getCoords()[3:7].isEqual(m2.getCoords(), 1e-12))
+        self.assertTrue(
+            a.getCoords()[7:].isEqual(
+                DataArrayDouble(
+                    [
+                        (0.6666666666666666, 1.0),
+                        (-1.0, 1.0),
+                        (1.3333333333333333, 1.1102230246251565e-16),
+                        (0.6666666666666665, -0.9999999999999996),
+                        (-0.6666666666666667, -1.0),
+                        (-1.4285714285714284, 0.14285714285714302),
+                    ]
+                ),
+                1e-12,
+            )
+        )
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(c.isEqual(DataArrayInt([0, 0, 0, 0])))
+        self.assertTrue(
+            d.isEqual(
+                DataArrayInt(
+                    [
+                        (-1, -1),
+                        (0, 3),
+                        (-1, -1),
+                        (-1, -1),
+                        (1, 3),
+                        (-1, -1),
+                        (-1, -1),
+                        (2, 3),
+                        (-1, -1),
+                    ]
+                )
+            )
+        )
         pass
 
     def testSwig2Intersect2DMeshWith1DLine8(self):
-        """ Line pieces ending (or fully located) in the middle of a cell """
+        """Line pieces ending (or fully located) in the middle of a cell"""
         m1c = MEDCouplingCMesh()
-        m1c.setCoordsAt(0,DataArrayDouble([-1., 1.]))
-        m1c.setCoordsAt(1,DataArrayDouble([-1., 1.]))
+        m1c.setCoordsAt(0, DataArrayDouble([-1.0, 1.0]))
+        m1c.setCoordsAt(1, DataArrayDouble([-1.0, 1.0]))
         m1 = m1c.buildUnstructured()
-        coords2 = DataArrayDouble([0.,0.,  0.,1.5, -1.5,0.,  0.5,0.0,  0.0,-0.5, 1.1,-0.6], 6,2)
+        coords2 = DataArrayDouble(
+            [0.0, 0.0, 0.0, 1.5, -1.5, 0.0, 0.5, 0.0, 0.0, -0.5, 1.1, -0.6], 6, 2
+        )
         m2 = MEDCouplingUMesh("piecewise_line", 1)
         m2.setCoords(coords2)
-        c = DataArrayInt([NORM_SEG2,2,1, NORM_SEG2,1,4, NORM_SEG2,4,3,  NORM_SEG2,3,5])
-        cI = DataArrayInt([0,3,6,9,12])
+        c = DataArrayInt(
+            [NORM_SEG2, 2, 1, NORM_SEG2, 1, 4, NORM_SEG2, 4, 3, NORM_SEG2, 3, 5]
+        )
+        cI = DataArrayInt([0, 3, 6, 9, 12])
         m2.setConnectivity(c, cI)
-        a,b,c,d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-10)
-        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([5,2,11,10,5,3,13,7,8,12,5,1,0,10,11,12,8,7,13])))
-        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,4,10,19])))
-        self.assertTrue(b.getNodalConnectivity().isEqual(DataArrayInt([1,6,10,1,10,11,1,11,5,1,5,12,1,12,8,1,8,7,1,7,13,1,13,9])))
-        self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6,9,12,15,18,21,24])))
-        self.assertTrue(a.getCoords()[:4].isEqual(m1.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[4:10].isEqual(m2.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[10:].isEqual(DataArrayDouble([(-1.,0.5),(-0.5,1.),(0.,1.),(1.,-0.5)]),1e-12))
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(c.isEqual(DataArrayInt([0,0,0])))
-        self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(0,2),(-1,-1),(-1,-1),(1,2),(1,2),(1,2),(-1,-1)])))
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-10)
+        self.assertTrue(
+            a.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [5, 2, 11, 10, 5, 3, 13, 7, 8, 12, 5, 1, 0, 10, 11, 12, 8, 7, 13]
+                )
+            )
+        )
+        self.assertTrue(
+            a.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 4, 10, 19]))
+        )
+        self.assertTrue(
+            b.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        1,
+                        6,
+                        10,
+                        1,
+                        10,
+                        11,
+                        1,
+                        11,
+                        5,
+                        1,
+                        5,
+                        12,
+                        1,
+                        12,
+                        8,
+                        1,
+                        8,
+                        7,
+                        1,
+                        7,
+                        13,
+                        1,
+                        13,
+                        9,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            b.getNodalConnectivityIndex().isEqual(
+                DataArrayInt([0, 3, 6, 9, 12, 15, 18, 21, 24])
+            )
+        )
+        self.assertTrue(a.getCoords()[:4].isEqual(m1.getCoords(), 1e-12))
+        self.assertTrue(a.getCoords()[4:10].isEqual(m2.getCoords(), 1e-12))
+        self.assertTrue(
+            a.getCoords()[10:].isEqual(
+                DataArrayDouble([(-1.0, 0.5), (-0.5, 1.0), (0.0, 1.0), (1.0, -0.5)]),
+                1e-12,
+            )
+        )
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(c.isEqual(DataArrayInt([0, 0, 0])))
+        self.assertTrue(
+            d.isEqual(
+                DataArrayInt(
+                    [
+                        (-1, -1),
+                        (0, 2),
+                        (-1, -1),
+                        (-1, -1),
+                        (1, 2),
+                        (1, 2),
+                        (1, 2),
+                        (-1, -1),
+                    ]
+                )
+            )
+        )
         pass
 
     def testSwig2Intersect2DMeshWith1DLine9(self):
-        """ Intersection with a line whose connectivity is not consecutive """
+        """Intersection with a line whose connectivity is not consecutive"""
         m1c = MEDCouplingCMesh()
-        coordX = DataArrayDouble([-1., 1., 2])
-        m1c.setCoordsAt(0,coordX)
-        coordY = DataArrayDouble([0., 2.])
-        m1c.setCoordsAt(1,coordY)
+        coordX = DataArrayDouble([-1.0, 1.0, 2])
+        m1c.setCoordsAt(0, coordX)
+        coordY = DataArrayDouble([0.0, 2.0])
+        m1c.setCoordsAt(1, coordY)
         m1 = m1c.buildUnstructured()
         # A simple line:
         m2 = MEDCouplingUMesh("bla", 1)
-        coord2 = DataArrayDouble([0.,1.5,  0.5,1.,  0.0,0.5,  0.0,3.0,  0.0,-1.0], 5, 2)
-        conn2 = DataArrayInt([NORM_SEG2,3,0,NORM_SEG3,0,2,1,NORM_SEG2,2,4])
-        connI2 = DataArrayInt([0,3,7,10])
+        coord2 = DataArrayDouble(
+            [0.0, 1.5, 0.5, 1.0, 0.0, 0.5, 0.0, 3.0, 0.0, -1.0], 5, 2
+        )
+        conn2 = DataArrayInt([NORM_SEG2, 3, 0, NORM_SEG3, 0, 2, 1, NORM_SEG2, 2, 4])
+        connI2 = DataArrayInt([0, 3, 7, 10])
         m2.setCoords(coord2)
         m2.setConnectivity(conn2, connI2)
         # End of construction of input meshes m1bis and m2 -> start of specific part of the test
-        a,b,c,d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-10)
-        self.assertTrue(a.getNodalConnectivity().isEqual(DataArrayInt([4,2,1,4,5,32,4,1,11,8,6,12,14,15,16,17,18,19,32,0,3,12,6,8,11,20,21,22,23,24,25])))
-        self.assertTrue(a.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,18,31])))
-        self.assertTrue(b.getNodalConnectivity().isEqual(DataArrayInt([1,9,12,1,12,6,2,6,8,13,1,8,11,1,11,10])))
-        self.assertTrue(b.getNodalConnectivityIndex().isEqual(DataArrayInt([0,3,6,10,13,16])))
-        self.assertTrue(a.getCoords()[:6].isEqual(m1.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[6:11].isEqual(m2.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[11:].isEqual(DataArrayDouble([(0.,0.),(0.,2.),(0.5,1.),(1.,1.),(0.5,0.),(0.,0.25),(0.5,1.),(0.,1.75),(0.5,2.),(-1.,1.),(-0.5,2.),(0.,1.75),(0.5,1.),(0.,0.25),(-0.5,0.)]),1e-12))
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(c.isEqual(DataArrayInt([1,0,0])))
-        self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(1,2),(1,2),(1,2),(-1,-1)])))
+        a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m1, m2, 1e-10)
+        self.assertTrue(
+            a.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        4,
+                        2,
+                        1,
+                        4,
+                        5,
+                        32,
+                        4,
+                        1,
+                        11,
+                        8,
+                        6,
+                        12,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        32,
+                        0,
+                        3,
+                        12,
+                        6,
+                        8,
+                        11,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            a.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 5, 18, 31]))
+        )
+        self.assertTrue(
+            b.getNodalConnectivity().isEqual(
+                DataArrayInt([1, 9, 12, 1, 12, 6, 2, 6, 8, 13, 1, 8, 11, 1, 11, 10])
+            )
+        )
+        self.assertTrue(
+            b.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 3, 6, 10, 13, 16]))
+        )
+        self.assertTrue(a.getCoords()[:6].isEqual(m1.getCoords(), 1e-12))
+        self.assertTrue(a.getCoords()[6:11].isEqual(m2.getCoords(), 1e-12))
+        self.assertTrue(
+            a.getCoords()[11:].isEqual(
+                DataArrayDouble(
+                    [
+                        (0.0, 0.0),
+                        (0.0, 2.0),
+                        (0.5, 1.0),
+                        (1.0, 1.0),
+                        (0.5, 0.0),
+                        (0.0, 0.25),
+                        (0.5, 1.0),
+                        (0.0, 1.75),
+                        (0.5, 2.0),
+                        (-1.0, 1.0),
+                        (-0.5, 2.0),
+                        (0.0, 1.75),
+                        (0.5, 1.0),
+                        (0.0, 0.25),
+                        (-0.5, 0.0),
+                    ]
+                ),
+                1e-12,
+            )
+        )
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(c.isEqual(DataArrayInt([1, 0, 0])))
+        self.assertTrue(
+            d.isEqual(DataArrayInt([(-1, -1), (1, 2), (1, 2), (1, 2), (-1, -1)]))
+        )
         pass
 
     def testSwig2Intersect2DMeshWith1DLine10(self):
-        """ Intersection between a circle and various lines """
+        """Intersection between a circle and various lines"""
         eps = 1.0e-8
         m_circ = MEDCouplingDataForTest.buildCircle2(0.0, 0.0, 2.0)
-        coords = [0.0,3.0,0.0,-3.0]
-        connec = [0,1]
+        coords = [0.0, 3.0, 0.0, -3.0]
+        connec = [0, 1]
         m_line = MEDCouplingUMesh("seg", 1)
         m_line.allocateCells(1)
         meshCoords = DataArrayDouble.New(coords, len(coords) // 2, 2)
         m_line.setCoords(meshCoords)
         m_line.insertNextCell(NORM_SEG2, connec)
         a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m_circ, m_line, eps)
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(a.getCoords()[:m_circ.getNumberOfNodes()].isEqual(m_circ.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[m_circ.getNumberOfNodes():m_circ.getNumberOfNodes()+m_line.getNumberOfNodes()].isEqual(m_line.getCoords(),1e-12))
-        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([(2.,0.),(1.4142135623730951,1.414213562373095),(0.,2.),(-1.414213562373095,1.4142135623730951),(-2.,0.),(-1.4142135623730954,-1.414213562373095),(0.,-2.),(1.4142135623730947,-1.4142135623730954),(0.,3.),(0.,-3.),(0.,-2.),(0.,2.),(2.,0.),(0.7653668647301797,-1.8477590650225735),(0.,0.),(0.7653668647301797,1.8477590650225735),(-2,0.),(-0.7653668647301795,1.8477590650225735),(0.,0.),(-0.7653668647301795,-1.8477590650225735)]),1e-12))
-        self.assertEqual([32,1,7,10,11,12,13,14,15,32,5,3,11,10,16,17,18,19],a.getNodalConnectivity().getValues())
-        self.assertEqual([0,9,18],  a.getNodalConnectivityIndex().getValues())
-        self.assertEqual([1,8,11,1,11,10,1,10,9],b.getNodalConnectivity().getValues())
-        self.assertEqual([0,3,6,9],b.getNodalConnectivityIndex().getValues())
-        self.assertTrue(a.getCoords()[:8].isEqual(m_circ.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[8:10].isEqual(m_line.getCoords(),1e-12))
-        coo_tgt = DataArrayDouble([2.,0.,1.4142135623730951,1.414213562373095,1.2246467991473532e-16,2.,-1.414213562373095,1.4142135623730951,-2.,0.,-1.4142135623730954,-1.414213562373095,-3.6739403974420594e-16,-2.,1.4142135623730947,-1.4142135623730954,0.,3.,0.,-3.,0.,-2.,0.,2.,2.,0.,0.7653668647301797,-1.8477590650225735,0.,0.,0.7653668647301797,1.8477590650225735,-2.,0.,-0.7653668647301795,1.8477590650225735,0.,0.,-0.7653668647301795,-1.8477590650225735])
-        self.assertTrue(a.getCoords().isEqualWithoutConsideringStr(coo_tgt,1.0e-12))
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertEqual([0,0],c.getValues())
-        self.assertEqual([-1,-1,0,1,-1,-1],d.getValues())
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(
+            a.getCoords()[: m_circ.getNumberOfNodes()].isEqual(
+                m_circ.getCoords(), 1e-12
+            )
+        )
+        self.assertTrue(
+            a.getCoords()[
+                m_circ.getNumberOfNodes() : m_circ.getNumberOfNodes()
+                + m_line.getNumberOfNodes()
+            ].isEqual(m_line.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            a.getCoords().isEqual(
+                DataArrayDouble(
+                    [
+                        (2.0, 0.0),
+                        (1.4142135623730951, 1.414213562373095),
+                        (0.0, 2.0),
+                        (-1.414213562373095, 1.4142135623730951),
+                        (-2.0, 0.0),
+                        (-1.4142135623730954, -1.414213562373095),
+                        (0.0, -2.0),
+                        (1.4142135623730947, -1.4142135623730954),
+                        (0.0, 3.0),
+                        (0.0, -3.0),
+                        (0.0, -2.0),
+                        (0.0, 2.0),
+                        (2.0, 0.0),
+                        (0.7653668647301797, -1.8477590650225735),
+                        (0.0, 0.0),
+                        (0.7653668647301797, 1.8477590650225735),
+                        (-2, 0.0),
+                        (-0.7653668647301795, 1.8477590650225735),
+                        (0.0, 0.0),
+                        (-0.7653668647301795, -1.8477590650225735),
+                    ]
+                ),
+                1e-12,
+            )
+        )
+        self.assertEqual(
+            [32, 1, 7, 10, 11, 12, 13, 14, 15, 32, 5, 3, 11, 10, 16, 17, 18, 19],
+            a.getNodalConnectivity().getValues(),
+        )
+        self.assertEqual([0, 9, 18], a.getNodalConnectivityIndex().getValues())
+        self.assertEqual(
+            [1, 8, 11, 1, 11, 10, 1, 10, 9], b.getNodalConnectivity().getValues()
+        )
+        self.assertEqual([0, 3, 6, 9], b.getNodalConnectivityIndex().getValues())
+        self.assertTrue(a.getCoords()[:8].isEqual(m_circ.getCoords(), 1e-12))
+        self.assertTrue(a.getCoords()[8:10].isEqual(m_line.getCoords(), 1e-12))
+        coo_tgt = DataArrayDouble(
+            [
+                2.0,
+                0.0,
+                1.4142135623730951,
+                1.414213562373095,
+                1.2246467991473532e-16,
+                2.0,
+                -1.414213562373095,
+                1.4142135623730951,
+                -2.0,
+                0.0,
+                -1.4142135623730954,
+                -1.414213562373095,
+                -3.6739403974420594e-16,
+                -2.0,
+                1.4142135623730947,
+                -1.4142135623730954,
+                0.0,
+                3.0,
+                0.0,
+                -3.0,
+                0.0,
+                -2.0,
+                0.0,
+                2.0,
+                2.0,
+                0.0,
+                0.7653668647301797,
+                -1.8477590650225735,
+                0.0,
+                0.0,
+                0.7653668647301797,
+                1.8477590650225735,
+                -2.0,
+                0.0,
+                -0.7653668647301795,
+                1.8477590650225735,
+                0.0,
+                0.0,
+                -0.7653668647301795,
+                -1.8477590650225735,
+            ]
+        )
+        self.assertTrue(a.getCoords().isEqualWithoutConsideringStr(coo_tgt, 1.0e-12))
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertEqual([0, 0], c.getValues())
+        self.assertEqual([-1, -1, 0, 1, -1, -1], d.getValues())
 
     def testSwig2Intersect2DMeshWith1DLine11(self):
-        """ Quad line re-entering a square cell """
+        """Quad line re-entering a square cell"""
         eps = 1.0e-8
         m = MEDCouplingUMesh("box", 2)
-        m.setCoords(DataArrayDouble([-1., -1., -1., 1., 1., 1., 1., -1.0],4,2))
+        m.setCoords(DataArrayDouble([-1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0], 4, 2))
         c, cI = [NORM_POLYGON, 0, 1, 2, 3], [0, 5]
         m.setConnectivity(DataArrayInt(c), DataArrayInt(cI))
         m.checkConsistencyLight()
-        coords2 = [0., 1.3, -1.3, 0., -0.6, 0.6, 0., -1.3, -0.5, -0.5]
-        connec2, cI2 = [NORM_SEG3, 0, 1, 2, NORM_SEG3, 1, 3, 4], [0,4,8]
+        coords2 = [0.0, 1.3, -1.3, 0.0, -0.6, 0.6, 0.0, -1.3, -0.5, -0.5]
+        connec2, cI2 = [NORM_SEG3, 0, 1, 2, NORM_SEG3, 1, 3, 4], [0, 4, 8]
         m_line = MEDCouplingUMesh("seg", 1)
         m_line.setCoords(DataArrayDouble(coords2, len(coords2) // 2, 2))
         m_line.setConnectivity(DataArrayInt(connec2), DataArrayInt(cI2))
         a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m, m_line, eps)
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(a.getCoords()[:m.getNumberOfNodes()].isEqual(m.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[m.getNumberOfNodes():m.getNumberOfNodes()+m_line.getNumberOfNodes()].isEqual(m_line.getCoords(),1e-12))
-        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([(-1.,-1.),(-1.,1.),(1.,1.),(1.,-1.),(0.,1.3),(-1.3,0.),(-0.6,0.6),(0.,-1.3),(-0.5,-0.5),(-1.,0.23453685964236054),(-1.,-0.13033276368660177),(-0.2345368596423598,1.),(-0.1303327636866019,-1.),(-0.11489196370692323,1.1481421036683868),(-0.6,0.6),(-1.1481421036683859,0.11489196370692323),(-1.147455889106615,-0.0593103465193594),(-0.5,-0.5),(-0.0593103465193594,-1.147455889106615),(1.,0.),(0.4348336181566991,-1.),(-0.5651663818433009,-1.),(-1.,-0.5651663818433009),(-1.,0.05210204797787939),(-0.6,0.6),(0.3827315701788201,1.),(-0.6172684298211799,1.),(-0.6,0.6),(-1.,0.6172684298211802),(-0.6,0.6),(0.3827315701788201,1.),(1.,0.),(0.4348336181566991,-1.),(-0.5,-0.5),(-1.,0.05210204797787939),(-1.,-0.5651663818433009),(-0.5,-0.5),(-0.5651663818433009,-1.)]),1e-12))
-        self.assertEqual([32,9,11,2,3,12,10,29,30,31,32,33,34,32,0,10,12,35,36,37,32,1,11,9,26,27,28],a.getNodalConnectivity().getValues())
-        self.assertEqual([0,13,20,27],a.getNodalConnectivityIndex().getValues())
-        self.assertEqual([2,4,11,13,2,11,9,14,2,9,5,15,2,5,10,16,2,10,12,17,2,12,7,18],b.getNodalConnectivity().getValues())
-        self.assertEqual([0,4,8,12,16,20,24],b.getNodalConnectivityIndex().getValues())
-        self.assertTrue(a.getCoords()[:4].isEqual(m.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[4:9].isEqual(m_line.getCoords(),1e-12))
-        self.assertTrue(DataArrayInt([0,0,0]).isEqual(c))
-        self.assertTrue(DataArrayInt([(-1,-1),(0,2),(-1,-1),(-1,-1),(0,1),(-1,-1)]).isEqual(d))
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(
+            a.getCoords()[: m.getNumberOfNodes()].isEqual(m.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            a.getCoords()[
+                m.getNumberOfNodes() : m.getNumberOfNodes() + m_line.getNumberOfNodes()
+            ].isEqual(m_line.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            a.getCoords().isEqual(
+                DataArrayDouble(
+                    [
+                        (-1.0, -1.0),
+                        (-1.0, 1.0),
+                        (1.0, 1.0),
+                        (1.0, -1.0),
+                        (0.0, 1.3),
+                        (-1.3, 0.0),
+                        (-0.6, 0.6),
+                        (0.0, -1.3),
+                        (-0.5, -0.5),
+                        (-1.0, 0.23453685964236054),
+                        (-1.0, -0.13033276368660177),
+                        (-0.2345368596423598, 1.0),
+                        (-0.1303327636866019, -1.0),
+                        (-0.11489196370692323, 1.1481421036683868),
+                        (-0.6, 0.6),
+                        (-1.1481421036683859, 0.11489196370692323),
+                        (-1.147455889106615, -0.0593103465193594),
+                        (-0.5, -0.5),
+                        (-0.0593103465193594, -1.147455889106615),
+                        (1.0, 0.0),
+                        (0.4348336181566991, -1.0),
+                        (-0.5651663818433009, -1.0),
+                        (-1.0, -0.5651663818433009),
+                        (-1.0, 0.05210204797787939),
+                        (-0.6, 0.6),
+                        (0.3827315701788201, 1.0),
+                        (-0.6172684298211799, 1.0),
+                        (-0.6, 0.6),
+                        (-1.0, 0.6172684298211802),
+                        (-0.6, 0.6),
+                        (0.3827315701788201, 1.0),
+                        (1.0, 0.0),
+                        (0.4348336181566991, -1.0),
+                        (-0.5, -0.5),
+                        (-1.0, 0.05210204797787939),
+                        (-1.0, -0.5651663818433009),
+                        (-0.5, -0.5),
+                        (-0.5651663818433009, -1.0),
+                    ]
+                ),
+                1e-12,
+            )
+        )
+        self.assertEqual(
+            [
+                32,
+                9,
+                11,
+                2,
+                3,
+                12,
+                10,
+                29,
+                30,
+                31,
+                32,
+                33,
+                34,
+                32,
+                0,
+                10,
+                12,
+                35,
+                36,
+                37,
+                32,
+                1,
+                11,
+                9,
+                26,
+                27,
+                28,
+            ],
+            a.getNodalConnectivity().getValues(),
+        )
+        self.assertEqual([0, 13, 20, 27], a.getNodalConnectivityIndex().getValues())
+        self.assertEqual(
+            [
+                2,
+                4,
+                11,
+                13,
+                2,
+                11,
+                9,
+                14,
+                2,
+                9,
+                5,
+                15,
+                2,
+                5,
+                10,
+                16,
+                2,
+                10,
+                12,
+                17,
+                2,
+                12,
+                7,
+                18,
+            ],
+            b.getNodalConnectivity().getValues(),
+        )
+        self.assertEqual(
+            [0, 4, 8, 12, 16, 20, 24], b.getNodalConnectivityIndex().getValues()
+        )
+        self.assertTrue(a.getCoords()[:4].isEqual(m.getCoords(), 1e-12))
+        self.assertTrue(a.getCoords()[4:9].isEqual(m_line.getCoords(), 1e-12))
+        self.assertTrue(DataArrayInt([0, 0, 0]).isEqual(c))
+        self.assertTrue(
+            DataArrayInt(
+                [(-1, -1), (0, 2), (-1, -1), (-1, -1), (0, 1), (-1, -1)]
+            ).isEqual(d)
+        )
         pass
 
     def testSwig2Intersect2DMeshWith1DLine12(self):
-        """ Two squares one in the other intersected by an horizontal line """
+        """Two squares one in the other intersected by an horizontal line"""
         eps = 1.0e-8
         m = MEDCouplingUMesh("boxbox", 2)
-        m.setCoords(DataArrayDouble([-0.5,-0.5,-0.5,0.5,0.5,0.5,0.5,-0.5,-0.25,-0.25,-0.25,0.25,0.25,0.25,0.25,-0.25],8,2))
-        c = [NORM_POLYGON, 4, 5, 6, 7, NORM_POLYGON, 0, 1, 5, 4, NORM_POLYGON, 1, 2, 3, 0, 4, 7, 6, 5]
+        m.setCoords(
+            DataArrayDouble(
+                [
+                    -0.5,
+                    -0.5,
+                    -0.5,
+                    0.5,
+                    0.5,
+                    0.5,
+                    0.5,
+                    -0.5,
+                    -0.25,
+                    -0.25,
+                    -0.25,
+                    0.25,
+                    0.25,
+                    0.25,
+                    0.25,
+                    -0.25,
+                ],
+                8,
+                2,
+            )
+        )
+        c = [
+            NORM_POLYGON,
+            4,
+            5,
+            6,
+            7,
+            NORM_POLYGON,
+            0,
+            1,
+            5,
+            4,
+            NORM_POLYGON,
+            1,
+            2,
+            3,
+            0,
+            4,
+            7,
+            6,
+            5,
+        ]
         cI = [0, 5, 10, 19]
         m.setConnectivity(DataArrayInt(c), DataArrayInt(cI))
         m.checkConsistencyLight()
-        coords2 = [-1., 0.25, 1., 0.25]
-        connec2, cI2 = [NORM_SEG2, 0, 1], [0,3]
+        coords2 = [-1.0, 0.25, 1.0, 0.25]
+        connec2, cI2 = [NORM_SEG2, 0, 1], [0, 3]
         m_line = MEDCouplingUMesh.New("seg", 1)
         m_line.setCoords(DataArrayDouble(coords2, len(coords2) // 2, 2))
         m_line.setConnectivity(DataArrayInt(connec2), DataArrayInt(cI2))
         m_line2 = m_line.deepCopy()
         m2 = m.deepCopy()
         a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m, m_line, eps)
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(a.getCoords()[:m.getNumberOfNodes()].isEqual(m.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[m.getNumberOfNodes():m.getNumberOfNodes()+m_line.getNumberOfNodes()].isEqual(m_line.getCoords(),1e-12))
-        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([(-0.5,-0.5),(-0.5,0.5),(0.5,0.5),(0.5,-0.5),(-0.25,-0.25),(-0.25,0.25),(0.25,0.25),(0.25,-0.25),(-1.,0.25),(1.,0.25),(-0.5,0.25),(0.5,0.25)]),1e-12))
-        self.assertEqual([5,4,5,6,7,5,1,5,10,5,4,0,10,5,5,5,1,2,11,6,5,3,0,4,7,6,11],a.getNodalConnectivity().getValues())
-        self.assertEqual([0,5,9,14,20,27],a.getNodalConnectivityIndex().getValues())
-        self.assertEqual([1,8,10,1,10,5,1,5,6,1,6,11,1,11,9],b.getNodalConnectivity().getValues())
-        self.assertEqual([0,3,6,9,12,15],b.getNodalConnectivityIndex().getValues())
-        self.assertTrue(c.isEqual(DataArrayInt([0,1,1,2,2])))
-        self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(1,2),(3,0),(3,4),(-1,-1)])))
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(
+            a.getCoords()[: m.getNumberOfNodes()].isEqual(m.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            a.getCoords()[
+                m.getNumberOfNodes() : m.getNumberOfNodes() + m_line.getNumberOfNodes()
+            ].isEqual(m_line.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            a.getCoords().isEqual(
+                DataArrayDouble(
+                    [
+                        (-0.5, -0.5),
+                        (-0.5, 0.5),
+                        (0.5, 0.5),
+                        (0.5, -0.5),
+                        (-0.25, -0.25),
+                        (-0.25, 0.25),
+                        (0.25, 0.25),
+                        (0.25, -0.25),
+                        (-1.0, 0.25),
+                        (1.0, 0.25),
+                        (-0.5, 0.25),
+                        (0.5, 0.25),
+                    ]
+                ),
+                1e-12,
+            )
+        )
+        self.assertEqual(
+            [
+                5,
+                4,
+                5,
+                6,
+                7,
+                5,
+                1,
+                5,
+                10,
+                5,
+                4,
+                0,
+                10,
+                5,
+                5,
+                5,
+                1,
+                2,
+                11,
+                6,
+                5,
+                3,
+                0,
+                4,
+                7,
+                6,
+                11,
+            ],
+            a.getNodalConnectivity().getValues(),
+        )
+        self.assertEqual(
+            [0, 5, 9, 14, 20, 27], a.getNodalConnectivityIndex().getValues()
+        )
+        self.assertEqual(
+            [1, 8, 10, 1, 10, 5, 1, 5, 6, 1, 6, 11, 1, 11, 9],
+            b.getNodalConnectivity().getValues(),
+        )
+        self.assertEqual(
+            [0, 3, 6, 9, 12, 15], b.getNodalConnectivityIndex().getValues()
+        )
+        self.assertTrue(c.isEqual(DataArrayInt([0, 1, 1, 2, 2])))
+        self.assertTrue(
+            d.isEqual(DataArrayInt([(-1, -1), (1, 2), (3, 0), (3, 4), (-1, -1)]))
+        )
         pass
 
     def testSwig2Intersect2DMeshWith1DLine13(self):
-        """ A square (side length) in a circle intersected by a simple horizontal line """
+        """A square (side length) in a circle intersected by a simple horizontal line"""
         import math
+
         eps = 1.0e-8
         m = MEDCouplingUMesh("boxcircle", 2)
         sq2 = math.sqrt(2.0)
-        soth = (sq2+1.0)/2.0
-        coo = [2., 0., sq2, sq2, 0., 2., -sq2, sq2, -2., 0., -sq2, -sq2, 0., -2., sq2, -sq2, -1., -1., -1., 1., 1.,
-         1., 1., -1., -1., 0., 0., 1., 1., 0., 0., -1., -soth, soth, soth,soth]
-        coo = DataArrayDouble(coo); coo.rearrange(2)
+        soth = (sq2 + 1.0) / 2.0
+        coo = [
+            2.0,
+            0.0,
+            sq2,
+            sq2,
+            0.0,
+            2.0,
+            -sq2,
+            sq2,
+            -2.0,
+            0.0,
+            -sq2,
+            -sq2,
+            0.0,
+            -2.0,
+            sq2,
+            -sq2,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            -1.0,
+            -soth,
+            soth,
+            soth,
+            soth,
+        ]
+        coo = DataArrayDouble(coo)
+        coo.rearrange(2)
         m.setCoords(coo)
-        c = [NORM_QPOLYG, 8, 9, 10, 11, 12, 13, 14, 15, NORM_QPOLYG, 3, 1, 10, 9, 2, 17, 13, 16, NORM_QPOLYG, 1, 7, 5, 3, 9, 8, 11, 10, 0, 6, 4, 16, 12, 15, 14, 17]
+        c = [
+            NORM_QPOLYG,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            NORM_QPOLYG,
+            3,
+            1,
+            10,
+            9,
+            2,
+            17,
+            13,
+            16,
+            NORM_QPOLYG,
+            1,
+            7,
+            5,
+            3,
+            9,
+            8,
+            11,
+            10,
+            0,
+            6,
+            4,
+            16,
+            12,
+            15,
+            14,
+            17,
+        ]
         cI = [0, 9, 18, 35]
         m.setConnectivity(DataArrayInt(c), DataArrayInt(cI))
         m.checkConsistencyLight()
-        coords2 = [-2., 1., 2., 1.0]
-        connec2, cI2 = [NORM_SEG2, 0, 1], [0,3]
+        coords2 = [-2.0, 1.0, 2.0, 1.0]
+        connec2, cI2 = [NORM_SEG2, 0, 1], [0, 3]
         m_line = MEDCouplingUMesh("seg", 1)
         m_line.setCoords(DataArrayDouble(coords2, len(coords2) // 2, 2))
         m_line.setConnectivity(DataArrayInt(connec2), DataArrayInt(cI2))
         a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m, m_line, eps)
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(a.getCoords()[:m.getNumberOfNodes()].isEqual(m.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[m.getNumberOfNodes():m.getNumberOfNodes()+m_line.getNumberOfNodes()].isEqual(m_line.getCoords(),1e-12))
-        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([(2.,0.),(1.4142135623730951,1.4142135623730951),(0.,2.),(-1.4142135623730951,1.4142135623730951),(-2.,0.),(-1.4142135623730951,-1.4142135623730951),(0.,-2.),(1.4142135623730951,-1.4142135623730951),(-1.,-1.),(-1.,1.),(1.,1.),(1.,-1.),(-1.,0.),(0.,1.),(1.,0.),(0.,-1.),(-1.2071067811865475,1.2071067811865475),(1.2071067811865475,1.2071067811865475),(-2.,1.),(2.,1.),(1.7320508075688772,1.),(-1.7320508075688772,1.),(-1.2071067811865475,1.2071067811865475),(-1.3660254037844386,1.),(-1.58670668058247,1.2175228580174415),(0.,-1.),(1.,0.),(1.2071067811865475,1.2071067811865475),(1.5867066805824703,1.2175228580174413),(1.9828897227476205,-0.26105238444010315),(0.,-2.),(-1.9828897227476205,-0.2610523844401032),(-1.3660254037844386,1.),(-1.,0.),(1.5867066805824703,1.2175228580174413),(1.3660254037844386,1.),(1.2071067811865475,1.2071067811865475),(0.,-2.),(-1.9828897227476205,-0.2610523844401032),(-1.3660254037844386,1.),(-1.,0.),(0.,-1.),(1.,0.),(1.3660254037844386,1.),(1.9828897227476205,-0.26105238444010315)]),1e-12))
-        self.assertEqual([32,8,9,10,11,12,13,14,15,32,3,1,10,9,2,17,13,16,32,3,9,21,22,23,24,32,1,20,10,34,35,36,32,7,5,21,9,8,11,10,20,37,38,39,40,41,42,43,44],a.getNodalConnectivity().getValues())
-        self.assertEqual([0,9,18,25,32,49],a.getNodalConnectivityIndex().getValues())
-        self.assertEqual([1,18,21,1,21,9,1,9,10,1,10,20,1,20,19],b.getNodalConnectivity().getValues())
-        self.assertEqual([0,3,6,9,12,15],b.getNodalConnectivityIndex().getValues())
-        self.assertTrue(c.isEqual(DataArrayInt([0,1,2,2,2])))
-        self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(2,4),(1,0),(3,4),(-1,-1)])))
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(
+            a.getCoords()[: m.getNumberOfNodes()].isEqual(m.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            a.getCoords()[
+                m.getNumberOfNodes() : m.getNumberOfNodes() + m_line.getNumberOfNodes()
+            ].isEqual(m_line.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            a.getCoords().isEqual(
+                DataArrayDouble(
+                    [
+                        (2.0, 0.0),
+                        (1.4142135623730951, 1.4142135623730951),
+                        (0.0, 2.0),
+                        (-1.4142135623730951, 1.4142135623730951),
+                        (-2.0, 0.0),
+                        (-1.4142135623730951, -1.4142135623730951),
+                        (0.0, -2.0),
+                        (1.4142135623730951, -1.4142135623730951),
+                        (-1.0, -1.0),
+                        (-1.0, 1.0),
+                        (1.0, 1.0),
+                        (1.0, -1.0),
+                        (-1.0, 0.0),
+                        (0.0, 1.0),
+                        (1.0, 0.0),
+                        (0.0, -1.0),
+                        (-1.2071067811865475, 1.2071067811865475),
+                        (1.2071067811865475, 1.2071067811865475),
+                        (-2.0, 1.0),
+                        (2.0, 1.0),
+                        (1.7320508075688772, 1.0),
+                        (-1.7320508075688772, 1.0),
+                        (-1.2071067811865475, 1.2071067811865475),
+                        (-1.3660254037844386, 1.0),
+                        (-1.58670668058247, 1.2175228580174415),
+                        (0.0, -1.0),
+                        (1.0, 0.0),
+                        (1.2071067811865475, 1.2071067811865475),
+                        (1.5867066805824703, 1.2175228580174413),
+                        (1.9828897227476205, -0.26105238444010315),
+                        (0.0, -2.0),
+                        (-1.9828897227476205, -0.2610523844401032),
+                        (-1.3660254037844386, 1.0),
+                        (-1.0, 0.0),
+                        (1.5867066805824703, 1.2175228580174413),
+                        (1.3660254037844386, 1.0),
+                        (1.2071067811865475, 1.2071067811865475),
+                        (0.0, -2.0),
+                        (-1.9828897227476205, -0.2610523844401032),
+                        (-1.3660254037844386, 1.0),
+                        (-1.0, 0.0),
+                        (0.0, -1.0),
+                        (1.0, 0.0),
+                        (1.3660254037844386, 1.0),
+                        (1.9828897227476205, -0.26105238444010315),
+                    ]
+                ),
+                1e-12,
+            )
+        )
+        self.assertEqual(
+            [
+                32,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                32,
+                3,
+                1,
+                10,
+                9,
+                2,
+                17,
+                13,
+                16,
+                32,
+                3,
+                9,
+                21,
+                22,
+                23,
+                24,
+                32,
+                1,
+                20,
+                10,
+                34,
+                35,
+                36,
+                32,
+                7,
+                5,
+                21,
+                9,
+                8,
+                11,
+                10,
+                20,
+                37,
+                38,
+                39,
+                40,
+                41,
+                42,
+                43,
+                44,
+            ],
+            a.getNodalConnectivity().getValues(),
+        )
+        self.assertEqual(
+            [0, 9, 18, 25, 32, 49], a.getNodalConnectivityIndex().getValues()
+        )
+        self.assertEqual(
+            [1, 18, 21, 1, 21, 9, 1, 9, 10, 1, 10, 20, 1, 20, 19],
+            b.getNodalConnectivity().getValues(),
+        )
+        self.assertEqual(
+            [0, 3, 6, 9, 12, 15], b.getNodalConnectivityIndex().getValues()
+        )
+        self.assertTrue(c.isEqual(DataArrayInt([0, 1, 2, 2, 2])))
+        self.assertTrue(
+            d.isEqual(DataArrayInt([(-1, -1), (2, 4), (1, 0), (3, 4), (-1, -1)]))
+        )
         pass
 
     def testSwig2Intersect2DMeshWith1DLine14(self):
-        """ A circle in a circle intersected by a simple horizontal line, not tangent to the circles """
+        """A circle in a circle intersected by a simple horizontal line, not tangent to the circles"""
         eps = 1.0e-8
         m = MEDCouplingUMesh("boxcircle", 2)
-        coo = [2.,0.,1.4142135623730951,1.414213562373095,0.,2.,-1.414213562373095,1.4142135623730951,-2.,0.,-1.4142135623730954,-1.414213562373095,0.,-2.,
-               1.4142135623730947,-1.4142135623730954,1.,0.,0.7071067811865476,0.7071067811865475,0.,1.,-0.7071067811865475,0.7071067811865476,-1.,0.,-0.7071067811865477,-0.7071067811865475,
-               0.,-1.,0.7071067811865474,-0.7071067811865477,1.060660171779821,-1.0606601717798214,-1.0606601717798214,-1.0606601717798212]
-        coo = DataArrayDouble(coo); coo.rearrange(2)
+        coo = [
+            2.0,
+            0.0,
+            1.4142135623730951,
+            1.414213562373095,
+            0.0,
+            2.0,
+            -1.414213562373095,
+            1.4142135623730951,
+            -2.0,
+            0.0,
+            -1.4142135623730954,
+            -1.414213562373095,
+            0.0,
+            -2.0,
+            1.4142135623730947,
+            -1.4142135623730954,
+            1.0,
+            0.0,
+            0.7071067811865476,
+            0.7071067811865475,
+            0.0,
+            1.0,
+            -0.7071067811865475,
+            0.7071067811865476,
+            -1.0,
+            0.0,
+            -0.7071067811865477,
+            -0.7071067811865475,
+            0.0,
+            -1.0,
+            0.7071067811865474,
+            -0.7071067811865477,
+            1.060660171779821,
+            -1.0606601717798214,
+            -1.0606601717798214,
+            -1.0606601717798212,
+        ]
+        coo = DataArrayDouble(coo)
+        coo.rearrange(2)
         m.setCoords(coo)
-        c = [NORM_QPOLYG, 15, 13, 11, 9, 14, 12, 10, 8, NORM_QPOLYG, 7, 5, 13, 15, 6, 17, 14, 16, NORM_QPOLYG, 5, 3, 1, 7, 15, 9, 11, 13, 4, 2, 0, 16, 8, 10, 12, 17]
+        c = [
+            NORM_QPOLYG,
+            15,
+            13,
+            11,
+            9,
+            14,
+            12,
+            10,
+            8,
+            NORM_QPOLYG,
+            7,
+            5,
+            13,
+            15,
+            6,
+            17,
+            14,
+            16,
+            NORM_QPOLYG,
+            5,
+            3,
+            1,
+            7,
+            15,
+            9,
+            11,
+            13,
+            4,
+            2,
+            0,
+            16,
+            8,
+            10,
+            12,
+            17,
+        ]
         cI = [0, 9, 18, 35]
         m.setConnectivity(DataArrayInt(c), DataArrayInt(cI))
         m.checkConsistencyLight()
-        coords2 = [-2., 0., 2., 0.]
-        connec2, cI2 = [NORM_SEG2, 0, 1], [0,3]
+        coords2 = [-2.0, 0.0, 2.0, 0.0]
+        connec2, cI2 = [NORM_SEG2, 0, 1], [0, 3]
         m_line = MEDCouplingUMesh.New("seg", 1)
         m_line.setCoords(DataArrayDouble(coords2, len(coords2) // 2, 2))
         m_line.setConnectivity(DataArrayInt(connec2), DataArrayInt(cI2))
         a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m, m_line, eps)
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(a.getCoords()[:m.getNumberOfNodes()].isEqual(m.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[m.getNumberOfNodes():m.getNumberOfNodes()+m_line.getNumberOfNodes()].isEqual(m_line.getCoords(),1e-12))
-        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([(2.,0.),(1.4142135623730951,1.414213562373095),(0.,2.),(-1.414213562373095,1.4142135623730951),(-2.,0.),(-1.4142135623730954,-1.414213562373095),(0.,-2.),(1.4142135623730947,-1.4142135623730954),(1.,0.),(0.7071067811865476,0.7071067811865475),(0.,1.),(-0.7071067811865475,0.7071067811865476),(-1.,0.),(-0.7071067811865477,-0.7071067811865475),(0.,-1.),(0.7071067811865474,-0.7071067811865477),(1.060660171779821,-1.0606601717798214),(-1.0606601717798214,-1.0606601717798212),(-2.,0.),(2.,0.),(-1.,0.),(1.,0.),(0.,2.),(1.8477590650225735,0.7653668647301795),(1.8477590650225735,-0.7653668647301797),(1.060660171779821,-1.0606601717798214),(0.9238795325112867,-0.38268343236508984),(0.9238795325112867,0.3826834323650897),(0.,1.),(-0.9238795325112867,0.3826834323650896),(-1.5,0.),(-1.8477590650225735,0.7653668647301792),(-1.0606601717798214,-1.0606601717798212),(-1.8477590650225733,-0.7653668647301799),(-1.5,0.),(-0.9238795325112866,-0.38268343236508995),(0.,1.),(-0.9238795325112867,0.3826834323650896),(-1.5,0.),(-1.8477590650225735,0.7653668647301792),(0.,2.),(1.8477590650225735,0.7653668647301795),(1.5,0.),(0.9238795325112867,0.3826834323650897),(1.060660171779821,-1.0606601717798214),(0.9238795325112867,-0.38268343236508984),(1.5,0.),(1.8477590650225735,-0.7653668647301797),(0.,1.),(0.9238795325112867,0.3826834323650897),(0.,0.),(-0.9238795325112867,0.3826834323650896),(0.,-1.),(-0.9238795325112866,-0.38268343236508995),(0.,0.),(0.9238795325112867,-0.38268343236508984)]),1e-12))
-        self.assertEqual([32,7,5,13,15,6,17,14,16,32,9,11,20,18,3,1,19,21,36,37,38,39,40,41,42,43,32,7,15,21,19,44,45,46,47,32,13,5,18,20,32,33,34,35,32,11,9,21,20,48,49,50,51,32,15,13,20,21,52,53,54,55],a.getNodalConnectivity().getValues())
-        self.assertEqual([0,9,26,35,44,53,62],a.getNodalConnectivityIndex().getValues())
-        self.assertEqual([1,18,20,1,20,21,1,21,19],b.getNodalConnectivity().getValues())
-        self.assertEqual([0,3,6,9],b.getNodalConnectivityIndex().getValues())
-        self.assertTrue(c.isEqual(DataArrayInt([1,2,2,2,0,0])))
-        self.assertTrue(d.isEqual(DataArrayInt([(1,3),(4,5),(1,2)])))
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(
+            a.getCoords()[: m.getNumberOfNodes()].isEqual(m.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            a.getCoords()[
+                m.getNumberOfNodes() : m.getNumberOfNodes() + m_line.getNumberOfNodes()
+            ].isEqual(m_line.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            a.getCoords().isEqual(
+                DataArrayDouble(
+                    [
+                        (2.0, 0.0),
+                        (1.4142135623730951, 1.414213562373095),
+                        (0.0, 2.0),
+                        (-1.414213562373095, 1.4142135623730951),
+                        (-2.0, 0.0),
+                        (-1.4142135623730954, -1.414213562373095),
+                        (0.0, -2.0),
+                        (1.4142135623730947, -1.4142135623730954),
+                        (1.0, 0.0),
+                        (0.7071067811865476, 0.7071067811865475),
+                        (0.0, 1.0),
+                        (-0.7071067811865475, 0.7071067811865476),
+                        (-1.0, 0.0),
+                        (-0.7071067811865477, -0.7071067811865475),
+                        (0.0, -1.0),
+                        (0.7071067811865474, -0.7071067811865477),
+                        (1.060660171779821, -1.0606601717798214),
+                        (-1.0606601717798214, -1.0606601717798212),
+                        (-2.0, 0.0),
+                        (2.0, 0.0),
+                        (-1.0, 0.0),
+                        (1.0, 0.0),
+                        (0.0, 2.0),
+                        (1.8477590650225735, 0.7653668647301795),
+                        (1.8477590650225735, -0.7653668647301797),
+                        (1.060660171779821, -1.0606601717798214),
+                        (0.9238795325112867, -0.38268343236508984),
+                        (0.9238795325112867, 0.3826834323650897),
+                        (0.0, 1.0),
+                        (-0.9238795325112867, 0.3826834323650896),
+                        (-1.5, 0.0),
+                        (-1.8477590650225735, 0.7653668647301792),
+                        (-1.0606601717798214, -1.0606601717798212),
+                        (-1.8477590650225733, -0.7653668647301799),
+                        (-1.5, 0.0),
+                        (-0.9238795325112866, -0.38268343236508995),
+                        (0.0, 1.0),
+                        (-0.9238795325112867, 0.3826834323650896),
+                        (-1.5, 0.0),
+                        (-1.8477590650225735, 0.7653668647301792),
+                        (0.0, 2.0),
+                        (1.8477590650225735, 0.7653668647301795),
+                        (1.5, 0.0),
+                        (0.9238795325112867, 0.3826834323650897),
+                        (1.060660171779821, -1.0606601717798214),
+                        (0.9238795325112867, -0.38268343236508984),
+                        (1.5, 0.0),
+                        (1.8477590650225735, -0.7653668647301797),
+                        (0.0, 1.0),
+                        (0.9238795325112867, 0.3826834323650897),
+                        (0.0, 0.0),
+                        (-0.9238795325112867, 0.3826834323650896),
+                        (0.0, -1.0),
+                        (-0.9238795325112866, -0.38268343236508995),
+                        (0.0, 0.0),
+                        (0.9238795325112867, -0.38268343236508984),
+                    ]
+                ),
+                1e-12,
+            )
+        )
+        self.assertEqual(
+            [
+                32,
+                7,
+                5,
+                13,
+                15,
+                6,
+                17,
+                14,
+                16,
+                32,
+                9,
+                11,
+                20,
+                18,
+                3,
+                1,
+                19,
+                21,
+                36,
+                37,
+                38,
+                39,
+                40,
+                41,
+                42,
+                43,
+                32,
+                7,
+                15,
+                21,
+                19,
+                44,
+                45,
+                46,
+                47,
+                32,
+                13,
+                5,
+                18,
+                20,
+                32,
+                33,
+                34,
+                35,
+                32,
+                11,
+                9,
+                21,
+                20,
+                48,
+                49,
+                50,
+                51,
+                32,
+                15,
+                13,
+                20,
+                21,
+                52,
+                53,
+                54,
+                55,
+            ],
+            a.getNodalConnectivity().getValues(),
+        )
+        self.assertEqual(
+            [0, 9, 26, 35, 44, 53, 62], a.getNodalConnectivityIndex().getValues()
+        )
+        self.assertEqual(
+            [1, 18, 20, 1, 20, 21, 1, 21, 19], b.getNodalConnectivity().getValues()
+        )
+        self.assertEqual([0, 3, 6, 9], b.getNodalConnectivityIndex().getValues())
+        self.assertTrue(c.isEqual(DataArrayInt([1, 2, 2, 2, 0, 0])))
+        self.assertTrue(d.isEqual(DataArrayInt([(1, 3), (4, 5), (1, 2)])))
         pass
 
     def testSwig2Intersect2DMeshWith1DLine15(self):
-        """ Same as testSwig2Intersect2DMeshWith1DLine13 except that the line is colinear AND splits on of the common edge of 2D mesh."""
+        """Same as testSwig2Intersect2DMeshWith1DLine13 except that the line is colinear AND splits on of the common edge of 2D mesh."""
         import math
+
         eps = 1.0e-8
         m = MEDCouplingUMesh("boxcircle", 2)
         sq2 = math.sqrt(2.0)
-        soth = (sq2+1.0)/2.0
-        coo = [2., 0., sq2, sq2, 0., 2., -sq2, sq2, -2., 0., -sq2, -sq2, 0., -2., sq2, -sq2, -1., -1., -1., 1., 1.,
-         1., 1., -1., -1., 0., 0., 1., 1., 0., 0., -1., -soth, soth, soth,soth]
-        coo = DataArrayDouble(coo); coo.rearrange(2)
+        soth = (sq2 + 1.0) / 2.0
+        coo = [
+            2.0,
+            0.0,
+            sq2,
+            sq2,
+            0.0,
+            2.0,
+            -sq2,
+            sq2,
+            -2.0,
+            0.0,
+            -sq2,
+            -sq2,
+            0.0,
+            -2.0,
+            sq2,
+            -sq2,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            -1.0,
+            -soth,
+            soth,
+            soth,
+            soth,
+        ]
+        coo = DataArrayDouble(coo)
+        coo.rearrange(2)
         m.setCoords(coo)
-        c = [NORM_QPOLYG, 8, 9, 10, 11, 12, 13, 14, 15, NORM_QPOLYG, 3, 1, 10, 9, 2, 17, 13, 16, NORM_QPOLYG, 1, 7, 5, 3, 9, 8, 11, 10, 0, 6, 4, 16, 12, 15, 14, 17]
+        c = [
+            NORM_QPOLYG,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            NORM_QPOLYG,
+            3,
+            1,
+            10,
+            9,
+            2,
+            17,
+            13,
+            16,
+            NORM_QPOLYG,
+            1,
+            7,
+            5,
+            3,
+            9,
+            8,
+            11,
+            10,
+            0,
+            6,
+            4,
+            16,
+            12,
+            15,
+            14,
+            17,
+        ]
         cI = [0, 9, 18, 35]
         m.setConnectivity(DataArrayInt(c), DataArrayInt(cI))
         m.checkConsistencyLight()
-        coords2 = [(-2., 1.),(2.,1.),(0.,1)]
-        connec2, cI2 = [NORM_SEG2, 0, 2, NORM_SEG2, 2, 1], [0,3,6]
+        coords2 = [(-2.0, 1.0), (2.0, 1.0), (0.0, 1)]
+        connec2, cI2 = [NORM_SEG2, 0, 2, NORM_SEG2, 2, 1], [0, 3, 6]
         m_line = MEDCouplingUMesh("seg", 1)
         m_line.setCoords(DataArrayDouble(coords2))
         m_line.setConnectivity(DataArrayInt(connec2), DataArrayInt(cI2))
         a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m, m_line, eps)
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(a.getCoords()[:m.getNumberOfNodes()].isEqual(m.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[m.getNumberOfNodes():m.getNumberOfNodes()+m_line.getNumberOfNodes()].isEqual(m_line.getCoords(),1e-12))
-        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([(2.,0.),(1.4142135623730951,1.4142135623730951),(0.,2.),(-1.4142135623730951,1.4142135623730951),(-2.,0.),(-1.4142135623730951,-1.4142135623730951),(0.,-2.),(1.4142135623730951,-1.4142135623730951),(-1.,-1.),(-1.,1.),(1.,1.),(1.,-1.),(-1.,0.),(0.,1.),(1.,0.),(0.,-1.),(-1.2071067811865475,1.2071067811865475),(1.2071067811865475,1.2071067811865475),(-2.,1.),(2.,1.),(0.,1.),(1.7320508075688776,1.),(-1.7320508075688776,1.),(-0.5,1.),(0.5,1.),(0.5,1.),(-0.5,1.),(-1.2071067811865475,1.2071067811865475),(-1.3660254037844388,1.),(-1.58670668058247,1.2175228580174415),(0.,-1.),(1.,0.),(1.2071067811865475,1.2071067811865475),(1.5867066805824703,1.2175228580174413),(1.9828897227476205,-0.26105238444010315),(0.,-2.),(-1.9828897227476205,-0.2610523844401032),(-1.3660254037844388,1.),(-1.,0.),(1.5867066805824703,1.2175228580174413),(1.3660254037844388,1.),(1.2071067811865475,1.2071067811865475),(0.,-2.),(-1.9828897227476205,-0.2610523844401032),(-1.3660254037844388,1.),(-1.,0.),(0.,-1.),(1.,0.),(1.3660254037844388,1.),(1.9828897227476205,-0.26105238444010315)]),1e-12))
-        self.assertEqual([32,8,9,20,10,11,12,23,24,14,15,32,3,1,10,20,9,2,17,25,26,16,32,3,9,22,27,28,29,32,1,21,10,39,40,41,32,7,5,22,9,8,11,10,21,42,43,44,45,46,47,48,49],a.getNodalConnectivity().getValues())
-        self.assertEqual([0,11,22,29,36,53],a.getNodalConnectivityIndex().getValues())
-        self.assertEqual([1,18,22,1,22,9,1,9,20,1,20,10,1,10,21,1,21,19],b.getNodalConnectivity().getValues())
-        self.assertEqual([0,3,6,9,12,15,18],b.getNodalConnectivityIndex().getValues())
-        self.assertTrue(c.isEqual(DataArrayInt([0,1,2,2,2])))
-        self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(2,4),(1,0),(1,0),(3,4),(-1,-1)])))
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(
+            a.getCoords()[: m.getNumberOfNodes()].isEqual(m.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            a.getCoords()[
+                m.getNumberOfNodes() : m.getNumberOfNodes() + m_line.getNumberOfNodes()
+            ].isEqual(m_line.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            a.getCoords().isEqual(
+                DataArrayDouble(
+                    [
+                        (2.0, 0.0),
+                        (1.4142135623730951, 1.4142135623730951),
+                        (0.0, 2.0),
+                        (-1.4142135623730951, 1.4142135623730951),
+                        (-2.0, 0.0),
+                        (-1.4142135623730951, -1.4142135623730951),
+                        (0.0, -2.0),
+                        (1.4142135623730951, -1.4142135623730951),
+                        (-1.0, -1.0),
+                        (-1.0, 1.0),
+                        (1.0, 1.0),
+                        (1.0, -1.0),
+                        (-1.0, 0.0),
+                        (0.0, 1.0),
+                        (1.0, 0.0),
+                        (0.0, -1.0),
+                        (-1.2071067811865475, 1.2071067811865475),
+                        (1.2071067811865475, 1.2071067811865475),
+                        (-2.0, 1.0),
+                        (2.0, 1.0),
+                        (0.0, 1.0),
+                        (1.7320508075688776, 1.0),
+                        (-1.7320508075688776, 1.0),
+                        (-0.5, 1.0),
+                        (0.5, 1.0),
+                        (0.5, 1.0),
+                        (-0.5, 1.0),
+                        (-1.2071067811865475, 1.2071067811865475),
+                        (-1.3660254037844388, 1.0),
+                        (-1.58670668058247, 1.2175228580174415),
+                        (0.0, -1.0),
+                        (1.0, 0.0),
+                        (1.2071067811865475, 1.2071067811865475),
+                        (1.5867066805824703, 1.2175228580174413),
+                        (1.9828897227476205, -0.26105238444010315),
+                        (0.0, -2.0),
+                        (-1.9828897227476205, -0.2610523844401032),
+                        (-1.3660254037844388, 1.0),
+                        (-1.0, 0.0),
+                        (1.5867066805824703, 1.2175228580174413),
+                        (1.3660254037844388, 1.0),
+                        (1.2071067811865475, 1.2071067811865475),
+                        (0.0, -2.0),
+                        (-1.9828897227476205, -0.2610523844401032),
+                        (-1.3660254037844388, 1.0),
+                        (-1.0, 0.0),
+                        (0.0, -1.0),
+                        (1.0, 0.0),
+                        (1.3660254037844388, 1.0),
+                        (1.9828897227476205, -0.26105238444010315),
+                    ]
+                ),
+                1e-12,
+            )
+        )
+        self.assertEqual(
+            [
+                32,
+                8,
+                9,
+                20,
+                10,
+                11,
+                12,
+                23,
+                24,
+                14,
+                15,
+                32,
+                3,
+                1,
+                10,
+                20,
+                9,
+                2,
+                17,
+                25,
+                26,
+                16,
+                32,
+                3,
+                9,
+                22,
+                27,
+                28,
+                29,
+                32,
+                1,
+                21,
+                10,
+                39,
+                40,
+                41,
+                32,
+                7,
+                5,
+                22,
+                9,
+                8,
+                11,
+                10,
+                21,
+                42,
+                43,
+                44,
+                45,
+                46,
+                47,
+                48,
+                49,
+            ],
+            a.getNodalConnectivity().getValues(),
+        )
+        self.assertEqual(
+            [0, 11, 22, 29, 36, 53], a.getNodalConnectivityIndex().getValues()
+        )
+        self.assertEqual(
+            [1, 18, 22, 1, 22, 9, 1, 9, 20, 1, 20, 10, 1, 10, 21, 1, 21, 19],
+            b.getNodalConnectivity().getValues(),
+        )
+        self.assertEqual(
+            [0, 3, 6, 9, 12, 15, 18], b.getNodalConnectivityIndex().getValues()
+        )
+        self.assertTrue(c.isEqual(DataArrayInt([0, 1, 2, 2, 2])))
+        self.assertTrue(
+            d.isEqual(
+                DataArrayInt([(-1, -1), (2, 4), (1, 0), (1, 0), (3, 4), (-1, -1)])
+            )
+        )
         pass
 
     def testSwig2Intersect2DMeshWith1DLine16(self):
-        """ Same than testSwig2Intersect2DMeshWith1DLine13 except it is a vertical line. Non regression test."""
+        """Same than testSwig2Intersect2DMeshWith1DLine13 except it is a vertical line. Non regression test."""
         import math
+
         eps = 1.0e-8
         m = MEDCouplingUMesh("boxcircle", 2)
         sq2 = math.sqrt(2.0)
-        soth = (sq2+1.0)/2.0
-        coo = [2., 0., sq2, sq2, 0., 2., -sq2, sq2, -2., 0., -sq2, -sq2, 0., -2., sq2, -sq2, -1., -1., -1., 1., 1.,
-         1., 1., -1., -1., 0., 0., 1., 1., 0., 0., -1., -soth, soth, soth,soth]
-        coo = DataArrayDouble(coo); coo.rearrange(2)
+        soth = (sq2 + 1.0) / 2.0
+        coo = [
+            2.0,
+            0.0,
+            sq2,
+            sq2,
+            0.0,
+            2.0,
+            -sq2,
+            sq2,
+            -2.0,
+            0.0,
+            -sq2,
+            -sq2,
+            0.0,
+            -2.0,
+            sq2,
+            -sq2,
+            -1.0,
+            -1.0,
+            -1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            -1.0,
+            -1.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            -1.0,
+            -soth,
+            soth,
+            soth,
+            soth,
+        ]
+        coo = DataArrayDouble(coo)
+        coo.rearrange(2)
         m.setCoords(coo)
-        c = [NORM_QPOLYG, 8, 9, 10, 11, 12, 13, 14, 15, NORM_QPOLYG, 3, 1, 10, 9, 2, 17, 13, 16, NORM_QPOLYG, 1, 7, 5, 3, 9, 8, 11, 10, 0, 6, 4, 16, 12, 15, 14, 17]
+        c = [
+            NORM_QPOLYG,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            NORM_QPOLYG,
+            3,
+            1,
+            10,
+            9,
+            2,
+            17,
+            13,
+            16,
+            NORM_QPOLYG,
+            1,
+            7,
+            5,
+            3,
+            9,
+            8,
+            11,
+            10,
+            0,
+            6,
+            4,
+            16,
+            12,
+            15,
+            14,
+            17,
+        ]
         cI = [0, 9, 18, 35]
         m.setConnectivity(DataArrayInt(c), DataArrayInt(cI))
         m.checkConsistencyLight()
-        coords2 = [1., 2., 1., -2.]
-        connec2, cI2 = [NORM_SEG2, 0, 1], [0,3]
+        coords2 = [1.0, 2.0, 1.0, -2.0]
+        connec2, cI2 = [NORM_SEG2, 0, 1], [0, 3]
         m_line = MEDCouplingUMesh("seg", 1)
         m_line.setCoords(DataArrayDouble(coords2, len(coords2) // 2, 2))
         m_line.setConnectivity(DataArrayInt(connec2), DataArrayInt(cI2))
         a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m, m_line, eps)
-        self.assertTrue(a.getCoords().getHiddenCppPointer()==b.getCoords().getHiddenCppPointer())
-        self.assertTrue(a.getCoords()[:m.getNumberOfNodes()].isEqual(m.getCoords(),1e-12))
-        self.assertTrue(a.getCoords()[m.getNumberOfNodes():m.getNumberOfNodes()+m_line.getNumberOfNodes()].isEqual(m_line.getCoords(),1e-12))
-        self.assertTrue(a.getCoords().isEqual(DataArrayDouble([(2., 0.),(1.4142135623730951,1.4142135623730951),(0.,2.),(-1.4142135623730951,1.4142135623730951),(-2.,0.),(-1.4142135623730951,-1.4142135623730951),(0.,-2.),(1.4142135623730951,-1.4142135623730951),(-1.,-1.),(-1.,1.),(1.,1.),(1.,-1.),(-1.,0.),(0.,1.),(1.,0.),(0.,-1.),(-1.2071067811865475,1.2071067811865475),(1.2071067811865475,1.2071067811865475),(1.,2.),(1.,-2.),(1.,1.7320508075688772),(1.,-1.7320508075688772),(1.2071067811865475,1.2071067811865475),(1.,1.3660254037844386),(1.217522858017441,1.5867066805824703),(-1.2071067811865475,1.2071067811865475),(-0.2610523844401028,1.9828897227476208),(1.,1.3660254037844386),(0.,1.),(1.2071067811865475,1.2071067811865475),(2.,0.),(1.217522858017441,-1.5867066805824703),(1.,-1.3660254037844386),(1.,0.),(-2.,0.),(-1.2071067811865475,1.2071067811865475),(-1.,0.),(0.,-1.),(1.,-1.3660254037844386),(-0.2610523844401028,-1.9828897227476208)]),1e-12))
-        self.assertEqual([32,8,9,10,11,12,13,14,15,32,1,10,20,22,23,24,32,9,3,20,10,25,26,27,28,32,10,1,7,21,11,29,30,31,32,33,32,5,3,9,8,11,21,34,35,36,37,38,39],a.getNodalConnectivity().getValues())
-        self.assertEqual([0,9,16,25,36,49],a.getNodalConnectivityIndex().getValues())
-        self.assertEqual([1,18,20,1,20,10,1,10,11,1,11,21,1,21,19],b.getNodalConnectivity().getValues())
-        self.assertEqual([0,3,6,9,12,15],b.getNodalConnectivityIndex().getValues())
-        self.assertTrue(c.isEqual(DataArrayInt([0,1,1,2,2])))
-        self.assertTrue(d.isEqual(DataArrayInt([(-1,-1),(1,2),(3,0),(3,4),(-1,-1)])))
+        self.assertTrue(
+            a.getCoords().getHiddenCppPointer() == b.getCoords().getHiddenCppPointer()
+        )
+        self.assertTrue(
+            a.getCoords()[: m.getNumberOfNodes()].isEqual(m.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            a.getCoords()[
+                m.getNumberOfNodes() : m.getNumberOfNodes() + m_line.getNumberOfNodes()
+            ].isEqual(m_line.getCoords(), 1e-12)
+        )
+        self.assertTrue(
+            a.getCoords().isEqual(
+                DataArrayDouble(
+                    [
+                        (2.0, 0.0),
+                        (1.4142135623730951, 1.4142135623730951),
+                        (0.0, 2.0),
+                        (-1.4142135623730951, 1.4142135623730951),
+                        (-2.0, 0.0),
+                        (-1.4142135623730951, -1.4142135623730951),
+                        (0.0, -2.0),
+                        (1.4142135623730951, -1.4142135623730951),
+                        (-1.0, -1.0),
+                        (-1.0, 1.0),
+                        (1.0, 1.0),
+                        (1.0, -1.0),
+                        (-1.0, 0.0),
+                        (0.0, 1.0),
+                        (1.0, 0.0),
+                        (0.0, -1.0),
+                        (-1.2071067811865475, 1.2071067811865475),
+                        (1.2071067811865475, 1.2071067811865475),
+                        (1.0, 2.0),
+                        (1.0, -2.0),
+                        (1.0, 1.7320508075688772),
+                        (1.0, -1.7320508075688772),
+                        (1.2071067811865475, 1.2071067811865475),
+                        (1.0, 1.3660254037844386),
+                        (1.217522858017441, 1.5867066805824703),
+                        (-1.2071067811865475, 1.2071067811865475),
+                        (-0.2610523844401028, 1.9828897227476208),
+                        (1.0, 1.3660254037844386),
+                        (0.0, 1.0),
+                        (1.2071067811865475, 1.2071067811865475),
+                        (2.0, 0.0),
+                        (1.217522858017441, -1.5867066805824703),
+                        (1.0, -1.3660254037844386),
+                        (1.0, 0.0),
+                        (-2.0, 0.0),
+                        (-1.2071067811865475, 1.2071067811865475),
+                        (-1.0, 0.0),
+                        (0.0, -1.0),
+                        (1.0, -1.3660254037844386),
+                        (-0.2610523844401028, -1.9828897227476208),
+                    ]
+                ),
+                1e-12,
+            )
+        )
+        self.assertEqual(
+            [
+                32,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                32,
+                1,
+                10,
+                20,
+                22,
+                23,
+                24,
+                32,
+                9,
+                3,
+                20,
+                10,
+                25,
+                26,
+                27,
+                28,
+                32,
+                10,
+                1,
+                7,
+                21,
+                11,
+                29,
+                30,
+                31,
+                32,
+                33,
+                32,
+                5,
+                3,
+                9,
+                8,
+                11,
+                21,
+                34,
+                35,
+                36,
+                37,
+                38,
+                39,
+            ],
+            a.getNodalConnectivity().getValues(),
+        )
+        self.assertEqual(
+            [0, 9, 16, 25, 36, 49], a.getNodalConnectivityIndex().getValues()
+        )
+        self.assertEqual(
+            [1, 18, 20, 1, 20, 10, 1, 10, 11, 1, 11, 21, 1, 21, 19],
+            b.getNodalConnectivity().getValues(),
+        )
+        self.assertEqual(
+            [0, 3, 6, 9, 12, 15], b.getNodalConnectivityIndex().getValues()
+        )
+        self.assertTrue(c.isEqual(DataArrayInt([0, 1, 1, 2, 2])))
+        self.assertTrue(
+            d.isEqual(DataArrayInt([(-1, -1), (1, 2), (3, 0), (3, 4), (-1, -1)]))
+        )
         pass
 
     def testSwig2Intersect2DMeshWith1DLine17(self):
-        """ Single colinear intersection - a deltaShiftIndex() was improperly tested. """
+        """Single colinear intersection - a deltaShiftIndex() was improperly tested."""
         eps = 1.0e-12
-        mesh = MEDCouplingUMesh('dummy_layer', 2)
-        coo = DataArrayDouble([(-0.5,-0.5),(-0.5,0.5),(0.5,0.5),(0.5,-0.5),(-0.25,-0.25),(-0.25,0.25),(0.25,0.25),(0.25,-0.25)])
+        mesh = MEDCouplingUMesh("dummy_layer", 2)
+        coo = DataArrayDouble(
+            [
+                (-0.5, -0.5),
+                (-0.5, 0.5),
+                (0.5, 0.5),
+                (0.5, -0.5),
+                (-0.25, -0.25),
+                (-0.25, 0.25),
+                (0.25, 0.25),
+                (0.25, -0.25),
+            ]
+        )
         mesh.setCoords(coo)
         c = DataArrayInt([5, 4, 5, 6, 7, 5, 0, 1, 5, 4, 5, 1, 2, 3, 0, 4, 7, 6, 5])
         cI = DataArrayInt([0, 5, 10, 19])
         mesh.setConnectivity(c, cI)
-        m_line = MEDCouplingUMesh('segment', 1)
-        coo = DataArrayDouble([(-0.5,0.5),(-0.25,0.25)])
+        m_line = MEDCouplingUMesh("segment", 1)
+        coo = DataArrayDouble([(-0.5, 0.5), (-0.25, 0.25)])
         m_line.setCoords(coo)
         c = DataArrayInt([1, 0, 1])
         cI = DataArrayInt([0, 3])
         m_line.setConnectivity(c, cI)
         a, b, c, d = MEDCouplingUMesh.Intersect2DMeshWith1DLine(mesh, m_line, eps)
-        self.assertEqual(mesh.getNodalConnectivity().getValues(),a.getNodalConnectivity().getValues())
-        self.assertEqual(mesh.getNodalConnectivityIndex().getValues(),a.getNodalConnectivityIndex().getValues())
-        self.assertEqual([1,1,5],b.getNodalConnectivity().getValues())
-        self.assertEqual(m_line.getNodalConnectivityIndex().getValues(),b.getNodalConnectivityIndex().getValues())
-        self.assertTrue([0,1,2], c.getValues())
-        self.assertEqual([2,1], d.getValues())
+        self.assertEqual(
+            mesh.getNodalConnectivity().getValues(),
+            a.getNodalConnectivity().getValues(),
+        )
+        self.assertEqual(
+            mesh.getNodalConnectivityIndex().getValues(),
+            a.getNodalConnectivityIndex().getValues(),
+        )
+        self.assertEqual([1, 1, 5], b.getNodalConnectivity().getValues())
+        self.assertEqual(
+            m_line.getNodalConnectivityIndex().getValues(),
+            b.getNodalConnectivityIndex().getValues(),
+        )
+        self.assertTrue([0, 1, 2], c.getValues())
+        self.assertEqual([2, 1], d.getValues())
 
     def testSwig2Intersect2DMeshWith1DLine18(self):
-        """ Rare case: a *closed* line used as a tool, with the closing point inside a 2D cell ... """
+        """Rare case: a *closed* line used as a tool, with the closing point inside a 2D cell ..."""
         eps = 1.0e-8
-        m_2d = MEDCouplingUMesh('Plan_IJ_IK_JK', 2)
-        coo = DataArrayDouble([(-2.55102,0.510204),(-1.53061,0.510204),(-0.510204,0.510204),(0.510204,0.510204),(1.53061,0.510204),(2.55102,0.510204),
-            (-2.55102,1.53061),(-1.53061,1.53061),(-0.510204,1.53061),(0.510204,1.53061),(1.53061,1.53061),(2.55102,1.53061),(-2.55102,2.55102),
-            (-1.53061,2.55102),(-0.510204,2.55102),(0.510204,2.55102),(1.53061,2.55102),(2.55102,2.55102)])
+        m_2d = MEDCouplingUMesh("Plan_IJ_IK_JK", 2)
+        coo = DataArrayDouble(
+            [
+                (-2.55102, 0.510204),
+                (-1.53061, 0.510204),
+                (-0.510204, 0.510204),
+                (0.510204, 0.510204),
+                (1.53061, 0.510204),
+                (2.55102, 0.510204),
+                (-2.55102, 1.53061),
+                (-1.53061, 1.53061),
+                (-0.510204, 1.53061),
+                (0.510204, 1.53061),
+                (1.53061, 1.53061),
+                (2.55102, 1.53061),
+                (-2.55102, 2.55102),
+                (-1.53061, 2.55102),
+                (-0.510204, 2.55102),
+                (0.510204, 2.55102),
+                (1.53061, 2.55102),
+                (2.55102, 2.55102),
+            ]
+        )
         m_2d.setCoords(coo)
-        c = DataArrayInt([4, 1, 0, 6, 7, 4, 2, 1, 7, 8, 4, 3, 2, 8, 9, 4, 4, 3, 9, 10, 4, 5, 4, 10, 11, 4, 7, 6, 12, 13, 4, 8, 7, 13, 14, 4,
-            9, 8, 14, 15, 4, 10, 9, 15, 16, 4, 11, 10, 16, 17])
+        c = DataArrayInt(
+            [
+                4,
+                1,
+                0,
+                6,
+                7,
+                4,
+                2,
+                1,
+                7,
+                8,
+                4,
+                3,
+                2,
+                8,
+                9,
+                4,
+                4,
+                3,
+                9,
+                10,
+                4,
+                5,
+                4,
+                10,
+                11,
+                4,
+                7,
+                6,
+                12,
+                13,
+                4,
+                8,
+                7,
+                13,
+                14,
+                4,
+                9,
+                8,
+                14,
+                15,
+                4,
+                10,
+                9,
+                15,
+                16,
+                4,
+                11,
+                10,
+                16,
+                17,
+            ]
+        )
         cI = DataArrayInt([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
         m_2d.setConnectivity(c, cI)
         m_2d.checkConsistency()
 
-        m_1d = MEDCouplingUMesh('Slice3DSurf', 1)
-        coo = DataArrayDouble([(0.578179,2.05076),(-1.06484,1.77411),(1.16576,1.86369),(1.52253,1.65688),(-1.69839,1.14578),(1.7736,0.942747)])
+        m_1d = MEDCouplingUMesh("Slice3DSurf", 1)
+        coo = DataArrayDouble(
+            [
+                (0.578179, 2.05076),
+                (-1.06484, 1.77411),
+                (1.16576, 1.86369),
+                (1.52253, 1.65688),
+                (-1.69839, 1.14578),
+                (1.7736, 0.942747),
+            ]
+        )
         m_1d.setCoords(coo)
         c = DataArrayInt([1, 0, 1, 1, 1, 4, 1, 4, 5, 1, 5, 3, 1, 3, 2, 1, 2, 0])
         cI = DataArrayInt([0, 3, 6, 9, 12, 15, 18])
         m_1d.setConnectivity(c, cI)
         m_1d.checkConsistency()
 
-        res2D, res1D, m1, m2 = MEDCouplingUMesh.Intersect2DMeshWith1DLine(m_2d, m_1d, eps)
+        res2D, res1D, m1, m2 = MEDCouplingUMesh.Intersect2DMeshWith1DLine(
+            m_2d, m_1d, eps
+        )
         res1D.writeVTK("/tmp/res1d.vtu")
         self.assertEqual(20, res2D.getNumberOfCells())
-        self.assertEqual(res2D.getNodalConnectivity().getValues(),[4, 7, 6, 12, 13, 5, 10, 9, 32, 18, 20, 21, 33, 5, 15, 16, 33, 21, 20, 18, 32, 5, 9, 8, 31, 32, 5, 14, 15, 32, 31, 5, 8, 26, 19, 31, 5, 7, 13, 14, 31, 19, 26, 5, 24, 26, 8, 27,
-                                                                   25, 5, 2, 1, 25, 27, 5, 7, 26, 24, 5, 25, 22, 24, 5, 1, 0, 6, 7, 24, 22, 25, 5, 8, 9, 28, 27, 5, 3, 2, 27, 28, 5, 9, 10, 29, 28, 5, 4, 3, 28, 29, 5, 10, 30, 23, 29, 5, 11, 5, 4, 29, 23, 30, 5, 10, 33, 30, 5, 16, 17, 11, 30, 33])
-        self.assertEqual(res2D.getNodalConnectivityIndex().getValues(),[0, 5, 13, 21, 26, 31, 36, 43, 49, 54, 58, 62, 70, 75, 80, 85, 90, 95, 102, 106, 112])
-        self.assertEqual(res1D.getNodalConnectivity().getValues(),[1, 18, 32, 1, 32, 31, 1, 31, 19, 1, 19, 26, 1, 26, 24, 1, 24, 22, 1, 22, 25, 1, 25, 27, 1, 27, 28, 1, 28, 29, 1, 29, 23, 1, 23, 30, 1, 30, 33, 1, 33, 21, 1, 21, 20, 1, 20, 18])
-        self.assertEqual(res1D.getNodalConnectivityIndex().getValues(),[0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48])
-        self.assertEqual(m1.getValues(), [5, 8, 8, 7, 7, 6, 6, 1, 1, 1, 0, 0, 2, 2, 3, 3, 4, 4, 9, 9])
-        self.assertEqual(m2.getValues(), [1, 2, 3, 4, 5, 6, 5, 6, 7, 9, 10, 11, 10, 11, 7, 8, 12, 13, 14, 15, 16, 17, 16, 17, 18, 19, 1, 2, 1, 2, 1, 2])
+        self.assertEqual(
+            res2D.getNodalConnectivity().getValues(),
+            [
+                4,
+                7,
+                6,
+                12,
+                13,
+                5,
+                10,
+                9,
+                32,
+                18,
+                20,
+                21,
+                33,
+                5,
+                15,
+                16,
+                33,
+                21,
+                20,
+                18,
+                32,
+                5,
+                9,
+                8,
+                31,
+                32,
+                5,
+                14,
+                15,
+                32,
+                31,
+                5,
+                8,
+                26,
+                19,
+                31,
+                5,
+                7,
+                13,
+                14,
+                31,
+                19,
+                26,
+                5,
+                24,
+                26,
+                8,
+                27,
+                25,
+                5,
+                2,
+                1,
+                25,
+                27,
+                5,
+                7,
+                26,
+                24,
+                5,
+                25,
+                22,
+                24,
+                5,
+                1,
+                0,
+                6,
+                7,
+                24,
+                22,
+                25,
+                5,
+                8,
+                9,
+                28,
+                27,
+                5,
+                3,
+                2,
+                27,
+                28,
+                5,
+                9,
+                10,
+                29,
+                28,
+                5,
+                4,
+                3,
+                28,
+                29,
+                5,
+                10,
+                30,
+                23,
+                29,
+                5,
+                11,
+                5,
+                4,
+                29,
+                23,
+                30,
+                5,
+                10,
+                33,
+                30,
+                5,
+                16,
+                17,
+                11,
+                30,
+                33,
+            ],
+        )
+        self.assertEqual(
+            res2D.getNodalConnectivityIndex().getValues(),
+            [
+                0,
+                5,
+                13,
+                21,
+                26,
+                31,
+                36,
+                43,
+                49,
+                54,
+                58,
+                62,
+                70,
+                75,
+                80,
+                85,
+                90,
+                95,
+                102,
+                106,
+                112,
+            ],
+        )
+        self.assertEqual(
+            res1D.getNodalConnectivity().getValues(),
+            [
+                1,
+                18,
+                32,
+                1,
+                32,
+                31,
+                1,
+                31,
+                19,
+                1,
+                19,
+                26,
+                1,
+                26,
+                24,
+                1,
+                24,
+                22,
+                1,
+                22,
+                25,
+                1,
+                25,
+                27,
+                1,
+                27,
+                28,
+                1,
+                28,
+                29,
+                1,
+                29,
+                23,
+                1,
+                23,
+                30,
+                1,
+                30,
+                33,
+                1,
+                33,
+                21,
+                1,
+                21,
+                20,
+                1,
+                20,
+                18,
+            ],
+        )
+        self.assertEqual(
+            res1D.getNodalConnectivityIndex().getValues(),
+            [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48],
+        )
+        self.assertEqual(
+            m1.getValues(), [5, 8, 8, 7, 7, 6, 6, 1, 1, 1, 0, 0, 2, 2, 3, 3, 4, 4, 9, 9]
+        )
+        self.assertEqual(
+            m2.getValues(),
+            [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                5,
+                6,
+                7,
+                9,
+                10,
+                11,
+                10,
+                11,
+                7,
+                8,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                16,
+                17,
+                18,
+                19,
+                1,
+                2,
+                1,
+                2,
+                1,
+                2,
+            ],
+        )
 
     def testSwig2Intersect2DMeshWith1DLine19(self):
-        """ Intersection arc of circle / segment was not properly detecting tangent cases """
-        eps=1.0e-5  # was working at 1.0e-8, but should also really work with 1.0e-5
-        mesh = MEDCouplingUMesh('layer_1', 2)
-        coo = DataArrayDouble([(55.4,3.7239),(61.4,7.188),(61.4,13.943),(49.55,7.1014),
-                                  (61.4,10.5655),(58.4,5.45595),(52.475,5.41265),(55.475,10.5222),
-                                  (56.9,9.34),(56.3343,7.97431),(56.9,7.74),(57.4657,7.97431),(59.4328,7.58116),
-                                  (55.8672,5.84911),    (0.,0.)])
+        """Intersection arc of circle / segment was not properly detecting tangent cases"""
+        eps = 1.0e-5  # was working at 1.0e-8, but should also really work with 1.0e-5
+        mesh = MEDCouplingUMesh("layer_1", 2)
+        coo = DataArrayDouble(
+            [
+                (55.4, 3.7239),
+                (61.4, 7.188),
+                (61.4, 13.943),
+                (49.55, 7.1014),
+                (61.4, 10.5655),
+                (58.4, 5.45595),
+                (52.475, 5.41265),
+                (55.475, 10.5222),
+                (56.9, 9.34),
+                (56.3343, 7.97431),
+                (56.9, 7.74),
+                (57.4657, 7.97431),
+                (59.4328, 7.58116),
+                (55.8672, 5.84911),
+                (0.0, 0.0),
+            ]
+        )
         mesh.setCoords(coo)
-        c = DataArrayInt([32, 0, 3, 2, 1, 11, 9,     6, 7, 4, 12, 8, 13])
+        c = DataArrayInt([32, 0, 3, 2, 1, 11, 9, 6, 7, 4, 12, 8, 13])
         cI = DataArrayInt([0, 13])
         mesh.setConnectivity(c, cI)
-        tool = MEDCouplingUMesh('segment', 1)
-        coo = DataArrayDouble([(-166.611,-119.951),(269.611,131.902)])
+        tool = MEDCouplingUMesh("segment", 1)
+        coo = DataArrayDouble([(-166.611, -119.951), (269.611, 131.902)])
         tool.setCoords(coo)
         c = DataArrayInt([1, 0, 1])
         cI = DataArrayInt([0, 3])
         tool.setConnectivity(c, cI)
 
-        res2D, res1D, m1, m2 = MEDCouplingUMesh.Intersect2DMeshWith1DLine(mesh, tool, eps)
+        res2D, res1D, m1, m2 = MEDCouplingUMesh.Intersect2DMeshWith1DLine(
+            mesh, tool, eps
+        )
 
-        self.assertEqual(res2D.getNodalConnectivity().getValues(),[32, 19, 17, 3, 2, 18, 20, 33, 34, 35, 36, 37, 38, 32, 1, 11, 20, 18, 39, 40, 41, 42, 32, 9, 0, 17, 19, 29, 30, 31, 32])
-        self.assertEqual(res2D.getNodalConnectivityIndex().getValues(),[0, 13, 22, 31])
-        self.assertEqual(res1D.getNodalConnectivity().getValues(),[1, 15, 17, 1, 17, 19, 1, 19, 20, 1, 20, 18, 1, 18, 16])
-        self.assertEqual(res1D.getNodalConnectivityIndex().getValues(),[0, 3, 6, 9, 12, 15])
+        self.assertEqual(
+            res2D.getNodalConnectivity().getValues(),
+            [
+                32,
+                19,
+                17,
+                3,
+                2,
+                18,
+                20,
+                33,
+                34,
+                35,
+                36,
+                37,
+                38,
+                32,
+                1,
+                11,
+                20,
+                18,
+                39,
+                40,
+                41,
+                42,
+                32,
+                9,
+                0,
+                17,
+                19,
+                29,
+                30,
+                31,
+                32,
+            ],
+        )
+        self.assertEqual(res2D.getNodalConnectivityIndex().getValues(), [0, 13, 22, 31])
+        self.assertEqual(
+            res1D.getNodalConnectivity().getValues(),
+            [1, 15, 17, 1, 17, 19, 1, 19, 20, 1, 20, 18, 1, 18, 16],
+        )
+        self.assertEqual(
+            res1D.getNodalConnectivityIndex().getValues(), [0, 3, 6, 9, 12, 15]
+        )
         self.assertEqual(m1.getValues(), [0, 0, 0])
         self.assertEqual(m2.getValues(), [-1, -1, 0, 2, -1, -1, 0, 1, -1, -1])
 
     def testSwig2Intersect2DMeshWith1DLine20(self):
-        """ A line intersecting a cell more than 3 times was triggering an internal error. """
-        mesh = MEDCouplingUMesh('merge', 2)
-        coo = DataArrayDouble([(0,0),(0,9),(3,9),(3,0),(0,1),(2,1),(0,2),(2,2),(3,3),(1,3),(3,4),(1,4),(0,5),(2,5),(0,6),(2,6),(3,7),(1,7),(3,8),(1,8)])
+        """A line intersecting a cell more than 3 times was triggering an internal error."""
+        mesh = MEDCouplingUMesh("merge", 2)
+        coo = DataArrayDouble(
+            [
+                (0, 0),
+                (0, 9),
+                (3, 9),
+                (3, 0),
+                (0, 1),
+                (2, 1),
+                (0, 2),
+                (2, 2),
+                (3, 3),
+                (1, 3),
+                (3, 4),
+                (1, 4),
+                (0, 5),
+                (2, 5),
+                (0, 6),
+                (2, 6),
+                (3, 7),
+                (1, 7),
+                (3, 8),
+                (1, 8),
+            ]
+        )
         mesh.setCoords(coo)
-        c = DataArrayInt([5, 3, 0, 4, 5, 7, 6, 12, 13, 15, 14, 1, 2, 18, 19, 17, 16, 10, 11, 9, 8]) # offset 20
+        c = DataArrayInt(
+            [5, 3, 0, 4, 5, 7, 6, 12, 13, 15, 14, 1, 2, 18, 19, 17, 16, 10, 11, 9, 8]
+        )  # offset 20
         cI = DataArrayInt([0, 21])
         mesh.setConnectivity(c, cI)
 
-        tool = MEDCouplingUMesh('tool', 1)
-        coo = DataArrayDouble([(1.5, 9.5),  (1.5, 1.5)])  # line crossing 4 times
+        tool = MEDCouplingUMesh("tool", 1)
+        coo = DataArrayDouble([(1.5, 9.5), (1.5, 1.5)])  # line crossing 4 times
         tool.setCoords(coo)
-        c = DataArrayInt([NORM_SEG2,0,1])
+        c = DataArrayInt([NORM_SEG2, 0, 1])
         cI = DataArrayInt([0, 3])
         tool.setConnectivity(c, cI)
 
-        eps=1.0e-4 # not the pb here
-        res2D, res1D, resToSelf, mapLeftRight = MEDCouplingUMesh.Intersect2DMeshWith1DLine(mesh, tool, eps)
-        self.assertEqual(res1D.getNodalConnectivity().getValues(),[1, 20, 25,   1, 25, 26,   1, 26, 27,   1, 27, 24,   1, 24, 23,   1, 23, 28,   1, 28, 29,   1, 29, 22,   1, 22, 21])
-        self.assertEqual(res1D.getNodalConnectivityIndex().getValues(),[0, 3, 6, 9, 12, 15, 18, 21, 24, 27])
-        self.assertEqual(res2D.getNodalConnectivity().getValues(),[5, 2, 18, 26, 25,   5, 13, 15, 24, 27, 16, 10, 28, 23,   5, 8, 3, 0, 4, 5, 7, 22, 29,   5, 6, 12, 23, 28, 11, 9, 29, 22,   5, 14, 1, 25, 26, 19, 17, 27, 24])
-        self.assertEqual(res2D.getNodalConnectivityIndex().getValues(),[0, 5, 14, 23, 32, 41])
+        eps = 1.0e-4  # not the pb here
+        res2D, res1D, resToSelf, mapLeftRight = (
+            MEDCouplingUMesh.Intersect2DMeshWith1DLine(mesh, tool, eps)
+        )
+        self.assertEqual(
+            res1D.getNodalConnectivity().getValues(),
+            [
+                1,
+                20,
+                25,
+                1,
+                25,
+                26,
+                1,
+                26,
+                27,
+                1,
+                27,
+                24,
+                1,
+                24,
+                23,
+                1,
+                23,
+                28,
+                1,
+                28,
+                29,
+                1,
+                29,
+                22,
+                1,
+                22,
+                21,
+            ],
+        )
+        self.assertEqual(
+            res1D.getNodalConnectivityIndex().getValues(),
+            [0, 3, 6, 9, 12, 15, 18, 21, 24, 27],
+        )
+        self.assertEqual(
+            res2D.getNodalConnectivity().getValues(),
+            [
+                5,
+                2,
+                18,
+                26,
+                25,
+                5,
+                13,
+                15,
+                24,
+                27,
+                16,
+                10,
+                28,
+                23,
+                5,
+                8,
+                3,
+                0,
+                4,
+                5,
+                7,
+                22,
+                29,
+                5,
+                6,
+                12,
+                23,
+                28,
+                11,
+                9,
+                29,
+                22,
+                5,
+                14,
+                1,
+                25,
+                26,
+                19,
+                17,
+                27,
+                24,
+            ],
+        )
+        self.assertEqual(
+            res2D.getNodalConnectivityIndex().getValues(), [0, 5, 14, 23, 32, 41]
+        )
 
         self.assertEqual(resToSelf.getValues(), [0, 0, 0, 0, 0])
-        self.assertEqual(mapLeftRight.getValues(), [-1, -1, 0, 4, -1, -1, 1, 4, -1, -1, 1, 3, -1, -1, 2, 3, -1, -1])
+        self.assertEqual(
+            mapLeftRight.getValues(),
+            [-1, -1, 0, 4, -1, -1, 1, 4, -1, -1, 1, 3, -1, -1, 2, 3, -1, -1],
+        )
         pass
 
     def testSwig2Intersect2DMeshWith1DLine21(self):
-        """ A line intersecting a cell very close to one of its node (collinearity not detected) """
-        eps=1.0e-5  # was working at 1.0e-8, but should also really work with 1.0e-5
-        mesh = MEDCouplingUMesh('mesh', 2)
-        coo = DataArrayDouble([(110.65324,180.56968),(112.01128,182.78580),(113.36932,185.00192),(118.27200,181.90669),(118.27200,178.79852),(118.27200,175.67380)])
+        """A line intersecting a cell very close to one of its node (collinearity not detected)"""
+        eps = 1.0e-5  # was working at 1.0e-8, but should also really work with 1.0e-5
+        mesh = MEDCouplingUMesh("mesh", 2)
+        coo = DataArrayDouble(
+            [
+                (110.65324, 180.56968),
+                (112.01128, 182.78580),
+                (113.36932, 185.00192),
+                (118.27200, 181.90669),
+                (118.27200, 178.79852),
+                (118.27200, 175.67380),
+            ]
+        )
         mesh.setCoords(coo)
         c = DataArrayInt([NORM_QUAD4, 0, 1, 4, 5, NORM_QUAD4, 1, 2, 3, 4])
         cI = DataArrayInt([0, 5, 10])
         mesh.setConnectivity(c, cI)
 
-        tool = MEDCouplingUMesh('tool', 1)
-        coo = DataArrayDouble([(0.0, 182.78400),  (182.78400, 182.78400)])
+        tool = MEDCouplingUMesh("tool", 1)
+        coo = DataArrayDouble([(0.0, 182.78400), (182.78400, 182.78400)])
         tool.setCoords(coo)
-        c = DataArrayInt([NORM_SEG2,0,1])
+        c = DataArrayInt([NORM_SEG2, 0, 1])
         cI = DataArrayInt([0, 3])
         tool.setConnectivity(c, cI)
 
-        res2D, res1D, resToSelf, mapLeftRight = MEDCouplingUMesh.Intersect2DMeshWith1DLine(mesh, tool, eps)
-        self.assertEqual(res1D.getNodalConnectivity().getValues(), [1, 6, 1, 1, 1, 8, 1, 8, 9, 1, 9, 7])
-        self.assertEqual(res1D.getNodalConnectivityIndex().getValues(),[0, 3, 6, 9, 12])
-        self.assertEqual(res2D.getNodalConnectivity().getValues(), [5, 0, 1, 8, 4, 5, 5, 1, 2, 9, 8, 5, 3, 4, 8, 9])
-        self.assertEqual(res2D.getNodalConnectivityIndex().getValues(),[0, 6, 11, 16])
+        res2D, res1D, resToSelf, mapLeftRight = (
+            MEDCouplingUMesh.Intersect2DMeshWith1DLine(mesh, tool, eps)
+        )
+        self.assertEqual(
+            res1D.getNodalConnectivity().getValues(),
+            [1, 6, 1, 1, 1, 8, 1, 8, 9, 1, 9, 7],
+        )
+        self.assertEqual(
+            res1D.getNodalConnectivityIndex().getValues(), [0, 3, 6, 9, 12]
+        )
+        self.assertEqual(
+            res2D.getNodalConnectivity().getValues(),
+            [5, 0, 1, 8, 4, 5, 5, 1, 2, 9, 8, 5, 3, 4, 8, 9],
+        )
+        self.assertEqual(res2D.getNodalConnectivityIndex().getValues(), [0, 6, 11, 16])
 
         self.assertEqual(resToSelf.getValues(), [0, 1, 1])
         self.assertEqual(mapLeftRight.getValues(), [-1, -1, 1, 0, 1, 2, -1, -1])
 
     def testSwig2Intersect2DMeshWith1DLine22(self):
-        """ Simple check that an execption is thrown if 1D mesh is not a single line (one point
-        connected to more than 2 edges. """
+        """Simple check that an execption is thrown if 1D mesh is not a single line (one point
+        connected to more than 2 edges."""
         m2 = MEDCouplingCMesh.New()
         da = DataArrayDouble(3)
         da.iota()
         m2.setCoords(da, da)
         m2 = m2.buildUnstructured()
-        m1,_,_,_,_ = m2.buildDescendingConnectivity() # m1 will have it central point connected to 4 edges
+        m1, _, _, _, _ = (
+            m2.buildDescendingConnectivity()
+        )  # m1 will have it central point connected to 4 edges
         # MEDCouplingUMesh.Intersect2DMeshWith1DLine(m2, m1, 1.0e-8)
-        self.assertRaises(InterpKernelException, MEDCouplingUMesh.Intersect2DMeshWith1DLine, m2, m1, 1.0e-8)
+        self.assertRaises(
+            InterpKernelException,
+            MEDCouplingUMesh.Intersect2DMeshWith1DLine,
+            m2,
+            m1,
+            1.0e-8,
+        )
 
     def testSwig2Conformize2D1(self):
         eps = 1.0e-8
-        coo = [0.,-0.5,0.,0.,0.5,0.,0.5,-0.5,0.25,
-               -0.1,0.25,0.,0.5,-0.1,0.,0.5,0.5,0.5,0.25,0.4,0.25,0.5,0.5,0.4]
-        conn = [5,5,2,6,4,5,6,3,0,1,5,4,5,10,8,11,9,5,11,2,1,7,10,9]
-        connI = [0,5,12,17,24]
-        m = MEDCouplingUMesh("box",2)
+        coo = [
+            0.0,
+            -0.5,
+            0.0,
+            0.0,
+            0.5,
+            0.0,
+            0.5,
+            -0.5,
+            0.25,
+            -0.1,
+            0.25,
+            0.0,
+            0.5,
+            -0.1,
+            0.0,
+            0.5,
+            0.5,
+            0.5,
+            0.25,
+            0.4,
+            0.25,
+            0.5,
+            0.5,
+            0.4,
+        ]
+        conn = [
+            5,
+            5,
+            2,
+            6,
+            4,
+            5,
+            6,
+            3,
+            0,
+            1,
+            5,
+            4,
+            5,
+            10,
+            8,
+            11,
+            9,
+            5,
+            11,
+            2,
+            1,
+            7,
+            10,
+            9,
+        ]
+        connI = [0, 5, 12, 17, 24]
+        m = MEDCouplingUMesh("box", 2)
         cooArr = DataArrayDouble(coo, len(coo) // 2, 2)
         m.setCoords(cooArr)
-        m.setConnectivity(DataArrayInt(conn),DataArrayInt(connI))
+        m.setConnectivity(DataArrayInt(conn), DataArrayInt(connI))
         m.mergeNodes(eps)
         m.checkConsistencyLight()
         self.assertTrue(m.conformize2D(eps).isEqual(DataArrayInt([3])))
-        self.assertEqual(m.getCoords().getHiddenCppPointer(),cooArr.getHiddenCppPointer()) # check that coordinates remain the same here
-        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([5,5,2,6,4,5,6,3,0,1,5,4,5,10,8,11,9,5,11,2,5,1,7,10,9])))
-        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,5,12,17,25])))
+        self.assertEqual(
+            m.getCoords().getHiddenCppPointer(), cooArr.getHiddenCppPointer()
+        )  # check that coordinates remain the same here
+        self.assertTrue(
+            m.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        5,
+                        5,
+                        2,
+                        6,
+                        4,
+                        5,
+                        6,
+                        3,
+                        0,
+                        1,
+                        5,
+                        4,
+                        5,
+                        10,
+                        8,
+                        11,
+                        9,
+                        5,
+                        11,
+                        2,
+                        5,
+                        1,
+                        7,
+                        10,
+                        9,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            m.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 5, 12, 17, 25]))
+        )
         pass
 
     def testSwig2Conformize2D2(self):
         eps = 1.0e-8
-        coo=DataArrayDouble([-10,-6,0,-6,0,0,7,0,-10,2,0,2,0,6,7,6,0,8,7,8,-10,12,-4,12,0,12,0,11,7,11,-4,16,0,16,7,16],18,2)
-        conn=DataArrayInt([2,3,7,6, 13,16,17,14, 4,10,12,5, 9,14,13,8, 8,9,7,6, 5,4,0,1, 16,12,11,15])
-        m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4)
+        coo = DataArrayDouble(
+            [
+                -10,
+                -6,
+                0,
+                -6,
+                0,
+                0,
+                7,
+                0,
+                -10,
+                2,
+                0,
+                2,
+                0,
+                6,
+                7,
+                6,
+                0,
+                8,
+                7,
+                8,
+                -10,
+                12,
+                -4,
+                12,
+                0,
+                12,
+                0,
+                11,
+                7,
+                11,
+                -4,
+                16,
+                0,
+                16,
+                7,
+                16,
+            ],
+            18,
+            2,
+        )
+        conn = DataArrayInt(
+            [
+                2,
+                3,
+                7,
+                6,
+                13,
+                16,
+                17,
+                14,
+                4,
+                10,
+                12,
+                5,
+                9,
+                14,
+                13,
+                8,
+                8,
+                9,
+                7,
+                6,
+                5,
+                4,
+                0,
+                1,
+                16,
+                12,
+                11,
+                15,
+            ]
+        )
+        m = MEDCoupling1SGTUMesh("mesh", NORM_QUAD4)
         m.setCoords(coo)
         m.setNodalConnectivity(conn)
-        m=m.buildUnstructured()
-        self.assertTrue(m.conformize2D(eps).isEqual(DataArrayInt([0,1,2,5])))
-        self.assertEqual(m.getCoords().getHiddenCppPointer(),coo.getHiddenCppPointer()) # check that coordinates remain the same here
-        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([5,2,3,7,6,5, 5,13,12,16,17,14, 5,4,10,11,12,13,8,6,5, 4,9,14,13,8, 4,8,9,7,6, 5,5,4,0,1,2, 4,16,12,11,15])))
-        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,6,12,21,26,31,37,42])))
+        m = m.buildUnstructured()
+        self.assertTrue(m.conformize2D(eps).isEqual(DataArrayInt([0, 1, 2, 5])))
+        self.assertEqual(
+            m.getCoords().getHiddenCppPointer(), coo.getHiddenCppPointer()
+        )  # check that coordinates remain the same here
+        self.assertTrue(
+            m.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        5,
+                        2,
+                        3,
+                        7,
+                        6,
+                        5,
+                        5,
+                        13,
+                        12,
+                        16,
+                        17,
+                        14,
+                        5,
+                        4,
+                        10,
+                        11,
+                        12,
+                        13,
+                        8,
+                        6,
+                        5,
+                        4,
+                        9,
+                        14,
+                        13,
+                        8,
+                        4,
+                        8,
+                        9,
+                        7,
+                        6,
+                        5,
+                        5,
+                        4,
+                        0,
+                        1,
+                        2,
+                        4,
+                        16,
+                        12,
+                        11,
+                        15,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            m.getNodalConnectivityIndex().isEqual(
+                DataArrayInt([0, 6, 12, 21, 26, 31, 37, 42])
+            )
+        )
         pass
 
     def testSwigSplit2DCells1(self):
-        coo=DataArrayDouble([[0,0],[1,0],[1,1],[0,1],[0.5,0],[1,0.5],[0.5,1],[0.,0.5]])
-        m=MEDCouplingUMesh("mesh",2)
+        coo = DataArrayDouble(
+            [[0, 0], [1, 0], [1, 1], [0, 1], [0.5, 0], [1, 0.5], [0.5, 1], [0.0, 0.5]]
+        )
+        m = MEDCouplingUMesh("mesh", 2)
         m.setCoords(coo)
         m.allocateCells()
-        m.insertNextCell(NORM_QUAD8,[0,1,2,3,4,5,6,7])
-        _,d,di,_,_=m.buildDescendingConnectivity()
-        subb=DataArrayInt([5])
-        subbi=DataArrayInt([0,0,1,1,1])
-        mid=DataArrayInt([-1,-1])
-        midi=DataArrayInt([0,0,2,2,2])
-        self.assertEqual(2,m.split2DCells(d,di,subb,subbi,mid,midi))
-        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([32,0,1,5,2,3,4,8,9,6,7])))
-        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,11])))
-        self.assertTrue(m.getCoords().isEqual(DataArrayDouble([[0,0],[1,0],[1,1],[0,1],[0.5,0],[1,0.5],[0.5,1],[0.,0.5],[1.,0.25],[1.,0.75]]),1e-12))
+        m.insertNextCell(NORM_QUAD8, [0, 1, 2, 3, 4, 5, 6, 7])
+        _, d, di, _, _ = m.buildDescendingConnectivity()
+        subb = DataArrayInt([5])
+        subbi = DataArrayInt([0, 0, 1, 1, 1])
+        mid = DataArrayInt([-1, -1])
+        midi = DataArrayInt([0, 0, 2, 2, 2])
+        self.assertEqual(2, m.split2DCells(d, di, subb, subbi, mid, midi))
+        self.assertTrue(
+            m.getNodalConnectivity().isEqual(
+                DataArrayInt([32, 0, 1, 5, 2, 3, 4, 8, 9, 6, 7])
+            )
+        )
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 11])))
+        self.assertTrue(
+            m.getCoords().isEqual(
+                DataArrayDouble(
+                    [
+                        [0, 0],
+                        [1, 0],
+                        [1, 1],
+                        [0, 1],
+                        [0.5, 0],
+                        [1, 0.5],
+                        [0.5, 1],
+                        [0.0, 0.5],
+                        [1.0, 0.25],
+                        [1.0, 0.75],
+                    ]
+                ),
+                1e-12,
+            )
+        )
         pass
 
     def testSwig2Conformize2D3(self):
         eps = 1.0e-8
-        coo=DataArrayDouble([-10,-6,0,-6,0,0,7,0,-10,2,0,2,0,6.5,7,6.5,0,8,7,8,-10,12,-4,12,0,12,0,11,7,11,-4,16,0,16,7,16],18,2)
-        conn=DataArrayInt([2,3,7,6, 13,16,17,14, 4,10,12,5, 9,14,13,8, 8,9,7,6, 5,4,0,1, 16,12,11,15])
-        m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4)
+        coo = DataArrayDouble(
+            [
+                -10,
+                -6,
+                0,
+                -6,
+                0,
+                0,
+                7,
+                0,
+                -10,
+                2,
+                0,
+                2,
+                0,
+                6.5,
+                7,
+                6.5,
+                0,
+                8,
+                7,
+                8,
+                -10,
+                12,
+                -4,
+                12,
+                0,
+                12,
+                0,
+                11,
+                7,
+                11,
+                -4,
+                16,
+                0,
+                16,
+                7,
+                16,
+            ],
+            18,
+            2,
+        )
+        conn = DataArrayInt(
+            [
+                2,
+                3,
+                7,
+                6,
+                13,
+                16,
+                17,
+                14,
+                4,
+                10,
+                12,
+                5,
+                9,
+                14,
+                13,
+                8,
+                8,
+                9,
+                7,
+                6,
+                5,
+                4,
+                0,
+                1,
+                16,
+                12,
+                11,
+                15,
+            ]
+        )
+        m = MEDCoupling1SGTUMesh("mesh", NORM_QUAD4)
         m.setCoords(coo)
         m.setNodalConnectivity(conn)
-        m=m.buildUnstructured()
+        m = m.buildUnstructured()
         m.convertLinearCellsToQuadratic()
-        self.assertTrue(m.conformize2D(eps).isEqual(DataArrayInt([0,1,2,5])))
-        self.assertTrue(m.getCoords().getHiddenCppPointer()!=coo.getHiddenCppPointer()) # coordinates are not the same here contrary to testSwig2Conformize2D2 ...
-        self.assertTrue(m.getCoords()[:18].isEqual(coo,1e-12)) # but the 18 first nodes are the same
+        self.assertTrue(m.conformize2D(eps).isEqual(DataArrayInt([0, 1, 2, 5])))
+        self.assertTrue(
+            m.getCoords().getHiddenCppPointer() != coo.getHiddenCppPointer()
+        )  # coordinates are not the same here contrary to testSwig2Conformize2D2 ...
+        self.assertTrue(
+            m.getCoords()[:18].isEqual(coo, 1e-12)
+        )  # but the 18 first nodes are the same
         pass
 
     def testSwig2Conformize2D4(self):
         eps = 1.0e-8
-        coo=DataArrayDouble([-10,-6,0,-6,0,0,7,0,-10,2,0,2,0,6.5,7,6.5,0,8,7,8,-10,12,-4,12,0,12,0,11,7,11,-4,16,0,16,7,16],18,2)
-        conn=DataArrayInt([2,3,7,6, 13,16,17,14, 4,10,12,5, 9,14,13,8, 8,9,7,6, 5,4,0,1, 16,12,11,15])
-        m=MEDCoupling1SGTUMesh("mesh",NORM_QUAD4)
+        coo = DataArrayDouble(
+            [
+                -10,
+                -6,
+                0,
+                -6,
+                0,
+                0,
+                7,
+                0,
+                -10,
+                2,
+                0,
+                2,
+                0,
+                6.5,
+                7,
+                6.5,
+                0,
+                8,
+                7,
+                8,
+                -10,
+                12,
+                -4,
+                12,
+                0,
+                12,
+                0,
+                11,
+                7,
+                11,
+                -4,
+                16,
+                0,
+                16,
+                7,
+                16,
+            ],
+            18,
+            2,
+        )
+        conn = DataArrayInt(
+            [
+                2,
+                3,
+                7,
+                6,
+                13,
+                16,
+                17,
+                14,
+                4,
+                10,
+                12,
+                5,
+                9,
+                14,
+                13,
+                8,
+                8,
+                9,
+                7,
+                6,
+                5,
+                4,
+                0,
+                1,
+                16,
+                12,
+                11,
+                15,
+            ]
+        )
+        m = MEDCoupling1SGTUMesh("mesh", NORM_QUAD4)
         m.setCoords(coo)
         m.setNodalConnectivity(conn)
-        m=m.buildUnstructured()
+        m = m.buildUnstructured()
         m.convertLinearCellsToQuadratic()
-        self.assertEqual(42,m.getNumberOfNodes())
-        oldCoo=m.getCoords().deepCopy()
+        self.assertEqual(42, m.getNumberOfNodes())
+        oldCoo = m.getCoords().deepCopy()
         m.conformize2D(eps)
-        self.assertTrue(m.getCoords()[:42].isEqual(oldCoo,1e-12))
-        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([32,2,3,7,6,5,18,19,20,42,43,32,13,12,16,17,14,44,38,23,24,25,32,4,10,11,12,13,8,6,5,26,45,39,44,31,34,42,29,8,9,14,13,8,30,25,31,32,8,8,9,7,6,32,33,20,34,32,5,4,0,1,2,29,35,36,46,43,8,16,12,11,15,38,39,40,41])))
-        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,11,22,39,48,57,68,77])))
-        self.assertTrue(m.getCoords().isEqual(DataArrayDouble([[-10.,-6.0],[0.,-6.0],[0.,0.0],[7.,0.0],[-10.,2.0],[0.,2.0],[0.,6.5],[7.,6.5],[0.,8.0],[7.,8.0],[-10.,12.0],[-4.,12.0],[0.,12.0],[0.,11.0],[7.,11.0],[-4.,16.0],[0.,16.0],[7.,16.0],[3.5, 0.0],[7.,3.25],[3.5, 6.5],[0.,3.25],[0.,13.5],[3.5, 16.0],[7.,13.5],[3.5, 11.0],[-10.,7.0],[-5.,12.0],[0.,7.0],[-5.,2.0],[7.,9.5],[0.,9.5],[3.5, 8.0],[7.,7.25],[0.,7.25],[-10.,-2.0],[-5.,-6.0],[0.,-2.0],[0.,14.0],[-2.,12.0],[-4.,14.0],[-2.,16.0],[0.,4.25],[0.,1.0],[0.,11.5],[-7.,12.0],[0.,-3.]]),1e-12))
+        self.assertTrue(m.getCoords()[:42].isEqual(oldCoo, 1e-12))
+        self.assertTrue(
+            m.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        32,
+                        2,
+                        3,
+                        7,
+                        6,
+                        5,
+                        18,
+                        19,
+                        20,
+                        42,
+                        43,
+                        32,
+                        13,
+                        12,
+                        16,
+                        17,
+                        14,
+                        44,
+                        38,
+                        23,
+                        24,
+                        25,
+                        32,
+                        4,
+                        10,
+                        11,
+                        12,
+                        13,
+                        8,
+                        6,
+                        5,
+                        26,
+                        45,
+                        39,
+                        44,
+                        31,
+                        34,
+                        42,
+                        29,
+                        8,
+                        9,
+                        14,
+                        13,
+                        8,
+                        30,
+                        25,
+                        31,
+                        32,
+                        8,
+                        8,
+                        9,
+                        7,
+                        6,
+                        32,
+                        33,
+                        20,
+                        34,
+                        32,
+                        5,
+                        4,
+                        0,
+                        1,
+                        2,
+                        29,
+                        35,
+                        36,
+                        46,
+                        43,
+                        8,
+                        16,
+                        12,
+                        11,
+                        15,
+                        38,
+                        39,
+                        40,
+                        41,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            m.getNodalConnectivityIndex().isEqual(
+                DataArrayInt([0, 11, 22, 39, 48, 57, 68, 77])
+            )
+        )
+        self.assertTrue(
+            m.getCoords().isEqual(
+                DataArrayDouble(
+                    [
+                        [-10.0, -6.0],
+                        [0.0, -6.0],
+                        [0.0, 0.0],
+                        [7.0, 0.0],
+                        [-10.0, 2.0],
+                        [0.0, 2.0],
+                        [0.0, 6.5],
+                        [7.0, 6.5],
+                        [0.0, 8.0],
+                        [7.0, 8.0],
+                        [-10.0, 12.0],
+                        [-4.0, 12.0],
+                        [0.0, 12.0],
+                        [0.0, 11.0],
+                        [7.0, 11.0],
+                        [-4.0, 16.0],
+                        [0.0, 16.0],
+                        [7.0, 16.0],
+                        [3.5, 0.0],
+                        [7.0, 3.25],
+                        [3.5, 6.5],
+                        [0.0, 3.25],
+                        [0.0, 13.5],
+                        [3.5, 16.0],
+                        [7.0, 13.5],
+                        [3.5, 11.0],
+                        [-10.0, 7.0],
+                        [-5.0, 12.0],
+                        [0.0, 7.0],
+                        [-5.0, 2.0],
+                        [7.0, 9.5],
+                        [0.0, 9.5],
+                        [3.5, 8.0],
+                        [7.0, 7.25],
+                        [0.0, 7.25],
+                        [-10.0, -2.0],
+                        [-5.0, -6.0],
+                        [0.0, -2.0],
+                        [0.0, 14.0],
+                        [-2.0, 12.0],
+                        [-4.0, 14.0],
+                        [-2.0, 16.0],
+                        [0.0, 4.25],
+                        [0.0, 1.0],
+                        [0.0, 11.5],
+                        [-7.0, 12.0],
+                        [0.0, -3.0],
+                    ]
+                ),
+                1e-12,
+            )
+        )
         pass
 
     def testSwig2Conformize2D5(self):
-        eps=1e-8
-        coo=DataArrayDouble([[2,2],[2,-6],[10,-2],[-2,-2],[6,0],[6,-4],[2,7],[2,4.5],[-1.4641016151377544,0],[-1.950753362380551,-1.3742621398390762],[-7,-3],[-0.8284271247461898,-4.82842712474619],[0.26794919243112281,3.5],[0,1.4641016151377548],[-4.4753766811902755,-2.1871310699195381],[-3.9142135623730949,-3.9142135623730949],[-1.8042260651806146,-3.23606797749979]])
-        m=MEDCouplingUMesh("mesh",2)
+        eps = 1e-8
+        coo = DataArrayDouble(
+            [
+                [2, 2],
+                [2, -6],
+                [10, -2],
+                [-2, -2],
+                [6, 0],
+                [6, -4],
+                [2, 7],
+                [2, 4.5],
+                [-1.4641016151377544, 0],
+                [-1.950753362380551, -1.3742621398390762],
+                [-7, -3],
+                [-0.8284271247461898, -4.82842712474619],
+                [0.26794919243112281, 3.5],
+                [0, 1.4641016151377548],
+                [-4.4753766811902755, -2.1871310699195381],
+                [-3.9142135623730949, -3.9142135623730949],
+                [-1.8042260651806146, -3.23606797749979],
+            ]
+        )
+        m = MEDCouplingUMesh("mesh", 2)
         m.allocateCells()
         m.setCoords(coo)
-        m.insertNextCell(NORM_TRI6,[1,2,0,5,4,3])
-        m.insertNextCell(NORM_TRI6,[8,6,0,12,7,13])
-        m.insertNextCell(NORM_TRI6,[11,9,10,16,14,15])
+        m.insertNextCell(NORM_TRI6, [1, 2, 0, 5, 4, 3])
+        m.insertNextCell(NORM_TRI6, [8, 6, 0, 12, 7, 13])
+        m.insertNextCell(NORM_TRI6, [11, 9, 10, 16, 14, 15])
         self.assertTrue(m.conformize2D(eps).isEqual(DataArrayInt([0])))
-        self.assertTrue(m.getCoords().isEqual(DataArrayDouble([2.,2.,2.,-6.,10.,-2.,-2.,-2.,6.,0.,6.,-4.,2.,7.,2.,4.5,-1.4641016151377544,0.,-1.950753362380551,-1.3742621398390762,-7.,-3.,-0.8284271247461898,-4.82842712474619,0.2679491924311228,3.5,8.881784197001252e-16,1.4641016151377548,-4.4753766811902755,-2.187131069919538,-3.914213562373095,-3.914213562373095,-1.8042260651806146,-3.236067977499789,-1.7705659643687133,-0.6647725630649153,0.46926627053963865,-5.695518130045146],19,2),1e-12))
-        self.assertTrue(m.getNodalConnectivity().isEqual(DataArrayInt([32,1,2,0,8,9,11,5,4,13,17,16,18,6,8,6,0,12,7,13,6,11,9,10,16,14,15])))
-        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0,13,20,27])))
+        self.assertTrue(
+            m.getCoords().isEqual(
+                DataArrayDouble(
+                    [
+                        2.0,
+                        2.0,
+                        2.0,
+                        -6.0,
+                        10.0,
+                        -2.0,
+                        -2.0,
+                        -2.0,
+                        6.0,
+                        0.0,
+                        6.0,
+                        -4.0,
+                        2.0,
+                        7.0,
+                        2.0,
+                        4.5,
+                        -1.4641016151377544,
+                        0.0,
+                        -1.950753362380551,
+                        -1.3742621398390762,
+                        -7.0,
+                        -3.0,
+                        -0.8284271247461898,
+                        -4.82842712474619,
+                        0.2679491924311228,
+                        3.5,
+                        8.881784197001252e-16,
+                        1.4641016151377548,
+                        -4.4753766811902755,
+                        -2.187131069919538,
+                        -3.914213562373095,
+                        -3.914213562373095,
+                        -1.8042260651806146,
+                        -3.236067977499789,
+                        -1.7705659643687133,
+                        -0.6647725630649153,
+                        0.46926627053963865,
+                        -5.695518130045146,
+                    ],
+                    19,
+                    2,
+                ),
+                1e-12,
+            )
+        )
+        self.assertTrue(
+            m.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        32,
+                        1,
+                        2,
+                        0,
+                        8,
+                        9,
+                        11,
+                        5,
+                        4,
+                        13,
+                        17,
+                        16,
+                        18,
+                        6,
+                        8,
+                        6,
+                        0,
+                        12,
+                        7,
+                        13,
+                        6,
+                        11,
+                        9,
+                        10,
+                        16,
+                        14,
+                        15,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            m.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 13, 20, 27]))
+        )
         pass
 
     def testSwig2Conformize2D6(self):
-        """ Was raising an internal error on the tiny cell #1. SegSegIntersector was faulty (eps misinterpreted)."""
-        eps=1.0e-6
-        mesh = MEDCouplingUMesh('Intersect2D', 2)
-        coo = DataArrayDouble([(-8.575398341058831,39.144034061751867),(-7.163839075265572,39.460696499553713),(-8.555240716524352,39.000452491656162),(-8.575381177420400,39.143911806168589),(-8.575389759239616,39.143972933960228),(-8.565310946972376,39.072182148912376),(-8.429007892596994,39.323429450193125),(-7.276475921428452,39.552916149667766),(-7.853580170499488,39.442382740946520),(-8.501337660834821,39.233025525494369),(-8.451698830704938,39.023021732647329),(-8.575293095466966,39.143931102458232),(-7.321160265208347,39.250835031152391),(-7.193377962393479,39.421292562742188),(-8.503477261299500,39.011771463728323),(-7.257269113800913,39.336063796947286),(-8.575337136449106,39.143921454338184),(-8.513495963085951,39.083476417552781),(-7.178608518829526,39.440994531147950),(-8.575345718262898,39.143982582105053),(-7.887252103212342,39.141010366774864),(-7.885555090015171,39.288688127112323),(-7.223911296170824,39.502221445493511)])
+        """Was raising an internal error on the tiny cell #1. SegSegIntersector was faulty (eps misinterpreted)."""
+        eps = 1.0e-6
+        mesh = MEDCouplingUMesh("Intersect2D", 2)
+        coo = DataArrayDouble(
+            [
+                (-8.575398341058831, 39.144034061751867),
+                (-7.163839075265572, 39.460696499553713),
+                (-8.555240716524352, 39.000452491656162),
+                (-8.575381177420400, 39.143911806168589),
+                (-8.575389759239616, 39.143972933960228),
+                (-8.565310946972376, 39.072182148912376),
+                (-8.429007892596994, 39.323429450193125),
+                (-7.276475921428452, 39.552916149667766),
+                (-7.853580170499488, 39.442382740946520),
+                (-8.501337660834821, 39.233025525494369),
+                (-8.451698830704938, 39.023021732647329),
+                (-8.575293095466966, 39.143931102458232),
+                (-7.321160265208347, 39.250835031152391),
+                (-7.193377962393479, 39.421292562742188),
+                (-8.503477261299500, 39.011771463728323),
+                (-7.257269113800913, 39.336063796947286),
+                (-8.575337136449106, 39.143921454338184),
+                (-8.513495963085951, 39.083476417552781),
+                (-7.178608518829526, 39.440994531147950),
+                (-8.575345718262898, 39.143982582105053),
+                (-7.887252103212342, 39.141010366774864),
+                (-7.885555090015171, 39.288688127112323),
+                (-7.223911296170824, 39.502221445493511),
+            ]
+        )
         mesh.setCoords(coo)
-        c = DataArrayInt([32, 2, 3, 11, 10, 5, 16, 17, 14, 32, 3, 0, 11, 4, 19, 16, 32, 13, 12, 10, 11, 15, 20, 17, 21, 32, 7, 1, 13, 11, 0, 6, 22, 18, 21, 19, 9, 8])
+        c = DataArrayInt(
+            [
+                32,
+                2,
+                3,
+                11,
+                10,
+                5,
+                16,
+                17,
+                14,
+                32,
+                3,
+                0,
+                11,
+                4,
+                19,
+                16,
+                32,
+                13,
+                12,
+                10,
+                11,
+                15,
+                20,
+                17,
+                21,
+                32,
+                7,
+                1,
+                13,
+                11,
+                0,
+                6,
+                22,
+                18,
+                21,
+                19,
+                9,
+                8,
+            ]
+        )
         cI = DataArrayInt([0, 9, 16, 25, 38])
         mesh.setConnectivity(c, cI)
 
         mesh.conformize2D(eps)  # internal error was here
 
-        c2, cI2 = mesh.getNodalConnectivity().getValues(), mesh.getNodalConnectivityIndex().getValues()
+        c2, cI2 = (
+            mesh.getNodalConnectivity().getValues(),
+            mesh.getNodalConnectivityIndex().getValues(),
+        )
         self.assertEqual(c2, c.getValues())
         self.assertEqual(cI2, cI.getValues())
         pass
 
     def testSwig2Conformize3D1(self):
-        """ Simple test where no edge merge is required, only face merging (first part of the algo) """
-        mesh = MEDCouplingUMesh('merge', 3)
-        coo = DataArrayDouble([(0,0,0),(1,0,0),(0,1,0),(1,1,0),(0,0,1),(1,0,1),(0,1,1),(1,1,1),(1,0.5,0.5),
-                               (2,0,0),(2,1,0),(2,0,1),(2,1,1),(1,0,2),(2,0,2),(1,1,2),(2,1,2)])
+        """Simple test where no edge merge is required, only face merging (first part of the algo)"""
+        mesh = MEDCouplingUMesh("merge", 3)
+        coo = DataArrayDouble(
+            [
+                (0, 0, 0),
+                (1, 0, 0),
+                (0, 1, 0),
+                (1, 1, 0),
+                (0, 0, 1),
+                (1, 0, 1),
+                (0, 1, 1),
+                (1, 1, 1),
+                (1, 0.5, 0.5),
+                (2, 0, 0),
+                (2, 1, 0),
+                (2, 0, 1),
+                (2, 1, 1),
+                (1, 0, 2),
+                (2, 0, 2),
+                (1, 1, 2),
+                (2, 1, 2),
+            ]
+        )
         mesh.setCoords(coo)
-        c = DataArrayInt([31, 1, 0, 2, 3, -1, 5, 7, 6, 4, -1, 1, 5, 4, 0, -1, 0, 4, 6, 2, -1, 2, 6, 7, 3, -1,
-                           3, 7, 8, -1, 7, 5, 8, -1, 5, 1, 8, -1, 1, 3, 8, 31, 9, 1, 3, 10, -1, 11, 12, 7, 5, -1,
-                           9, 11, 5, 1, -1, 1, 5, 7, 3, -1, 3, 7, 12, 10, -1, 10, 12, 11, 9, 31, 11, 5, 7, 12, -1,
-                           14, 16, 15, 13, -1, 11, 14, 13, 5, -1, 5, 13, 15, 7, -1, 7, 15, 16, 12, -1, 12, 16, 14, 11])
+        c = DataArrayInt(
+            [
+                31,
+                1,
+                0,
+                2,
+                3,
+                -1,
+                5,
+                7,
+                6,
+                4,
+                -1,
+                1,
+                5,
+                4,
+                0,
+                -1,
+                0,
+                4,
+                6,
+                2,
+                -1,
+                2,
+                6,
+                7,
+                3,
+                -1,
+                3,
+                7,
+                8,
+                -1,
+                7,
+                5,
+                8,
+                -1,
+                5,
+                1,
+                8,
+                -1,
+                1,
+                3,
+                8,
+                31,
+                9,
+                1,
+                3,
+                10,
+                -1,
+                11,
+                12,
+                7,
+                5,
+                -1,
+                9,
+                11,
+                5,
+                1,
+                -1,
+                1,
+                5,
+                7,
+                3,
+                -1,
+                3,
+                7,
+                12,
+                10,
+                -1,
+                10,
+                12,
+                11,
+                9,
+                31,
+                11,
+                5,
+                7,
+                12,
+                -1,
+                14,
+                16,
+                15,
+                13,
+                -1,
+                11,
+                14,
+                13,
+                5,
+                -1,
+                5,
+                13,
+                15,
+                7,
+                -1,
+                7,
+                15,
+                16,
+                12,
+                -1,
+                12,
+                16,
+                14,
+                11,
+            ]
+        )
         cI = DataArrayInt([0, 41, 71, 101])
         mesh.setConnectivity(c, cI)
         ret = mesh.conformize3D(1.0e-8)
 
         mretDesc, _, _, _, _ = mesh.buildDescendingConnectivity()
-        c, cI = mretDesc.getNodalConnectivity().getValues(), mretDesc.getNodalConnectivityIndex().getValues()
-        cRef = [5, 1, 0, 2, 3, 5, 5, 7, 6, 4, 5, 1, 5, 4, 0, 5, 0, 4, 6, 2, 5, 2, 6, 7, 3, 5, 3, 7, 8, 5,
-                7, 5, 8, 5, 5, 1, 8, 5, 1, 3, 8, 5, 9, 1, 3, 10, 5, 11, 12, 7, 5, 5, 9, 11, 5, 1, 5, 3,
-                7, 12, 10, 5, 10, 12, 11, 9, 5, 14, 16, 15, 13, 5, 11, 14, 13, 5, 5, 5, 13, 15, 7, 5, 7,
-                15, 16, 12, 5, 12, 16, 14, 11]
-        cIRef = [0, 5, 10, 15, 20, 25, 29, 33, 37, 41, 46, 51, 56, 61, 66, 71, 76, 81, 86, 91]
+        c, cI = (
+            mretDesc.getNodalConnectivity().getValues(),
+            mretDesc.getNodalConnectivityIndex().getValues(),
+        )
+        cRef = [
+            5,
+            1,
+            0,
+            2,
+            3,
+            5,
+            5,
+            7,
+            6,
+            4,
+            5,
+            1,
+            5,
+            4,
+            0,
+            5,
+            0,
+            4,
+            6,
+            2,
+            5,
+            2,
+            6,
+            7,
+            3,
+            5,
+            3,
+            7,
+            8,
+            5,
+            7,
+            5,
+            8,
+            5,
+            5,
+            1,
+            8,
+            5,
+            1,
+            3,
+            8,
+            5,
+            9,
+            1,
+            3,
+            10,
+            5,
+            11,
+            12,
+            7,
+            5,
+            5,
+            9,
+            11,
+            5,
+            1,
+            5,
+            3,
+            7,
+            12,
+            10,
+            5,
+            10,
+            12,
+            11,
+            9,
+            5,
+            14,
+            16,
+            15,
+            13,
+            5,
+            11,
+            14,
+            13,
+            5,
+            5,
+            5,
+            13,
+            15,
+            7,
+            5,
+            7,
+            15,
+            16,
+            12,
+            5,
+            12,
+            16,
+            14,
+            11,
+        ]
+        cIRef = [
+            0,
+            5,
+            10,
+            15,
+            20,
+            25,
+            29,
+            33,
+            37,
+            41,
+            46,
+            51,
+            56,
+            61,
+            66,
+            71,
+            76,
+            81,
+            86,
+            91,
+        ]
         self.assertEqual(19, mretDesc.getNumberOfCells())
         self.assertEqual(cRef, c)
         self.assertEqual(cIRef, cI)
@@ -1446,16 +9032,173 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         pass
 
     def testSwig2Conformize3D2(self):
-        """ More advanced test where edge merge is required. """
-        mesh = MEDCouplingUMesh('merge', 3)
-        coo = DataArrayDouble([(0,0,0),(1,0,0),(0,1,0),(1,1,0),(0,0,1),(1,0,1),(0,1,1),(1,1,1),(0,0,2),(1,0,2),(0,1,2),
-                               (1,1,2),(1,0.6,0),(1,0.6,1),(1,0.3,1),(1,0.3,2),(2,0,0),(2,1,0),(2,0,1),(2,1,1),(2,0,2),(2,1,2)])
+        """More advanced test where edge merge is required."""
+        mesh = MEDCouplingUMesh("merge", 3)
+        coo = DataArrayDouble(
+            [
+                (0, 0, 0),
+                (1, 0, 0),
+                (0, 1, 0),
+                (1, 1, 0),
+                (0, 0, 1),
+                (1, 0, 1),
+                (0, 1, 1),
+                (1, 1, 1),
+                (0, 0, 2),
+                (1, 0, 2),
+                (0, 1, 2),
+                (1, 1, 2),
+                (1, 0.6, 0),
+                (1, 0.6, 1),
+                (1, 0.3, 1),
+                (1, 0.3, 2),
+                (2, 0, 0),
+                (2, 1, 0),
+                (2, 0, 1),
+                (2, 1, 1),
+                (2, 0, 2),
+                (2, 1, 2),
+            ]
+        )
         mesh.setCoords(coo)
-        c = DataArrayInt([31, 1, 0, 2, 3, 12, -1, 5, 13, 7, 6, 4, -1, 1, 5, 4, 0, -1, 0, 4, 6, 2, -1, 2, 6, 7, 3, -1, 3, 7, 13, 12, -1,
-                          5, 1, 12, 13, 31, 5, 4, 6, 7, 14, -1, 9, 15, 11, 10, 8, -1, 5, 9, 8, 4, -1, 4, 8, 10, 6, -1, 6, 10, 11, 7, -1,
-                          7, 11, 15, 14, -1, 9, 5, 14, 15, 31, 16, 1, 3, 17, -1, 18, 19, 7, 5, -1, 16, 18, 5, 1, -1, 1, 5, 7, 3, -1,
-                          3, 7, 19, 17, -1, 17, 19, 18, 16, 31, 18, 5, 7, 19, -1, 20, 21, 11, 9, -1, 18, 20, 9, 5, -1, 5, 9, 11, 7, -1,
-                          7, 11, 21, 19, -1, 19, 21, 20, 18])
+        c = DataArrayInt(
+            [
+                31,
+                1,
+                0,
+                2,
+                3,
+                12,
+                -1,
+                5,
+                13,
+                7,
+                6,
+                4,
+                -1,
+                1,
+                5,
+                4,
+                0,
+                -1,
+                0,
+                4,
+                6,
+                2,
+                -1,
+                2,
+                6,
+                7,
+                3,
+                -1,
+                3,
+                7,
+                13,
+                12,
+                -1,
+                5,
+                1,
+                12,
+                13,
+                31,
+                5,
+                4,
+                6,
+                7,
+                14,
+                -1,
+                9,
+                15,
+                11,
+                10,
+                8,
+                -1,
+                5,
+                9,
+                8,
+                4,
+                -1,
+                4,
+                8,
+                10,
+                6,
+                -1,
+                6,
+                10,
+                11,
+                7,
+                -1,
+                7,
+                11,
+                15,
+                14,
+                -1,
+                9,
+                5,
+                14,
+                15,
+                31,
+                16,
+                1,
+                3,
+                17,
+                -1,
+                18,
+                19,
+                7,
+                5,
+                -1,
+                16,
+                18,
+                5,
+                1,
+                -1,
+                1,
+                5,
+                7,
+                3,
+                -1,
+                3,
+                7,
+                19,
+                17,
+                -1,
+                17,
+                19,
+                18,
+                16,
+                31,
+                18,
+                5,
+                7,
+                19,
+                -1,
+                20,
+                21,
+                11,
+                9,
+                -1,
+                18,
+                20,
+                9,
+                5,
+                -1,
+                5,
+                9,
+                11,
+                7,
+                -1,
+                7,
+                11,
+                21,
+                19,
+                -1,
+                19,
+                21,
+                20,
+                18,
+            ]
+        )
         cI = DataArrayInt([0, 37, 74, 104, 134])
         mesh.setConnectivity(c, cI)
 
@@ -1463,15 +9206,485 @@ class MEDCouplingIntersectTest(unittest.TestCase):
 
         mretDesc, _, _, _, _ = mesh.buildDescendingConnectivity()
         mretDesc2, _, _, _, _ = mretDesc.buildDescendingConnectivity()
-        c0, cI0 = mesh.getNodalConnectivity().getValues(), mesh.getNodalConnectivityIndex().getValues()
-        c, cI = mretDesc.getNodalConnectivity().getValues(), mretDesc.getNodalConnectivityIndex().getValues()
-        c2, cI2 = mretDesc2.getNodalConnectivity().getValues(), mretDesc2.getNodalConnectivityIndex().getValues()
-        cRef0 = [31, 1, 0, 2, 3, 12, -1, 5, 14, 13, 7, 6, 4, -1, 1, 5, 4, 0, -1, 0, 4, 6, 2, -1, 2, 6, 7, 3, -1, 3, 7, 13, 12, -1, 5, 1, 12, 13, 14, 31, 9, 15, 11, 10, 8, -1, 5, 9, 8, 4, -1, 4, 8, 10, 6, -1, 6, 10, 11, 7, -1, 7, 11, 15, 14, 13, -1, 9, 5, 14, 15, -1, 5, 14, 13, 7, 6, 4, 31, 16, 1, 12, 3, 17, -1, 18, 19, 7, 13, 14, 5, -1, 16, 18, 5, 1, -1, 3, 7, 19, 17, -1, 17, 19, 18, 16, -1, 5, 1, 12, 13, 14, -1, 3, 7, 13, 12, 31, 5, 14, 13, 7, 19, 18, -1, 20, 21, 11, 15, 9, -1, 18, 20, 9, 5, -1, 7, 11, 21, 19, -1, 19, 21, 20, 18, -1, 9, 5, 14, 15, -1, 7, 11, 15, 14, 13]
+        c0, cI0 = (
+            mesh.getNodalConnectivity().getValues(),
+            mesh.getNodalConnectivityIndex().getValues(),
+        )
+        c, cI = (
+            mretDesc.getNodalConnectivity().getValues(),
+            mretDesc.getNodalConnectivityIndex().getValues(),
+        )
+        c2, cI2 = (
+            mretDesc2.getNodalConnectivity().getValues(),
+            mretDesc2.getNodalConnectivityIndex().getValues(),
+        )
+        cRef0 = [
+            31,
+            1,
+            0,
+            2,
+            3,
+            12,
+            -1,
+            5,
+            14,
+            13,
+            7,
+            6,
+            4,
+            -1,
+            1,
+            5,
+            4,
+            0,
+            -1,
+            0,
+            4,
+            6,
+            2,
+            -1,
+            2,
+            6,
+            7,
+            3,
+            -1,
+            3,
+            7,
+            13,
+            12,
+            -1,
+            5,
+            1,
+            12,
+            13,
+            14,
+            31,
+            9,
+            15,
+            11,
+            10,
+            8,
+            -1,
+            5,
+            9,
+            8,
+            4,
+            -1,
+            4,
+            8,
+            10,
+            6,
+            -1,
+            6,
+            10,
+            11,
+            7,
+            -1,
+            7,
+            11,
+            15,
+            14,
+            13,
+            -1,
+            9,
+            5,
+            14,
+            15,
+            -1,
+            5,
+            14,
+            13,
+            7,
+            6,
+            4,
+            31,
+            16,
+            1,
+            12,
+            3,
+            17,
+            -1,
+            18,
+            19,
+            7,
+            13,
+            14,
+            5,
+            -1,
+            16,
+            18,
+            5,
+            1,
+            -1,
+            3,
+            7,
+            19,
+            17,
+            -1,
+            17,
+            19,
+            18,
+            16,
+            -1,
+            5,
+            1,
+            12,
+            13,
+            14,
+            -1,
+            3,
+            7,
+            13,
+            12,
+            31,
+            5,
+            14,
+            13,
+            7,
+            19,
+            18,
+            -1,
+            20,
+            21,
+            11,
+            15,
+            9,
+            -1,
+            18,
+            20,
+            9,
+            5,
+            -1,
+            7,
+            11,
+            21,
+            19,
+            -1,
+            19,
+            21,
+            20,
+            18,
+            -1,
+            9,
+            5,
+            14,
+            15,
+            -1,
+            7,
+            11,
+            15,
+            14,
+            13,
+        ]
         cIRef0 = [0, 39, 78, 117, 156]
-        cRef = [5, 1, 0, 2, 3, 12, 5, 5, 14, 13, 7, 6, 4, 5, 1, 5, 4, 0, 5, 0, 4, 6, 2, 5, 2, 6, 7, 3, 5, 3, 7, 13, 12, 5, 5, 1, 12, 13, 14, 5, 9, 15, 11, 10, 8, 5, 5, 9, 8, 4, 5, 4, 8, 10, 6, 5, 6, 10, 11, 7, 5, 7, 11, 15, 14, 13, 5, 9, 5, 14, 15, 5, 16, 1, 12, 3, 17, 5, 18, 19, 7, 13, 14, 5, 5, 16, 18, 5, 1, 5, 3, 7, 19, 17, 5, 17, 19, 18, 16, 5, 20, 21, 11, 15, 9, 5, 18, 20, 9, 5, 5, 7, 11, 21, 19, 5, 19, 21, 20, 18]
-        cIRef = [0, 6, 13, 18, 23, 28, 33, 39, 45, 50, 55, 60, 66, 71, 77, 84, 89, 94, 99, 105, 110, 115, 120]
-        cRef2 = [1, 1, 0, 1, 0, 2, 1, 2, 3, 1, 3, 12, 1, 12, 1, 1, 5, 14, 1, 14, 13, 1, 13, 7, 1, 7, 6, 1, 6, 4, 1, 4, 5, 1, 1, 5, 1, 4, 0, 1, 6, 2, 1, 7, 3, 1, 13, 12, 1, 9, 15, 1, 15, 11, 1, 11, 10, 1, 10, 8, 1, 8, 9, 1, 5, 9, 1, 8, 4, 1, 10, 6, 1, 11, 7, 1, 15, 14, 1, 16, 1, 1, 3, 17, 1, 17, 16, 1, 18, 19, 1, 19, 7, 1, 5, 18, 1, 16, 18, 1, 19, 17, 1, 20, 21, 1, 21, 11, 1, 9, 20, 1, 18, 20, 1, 21, 19]
-        cIRef2 = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60, 63, 66, 69, 72, 75, 78, 81, 84, 87, 90, 93, 96, 99, 102, 105, 108, 111, 114, 117]
+        cRef = [
+            5,
+            1,
+            0,
+            2,
+            3,
+            12,
+            5,
+            5,
+            14,
+            13,
+            7,
+            6,
+            4,
+            5,
+            1,
+            5,
+            4,
+            0,
+            5,
+            0,
+            4,
+            6,
+            2,
+            5,
+            2,
+            6,
+            7,
+            3,
+            5,
+            3,
+            7,
+            13,
+            12,
+            5,
+            5,
+            1,
+            12,
+            13,
+            14,
+            5,
+            9,
+            15,
+            11,
+            10,
+            8,
+            5,
+            5,
+            9,
+            8,
+            4,
+            5,
+            4,
+            8,
+            10,
+            6,
+            5,
+            6,
+            10,
+            11,
+            7,
+            5,
+            7,
+            11,
+            15,
+            14,
+            13,
+            5,
+            9,
+            5,
+            14,
+            15,
+            5,
+            16,
+            1,
+            12,
+            3,
+            17,
+            5,
+            18,
+            19,
+            7,
+            13,
+            14,
+            5,
+            5,
+            16,
+            18,
+            5,
+            1,
+            5,
+            3,
+            7,
+            19,
+            17,
+            5,
+            17,
+            19,
+            18,
+            16,
+            5,
+            20,
+            21,
+            11,
+            15,
+            9,
+            5,
+            18,
+            20,
+            9,
+            5,
+            5,
+            7,
+            11,
+            21,
+            19,
+            5,
+            19,
+            21,
+            20,
+            18,
+        ]
+        cIRef = [
+            0,
+            6,
+            13,
+            18,
+            23,
+            28,
+            33,
+            39,
+            45,
+            50,
+            55,
+            60,
+            66,
+            71,
+            77,
+            84,
+            89,
+            94,
+            99,
+            105,
+            110,
+            115,
+            120,
+        ]
+        cRef2 = [
+            1,
+            1,
+            0,
+            1,
+            0,
+            2,
+            1,
+            2,
+            3,
+            1,
+            3,
+            12,
+            1,
+            12,
+            1,
+            1,
+            5,
+            14,
+            1,
+            14,
+            13,
+            1,
+            13,
+            7,
+            1,
+            7,
+            6,
+            1,
+            6,
+            4,
+            1,
+            4,
+            5,
+            1,
+            1,
+            5,
+            1,
+            4,
+            0,
+            1,
+            6,
+            2,
+            1,
+            7,
+            3,
+            1,
+            13,
+            12,
+            1,
+            9,
+            15,
+            1,
+            15,
+            11,
+            1,
+            11,
+            10,
+            1,
+            10,
+            8,
+            1,
+            8,
+            9,
+            1,
+            5,
+            9,
+            1,
+            8,
+            4,
+            1,
+            10,
+            6,
+            1,
+            11,
+            7,
+            1,
+            15,
+            14,
+            1,
+            16,
+            1,
+            1,
+            3,
+            17,
+            1,
+            17,
+            16,
+            1,
+            18,
+            19,
+            1,
+            19,
+            7,
+            1,
+            5,
+            18,
+            1,
+            16,
+            18,
+            1,
+            19,
+            17,
+            1,
+            20,
+            21,
+            1,
+            21,
+            11,
+            1,
+            9,
+            20,
+            1,
+            18,
+            20,
+            1,
+            21,
+            19,
+        ]
+        cIRef2 = [
+            0,
+            3,
+            6,
+            9,
+            12,
+            15,
+            18,
+            21,
+            24,
+            27,
+            30,
+            33,
+            36,
+            39,
+            42,
+            45,
+            48,
+            51,
+            54,
+            57,
+            60,
+            63,
+            66,
+            69,
+            72,
+            75,
+            78,
+            81,
+            84,
+            87,
+            90,
+            93,
+            96,
+            99,
+            102,
+            105,
+            108,
+            111,
+            114,
+            117,
+        ]
         self.assertEqual(22, mretDesc.getNumberOfCells())
         self.assertEqual(39, mretDesc2.getNumberOfCells())
         self.assertEqual(cRef0, c0)
@@ -1480,33 +9693,2330 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(cIRef, cI)
         self.assertEqual(cRef2, c2)
         self.assertEqual(cIRef2, cI2)
-        self.assertEqual(set([0,1,2,3]), set(ret.getValues()))
+        self.assertEqual(set([0, 1, 2, 3]), set(ret.getValues()))
         pass
 
     def testSwig2Conformize3D3(self):
-        """ LMEC's case (hexagonal prism) """
-        eps = 1.0e-7   # 1.0e-8 is too fine
-        mesh = MEDCouplingUMesh('merge', 3)
-        coo = DataArrayDouble([(0,0,0),(-0.0054,-0.00935307,0),(0.0054,-0.00935307,0),(0.0108,0,0),(0.0054,0.00935307,0),(-0.0054,0.00935307,0),(-0.0108,6.93889e-18,0),(-0.0054,-0.0153031,0),(0.0054,-0.0153031,0),(0.0105529,-0.0123281,0),(0.0159529,-0.002975,0),(0.0159529,0.002975,0),(0.0105529,0.0123281,0),(0.0054,0.0153031,0),(-0.0054,0.0153031,0),(-0.0105529,0.0123281,0),(-0.0159529,0.002975,0),(-0.0159529,-0.002975,0),(-0.0105529,-0.0123281,0),(-0.00883523,-0.0153031,0),(0.00883523,-0.0153031,0),(0.0176705,0,0),(0.00883523,0.0153031,0),(-0.00883523,0.0153031,0),(-0.0176705,2.16401e-18,0),(0,0,0.05),(-0.0054,-0.00935307,0.05),(0.0054,-0.00935307,0.05),(0.0108,0,0.05),(0.0054,0.00935307,0.05),(-0.0054,0.00935307,0.05),(-0.0108,6.93889e-18,0.05),(-0.0054,-0.0153031,0.05),(0.0054,-0.0153031,0.05),(0.0105529,-0.0123281,0.05),(0.0159529,-0.002975,0.05),(0.0159529,0.002975,0.05),(0.0105529,0.0123281,0.05),(0.0054,0.0153031,0.05),(-0.0054,0.0153031,0.05),(-0.0105529,0.0123281,0.05),(-0.0159529,0.002975,0.05),(-0.0159529,-0.002975,0.05),(-0.0105529,-0.0123281,0.05),(-0.00883523,-0.0153031,0.05),(0.00883523,-0.0153031,0.05),(0.0176705,0,0.05),(0.00883523,0.0153031,0.05),(-0.00883523,0.0153031,0.05),(-0.0176705,2.16401e-18,0.05),(0.0176705,0,0.05),(0.00883523,0.0153031,0.05),(-0.00883523,0.0153031,0.05),(-0.0176705,2.16401e-18,0.05),(-0.00883523,-0.0153031,0.05),(0.00883523,-0.0153031,0.05),(0.0176705,0,0.15),(0.00883523,0.0153031,0.15),(-0.00883523,0.0153031,0.15),(-0.0176705,2.16401e-18,0.15),(-0.00883523,-0.0153031,0.15),(0.00883523,-0.0153031,0.15)])
+        """LMEC's case (hexagonal prism)"""
+        eps = 1.0e-7  # 1.0e-8 is too fine
+        mesh = MEDCouplingUMesh("merge", 3)
+        coo = DataArrayDouble(
+            [
+                (0, 0, 0),
+                (-0.0054, -0.00935307, 0),
+                (0.0054, -0.00935307, 0),
+                (0.0108, 0, 0),
+                (0.0054, 0.00935307, 0),
+                (-0.0054, 0.00935307, 0),
+                (-0.0108, 6.93889e-18, 0),
+                (-0.0054, -0.0153031, 0),
+                (0.0054, -0.0153031, 0),
+                (0.0105529, -0.0123281, 0),
+                (0.0159529, -0.002975, 0),
+                (0.0159529, 0.002975, 0),
+                (0.0105529, 0.0123281, 0),
+                (0.0054, 0.0153031, 0),
+                (-0.0054, 0.0153031, 0),
+                (-0.0105529, 0.0123281, 0),
+                (-0.0159529, 0.002975, 0),
+                (-0.0159529, -0.002975, 0),
+                (-0.0105529, -0.0123281, 0),
+                (-0.00883523, -0.0153031, 0),
+                (0.00883523, -0.0153031, 0),
+                (0.0176705, 0, 0),
+                (0.00883523, 0.0153031, 0),
+                (-0.00883523, 0.0153031, 0),
+                (-0.0176705, 2.16401e-18, 0),
+                (0, 0, 0.05),
+                (-0.0054, -0.00935307, 0.05),
+                (0.0054, -0.00935307, 0.05),
+                (0.0108, 0, 0.05),
+                (0.0054, 0.00935307, 0.05),
+                (-0.0054, 0.00935307, 0.05),
+                (-0.0108, 6.93889e-18, 0.05),
+                (-0.0054, -0.0153031, 0.05),
+                (0.0054, -0.0153031, 0.05),
+                (0.0105529, -0.0123281, 0.05),
+                (0.0159529, -0.002975, 0.05),
+                (0.0159529, 0.002975, 0.05),
+                (0.0105529, 0.0123281, 0.05),
+                (0.0054, 0.0153031, 0.05),
+                (-0.0054, 0.0153031, 0.05),
+                (-0.0105529, 0.0123281, 0.05),
+                (-0.0159529, 0.002975, 0.05),
+                (-0.0159529, -0.002975, 0.05),
+                (-0.0105529, -0.0123281, 0.05),
+                (-0.00883523, -0.0153031, 0.05),
+                (0.00883523, -0.0153031, 0.05),
+                (0.0176705, 0, 0.05),
+                (0.00883523, 0.0153031, 0.05),
+                (-0.00883523, 0.0153031, 0.05),
+                (-0.0176705, 2.16401e-18, 0.05),
+                (0.0176705, 0, 0.05),
+                (0.00883523, 0.0153031, 0.05),
+                (-0.00883523, 0.0153031, 0.05),
+                (-0.0176705, 2.16401e-18, 0.05),
+                (-0.00883523, -0.0153031, 0.05),
+                (0.00883523, -0.0153031, 0.05),
+                (0.0176705, 0, 0.15),
+                (0.00883523, 0.0153031, 0.15),
+                (-0.00883523, 0.0153031, 0.15),
+                (-0.0176705, 2.16401e-18, 0.15),
+                (-0.00883523, -0.0153031, 0.15),
+                (0.00883523, -0.0153031, 0.15),
+            ]
+        )
         mesh.setCoords(coo)
-        c = DataArrayInt([31, 1, 0, 2, -1, 25, 26, 27, -1, 2, 27, 26, 1, -1, 0, 25, 27, 2, -1, 1, 26, 25, 0, 31, 2, 0, 3, -1, 25, 27, 28, -1, 3, 28, 27, 2, -1, 0, 25, 28, 3, -1, 2, 27, 25, 0, 31, 3, 0, 4, -1, 25, 28, 29, -1, 4, 29, 28, 3, -1, 0, 25, 29, 4, -1, 3, 28, 25, 0, 31, 4, 0, 5, -1, 25, 29, 30, -1, 5, 30, 29, 4, -1, 0, 25, 30, 5, -1, 4, 29, 25, 0, 31, 5, 0, 6, -1, 25, 30, 31, -1, 6, 31, 30, 5, -1, 0, 25, 31, 6, -1, 5, 30, 25, 0, 31, 6, 0, 1, -1, 25, 31, 26, -1, 1, 26, 31, 6, -1, 0, 25, 26, 1, -1, 6, 31, 25, 0, 31, 1, 2, 8, 7, -1, 27, 26, 32, 33, -1, 7, 32, 26, 1, -1, 8, 33, 32, 7, -1, 2, 27, 33, 8, -1, 1, 26, 27, 2, 31, 2, 3, 10, 9, -1, 28, 27, 34, 35, -1, 9, 34, 27, 2, -1, 10, 35, 34, 9, -1, 3, 28, 35, 10, -1, 2, 27, 28, 3, 31, 3, 4, 12, 11, -1, 29, 28, 36, 37, -1, 11, 36, 28, 3, -1, 12, 37, 36, 11, -1, 4, 29, 37, 12, -1, 3, 28, 29, 4, 31, 4, 5, 14, 13, -1, 30, 29, 38, 39, -1, 13, 38, 29, 4, -1, 14, 39, 38, 13, -1, 5, 30, 39, 14, -1, 4, 29, 30, 5, 31, 5, 6, 16, 15, -1, 31, 30, 40, 41, -1, 15, 40, 30, 5, -1, 16, 41, 40, 15, -1, 6, 31, 41, 16, -1, 5, 30, 31, 6, 31, 6, 1, 18, 17, -1, 26, 31, 42, 43, -1, 17, 42, 31, 6, -1, 18, 43, 42, 17, -1, 1, 26, 43, 18, -1, 6, 31, 26, 1, 31, 19, 18, 1, 7, -1, 43, 44, 32, 26, -1, 7, 32, 44, 19, -1, 1, 26, 32, 7, -1, 18, 43, 26, 1, -1, 19, 44, 43, 18, 31, 20, 8, 2, 9, -1, 33, 45, 34, 27, -1, 9, 34, 45, 20, -1, 2, 27, 34, 9, -1, 8, 33, 27, 2, -1, 20, 45, 33, 8, 31, 21, 10, 3, 11, -1, 35, 46, 36, 28, -1, 11, 36, 46, 21, -1, 3, 28, 36, 11, -1, 10, 35, 28, 3, -1, 21, 46, 35, 10, 31, 22, 12, 4, 13, -1, 37, 47, 38, 29, -1, 13, 38, 47, 22, -1, 4, 29, 38, 13, -1, 12, 37, 29, 4, -1, 22, 47, 37, 12, 31, 23, 14, 5, 15, -1, 39, 48, 40, 30, -1, 15, 40, 48, 23, -1, 5, 30, 40, 15, -1, 14, 39, 30, 5, -1, 23, 48, 39, 14, 31, 24, 16, 6, 17, -1, 41, 49, 42, 31, -1, 17, 42, 49, 24, -1, 6, 31, 42, 17, -1, 16, 41, 31, 6, -1, 24, 49, 41, 16, 31, 50, 51, 52, 53, 54, 55, -1, 56, 61, 60, 59, 58, 57, -1, 50, 56, 57, 51, -1, 51, 57, 58, 52, -1, 52, 58, 59, 53, -1, 53, 59, 60, 54, -1, 54, 60, 61, 55, -1, 55, 61, 56, 50])
-        cI = DataArrayInt([0, 23, 46, 69, 92, 115, 138, 168, 198, 228, 258, 288, 318, 348, 378, 408, 438, 468, 498, 542])
+        c = DataArrayInt(
+            [
+                31,
+                1,
+                0,
+                2,
+                -1,
+                25,
+                26,
+                27,
+                -1,
+                2,
+                27,
+                26,
+                1,
+                -1,
+                0,
+                25,
+                27,
+                2,
+                -1,
+                1,
+                26,
+                25,
+                0,
+                31,
+                2,
+                0,
+                3,
+                -1,
+                25,
+                27,
+                28,
+                -1,
+                3,
+                28,
+                27,
+                2,
+                -1,
+                0,
+                25,
+                28,
+                3,
+                -1,
+                2,
+                27,
+                25,
+                0,
+                31,
+                3,
+                0,
+                4,
+                -1,
+                25,
+                28,
+                29,
+                -1,
+                4,
+                29,
+                28,
+                3,
+                -1,
+                0,
+                25,
+                29,
+                4,
+                -1,
+                3,
+                28,
+                25,
+                0,
+                31,
+                4,
+                0,
+                5,
+                -1,
+                25,
+                29,
+                30,
+                -1,
+                5,
+                30,
+                29,
+                4,
+                -1,
+                0,
+                25,
+                30,
+                5,
+                -1,
+                4,
+                29,
+                25,
+                0,
+                31,
+                5,
+                0,
+                6,
+                -1,
+                25,
+                30,
+                31,
+                -1,
+                6,
+                31,
+                30,
+                5,
+                -1,
+                0,
+                25,
+                31,
+                6,
+                -1,
+                5,
+                30,
+                25,
+                0,
+                31,
+                6,
+                0,
+                1,
+                -1,
+                25,
+                31,
+                26,
+                -1,
+                1,
+                26,
+                31,
+                6,
+                -1,
+                0,
+                25,
+                26,
+                1,
+                -1,
+                6,
+                31,
+                25,
+                0,
+                31,
+                1,
+                2,
+                8,
+                7,
+                -1,
+                27,
+                26,
+                32,
+                33,
+                -1,
+                7,
+                32,
+                26,
+                1,
+                -1,
+                8,
+                33,
+                32,
+                7,
+                -1,
+                2,
+                27,
+                33,
+                8,
+                -1,
+                1,
+                26,
+                27,
+                2,
+                31,
+                2,
+                3,
+                10,
+                9,
+                -1,
+                28,
+                27,
+                34,
+                35,
+                -1,
+                9,
+                34,
+                27,
+                2,
+                -1,
+                10,
+                35,
+                34,
+                9,
+                -1,
+                3,
+                28,
+                35,
+                10,
+                -1,
+                2,
+                27,
+                28,
+                3,
+                31,
+                3,
+                4,
+                12,
+                11,
+                -1,
+                29,
+                28,
+                36,
+                37,
+                -1,
+                11,
+                36,
+                28,
+                3,
+                -1,
+                12,
+                37,
+                36,
+                11,
+                -1,
+                4,
+                29,
+                37,
+                12,
+                -1,
+                3,
+                28,
+                29,
+                4,
+                31,
+                4,
+                5,
+                14,
+                13,
+                -1,
+                30,
+                29,
+                38,
+                39,
+                -1,
+                13,
+                38,
+                29,
+                4,
+                -1,
+                14,
+                39,
+                38,
+                13,
+                -1,
+                5,
+                30,
+                39,
+                14,
+                -1,
+                4,
+                29,
+                30,
+                5,
+                31,
+                5,
+                6,
+                16,
+                15,
+                -1,
+                31,
+                30,
+                40,
+                41,
+                -1,
+                15,
+                40,
+                30,
+                5,
+                -1,
+                16,
+                41,
+                40,
+                15,
+                -1,
+                6,
+                31,
+                41,
+                16,
+                -1,
+                5,
+                30,
+                31,
+                6,
+                31,
+                6,
+                1,
+                18,
+                17,
+                -1,
+                26,
+                31,
+                42,
+                43,
+                -1,
+                17,
+                42,
+                31,
+                6,
+                -1,
+                18,
+                43,
+                42,
+                17,
+                -1,
+                1,
+                26,
+                43,
+                18,
+                -1,
+                6,
+                31,
+                26,
+                1,
+                31,
+                19,
+                18,
+                1,
+                7,
+                -1,
+                43,
+                44,
+                32,
+                26,
+                -1,
+                7,
+                32,
+                44,
+                19,
+                -1,
+                1,
+                26,
+                32,
+                7,
+                -1,
+                18,
+                43,
+                26,
+                1,
+                -1,
+                19,
+                44,
+                43,
+                18,
+                31,
+                20,
+                8,
+                2,
+                9,
+                -1,
+                33,
+                45,
+                34,
+                27,
+                -1,
+                9,
+                34,
+                45,
+                20,
+                -1,
+                2,
+                27,
+                34,
+                9,
+                -1,
+                8,
+                33,
+                27,
+                2,
+                -1,
+                20,
+                45,
+                33,
+                8,
+                31,
+                21,
+                10,
+                3,
+                11,
+                -1,
+                35,
+                46,
+                36,
+                28,
+                -1,
+                11,
+                36,
+                46,
+                21,
+                -1,
+                3,
+                28,
+                36,
+                11,
+                -1,
+                10,
+                35,
+                28,
+                3,
+                -1,
+                21,
+                46,
+                35,
+                10,
+                31,
+                22,
+                12,
+                4,
+                13,
+                -1,
+                37,
+                47,
+                38,
+                29,
+                -1,
+                13,
+                38,
+                47,
+                22,
+                -1,
+                4,
+                29,
+                38,
+                13,
+                -1,
+                12,
+                37,
+                29,
+                4,
+                -1,
+                22,
+                47,
+                37,
+                12,
+                31,
+                23,
+                14,
+                5,
+                15,
+                -1,
+                39,
+                48,
+                40,
+                30,
+                -1,
+                15,
+                40,
+                48,
+                23,
+                -1,
+                5,
+                30,
+                40,
+                15,
+                -1,
+                14,
+                39,
+                30,
+                5,
+                -1,
+                23,
+                48,
+                39,
+                14,
+                31,
+                24,
+                16,
+                6,
+                17,
+                -1,
+                41,
+                49,
+                42,
+                31,
+                -1,
+                17,
+                42,
+                49,
+                24,
+                -1,
+                6,
+                31,
+                42,
+                17,
+                -1,
+                16,
+                41,
+                31,
+                6,
+                -1,
+                24,
+                49,
+                41,
+                16,
+                31,
+                50,
+                51,
+                52,
+                53,
+                54,
+                55,
+                -1,
+                56,
+                61,
+                60,
+                59,
+                58,
+                57,
+                -1,
+                50,
+                56,
+                57,
+                51,
+                -1,
+                51,
+                57,
+                58,
+                52,
+                -1,
+                52,
+                58,
+                59,
+                53,
+                -1,
+                53,
+                59,
+                60,
+                54,
+                -1,
+                54,
+                60,
+                61,
+                55,
+                -1,
+                55,
+                61,
+                56,
+                50,
+            ]
+        )
+        cI = DataArrayInt(
+            [
+                0,
+                23,
+                46,
+                69,
+                92,
+                115,
+                138,
+                168,
+                198,
+                228,
+                258,
+                288,
+                318,
+                348,
+                378,
+                408,
+                438,
+                468,
+                498,
+                542,
+            ]
+        )
         mesh.setConnectivity(c, cI)
-        mesh.mergeNodes(eps) # the initial case has double nodes
+        mesh.mergeNodes(eps)  # the initial case has double nodes
 
         ret = mesh.conformize3D(eps)
 
         mretDesc, _, _, _, _ = mesh.buildDescendingConnectivity()
         mretDesc2, _, _, _, _ = mretDesc.buildDescendingConnectivity()
-        c0, cI0 = mesh.getNodalConnectivity().getValues(), mesh.getNodalConnectivityIndex().getValues()
-        c, cI = mretDesc.getNodalConnectivity().getValues(), mretDesc.getNodalConnectivityIndex().getValues()
-        c2, cI2 = mretDesc2.getNodalConnectivity().getValues(), mretDesc2.getNodalConnectivityIndex().getValues()
-        cRef0 = [31, 1, 0, 2, -1, 25, 26, 27, -1, 2, 27, 26, 1, -1, 0, 25, 27, 2, -1, 1, 26, 25, 0, 31, 2, 0, 3, -1, 25, 27, 28, -1, 3, 28, 27, 2, -1, 0, 25, 28, 3, -1, 2, 27, 25, 0, 31, 3, 0, 4, -1, 25, 28, 29, -1, 4, 29, 28, 3, -1, 0, 25, 29, 4, -1, 3, 28, 25, 0, 31, 4, 0, 5, -1, 25, 29, 30, -1, 5, 30, 29, 4, -1, 0, 25, 30, 5, -1, 4, 29, 25, 0, 31, 5, 0, 6, -1, 25, 30, 31, -1, 6, 31, 30, 5, -1, 0, 25, 31, 6, -1, 5, 30, 25, 0, 31, 6, 0, 1, -1, 25, 31, 26, -1, 1, 26, 31, 6, -1, 0, 25, 26, 1, -1, 6, 31, 25, 0, 31, 1, 2, 8, 7, -1, 27, 26, 32, 33, -1, 7, 32, 26, 1, -1, 8, 33, 32, 7, -1, 2, 27, 33, 8, -1, 1, 26, 27, 2, 31, 2, 3, 10, 9, -1, 28, 27, 34, 35, -1, 9, 34, 27, 2, -1, 10, 35, 34, 9, -1, 3, 28, 35, 10, -1, 2, 27, 28, 3, 31, 3, 4, 12, 11, -1, 29, 28, 36, 37, -1, 11, 36, 28, 3, -1, 12, 37, 36, 11, -1, 4, 29, 37, 12, -1, 3, 28, 29, 4, 31, 4, 5, 14, 13, -1, 30, 29, 38, 39, -1, 13, 38, 29, 4, -1, 14, 39, 38, 13, -1, 5, 30, 39, 14, -1, 4, 29, 30, 5, 31, 5, 6, 16, 15, -1, 31, 30, 40, 41, -1, 15, 40, 30, 5, -1, 16, 41, 40, 15, -1, 6, 31, 41, 16, -1, 5, 30, 31, 6, 31, 6, 1, 18, 17, -1, 26, 31, 42, 43, -1, 17, 42, 31, 6, -1, 18, 43, 42, 17, -1, 1, 26, 43, 18, -1, 6, 31, 26, 1, 31, 19, 18, 1, 7, -1, 43, 44, 32, 26, -1, 7, 32, 44, 19, -1, 1, 26, 32, 7, -1, 18, 43, 26, 1, -1, 19, 44, 43, 18, 31, 20, 8, 2, 9, -1, 33, 45, 34, 27, -1, 9, 34, 45, 20, -1, 2, 27, 34, 9, -1, 8, 33, 27, 2, -1, 20, 45, 33, 8, 31, 21, 10, 3, 11, -1, 35, 46, 36, 28, -1, 11, 36, 46, 21, -1, 3, 28, 36, 11, -1, 10, 35, 28, 3, -1, 21, 46, 35, 10, 31, 22, 12, 4, 13, -1, 37, 47, 38, 29, -1, 13, 38, 47, 22, -1, 4, 29, 38, 13, -1, 12, 37, 29, 4, -1, 22, 47, 37, 12, 31, 23, 14, 5, 15, -1, 39, 48, 40, 30, -1, 15, 40, 48, 23, -1, 5, 30, 40, 15, -1, 14, 39, 30, 5, -1, 23, 48, 39, 14, 31, 24, 16, 6, 17, -1, 41, 49, 42, 31, -1, 17, 42, 49, 24, -1, 6, 31, 42, 17, -1, 16, 41, 31, 6, -1, 24, 49, 41, 16, 31, 50, 55, 54, 53, 52, 51, -1, 46, 50, 51, 47, 37, 36, -1, 47, 51, 52, 48, 39, 38, -1, 48, 52, 53, 49, 41, 40, -1, 49, 53, 54, 44, 43, 42, -1, 44, 54, 55, 45, 33, 32, -1, 45, 55, 50, 46, 35, 34, -1, 25, 26, 27, -1, 25, 31, 26, -1, 27, 26, 32, 33, -1, 26, 31, 42, 43, -1, 43, 44, 32, 26, -1, 41, 49, 42, 31, -1, 25, 29, 30, -1, 25, 30, 31, -1, 30, 29, 38, 39, -1, 31, 30, 40, 41, -1, 39, 48, 40, 30, -1, 25, 27, 28, -1, 28, 27, 34, 35, -1, 33, 45, 34, 27, -1, 35, 46, 36, 28, -1, 25, 28, 29, -1, 29, 28, 36, 37, -1, 37, 47, 38, 29]
-        cIRef0 = [0, 23, 46, 69, 92, 115, 138, 168, 198, 228, 258, 288, 318, 348, 378, 408, 438, 468, 498, 631]
-        cRef = [5, 1, 0, 2, 5, 25, 26, 27, 5, 2, 27, 26, 1, 5, 0, 25, 27, 2, 5, 1, 26, 25, 0, 5, 2, 0, 3, 5, 25, 27, 28, 5, 3, 28, 27, 2, 5, 0, 25, 28, 3, 5, 3, 0, 4, 5, 25, 28, 29, 5, 4, 29, 28, 3, 5, 0, 25, 29, 4, 5, 4, 0, 5, 5, 25, 29, 30, 5, 5, 30, 29, 4, 5, 0, 25, 30, 5, 5, 5, 0, 6, 5, 25, 30, 31, 5, 6, 31, 30, 5, 5, 0, 25, 31, 6, 5, 6, 0, 1, 5, 25, 31, 26, 5, 1, 26, 31, 6, 5, 1, 2, 8, 7, 5, 27, 26, 32, 33, 5, 7, 32, 26, 1, 5, 8, 33, 32, 7, 5, 2, 27, 33, 8, 5, 2, 3, 10, 9, 5, 28, 27, 34, 35, 5, 9, 34, 27, 2, 5, 10, 35, 34, 9, 5, 3, 28, 35, 10, 5, 3, 4, 12, 11, 5, 29, 28, 36, 37, 5, 11, 36, 28, 3, 5, 12, 37, 36, 11, 5, 4, 29, 37, 12, 5, 4, 5, 14, 13, 5, 30, 29, 38, 39, 5, 13, 38, 29, 4, 5, 14, 39, 38, 13, 5, 5, 30, 39, 14, 5, 5, 6, 16, 15, 5, 31, 30, 40, 41, 5, 15, 40, 30, 5, 5, 16, 41, 40, 15, 5, 6, 31, 41, 16, 5, 6, 1, 18, 17, 5, 26, 31, 42, 43, 5, 17, 42, 31, 6, 5, 18, 43, 42, 17, 5, 1, 26, 43, 18, 5, 19, 18, 1, 7, 5, 43, 44, 32, 26, 5, 7, 32, 44, 19, 5, 19, 44, 43, 18, 5, 20, 8, 2, 9, 5, 33, 45, 34, 27, 5, 9, 34, 45, 20, 5, 20, 45, 33, 8, 5, 21, 10, 3, 11, 5, 35, 46, 36, 28, 5, 11, 36, 46, 21, 5, 21, 46, 35, 10, 5, 22, 12, 4, 13, 5, 37, 47, 38, 29, 5, 13, 38, 47, 22, 5, 22, 47, 37, 12, 5, 23, 14, 5, 15, 5, 39, 48, 40, 30, 5, 15, 40, 48, 23, 5, 23, 48, 39, 14, 5, 24, 16, 6, 17, 5, 41, 49, 42, 31, 5, 17, 42, 49, 24, 5, 24, 49, 41, 16, 5, 50, 55, 54, 53, 52, 51, 5, 46, 50, 51, 47, 37, 36, 5, 47, 51, 52, 48, 39, 38, 5, 48, 52, 53, 49, 41, 40, 5, 49, 53, 54, 44, 43, 42, 5, 44, 54, 55, 45, 33, 32, 5, 45, 55, 50, 46, 35, 34]
-        cIRef = [0, 4, 8, 13, 18, 23, 27, 31, 36, 41, 45, 49, 54, 59, 63, 67, 72, 77, 81, 85, 90, 95, 99, 103, 108, 113, 118, 123, 128, 133, 138, 143, 148, 153, 158, 163, 168, 173, 178, 183, 188, 193, 198, 203, 208, 213, 218, 223, 228, 233, 238, 243, 248, 253, 258, 263, 268, 273, 278, 283, 288, 293, 298, 303, 308, 313, 318, 323, 328, 333, 338, 343, 348, 353, 358, 363, 368, 373, 378, 385, 392, 399, 406, 413, 420, 427]
-        cRef2 = [1, 1, 0, 1, 0, 2, 1, 2, 1, 1, 25, 26, 1, 26, 27, 1, 27, 25, 1, 2, 27, 1, 26, 1, 1, 0, 25, 1, 0, 3, 1, 3, 2, 1, 27, 28, 1, 28, 25, 1, 3, 28, 1, 0, 4, 1, 4, 3, 1, 28, 29, 1, 29, 25, 1, 4, 29, 1, 0, 5, 1, 5, 4, 1, 29, 30, 1, 30, 25, 1, 5, 30, 1, 0, 6, 1, 6, 5, 1, 30, 31, 1, 31, 25, 1, 6, 31, 1, 1, 6, 1, 31, 26, 1, 2, 8, 1, 8, 7, 1, 7, 1, 1, 26, 32, 1, 32, 33, 1, 33, 27, 1, 7, 32, 1, 8, 33, 1, 3, 10, 1, 10, 9, 1, 9, 2, 1, 27, 34, 1, 34, 35, 1, 35, 28, 1, 9, 34, 1, 10, 35, 1, 4, 12, 1, 12, 11, 1, 11, 3, 1, 28, 36, 1, 36, 37, 1, 37, 29, 1, 11, 36, 1, 12, 37, 1, 5, 14, 1, 14, 13, 1, 13, 4, 1, 29, 38, 1, 38, 39, 1, 39, 30, 1, 13, 38, 1, 14, 39, 1, 6, 16, 1, 16, 15, 1, 15, 5, 1, 30, 40, 1, 40, 41, 1, 41, 31, 1, 15, 40, 1, 16, 41, 1, 1, 18, 1, 18, 17, 1, 17, 6, 1, 31, 42, 1, 42, 43, 1, 43, 26, 1, 17, 42, 1, 18, 43, 1, 19, 18, 1, 7, 19, 1, 43, 44, 1, 44, 32, 1, 44, 19, 1, 20, 8, 1, 9, 20, 1, 33, 45, 1, 45, 34, 1, 45, 20, 1, 21, 10, 1, 11, 21, 1, 35, 46, 1, 46, 36, 1, 46, 21, 1, 22, 12, 1, 13, 22, 1, 37, 47, 1, 47, 38, 1, 47, 22, 1, 23, 14, 1, 15, 23, 1, 39, 48, 1, 48, 40, 1, 48, 23, 1, 24, 16, 1, 17, 24, 1, 41, 49, 1, 49, 42, 1, 49, 24, 1, 50, 55, 1, 55, 54, 1, 54, 53, 1, 53, 52, 1, 52, 51, 1, 51, 50, 1, 46, 50, 1, 51, 47, 1, 52, 48, 1, 53, 49, 1, 54, 44, 1, 55, 45]
-        cIRef2 = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 57, 60, 63, 66, 69, 72, 75, 78, 81, 84, 87, 90, 93, 96, 99, 102, 105, 108, 111, 114, 117, 120, 123, 126, 129, 132, 135, 138, 141, 144, 147, 150, 153, 156, 159, 162, 165, 168, 171, 174, 177, 180, 183, 186, 189, 192, 195, 198, 201, 204, 207, 210, 213, 216, 219, 222, 225, 228, 231, 234, 237, 240, 243, 246, 249, 252, 255, 258, 261, 264, 267, 270, 273, 276, 279, 282, 285, 288, 291, 294, 297, 300, 303, 306, 309, 312, 315, 318, 321, 324, 327, 330, 333, 336, 339, 342, 345, 348, 351, 354, 357, 360, 363]
+        c0, cI0 = (
+            mesh.getNodalConnectivity().getValues(),
+            mesh.getNodalConnectivityIndex().getValues(),
+        )
+        c, cI = (
+            mretDesc.getNodalConnectivity().getValues(),
+            mretDesc.getNodalConnectivityIndex().getValues(),
+        )
+        c2, cI2 = (
+            mretDesc2.getNodalConnectivity().getValues(),
+            mretDesc2.getNodalConnectivityIndex().getValues(),
+        )
+        cRef0 = [
+            31,
+            1,
+            0,
+            2,
+            -1,
+            25,
+            26,
+            27,
+            -1,
+            2,
+            27,
+            26,
+            1,
+            -1,
+            0,
+            25,
+            27,
+            2,
+            -1,
+            1,
+            26,
+            25,
+            0,
+            31,
+            2,
+            0,
+            3,
+            -1,
+            25,
+            27,
+            28,
+            -1,
+            3,
+            28,
+            27,
+            2,
+            -1,
+            0,
+            25,
+            28,
+            3,
+            -1,
+            2,
+            27,
+            25,
+            0,
+            31,
+            3,
+            0,
+            4,
+            -1,
+            25,
+            28,
+            29,
+            -1,
+            4,
+            29,
+            28,
+            3,
+            -1,
+            0,
+            25,
+            29,
+            4,
+            -1,
+            3,
+            28,
+            25,
+            0,
+            31,
+            4,
+            0,
+            5,
+            -1,
+            25,
+            29,
+            30,
+            -1,
+            5,
+            30,
+            29,
+            4,
+            -1,
+            0,
+            25,
+            30,
+            5,
+            -1,
+            4,
+            29,
+            25,
+            0,
+            31,
+            5,
+            0,
+            6,
+            -1,
+            25,
+            30,
+            31,
+            -1,
+            6,
+            31,
+            30,
+            5,
+            -1,
+            0,
+            25,
+            31,
+            6,
+            -1,
+            5,
+            30,
+            25,
+            0,
+            31,
+            6,
+            0,
+            1,
+            -1,
+            25,
+            31,
+            26,
+            -1,
+            1,
+            26,
+            31,
+            6,
+            -1,
+            0,
+            25,
+            26,
+            1,
+            -1,
+            6,
+            31,
+            25,
+            0,
+            31,
+            1,
+            2,
+            8,
+            7,
+            -1,
+            27,
+            26,
+            32,
+            33,
+            -1,
+            7,
+            32,
+            26,
+            1,
+            -1,
+            8,
+            33,
+            32,
+            7,
+            -1,
+            2,
+            27,
+            33,
+            8,
+            -1,
+            1,
+            26,
+            27,
+            2,
+            31,
+            2,
+            3,
+            10,
+            9,
+            -1,
+            28,
+            27,
+            34,
+            35,
+            -1,
+            9,
+            34,
+            27,
+            2,
+            -1,
+            10,
+            35,
+            34,
+            9,
+            -1,
+            3,
+            28,
+            35,
+            10,
+            -1,
+            2,
+            27,
+            28,
+            3,
+            31,
+            3,
+            4,
+            12,
+            11,
+            -1,
+            29,
+            28,
+            36,
+            37,
+            -1,
+            11,
+            36,
+            28,
+            3,
+            -1,
+            12,
+            37,
+            36,
+            11,
+            -1,
+            4,
+            29,
+            37,
+            12,
+            -1,
+            3,
+            28,
+            29,
+            4,
+            31,
+            4,
+            5,
+            14,
+            13,
+            -1,
+            30,
+            29,
+            38,
+            39,
+            -1,
+            13,
+            38,
+            29,
+            4,
+            -1,
+            14,
+            39,
+            38,
+            13,
+            -1,
+            5,
+            30,
+            39,
+            14,
+            -1,
+            4,
+            29,
+            30,
+            5,
+            31,
+            5,
+            6,
+            16,
+            15,
+            -1,
+            31,
+            30,
+            40,
+            41,
+            -1,
+            15,
+            40,
+            30,
+            5,
+            -1,
+            16,
+            41,
+            40,
+            15,
+            -1,
+            6,
+            31,
+            41,
+            16,
+            -1,
+            5,
+            30,
+            31,
+            6,
+            31,
+            6,
+            1,
+            18,
+            17,
+            -1,
+            26,
+            31,
+            42,
+            43,
+            -1,
+            17,
+            42,
+            31,
+            6,
+            -1,
+            18,
+            43,
+            42,
+            17,
+            -1,
+            1,
+            26,
+            43,
+            18,
+            -1,
+            6,
+            31,
+            26,
+            1,
+            31,
+            19,
+            18,
+            1,
+            7,
+            -1,
+            43,
+            44,
+            32,
+            26,
+            -1,
+            7,
+            32,
+            44,
+            19,
+            -1,
+            1,
+            26,
+            32,
+            7,
+            -1,
+            18,
+            43,
+            26,
+            1,
+            -1,
+            19,
+            44,
+            43,
+            18,
+            31,
+            20,
+            8,
+            2,
+            9,
+            -1,
+            33,
+            45,
+            34,
+            27,
+            -1,
+            9,
+            34,
+            45,
+            20,
+            -1,
+            2,
+            27,
+            34,
+            9,
+            -1,
+            8,
+            33,
+            27,
+            2,
+            -1,
+            20,
+            45,
+            33,
+            8,
+            31,
+            21,
+            10,
+            3,
+            11,
+            -1,
+            35,
+            46,
+            36,
+            28,
+            -1,
+            11,
+            36,
+            46,
+            21,
+            -1,
+            3,
+            28,
+            36,
+            11,
+            -1,
+            10,
+            35,
+            28,
+            3,
+            -1,
+            21,
+            46,
+            35,
+            10,
+            31,
+            22,
+            12,
+            4,
+            13,
+            -1,
+            37,
+            47,
+            38,
+            29,
+            -1,
+            13,
+            38,
+            47,
+            22,
+            -1,
+            4,
+            29,
+            38,
+            13,
+            -1,
+            12,
+            37,
+            29,
+            4,
+            -1,
+            22,
+            47,
+            37,
+            12,
+            31,
+            23,
+            14,
+            5,
+            15,
+            -1,
+            39,
+            48,
+            40,
+            30,
+            -1,
+            15,
+            40,
+            48,
+            23,
+            -1,
+            5,
+            30,
+            40,
+            15,
+            -1,
+            14,
+            39,
+            30,
+            5,
+            -1,
+            23,
+            48,
+            39,
+            14,
+            31,
+            24,
+            16,
+            6,
+            17,
+            -1,
+            41,
+            49,
+            42,
+            31,
+            -1,
+            17,
+            42,
+            49,
+            24,
+            -1,
+            6,
+            31,
+            42,
+            17,
+            -1,
+            16,
+            41,
+            31,
+            6,
+            -1,
+            24,
+            49,
+            41,
+            16,
+            31,
+            50,
+            55,
+            54,
+            53,
+            52,
+            51,
+            -1,
+            46,
+            50,
+            51,
+            47,
+            37,
+            36,
+            -1,
+            47,
+            51,
+            52,
+            48,
+            39,
+            38,
+            -1,
+            48,
+            52,
+            53,
+            49,
+            41,
+            40,
+            -1,
+            49,
+            53,
+            54,
+            44,
+            43,
+            42,
+            -1,
+            44,
+            54,
+            55,
+            45,
+            33,
+            32,
+            -1,
+            45,
+            55,
+            50,
+            46,
+            35,
+            34,
+            -1,
+            25,
+            26,
+            27,
+            -1,
+            25,
+            31,
+            26,
+            -1,
+            27,
+            26,
+            32,
+            33,
+            -1,
+            26,
+            31,
+            42,
+            43,
+            -1,
+            43,
+            44,
+            32,
+            26,
+            -1,
+            41,
+            49,
+            42,
+            31,
+            -1,
+            25,
+            29,
+            30,
+            -1,
+            25,
+            30,
+            31,
+            -1,
+            30,
+            29,
+            38,
+            39,
+            -1,
+            31,
+            30,
+            40,
+            41,
+            -1,
+            39,
+            48,
+            40,
+            30,
+            -1,
+            25,
+            27,
+            28,
+            -1,
+            28,
+            27,
+            34,
+            35,
+            -1,
+            33,
+            45,
+            34,
+            27,
+            -1,
+            35,
+            46,
+            36,
+            28,
+            -1,
+            25,
+            28,
+            29,
+            -1,
+            29,
+            28,
+            36,
+            37,
+            -1,
+            37,
+            47,
+            38,
+            29,
+        ]
+        cIRef0 = [
+            0,
+            23,
+            46,
+            69,
+            92,
+            115,
+            138,
+            168,
+            198,
+            228,
+            258,
+            288,
+            318,
+            348,
+            378,
+            408,
+            438,
+            468,
+            498,
+            631,
+        ]
+        cRef = [
+            5,
+            1,
+            0,
+            2,
+            5,
+            25,
+            26,
+            27,
+            5,
+            2,
+            27,
+            26,
+            1,
+            5,
+            0,
+            25,
+            27,
+            2,
+            5,
+            1,
+            26,
+            25,
+            0,
+            5,
+            2,
+            0,
+            3,
+            5,
+            25,
+            27,
+            28,
+            5,
+            3,
+            28,
+            27,
+            2,
+            5,
+            0,
+            25,
+            28,
+            3,
+            5,
+            3,
+            0,
+            4,
+            5,
+            25,
+            28,
+            29,
+            5,
+            4,
+            29,
+            28,
+            3,
+            5,
+            0,
+            25,
+            29,
+            4,
+            5,
+            4,
+            0,
+            5,
+            5,
+            25,
+            29,
+            30,
+            5,
+            5,
+            30,
+            29,
+            4,
+            5,
+            0,
+            25,
+            30,
+            5,
+            5,
+            5,
+            0,
+            6,
+            5,
+            25,
+            30,
+            31,
+            5,
+            6,
+            31,
+            30,
+            5,
+            5,
+            0,
+            25,
+            31,
+            6,
+            5,
+            6,
+            0,
+            1,
+            5,
+            25,
+            31,
+            26,
+            5,
+            1,
+            26,
+            31,
+            6,
+            5,
+            1,
+            2,
+            8,
+            7,
+            5,
+            27,
+            26,
+            32,
+            33,
+            5,
+            7,
+            32,
+            26,
+            1,
+            5,
+            8,
+            33,
+            32,
+            7,
+            5,
+            2,
+            27,
+            33,
+            8,
+            5,
+            2,
+            3,
+            10,
+            9,
+            5,
+            28,
+            27,
+            34,
+            35,
+            5,
+            9,
+            34,
+            27,
+            2,
+            5,
+            10,
+            35,
+            34,
+            9,
+            5,
+            3,
+            28,
+            35,
+            10,
+            5,
+            3,
+            4,
+            12,
+            11,
+            5,
+            29,
+            28,
+            36,
+            37,
+            5,
+            11,
+            36,
+            28,
+            3,
+            5,
+            12,
+            37,
+            36,
+            11,
+            5,
+            4,
+            29,
+            37,
+            12,
+            5,
+            4,
+            5,
+            14,
+            13,
+            5,
+            30,
+            29,
+            38,
+            39,
+            5,
+            13,
+            38,
+            29,
+            4,
+            5,
+            14,
+            39,
+            38,
+            13,
+            5,
+            5,
+            30,
+            39,
+            14,
+            5,
+            5,
+            6,
+            16,
+            15,
+            5,
+            31,
+            30,
+            40,
+            41,
+            5,
+            15,
+            40,
+            30,
+            5,
+            5,
+            16,
+            41,
+            40,
+            15,
+            5,
+            6,
+            31,
+            41,
+            16,
+            5,
+            6,
+            1,
+            18,
+            17,
+            5,
+            26,
+            31,
+            42,
+            43,
+            5,
+            17,
+            42,
+            31,
+            6,
+            5,
+            18,
+            43,
+            42,
+            17,
+            5,
+            1,
+            26,
+            43,
+            18,
+            5,
+            19,
+            18,
+            1,
+            7,
+            5,
+            43,
+            44,
+            32,
+            26,
+            5,
+            7,
+            32,
+            44,
+            19,
+            5,
+            19,
+            44,
+            43,
+            18,
+            5,
+            20,
+            8,
+            2,
+            9,
+            5,
+            33,
+            45,
+            34,
+            27,
+            5,
+            9,
+            34,
+            45,
+            20,
+            5,
+            20,
+            45,
+            33,
+            8,
+            5,
+            21,
+            10,
+            3,
+            11,
+            5,
+            35,
+            46,
+            36,
+            28,
+            5,
+            11,
+            36,
+            46,
+            21,
+            5,
+            21,
+            46,
+            35,
+            10,
+            5,
+            22,
+            12,
+            4,
+            13,
+            5,
+            37,
+            47,
+            38,
+            29,
+            5,
+            13,
+            38,
+            47,
+            22,
+            5,
+            22,
+            47,
+            37,
+            12,
+            5,
+            23,
+            14,
+            5,
+            15,
+            5,
+            39,
+            48,
+            40,
+            30,
+            5,
+            15,
+            40,
+            48,
+            23,
+            5,
+            23,
+            48,
+            39,
+            14,
+            5,
+            24,
+            16,
+            6,
+            17,
+            5,
+            41,
+            49,
+            42,
+            31,
+            5,
+            17,
+            42,
+            49,
+            24,
+            5,
+            24,
+            49,
+            41,
+            16,
+            5,
+            50,
+            55,
+            54,
+            53,
+            52,
+            51,
+            5,
+            46,
+            50,
+            51,
+            47,
+            37,
+            36,
+            5,
+            47,
+            51,
+            52,
+            48,
+            39,
+            38,
+            5,
+            48,
+            52,
+            53,
+            49,
+            41,
+            40,
+            5,
+            49,
+            53,
+            54,
+            44,
+            43,
+            42,
+            5,
+            44,
+            54,
+            55,
+            45,
+            33,
+            32,
+            5,
+            45,
+            55,
+            50,
+            46,
+            35,
+            34,
+        ]
+        cIRef = [
+            0,
+            4,
+            8,
+            13,
+            18,
+            23,
+            27,
+            31,
+            36,
+            41,
+            45,
+            49,
+            54,
+            59,
+            63,
+            67,
+            72,
+            77,
+            81,
+            85,
+            90,
+            95,
+            99,
+            103,
+            108,
+            113,
+            118,
+            123,
+            128,
+            133,
+            138,
+            143,
+            148,
+            153,
+            158,
+            163,
+            168,
+            173,
+            178,
+            183,
+            188,
+            193,
+            198,
+            203,
+            208,
+            213,
+            218,
+            223,
+            228,
+            233,
+            238,
+            243,
+            248,
+            253,
+            258,
+            263,
+            268,
+            273,
+            278,
+            283,
+            288,
+            293,
+            298,
+            303,
+            308,
+            313,
+            318,
+            323,
+            328,
+            333,
+            338,
+            343,
+            348,
+            353,
+            358,
+            363,
+            368,
+            373,
+            378,
+            385,
+            392,
+            399,
+            406,
+            413,
+            420,
+            427,
+        ]
+        cRef2 = [
+            1,
+            1,
+            0,
+            1,
+            0,
+            2,
+            1,
+            2,
+            1,
+            1,
+            25,
+            26,
+            1,
+            26,
+            27,
+            1,
+            27,
+            25,
+            1,
+            2,
+            27,
+            1,
+            26,
+            1,
+            1,
+            0,
+            25,
+            1,
+            0,
+            3,
+            1,
+            3,
+            2,
+            1,
+            27,
+            28,
+            1,
+            28,
+            25,
+            1,
+            3,
+            28,
+            1,
+            0,
+            4,
+            1,
+            4,
+            3,
+            1,
+            28,
+            29,
+            1,
+            29,
+            25,
+            1,
+            4,
+            29,
+            1,
+            0,
+            5,
+            1,
+            5,
+            4,
+            1,
+            29,
+            30,
+            1,
+            30,
+            25,
+            1,
+            5,
+            30,
+            1,
+            0,
+            6,
+            1,
+            6,
+            5,
+            1,
+            30,
+            31,
+            1,
+            31,
+            25,
+            1,
+            6,
+            31,
+            1,
+            1,
+            6,
+            1,
+            31,
+            26,
+            1,
+            2,
+            8,
+            1,
+            8,
+            7,
+            1,
+            7,
+            1,
+            1,
+            26,
+            32,
+            1,
+            32,
+            33,
+            1,
+            33,
+            27,
+            1,
+            7,
+            32,
+            1,
+            8,
+            33,
+            1,
+            3,
+            10,
+            1,
+            10,
+            9,
+            1,
+            9,
+            2,
+            1,
+            27,
+            34,
+            1,
+            34,
+            35,
+            1,
+            35,
+            28,
+            1,
+            9,
+            34,
+            1,
+            10,
+            35,
+            1,
+            4,
+            12,
+            1,
+            12,
+            11,
+            1,
+            11,
+            3,
+            1,
+            28,
+            36,
+            1,
+            36,
+            37,
+            1,
+            37,
+            29,
+            1,
+            11,
+            36,
+            1,
+            12,
+            37,
+            1,
+            5,
+            14,
+            1,
+            14,
+            13,
+            1,
+            13,
+            4,
+            1,
+            29,
+            38,
+            1,
+            38,
+            39,
+            1,
+            39,
+            30,
+            1,
+            13,
+            38,
+            1,
+            14,
+            39,
+            1,
+            6,
+            16,
+            1,
+            16,
+            15,
+            1,
+            15,
+            5,
+            1,
+            30,
+            40,
+            1,
+            40,
+            41,
+            1,
+            41,
+            31,
+            1,
+            15,
+            40,
+            1,
+            16,
+            41,
+            1,
+            1,
+            18,
+            1,
+            18,
+            17,
+            1,
+            17,
+            6,
+            1,
+            31,
+            42,
+            1,
+            42,
+            43,
+            1,
+            43,
+            26,
+            1,
+            17,
+            42,
+            1,
+            18,
+            43,
+            1,
+            19,
+            18,
+            1,
+            7,
+            19,
+            1,
+            43,
+            44,
+            1,
+            44,
+            32,
+            1,
+            44,
+            19,
+            1,
+            20,
+            8,
+            1,
+            9,
+            20,
+            1,
+            33,
+            45,
+            1,
+            45,
+            34,
+            1,
+            45,
+            20,
+            1,
+            21,
+            10,
+            1,
+            11,
+            21,
+            1,
+            35,
+            46,
+            1,
+            46,
+            36,
+            1,
+            46,
+            21,
+            1,
+            22,
+            12,
+            1,
+            13,
+            22,
+            1,
+            37,
+            47,
+            1,
+            47,
+            38,
+            1,
+            47,
+            22,
+            1,
+            23,
+            14,
+            1,
+            15,
+            23,
+            1,
+            39,
+            48,
+            1,
+            48,
+            40,
+            1,
+            48,
+            23,
+            1,
+            24,
+            16,
+            1,
+            17,
+            24,
+            1,
+            41,
+            49,
+            1,
+            49,
+            42,
+            1,
+            49,
+            24,
+            1,
+            50,
+            55,
+            1,
+            55,
+            54,
+            1,
+            54,
+            53,
+            1,
+            53,
+            52,
+            1,
+            52,
+            51,
+            1,
+            51,
+            50,
+            1,
+            46,
+            50,
+            1,
+            51,
+            47,
+            1,
+            52,
+            48,
+            1,
+            53,
+            49,
+            1,
+            54,
+            44,
+            1,
+            55,
+            45,
+        ]
+        cIRef2 = [
+            0,
+            3,
+            6,
+            9,
+            12,
+            15,
+            18,
+            21,
+            24,
+            27,
+            30,
+            33,
+            36,
+            39,
+            42,
+            45,
+            48,
+            51,
+            54,
+            57,
+            60,
+            63,
+            66,
+            69,
+            72,
+            75,
+            78,
+            81,
+            84,
+            87,
+            90,
+            93,
+            96,
+            99,
+            102,
+            105,
+            108,
+            111,
+            114,
+            117,
+            120,
+            123,
+            126,
+            129,
+            132,
+            135,
+            138,
+            141,
+            144,
+            147,
+            150,
+            153,
+            156,
+            159,
+            162,
+            165,
+            168,
+            171,
+            174,
+            177,
+            180,
+            183,
+            186,
+            189,
+            192,
+            195,
+            198,
+            201,
+            204,
+            207,
+            210,
+            213,
+            216,
+            219,
+            222,
+            225,
+            228,
+            231,
+            234,
+            237,
+            240,
+            243,
+            246,
+            249,
+            252,
+            255,
+            258,
+            261,
+            264,
+            267,
+            270,
+            273,
+            276,
+            279,
+            282,
+            285,
+            288,
+            291,
+            294,
+            297,
+            300,
+            303,
+            306,
+            309,
+            312,
+            315,
+            318,
+            321,
+            324,
+            327,
+            330,
+            333,
+            336,
+            339,
+            342,
+            345,
+            348,
+            351,
+            354,
+            357,
+            360,
+            363,
+        ]
         self.assertEqual(85, mretDesc.getNumberOfCells())
         self.assertEqual(121, mretDesc2.getNumberOfCells())
         self.assertEqual(cRef0, c0)
@@ -1518,5 +12028,6 @@ class MEDCouplingIntersectTest(unittest.TestCase):
         self.assertEqual(set([18]), set(ret.getValues()))
         pass
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

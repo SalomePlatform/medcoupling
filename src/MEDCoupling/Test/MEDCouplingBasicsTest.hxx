@@ -29,14 +29,14 @@
 
 namespace MEDCoupling
 {
-  class DataArrayDouble;
-  class MEDCouplingUMesh;
-  class MEDCouplingFieldDouble;
-  class MEDCouplingMultiFields;
+class DataArrayDouble;
+class MEDCouplingUMesh;
+class MEDCouplingFieldDouble;
+class MEDCouplingMultiFields;
 
-  class MEDCouplingBasicsTest : public CppUnit::TestFixture
-  {
-  public:
+class MEDCouplingBasicsTest : public CppUnit::TestFixture
+{
+   public:
     static MEDCouplingUMesh *build3DSourceMesh_2();
     static MEDCouplingUMesh *build3DTargetMesh_2();
     static MEDCouplingUMesh *build1DTargetMesh_1();
@@ -78,37 +78,39 @@ namespace MEDCoupling
 
     static MEDCouplingUMesh *build2D1DSourceMesh();
     static MEDCouplingUMesh *build2D1DTargetMesh();
-    static MEDCouplingUMesh *build2D1DSegSourceMesh(const double shiftX = 0.,
-                                                    const double inclinationX = 0.);
+    static MEDCouplingUMesh *build2D1DSegSourceMesh(const double shiftX = 0., const double inclinationX = 0.);
     static MEDCouplingUMesh *build2D1DQuadTargetMesh(const double inclinaisonX = 0.);
     static MEDCouplingUMesh *build2D1DTriTargetMesh(const double inclinaisonX = 0.);
     static MEDCouplingUMesh *build3D2DSourceMesh();
     static MEDCouplingUMesh *build3D2DTargetMesh();
-    static MEDCouplingUMesh* build3D2DQuadSourceMesh(const double shiftX = 0.,
-                                                     const double inclinationX = 0.);
-    static MEDCouplingUMesh* build3D2DTriSourceMesh(const double shiftX = 0.,
-                                                    const double inclinationX = 0.);
-    static MEDCouplingUMesh* build3D2DTetraTargetMesh(const double inclinaisonX = 0.);
-    static MEDCouplingUMesh* build3D2DHexaTargetMesh(const double inclinaisonX = 0.);
+    static MEDCouplingUMesh *build3D2DQuadSourceMesh(const double shiftX = 0., const double inclinationX = 0.);
+    static MEDCouplingUMesh *build3D2DTriSourceMesh(const double shiftX = 0., const double inclinationX = 0.);
+    static MEDCouplingUMesh *build3D2DTetraTargetMesh(const double inclinaisonX = 0.);
+    static MEDCouplingUMesh *build3D2DHexaTargetMesh(const double inclinaisonX = 0.);
 
     static DataArrayDouble *buildCoordsForMultiTypes_1();
     static MEDCouplingMultiFields *buildMultiFields_1();
     static std::vector<MEDCouplingFieldDouble *> buildMultiFields_2();
-    static double sumAll(const std::vector< std::map<mcIdType,double> >& matrix);
-  protected:
-    static int countNonZero(const std::vector< std::map<mcIdType,double> >& matrix);
+    static double sumAll(const std::vector<std::map<mcIdType, double> > &matrix);
 
-    static void test2D1DMeshesIntersection(MEDCouplingUMesh *sourceMesh,
-                                           MEDCouplingUMesh *targetMesh,
-                                           const double correctSurf,
-                                           const int correctDuplicateFacesNbr,
-                                           const int correctTotalIntersectFacesNbr = -1);
-    static void test3D2DMeshesIntersection(MEDCouplingUMesh *sourceMesh,
-                                           MEDCouplingUMesh *targetMesh,
-                                           const double correctSurf,
-                                           const int correctDuplicateFacesNbr,
-                                           const int correctTotalIntersectFacesNbr = -1);
-  };
-}
+   protected:
+    static int countNonZero(const std::vector<std::map<mcIdType, double> > &matrix);
+
+    static void test2D1DMeshesIntersection(
+        MEDCouplingUMesh *sourceMesh,
+        MEDCouplingUMesh *targetMesh,
+        const double correctSurf,
+        const int correctDuplicateFacesNbr,
+        const int correctTotalIntersectFacesNbr = -1
+    );
+    static void test3D2DMeshesIntersection(
+        MEDCouplingUMesh *sourceMesh,
+        MEDCouplingUMesh *targetMesh,
+        const double correctSurf,
+        const int correctDuplicateFacesNbr,
+        const int correctTotalIntersectFacesNbr = -1
+    );
+};
+}  // namespace MEDCoupling
 
 #endif

@@ -25,17 +25,20 @@
 
 namespace INTERP_KERNEL
 {
-  class Interpolation2D : public InterpolationPlanar<Interpolation2D>
-  {
-  public:
-    Interpolation2D() { }
-    Interpolation2D(const InterpolationOptions& io):InterpolationPlanar<Interpolation2D>(io) { }
-  public:
+class Interpolation2D : public InterpolationPlanar<Interpolation2D>
+{
+   public:
+    Interpolation2D() {}
+    Interpolation2D(const InterpolationOptions &io) : InterpolationPlanar<Interpolation2D>(io) {}
+
+   public:
     bool doRotate() const { return false; }
     double medianPlane() const { return 0.; }
-    template<class MyMeshType, class MyMatrixRow>
-    void performAdjustmentOfBB(PlanarIntersector<MyMeshType,MyMatrixRow>* intersector, std::vector<double>& bbox) const { }
-  };
-}
+    template <class MyMeshType, class MyMatrixRow>
+    void performAdjustmentOfBB(PlanarIntersector<MyMeshType, MyMatrixRow> *intersector, std::vector<double> &bbox) const
+    {
+    }
+};
+}  // namespace INTERP_KERNEL
 
 #endif

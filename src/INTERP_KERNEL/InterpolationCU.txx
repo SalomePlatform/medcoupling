@@ -33,209 +33,220 @@
 #include <map>
 
 // // convert index "From Mesh Index"
-#define _FMIU(i) OTT<typename MyUMeshType::MyConnType,MyUMeshType::My_numPol>::ind2C((i))
-#define _FMIC(i) OTT<typename MyCMeshType::MyConnType,MyCMeshType::My_numPol>::ind2C((i))
+#define _FMIU(i) OTT<typename MyUMeshType::MyConnType, MyUMeshType::My_numPol>::ind2C((i))
+#define _FMIC(i) OTT<typename MyCMeshType::MyConnType, MyCMeshType::My_numPol>::ind2C((i))
 // convert index "To Mesh Index"
-#define _TMIU(i) OTT<typename MyUMeshType::MyConnType,MyUMeshType::My_numPol>::indFC((i))
-#define _TMIC(i) OTT<typename MyCMeshType::MyConnType,MyCMeshType::My_numPol>::indFC((i))
+#define _TMIU(i) OTT<typename MyUMeshType::MyConnType, MyUMeshType::My_numPol>::indFC((i))
+#define _TMIC(i) OTT<typename MyCMeshType::MyConnType, MyCMeshType::My_numPol>::indFC((i))
 // convert coord "From Mesh Coord"
-#define _FMCOO(i) OTT<typename MyUMeshType::MyConnType,MyUMeshType::My_numPol>::coo2C((i))
+#define _FMCOO(i) OTT<typename MyUMeshType::MyConnType, MyUMeshType::My_numPol>::coo2C((i))
 // convert connectivity "From Mesh Connectivity"
-#define _FMCON(i) OTT<typename MyUMeshType::MyConnType,MyUMeshType::My_numPol>::conn2C((i))
+#define _FMCON(i) OTT<typename MyUMeshType::MyConnType, MyUMeshType::My_numPol>::conn2C((i))
 
 namespace INTERP_KERNEL
 {
-  /**
-   * \defgroup InterpolationCU InterpolationCU
-   * \class InterpolationCU
-   * \brief Class used to calculate the volumes of intersection between the elements of a cartesian and an unstructured  meshes.
-   *
-   */
-  //================================================================================
-  /**
-   * Default constructor
-   *
-   */
-  //================================================================================
+/**
+ * \defgroup InterpolationCU InterpolationCU
+ * \class InterpolationCU
+ * \brief Class used to calculate the volumes of intersection between the elements of a cartesian and an unstructured
+ * meshes.
+ *
+ */
+//================================================================================
+/**
+ * Default constructor
+ *
+ */
+//================================================================================
 
-  InterpolationCU::InterpolationCU()
-  {
-  }
+InterpolationCU::InterpolationCU() {}
 
-  InterpolationCU::InterpolationCU(const InterpolationOptions & io)
-    :Interpolation<InterpolationCU>(io)
-  {
-  }
+InterpolationCU::InterpolationCU(const InterpolationOptions &io) : Interpolation<InterpolationCU>(io) {}
 
-  //================================================================================
-  /**
-   * Calculates the matrix of volumes of intersection between the elements of srcMesh and the elements of targetMesh.
-   * The calculation is done in two steps. First a filtering process reduces the number of pairs of elements for which the
-   * calculation must be carried out by eliminating pairs that do not intersect based on their bounding boxes. Then, the
-   * volume of intersection is calculated for the remaining pairs, and entered into the
-   * intersection matrix.
-   *
-   * The matrix is partially sparse : it is a vector of maps of integer - double pairs.
-   * It can also be an INTERP_KERNEL::Matrix object.
-   * The length of the vector is equal to the number of target elements - for each target element there is a map, regardless
-   * of whether the element intersects any source elements or not. But in the maps there are only entries for those source elements
-   * which have a non-zero intersection volume with the target element. The vector has indices running from
-   * 0 to (nb target elements - 1), meaning that the map for target element i is stored at index i - 1. In the maps, however,
-   * the indexing is more natural : the intersection volume of the target element i with source element j is found at matrix[i-1][j].
-   *
+//================================================================================
+/**
+ * Calculates the matrix of volumes of intersection between the elements of srcMesh and the elements of targetMesh.
+ * The calculation is done in two steps. First a filtering process reduces the number of pairs of elements for which the
+ * calculation must be carried out by eliminating pairs that do not intersect based on their bounding boxes. Then, the
+ * volume of intersection is calculated for the remaining pairs, and entered into the
+ * intersection matrix.
+ *
+ * The matrix is partially sparse : it is a vector of maps of integer - double pairs.
+ * It can also be an INTERP_KERNEL::Matrix object.
+ * The length of the vector is equal to the number of target elements - for each target element there is a map,
+ regardless
+ * of whether the element intersects any source elements or not. But in the maps there are only entries for those source
+ elements
+ * which have a non-zero intersection volume with the target element. The vector has indices running from
+ * 0 to (nb target elements - 1), meaning that the map for target element i is stored at index i - 1. In the maps,
+ however,
+ * the indexing is more natural : the intersection volume of the target element i with source element j is found at
+ matrix[i-1][j].
+ *
 
-   * @param src_mesh     cartesian source mesh
-   * @param tgt_mesh  unstructured target mesh
-   * @param result      matrix in which the result is stored
-   * @param method      interpolation method
-   */
-  //================================================================================
+ * @param src_mesh     cartesian source mesh
+ * @param tgt_mesh  unstructured target mesh
+ * @param result      matrix in which the result is stored
+ * @param method      interpolation method
+ */
+//================================================================================
 
-  template<class MyCMeshType, class MyUMeshType, class MatrixType>
-  typename MyCMeshType::MyConnType InterpolationCU::interpolateMeshes(const MyCMeshType& src_mesh,
-                                         const MyUMeshType& tgt_mesh,
-                                         MatrixType&        result,
-                                         const char *       method)
-  {
+template <class MyCMeshType, class MyUMeshType, class MatrixType>
+typename MyCMeshType::MyConnType
+InterpolationCU::interpolateMeshes(
+    const MyCMeshType &src_mesh, const MyUMeshType &tgt_mesh, MatrixType &result, const char *method
+)
+{
     typedef typename MyCMeshType::MyConnType CConnType;
     typedef typename MyUMeshType::MyConnType UConnType;
 
-    if ( std::string("P0P0") != method )
-      throw Exception("Only P0P0 method is implemented so far");
-    if ( MyCMeshType::MY_SPACEDIM != MyUMeshType::MY_SPACEDIM ||
-         MyCMeshType::MY_SPACEDIM != MyUMeshType::MY_MESHDIM )
-      throw Exception("InterpolationCU::interpolateMeshes(): dimension of meshes must be same");
+    if (std::string("P0P0") != method)
+        throw Exception("Only P0P0 method is implemented so far");
+    if (MyCMeshType::MY_SPACEDIM != MyUMeshType::MY_SPACEDIM || MyCMeshType::MY_SPACEDIM != MyUMeshType::MY_MESHDIM)
+        throw Exception("InterpolationCU::interpolateMeshes(): dimension of meshes must be same");
 
     const double eps = getPrecision();
     const int dim = MyCMeshType::MY_SPACEDIM;
 
-    TargetIntersector<MyCMeshType, MatrixType>* intersector = 0;
-    switch( dim )
-      {
-      case 1: intersector = new IntersectorCU1D<MyCMeshType, MyUMeshType, MatrixType>( src_mesh, tgt_mesh ); break;
-      case 2: intersector = new IntersectorCU2D<MyCMeshType, MyUMeshType, MatrixType>( src_mesh, tgt_mesh ); break;
-      case 3: intersector = new IntersectorCU3D<MyCMeshType, MyUMeshType, MatrixType>( src_mesh, tgt_mesh, getSplittingPolicy() ); break;
-      }
+    TargetIntersector<MyCMeshType, MatrixType> *intersector = 0;
+    switch (dim)
+    {
+        case 1:
+            intersector = new IntersectorCU1D<MyCMeshType, MyUMeshType, MatrixType>(src_mesh, tgt_mesh);
+            break;
+        case 2:
+            intersector = new IntersectorCU2D<MyCMeshType, MyUMeshType, MatrixType>(src_mesh, tgt_mesh);
+            break;
+        case 3:
+            intersector =
+                new IntersectorCU3D<MyCMeshType, MyUMeshType, MatrixType>(src_mesh, tgt_mesh, getSplittingPolicy());
+            break;
+    }
     // create empty maps for all target elements
-    result.resize( intersector->getNumberOfRowsOfResMatrix() );
+    result.resize(intersector->getNumberOfRowsOfResMatrix());
     const CConnType ret = intersector->getNumberOfColsOfResMatrix();
 
-    const double* src_coords[ dim ];
-    CConnType  src_nb_coords[ dim ];
-    std::map< double, CConnType> src_coord_to_index[ dim ];
-    for ( int j = 0; j < dim; ++j )
-      {
-        int axis = static_cast<int>( _TMIC( j ));
-        src_coords   [j] = src_mesh.getCoordsAlongAxis( axis );
-        src_nb_coords[j] = static_cast<CConnType>(src_mesh.nbCellsAlongAxis( axis )) + 1;
-        for (CConnType i = 0; i < src_nb_coords[j]; ++i )
-          src_coord_to_index[j].insert( std::make_pair( src_coords[j][i], i ));
-      }
+    const double *src_coords[dim];
+    CConnType src_nb_coords[dim];
+    std::map<double, CConnType> src_coord_to_index[dim];
+    for (int j = 0; j < dim; ++j)
+    {
+        int axis = static_cast<int>(_TMIC(j));
+        src_coords[j] = src_mesh.getCoordsAlongAxis(axis);
+        src_nb_coords[j] = static_cast<CConnType>(src_mesh.nbCellsAlongAxis(axis)) + 1;
+        for (CConnType i = 0; i < src_nb_coords[j]; ++i)
+            src_coord_to_index[j].insert(std::make_pair(src_coords[j][i], i));
+    }
 
     const UConnType tgtu_nb_cells = tgt_mesh.getNumberOfElements();
 
     IntersectorCU<MyCMeshType, MyUMeshType, MatrixType> bbHelper(src_mesh, tgt_mesh);
-    double bb[2*dim];
+    double bb[2 * dim];
 
     // loop on unstructured tgt cells
 
-    for(UConnType iT=0; iT<tgtu_nb_cells; iT++)
-      {
-        result[ iT ].clear();
+    for (UConnType iT = 0; iT < tgtu_nb_cells; iT++)
+    {
+        result[iT].clear();
 
         // get bounding box of target cell
-        bbHelper.getUElemBB( bb, _TMIU(iT));
+        bbHelper.getUElemBB(bb, _TMIU(iT));
 
         bool doItersect = true;
-        for ( int j = 0; j < dim && doItersect; ++j )
-          doItersect =
-            bb[j*2]   < src_coords[j][ src_nb_coords[j]-1 ] - eps &&
-            bb[j*2+1] > src_coords[j][0] + eps;
-        if ( !doItersect )
-          continue; // no intersection
+        for (int j = 0; j < dim && doItersect; ++j)
+            doItersect =
+                bb[j * 2] < src_coords[j][src_nb_coords[j] - 1] - eps && bb[j * 2 + 1] > src_coords[j][0] + eps;
+        if (!doItersect)
+            continue;  // no intersection
 
         // find structured src cells intersecting iT cell
-        std::vector< std::vector< CConnType > > structIndices(1);
-        typename std::map< double, CConnType>::iterator coo_ind;
-        for ( int j = 0; j < dim; ++j )
-          {
-            coo_ind = src_coord_to_index[j].lower_bound( bb[2*j+1] - eps );
-            if ( coo_ind == src_coord_to_index[j].end() )
-              --coo_ind;
+        std::vector<std::vector<CConnType> > structIndices(1);
+        typename std::map<double, CConnType>::iterator coo_ind;
+        for (int j = 0; j < dim; ++j)
+        {
+            coo_ind = src_coord_to_index[j].lower_bound(bb[2 * j + 1] - eps);
+            if (coo_ind == src_coord_to_index[j].end())
+                --coo_ind;
             CConnType max_i = coo_ind->second;
 
-            coo_ind = src_coord_to_index[j].upper_bound( bb[2*j  ] + eps );
-            if ( coo_ind != src_coord_to_index[j].begin() )
-              --coo_ind;
+            coo_ind = src_coord_to_index[j].upper_bound(bb[2 * j] + eps);
+            if (coo_ind != src_coord_to_index[j].begin())
+                --coo_ind;
             CConnType min_i = coo_ind->second;
 
-            std::vector< std::vector< CConnType > > newStructIndices;
-            for ( unsigned int iInd = 0; iInd < structIndices.size(); ++iInd )
-              {
-                for ( CConnType i = min_i; i < max_i; ++i )
-                  {
-                    std::vector< CConnType > index = structIndices[iInd];
-                    index.push_back( i );
-                    newStructIndices.push_back( index );
-                  }
-              }
-            structIndices.swap( newStructIndices );
-          }
+            std::vector<std::vector<CConnType> > newStructIndices;
+            for (unsigned int iInd = 0; iInd < structIndices.size(); ++iInd)
+            {
+                for (CConnType i = min_i; i < max_i; ++i)
+                {
+                    std::vector<CConnType> index = structIndices[iInd];
+                    index.push_back(i);
+                    newStructIndices.push_back(index);
+                }
+            }
+            structIndices.swap(newStructIndices);
+        }
 
         // perform intersection
 
-        for ( unsigned int iInd = 0; iInd < structIndices.size(); ++iInd )
-          intersector->intersectCells( iT, structIndices[iInd], result );
-      }
+        for (unsigned int iInd = 0; iInd < structIndices.size(); ++iInd)
+            intersector->intersectCells(iT, structIndices[iInd], result);
+    }
     delete intersector;
     return ret;
-  }
+}
 
-  //================================================================================
-  /**
-   * Calculates the matrix of volumes of intersection between the elements of srcMesh and the elements of targetMesh.
-   * The calculation is done in two steps. First a filtering process reduces the number of pairs of elements for which the
-   * calculation must be carried out by eliminating pairs that do not intersect based on their bounding boxes. Then, the
-   * volume of intersection is calculated for the remaining pairs, and entered into the
-   * intersection matrix.
-   *
-   * The matrix is partially sparse : it is a vector of maps of integer - double pairs.
-   * It can also be an INTERP_KERNEL::Matrix object.
-   * The length of the vector is equal to the number of target elements - for each target element there is a map, regardless
-   * of whether the element intersects any source elements or not. But in the maps there are only entries for those source elements
-   * which have a non-zero intersection volume with the target element. The vector has indices running from
-   * 0 to (nb target elements - 1), meaning that the map for target element i is stored at index i - 1. In the maps, however,
-   * the indexing is more natural : the intersection volume of the target element i with source element j is found at matrix[i-1][j].
-   *
+//================================================================================
+/**
+ * Calculates the matrix of volumes of intersection between the elements of srcMesh and the elements of targetMesh.
+ * The calculation is done in two steps. First a filtering process reduces the number of pairs of elements for which the
+ * calculation must be carried out by eliminating pairs that do not intersect based on their bounding boxes. Then, the
+ * volume of intersection is calculated for the remaining pairs, and entered into the
+ * intersection matrix.
+ *
+ * The matrix is partially sparse : it is a vector of maps of integer - double pairs.
+ * It can also be an INTERP_KERNEL::Matrix object.
+ * The length of the vector is equal to the number of target elements - for each target element there is a map,
+ regardless
+ * of whether the element intersects any source elements or not. But in the maps there are only entries for those source
+ elements
+ * which have a non-zero intersection volume with the target element. The vector has indices running from
+ * 0 to (nb target elements - 1), meaning that the map for target element i is stored at index i - 1. In the maps,
+ however,
+ * the indexing is more natural : the intersection volume of the target element i with source element j is found at
+ matrix[i-1][j].
+ *
 
-   * @param meshS     2-dimesional unstructured target mesh
-   * @param meshT     2-dimensional cartesian source mesh
-   * @param result      matrix in which the result is stored
-   * @param method      interpolation method
-   */
-  //================================================================================
+ * @param meshS     2-dimesional unstructured target mesh
+ * @param meshT     2-dimensional cartesian source mesh
+ * @param result      matrix in which the result is stored
+ * @param method      interpolation method
+ */
+//================================================================================
 
-  template<class MyUMeshType, class MyCMeshType, class MatrixType>
-  typename MyUMeshType::MyConnType InterpolationCU::interpolateMeshesRev(const MyUMeshType& meshS, const MyCMeshType& meshT, MatrixType& result, const char *method)
-  {
+template <class MyUMeshType, class MyCMeshType, class MatrixType>
+typename MyUMeshType::MyConnType
+InterpolationCU::interpolateMeshesRev(
+    const MyUMeshType &meshS, const MyCMeshType &meshT, MatrixType &result, const char *method
+)
+{
     typedef typename MyCMeshType::MyConnType CConnType;
     typedef typename MyUMeshType::MyConnType UConnType;
 
     MatrixType revResult;
-    CConnType sizeT = interpolateMeshes( meshT, meshS, revResult, method );
+    CConnType sizeT = interpolateMeshes(meshT, meshS, revResult, method);
     UConnType sizeS = static_cast<UConnType>(revResult.size());
-    result.resize( sizeT );
+    result.resize(sizeT);
 
-    for ( CConnType iS = 0; iS < sizeS; ++iS )
-      {
-        typename MatrixType::value_type & row = revResult[iS];
+    for (CConnType iS = 0; iS < sizeS; ++iS)
+    {
+        typename MatrixType::value_type &row = revResult[iS];
         typename MatrixType::value_type::iterator iT_surf = row.begin();
-        for ( ; iT_surf != row.end(); ++iT_surf )
-          result[ iT_surf->first ][ iS ] = iT_surf->second;
-      }
+        for (; iT_surf != row.end(); ++iT_surf) result[iT_surf->first][iS] = iT_surf->second;
+    }
     return sizeS;
-  }
-
 }
+
+}  // namespace INTERP_KERNEL
 
 #endif

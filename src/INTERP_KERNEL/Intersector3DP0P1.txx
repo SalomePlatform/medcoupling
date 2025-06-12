@@ -25,22 +25,25 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix>
-  Intersector3DP0P1<MyMeshType,MyMatrix>::Intersector3DP0P1(const MyMeshType& targetMesh, const MyMeshType& srcMesh):Intersector3D<MyMeshType,MyMatrix>(targetMesh,srcMesh)
-  {
-  }
-
-  template<class MyMeshType, class MyMatrix>
-  typename MyMeshType::MyConnType Intersector3DP0P1<MyMeshType,MyMatrix>::getNumberOfRowsOfResMatrix() const
-  {
-    return Intersector3D<MyMeshType,MyMatrix>::_target_mesh.getNumberOfNodes();
-  }
-
-  template<class MyMeshType, class MyMatrix>
-  typename MyMeshType::MyConnType Intersector3DP0P1<MyMeshType,MyMatrix>::getNumberOfColsOfResMatrix() const
-  {
-    return Intersector3D<MyMeshType,MyMatrix>::_src_mesh.getNumberOfElements();
-  }
+template <class MyMeshType, class MyMatrix>
+Intersector3DP0P1<MyMeshType, MyMatrix>::Intersector3DP0P1(const MyMeshType &targetMesh, const MyMeshType &srcMesh)
+    : Intersector3D<MyMeshType, MyMatrix>(targetMesh, srcMesh)
+{
 }
+
+template <class MyMeshType, class MyMatrix>
+typename MyMeshType::MyConnType
+Intersector3DP0P1<MyMeshType, MyMatrix>::getNumberOfRowsOfResMatrix() const
+{
+    return Intersector3D<MyMeshType, MyMatrix>::_target_mesh.getNumberOfNodes();
+}
+
+template <class MyMeshType, class MyMatrix>
+typename MyMeshType::MyConnType
+Intersector3DP0P1<MyMeshType, MyMatrix>::getNumberOfColsOfResMatrix() const
+{
+    return Intersector3D<MyMeshType, MyMatrix>::_src_mesh.getNumberOfElements();
+}
+}  // namespace INTERP_KERNEL
 
 #endif

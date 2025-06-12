@@ -31,8 +31,6 @@
 #include <unistd.h>
 #endif
 
-
-
 //================================================================================
 /*!
  * \brief Returns writable temporary directory
@@ -40,26 +38,31 @@
  */
 //================================================================================
 
-std::string ParaMEDMEMTest::getTmpDirectory()
+std::string
+ParaMEDMEMTest::getTmpDirectory()
 {
-  std::string path;
+    std::string path;
 
-  std::list<std::string> dirs;
-  if ( getenv("TMP") )    dirs.push_back( getenv("TMP" ));
-  if ( getenv("TMPDIR") ) dirs.push_back( getenv("TMPDIR" ));
-  dirs.push_back( "/tmp" );
+    std::list<std::string> dirs;
+    if (getenv("TMP"))
+        dirs.push_back(getenv("TMP"));
+    if (getenv("TMPDIR"))
+        dirs.push_back(getenv("TMPDIR"));
+    dirs.push_back("/tmp");
 
-  std::string tmpd = "";
-  for ( std::list<std::string>::iterator dir = dirs.begin(); dir != dirs.end() && tmpd == "" ; ++dir ) {
-    if ( access( dir->data(), W_OK ) == 0 ) {
-      tmpd = dir->data();
+    std::string tmpd = "";
+    for (std::list<std::string>::iterator dir = dirs.begin(); dir != dirs.end() && tmpd == ""; ++dir)
+    {
+        if (access(dir->data(), W_OK) == 0)
+        {
+            tmpd = dir->data();
+        }
     }
-  }
 
-  if ( tmpd == "" )
-    throw std::runtime_error("Can't find writable temporary directory. Set TMP environment variable");
+    if (tmpd == "")
+        throw std::runtime_error("Can't find writable temporary directory. Set TMP environment variable");
 
-  return tmpd;
+    return tmpd;
 }
 
 //================================================================================
@@ -72,16 +75,17 @@ std::string ParaMEDMEMTest::getTmpDirectory()
  * \return path to the temporary file
  */
 //================================================================================
-std::string ParaMEDMEMTest::makeTmpFile( const std::string& tmpfile, const std::string& srcfile )
+std::string
+ParaMEDMEMTest::makeTmpFile(const std::string &tmpfile, const std::string &srcfile)
 {
-  std::string tmpf = getTmpDirectory() + "/" + tmpfile;
-  if ( srcfile != "" ) {
-    std::string cmd  = "cp " + srcfile + " " + tmpf + " ; chmod +w " + tmpf;
-    system( cmd.c_str() );
-  }
-  return tmpf;
+    std::string tmpf = getTmpDirectory() + "/" + tmpfile;
+    if (srcfile != "")
+    {
+        std::string cmd = "cp " + srcfile + " " + tmpf + " ; chmod +w " + tmpf;
+        system(cmd.c_str());
+    }
+    return tmpf;
 }
-
 
 /*!
  *  Tool to remove temporary files.
@@ -89,16 +93,18 @@ std::string ParaMEDMEMTest::makeTmpFile( const std::string& tmpfile, const std::
  */
 ParaMEDMEMTest_TmpFilesRemover::~ParaMEDMEMTest_TmpFilesRemover()
 {
-  std::set<std::string>::iterator it = myTmpFiles.begin();
-  for (; it != myTmpFiles.end(); it++) {
-    if (access((*it).data(), F_OK) == 0)
-      remove((*it).data());
-  }
-  myTmpFiles.clear();
-  //cout << "~ParaMEDMEMTest_TmpFilesRemover()" << endl;
+    std::set<std::string>::iterator it = myTmpFiles.begin();
+    for (; it != myTmpFiles.end(); it++)
+    {
+        if (access((*it).data(), F_OK) == 0)
+            remove((*it).data());
+    }
+    myTmpFiles.clear();
+    // cout << "~ParaMEDMEMTest_TmpFilesRemover()" << endl;
 }
 
-bool ParaMEDMEMTest_TmpFilesRemover::Register(const std::string theTmpFile)
+bool
+ParaMEDMEMTest_TmpFilesRemover::Register(const std::string theTmpFile)
 {
-  return (myTmpFiles.insert(theTmpFile)).second;
+    return (myTmpFiles.insert(theTmpFile)).second;
 }

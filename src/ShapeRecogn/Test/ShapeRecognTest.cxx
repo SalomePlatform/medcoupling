@@ -21,7 +21,8 @@
 
 #include "MEDLoader.hxx"
 
-std::unique_ptr<MEDCoupling::ShapeRecognMeshBuilder> BuildShapeRecognMeshBuilderFromFile(const std::string& fileName, int meshDimRelToMax)
+std::unique_ptr<MEDCoupling::ShapeRecognMeshBuilder>
+BuildShapeRecognMeshBuilderFromFile(const std::string &fileName, int meshDimRelToMax)
 {
     MEDCoupling::MCAuto<MEDCoupling::MEDCouplingUMesh> mesh = MEDCoupling::ReadUMeshFromFile(fileName, 0);
     return std::make_unique<MEDCoupling::ShapeRecognMeshBuilder>(mesh);

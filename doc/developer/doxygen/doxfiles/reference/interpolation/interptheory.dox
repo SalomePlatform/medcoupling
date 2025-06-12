@@ -267,5 +267,3 @@ With this nature of field the target cell #0 accumulates 0.125*4=0.5 W of power 
 It leads to 75.5 W of power on the \b whole target cell #0. So, the final power density is equal to 75.5/1.5=50.333 W/m^2.
 
 */
-
-

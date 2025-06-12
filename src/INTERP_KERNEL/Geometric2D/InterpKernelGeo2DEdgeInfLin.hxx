@@ -25,17 +25,17 @@
 
 namespace INTERP_KERNEL
 {
-  class EdgeInfLin : public EdgeLin
-  {
-  public:
-    EdgeInfLin(Node *start, Node *end):EdgeLin(start,end,true) { }
+class EdgeInfLin : public EdgeLin
+{
+   public:
+    EdgeInfLin(Node *start, Node *end) : EdgeLin(start, end, true) {}
     EdgeInfLin(Node *pointPassingThrough, double slope);
     bool isIn(double characterVal) const { return true; }
-    void dynCastFunction(const EdgeLin * &seg,
-                         const EdgeArcCircle * &arcSeg) const { seg=this; }
-  protected:
-    ~EdgeInfLin() { }
-  };
-}
+    void dynCastFunction(const EdgeLin *&seg, const EdgeArcCircle *&arcSeg) const { seg = this; }
+
+   protected:
+    ~EdgeInfLin() {}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

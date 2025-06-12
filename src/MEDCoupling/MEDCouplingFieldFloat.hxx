@@ -29,27 +29,32 @@
 
 namespace MEDCoupling
 {
-  class MEDCouplingFieldDouble;
-  class MEDCouplingFieldTemplate;
+class MEDCouplingFieldDouble;
+class MEDCouplingFieldTemplate;
 
-  class MEDCouplingFieldFloat : public MEDCouplingFieldT<float>
-  {
-  public:
-    MEDCOUPLING_EXPORT static MEDCouplingFieldFloat *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
-    MEDCOUPLING_EXPORT static MEDCouplingFieldFloat *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
+class MEDCouplingFieldFloat : public MEDCouplingFieldT<float>
+{
+   public:
+    MEDCOUPLING_EXPORT static MEDCouplingFieldFloat *New(TypeOfField type, TypeOfTimeDiscretization td = ONE_TIME);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldFloat *New(
+        const MEDCouplingFieldTemplate &ft, TypeOfTimeDiscretization td = ONE_TIME
+    );
     MEDCOUPLING_EXPORT MEDCouplingFieldFloat *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldFloat *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *convertToDblField() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldInt32 *convertToIntField() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldInt64 *convertToInt64Field() const;
     std::string getClassName() const override { return std::string("MEDCouplingFieldFloat"); }
-  protected:
+
+   protected:
     MEDCouplingFieldFloat(TypeOfField type, TypeOfTimeDiscretization td);
-    MEDCouplingFieldFloat(const MEDCouplingFieldFloat& other, bool deepCpy);
-    MEDCouplingFieldFloat(NatureOfField n, MEDCouplingTimeDiscretizationFloat *td, MEDCouplingFieldDiscretization *type);
-    MEDCouplingFieldFloat(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);
-    ~MEDCouplingFieldFloat() { }
-  };
-}
+    MEDCouplingFieldFloat(const MEDCouplingFieldFloat &other, bool deepCpy);
+    MEDCouplingFieldFloat(
+        NatureOfField n, MEDCouplingTimeDiscretizationFloat *td, MEDCouplingFieldDiscretization *type
+    );
+    MEDCouplingFieldFloat(const MEDCouplingFieldTemplate &ft, TypeOfTimeDiscretization td);
+    ~MEDCouplingFieldFloat() {}
+};
+}  // namespace MEDCoupling
 
 #endif

@@ -30,33 +30,34 @@
 
 namespace INTERP_TEST
 {
-  /**
-   * \brief Test suite testing UnitTetraIntersectionBary class.
-   *
-   */
-  class INTERPKERNELTEST_EXPORT UnitTetraIntersectionBaryTest : public CppUnit::TestFixture
-  {
-    CPPUNIT_TEST_SUITE( UnitTetraIntersectionBaryTest );
-    CPPUNIT_TEST( test_UnitTetraIntersectionBary_14 );
-    CPPUNIT_TEST( test_UnitTetraIntersectionBary_13 );
-    CPPUNIT_TEST( test_UnitTetraIntersectionBary_12 );
-    CPPUNIT_TEST( test_UnitTetraIntersectionBary_1 );
-    CPPUNIT_TEST( test_UnitTetraIntersectionBary_2 );
-    CPPUNIT_TEST( test_UnitTetraIntersectionBary_3 );
-    CPPUNIT_TEST( test_UnitTetraIntersectionBary_4 );
-    CPPUNIT_TEST( test_UnitTetraIntersectionBary_5 );
-    CPPUNIT_TEST( test_UnitTetraIntersectionBary_6 );
-    CPPUNIT_TEST( test_UnitTetraIntersectionBary_7 );
-    CPPUNIT_TEST( test_UnitTetraIntersectionBary_8 );
-    CPPUNIT_TEST( test_UnitTetraIntersectionBary_9 );
-    CPPUNIT_TEST( test_UnitTetraIntersectionBary_10 );
-    CPPUNIT_TEST( test_UnitTetraIntersectionBary_11 );
-    CPPUNIT_TEST( test_TetraAffineTransform_reverseApply );
-    CPPUNIT_TEST( test_barycentric_coords );
-    CPPUNIT_TEST( test_cuboid_mapped_coords_3D );
-    CPPUNIT_TEST( test_quad_mapped_coords_2D );
+/**
+ * \brief Test suite testing UnitTetraIntersectionBary class.
+ *
+ */
+class INTERPKERNELTEST_EXPORT UnitTetraIntersectionBaryTest : public CppUnit::TestFixture
+{
+    CPPUNIT_TEST_SUITE(UnitTetraIntersectionBaryTest);
+    CPPUNIT_TEST(test_UnitTetraIntersectionBary_14);
+    CPPUNIT_TEST(test_UnitTetraIntersectionBary_13);
+    CPPUNIT_TEST(test_UnitTetraIntersectionBary_12);
+    CPPUNIT_TEST(test_UnitTetraIntersectionBary_1);
+    CPPUNIT_TEST(test_UnitTetraIntersectionBary_2);
+    CPPUNIT_TEST(test_UnitTetraIntersectionBary_3);
+    CPPUNIT_TEST(test_UnitTetraIntersectionBary_4);
+    CPPUNIT_TEST(test_UnitTetraIntersectionBary_5);
+    CPPUNIT_TEST(test_UnitTetraIntersectionBary_6);
+    CPPUNIT_TEST(test_UnitTetraIntersectionBary_7);
+    CPPUNIT_TEST(test_UnitTetraIntersectionBary_8);
+    CPPUNIT_TEST(test_UnitTetraIntersectionBary_9);
+    CPPUNIT_TEST(test_UnitTetraIntersectionBary_10);
+    CPPUNIT_TEST(test_UnitTetraIntersectionBary_11);
+    CPPUNIT_TEST(test_TetraAffineTransform_reverseApply);
+    CPPUNIT_TEST(test_barycentric_coords);
+    CPPUNIT_TEST(test_cuboid_mapped_coords_3D);
+    CPPUNIT_TEST(test_quad_mapped_coords_2D);
     CPPUNIT_TEST_SUITE_END();
-  public:
+
+   public:
     void test_UnitTetraIntersectionBary_1();
     void test_UnitTetraIntersectionBary_2();
     void test_UnitTetraIntersectionBary_3();
@@ -75,7 +76,7 @@ namespace INTERP_TEST
     void test_barycentric_coords();
     void test_cuboid_mapped_coords_3D();
     void test_quad_mapped_coords_2D();
-  };
-}
+};
+}  // namespace INTERP_TEST
 
 #endif

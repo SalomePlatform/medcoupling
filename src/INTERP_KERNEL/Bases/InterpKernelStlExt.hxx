@@ -24,20 +24,29 @@
 
 namespace INTERP_KERNEL
 {
-  namespace STLEXT
-  {
-    template<typename _Pair>
-    struct Select1st
-    {
-      typename _Pair::first_type& operator()(_Pair& __x) const { return __x.first; }
-      const typename _Pair::first_type&operator()(const _Pair& __x) const { return __x.first; }
-    };
+namespace STLEXT
+{
+template <typename _Pair>
+struct Select1st
+{
+    typename _Pair::first_type &operator()(_Pair &__x) const { return __x.first; }
+    const typename _Pair::first_type &operator()(const _Pair &__x) const { return __x.first; }
+};
 
-    template<typename _T1, typename _T2>
-    inline void Construct(_T1* __p, const _T2& __value__) { ::new(static_cast<void*>(__p)) _T1(__value__); }
-
-    template<typename _Tp> inline void Destroy(_Tp* __pointer) { __pointer->~_Tp(); }
-  }
+template <typename _T1, typename _T2>
+inline void
+Construct(_T1 *__p, const _T2 &__value__)
+{
+    ::new (static_cast<void *>(__p)) _T1(__value__);
 }
+
+template <typename _Tp>
+inline void
+Destroy(_Tp *__pointer)
+{
+    __pointer->~_Tp();
+}
+}  // namespace STLEXT
+}  // namespace INTERP_KERNEL
 
 #endif

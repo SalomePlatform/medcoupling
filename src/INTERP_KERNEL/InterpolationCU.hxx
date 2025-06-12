@@ -30,19 +30,22 @@
 
 namespace INTERP_KERNEL
 {
-  class InterpolationCU : public Interpolation< InterpolationCU >
-  {
-  public:
+class InterpolationCU : public Interpolation<InterpolationCU>
+{
+   public:
     InterpolationCU();
-    InterpolationCU(const InterpolationOptions & io);
+    InterpolationCU(const InterpolationOptions &io);
 
-    template<class MyCMeshType, class MyUMeshType, class MatrixType>
-    typename MyCMeshType::MyConnType interpolateMeshes(const MyCMeshType& meshS, const MyUMeshType& meshT, MatrixType& result, const char *method);
+    template <class MyCMeshType, class MyUMeshType, class MatrixType>
+    typename MyCMeshType::MyConnType interpolateMeshes(
+        const MyCMeshType &meshS, const MyUMeshType &meshT, MatrixType &result, const char *method
+    );
 
-    template<class MyUMeshType, class MyCMeshType, class MatrixType>
-    typename MyUMeshType::MyConnType interpolateMeshesRev(const MyUMeshType& meshS, const MyCMeshType& meshT, MatrixType& result, const char *method);
-
-  };
-}
+    template <class MyUMeshType, class MyCMeshType, class MatrixType>
+    typename MyUMeshType::MyConnType interpolateMeshesRev(
+        const MyUMeshType &meshS, const MyCMeshType &meshT, MatrixType &result, const char *method
+    );
+};
+}  // namespace INTERP_KERNEL
 
 #endif

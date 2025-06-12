@@ -22,26 +22,28 @@
 
 #include <sstream>
 
-const double INTERP_KERNEL::BoxSplittingOptions::DFT_EFFICIENCY_GOAL=0.5;
+const double INTERP_KERNEL::BoxSplittingOptions::DFT_EFFICIENCY_GOAL = 0.5;
 
-const double INTERP_KERNEL::BoxSplittingOptions::DFT_EFFICIENCY_THRESHOLD=0.7;
+const double INTERP_KERNEL::BoxSplittingOptions::DFT_EFFICIENCY_THRESHOLD = 0.7;
 
-void INTERP_KERNEL::BoxSplittingOptions::init()
+void
+INTERP_KERNEL::BoxSplittingOptions::init()
 {
-  _efficiency_goal=DFT_EFFICIENCY_GOAL;
-  _efficiency_threshold=DFT_EFFICIENCY_THRESHOLD;
-  _min_patch_length=DFT_MIN_PATCH_LENGTH;
-  _max_patch_length=DFT_MAX_PATCH_LENGTH;
-  _max_nb_cells_in_patch=DFT_MAX_PATCH_MEASURE;
+    _efficiency_goal = DFT_EFFICIENCY_GOAL;
+    _efficiency_threshold = DFT_EFFICIENCY_THRESHOLD;
+    _min_patch_length = DFT_MIN_PATCH_LENGTH;
+    _max_patch_length = DFT_MAX_PATCH_LENGTH;
+    _max_nb_cells_in_patch = DFT_MAX_PATCH_MEASURE;
 }
 
-std::string INTERP_KERNEL::BoxSplittingOptions::printOptions() const
+std::string
+INTERP_KERNEL::BoxSplittingOptions::printOptions() const
 {
-  std::ostringstream oss;
-  oss << "Efficiency goal: " << 100*_efficiency_goal << "%" << std::endl;
-  oss << "Efficiency threshold: " << 100*_efficiency_threshold << "%" << std::endl;
-  oss << "Min. patch side length: " << _min_patch_length << std::endl;
-  oss << "Max. patch side length: " << _max_patch_length << std::endl;
-  oss << "Max. patch measure: " << _max_nb_cells_in_patch << std::endl;
-  return oss.str();
+    std::ostringstream oss;
+    oss << "Efficiency goal: " << 100 * _efficiency_goal << "%" << std::endl;
+    oss << "Efficiency threshold: " << 100 * _efficiency_threshold << "%" << std::endl;
+    oss << "Min. patch side length: " << _min_patch_length << std::endl;
+    oss << "Max. patch side length: " << _max_patch_length << std::endl;
+    oss << "Max. patch measure: " << _max_nb_cells_in_patch << std::endl;
+    return oss.str();
 }

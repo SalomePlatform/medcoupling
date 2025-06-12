@@ -17,11 +17,11 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-//include all MEDPARTITIONER Test
+// include all MEDPARTITIONER Test
 #include "MEDPARTITIONERTest.hxx"
 
-//Registers the fixture into the 'registry'
-CPPUNIT_TEST_SUITE_REGISTRATION( MEDPARTITIONERTest );
+// Registers the fixture into the 'registry'
+CPPUNIT_TEST_SUITE_REGISTRATION(MEDPARTITIONERTest);
 
-//generic Main program from KERNEL_SRC/src/Basics/Test
+// generic Main program from KERNEL_SRC/src/Basics/Test
 #include "BasicMainTest.hxx"

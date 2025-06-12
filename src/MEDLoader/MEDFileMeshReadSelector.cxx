@@ -26,147 +26,161 @@
 
 using namespace MEDCoupling;
 
-MEDFileMeshReadSelector::MEDFileMeshReadSelector():_nb_coords_load_sessions(1),_code(0xFFFFFFFF)
+MEDFileMeshReadSelector::MEDFileMeshReadSelector() : _nb_coords_load_sessions(1), _code(0xFFFFFFFF) {}
+
+MEDFileMeshReadSelector::MEDFileMeshReadSelector(unsigned int code) : _code(code) {}
+
+unsigned int
+MEDFileMeshReadSelector::getCode() const
 {
+    return _code;
 }
 
-MEDFileMeshReadSelector::MEDFileMeshReadSelector(unsigned int code):_code(code)
+void
+MEDFileMeshReadSelector::setCode(unsigned int newCode)
 {
+    _code = newCode;
 }
 
-unsigned int MEDFileMeshReadSelector::getCode() const
+void
+MEDFileMeshReadSelector::setNumberOfCoordsLoadSessions(mcIdType newNbOfCoordsLoadSessions)
 {
-  return _code;
+    if (newNbOfCoordsLoadSessions < 1)
+        throw INTERP_KERNEL::Exception("MEDFileMeshReadSelector::setNumberOfCoordsLoadSessions : input must be >= 1 !");
+    _nb_coords_load_sessions = newNbOfCoordsLoadSessions;
 }
 
-void MEDFileMeshReadSelector::setCode(unsigned int newCode)
+bool
+MEDFileMeshReadSelector::isCellFamilyFieldReading() const
 {
-  _code=newCode;
+    return _code & 0x00000001;
 }
 
-void MEDFileMeshReadSelector::setNumberOfCoordsLoadSessions(mcIdType newNbOfCoordsLoadSessions)
+bool
+MEDFileMeshReadSelector::isNodeFamilyFieldReading() const
 {
-  if(newNbOfCoordsLoadSessions < 1)
-    throw INTERP_KERNEL::Exception("MEDFileMeshReadSelector::setNumberOfCoordsLoadSessions : input must be >= 1 !");
-  _nb_coords_load_sessions = newNbOfCoordsLoadSessions;
+    return _code & 0x00000002;
 }
 
-bool MEDFileMeshReadSelector::isCellFamilyFieldReading() const
+bool
+MEDFileMeshReadSelector::isCellNameFieldReading() const
 {
-  return _code & 0x00000001;
+    return _code & 0x00000004;
 }
 
-bool MEDFileMeshReadSelector::isNodeFamilyFieldReading() const
+bool
+MEDFileMeshReadSelector::isNodeNameFieldReading() const
 {
-  return _code & 0x00000002;
+    return _code & 0x00000008;
 }
 
-bool MEDFileMeshReadSelector::isCellNameFieldReading() const
+bool
+MEDFileMeshReadSelector::isCellNumFieldReading() const
 {
-  return _code & 0x00000004;
+    return _code & 0x00000010;
 }
 
-bool MEDFileMeshReadSelector::isNodeNameFieldReading() const
+bool
+MEDFileMeshReadSelector::isNodeNumFieldReading() const
 {
-  return _code & 0x00000008;
+    return _code & 0x00000020;
 }
 
-bool MEDFileMeshReadSelector::isCellNumFieldReading() const
+bool
+MEDFileMeshReadSelector::isGlobalNodeNumFieldReading() const
 {
-  return _code & 0x00000010;
+    return _code & 0x00000040;
 }
 
-bool MEDFileMeshReadSelector::isNodeNumFieldReading() const
+void
+MEDFileMeshReadSelector::setCellFamilyFieldReading(bool b)
 {
-  return _code & 0x00000020;
+    unsigned int code(_code & 0xFFFFFFFE);
+    unsigned int b2 = b ? 1 : 0;
+    // b2<<=0;
+    code += b2;
+    _code = code;
 }
 
-bool MEDFileMeshReadSelector::isGlobalNodeNumFieldReading() const
+void
+MEDFileMeshReadSelector::setNodeFamilyFieldReading(bool b)
 {
-  return _code & 0x00000040;
+    unsigned int code(_code & 0xFFFFFFFD);
+    unsigned int b2 = b ? 1 : 0;
+    b2 <<= 1;
+    code += b2;
+    _code = code;
 }
 
-void MEDFileMeshReadSelector::setCellFamilyFieldReading(bool b)
+void
+MEDFileMeshReadSelector::setCellNameFieldReading(bool b)
 {
-  unsigned int code(_code & 0xFFFFFFFE);
-  unsigned int b2=b?1:0;
-  //b2<<=0;
-  code+=b2;
-  _code=code;
+    unsigned int code(_code & 0xFFFFFFFB);
+    unsigned int b2 = b ? 1 : 0;
+    b2 <<= 2;
+    code += b2;
+    _code = code;
 }
 
-void MEDFileMeshReadSelector::setNodeFamilyFieldReading(bool b)
+void
+MEDFileMeshReadSelector::setNodeNameFieldReading(bool b)
 {
-  unsigned int code(_code & 0xFFFFFFFD);
-  unsigned int b2=b?1:0;
-  b2<<=1;
-  code+=b2;
-  _code=code;
+    unsigned int code(_code & 0xFFFFFFF7);
+    unsigned int b2 = b ? 1 : 0;
+    b2 <<= 3;
+    code += b2;
+    _code = code;
 }
 
-void MEDFileMeshReadSelector::setCellNameFieldReading(bool b)
+void
+MEDFileMeshReadSelector::setCellNumFieldReading(bool b)
 {
-  unsigned int code(_code & 0xFFFFFFFB);
-  unsigned int b2=b?1:0;
-  b2<<=2;
-  code+=b2;
-  _code=code;
+    unsigned int code(_code & 0xFFFFFFEF);
+    unsigned int b2 = b ? 1 : 0;
+    b2 <<= 4;
+    code += b2;
+    _code = code;
 }
 
-void MEDFileMeshReadSelector::setNodeNameFieldReading(bool b)
+void
+MEDFileMeshReadSelector::setNodeNumFieldReading(bool b)
 {
-  unsigned int code(_code & 0xFFFFFFF7);
-  unsigned int b2=b?1:0;
-  b2<<=3;
-  code+=b2;
-  _code=code;
+    unsigned int code(_code & 0xFFFFFFDF);
+    unsigned int b2 = b ? 1 : 0;
+    b2 <<= 5;
+    code += b2;
+    _code = code;
 }
 
-void MEDFileMeshReadSelector::setCellNumFieldReading(bool b)
+void
+MEDFileMeshReadSelector::setGlobalNodeNumFieldReading(bool b)
 {
-  unsigned int code(_code & 0xFFFFFFEF);
-  unsigned int b2=b?1:0;
-  b2<<=4;
-  code+=b2;
-  _code=code;
+    unsigned int code(_code & 0xFFFFFFBF);
+    unsigned int b2 = b ? 1 : 0;
+    b2 <<= 6;
+    code += b2;
+    _code = code;
 }
 
-void MEDFileMeshReadSelector::setNodeNumFieldReading(bool b)
+void
+MEDFileMeshReadSelector::reprAll(std::ostream &str) const
 {
-  unsigned int code(_code & 0xFFFFFFDF);
-  unsigned int b2=b?1:0;
-  b2<<=5;
-  code+=b2;
-  _code=code;
+    str << "MEDFileMeshReadSelector (code=" << _code << ") : \n";
+    str << "Number of coords load part sessions : " << this->_nb_coords_load_sessions << std::endl;
+    str << "Read family field on cells : " << ReprStatus(isCellFamilyFieldReading()) << std::endl;
+    str << "Read family field on nodes : " << ReprStatus(isNodeFamilyFieldReading()) << std::endl;
+    str << "Read name field on cells : " << ReprStatus(isCellNameFieldReading()) << std::endl;
+    str << "Read name field on nodes : " << ReprStatus(isNodeNameFieldReading()) << std::endl;
+    str << "Read number field on cells : " << ReprStatus(isCellNumFieldReading()) << std::endl;
+    str << "Read number field name on nodes : " << ReprStatus(isNodeNumFieldReading()) << std::endl;
+    str << "Read global number field name on nodes : " << ReprStatus(isGlobalNodeNumFieldReading());
 }
 
-void MEDFileMeshReadSelector::setGlobalNodeNumFieldReading(bool b)
+std::string
+MEDFileMeshReadSelector::ReprStatus(bool v)
 {
-  unsigned int code(_code & 0xFFFFFFBF);
-  unsigned int b2=b?1:0;
-  b2<<=6;
-  code+=b2;
-  _code=code;
+    if (v)
+        return std::string("ON");
+    else
+        return std::string("OFF");
 }
-
-void MEDFileMeshReadSelector::reprAll(std::ostream& str) const
-{
-  str << "MEDFileMeshReadSelector (code=" << _code << ") : \n";
-  str << "Number of coords load part sessions : " << this->_nb_coords_load_sessions << std::endl;
-  str << "Read family field on cells : " << ReprStatus(isCellFamilyFieldReading()) << std::endl;
-  str << "Read family field on nodes : " << ReprStatus(isNodeFamilyFieldReading()) << std::endl;
-  str << "Read name field on cells : " << ReprStatus(isCellNameFieldReading()) << std::endl;
-  str << "Read name field on nodes : " << ReprStatus(isNodeNameFieldReading()) << std::endl;
-  str << "Read number field on cells : " << ReprStatus(isCellNumFieldReading()) << std::endl;
-  str << "Read number field name on nodes : " << ReprStatus(isNodeNumFieldReading()) << std::endl;
-  str << "Read global number field name on nodes : " << ReprStatus(isGlobalNodeNumFieldReading());
-}
-
-std::string MEDFileMeshReadSelector::ReprStatus(bool v)
-{
-  if(v)
-    return std::string("ON");
-  else
-    return std::string("OFF");
-}
-

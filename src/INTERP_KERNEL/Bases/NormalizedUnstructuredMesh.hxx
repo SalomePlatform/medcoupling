@@ -25,11 +25,11 @@
 
 namespace INTERP_KERNEL
 {
-  typedef enum
-    {
-      ALL_C_MODE       ,
-      ALL_FORTRAN_MODE
-    } NumberingPolicy;
-}
+typedef enum
+{
+    ALL_C_MODE,
+    ALL_FORTRAN_MODE
+} NumberingPolicy;
+}  // namespace INTERP_KERNEL
 
 #endif

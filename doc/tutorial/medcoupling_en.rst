@@ -16,4 +16,3 @@ The objective of these exercises is to learn to manipulate MEDCoupling objects i
    medcoupling_dataarray1_en
    medcoupling_umesh1_en
    medcoupling_fielddouble1_en
-

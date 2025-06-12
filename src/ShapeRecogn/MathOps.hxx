@@ -24,45 +24,33 @@
 #include "ShapeRecognDefines.hxx"
 namespace MEDCoupling
 {
-    class SHAPE_RECOGNITION_EXPORT MathOps
-    {
-    public:
-        static std::vector<double> lstsq(std::vector<double> &a, const std::vector<double> &b);
-        static std::vector<double> lstsq(
-            std::vector<double> &a,
-            const std::vector<double> &b,
-            int m,
-            int n = 3,
-            int nrhs = 1);
-        static std::vector<double> lstsqRow(
-            std::vector<double> &a,
-            const std::vector<double> &b);
-        static std::array<double, 3> cross(const std::array<double, 3> &a, const std::array<double, 3> &b);
-        static std::array<double, 3> normalize(const std::array<double, 3> &a);
-        static double computeNorm(const std::array<double, 3> &a);
-        static std::vector<double> computeNorm(const std::vector<double> &a);
-        static double dot(const std::array<double, 3> &a, const std::array<double, 3> &b);
-        static std::vector<double> dot(const std::vector<double> &a, const std::array<double, 3> &b);
-        static double mean(const std::vector<double> &values);
-        static std::array<double, 3> meanCoordinates(const std::vector<double> &coordinates);
-        static std::array<double, 9> computeCov(const std::vector<double> &coordinates);
-        static std::array<double, 9> computePCA(const std::vector<double> &coordinates);
-        static std::array<double, 3> computePCAFirstAxis(const std::vector<double> &coordinates);
-        static std::array<double, 3> computePCAThirdAxis(const std::vector<double> &coordinates);
-        static double computeQuantile(
-            const std::vector<double> &values,
-            double q);
-        static double computeAngle(
-            const std::array<double, 3> &direction,
-            std::array<double, 3> axis);
-        static std::vector<double> computeAngles(
-            const std::vector<double> &directions,
-            std::array<double, 3> axis);
-        static double computeOrientedAngle(
-            const std::array<double, 3> &normal,
-            const std::array<double, 3> &vector1,
-            const std::array<double, 3> &vector2);
-        static double computeVariance(std::vector<double> values);
-        static std::array<double, 6> computeBaseFromNormal(std::array<double, 3> normal);
-    };
-}
+class SHAPE_RECOGNITION_EXPORT MathOps
+{
+   public:
+    static std::vector<double> lstsq(std::vector<double> &a, const std::vector<double> &b);
+    static std::vector<double> lstsq(
+        std::vector<double> &a, const std::vector<double> &b, int m, int n = 3, int nrhs = 1
+    );
+    static std::vector<double> lstsqRow(std::vector<double> &a, const std::vector<double> &b);
+    static std::array<double, 3> cross(const std::array<double, 3> &a, const std::array<double, 3> &b);
+    static std::array<double, 3> normalize(const std::array<double, 3> &a);
+    static double computeNorm(const std::array<double, 3> &a);
+    static std::vector<double> computeNorm(const std::vector<double> &a);
+    static double dot(const std::array<double, 3> &a, const std::array<double, 3> &b);
+    static std::vector<double> dot(const std::vector<double> &a, const std::array<double, 3> &b);
+    static double mean(const std::vector<double> &values);
+    static std::array<double, 3> meanCoordinates(const std::vector<double> &coordinates);
+    static std::array<double, 9> computeCov(const std::vector<double> &coordinates);
+    static std::array<double, 9> computePCA(const std::vector<double> &coordinates);
+    static std::array<double, 3> computePCAFirstAxis(const std::vector<double> &coordinates);
+    static std::array<double, 3> computePCAThirdAxis(const std::vector<double> &coordinates);
+    static double computeQuantile(const std::vector<double> &values, double q);
+    static double computeAngle(const std::array<double, 3> &direction, std::array<double, 3> axis);
+    static std::vector<double> computeAngles(const std::vector<double> &directions, std::array<double, 3> axis);
+    static double computeOrientedAngle(
+        const std::array<double, 3> &normal, const std::array<double, 3> &vector1, const std::array<double, 3> &vector2
+    );
+    static double computeVariance(std::vector<double> values);
+    static std::array<double, 6> computeBaseFromNormal(std::array<double, 3> normal);
+};
+}  // namespace MEDCoupling

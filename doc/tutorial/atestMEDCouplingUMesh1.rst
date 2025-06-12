@@ -7,7 +7,7 @@ Playing with unstructured mesh
 ::
 
 	import medcoupling as mc
-	
+
 	# Build a 3D mesh from scratch mixing HEXA8 and POLYHED
 	coords=[0.,0.,0., 1.,1.,0., 1.,1.25,0., 1.,0.,0., 1.,1.5,0., 2.,0.,0., 2.,1.,0., 1.,2.,0., 0.,2.,0., 3.,1.,0.,
                 3.,2.,0., 0.,1.,0., 1.,3.,0., 2.,2.,0., 2.,3.,0.,
@@ -95,4 +95,3 @@ Playing with unstructured mesh
 	cellIds = numberOf3DCellSharing.findIdsNotEqual(1)
 	mesh3DSurfInside = mesh3DSurf[cellIds]
 	mesh3DSurfInside.writeVTK("mesh3DSurfInside.vtu")
-

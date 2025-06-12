@@ -24,58 +24,87 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
-  Planar2D1DIntersectorP0P0<MyMeshType,MyMatrix,ConcreteP0P0Intersector>::Planar2D1DIntersectorP0P0(const MyMeshType& meshT, const MyMeshType& meshS,
-                                                                                                    double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane,
-                                                                                                    bool doRotate, int orientation, int printLevel):
-    PlanarIntersector<MyMeshType,MyMatrix>(meshT,meshS,dimCaracteristic,precision,md3DSurf,minDot3DSurf,medianPlane,doRotate,orientation,printLevel)
-  {
-  }
+template <class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
+Planar2D1DIntersectorP0P0<MyMeshType, MyMatrix, ConcreteP0P0Intersector>::Planar2D1DIntersectorP0P0(
+    const MyMeshType &meshT,
+    const MyMeshType &meshS,
+    double dimCaracteristic,
+    double precision,
+    double md3DSurf,
+    double minDot3DSurf,
+    double medianPlane,
+    bool doRotate,
+    int orientation,
+    int printLevel
+)
+    : PlanarIntersector<MyMeshType, MyMatrix>(
+          meshT,
+          meshS,
+          dimCaracteristic,
+          precision,
+          md3DSurf,
+          minDot3DSurf,
+          medianPlane,
+          doRotate,
+          orientation,
+          printLevel
+      )
+{
+}
 
-  template<class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
-  typename MyMeshType::MyConnType Planar2D1DIntersectorP0P0<MyMeshType,MyMatrix,ConcreteP0P0Intersector>::getNumberOfRowsOfResMatrix() const
-  {
-    return PlanarIntersector<MyMeshType,MyMatrix>::_meshT.getNumberOfElements();
-  }
+template <class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
+typename MyMeshType::MyConnType
+Planar2D1DIntersectorP0P0<MyMeshType, MyMatrix, ConcreteP0P0Intersector>::getNumberOfRowsOfResMatrix() const
+{
+    return PlanarIntersector<MyMeshType, MyMatrix>::_meshT.getNumberOfElements();
+}
 
-  template<class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
-  typename MyMeshType::MyConnType Planar2D1DIntersectorP0P0<MyMeshType,MyMatrix,ConcreteP0P0Intersector>::getNumberOfColsOfResMatrix() const
-  {
-    return PlanarIntersector<MyMeshType,MyMatrix>::_meshS.getNumberOfElements();
-  }
+template <class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
+typename MyMeshType::MyConnType
+Planar2D1DIntersectorP0P0<MyMeshType, MyMatrix, ConcreteP0P0Intersector>::getNumberOfColsOfResMatrix() const
+{
+    return PlanarIntersector<MyMeshType, MyMatrix>::_meshS.getNumberOfElements();
+}
 
-  template<class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
-  void Planar2D1DIntersectorP0P0<MyMeshType,MyMatrix,ConcreteP0P0Intersector>::intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res)
-  {
-    ConnType nbNodesT=PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT+1]-PlanarIntersector<MyMeshType,MyMatrix>::_connIndexT[icellT];
-    typename MyMatrix::value_type& resRow=res[icellT];
-    for(typename std::vector<ConnType>::const_iterator iter=icellsS.begin();iter!=icellsS.end();iter++)
-      {
-        ConnType iS=*iter;
-        ConnType nbNodesS=PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS+1]-PlanarIntersector<MyMeshType,MyMatrix>::_connIndexS[iS];
+template <class MyMeshType, class MyMatrix, class ConcreteP0P0Intersector>
+void
+Planar2D1DIntersectorP0P0<MyMeshType, MyMatrix, ConcreteP0P0Intersector>::intersectCells(
+    ConnType icellT, const std::vector<ConnType> &icellsS, MyMatrix &res
+)
+{
+    ConnType nbNodesT = PlanarIntersector<MyMeshType, MyMatrix>::_connIndexT[icellT + 1] -
+                        PlanarIntersector<MyMeshType, MyMatrix>::_connIndexT[icellT];
+    typename MyMatrix::value_type &resRow = res[icellT];
+    for (typename std::vector<ConnType>::const_iterator iter = icellsS.begin(); iter != icellsS.end(); iter++)
+    {
+        ConnType iS = *iter;
+        ConnType nbNodesS = PlanarIntersector<MyMeshType, MyMatrix>::_connIndexS[iS + 1] -
+                            PlanarIntersector<MyMeshType, MyMatrix>::_connIndexS[iS];
         bool isColinear = false;
-        double surf=intersectGeometry1D(OTT<ConnType,numPol>::indFC(icellT),OTT<ConnType,numPol>::indFC(iS),
-                                        nbNodesT,nbNodesS, isColinear);
-        surf=PlanarIntersector<MyMeshType,MyMatrix>::getValueRegardingOption(surf);
-        if(surf!=0.)
-          resRow.insert(std::make_pair(OTT<ConnType,numPol>::indFC(iS),surf));
+        double surf = intersectGeometry1D(
+            OTT<ConnType, numPol>::indFC(icellT), OTT<ConnType, numPol>::indFC(iS), nbNodesT, nbNodesS, isColinear
+        );
+        surf = PlanarIntersector<MyMeshType, MyMatrix>::getValueRegardingOption(surf);
+        if (surf != 0.)
+            resRow.insert(std::make_pair(OTT<ConnType, numPol>::indFC(iS), surf));
 
         if (isColinear)
-          {
-          typename PlanarIntersector<MyMeshType,MyMatrix>::DuplicateFacesType::iterator intersectFacesIter = _intersect_faces.find(iS);
-          if (intersectFacesIter != _intersect_faces.end())
+        {
+            typename PlanarIntersector<MyMeshType, MyMatrix>::DuplicateFacesType::iterator intersectFacesIter =
+                _intersect_faces.find(iS);
+            if (intersectFacesIter != _intersect_faces.end())
             {
-              intersectFacesIter->second.insert(icellT);
+                intersectFacesIter->second.insert(icellT);
             }
-          else
+            else
             {
-              std::set<ConnType> targetCellSet;
-              targetCellSet.insert(icellT);
-              _intersect_faces.insert(std::make_pair(iS, targetCellSet));
+                std::set<ConnType> targetCellSet;
+                targetCellSet.insert(icellT);
+                _intersect_faces.insert(std::make_pair(iS, targetCellSet));
             }
-          }
-      }
-  }
+        }
+    }
 }
+}  // namespace INTERP_KERNEL
 
 #endif

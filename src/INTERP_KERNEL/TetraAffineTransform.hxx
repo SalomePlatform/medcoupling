@@ -22,40 +22,38 @@
 
 #include "INTERPKERNELDefines.hxx"
 
-#undef INVERSION_SELF_CHECK // debugging : check that calculated inverse is correct
+#undef INVERSION_SELF_CHECK  // debugging : check that calculated inverse is correct
 
 namespace INTERP_KERNEL
 {
-  /**
-   * \brief Class representing an affine transformation x -> Ax + b that transforms a given tetrahedron
-   * into the unit tetrahedron.
-   *
-   */
-  class INTERPKERNEL_EXPORT TetraAffineTransform
-  {
-
-  public:
+/**
+ * \brief Class representing an affine transformation x -> Ax + b that transforms a given tetrahedron
+ * into the unit tetrahedron.
+ *
+ */
+class INTERPKERNEL_EXPORT TetraAffineTransform
+{
+   public:
     TetraAffineTransform(const double *pts);
 
-    void apply(double* destPt, const double* srcPt) const;
+    void apply(double *destPt, const double *srcPt) const;
 
-    void reverseApply(double* destPt, const double* srcPt) const;
+    void reverseApply(double *destPt, const double *srcPt) const;
 
     double determinant() const;
 
     void dump() const;
 
-  private:
-
+   private:
     void invertLinearTransform();
 
     void calculateDeterminant();
 
-    void factorizeLU(double* lu, int* idx) const;
+    void factorizeLU(double *lu, int *idx) const;
 
-    void forwardSubstitution(double* x, const double* lu, const double* b, const int* idx) const;
+    void forwardSubstitution(double *x, const double *lu, const double *b, const int *idx) const;
 
-    void backwardSubstitution(double* x, const double* lu, const double* b, const int* idx) const;
+    void backwardSubstitution(double *x, const double *lu, const double *b, const int *idx) const;
 
     // The affine transformation Ax + b is represented with _linear_transformation containing the elements of
     // A in row-first ordering and _translation containing the elements of b
@@ -74,8 +72,7 @@ namespace INTERP_KERNEL
 
     /// 3x1 vector c in affine transform y -> ATy - c
     double _back_translation[3];
-
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

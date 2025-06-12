@@ -27,131 +27,148 @@
 
 using namespace INTERP_KERNEL;
 
-OrientationInverter *OrientationInverter::BuildInstanceFrom(NormalizedCellType gt)
+OrientationInverter *
+OrientationInverter::BuildInstanceFrom(NormalizedCellType gt)
 {
-  switch(gt)
+    switch (gt)
     {
-    case NORM_SEG2:
-      return new OrientationInverterSEG2;
-    case NORM_SEG3:
-      return new OrientationInverterSEG3;
-    case NORM_TRI3:
-      return new OrientationInverter2DLinear(3u);
-    case NORM_QUAD4:
-      return new OrientationInverter2DLinear(4u);
-    case NORM_POLYGON:
-      return new OrientationInverterPolygon;
-    case NORM_TRI6:
-      return new OrientationInverter2DQuadratic(6u);
-    case NORM_QUAD8:
-      return new OrientationInverter2DQuadratic(8u);
-    case NORM_QPOLYG:
-      return new OrientationInverterQPolygon;
-    case NORM_TETRA4:
-      return new OrientationInverterTetra4;
-    case NORM_PYRA5:
-      return new OrientationInverterPyra5;
-    case NORM_PENTA6:
-      return new OrientationInverter3DExtrusionLinear(6u);
-    case NORM_HEXA8:
-      return new OrientationInverter3DExtrusionLinear(8u);
-    case NORM_TETRA10:
-      return new OrientationInverterTetra10;
-    case NORM_PYRA13:
-      return new OrientationInverterPyra13;
-    case NORM_PENTA15:
-      return new OrientationInverter3DExtrusionQuadratic(15u);
-    case NORM_HEXA20:
-      return new OrientationInverter3DExtrusionQuadratic(20u);
-    default:
-      {
-        const CellModel& cm(CellModel::GetCellModel(gt));
-        std::ostringstream oss; oss << "OrientationInverter::BuildInstanceFrom : Sorry no inverter for geo type " << cm.getRepr() << " !";
+        case NORM_SEG2:
+            return new OrientationInverterSEG2;
+        case NORM_SEG3:
+            return new OrientationInverterSEG3;
+        case NORM_TRI3:
+            return new OrientationInverter2DLinear(3u);
+        case NORM_QUAD4:
+            return new OrientationInverter2DLinear(4u);
+        case NORM_POLYGON:
+            return new OrientationInverterPolygon;
+        case NORM_TRI6:
+            return new OrientationInverter2DQuadratic(6u);
+        case NORM_QUAD8:
+            return new OrientationInverter2DQuadratic(8u);
+        case NORM_QPOLYG:
+            return new OrientationInverterQPolygon;
+        case NORM_TETRA4:
+            return new OrientationInverterTetra4;
+        case NORM_PYRA5:
+            return new OrientationInverterPyra5;
+        case NORM_PENTA6:
+            return new OrientationInverter3DExtrusionLinear(6u);
+        case NORM_HEXA8:
+            return new OrientationInverter3DExtrusionLinear(8u);
+        case NORM_TETRA10:
+            return new OrientationInverterTetra10;
+        case NORM_PYRA13:
+            return new OrientationInverterPyra13;
+        case NORM_PENTA15:
+            return new OrientationInverter3DExtrusionQuadratic(15u);
+        case NORM_HEXA20:
+            return new OrientationInverter3DExtrusionQuadratic(20u);
+        default:
+        {
+            const CellModel &cm(CellModel::GetCellModel(gt));
+            std::ostringstream oss;
+            oss << "OrientationInverter::BuildInstanceFrom : Sorry no inverter for geo type " << cm.getRepr() << " !";
+            throw INTERP_KERNEL::Exception(oss.str());
+        }
+    }
+}
+
+void
+OrientationInverterChecker::check(mcIdType *beginPt, mcIdType *endPt) const
+{
+    if (std::distance(beginPt, endPt) != getNbNodes())
+    {
+        std::ostringstream oss;
+        oss << "OrientationInverterChecker::check : length of nodal connectivity mismatches ! Expecting "
+            << getNbNodes() << " having " << std::distance(beginPt, endPt) << " !";
         throw INTERP_KERNEL::Exception(oss.str());
-      }
     }
 }
 
-void OrientationInverterChecker::check(mcIdType *beginPt, mcIdType *endPt) const
+void
+OrientationInverterSEG2::operateAndShutUp(mcIdType *beginPt) const
 {
-  if(std::distance(beginPt,endPt)!=getNbNodes())
-    {
-      std::ostringstream oss; oss << "OrientationInverterChecker::check : length of nodal connectivity mismatches ! Expecting " << getNbNodes() << " having " << std::distance(beginPt,endPt) << " !";
-      throw INTERP_KERNEL::Exception(oss.str());
-    }
+    std::swap(beginPt[0], beginPt[1]);
 }
 
-void OrientationInverterSEG2::operateAndShutUp(mcIdType *beginPt) const
+void
+OrientationInverterSEG3::operateAndShutUp(mcIdType *beginPt) const
 {
-  std::swap(beginPt[0],beginPt[1]);
+    std::swap(beginPt[0], beginPt[2]);
 }
 
-void OrientationInverterSEG3::operateAndShutUp(mcIdType *beginPt) const
+void
+OrientationInverter2DLinear::operateAndShutUp(mcIdType *beginPt) const
 {
-  std::swap(beginPt[0],beginPt[2]);
+    std::reverse(beginPt + 1, beginPt + getNbNodes());
 }
 
-void OrientationInverter2DLinear::operateAndShutUp(mcIdType *beginPt) const
+void
+OrientationInverter2DQuadratic::operateAndShutUp(mcIdType *beginPt) const
 {
-  std::reverse(beginPt+1,beginPt+getNbNodes());
+    int nbNodes(getNbNodes());
+    std::reverse(beginPt + 1, beginPt + nbNodes / 2);
+    std::reverse(beginPt + nbNodes / 2, beginPt + nbNodes);
 }
 
-void OrientationInverter2DQuadratic::operateAndShutUp(mcIdType *beginPt) const
+void
+OrientationInverterPolygon::operate(mcIdType *beginPt, mcIdType *endPt) const
 {
-  int nbNodes(getNbNodes());
-  std::reverse(beginPt+1,beginPt+nbNodes/2);
-  std::reverse(beginPt+nbNodes/2,beginPt+nbNodes);
+    std::reverse(beginPt + 1, endPt);
 }
 
-void OrientationInverterPolygon::operate(mcIdType *beginPt, mcIdType *endPt) const
+void
+OrientationInverterQPolygon::operate(mcIdType *beginPt, mcIdType *endPt) const
 {
-  std::reverse(beginPt+1,endPt);
+    std::size_t sz(std::distance(beginPt, endPt));
+    std::reverse(beginPt + 1, beginPt + sz / 2);
+    std::reverse(beginPt + sz / 2, endPt);
 }
 
-void OrientationInverterQPolygon::operate(mcIdType *beginPt, mcIdType *endPt) const
+void
+OrientationInverterTetra4::operateAndShutUp(mcIdType *beginPt) const
 {
-  std::size_t sz(std::distance(beginPt,endPt));
-  std::reverse(beginPt+1,beginPt+sz/2);
-  std::reverse(beginPt+sz/2,endPt);
+    std::swap(beginPt[1], beginPt[2]);
 }
 
-void OrientationInverterTetra4::operateAndShutUp(mcIdType *beginPt) const
+void
+OrientationInverterTetra10::operateAndShutUp(mcIdType *beginPt) const
 {
-  std::swap(beginPt[1],beginPt[2]);
+    std::swap(beginPt[1], beginPt[2]);
+    std::swap(beginPt[4], beginPt[6]);
+    std::swap(beginPt[8], beginPt[9]);
 }
 
-void OrientationInverterTetra10::operateAndShutUp(mcIdType *beginPt) const
+void
+OrientationInverterPyra5::operateAndShutUp(mcIdType *beginPt) const
 {
-  std::swap(beginPt[1],beginPt[2]);
-  std::swap(beginPt[4],beginPt[6]);
-  std::swap(beginPt[8],beginPt[9]);
+    std::reverse(beginPt + 1, beginPt + 4);
 }
 
-void OrientationInverterPyra5::operateAndShutUp(mcIdType *beginPt) const
+void
+OrientationInverterPyra13::operateAndShutUp(mcIdType *beginPt) const
 {
-  std::reverse(beginPt+1,beginPt+4);
+    std::reverse(beginPt + 1, beginPt + 4);
+    std::reverse(beginPt + 5, beginPt + 9);
+    std::swap(beginPt[10], beginPt[12]);
 }
 
-void OrientationInverterPyra13::operateAndShutUp(mcIdType *beginPt) const
+void
+OrientationInverter3DExtrusionLinear::operateAndShutUp(mcIdType *beginPt) const
 {
-  std::reverse(beginPt+1,beginPt+4);
-  std::reverse(beginPt+5,beginPt+9);
-  std::swap(beginPt[10],beginPt[12]);
+    int nbNodes(getNbNodes());
+    std::reverse(beginPt + 1, beginPt + nbNodes / 2);
+    std::reverse(beginPt + nbNodes / 2 + 1, beginPt + nbNodes);
 }
 
-void OrientationInverter3DExtrusionLinear::operateAndShutUp(mcIdType *beginPt) const
+void
+OrientationInverter3DExtrusionQuadratic::operateAndShutUp(mcIdType *beginPt) const
 {
-  int nbNodes(getNbNodes());
-  std::reverse(beginPt+1,beginPt+nbNodes/2);
-  std::reverse(beginPt+nbNodes/2+1,beginPt+nbNodes);
-}
-
-void OrientationInverter3DExtrusionQuadratic::operateAndShutUp(mcIdType *beginPt) const
-{
-  int nbNodes(getNbNodes()),nbNodesLinearBase(nbNodes/5);
-  std::reverse(beginPt+1,beginPt+nbNodesLinearBase);
-  std::reverse(beginPt+nbNodesLinearBase+1,beginPt+2*nbNodesLinearBase);
-  std::reverse(beginPt+2*nbNodesLinearBase,beginPt+3*nbNodesLinearBase);
-  std::reverse(beginPt+3*nbNodesLinearBase,beginPt+4*nbNodesLinearBase);
-  std::reverse(beginPt+4*nbNodesLinearBase+1,beginPt+5*nbNodesLinearBase);
+    int nbNodes(getNbNodes()), nbNodesLinearBase(nbNodes / 5);
+    std::reverse(beginPt + 1, beginPt + nbNodesLinearBase);
+    std::reverse(beginPt + nbNodesLinearBase + 1, beginPt + 2 * nbNodesLinearBase);
+    std::reverse(beginPt + 2 * nbNodesLinearBase, beginPt + 3 * nbNodesLinearBase);
+    std::reverse(beginPt + 3 * nbNodesLinearBase, beginPt + 4 * nbNodesLinearBase);
+    std::reverse(beginPt + 4 * nbNodesLinearBase + 1, beginPt + 5 * nbNodesLinearBase);
 }

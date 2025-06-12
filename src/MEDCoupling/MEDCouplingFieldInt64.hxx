@@ -28,23 +28,28 @@
 
 namespace MEDCoupling
 {
-  class MEDCouplingFieldDouble;
-  class MEDCouplingFieldTemplate;
+class MEDCouplingFieldDouble;
+class MEDCouplingFieldTemplate;
 
-  class MEDCouplingFieldInt64 : public MEDCouplingFieldT<Int64>
-  {
-  public:
-    MEDCOUPLING_EXPORT static MEDCouplingFieldInt64 *New(TypeOfField type, TypeOfTimeDiscretization td=ONE_TIME);
-    MEDCOUPLING_EXPORT static MEDCouplingFieldInt64 *New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td=ONE_TIME);
+class MEDCouplingFieldInt64 : public MEDCouplingFieldT<Int64>
+{
+   public:
+    MEDCOUPLING_EXPORT static MEDCouplingFieldInt64 *New(TypeOfField type, TypeOfTimeDiscretization td = ONE_TIME);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldInt64 *New(
+        const MEDCouplingFieldTemplate &ft, TypeOfTimeDiscretization td = ONE_TIME
+    );
     MEDCOUPLING_EXPORT MEDCouplingFieldInt64 *deepCopy() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldInt64 *clone(bool recDeepCpy) const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *convertToDblField() const;
     std::string getClassName() const override { return std::string("MEDCouplingFieldInt64"); }
-  protected:
+
+   protected:
     MEDCouplingFieldInt64(TypeOfField type, TypeOfTimeDiscretization td);
-    MEDCouplingFieldInt64(const MEDCouplingFieldInt64& other, bool deepCopy);
-    MEDCouplingFieldInt64(NatureOfField n, MEDCouplingTimeDiscretizationInt64 *td, MEDCouplingFieldDiscretization *type);
-    MEDCouplingFieldInt64(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td);
-    ~MEDCouplingFieldInt64() { }
-  };
-}
+    MEDCouplingFieldInt64(const MEDCouplingFieldInt64 &other, bool deepCopy);
+    MEDCouplingFieldInt64(
+        NatureOfField n, MEDCouplingTimeDiscretizationInt64 *td, MEDCouplingFieldDiscretization *type
+    );
+    MEDCouplingFieldInt64(const MEDCouplingFieldTemplate &ft, TypeOfTimeDiscretization td);
+    ~MEDCouplingFieldInt64() {}
+};
+}  // namespace MEDCoupling

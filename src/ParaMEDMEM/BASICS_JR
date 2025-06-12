@@ -336,4 +336,3 @@ Presentation-ParaMEDMEM :
   qui appellent sendRecv et reverseSendRecv de MxN_Mapping
   qui appellent comm_interface.allToAllV en mode "Native"
   ou bien MPI_AccessDEC::AllToAllv en mode "PointToPoint"
-

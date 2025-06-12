@@ -25,7 +25,7 @@
 #include "PrimitiveType.hxx"
 #include "Areas.hxx"
 
- #include <type_traits>		
+ #include <type_traits>
 %}
 
 %feature("unref") ShapeRecognMesh "$this->decrRef();"

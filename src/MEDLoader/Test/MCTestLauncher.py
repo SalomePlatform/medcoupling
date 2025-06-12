@@ -21,7 +21,7 @@
 
 import subprocess as sp
 import sys
-import tempfile,os
+import tempfile, os
 
 full_path = os.path.abspath(sys.argv[1])
 with tempfile.TemporaryDirectory() as tmpdirname:

@@ -26,39 +26,45 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix>
-  void TargetIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes(std::vector<double>& bbox, double adjustmentEps, double adjustmentEpsAbs)
-  {
-    this->adjustBoundingBoxes(bbox.data(),bbox.size(),adjustmentEps,adjustmentEpsAbs);
-  }
-
-  /*! Readjusts a set of bounding boxes so that they are extended
-    in all dimensions for avoiding missing interesting intersections
-
-    @param bbox vector containing the bounding boxes
-    @param adjustmentEps relative adjustment value (a percentage of the maximal BBox dimension)
-    @param adjustmentEpsAbs absolute adjustment value (added on each side of the BBox in each dimension)
-  */
-  template<class MyMeshType, class MyMatrix>
-  void TargetIntersector<MyMeshType,MyMatrix>::adjustBoundingBoxes(double *bbox, std::size_t sz, double adjustmentEps, double adjustmentEpsAbs)
-  {
-    std::size_t size = sz/(2*SPACEDIM);
-    for (std::size_t i=0; i<size; i++)
-      {
-        double max=- std::numeric_limits<double>::max();
-        for(int idim=0; idim<SPACEDIM; idim++)
-          {
-            double Dx=bbox[i*2*SPACEDIM+1+2*idim]-bbox[i*2*SPACEDIM+2*idim];
-            max=(max<Dx)?Dx:max;
-          }
-        for(int idim=0; idim<SPACEDIM; idim++)
-          {
-            bbox[i*2*SPACEDIM+2*idim  ] -= adjustmentEps*max+adjustmentEpsAbs;
-            bbox[i*2*SPACEDIM+2*idim+1] += adjustmentEps*max+adjustmentEpsAbs;
-          }
-      }
-  }
-
+template <class MyMeshType, class MyMatrix>
+void
+TargetIntersector<MyMeshType, MyMatrix>::adjustBoundingBoxes(
+    std::vector<double> &bbox, double adjustmentEps, double adjustmentEpsAbs
+)
+{
+    this->adjustBoundingBoxes(bbox.data(), bbox.size(), adjustmentEps, adjustmentEpsAbs);
 }
+
+/*! Readjusts a set of bounding boxes so that they are extended
+  in all dimensions for avoiding missing interesting intersections
+
+  @param bbox vector containing the bounding boxes
+  @param adjustmentEps relative adjustment value (a percentage of the maximal BBox dimension)
+  @param adjustmentEpsAbs absolute adjustment value (added on each side of the BBox in each dimension)
+*/
+template <class MyMeshType, class MyMatrix>
+void
+TargetIntersector<MyMeshType, MyMatrix>::adjustBoundingBoxes(
+    double *bbox, std::size_t sz, double adjustmentEps, double adjustmentEpsAbs
+)
+{
+    std::size_t size = sz / (2 * SPACEDIM);
+    for (std::size_t i = 0; i < size; i++)
+    {
+        double max = -std::numeric_limits<double>::max();
+        for (int idim = 0; idim < SPACEDIM; idim++)
+        {
+            double Dx = bbox[i * 2 * SPACEDIM + 1 + 2 * idim] - bbox[i * 2 * SPACEDIM + 2 * idim];
+            max = (max < Dx) ? Dx : max;
+        }
+        for (int idim = 0; idim < SPACEDIM; idim++)
+        {
+            bbox[i * 2 * SPACEDIM + 2 * idim] -= adjustmentEps * max + adjustmentEpsAbs;
+            bbox[i * 2 * SPACEDIM + 2 * idim + 1] += adjustmentEps * max + adjustmentEpsAbs;
+        }
+    }
+}
+
+}  // namespace INTERP_KERNEL
 
 #endif

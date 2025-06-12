@@ -22,61 +22,64 @@
 
 namespace ICoCo
 {
-  MEDDoubleField::MEDDoubleField() : _field(0) {}
+MEDDoubleField::MEDDoubleField() : _field(0) {}
 
-  MEDDoubleField::MEDDoubleField(MEDCoupling::MEDCouplingFieldDouble *field):_field(field)
-  {
-    if(_field)
-      {
+MEDDoubleField::MEDDoubleField(MEDCoupling::MEDCouplingFieldDouble *field) : _field(field)
+{
+    if (_field)
+    {
         _field->incrRef();
         setName(_field->getName());
-      }
+    }
     else
-      setName("");
-  }
+        setName("");
+}
 
-  MEDDoubleField::MEDDoubleField(const MEDDoubleField& field):_field(field.getMCField())
-  {
-    if(_field)
-      _field->incrRef();
-    setName(field.getName());
-  }
-
-  MEDDoubleField::~MEDDoubleField()
-  {
-    if(_field)
-      _field->decrRef();
-  }
-
-  MEDDoubleField& MEDDoubleField::operator=(const MEDDoubleField& field)
-  {
+MEDDoubleField::MEDDoubleField(const MEDDoubleField &field) : _field(field.getMCField())
+{
     if (_field)
-      _field->decrRef();
+        _field->incrRef();
+    setName(field.getName());
+}
 
-    _field=field.getMCField();
-    if(_field)
-      _field->incrRef();
+MEDDoubleField::~MEDDoubleField()
+{
+    if (_field)
+        _field->decrRef();
+}
+
+MEDDoubleField &
+MEDDoubleField::operator=(const MEDDoubleField &field)
+{
+    if (_field)
+        _field->decrRef();
+
+    _field = field.getMCField();
+    if (_field)
+        _field->incrRef();
     setName(field.getName());
     return *this;
-  }
+}
 
-  MEDCoupling::MEDCouplingFieldDouble *MEDDoubleField::getMCField() const
-  {
+MEDCoupling::MEDCouplingFieldDouble *
+MEDDoubleField::getMCField() const
+{
     return _field;
-  }
+}
 
-  void MEDDoubleField::setMCField(MEDCoupling::MEDCouplingFieldDouble * f)
-  {
-    if(_field)
-      _field->decrRef();
+void
+MEDDoubleField::setMCField(MEDCoupling::MEDCouplingFieldDouble *f)
+{
+    if (_field)
+        _field->decrRef();
     _field = f;
-    if(f != nullptr)
-      {
+    if (f != nullptr)
+    {
         _field->incrRef();
         setName(_field->getName());
-      }
+    }
     else
-      setName("");
-  }
-
+        setName("");
 }
+
+}  // namespace ICoCo

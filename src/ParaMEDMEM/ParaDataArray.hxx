@@ -24,58 +24,63 @@
 
 namespace MEDCoupling
 {
-  /*!
-   * Parallel representation of a DataArray
-   *
-   * This class is very specific to the requirement of parallel code computations.
-   */
-  class ParaDataArray : public RefCountObject
-  {
-  };
+/*!
+ * Parallel representation of a DataArray
+ *
+ * This class is very specific to the requirement of parallel code computations.
+ */
+class ParaDataArray : public RefCountObject
+{
+};
 
-  template<class T>
-  class ParaDataArrayTemplate : public ParaDataArray
-  {
-  protected:
+template <class T>
+class ParaDataArrayTemplate : public ParaDataArray
+{
+   protected:
     ParaDataArrayTemplate(typename Traits<T>::ArrayType *seqDa);
-  protected:
+
+   protected:
     std::size_t getHeapMemorySizeWithoutChildren() const override;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const override;
-    void checkOKOneComponent(const std::string& msg) const;
-  protected:
+    void checkOKOneComponent(const std::string &msg) const;
+
+   protected:
     MCAuto<typename Traits<T>::ArrayType> _seq_da;
-  };
+};
 
-  template<class T>
-  class ParaDataArrayDiscrete : public ParaDataArrayTemplate<T>
-  {
-  public:
+template <class T>
+class ParaDataArrayDiscrete : public ParaDataArrayTemplate<T>
+{
+   public:
     DataArrayIdType *buildComplement(T nbOfElems) const;
-  protected:
-    ParaDataArrayDiscrete(typename Traits<T>::ArrayType *seqDa):ParaDataArrayTemplate<T>(seqDa) { }
-  };
 
-  class ParaDataArrayInt32 : public ParaDataArrayDiscrete<Int32>
-  {
-  public:
+   protected:
+    ParaDataArrayDiscrete(typename Traits<T>::ArrayType *seqDa) : ParaDataArrayTemplate<T>(seqDa) {}
+};
+
+class ParaDataArrayInt32 : public ParaDataArrayDiscrete<Int32>
+{
+   public:
     static ParaDataArrayInt32 *New(DataArrayInt32 *seqDa);
-  private:
-    ParaDataArrayInt32(DataArrayInt32 *seqDa):ParaDataArrayDiscrete<Int32>(seqDa) { }
+
+   private:
+    ParaDataArrayInt32(DataArrayInt32 *seqDa) : ParaDataArrayDiscrete<Int32>(seqDa) {}
     std::string getClassName() const override { return "ParaDataArrayInt32"; }
-  };
+};
 
-  class ParaDataArrayInt64 : public ParaDataArrayDiscrete<Int64>
-  {
-  public:
+class ParaDataArrayInt64 : public ParaDataArrayDiscrete<Int64>
+{
+   public:
     static ParaDataArrayInt64 *New(DataArrayInt64 *seqDa);
-  private:
-    ParaDataArrayInt64(DataArrayInt64 *seqDa):ParaDataArrayDiscrete<Int64>(seqDa) { }
-    std::string getClassName() const override { return "ParaDataArrayInt64"; }
-  };
 
-  #ifndef MEDCOUPLING_USE_64BIT_IDS
-  using ParaDataArrayIdType = ParaDataArrayInt32;
-  #else
-  using ParaDataArrayIdType = ParaDataArrayInt64;
-  #endif
-}
+   private:
+    ParaDataArrayInt64(DataArrayInt64 *seqDa) : ParaDataArrayDiscrete<Int64>(seqDa) {}
+    std::string getClassName() const override { return "ParaDataArrayInt64"; }
+};
+
+#ifndef MEDCOUPLING_USE_64BIT_IDS
+using ParaDataArrayIdType = ParaDataArrayInt32;
+#else
+using ParaDataArrayIdType = ParaDataArrayInt64;
+#endif
+}  // namespace MEDCoupling

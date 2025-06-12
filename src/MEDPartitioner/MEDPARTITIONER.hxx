@@ -21,13 +21,13 @@
 #define __MEDPARTITIONER_HXX__
 
 #ifdef WIN32
-# if defined MEDPARTITIONERCPP_EXPORTS || defined medpartitionercpp_EXPORTS
-#  define MEDPARTITIONER_EXPORT __declspec( dllexport )
-# else
-#  define MEDPARTITIONER_EXPORT __declspec( dllimport )
-# endif
+#if defined MEDPARTITIONERCPP_EXPORTS || defined medpartitionercpp_EXPORTS
+#define MEDPARTITIONER_EXPORT __declspec(dllexport)
 #else
-# define MEDPARTITIONER_EXPORT
+#define MEDPARTITIONER_EXPORT __declspec(dllimport)
+#endif
+#else
+#define MEDPARTITIONER_EXPORT
 #endif
 
 #endif

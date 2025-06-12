@@ -28,30 +28,50 @@
 
 namespace INTERP_KERNEL
 {
-  template<class ConnType, NumberingPolicy numPolConn, int SPACEDIM>
-  double computeVolSurfOfCell(NormalizedCellType type, const ConnType *connec, mcIdType lgth, const double *coords);
+template <class ConnType, NumberingPolicy numPolConn, int SPACEDIM>
+double
+computeVolSurfOfCell(NormalizedCellType type, const ConnType *connec, mcIdType lgth, const double *coords);
 
-  template<class ConnType, NumberingPolicy numPolConn>
-  double computeVolSurfOfCell2(NormalizedCellType type, const ConnType *connec, mcIdType lgth, const double *coords, int spaceDim);
+template <class ConnType, NumberingPolicy numPolConn>
+double
+computeVolSurfOfCell2(
+    NormalizedCellType type, const ConnType *connec, mcIdType lgth, const double *coords, int spaceDim
+);
 
-  template<class ConnType, NumberingPolicy numPolConn, int SPACEDIM>
-  void computeBarycenter(NormalizedCellType type, const ConnType *connec, mcIdType lgth, const double *coords, double *res);
+template <class ConnType, NumberingPolicy numPolConn, int SPACEDIM>
+void
+computeBarycenter(NormalizedCellType type, const ConnType *connec, mcIdType lgth, const double *coords, double *res);
 
-  template<class ConnType, NumberingPolicy numPolConn>
-  void computeBarycenter2(NormalizedCellType type, const ConnType *connec, mcIdType lgth, const double *coords, int spaceDim, double *res);
+template <class ConnType, NumberingPolicy numPolConn>
+void
+computeBarycenter2(
+    NormalizedCellType type, const ConnType *connec, mcIdType lgth, const double *coords, int spaceDim, double *res
+);
 
-  double INTERPKERNEL_EXPORT OrthoDistanceFromPtToPlaneInSpaceDim3(const double *p, const double *p1, const double *p2, const double *p3);
+double INTERPKERNEL_EXPORT
+OrthoDistanceFromPtToPlaneInSpaceDim3(const double *p, const double *p1, const double *p2, const double *p3);
 
-  double INTERPKERNEL_EXPORT SquareDistanceFromPtToSegInSpaceDim2(const double *pt, const double *pt0Seg2, const double *pt1Seg2, std::size_t &nbOfHint);
+double INTERPKERNEL_EXPORT
+SquareDistanceFromPtToSegInSpaceDim2(
+    const double *pt, const double *pt0Seg2, const double *pt1Seg2, std::size_t &nbOfHint
+);
 
-  double INTERPKERNEL_EXPORT DistanceFromPtToTriInSpaceDim3(const double *pt, const double *pt0Tri3, const double *pt1Tri3, const double *pt2Tri3);
+double INTERPKERNEL_EXPORT
+DistanceFromPtToTriInSpaceDim3(const double *pt, const double *pt0Tri3, const double *pt1Tri3, const double *pt2Tri3);
 
-  double INTERPKERNEL_EXPORT DistanceFromPtToPolygonInSpaceDim3(const double *pt, const mcIdType *connOfPolygonBg, const mcIdType *connOfPolygonEnd, const double *coords);
+double INTERPKERNEL_EXPORT
+DistanceFromPtToPolygonInSpaceDim3(
+    const double *pt, const mcIdType *connOfPolygonBg, const mcIdType *connOfPolygonEnd, const double *coords
+);
 
-  bool ComputeRotTranslationMatrixToPut3PointsOnOXY(const double *pt0Tri3, const double *pt1Tri3, const double *pt2Tri3, double *matrix);
+bool
+ComputeRotTranslationMatrixToPut3PointsOnOXY(
+    const double *pt0Tri3, const double *pt1Tri3, const double *pt2Tri3, double *matrix
+);
 
-  template<int SPACEDIM>
-  void ComputeTriangleHeight(const double *PA, const double *PB, const double *PC, double *res);
-}
+template <int SPACEDIM>
+void
+ComputeTriangleHeight(const double *PA, const double *PB, const double *PC, double *res);
+}  // namespace INTERP_KERNEL
 
 #endif

@@ -24,34 +24,36 @@
 
 namespace MEDCoupling
 {
-  class MEDCouplingFieldInt32;
-  class MEDCouplingFieldInt64;
-  class MEDCouplingFieldFloat;
-  class MEDCouplingFieldDouble;
-  /*!
-   * \brief A field template can be seen as a field without the array of values.
-   *
-   * A field template aggregates a MEDCouplingMesh and a spatial discretization object (instance of
-   * MEDCouplingFieldDiscretization).
-   *
-   * MEDCouplingFieldTemplate is the most appropriate type for the preparation of matrix using
-   * MEDCouplingRemapper::prepareEx, since it contains the minimal information requireds to prepare
-   * the interpolation matrix.
-   */
-  class MEDCouplingFieldTemplate : public MEDCouplingField
-  {
-  public:
-    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble& f);
-    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldFloat& f);
-    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldInt32& f);
-    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldInt64& f);
+class MEDCouplingFieldInt32;
+class MEDCouplingFieldInt64;
+class MEDCouplingFieldFloat;
+class MEDCouplingFieldDouble;
+/*!
+ * \brief A field template can be seen as a field without the array of values.
+ *
+ * A field template aggregates a MEDCouplingMesh and a spatial discretization object (instance of
+ * MEDCouplingFieldDiscretization).
+ *
+ * MEDCouplingFieldTemplate is the most appropriate type for the preparation of matrix using
+ * MEDCouplingRemapper::prepareEx, since it contains the minimal information requireds to prepare
+ * the interpolation matrix.
+ */
+class MEDCouplingFieldTemplate : public MEDCouplingField
+{
+   public:
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldDouble &f);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldFloat &f);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldInt32 &f);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(const MEDCouplingFieldInt64 &f);
     MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *New(TypeOfField type);
-    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldDouble& f);
-    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldFloat& f);
-    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldInt32& f);
-    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldInt64& f);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldDouble &f);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldFloat &f);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldInt32 &f);
+    MEDCOUPLING_EXPORT static MEDCouplingFieldTemplate *NewWithoutCheck(const MEDCouplingFieldInt64 &f);
     std::string getClassName() const override { return std::string("MEDCouplingFieldTemplate"); }
-    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(const MEDCouplingFieldTemplate *other, double meshPrec, std::string& reason) const;
+    MEDCOUPLING_EXPORT bool isEqualIfNotWhy(
+        const MEDCouplingFieldTemplate *other, double meshPrec, std::string &reason
+    ) const;
     MEDCOUPLING_EXPORT bool isEqual(const MEDCouplingFieldTemplate *other, double meshPrec) const;
     MEDCOUPLING_EXPORT bool isEqualWithoutConsideringStr(const MEDCouplingFieldTemplate *other, double meshPrec) const;
     MEDCOUPLING_EXPORT std::string simpleRepr() const;
@@ -59,20 +61,25 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT MCAuto<MEDCouplingFieldTemplate> clone(bool recDeepCpy) const;
     //
-    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<mcIdType>& tinyInfo) const;
-    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double>& tinyInfo) const;
-    MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string>& tinyInfo) const;
-    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<mcIdType>& tinyInfoI, DataArrayIdType *&dataInt);
-    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD, const std::vector<std::string>& tinyInfoS);
+    MEDCOUPLING_EXPORT void getTinySerializationIntInformation(std::vector<mcIdType> &tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationDbleInformation(std::vector<double> &tinyInfo) const;
+    MEDCOUPLING_EXPORT void getTinySerializationStrInformation(std::vector<std::string> &tinyInfo) const;
+    MEDCOUPLING_EXPORT void resizeForUnserialization(const std::vector<mcIdType> &tinyInfoI, DataArrayIdType *&dataInt);
+    MEDCOUPLING_EXPORT void finishUnserialization(
+        const std::vector<mcIdType> &tinyInfoI,
+        const std::vector<double> &tinyInfoD,
+        const std::vector<std::string> &tinyInfoS
+    );
     MEDCOUPLING_EXPORT void serialize(DataArrayIdType *&dataInt) const;
     //
-    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream& stream) const;
-  private:
-    MEDCouplingFieldTemplate(const MEDCouplingFieldDouble& f, bool isChecked=true);
-    MEDCouplingFieldTemplate(const MEDCouplingFieldFloat& f, bool isChecked=true);
-    MEDCouplingFieldTemplate(const MEDCouplingFieldInt32& f, bool isChecked=true);
-    MEDCouplingFieldTemplate(const MEDCouplingFieldInt64& f, bool isChecked=true);
+    MEDCOUPLING_EXPORT void reprQuickOverview(std::ostream &stream) const;
+
+   private:
+    MEDCouplingFieldTemplate(const MEDCouplingFieldDouble &f, bool isChecked = true);
+    MEDCouplingFieldTemplate(const MEDCouplingFieldFloat &f, bool isChecked = true);
+    MEDCouplingFieldTemplate(const MEDCouplingFieldInt32 &f, bool isChecked = true);
+    MEDCouplingFieldTemplate(const MEDCouplingFieldInt64 &f, bool isChecked = true);
     MEDCouplingFieldTemplate(TypeOfField type);
-    MEDCouplingFieldTemplate(const MEDCouplingFieldTemplate& other, bool deepCopy);
-  };
-}
+    MEDCouplingFieldTemplate(const MEDCouplingFieldTemplate &other, bool deepCopy);
+};
+}  // namespace MEDCoupling

@@ -26,28 +26,29 @@
 
 namespace MEDCoupling
 {
-  class Topology;
-  class BlockTopology;
-  class MEDCouplingCMesh;
+class Topology;
+class BlockTopology;
+class MEDCouplingCMesh;
 
-  /*!
-   * This class
-   * Equivalent of a ParaMESH for a structured mesh
-   */
-  class ParaGRID
-  {
-  public:
-    ParaGRID(MEDCouplingCMesh* global_grid, Topology* topology);
-    BlockTopology * getBlockTopology() const { return _block_topology; }
+/*!
+ * This class
+ * Equivalent of a ParaMESH for a structured mesh
+ */
+class ParaGRID
+{
+   public:
+    ParaGRID(MEDCouplingCMesh *global_grid, Topology *topology);
+    BlockTopology *getBlockTopology() const { return _block_topology; }
     virtual ~ParaGRID();
-    MEDCouplingCMesh* getGrid() const { return _grid; }
-  private:
-    MEDCouplingCMesh* _grid;
+    MEDCouplingCMesh *getGrid() const { return _grid; }
+
+   private:
+    MEDCouplingCMesh *_grid;
     // structured grid topology
-    MEDCoupling::BlockTopology* _block_topology;
+    MEDCoupling::BlockTopology *_block_topology;
     // stores the x,y,z axes on the global grid
     std::vector<std::vector<double> > _global_axis;
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

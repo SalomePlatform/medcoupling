@@ -30,25 +30,24 @@
 namespace INTERP_TEST
 {
 
-  /**
-   * \brief Test suite testing some of the low level methods of TransformedTriangle.
-   *
-   */
-  class INTERPKERNELTEST_EXPORT TransformedTriangleTest : public CppUnit::TestFixture
-  {
-
-    CPPUNIT_TEST_SUITE( TransformedTriangleTest );
-    CPPUNIT_TEST( test_constructor );
-    CPPUNIT_TEST( test_calcUnstableC );
-    CPPUNIT_TEST( test_calcUnstableT );
-    //removed because the test fails to enter the desired code branch
- //   CPPUNIT_TEST( test_calcStableC_Consistency );
+/**
+ * \brief Test suite testing some of the low level methods of TransformedTriangle.
+ *
+ */
+class INTERPKERNELTEST_EXPORT TransformedTriangleTest : public CppUnit::TestFixture
+{
+    CPPUNIT_TEST_SUITE(TransformedTriangleTest);
+    CPPUNIT_TEST(test_constructor);
+    CPPUNIT_TEST(test_calcUnstableC);
+    CPPUNIT_TEST(test_calcUnstableT);
+    // removed because the test fails to enter the desired code branch
+    //   CPPUNIT_TEST( test_calcStableC_Consistency );
     CPPUNIT_TEST_SUITE_END();
 
     typedef INTERP_KERNEL::TransformedTriangle::TriSegment TriSegment;
     typedef INTERP_KERNEL::TransformedTriangle::DoubleProduct DoubleProduct;
 
-  public:
+   public:
     void setUp();
 
     void tearDown();
@@ -72,17 +71,11 @@ namespace INTERP_TEST
 
     double stable_c2[24];
 
-  private:
-    INTERP_KERNEL::TransformedTriangle* tri1;
-    INTERP_KERNEL::TransformedTriangle* tri2;
+   private:
+    INTERP_KERNEL::TransformedTriangle *tri1;
+    INTERP_KERNEL::TransformedTriangle *tri2;
+};
 
-  };
-
-
-
-
-}
-
-
+}  // namespace INTERP_TEST
 
 #endif

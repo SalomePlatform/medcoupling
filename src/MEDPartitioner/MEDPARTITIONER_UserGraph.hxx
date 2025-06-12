@@ -27,12 +27,12 @@
 
 namespace MEDPARTITIONER
 {
-  class MEDPARTITIONER_EXPORT UserGraph : public Graph
-  {
-  public:
-    UserGraph(MEDCoupling::MEDCouplingSkyLineArray*, const int*, mcIdType);
+class MEDPARTITIONER_EXPORT UserGraph : public Graph
+{
+   public:
+    UserGraph(MEDCoupling::MEDCouplingSkyLineArray *, const int *, mcIdType);
     virtual ~UserGraph();
-    void partGraph(int, const std::string& options=std::string(""), ParaDomainSelector *sel=0);
-  };
-}
+    void partGraph(int, const std::string &options = std::string(""), ParaDomainSelector *sel = 0);
+};
+}  // namespace MEDPARTITIONER
 #endif

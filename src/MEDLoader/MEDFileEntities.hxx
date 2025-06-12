@@ -30,50 +30,60 @@
 
 namespace MEDCoupling
 {
-  class MEDLOADER_EXPORT MEDFileEntities
-  {
-  public:
-    static MEDFileEntities *BuildFrom(const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > *entities);
-    static MEDFileEntities *BuildFrom(const MEDFileStructureElements& se);
+class MEDLOADER_EXPORT MEDFileEntities
+{
+   public:
+    static MEDFileEntities *BuildFrom(
+        const std::vector<std::pair<TypeOfField, INTERP_KERNEL::NormalizedCellType> > *entities
+    );
+    static MEDFileEntities *BuildFrom(const MEDFileStructureElements &se);
     virtual std::vector<int> getDynGTAvail() const = 0;
     virtual bool areAllStaticTypesPresent() const = 0;
     virtual bool areAllStaticPresentAndNoDyn() const = 0;
     virtual ~MEDFileEntities();
-  };
+};
 
-  class MEDLOADER_EXPORT MEDFileStaticEntities : public MEDFileEntities
-  {
-  public:
-    MEDFileStaticEntities(const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& entities):_entities(entities) { }
-    const std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> >& getEntries() const { return _entities; }
+class MEDLOADER_EXPORT MEDFileStaticEntities : public MEDFileEntities
+{
+   public:
+    MEDFileStaticEntities(const std::vector<std::pair<TypeOfField, INTERP_KERNEL::NormalizedCellType> > &entities)
+        : _entities(entities)
+    {
+    }
+    const std::vector<std::pair<TypeOfField, INTERP_KERNEL::NormalizedCellType> > &getEntries() const
+    {
+        return _entities;
+    }
     std::vector<int> getDynGTAvail() const;
     bool areAllStaticTypesPresent() const;
     bool areAllStaticPresentAndNoDyn() const override;
-  private:
-    std::vector< std::pair<TypeOfField,INTERP_KERNEL::NormalizedCellType> > _entities;
-  };
 
-  class MEDLOADER_EXPORT MEDFileAllStaticEntites : public MEDFileEntities
-  {
-  public:
-    MEDFileAllStaticEntites() { }
+   private:
+    std::vector<std::pair<TypeOfField, INTERP_KERNEL::NormalizedCellType> > _entities;
+};
+
+class MEDLOADER_EXPORT MEDFileAllStaticEntites : public MEDFileEntities
+{
+   public:
+    MEDFileAllStaticEntites() {}
     std::vector<int> getDynGTAvail() const;
     bool areAllStaticTypesPresent() const;
     bool areAllStaticPresentAndNoDyn() const override;
-  };
+};
 
-  class MEDLOADER_EXPORT MEDFileAllStaticEntitiesPlusDyn : public MEDFileEntities
-  {
-  public:
+class MEDLOADER_EXPORT MEDFileAllStaticEntitiesPlusDyn : public MEDFileEntities
+{
+   public:
     MEDFileAllStaticEntitiesPlusDyn(const MEDFileStructureElements *se);
     std::vector<int> getDynGTAvail() const;
     bool areAllStaticTypesPresent() const;
     bool areAllStaticPresentAndNoDyn() const override;
     const MEDFileStructureElement *getWithGT(int idGT) const;
-    const MEDFileUMesh *getSupMeshWithName(const std::string& name) const;
-  private:
+    const MEDFileUMesh *getSupMeshWithName(const std::string &name) const;
+
+   private:
     MCConstAuto<MEDFileStructureElements> _se;
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

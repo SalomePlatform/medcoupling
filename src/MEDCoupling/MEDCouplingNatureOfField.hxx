@@ -28,17 +28,18 @@
 
 namespace MEDCoupling
 {
-  class MEDCouplingNatureOfField
-  {
-  public:
+class MEDCouplingNatureOfField
+{
+   public:
     MEDCOUPLING_EXPORT static const char *GetRepr(NatureOfField nat);
     MEDCOUPLING_EXPORT static std::string GetReprNoThrow(NatureOfField nat);
     MEDCOUPLING_EXPORT static std::string GetAllPossibilitiesStr();
-  private:
-    static const int NB_OF_POSSIBILITIES=5;
+
+   private:
+    static const int NB_OF_POSSIBILITIES = 5;
     static const char *REPR_OF_NATUREOFFIELD[NB_OF_POSSIBILITIES];
     static const int POS_OF_NATUREOFFIELD[NB_OF_POSSIBILITIES];
-  };
-}
+};
+}  // namespace MEDCoupling
 
 #endif

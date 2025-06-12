@@ -23,57 +23,62 @@
 #include "CurveIntersectorP0P0.hxx"
 #include "CurveIntersector.txx"
 
-#define BASE_INTERSECTOR CurveIntersector<MyMeshType,MyMatrix>
+#define BASE_INTERSECTOR CurveIntersector<MyMeshType, MyMatrix>
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix>
-  CurveIntersectorP0P0<MyMeshType,MyMatrix>
-    ::CurveIntersectorP0P0(const MyMeshType& meshT, const MyMeshType& meshS,
-                           double precision, double tolerance,
-                           double medianLine, int printLevel):
-      BASE_INTERSECTOR(meshT, meshS, precision, tolerance, medianLine, printLevel)
-  {
-  }
+template <class MyMeshType, class MyMatrix>
+CurveIntersectorP0P0<MyMeshType, MyMatrix>::CurveIntersectorP0P0(
+    const MyMeshType &meshT,
+    const MyMeshType &meshS,
+    double precision,
+    double tolerance,
+    double medianLine,
+    int printLevel
+)
+    : BASE_INTERSECTOR(meshT, meshS, precision, tolerance, medianLine, printLevel)
+{
+}
 
-  template<class MyMeshType, class MyMatrix>
-  typename MyMeshType::MyConnType CurveIntersectorP0P0<MyMeshType,MyMatrix>
-    ::getNumberOfRowsOfResMatrix() const
-  {
+template <class MyMeshType, class MyMatrix>
+typename MyMeshType::MyConnType
+CurveIntersectorP0P0<MyMeshType, MyMatrix>::getNumberOfRowsOfResMatrix() const
+{
     return BASE_INTERSECTOR::_meshT.getNumberOfElements();
-  }
+}
 
-  template<class MyMeshType, class MyMatrix>
-  typename MyMeshType::MyConnType CurveIntersectorP0P0<MyMeshType,MyMatrix>
-    ::getNumberOfColsOfResMatrix() const
-  {
+template <class MyMeshType, class MyMatrix>
+typename MyMeshType::MyConnType
+CurveIntersectorP0P0<MyMeshType, MyMatrix>::getNumberOfColsOfResMatrix() const
+{
     return BASE_INTERSECTOR::_meshS.getNumberOfElements();
-  }
+}
 
-  template<class MyMeshType, class MyMatrix>
-  void CurveIntersectorP0P0<MyMeshType,MyMatrix>
-  ::intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res)
-  {
-    typename MyMatrix::value_type& resRow = res[icellT];
+template <class MyMeshType, class MyMatrix>
+void
+CurveIntersectorP0P0<MyMeshType, MyMatrix>::intersectCells(
+    ConnType icellT, const std::vector<ConnType> &icellsS, MyMatrix &res
+)
+{
+    typename MyMatrix::value_type &resRow = res[icellT];
     std::vector<double> coordsT;
-    ConnType t, nbSegT = 1 + BASE_INTERSECTOR::getRealTargetCoordinates(icellT,coordsT);
-    for ( t = 0; t < nbSegT; ++t )
-      for(typename std::vector<ConnType>::const_iterator
-            iter=icellsS.begin(); iter!=icellsS.end(); iter++)
+    ConnType t, nbSegT = 1 + BASE_INTERSECTOR::getRealTargetCoordinates(icellT, coordsT);
+    for (t = 0; t < nbSegT; ++t)
+        for (typename std::vector<ConnType>::const_iterator iter = icellsS.begin(); iter != icellsS.end(); iter++)
         {
-          ConnType iS = *iter;
-          std::vector<double> coordsS;
-          ConnType s, nbSegS = 1 + BASE_INTERSECTOR::getRealSourceCoordinates(iS,coordsS);
-          for ( s = 0; s < nbSegS; ++s )
+            ConnType iS = *iter;
+            std::vector<double> coordsS;
+            ConnType s, nbSegS = 1 + BASE_INTERSECTOR::getRealSourceCoordinates(iS, coordsS);
+            for (s = 0; s < nbSegS; ++s)
             {
-              double surf = BASE_INTERSECTOR::intersectSegments(&coordsT[0] + t*SPACEDIM,
-                                                                &coordsS[0] + s*SPACEDIM);
-              if(surf!=0.)
-                resRow.insert(std::make_pair(OTT<ConnType,numPol>::indFC(iS),surf));
+                double surf =
+                    BASE_INTERSECTOR::intersectSegments(&coordsT[0] + t * SPACEDIM, &coordsS[0] + s * SPACEDIM);
+                if (surf != 0.)
+                    resRow.insert(std::make_pair(OTT<ConnType, numPol>::indFC(iS), surf));
             }
         }
-  }
 }
+}  // namespace INTERP_KERNEL
 #undef BASE_INTERSECTOR
 
 #endif

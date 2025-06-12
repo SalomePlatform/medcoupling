@@ -29,149 +29,157 @@
 #include <sstream>
 #include <fstream>
 
-const char MEDCoupling::MEDFileWritableStandAlone::DFT_FILENAME_IN_MEM[]="DftFileNameInMemory";
+const char MEDCoupling::MEDFileWritableStandAlone::DFT_FILENAME_IN_MEM[] = "DftFileNameInMemory";
 
-med_access_mode MEDFileUtilities::TraduceWriteMode(int medloaderwritemode)
+med_access_mode
+MEDFileUtilities::TraduceWriteMode(int medloaderwritemode)
 {
-  switch(medloaderwritemode)
-  {
-    case 2:
-      return MED_ACC_CREAT;
-    case 1:
-      return MED_ACC_RDEXT;
-    case 0:
-      return MED_ACC_RDWR;
-    default:
-      throw INTERP_KERNEL::Exception("Invalid write mode specified ! must be 0(write with no question), 1(append) or 2(creation)");
-  }
-}
-
-const char *MEDFileUtilities::GetReadableMEDFieldType(med_field_type ft)
-{
-  static const char medFloat64[]="MED_FLOAT64";
-  static const char medFloat32[]="MED_FLOAT32";
-  static const char medInt32[]="MED_INT32";
-  static const char medInt64[]="MED_INT64";
-  switch(ft)
-  {
-    case MED_FLOAT64:
-      return medFloat64;
-    case MED_FLOAT32:
-      return medFloat32;
-    case MED_INT32:
-      return medInt32;
-    case MED_INT64:
-      return medInt64;
-    default:
-      throw INTERP_KERNEL::Exception("Non supported field type ! Should be FLOAT64, FLOAT32, INT32 or INT64 !");
-  }
-}
-
-void MEDFileUtilities::CheckMEDCode(int code, med_idt fid, const std::string& msg)
-{
-  if(code<0)
+    switch (medloaderwritemode)
     {
-      std::ostringstream oss;
-      oss << "MEDFile has returned an error code (" << code <<") : " << msg;
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        case 2:
+            return MED_ACC_CREAT;
+        case 1:
+            return MED_ACC_RDEXT;
+        case 0:
+            return MED_ACC_RDWR;
+        default:
+            throw INTERP_KERNEL::Exception(
+                "Invalid write mode specified ! must be 0(write with no question), 1(append) or 2(creation)"
+            );
     }
 }
 
-void MEDFileUtilities::CheckFileForRead(const std::string& fileName)
+const char *
+MEDFileUtilities::GetReadableMEDFieldType(med_field_type ft)
 {
-  int status=MEDLoaderBase::getStatusOfFile(fileName);
-  std::ostringstream oss;
-  oss << " File : \"" << fileName << "\"";
-  switch(status)
-  {
-    case MEDLoaderBase::DIR_LOCKED:
-      {
-        oss << " has been detected as unreadable : impossible to read anything !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
-    case MEDLoaderBase::NOT_EXIST:
-      {
-        oss << " has been detected as NOT EXISTING : impossible to read anything !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
-    case MEDLoaderBase::EXIST_WRONLY:
-      {
-        oss << " has been detected as WRITE ONLY : impossible to read anything !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
-      }
-  }
-  AutoFid fid=MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY);
-  if(fid<0)
+    static const char medFloat64[] = "MED_FLOAT64";
+    static const char medFloat32[] = "MED_FLOAT32";
+    static const char medInt32[] = "MED_INT32";
+    static const char medInt64[] = "MED_INT64";
+    switch (ft)
     {
-      oss << " has been detected as unreadable by MED file : impossible to read anything !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
-    }
-  oss << " has been detected readable but ";
-  med_int major,minor,release;
-  MEDfileNumVersionRd(fid,&major,&minor,&release);
-  if(major<2 || (major==2 && minor<2))
-    {
-      oss << "version of MED file is < 2.2 : impossible to read anything !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        case MED_FLOAT64:
+            return medFloat64;
+        case MED_FLOAT32:
+            return medFloat32;
+        case MED_INT32:
+            return medInt32;
+        case MED_INT64:
+            return medInt64;
+        default:
+            throw INTERP_KERNEL::Exception("Non supported field type ! Should be FLOAT64, FLOAT32, INT32 or INT64 !");
     }
 }
 
-MEDFileUtilities::AutoFid::AutoFid(med_idt fid):_fid(fid)
+void
+MEDFileUtilities::CheckMEDCode(int code, med_idt fid, const std::string &msg)
 {
+    if (code < 0)
+    {
+        std::ostringstream oss;
+        oss << "MEDFile has returned an error code (" << code << ") : " << msg;
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
 }
 
-MEDFileUtilities::AutoFid::~AutoFid()
+void
+MEDFileUtilities::CheckFileForRead(const std::string &fileName)
 {
-  MEDfileClose(_fid);
+    int status = MEDLoaderBase::getStatusOfFile(fileName);
+    std::ostringstream oss;
+    oss << " File : \"" << fileName << "\"";
+    switch (status)
+    {
+        case MEDLoaderBase::DIR_LOCKED:
+        {
+            oss << " has been detected as unreadable : impossible to read anything !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+        case MEDLoaderBase::NOT_EXIST:
+        {
+            oss << " has been detected as NOT EXISTING : impossible to read anything !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+        case MEDLoaderBase::EXIST_WRONLY:
+        {
+            oss << " has been detected as WRITE ONLY : impossible to read anything !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
+        }
+    }
+    AutoFid fid = MEDfileOpen(fileName.c_str(), MED_ACC_RDONLY);
+    if (fid < 0)
+    {
+        oss << " has been detected as unreadable by MED file : impossible to read anything !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
+    oss << " has been detected readable but ";
+    med_int major, minor, release;
+    MEDfileNumVersionRd(fid, &major, &minor, &release);
+    if (major < 2 || (major == 2 && minor < 2))
+    {
+        oss << "version of MED file is < 2.2 : impossible to read anything !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
+    }
 }
 
-MEDCoupling::MEDFileWritable::MEDFileWritable():_too_long_str(0),_zipconn_pol(2)
+MEDFileUtilities::AutoFid::AutoFid(med_idt fid) : _fid(fid) {}
+
+MEDFileUtilities::AutoFid::~AutoFid() { MEDfileClose(_fid); }
+
+MEDCoupling::MEDFileWritable::MEDFileWritable() : _too_long_str(0), _zipconn_pol(2) {}
+
+void
+MEDCoupling::MEDFileWritable::copyOptionsFrom(const MEDFileWritable &other) const
 {
+    _too_long_str = other._too_long_str;
+    _zipconn_pol = other._zipconn_pol;
 }
 
-void MEDCoupling::MEDFileWritable::copyOptionsFrom(const MEDFileWritable& other) const
+int
+MEDCoupling::MEDFileWritable::getTooLongStrPolicy() const
 {
-  _too_long_str=other._too_long_str;
-  _zipconn_pol=other._zipconn_pol;
+    return _too_long_str;
 }
 
-int MEDCoupling::MEDFileWritable::getTooLongStrPolicy() const
+void
+MEDCoupling::MEDFileWritable::setTooLongStrPolicy(int newVal)
 {
-  return _too_long_str;
+    if (newVal != 2 && newVal != 1 && newVal != 0)
+        throw INTERP_KERNEL::Exception("MEDFileWritable::setTooLongStrPolicy : invalid policy should be in 0,1 or 2 !");
+    _too_long_str = newVal;
 }
 
-void MEDCoupling::MEDFileWritable::setTooLongStrPolicy(int newVal)
+int
+MEDCoupling::MEDFileWritable::getZipConnPolicy()
 {
-  if(newVal!=2 && newVal!=1 && newVal!=0)
-    throw INTERP_KERNEL::Exception("MEDFileWritable::setTooLongStrPolicy : invalid policy should be in 0,1 or 2 !");
-  _too_long_str=newVal;
+    return _zipconn_pol;
 }
 
-int MEDCoupling::MEDFileWritable::getZipConnPolicy()
+void
+MEDCoupling::MEDFileWritable::setZipConnPolicy(int newVal)
 {
-  return _zipconn_pol;
+    _zipconn_pol = newVal;
 }
 
-void MEDCoupling::MEDFileWritable::setZipConnPolicy(int newVal)
+std::string
+MEDCoupling::MEDFileWritable::FileNameFromFID(med_idt fid)
 {
-  _zipconn_pol=newVal;
+    med_int lgth(MEDfileName(fid, 0, 0));
+    if (lgth <= 0)
+        return std::string();
+    INTERP_KERNEL::AutoPtr<char> tmp(new char[lgth + 1]);
+    if (MEDfileName(fid, tmp, lgth) < 0)
+        throw INTERP_KERNEL::Exception(
+            "MEDFileWritable::FileNameFromFID : Return code of MEDFile call \"MEDfileName\" is not >=0 as expected !"
+        );
+    return std::string(tmp);
 }
 
-std::string MEDCoupling::MEDFileWritable::FileNameFromFID(med_idt fid)
+MEDFileUtilities::AutoFid
+MEDCoupling::OpenMEDFileForRead(const std::string &fileName)
 {
-  med_int lgth(MEDfileName(fid,0,0));
-  if(lgth<=0)
-    return std::string();
-  INTERP_KERNEL::AutoPtr<char> tmp(new char[lgth+1]);
-  if(MEDfileName(fid,tmp,lgth)<0)
-    throw INTERP_KERNEL::Exception("MEDFileWritable::FileNameFromFID : Return code of MEDFile call \"MEDfileName\" is not >=0 as expected !");
-  return std::string(tmp);
-}
-
-MEDFileUtilities::AutoFid MEDCoupling::OpenMEDFileForRead(const std::string& fileName)
-{
-  MEDFileUtilities::CheckFileForRead(fileName);
-  return MEDFileUtilities::AutoFid(MEDfileOpen(fileName.c_str(),MED_ACC_RDONLY));
+    MEDFileUtilities::CheckFileForRead(fileName);
+    return MEDFileUtilities::AutoFid(MEDfileOpen(fileName.c_str(), MED_ACC_RDONLY));
 }
 
 /*!
@@ -184,72 +192,87 @@ MEDFileUtilities::AutoFid MEDCoupling::OpenMEDFileForRead(const std::string& fil
  *  \throw If the mesh name is not set.
  *  \throw If \a mode == 1 and the same data is present in an existing file.
  */
-void MEDCoupling::MEDFileWritableStandAlone::write(const std::string& fileName, int mode) const
+void
+MEDCoupling::MEDFileWritableStandAlone::write(const std::string &fileName, int mode) const
 {
-  med_access_mode medmod(MEDFileUtilities::TraduceWriteMode(mode));
-  MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(),medmod));
-  std::ostringstream oss; oss << "MEDFileWritableStandAlone : error on attempt to write in file : \"" << fileName << "\"";
-  MEDFileUtilities::CheckMEDCode((int)fid,fid,oss.str());
-  writeLL(fid);
+    med_access_mode medmod(MEDFileUtilities::TraduceWriteMode(mode));
+    MEDFileUtilities::AutoFid fid(MEDfileOpen(fileName.c_str(), medmod));
+    std::ostringstream oss;
+    oss << "MEDFileWritableStandAlone : error on attempt to write in file : \"" << fileName << "\"";
+    MEDFileUtilities::CheckMEDCode((int)fid, fid, oss.str());
+    writeLL(fid);
 }
 
-void MEDCoupling::MEDFileWritableStandAlone::write33(const std::string& fileName, int mode) const
+void
+MEDCoupling::MEDFileWritableStandAlone::write33(const std::string &fileName, int mode) const
 {
-  this->writeXX(fileName,mode,3,3,1);
+    this->writeXX(fileName, mode, 3, 3, 1);
 }
 
-void MEDCoupling::MEDFileWritableStandAlone::write30(const std::string& fileName, int mode) const
+void
+MEDCoupling::MEDFileWritableStandAlone::write30(const std::string &fileName, int mode) const
 {
-  this->writeXX(fileName,mode,3,0,6);
+    this->writeXX(fileName, mode, 3, 0, 6);
 }
 
-void MEDCoupling::MEDFileWritableStandAlone::write40(const std::string& fileName, int mode) const
+void
+MEDCoupling::MEDFileWritableStandAlone::write40(const std::string &fileName, int mode) const
 {
-  this->writeXX(fileName,mode,4,0,1);
+    this->writeXX(fileName, mode, 4, 0, 1);
 }
 
-void MEDCoupling::MEDFileWritableStandAlone::write41(const std::string& fileName, int mode) const
+void
+MEDCoupling::MEDFileWritableStandAlone::write41(const std::string &fileName, int mode) const
 {
-  this->writeXX(fileName,mode,4,1,2);
+    this->writeXX(fileName, mode, 4, 1, 2);
 }
 
-void MEDCoupling::MEDFileWritableStandAlone::writeXX(const std::string& fileName, int mode, int maj, int min, int rel) const
+void
+MEDCoupling::MEDFileWritableStandAlone::writeXX(const std::string &fileName, int mode, int maj, int min, int rel) const
 {
-#if ( MED_NUM_MAJEUR>4 || ( MED_NUM_MAJEUR==4 && MED_NUM_MINEUR>=1 ) )
-  med_access_mode medmod(MEDFileUtilities::TraduceWriteMode(mode));
-  MEDFileUtilities::AutoFid fid(MEDfileVersionOpen(fileName.c_str(),medmod,maj,min,rel));
-  writeLL(fid);
+#if (MED_NUM_MAJEUR > 4 || (MED_NUM_MAJEUR == 4 && MED_NUM_MINEUR >= 1))
+    med_access_mode medmod(MEDFileUtilities::TraduceWriteMode(mode));
+    MEDFileUtilities::AutoFid fid(MEDfileVersionOpen(fileName.c_str(), medmod, maj, min, rel));
+    writeLL(fid);
 #else
-  std::ostringstream oss; oss << "MEDFileWritableStandAlone::write" << maj << min << " : the MED version used to compile medcoupling is " << MEDFileVersionStr() << " ! If you need this feature please use version >= 4.1.";
-  throw INTERP_KERNEL::Exception(oss.str());
+    std::ostringstream oss;
+    oss << "MEDFileWritableStandAlone::write" << maj << min << " : the MED version used to compile medcoupling is "
+        << MEDFileVersionStr() << " ! If you need this feature please use version >= 4.1.";
+    throw INTERP_KERNEL::Exception(oss.str());
 #endif
 }
 
-MEDCoupling::MCAuto<MEDCoupling::DataArrayByte> MEDCoupling::MEDFileWritableStandAlone::serialize() const
+MEDCoupling::MCAuto<MEDCoupling::DataArrayByte>
+MEDCoupling::MEDFileWritableStandAlone::serialize() const
 {
-  med_memfile memfile=MED_MEMFILE_INIT;
-  memfile.app_image_ptr=0;
-  memfile.app_image_size=0;
-  //
-  std::string dftFileName(GenerateUniqueDftFileNameInMem());
-  {// very important to let this braces ! The AutoFid destructor must be called, to have a "clean" memfile.app_image_ptr pointer embedded in the returned object.
-    MEDFileUtilities::AutoFid fid(MEDmemFileOpen(dftFileName.c_str(),&memfile,MED_FALSE,MED_ACC_CREAT));
-    writeLL(fid);
-  }
-  //
-  MEDCoupling::MCAuto<MEDCoupling::DataArrayByte> ret(MEDCoupling::DataArrayByte::New());
-  ret->useArray(reinterpret_cast<char *>(memfile.app_image_ptr),true,DeallocType::C_DEALLOC,memfile.app_image_size,1);
-  return ret;
+    med_memfile memfile = MED_MEMFILE_INIT;
+    memfile.app_image_ptr = 0;
+    memfile.app_image_size = 0;
+    //
+    std::string dftFileName(GenerateUniqueDftFileNameInMem());
+    {  // very important to let this braces ! The AutoFid destructor must be called, to have a "clean"
+       // memfile.app_image_ptr pointer embedded in the returned object.
+        MEDFileUtilities::AutoFid fid(MEDmemFileOpen(dftFileName.c_str(), &memfile, MED_FALSE, MED_ACC_CREAT));
+        writeLL(fid);
+    }
+    //
+    MEDCoupling::MCAuto<MEDCoupling::DataArrayByte> ret(MEDCoupling::DataArrayByte::New());
+    ret->useArray(
+        reinterpret_cast<char *>(memfile.app_image_ptr), true, DeallocType::C_DEALLOC, memfile.app_image_size, 1
+    );
+    return ret;
 }
 
-std::string MEDCoupling::MEDFileWritableStandAlone::GenerateUniqueDftFileNameInMem()
+std::string
+MEDCoupling::MEDFileWritableStandAlone::GenerateUniqueDftFileNameInMem()
 {
-  static int ii=0;
-  std::ostringstream oss; oss << DFT_FILENAME_IN_MEM << "_" << ii++;
-  return oss.str();
+    static int ii = 0;
+    std::ostringstream oss;
+    oss << DFT_FILENAME_IN_MEM << "_" << ii++;
+    return oss.str();
 }
 
 MEDCoupling::MEDFileCapability::MEDFileCapability(med_idt fid)
 {
-  MEDFILESAFECALLERRD0(MEDfileNumVersionRd,(fid,&_maj,&_min,&_rel));
+    MEDFILESAFECALLERRD0(MEDfileNumVersionRd, (fid, &_maj, &_min, &_rel));
 }

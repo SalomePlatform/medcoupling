@@ -35,51 +35,68 @@
 
 namespace MEDCoupling
 {
-  class MEDCouplingMesh;
-  class MEDCouplingFieldDouble;
-  class MEDCouplingFieldTemplate;
-}
+class MEDCouplingMesh;
+class MEDCouplingFieldDouble;
+class MEDCouplingFieldTemplate;
+}  // namespace MEDCoupling
 
 namespace MEDCoupling
 {
-  typedef enum
-  {
+typedef enum
+{
     IK_ONLY_PREFERED = 0,
     NOT_IK_ONLY_PREFERED = 1,
     IK_ONLY_FORCED = 2,
-    NOT_IK_ONLY_FORCED =3
-  } InterpolationMatrixPolicy;
+    NOT_IK_ONLY_FORCED = 3
+} InterpolationMatrixPolicy;
 
-  class  MEDCOUPLINGREMAPPER_EXPORT MEDCouplingRemapper : public TimeLabel, public INTERP_KERNEL::InterpolationOptions
-  {
-  public:
-     MEDCouplingRemapper();
-     ~MEDCouplingRemapper();
-     int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method);
-     int prepareEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target);
-     void setCrudeMatrix(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, const std::vector<std::map<mcIdType,double> >& m);
-     void setCrudeMatrixEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target, const std::vector<std::map<mcIdType,double> >& m);
-     void transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue);
-     void partialTransfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField);
-     void reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue);
-     MEDCouplingFieldDouble *transferField(const MEDCouplingFieldDouble *srcField, double dftValue);
-     MEDCouplingFieldDouble *reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue);
-     bool setOptionInt(const std::string& key, int value);
-     bool setOptionDouble(const std::string& key, double value);
-     bool setOptionString(const std::string& key, const std::string& value);
-     int getInterpolationMatrixPolicy() const;
-     void setInterpolationMatrixPolicy(int newInterpMatPol);
+class MEDCOUPLINGREMAPPER_EXPORT MEDCouplingRemapper : public TimeLabel, public INTERP_KERNEL::InterpolationOptions
+{
+   public:
+    MEDCouplingRemapper();
+    ~MEDCouplingRemapper();
+    int prepare(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string &method);
+    int prepareEx(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target);
+    void setCrudeMatrix(
+        const MEDCouplingMesh *srcMesh,
+        const MEDCouplingMesh *targetMesh,
+        const std::string &method,
+        const std::vector<std::map<mcIdType, double> > &m
+    );
+    void setCrudeMatrixEx(
+        const MEDCouplingFieldTemplate *src,
+        const MEDCouplingFieldTemplate *target,
+        const std::vector<std::map<mcIdType, double> > &m
+    );
+    void transfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, double dftValue);
+    void partialTransfer(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField);
+    void reverseTransfer(MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *targetField, double dftValue);
+    MEDCouplingFieldDouble *transferField(const MEDCouplingFieldDouble *srcField, double dftValue);
+    MEDCouplingFieldDouble *reverseTransferField(const MEDCouplingFieldDouble *targetField, double dftValue);
+    bool setOptionInt(const std::string &key, int value);
+    bool setOptionDouble(const std::string &key, double value);
+    bool setOptionString(const std::string &key, const std::string &value);
+    int getInterpolationMatrixPolicy() const;
+    void setInterpolationMatrixPolicy(int newInterpMatPol);
     //
-     int nullifiedTinyCoeffInCrudeMatrixAbs(double maxValAbs);
-     int nullifiedTinyCoeffInCrudeMatrix(double scaleFactor);
-     double getMaxValueInCrudeMatrix() const;
-  public:
-     const std::vector<std::map<mcIdType,double> >& getCrudeMatrix() const;
-     mcIdType getNumberOfColsOfMatrix() const;
-     static void PrintMatrix(const std::vector<std::map<mcIdType,double> >& m);
-     static std::string BuildMethodFrom(const std::string& meth1, const std::string& meth2);
-     void BuildFieldTemplatesFrom(const MEDCouplingMesh *srcMesh, const MEDCouplingMesh *targetMesh, const std::string& method, MCAuto<MEDCouplingFieldTemplate>& src, MCAuto<MEDCouplingFieldTemplate>& target);
-  private:
+    int nullifiedTinyCoeffInCrudeMatrixAbs(double maxValAbs);
+    int nullifiedTinyCoeffInCrudeMatrix(double scaleFactor);
+    double getMaxValueInCrudeMatrix() const;
+
+   public:
+    const std::vector<std::map<mcIdType, double> > &getCrudeMatrix() const;
+    mcIdType getNumberOfColsOfMatrix() const;
+    static void PrintMatrix(const std::vector<std::map<mcIdType, double> > &m);
+    static std::string BuildMethodFrom(const std::string &meth1, const std::string &meth2);
+    void BuildFieldTemplatesFrom(
+        const MEDCouplingMesh *srcMesh,
+        const MEDCouplingMesh *targetMesh,
+        const std::string &method,
+        MCAuto<MEDCouplingFieldTemplate> &src,
+        MCAuto<MEDCouplingFieldTemplate> &target
+    );
+
+   private:
     int prepareInterpKernelOnly();
     int prepareInterpKernelOnlyUU();
     int prepareInterpKernelOnlyEE();
@@ -91,40 +108,60 @@ namespace MEDCoupling
     int prepareNotInterpKernelOnlyGaussGauss();
     int prepareNotInterpKernelOnlyFEFE();
     //
-    static int CheckInterpolationMethodManageableByNotOnlyInterpKernel(const std::string& method);
+    static int CheckInterpolationMethodManageableByNotOnlyInterpKernel(const std::string &method);
     //
     bool isInterpKernelOnlyOrNotOnly() const;
     void updateTime() const;
     void checkPrepare() const;
     void synchronizeSizeOfSideMatricesAfterMatrixComputation(mcIdType nbOfColsInMatrix);
-    std::string checkAndGiveInterpolationMethodStr(std::string& srcMeth, std::string& trgMeth) const;
+    std::string checkAndGiveInterpolationMethodStr(std::string &srcMeth, std::string &trgMeth) const;
     void releaseData(bool matrixSuppression);
     void restartUsing(const MEDCouplingFieldTemplate *src, const MEDCouplingFieldTemplate *target);
-    void transferUnderground(const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, bool isDftVal, double dftValue);
+    void transferUnderground(
+        const MEDCouplingFieldDouble *srcField, MEDCouplingFieldDouble *targetField, bool isDftVal, double dftValue
+    );
     void computeDeno(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField);
-    void computeDenoFromScratch(NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField);
-    void computeProduct(const double *inputPointer, int inputNbOfCompo, bool isDftVal, double dftValue, double *resPointer);
+    void computeDenoFromScratch(
+        NatureOfField nat, const MEDCouplingFieldDouble *srcField, const MEDCouplingFieldDouble *trgField
+    );
+    void computeProduct(
+        const double *inputPointer, int inputNbOfCompo, bool isDftVal, double dftValue, double *resPointer
+    );
     void computeReverseProduct(const double *inputPointer, int inputNbOfCompo, double dftValue, double *resPointer);
-    void buildFinalInterpolationMatrixByConvolution(const std::vector< std::map<mcIdType,double> >& m1D,
-                                                    const std::vector< std::map<mcIdType,double> >& m2D,
-                                                    const mcIdType *corrCellIdSrc, mcIdType nbOf2DCellsSrc, mcIdType nbOf1DCellsSrc,
-                                                    const mcIdType *corrCellIdTrg);
-    static void ReverseMatrix(const std::vector<std::map<mcIdType,double> >& matIn, mcIdType nbColsMatIn,
-                              std::vector<std::map<mcIdType,double> >& matOut);
-    static void ComputeRowSumAndColSum(const std::vector<std::map<mcIdType,double> >& matrixDeno,
-                                       std::vector<std::map<mcIdType,double> >& deno, std::vector<std::map<mcIdType,double> >& denoReverse);
-    static void ComputeColSumAndRowSum(const std::vector<std::map<mcIdType,double> >& matrixDeno,
-                                       std::vector<std::map<mcIdType,double> >& deno, std::vector<std::map<mcIdType,double> >& denoReverse);
-  private:
+    void buildFinalInterpolationMatrixByConvolution(
+        const std::vector<std::map<mcIdType, double> > &m1D,
+        const std::vector<std::map<mcIdType, double> > &m2D,
+        const mcIdType *corrCellIdSrc,
+        mcIdType nbOf2DCellsSrc,
+        mcIdType nbOf1DCellsSrc,
+        const mcIdType *corrCellIdTrg
+    );
+    static void ReverseMatrix(
+        const std::vector<std::map<mcIdType, double> > &matIn,
+        mcIdType nbColsMatIn,
+        std::vector<std::map<mcIdType, double> > &matOut
+    );
+    static void ComputeRowSumAndColSum(
+        const std::vector<std::map<mcIdType, double> > &matrixDeno,
+        std::vector<std::map<mcIdType, double> > &deno,
+        std::vector<std::map<mcIdType, double> > &denoReverse
+    );
+    static void ComputeColSumAndRowSum(
+        const std::vector<std::map<mcIdType, double> > &matrixDeno,
+        std::vector<std::map<mcIdType, double> > &deno,
+        std::vector<std::map<mcIdType, double> > &denoReverse
+    );
+
+   private:
     MCAuto<MEDCouplingFieldTemplate> _src_ft;
     MCAuto<MEDCouplingFieldTemplate> _target_ft;
     InterpolationMatrixPolicy _interp_matrix_pol;
     NatureOfField _nature_of_deno;
     unsigned int _time_deno_update;
-    std::vector<std::map<mcIdType,double> > _matrix;
-    std::vector<std::map<mcIdType,double> > _deno_multiply;
-    std::vector<std::map<mcIdType,double> > _deno_reverse_multiply;
-  };
-}
+    std::vector<std::map<mcIdType, double> > _matrix;
+    std::vector<std::map<mcIdType, double> > _deno_multiply;
+    std::vector<std::map<mcIdType, double> > _deno_reverse_multiply;
+};
+}  // namespace MEDCoupling
 
 #endif

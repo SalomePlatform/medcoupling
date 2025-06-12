@@ -22,11 +22,10 @@
 
 namespace MEDCoupling
 {
-  ProcessorGroup::ProcessorGroup (const CommInterface& interface, int start, int end):_comm_interface(interface)
-  {
-    if (start>end)
-      throw INTERP_KERNEL::Exception("wrong call to Processor group constructor");
-    for (int i=start; i<=end;i++)
-      _proc_ids.insert(i);
-  }
+ProcessorGroup::ProcessorGroup(const CommInterface &interface, int start, int end) : _comm_interface(interface)
+{
+    if (start > end)
+        throw INTERP_KERNEL::Exception("wrong call to Processor group constructor");
+    for (int i = start; i <= end; i++) _proc_ids.insert(i);
 }
+}  // namespace MEDCoupling

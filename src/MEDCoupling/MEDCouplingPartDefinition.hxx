@@ -26,44 +26,52 @@
 
 namespace MEDCoupling
 {
-  class PartDefinition : public RefCountObject, public TimeLabel
-  {
-  public:
+class PartDefinition : public RefCountObject, public TimeLabel
+{
+   public:
     MEDCOUPLING_EXPORT static PartDefinition *New(mcIdType start, mcIdType stop, mcIdType step);
     MEDCOUPLING_EXPORT static PartDefinition *New(DataArrayIdType *listOfIds);
-    MEDCOUPLING_EXPORT static PartDefinition *Unserialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI);
-    MEDCOUPLING_EXPORT virtual bool isEqual(const PartDefinition *other, std::string& what) const = 0;
+    MEDCOUPLING_EXPORT static PartDefinition *Unserialize(
+        std::vector<mcIdType> &tinyInt, std::vector<MCAuto<DataArrayIdType> > &bigArraysI
+    );
+    MEDCOUPLING_EXPORT virtual bool isEqual(const PartDefinition *other, std::string &what) const = 0;
     MEDCOUPLING_EXPORT virtual PartDefinition *deepCopy() const = 0;
     MEDCOUPLING_EXPORT virtual DataArrayIdType *toDAI() const = 0;
     MEDCOUPLING_EXPORT virtual mcIdType getNumberOfElems() const = 0;
-    MEDCOUPLING_EXPORT virtual PartDefinition *operator+(const PartDefinition& other) const = 0;
+    MEDCOUPLING_EXPORT virtual PartDefinition *operator+(const PartDefinition &other) const = 0;
     MEDCOUPLING_EXPORT virtual std::string getRepr() const = 0;
     MEDCOUPLING_EXPORT virtual PartDefinition *composeWith(const PartDefinition *other) const = 0;
     MEDCOUPLING_EXPORT virtual void checkConsistencyLight() const = 0;
     MEDCOUPLING_EXPORT virtual PartDefinition *tryToSimplify() const = 0;
-    MEDCOUPLING_EXPORT virtual void serialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI) const = 0;
-  protected:
+    MEDCOUPLING_EXPORT virtual void serialize(
+        std::vector<mcIdType> &tinyInt, std::vector<MCAuto<DataArrayIdType> > &bigArraysI
+    ) const = 0;
+
+   protected:
     virtual ~PartDefinition();
-  };
+};
 
-  class SlicePartDefinition;
+class SlicePartDefinition;
 
-  class DataArrayPartDefinition : public PartDefinition
-  {
-  public:
+class DataArrayPartDefinition : public PartDefinition
+{
+   public:
     MEDCOUPLING_EXPORT static DataArrayPartDefinition *New(DataArrayIdType *listOfIds);
     std::string getClassName() const override { return std::string("DataArrayPartDefinition"); }
-    MEDCOUPLING_EXPORT bool isEqual(const PartDefinition *other, std::string& what) const;
+    MEDCOUPLING_EXPORT bool isEqual(const PartDefinition *other, std::string &what) const;
     MEDCOUPLING_EXPORT DataArrayPartDefinition *deepCopy() const;
     MEDCOUPLING_EXPORT DataArrayIdType *toDAI() const;
     MEDCOUPLING_EXPORT mcIdType getNumberOfElems() const;
-    MEDCOUPLING_EXPORT PartDefinition *operator+(const PartDefinition& other) const;
+    MEDCOUPLING_EXPORT PartDefinition *operator+(const PartDefinition &other) const;
     MEDCOUPLING_EXPORT std::string getRepr() const;
     MEDCOUPLING_EXPORT PartDefinition *composeWith(const PartDefinition *other) const;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT PartDefinition *tryToSimplify() const;
-    MEDCOUPLING_EXPORT void serialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI) const;
-  private:
+    MEDCOUPLING_EXPORT void serialize(
+        std::vector<mcIdType> &tinyInt, std::vector<MCAuto<DataArrayIdType> > &bigArraysI
+    ) const;
+
+   private:
     DataArrayPartDefinition(DataArrayIdType *listOfIds);
     void checkInternalArrayOK() const;
     static void CheckInternalArrayOK(const DataArrayIdType *listOfIds);
@@ -73,29 +81,33 @@ namespace MEDCoupling
     DataArrayPartDefinition *add1(const DataArrayPartDefinition *other) const;
     DataArrayPartDefinition *add2(const SlicePartDefinition *other) const;
     virtual ~DataArrayPartDefinition();
-  private:
-    MCAuto<DataArrayIdType> _arr;
-  };
 
-  class SlicePartDefinition : public PartDefinition
-  {
-  public:
+   private:
+    MCAuto<DataArrayIdType> _arr;
+};
+
+class SlicePartDefinition : public PartDefinition
+{
+   public:
     MEDCOUPLING_EXPORT static SlicePartDefinition *New(mcIdType start, mcIdType stop, mcIdType step);
     std::string getClassName() const override { return std::string("SlicePartDefinition"); }
-    MEDCOUPLING_EXPORT bool isEqual(const PartDefinition *other, std::string& what) const;
+    MEDCOUPLING_EXPORT bool isEqual(const PartDefinition *other, std::string &what) const;
     MEDCOUPLING_EXPORT SlicePartDefinition *deepCopy() const;
     MEDCOUPLING_EXPORT DataArrayIdType *toDAI() const;
     MEDCOUPLING_EXPORT mcIdType getNumberOfElems() const;
-    MEDCOUPLING_EXPORT PartDefinition *operator+(const PartDefinition& other) const;
+    MEDCOUPLING_EXPORT PartDefinition *operator+(const PartDefinition &other) const;
     MEDCOUPLING_EXPORT std::string getRepr() const;
     MEDCOUPLING_EXPORT PartDefinition *composeWith(const PartDefinition *other) const;
     MEDCOUPLING_EXPORT void checkConsistencyLight() const;
     MEDCOUPLING_EXPORT PartDefinition *tryToSimplify() const;
-    MEDCOUPLING_EXPORT void serialize(std::vector<mcIdType>& tinyInt, std::vector< MCAuto<DataArrayIdType> >& bigArraysI) const;
-    //specific method
+    MEDCOUPLING_EXPORT void serialize(
+        std::vector<mcIdType> &tinyInt, std::vector<MCAuto<DataArrayIdType> > &bigArraysI
+    ) const;
+    // specific method
     MEDCOUPLING_EXPORT mcIdType getEffectiveStop() const;
-    MEDCOUPLING_EXPORT void getSlice(mcIdType& start, mcIdType& stop, mcIdType& step) const;
-  private:
+    MEDCOUPLING_EXPORT void getSlice(mcIdType &start, mcIdType &stop, mcIdType &step) const;
+
+   private:
     SlicePartDefinition(mcIdType start, mcIdType stop, mcIdType step);
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
@@ -103,9 +115,10 @@ namespace MEDCoupling
     DataArrayPartDefinition *add1(const DataArrayPartDefinition *other) const;
     PartDefinition *add2(const SlicePartDefinition *other) const;
     virtual ~SlicePartDefinition();
-  private:
+
+   private:
     mcIdType _start;
     mcIdType _stop;
     mcIdType _step;
-  };
-}
+};
+}  // namespace MEDCoupling

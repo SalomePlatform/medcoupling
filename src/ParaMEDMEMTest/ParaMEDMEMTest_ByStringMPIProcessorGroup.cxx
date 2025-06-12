@@ -31,7 +31,6 @@
 // use this define to enable CPPUNIT asserts and fails, showing bugs
 #define ENABLE_FORCED_FAILURES
 
-
 using namespace std;
 using namespace MEDCoupling;
 
@@ -43,55 +42,57 @@ using namespace MEDCoupling;
  (+) ByStringMPIProcessorGroup(ByStringMPIProcessorGroup& other );
 */
 
-void ParaMEDMEMTest::testByStringMPIProcessorGroup_constructor()
+void
+ParaMEDMEMTest::testByStringMPIProcessorGroup_constructor()
 {
-  CommInterface comm_interface;
-  ByStringMPIProcessorGroup* group = new ByStringMPIProcessorGroup(comm_interface);
-  int size;
-  MPI_Comm_size(MPI_COMM_WORLD, &size);
-  CPPUNIT_ASSERT_EQUAL(size,group->size());
-  int size2;
-  const MPI_Comm* communicator=group->getComm();
-  MPI_Comm_size(*communicator, &size2);
-  CPPUNIT_ASSERT_EQUAL(size,size2);
-  delete group;
+    CommInterface comm_interface;
+    ByStringMPIProcessorGroup *group = new ByStringMPIProcessorGroup(comm_interface);
+    int size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    CPPUNIT_ASSERT_EQUAL(size, group->size());
+    int size2;
+    const MPI_Comm *communicator = group->getComm();
+    MPI_Comm_size(*communicator, &size2);
+    CPPUNIT_ASSERT_EQUAL(size, size2);
+    delete group;
 }
 
-void ParaMEDMEMTest::testByStringMPIProcessorGroup_stringconstructor()
+void
+ParaMEDMEMTest::testByStringMPIProcessorGroup_stringconstructor()
 {
-  int size, rankId;
-  MPI_Comm_size(MPI_COMM_WORLD, &size);
-  MPI_Comm_rank(MPI_COMM_WORLD, &rankId);
+    int size, rankId;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rankId);
 
-  if (size != 3)
-    return;
+    if (size != 3)
+        return;
 
-  std::string myTag;
-  if ( rankId == 0 || rankId == 2 )
-    myTag = "group0";
-  else
-    myTag = "gr1";
+    std::string myTag;
+    if (rankId == 0 || rankId == 2)
+        myTag = "group0";
+    else
+        myTag = "gr1";
 
-  CommInterface comm_interface;
-  ByStringMPIProcessorGroup * group = new ByStringMPIProcessorGroup(comm_interface,myTag,MPI_COMM_WORLD);
-  ByStringMPIProcessorGroup * copygroup = new ByStringMPIProcessorGroup(*group);
-  CPPUNIT_ASSERT(group);
-  CPPUNIT_ASSERT(copygroup);
+    CommInterface comm_interface;
+    ByStringMPIProcessorGroup *group = new ByStringMPIProcessorGroup(comm_interface, myTag, MPI_COMM_WORLD);
+    ByStringMPIProcessorGroup *copygroup = new ByStringMPIProcessorGroup(*group);
+    CPPUNIT_ASSERT(group);
+    CPPUNIT_ASSERT(copygroup);
 
-  std::set<int> ranksInGroup = group->getProcIDs();
-  std::set<int> ranksInCopiedGroup = group->getProcIDs();
-  if ( rankId == 0 || rankId == 2 )
-  {
-    CPPUNIT_ASSERT_EQUAL( (int)ranksInGroup.size(), 2 );
-    CPPUNIT_ASSERT_EQUAL( (int)ranksInCopiedGroup.size(), 2 );
-  }
-  else
-  {
-    CPPUNIT_ASSERT_EQUAL( (int)ranksInGroup.size(), 1 );
-    CPPUNIT_ASSERT_EQUAL( (int)ranksInCopiedGroup.size(), 1 );
-  }
-  CPPUNIT_ASSERT( group->contains(rankId) );
-  CPPUNIT_ASSERT( copygroup->contains(rankId) );
-  delete group;
-  delete copygroup;
+    std::set<int> ranksInGroup = group->getProcIDs();
+    std::set<int> ranksInCopiedGroup = group->getProcIDs();
+    if (rankId == 0 || rankId == 2)
+    {
+        CPPUNIT_ASSERT_EQUAL((int)ranksInGroup.size(), 2);
+        CPPUNIT_ASSERT_EQUAL((int)ranksInCopiedGroup.size(), 2);
+    }
+    else
+    {
+        CPPUNIT_ASSERT_EQUAL((int)ranksInGroup.size(), 1);
+        CPPUNIT_ASSERT_EQUAL((int)ranksInCopiedGroup.size(), 1);
+    }
+    CPPUNIT_ASSERT(group->contains(rankId));
+    CPPUNIT_ASSERT(copygroup->contains(rankId));
+    delete group;
+    delete copygroup;
 }

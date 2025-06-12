@@ -30,25 +30,46 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix, template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType >
-  class ConvexIntersector : public InterpType<MyMeshType,MyMatrix,ConvexIntersector<MyMeshType,MyMatrix,InterpType> >
-  {
-  public:
-    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+template <
+    class MyMeshType,
+    class MyMatrix,
+    template <class MeshType, class TheMatrix, class ThisIntersector> class InterpType>
+class ConvexIntersector : public InterpType<MyMeshType, MyMatrix, ConvexIntersector<MyMeshType, MyMatrix, InterpType> >
+{
+   public:
+    static const int SPACEDIM = MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM = MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
-    static const NumberingPolicy numPol=MyMeshType::My_numPol;
-  public:
-    ConvexIntersector(const MyMeshType& meshT, const MyMeshType& meshS,
-                      double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane,
-                      bool doRotate, int orientation, int printLevel);
+    static const NumberingPolicy numPol = MyMeshType::My_numPol;
+
+   public:
+    ConvexIntersector(
+        const MyMeshType &meshT,
+        const MyMeshType &meshS,
+        double dimCaracteristic,
+        double precision,
+        double md3DSurf,
+        double minDot3DSurf,
+        double medianPlane,
+        bool doRotate,
+        int orientation,
+        int printLevel
+    );
     double intersectGeometry(ConnType icellT, ConnType icellS, ConnType nbNodesT, ConnType nbNodesS);
-    double intersectGeometryWithQuadrangle(const double *quadrangle, const std::vector<double>& sourceCoords, bool isSourceQuad);
-    double intersectGeometryGeneral(const std::vector<double>& targetCoords, const std::vector<double>& sourceCoords);
-    double intersectGeoBary(const std::vector<double>& targetCell, bool targetCellQuadratic, const double *sourceCell, std::vector<double>& res);
-  private :
+    double intersectGeometryWithQuadrangle(
+        const double *quadrangle, const std::vector<double> &sourceCoords, bool isSourceQuad
+    );
+    double intersectGeometryGeneral(const std::vector<double> &targetCoords, const std::vector<double> &sourceCoords);
+    double intersectGeoBary(
+        const std::vector<double> &targetCell,
+        bool targetCellQuadratic,
+        const double *sourceCell,
+        std::vector<double> &res
+    );
+
+   private:
     double _epsilon;
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

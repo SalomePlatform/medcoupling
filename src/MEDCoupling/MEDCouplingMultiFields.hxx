@@ -32,15 +32,15 @@
 
 namespace MEDCoupling
 {
-  class MEDCouplingMesh;
-  class DataArrayDouble;
-  class MEDCouplingFieldDouble;
-  class MEDCouplingFieldTemplate;
+class MEDCouplingMesh;
+class DataArrayDouble;
+class MEDCouplingFieldDouble;
+class MEDCouplingFieldTemplate;
 
-  class MEDCouplingMultiFields : public RefCountObject, public TimeLabel
-  {
-  public:
-    MEDCOUPLING_EXPORT static MEDCouplingMultiFields *New(const std::vector<MEDCouplingFieldDouble *>& fs);
+class MEDCouplingMultiFields : public RefCountObject, public TimeLabel
+{
+   public:
+    MEDCOUPLING_EXPORT static MEDCouplingMultiFields *New(const std::vector<MEDCouplingFieldDouble *> &fs);
     MEDCOUPLING_EXPORT static MEDCouplingMultiFields *New();
     std::string getClassName() const override { return std::string("MEDCouplingMultiFields"); }
     MEDCOUPLING_EXPORT MEDCouplingMultiFields *deepCopy() const;
@@ -50,32 +50,45 @@ namespace MEDCoupling
     MEDCOUPLING_EXPORT double getTimeResolution() const;
     MEDCOUPLING_EXPORT virtual std::string simpleRepr() const;
     MEDCOUPLING_EXPORT virtual std::string advancedRepr() const;
-    MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
-    MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(const MEDCouplingMultiFields *other, double meshPrec, double valsPrec) const;
+    MEDCOUPLING_EXPORT virtual bool isEqual(
+        const MEDCouplingMultiFields *other, double meshPrec, double valsPrec
+    ) const;
+    MEDCOUPLING_EXPORT virtual bool isEqualWithoutConsideringStr(
+        const MEDCouplingMultiFields *other, double meshPrec, double valsPrec
+    ) const;
     MEDCOUPLING_EXPORT const MEDCouplingFieldDouble *getFieldWithId(int id) const;
     MEDCOUPLING_EXPORT std::vector<const MEDCouplingFieldDouble *> getFields() const;
     MEDCOUPLING_EXPORT int getNumberOfFields() const;
     MEDCOUPLING_EXPORT const MEDCouplingFieldDouble *getFieldAtPos(int id) const;
     MEDCOUPLING_EXPORT virtual std::vector<MEDCouplingMesh *> getMeshes() const;
-    MEDCOUPLING_EXPORT virtual std::vector<MEDCouplingMesh *> getDifferentMeshes(std::vector<int>& refs) const;
+    MEDCOUPLING_EXPORT virtual std::vector<MEDCouplingMesh *> getDifferentMeshes(std::vector<int> &refs) const;
     MEDCOUPLING_EXPORT virtual std::vector<DataArrayDouble *> getArrays() const;
-    MEDCOUPLING_EXPORT virtual std::vector<DataArrayDouble *> getDifferentArrays(std::vector< std::vector<int> >& refs) const;
+    MEDCOUPLING_EXPORT virtual std::vector<DataArrayDouble *> getDifferentArrays(
+        std::vector<std::vector<int> > &refs
+    ) const;
     MEDCOUPLING_EXPORT void updateTime() const;
     MEDCOUPLING_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDCOUPLING_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
-    MEDCOUPLING_EXPORT void getTinySerializationInformation(std::vector<mcIdType>& tinyInfo, std::vector<double>& tinyInfo2, int& nbOfDiffMeshes, int& nbOfDiffArr) const;
-    MEDCOUPLING_EXPORT void finishUnserialization(const std::vector<mcIdType>& tinyInfoI, const std::vector<double>& tinyInfoD,
-                                                  const std::vector<MEDCouplingFieldTemplate *>& ft, const std::vector<MEDCouplingMesh *>& ms,
-                                                  const std::vector<DataArrayDouble *>& das);
+    MEDCOUPLING_EXPORT void getTinySerializationInformation(
+        std::vector<mcIdType> &tinyInfo, std::vector<double> &tinyInfo2, int &nbOfDiffMeshes, int &nbOfDiffArr
+    ) const;
+    MEDCOUPLING_EXPORT void finishUnserialization(
+        const std::vector<mcIdType> &tinyInfoI,
+        const std::vector<double> &tinyInfoD,
+        const std::vector<MEDCouplingFieldTemplate *> &ft,
+        const std::vector<MEDCouplingMesh *> &ms,
+        const std::vector<DataArrayDouble *> &das
+    );
     MEDCOUPLING_EXPORT virtual void checkConsistencyLight() const;
-  protected:
-    MEDCOUPLING_EXPORT MEDCouplingMultiFields(const std::vector<MEDCouplingFieldDouble *>& fs);
-    MEDCOUPLING_EXPORT MEDCouplingMultiFields(const MEDCouplingMultiFields& other);
+
+   protected:
+    MEDCOUPLING_EXPORT MEDCouplingMultiFields(const std::vector<MEDCouplingFieldDouble *> &fs);
+    MEDCOUPLING_EXPORT MEDCouplingMultiFields(const MEDCouplingMultiFields &other);
     MEDCOUPLING_EXPORT MEDCouplingMultiFields();
-  protected:
-    std::vector< MCAuto<MEDCouplingFieldDouble> > _fs;
-  };
-}
+
+   protected:
+    std::vector<MCAuto<MEDCouplingFieldDouble> > _fs;
+};
+}  // namespace MEDCoupling
 
 #endif
-

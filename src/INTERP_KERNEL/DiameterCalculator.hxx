@@ -28,289 +28,727 @@
 
 namespace INTERP_KERNEL
 {
-  class DiameterCalculator
-  {
-  public:
-    virtual ~DiameterCalculator() { }
+class DiameterCalculator
+{
+   public:
+    virtual ~DiameterCalculator() {}
     INTERPKERNEL_EXPORT virtual NormalizedCellType getType() const = 0;
-    INTERPKERNEL_EXPORT virtual double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const = 0;
-    INTERPKERNEL_EXPORT virtual void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const = 0;
-    INTERPKERNEL_EXPORT virtual void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const = 0;
-    INTERPKERNEL_EXPORT virtual void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const = 0;
-  };
+    INTERPKERNEL_EXPORT virtual double computeForOneCell(
+        const mcIdType *bg, const mcIdType *endd, const double *coordsPtr
+    ) const = 0;
+    INTERPKERNEL_EXPORT virtual void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const = 0;
+    INTERPKERNEL_EXPORT virtual void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const = 0;
+    INTERPKERNEL_EXPORT virtual void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const = 0;
+};
 
-  class DiameterCalulatorTRI3S2 : public DiameterCalculator
-  {
-  public:
+class DiameterCalulatorTRI3S2 : public DiameterCalculator
+{
+   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
-    static NormalizedCellType TYPE;
-  };
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
 
-  class DiameterCalulatorTRI3S3 : public DiameterCalculator
-  {
-  public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
+   public:
     static NormalizedCellType TYPE;
-  };
+};
 
-  class DiameterCalulatorTRI6S2 : public DiameterCalculator
-  {
-  public:
+class DiameterCalulatorTRI3S3 : public DiameterCalculator
+{
+   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
-    static NormalizedCellType TYPE;
-  };
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
 
-  class DiameterCalulatorTRI6S3 : public DiameterCalculator
-  {
-  public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
+   public:
     static NormalizedCellType TYPE;
-  };
+};
 
-  class DiameterCalulatorTRI7S2 : public DiameterCalculator
-  {
-  public:
+class DiameterCalulatorTRI6S2 : public DiameterCalculator
+{
+   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
-    static NormalizedCellType TYPE;
-  };
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
 
-  class DiameterCalulatorTRI7S3 : public DiameterCalculator
-  {
-  public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
+   public:
     static NormalizedCellType TYPE;
-  };
+};
 
-  class DiameterCalulatorQUAD4S2 : public DiameterCalculator
-  {
-  public:
+class DiameterCalulatorTRI6S3 : public DiameterCalculator
+{
+   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
-    static NormalizedCellType TYPE;
-  };
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
 
-  class DiameterCalulatorQUAD4S3 : public DiameterCalculator
-  {
-  public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
+   public:
     static NormalizedCellType TYPE;
-  };
+};
 
-  class DiameterCalulatorQUAD8S2 : public DiameterCalculator
-  {
-  public:
+class DiameterCalulatorTRI7S2 : public DiameterCalculator
+{
+   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
-    static NormalizedCellType TYPE;
-  };
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
 
-  class DiameterCalulatorQUAD8S3 : public DiameterCalculator
-  {
-  public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
+   public:
     static NormalizedCellType TYPE;
-  };
+};
 
-  class DiameterCalulatorQUAD9S2 : public DiameterCalculator
-  {
-  public:
+class DiameterCalulatorTRI7S3 : public DiameterCalculator
+{
+   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
-    static NormalizedCellType TYPE;
-  };
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
 
-  class DiameterCalulatorQUAD9S3 : public DiameterCalculator
-  {
-  public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
+   public:
     static NormalizedCellType TYPE;
-  };
+};
 
-  class DiameterCalulatorTETRA4 : public DiameterCalculator
-  {
-  public:
+class DiameterCalulatorQUAD4S2 : public DiameterCalculator
+{
+   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
-    static NormalizedCellType TYPE;
-  };
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
 
-  class DiameterCalulatorTETRA10 : public DiameterCalculator
-  {
-  public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
+   public:
     static NormalizedCellType TYPE;
-  };
+};
 
-  class DiameterCalulatorHEXA8 : public DiameterCalculator
-  {
-  public:
+class DiameterCalulatorQUAD4S3 : public DiameterCalculator
+{
+   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
-    static NormalizedCellType TYPE;
-  };
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
 
-  class DiameterCalulatorHEXA20 : public DiameterCalculator
-  {
-  public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
+   public:
     static NormalizedCellType TYPE;
-  };
+};
 
-  class DiameterCalulatorHEXA27 : public DiameterCalculator
-  {
-  public:
+class DiameterCalulatorQUAD8S2 : public DiameterCalculator
+{
+   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
-    static NormalizedCellType TYPE;
-  };
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
 
-  class DiameterCalulatorPENTA6 : public DiameterCalculator
-  {
-  public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
+   public:
     static NormalizedCellType TYPE;
-  };
+};
 
-  class DiameterCalulatorPENTA15 : public DiameterCalculator
-  {
-  public:
+class DiameterCalulatorQUAD8S3 : public DiameterCalculator
+{
+   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
-    static NormalizedCellType TYPE;
-  };
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
 
-  class DiameterCalulatorPYRA5 : public DiameterCalculator
-  {
-  public:
-    NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
-    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
+   public:
     static NormalizedCellType TYPE;
-  };
+};
 
-  class DiameterCalulatorPYRA13 : public DiameterCalculator
-  {
-  public:
+class DiameterCalulatorQUAD9S2 : public DiameterCalculator
+{
+   public:
     NormalizedCellType getType() const { return TYPE; }
-    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const { return ComputeForOneCellInternal(bg,endd,coordsPtr); }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
     static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
-    void computeForListOfCellIdsUMeshFrmt(const mcIdType *bgIds, const mcIdType *endIds, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeForRangeOfCellIdsUMeshFrmt(mcIdType bgId, mcIdType endId, const mcIdType *indPtr, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-    void computeFor1SGTUMeshFrmt(mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr) const;
-  public:
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
+
+   public:
     static NormalizedCellType TYPE;
-  };
-}
+};
+
+class DiameterCalulatorQUAD9S3 : public DiameterCalculator
+{
+   public:
+    NormalizedCellType getType() const { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
+
+   public:
+    static NormalizedCellType TYPE;
+};
+
+class DiameterCalulatorTETRA4 : public DiameterCalculator
+{
+   public:
+    NormalizedCellType getType() const { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
+
+   public:
+    static NormalizedCellType TYPE;
+};
+
+class DiameterCalulatorTETRA10 : public DiameterCalculator
+{
+   public:
+    NormalizedCellType getType() const { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
+
+   public:
+    static NormalizedCellType TYPE;
+};
+
+class DiameterCalulatorHEXA8 : public DiameterCalculator
+{
+   public:
+    NormalizedCellType getType() const { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
+
+   public:
+    static NormalizedCellType TYPE;
+};
+
+class DiameterCalulatorHEXA20 : public DiameterCalculator
+{
+   public:
+    NormalizedCellType getType() const { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
+
+   public:
+    static NormalizedCellType TYPE;
+};
+
+class DiameterCalulatorHEXA27 : public DiameterCalculator
+{
+   public:
+    NormalizedCellType getType() const { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
+
+   public:
+    static NormalizedCellType TYPE;
+};
+
+class DiameterCalulatorPENTA6 : public DiameterCalculator
+{
+   public:
+    NormalizedCellType getType() const { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
+
+   public:
+    static NormalizedCellType TYPE;
+};
+
+class DiameterCalulatorPENTA15 : public DiameterCalculator
+{
+   public:
+    NormalizedCellType getType() const { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
+
+   public:
+    static NormalizedCellType TYPE;
+};
+
+class DiameterCalulatorPYRA5 : public DiameterCalculator
+{
+   public:
+    NormalizedCellType getType() const { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
+
+   public:
+    static NormalizedCellType TYPE;
+};
+
+class DiameterCalulatorPYRA13 : public DiameterCalculator
+{
+   public:
+    NormalizedCellType getType() const { return TYPE; }
+    double computeForOneCell(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr) const
+    {
+        return ComputeForOneCellInternal(bg, endd, coordsPtr);
+    }
+    static double ComputeForOneCellInternal(const mcIdType *bg, const mcIdType *endd, const double *coordsPtr);
+    void computeForListOfCellIdsUMeshFrmt(
+        const mcIdType *bgIds,
+        const mcIdType *endIds,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeForRangeOfCellIdsUMeshFrmt(
+        mcIdType bgId,
+        mcIdType endId,
+        const mcIdType *indPtr,
+        const mcIdType *connPtr,
+        const double *coordsPtr,
+        double *resPtr
+    ) const;
+    void computeFor1SGTUMeshFrmt(
+        mcIdType nbOfCells, const mcIdType *connPtr, const double *coordsPtr, double *resPtr
+    ) const;
+
+   public:
+    static NormalizedCellType TYPE;
+};
+}  // namespace INTERP_KERNEL
 
 #endif

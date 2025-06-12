@@ -23,39 +23,43 @@
 
 namespace INTERP_KERNEL
 {
-  Interpolation3DSurf::Interpolation3DSurf()
-  {
-  }
+Interpolation3DSurf::Interpolation3DSurf() {}
 
-  Interpolation3DSurf::Interpolation3DSurf(const InterpolationOptions& io):InterpolationPlanar<Interpolation3DSurf>(io)
-  {
-  }
+Interpolation3DSurf::Interpolation3DSurf(const InterpolationOptions &io) : InterpolationPlanar<Interpolation3DSurf>(io)
+{
+}
 
-
-  /**
-     \brief  Function used to set the options for the intersection calculation
-     \details The following options can be modified:
-     -# intersectionType: the type of algorithm to be used in the computation of the cell-cell intersections.
-     - Values: Triangle, Convex.
-     - Default: Triangle.
-     -# medianPlan: Position of the median plane where both cells will be projected
-     - Values: between 0 and 1.
-     - Default: 0.5.
-     -# doRotat: rotate the coordinate system such that the target cell is in the Oxy plane.
-     - Values: true (necessarily if Intersection_type=Triangle), false.
-     - Default: true (as default Intersection_type=Triangle)
-     -# precision: Level of precision of the computations is precision times the characteristic size of the mesh.
-     - Values: positive real number.
-     - Default: 1.0E-12.
-     -# printLevel: Level of verboseness during the computations.
-     - Values: integer between 0 and 3.
-     - Default: 0.
-  */
-  void Interpolation3DSurf::setOptions(double precision, int printLevel, double medianPlan,
-                                       IntersectionType intersectionType, bool doRotat, int orientation)
-  {
-    InterpolationPlanar<Interpolation3DSurf>::setOptions(precision,printLevel,intersectionType, orientation);
+/**
+   \brief  Function used to set the options for the intersection calculation
+   \details The following options can be modified:
+   -# intersectionType: the type of algorithm to be used in the computation of the cell-cell intersections.
+   - Values: Triangle, Convex.
+   - Default: Triangle.
+   -# medianPlan: Position of the median plane where both cells will be projected
+   - Values: between 0 and 1.
+   - Default: 0.5.
+   -# doRotat: rotate the coordinate system such that the target cell is in the Oxy plane.
+   - Values: true (necessarily if Intersection_type=Triangle), false.
+   - Default: true (as default Intersection_type=Triangle)
+   -# precision: Level of precision of the computations is precision times the characteristic size of the mesh.
+   - Values: positive real number.
+   - Default: 1.0E-12.
+   -# printLevel: Level of verboseness during the computations.
+   - Values: integer between 0 and 3.
+   - Default: 0.
+*/
+void
+Interpolation3DSurf::setOptions(
+    double precision,
+    int printLevel,
+    double medianPlan,
+    IntersectionType intersectionType,
+    bool doRotat,
+    int orientation
+)
+{
+    InterpolationPlanar<Interpolation3DSurf>::setOptions(precision, printLevel, intersectionType, orientation);
     InterpolationPlanar<Interpolation3DSurf>::setDoRotate(doRotat);
     InterpolationPlanar<Interpolation3DSurf>::setMedianPlane(medianPlan);
-  }
 }
+}  // namespace INTERP_KERNEL

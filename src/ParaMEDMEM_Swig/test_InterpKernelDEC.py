@@ -28,15 +28,16 @@ from mpi4py import MPI
 
 
 class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
-    """ See test_StructuredCoincidentDEC_py_1() for a quick start.
-    """
+    """See test_StructuredCoincidentDEC_py_1() for a quick start."""
+
     def generateFullSource(self):
-        """ The complete source mesh: 4 squares each divided in 2 diagonaly (so 8 cells in total) """
-        msh  = self.generateFullTarget()
+        """The complete source mesh: 4 squares each divided in 2 diagonaly (so 8 cells in total)"""
+        msh = self.generateFullTarget()
         msh.simplexize(0)
         msh.setName("src_mesh")
         fld = MEDCouplingFieldDouble(ON_CELLS, ONE_TIME)
-        fld.setMesh(msh); fld.setName("source_F")
+        fld.setMesh(msh)
+        fld.setName("source_F")
         da = DataArrayDouble(msh.getNumberOfCells())
         da.iota()
         da *= 2
@@ -44,9 +45,9 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         return msh, fld
 
     def generateFullTarget(self):
-        """ The complete target mesh: 4 squares """
+        """The complete target mesh: 4 squares"""
         m1 = MEDCouplingCMesh("tgt_msh")
-        da = DataArrayDouble([0,1,2])
+        da = DataArrayDouble([0, 1, 2])
         m1.setCoords(da, da)
         msh = m1.buildUnstructured()
         return msh
@@ -57,7 +58,7 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
     # not computed by cuting again from scratch the full-size mesh!!
     #
     def getPartialSource(self, rank):
-        """ Will return an empty mesh piece for rank=2 and 3 """
+        """Will return an empty mesh piece for rank=2 and 3"""
         msh, f = self.generateFullSource()
         if rank == 0:
             sub_m, sub_f = msh[0:4], f[0:4]
@@ -67,12 +68,12 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         return sub_m, sub_f
 
     def getPartialTarget(self, rank):
-        """ One square for each rank """
+        """One square for each rank"""
         msh = self.generateFullTarget()
         if rank == 2:
-            sub_m = msh[[0,2]]
+            sub_m = msh[[0, 2]]
         elif rank == 3:
-            sub_m = msh[[1,3]]
+            sub_m = msh[[1, 3]]
         sub_m.zipCoords()
         # Receiving side must prepare an empty field that will be filled by DEC:
         fld = MEDCouplingFieldDouble(ON_CELLS, ONE_TIME)
@@ -83,7 +84,7 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         return sub_m, fld
 
     def testInterpKernelDEC_ctor(self):
-        """ Test the various Python ctors """
+        """Test the various Python ctors"""
         size = MPI.COMM_WORLD.size
         if size != 4:
             print("Should be run on 4 procs!")
@@ -107,15 +108,28 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         # Work directly with the **hack**
         i6 = InterpKernelDEC(l1, l2, MPI._addressof(MPI.COMM_WORLD))
         # Should fail with 2 proc groups **and** a communicator
-        self.assertRaises(InterpKernelException, InterpKernelDEC.New, source_group, target_group, MPI.COMM_WORLD)
-        self.assertRaises(Exception, InterpKernelDEC, source_group, target_group, MPI.COMM_WORLD)
-        i6.release(); i5.release(); i4.release(); i3.release(); i2.release(); i1.release()
+        self.assertRaises(
+            InterpKernelException,
+            InterpKernelDEC.New,
+            source_group,
+            target_group,
+            MPI.COMM_WORLD,
+        )
+        self.assertRaises(
+            Exception, InterpKernelDEC, source_group, target_group, MPI.COMM_WORLD
+        )
+        i6.release()
+        i5.release()
+        i4.release()
+        i3.release()
+        i2.release()
+        i1.release()
         source_group.release()
         target_group.release()
 
     @WriteInTmpDir
     def testInterpKernelDEC_2D_py_1(self):
-        """ This test illustrates a basic use of the InterpKernelDEC.
+        """This test illustrates a basic use of the InterpKernelDEC.
         Look at the C++ documentation of the class for more informations.
         """
         size = MPI.COMM_WORLD.size
@@ -148,7 +162,7 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         #
         if source_group.containsMyRank():
             _, fieldS = self.getPartialSource(rank)
-            fieldS.setNature(IntensiveMaximum)   # The only policy supported for now ...
+            fieldS.setNature(IntensiveMaximum)  # The only policy supported for now ...
             WriteField("./source_field_part_%d.med" % rank, fieldS, True)
             idec.attachLocalField(fieldS)
             idec.synchronize()
@@ -175,8 +189,7 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
 
     @WriteInTmpDir
     def test_InterpKernelDEC_2D_py_2(self):
-        """ More involved test using Para* objects.
-        """
+        """More involved test using Para* objects."""
         size = MPI.COMM_WORLD.size
         rank = MPI.COMM_WORLD.rank
         if size != 5:
@@ -193,24 +206,26 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         source_group = MPIProcessorGroup(interface, procs_source)
         dec = InterpKernelDEC(source_group, target_group)
 
-        data_dir = os.path.join(os.environ['MEDCOUPLING_ROOT_DIR'], "share", "resources", "med")
+        data_dir = os.path.join(
+            os.environ["MEDCOUPLING_ROOT_DIR"], "share", "resources", "med"
+        )
         if not os.path.isdir(data_dir):
-            data_dir = os.environ.get('MED_RESOURCES_DIR',"::").split(":")[1]
+            data_dir = os.environ.get("MED_RESOURCES_DIR", "::").split(":")[1]
 
         filename_xml1 = os.path.join(data_dir, "square1_split")
         filename_xml2 = os.path.join(data_dir, "square2_split")
 
         MPI.COMM_WORLD.Barrier()
         if source_group.containsMyRank():
-            filename = filename_xml1 + str(rank+1) + ".med"
-            meshname = "Mesh_2_" + str(rank+1)
-            mesh=ReadUMeshFromFile(filename,meshname,0)
-            paramesh=ParaMESH(mesh,source_group,"source mesh")
+            filename = filename_xml1 + str(rank + 1) + ".med"
+            meshname = "Mesh_2_" + str(rank + 1)
+            mesh = ReadUMeshFromFile(filename, meshname, 0)
+            paramesh = ParaMESH(mesh, source_group, "source mesh")
             comptopo = ComponentTopology()
-            parafield = ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo)
+            parafield = ParaFIELD(ON_CELLS, NO_TIME, paramesh, comptopo)
             parafield.getField().setNature(IntensiveMaximum)
-            nb_local=mesh.getNumberOfCells()
-            value = [1.0]*nb_local
+            nb_local = mesh.getNumberOfCells()
+            value = [1.0] * nb_local
             parafield.getField().setValues(value)
             icocofield = ICoCoMEDDoubleField(parafield.getField())
             dec.attachLocalField(icocofield)
@@ -218,26 +233,26 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         else:
             filename = filename_xml2 + str(rank - nproc_source + 1) + ".med"
             meshname = "Mesh_3_" + str(rank - nproc_source + 1)
-            mesh=ReadUMeshFromFile(filename,meshname,0)
-            paramesh=ParaMESH(mesh,target_group,"target mesh")
+            mesh = ReadUMeshFromFile(filename, meshname, 0)
+            paramesh = ParaMESH(mesh, target_group, "target mesh")
             comptopo = ComponentTopology()
-            parafield = ParaFIELD(ON_CELLS,NO_TIME,paramesh, comptopo)
+            parafield = ParaFIELD(ON_CELLS, NO_TIME, paramesh, comptopo)
             parafield.getField().setNature(IntensiveMaximum)
-            nb_local=mesh.getNumberOfCells()
-            value = [0.0]*nb_local
+            nb_local = mesh.getNumberOfCells()
+            value = [0.0] * nb_local
             parafield.getField().setValues(value)
             icocofield = ICoCoMEDDoubleField(parafield.getField())
             dec.attachLocalField(icocofield)
             pass
 
         if source_group.containsMyRank():
-            field_before_int = parafield.getVolumeIntegral(0,True)
+            field_before_int = parafield.getVolumeIntegral(0, True)
             dec.synchronize()
             dec.setForcedRenormalization(False)
             dec.sendData()
             dec.recvData()
-            field_after_int=parafield.getVolumeIntegral(0,True)
-            self.assertTrue(math.fabs(field_after_int-field_before_int)<1e-8)
+            field_after_int = parafield.getVolumeIntegral(0, True)
+            self.assertTrue(math.fabs(field_after_int - field_before_int) < 1e-8)
             pass
         else:
             dec.synchronize()
@@ -256,7 +271,7 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         MPI.COMM_WORLD.Barrier()
 
     def testInterpKernelDEC_2D_py_3(self):
-        """ Test on a question that often comes back: should I re-synchronize() / re-attach() each time that
+        """Test on a question that often comes back: should I re-synchronize() / re-attach() each time that
         I want to send a new field?
         Basic answer:
           - you do not have to re-synchronize, but you can re-attach a new field, as long as it has the same support.
@@ -287,31 +302,35 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         for t in range(3):  # Emulating a time loop for example
             if source_group.containsMyRank():
                 _, fieldS = self.getPartialSource(rank)
-                fieldS.setNature(IntensiveMaximum)   # The only policy supported for now ...
+                fieldS.setNature(
+                    IntensiveMaximum
+                )  # The only policy supported for now ...
                 fS2 = fieldS.deepCopy()
                 fS2.setMesh(fieldS.getMesh())
-                idec.attachLocalField(fS2)         # each time, but same support!
+                idec.attachLocalField(fS2)  # each time, but same support!
                 if t == 0:
-                    idec.synchronize()             # only once!
+                    idec.synchronize()  # only once!
                 das = fS2.getArray()
-                das *= t+1
-                idec.sendData()                    # each time!
+                das *= t + 1
+                idec.sendData()  # each time!
 
             if target_group.containsMyRank():
                 mshT, fieldT = self.getPartialTarget(rank)
                 fieldT.setNature(IntensiveMaximum)
                 fT2 = fieldT.deepCopy()
                 fT2.setMesh(fieldT.getMesh())
-                idec.attachLocalField(fT2)          # each time, but same support!
+                idec.attachLocalField(fT2)  # each time, but same support!
                 if t == 0:
-                    idec.synchronize()              # only once!
-                idec.recvData()                     # each time!
+                    idec.synchronize()  # only once!
+                idec.recvData()  # each time!
                 # Now the actual checks:
-                mul = t+1
+                mul = t + 1
                 if rank == 2:
-                    self.assertEqual(fT2.getArray().getValues(), [1.0*mul, 9.0*mul])
+                    self.assertEqual(fT2.getArray().getValues(), [1.0 * mul, 9.0 * mul])
                 elif rank == 3:
-                    self.assertEqual(fT2.getArray().getValues(), [5.0*mul, 13.0*mul])
+                    self.assertEqual(
+                        fT2.getArray().getValues(), [5.0 * mul, 13.0 * mul]
+                    )
 
         # Release DEC (this involves MPI exchanges -- notably the release of the communicator -- so better be done before MPI.Finalize()
         idec.release()
@@ -340,11 +359,13 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         MPI.COMM_WORLD.Barrier()
         if source_group.containsMyRank():
             mesh = eval("Source_Proc_{}".format(rank))()
-            nb_local=mesh.getNumberOfCells()
+            nb_local = mesh.getNumberOfCells()
             field = MEDCouplingFieldDouble(ON_CELLS)
             field.setNature(IntensiveMaximum)
             field.setMesh(mesh)
-            arr = DataArrayDouble(nb_local) ; arr.iota() ; arr += rank
+            arr = DataArrayDouble(nb_local)
+            arr.iota()
+            arr += rank
             field.setArray(arr)
             dec.attachLocalField(field)
             dec.synchronizeWithDefaultValue(-2000.0)
@@ -352,18 +373,23 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
             # target -> source
             dec.recvData()
             if rank == 0:
-                self.assertTrue(field.getArray().isEqual(DataArrayDouble([0.6,0.6,-2000]),1e-12))
-                self.assertTrue( dec.retrieveNonFetchedIds().isEqual(DataArrayInt([2])) )
+                self.assertTrue(
+                    field.getArray().isEqual(DataArrayDouble([0.6, 0.6, -2000]), 1e-12)
+                )
+                self.assertTrue(dec.retrieveNonFetchedIds().isEqual(DataArrayInt([2])))
             if rank == 1:
-                self.assertTrue(field.getArray().isEqual(DataArrayDouble([1.0,-2000]),1e-12))
-                self.assertTrue( dec.retrieveNonFetchedIds().isEqual(DataArrayInt([1])) )
+                self.assertTrue(
+                    field.getArray().isEqual(DataArrayDouble([1.0, -2000]), 1e-12)
+                )
+                self.assertTrue(dec.retrieveNonFetchedIds().isEqual(DataArrayInt([1])))
         else:
             mesh = eval("Target_Proc_{}".format(rank))()
-            nb_local=mesh.getNumberOfCells()
+            nb_local = mesh.getNumberOfCells()
             field = MEDCouplingFieldDouble(ON_CELLS)
             field.setNature(IntensiveMaximum)
             field.setMesh(mesh)
-            arr = DataArrayDouble(nb_local) ; arr[:] = -20
+            arr = DataArrayDouble(nb_local)
+            arr[:] = -20
             field.setArray(arr)
             dec.attachLocalField(field)
             dec.synchronizeWithDefaultValue(-1000.0)
@@ -372,13 +398,19 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
                 # matrix S0 / T2 = [[(0,S0,1),(1,S0,1.5)]
                 # IntensiveMaximum => [[(0,S0,1/2.5),(1,S0,1.5/2.5)]
                 #
-                self.assertTrue(field.getArray().isEqual(DataArrayDouble([0.6]),1e-12))
-                self.assertTrue( dec.retrieveNonFetchedIds().isEqual(DataArrayInt([])) )
+                self.assertTrue(field.getArray().isEqual(DataArrayDouble([0.6]), 1e-12))
+                self.assertTrue(dec.retrieveNonFetchedIds().isEqual(DataArrayInt([])))
             if rank == 3:
                 # matrix S1 / T3 = [[],[(0,S1,1.0)],[(0,S1,2.0)],[]]
                 # IntensiveMaximum => [[],[(0,S1,1.0/1.0)],[(0,S1,2.0/2.0)],[]]
-                self.assertTrue(field.getArray().isEqual(DataArrayDouble([-1000.0, 1.0, 1.0, -1000.0]),1e-8))
-                self.assertTrue( dec.retrieveNonFetchedIds().isEqual(DataArrayInt([0,3])) )
+                self.assertTrue(
+                    field.getArray().isEqual(
+                        DataArrayDouble([-1000.0, 1.0, 1.0, -1000.0]), 1e-8
+                    )
+                )
+                self.assertTrue(
+                    dec.retrieveNonFetchedIds().isEqual(DataArrayInt([0, 3]))
+                )
             # target -> source
             dec.sendData()
 
@@ -388,38 +420,66 @@ class ParaMEDMEM_IK_DEC_Tests(unittest.TestCase):
         source_group.release()
         MPI.COMM_WORLD.Barrier()
 
+
 def Source_Proc_0():
-    coo = DataArrayDouble([(0,2),(2,2),(4,2),(0,4),(2,4),(4,4),(0,6),(2,6)])
-    m = MEDCouplingUMesh("mesh",2) ; m.setCoords(coo) ; m.allocateCells()
-    m.insertNextCell(NORM_QUAD4,[0,1,4,3])
-    m.insertNextCell(NORM_QUAD4,[1,2,5,4])
-    m.insertNextCell(NORM_QUAD4,[3,4,7,6])
+    coo = DataArrayDouble(
+        [(0, 2), (2, 2), (4, 2), (0, 4), (2, 4), (4, 4), (0, 6), (2, 6)]
+    )
+    m = MEDCouplingUMesh("mesh", 2)
+    m.setCoords(coo)
+    m.allocateCells()
+    m.insertNextCell(NORM_QUAD4, [0, 1, 4, 3])
+    m.insertNextCell(NORM_QUAD4, [1, 2, 5, 4])
+    m.insertNextCell(NORM_QUAD4, [3, 4, 7, 6])
     return m
+
 
 def Source_Proc_1():
-    coo = DataArrayDouble([(6,2),(8,2),(10,2),(6,4),(8,4),(10,4)])
-    m = MEDCouplingUMesh("mesh",2) ; m.setCoords(coo) ; m.allocateCells()
-    m.insertNextCell(NORM_QUAD4,[0,1,4,3])
-    m.insertNextCell(NORM_QUAD4,[1,2,5,4])
+    coo = DataArrayDouble([(6, 2), (8, 2), (10, 2), (6, 4), (8, 4), (10, 4)])
+    m = MEDCouplingUMesh("mesh", 2)
+    m.setCoords(coo)
+    m.allocateCells()
+    m.insertNextCell(NORM_QUAD4, [0, 1, 4, 3])
+    m.insertNextCell(NORM_QUAD4, [1, 2, 5, 4])
     return m
+
 
 def Target_Proc_2():
-    coo = DataArrayDouble([(1,0),(3.5,0),(1,3),(3.5,3)])
-    m = MEDCouplingUMesh("mesh",2) ; m.setCoords(coo) ; m.allocateCells()
-    m.insertNextCell(NORM_QUAD4,[0,1,3,2])
+    coo = DataArrayDouble([(1, 0), (3.5, 0), (1, 3), (3.5, 3)])
+    m = MEDCouplingUMesh("mesh", 2)
+    m.setCoords(coo)
+    m.allocateCells()
+    m.insertNextCell(NORM_QUAD4, [0, 1, 3, 2])
     return m
 
+
 def Target_Proc_3():
-    coo = DataArrayDouble([(6,0),(7,0),(8,0),(9,0),(10,0),
-                           (6,1),(7,1),(9,1),(10,1),
-                           (7,3),(8,3),
-                           (6,4),(7,4)])
-    m = MEDCouplingUMesh("mesh",2) ; m.setCoords(coo) ; m.allocateCells()
-    m.insertNextCell(NORM_QUAD4,[0,1,6,5])
-    m.insertNextCell(NORM_QUAD4,[1,2,10,9])
-    m.insertNextCell(NORM_QUAD4,[5,6,12,11])
-    m.insertNextCell(NORM_QUAD4,[3,4,8,7])
+    coo = DataArrayDouble(
+        [
+            (6, 0),
+            (7, 0),
+            (8, 0),
+            (9, 0),
+            (10, 0),
+            (6, 1),
+            (7, 1),
+            (9, 1),
+            (10, 1),
+            (7, 3),
+            (8, 3),
+            (6, 4),
+            (7, 4),
+        ]
+    )
+    m = MEDCouplingUMesh("mesh", 2)
+    m.setCoords(coo)
+    m.allocateCells()
+    m.insertNextCell(NORM_QUAD4, [0, 1, 6, 5])
+    m.insertNextCell(NORM_QUAD4, [1, 2, 10, 9])
+    m.insertNextCell(NORM_QUAD4, [5, 6, 12, 11])
+    m.insertNextCell(NORM_QUAD4, [3, 4, 8, 7])
     return m
+
 
 if __name__ == "__main__":
     unittest.main()

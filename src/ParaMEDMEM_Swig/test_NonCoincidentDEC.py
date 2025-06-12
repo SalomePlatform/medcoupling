@@ -24,6 +24,7 @@ from mpi4py import MPI
 import unittest
 import os
 
+
 class ParaMEDMEM_DEC_Tests(unittest.TestCase):
     def test_NonCoincidentDEC_py(self):
         size = MPI.COMM_WORLD.size
@@ -43,11 +44,13 @@ class ParaMEDMEM_DEC_Tests(unittest.TestCase):
 
         dec = NonCoincidentDEC(source_group, target_group)
 
-        data_dir = os.path.join(os.environ['MEDCOUPLING_ROOT_DIR'], "share", "resources", "med")
+        data_dir = os.path.join(
+            os.environ["MEDCOUPLING_ROOT_DIR"], "share", "resources", "med"
+        )
         if not os.path.isdir(data_dir):
-            data_dir = os.environ.get('MED_RESOURCES_DIR',"::").split(":")[1]
-        tmp_dir  = os.environ.get('TMP', "")
-        if tmp_dir == '':
+            data_dir = os.environ.get("MED_RESOURCES_DIR", "::").split(":")[1]
+        tmp_dir = os.environ.get("TMP", "")
+        if tmp_dir == "":
             tmp_dir = "/tmp"
 
         filename_xml1 = os.path.join(data_dir, "square1_split")
@@ -56,25 +59,25 @@ class ParaMEDMEM_DEC_Tests(unittest.TestCase):
         MPI.COMM_WORLD.Barrier()
 
         if source_group.containsMyRank():
-            filename = filename_xml1 + str(rank+1) + ".med"
-            meshname = "Mesh_2_" + str(rank+1)
+            filename = filename_xml1 + str(rank + 1) + ".med"
+            meshname = "Mesh_2_" + str(rank + 1)
 
             mesh = MESH(MED_DRIVER, filename, meshname)
             support = SUPPORT(mesh, "all elements", MED_CELL)
             paramesh = ParaMESH(mesh, source_group, "source mesh")
 
-            parasupport = UnstructuredParaSUPPORT( support, source_group)
+            parasupport = UnstructuredParaSUPPORT(support, source_group)
             comptopo = ComponentTopology()
 
             parafield = ParaFIELD(parasupport, comptopo)
 
             nb_local = support.getNumberOfElements(MED_ALL_ELEMENTS)
 
-            value = [1.0]*nb_local
+            value = [1.0] * nb_local
 
             parafield.getField().setValue(value)
-            icocofield = ICoCoMEDDoubleField(paramesh,parafield)
-            dec.attachLocalField(icocofield,'P0')
+            icocofield = ICoCoMEDDoubleField(paramesh, parafield)
+            dec.attachLocalField(icocofield, "P0")
             pass
 
         if target_group.containsMyRank():
@@ -85,17 +88,17 @@ class ParaMEDMEM_DEC_Tests(unittest.TestCase):
             support = SUPPORT(mesh, "all elements", MED_CELL)
             paramesh = ParaMESH(mesh, target_group, "target mesh")
 
-            parasupport = UnstructuredParaSUPPORT( support, target_group)
+            parasupport = UnstructuredParaSUPPORT(support, target_group)
             comptopo = ComponentTopology()
             parafield = ParaFIELD(parasupport, comptopo)
 
             nb_local = support.getNumberOfElements(MED_ALL_ELEMENTS)
-            value = [0.0]*nb_local
+            value = [0.0] * nb_local
 
             parafield.getField().setValue(value)
-            icocofield = ICoCoMEDDoubleField(paramesh,parafield)
+            icocofield = ICoCoMEDDoubleField(paramesh, parafield)
 
-            dec.attachLocalField(icocofield, 'P0')
+            dec.attachLocalField(icocofield, "P0")
             pass
 
         field_before_int = [0.0]
@@ -119,7 +122,7 @@ class ParaMEDMEM_DEC_Tests(unittest.TestCase):
             pass
 
         MPI.MPI_Bcast(field_before_int, 1, MPI.MPI_DOUBLE, 0, MPI.MPI_COMM_WORLD)
-        MPI.MPI_Bcast(field_after_int , 1, MPI.MPI_DOUBLE, size-1, MPI.MPI_COMM_WORLD)
+        MPI.MPI_Bcast(field_after_int, 1, MPI.MPI_DOUBLE, size - 1, MPI.MPI_COMM_WORLD)
 
         epsilon = 1e-6
         self.assertDoubleEquals(field_before_int[0], field_after_int[0], epsilon)
@@ -132,6 +135,6 @@ class ParaMEDMEM_DEC_Tests(unittest.TestCase):
         MPI.COMM_WORLD.Barrier()
         MPI.Finalize()
 
+
 if __name__ == "__main__":
     unittest.main()
-

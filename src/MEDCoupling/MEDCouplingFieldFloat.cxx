@@ -31,72 +31,87 @@ using namespace MEDCoupling;
 
 template class MEDCoupling::MEDCouplingFieldT<float>;
 
-MEDCouplingFieldFloat *MEDCouplingFieldFloat::New(TypeOfField type, TypeOfTimeDiscretization td)
+MEDCouplingFieldFloat *
+MEDCouplingFieldFloat::New(TypeOfField type, TypeOfTimeDiscretization td)
 {
-  return new MEDCouplingFieldFloat(type,td);
+    return new MEDCouplingFieldFloat(type, td);
 }
 
-MEDCouplingFieldFloat *MEDCouplingFieldFloat::New(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td)
+MEDCouplingFieldFloat *
+MEDCouplingFieldFloat::New(const MEDCouplingFieldTemplate &ft, TypeOfTimeDiscretization td)
 {
-  return new MEDCouplingFieldFloat(ft,td);
+    return new MEDCouplingFieldFloat(ft, td);
 }
 
-MEDCouplingFieldFloat::MEDCouplingFieldFloat(TypeOfField type, TypeOfTimeDiscretization td):MEDCouplingFieldT<float>(type,MEDCouplingTimeDiscretizationFloat::New(td))
-{
-}
-
-MEDCouplingFieldFloat::MEDCouplingFieldFloat(const MEDCouplingFieldFloat& other, bool deepCpy):MEDCouplingFieldT<float>(other,deepCpy)
+MEDCouplingFieldFloat::MEDCouplingFieldFloat(TypeOfField type, TypeOfTimeDiscretization td)
+    : MEDCouplingFieldT<float>(type, MEDCouplingTimeDiscretizationFloat::New(td))
 {
 }
 
-MEDCouplingFieldFloat::MEDCouplingFieldFloat(NatureOfField n, MEDCouplingTimeDiscretizationFloat *td, MEDCouplingFieldDiscretization *type):MEDCouplingFieldT<float>(type,n,td)
+MEDCouplingFieldFloat::MEDCouplingFieldFloat(const MEDCouplingFieldFloat &other, bool deepCpy)
+    : MEDCouplingFieldT<float>(other, deepCpy)
+{
+}
+
+MEDCouplingFieldFloat::MEDCouplingFieldFloat(
+    NatureOfField n, MEDCouplingTimeDiscretizationFloat *td, MEDCouplingFieldDiscretization *type
+)
+    : MEDCouplingFieldT<float>(type, n, td)
 {
 }
 
 /*!
- * ** WARINING : This method do not deeply copy neither mesh nor spatial discretization. Only a shallow copy (reference) is done for mesh and spatial discretization ! **
+ * ** WARINING : This method do not deeply copy neither mesh nor spatial discretization. Only a shallow copy (reference)
+ * is done for mesh and spatial discretization ! **
  */
-MEDCouplingFieldFloat::MEDCouplingFieldFloat(const MEDCouplingFieldTemplate& ft, TypeOfTimeDiscretization td):MEDCouplingFieldT<float>(ft,MEDCouplingTimeDiscretizationFloat::New(td),false)
+MEDCouplingFieldFloat::MEDCouplingFieldFloat(const MEDCouplingFieldTemplate &ft, TypeOfTimeDiscretization td)
+    : MEDCouplingFieldT<float>(ft, MEDCouplingTimeDiscretizationFloat::New(td), false)
 {
 }
 
-MEDCouplingFieldFloat *MEDCouplingFieldFloat::deepCopy() const
+MEDCouplingFieldFloat *
+MEDCouplingFieldFloat::deepCopy() const
 {
-  return cloneWithMesh(true);
+    return cloneWithMesh(true);
 }
 
-MEDCouplingFieldFloat *MEDCouplingFieldFloat::clone(bool recDeepCpy) const
+MEDCouplingFieldFloat *
+MEDCouplingFieldFloat::clone(bool recDeepCpy) const
 {
-  return new MEDCouplingFieldFloat(*this,recDeepCpy);
+    return new MEDCouplingFieldFloat(*this, recDeepCpy);
 }
 
-template<class U>
-typename Traits<U>::FieldType *ConvertToUField(const MEDCouplingFieldFloat *self)
+template <class U>
+typename Traits<U>::FieldType *
+ConvertToUField(const MEDCouplingFieldFloat *self)
 {
-  MCAuto<MEDCouplingFieldTemplate> tmp(MEDCouplingFieldTemplate::New(*self));
-  int t1,t2;
-  double t0(self->getTime(t1,t2));
-  MCAuto<typename Traits<U>::FieldType> ret(Traits<U>::FieldType::New(*tmp,self->getTimeDiscretization()));
-  ret->setTime(t0,t1,t2);
-  if(self->getArray())
+    MCAuto<MEDCouplingFieldTemplate> tmp(MEDCouplingFieldTemplate::New(*self));
+    int t1, t2;
+    double t0(self->getTime(t1, t2));
+    MCAuto<typename Traits<U>::FieldType> ret(Traits<U>::FieldType::New(*tmp, self->getTimeDiscretization()));
+    ret->setTime(t0, t1, t2);
+    if (self->getArray())
     {
-      MCAuto<typename Traits<U>::ArrayType> arr(self->getArray()->convertToOtherTypeOfArr<U>());
-      ret->setArray(arr);
+        MCAuto<typename Traits<U>::ArrayType> arr(self->getArray()->convertToOtherTypeOfArr<U>());
+        ret->setArray(arr);
     }
-  return ret.retn();
+    return ret.retn();
 }
 
-MEDCouplingFieldDouble * MEDCouplingFieldFloat::convertToDblField() const
+MEDCouplingFieldDouble *
+MEDCouplingFieldFloat::convertToDblField() const
 {
-  return ConvertToUField<double>(this);
+    return ConvertToUField<double>(this);
 }
 
-MEDCouplingFieldInt32 * MEDCouplingFieldFloat::convertToIntField() const
+MEDCouplingFieldInt32 *
+MEDCouplingFieldFloat::convertToIntField() const
 {
-  return ConvertToUField<int>(this);
+    return ConvertToUField<int>(this);
 }
 
-MEDCouplingFieldInt64 * MEDCouplingFieldFloat::convertToInt64Field() const
+MEDCouplingFieldInt64 *
+MEDCouplingFieldFloat::convertToInt64Field() const
 {
-  return ConvertToUField<Int64>(this);
+    return ConvertToUField<Int64>(this);
 }

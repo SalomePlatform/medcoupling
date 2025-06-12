@@ -30,82 +30,86 @@
 // (ABN]: too many text output in the MPIAccesTest - this renders
 // the analysis complicated:
 #define MPI_ACCESS_VERBOSE 0
-#define debugStream \
-    if (!MPI_ACCESS_VERBOSE) {} \
-    else std::cout
+#define debugStream          \
+    if (!MPI_ACCESS_VERBOSE) \
+    {                        \
+    }                        \
+    else                     \
+        std::cout
 
 class MPIAccessTest : public CppUnit::TestFixture
 {
-  CPPUNIT_TEST_SUITE( MPIAccessTest );
-  CPPUNIT_TEST( test_MPI_Access_Send_Recv ) ;
-  CPPUNIT_TEST( test_MPI_Access_Cyclic_Send_Recv ) ;
-  CPPUNIT_TEST( test_MPI_Access_SendRecv ) ;
-  CPPUNIT_TEST( test_MPI_Access_ISend_IRecv ) ;
-  CPPUNIT_TEST( test_MPI_Access_Cyclic_ISend_IRecv ) ;
-  CPPUNIT_TEST( test_MPI_Access_ISendRecv ) ;
-  CPPUNIT_TEST( test_MPI_Access_Probe ) ;
-  CPPUNIT_TEST( test_MPI_Access_IProbe ) ;
-  CPPUNIT_TEST( test_MPI_Access_Cancel ) ;
-  CPPUNIT_TEST( test_MPI_Access_Send_Recv_Length ) ;
-  CPPUNIT_TEST( test_MPI_Access_ISend_IRecv_Length ) ;
-  CPPUNIT_TEST( test_MPI_Access_ISend_IRecv_Length_1 ) ;
-  CPPUNIT_TEST( test_MPI_Access_Time ) ;
-  CPPUNIT_TEST( test_MPI_Access_Time_0 ) ;
-  CPPUNIT_TEST( test_MPI_Access_ISend_IRecv_BottleNeck ) ;
-  CPPUNIT_TEST_SUITE_END();
+    CPPUNIT_TEST_SUITE(MPIAccessTest);
+    CPPUNIT_TEST(test_MPI_Access_Send_Recv);
+    CPPUNIT_TEST(test_MPI_Access_Cyclic_Send_Recv);
+    CPPUNIT_TEST(test_MPI_Access_SendRecv);
+    CPPUNIT_TEST(test_MPI_Access_ISend_IRecv);
+    CPPUNIT_TEST(test_MPI_Access_Cyclic_ISend_IRecv);
+    CPPUNIT_TEST(test_MPI_Access_ISendRecv);
+    CPPUNIT_TEST(test_MPI_Access_Probe);
+    CPPUNIT_TEST(test_MPI_Access_IProbe);
+    CPPUNIT_TEST(test_MPI_Access_Cancel);
+    CPPUNIT_TEST(test_MPI_Access_Send_Recv_Length);
+    CPPUNIT_TEST(test_MPI_Access_ISend_IRecv_Length);
+    CPPUNIT_TEST(test_MPI_Access_ISend_IRecv_Length_1);
+    CPPUNIT_TEST(test_MPI_Access_Time);
+    CPPUNIT_TEST(test_MPI_Access_Time_0);
+    CPPUNIT_TEST(test_MPI_Access_ISend_IRecv_BottleNeck);
+    CPPUNIT_TEST_SUITE_END();
 
+   public:
+    MPIAccessTest() : CppUnit::TestFixture() {}
+    ~MPIAccessTest() {}
+    void setUp() {}
+    void tearDown() {}
+    void test_MPI_Access_Send_Recv();
+    void test_MPI_Access_Cyclic_Send_Recv();
+    void test_MPI_Access_SendRecv();
+    void test_MPI_Access_ISend_IRecv();
+    void test_MPI_Access_Cyclic_ISend_IRecv();
+    void test_MPI_Access_ISendRecv();
+    void test_MPI_Access_Probe();
+    void test_MPI_Access_IProbe();
+    void test_MPI_Access_Cancel();
+    void test_MPI_Access_Send_Recv_Length();
+    void test_MPI_Access_ISend_IRecv_Length();
+    void test_MPI_Access_ISend_IRecv_Length_1();
+    void test_MPI_Access_Time();
+    void test_MPI_Access_Time_0();
+    void test_MPI_Access_ISend_IRecv_BottleNeck();
 
-public:
-
-  MPIAccessTest():CppUnit::TestFixture(){}
-  ~MPIAccessTest(){}
-  void setUp(){}
-  void tearDown(){}
-  void test_MPI_Access_Send_Recv() ;
-  void test_MPI_Access_Cyclic_Send_Recv() ;
-  void test_MPI_Access_SendRecv() ;
-  void test_MPI_Access_ISend_IRecv() ;
-  void test_MPI_Access_Cyclic_ISend_IRecv() ;
-  void test_MPI_Access_ISendRecv() ;
-  void test_MPI_Access_Probe() ;
-  void test_MPI_Access_IProbe() ;
-  void test_MPI_Access_Cancel() ;
-  void test_MPI_Access_Send_Recv_Length() ;
-  void test_MPI_Access_ISend_IRecv_Length() ;
-  void test_MPI_Access_ISend_IRecv_Length_1() ;
-  void test_MPI_Access_Time() ;
-  void test_MPI_Access_Time_0() ;
-  void test_MPI_Access_ISend_IRecv_BottleNeck() ;
-
-private:
-  };
+   private:
+};
 
 // to automatically remove temporary files from disk
 class MPIAccessTest_TmpFilesRemover
 {
-public:
-  MPIAccessTest_TmpFilesRemover() {}
-  ~MPIAccessTest_TmpFilesRemover();
-  bool Register(const std::string theTmpFile);
+   public:
+    MPIAccessTest_TmpFilesRemover() {}
+    ~MPIAccessTest_TmpFilesRemover();
+    bool Register(const std::string theTmpFile);
 
-private:
-  std::set<std::string> myTmpFiles;
+   private:
+    std::set<std::string> myTmpFiles;
 };
 
 /*!
  *  Tool to print array to stream.
  */
-template<class T>
-void MPIAccessTest_DumpArray (std::ostream & stream, const T* array, const int length, const std::string text)
+template <class T>
+void
+MPIAccessTest_DumpArray(std::ostream &stream, const T *array, const int length, const std::string text)
 {
-  stream << text << ": {";
-  if (length > 0) {
-    stream << array[0];
-    for (int i = 1; i < length; i++) {
-      stream << ", " << array[i];
+    stream << text << ": {";
+    if (length > 0)
+    {
+        stream << array[0];
+        for (int i = 1; i < length; i++)
+        {
+            stream << ", " << array[i];
+        }
     }
-  }
-  stream << "}" << std::endl;
+    stream << "}" << std::endl;
 }
 
 #endif

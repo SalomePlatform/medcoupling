@@ -27,4 +27,3 @@ First, this documentation introduces :doc:`fundamental concepts/objects <basic_c
    data_analysis
    data_conversion
    data_optimization
-

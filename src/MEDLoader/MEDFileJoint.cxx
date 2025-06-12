@@ -27,26 +27,26 @@
 #include "InterpKernelAutoPtr.hxx"
 
 // From MEDLOader.cxx TU
-extern med_geometry_type                 typmai[MED_N_CELL_FIXED_GEO];
+extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
 extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
-extern med_geometry_type                 typmai3[INTERP_KERNEL::NORM_MAXTYPE];
+extern med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE];
 
 using namespace MEDCoupling;
 
-std::size_t MEDFileJointCorrespondence::getHeapMemorySizeWithoutChildren() const
+std::size_t
+MEDFileJointCorrespondence::getHeapMemorySizeWithoutChildren() const
 {
-  return sizeof(MCAuto<DataArrayIdType>);
+    return sizeof(MCAuto<DataArrayIdType>);
 }
 
-std::vector<const BigMemoryObject *> MEDFileJointCorrespondence::getDirectChildrenWithNull() const
+std::vector<const BigMemoryObject *>
+MEDFileJointCorrespondence::getDirectChildrenWithNull() const
 {
-  return std::vector<const BigMemoryObject *>();
+    return std::vector<const BigMemoryObject *>();
 }
 
-MEDFileJointCorrespondence::MEDFileJointCorrespondence():
-  _is_nodal( true ),
-  _loc_geo_type( INTERP_KERNEL::NORM_ERROR ),
-  _rem_geo_type( INTERP_KERNEL::NORM_ERROR )
+MEDFileJointCorrespondence::MEDFileJointCorrespondence()
+    : _is_nodal(true), _loc_geo_type(INTERP_KERNEL::NORM_ERROR), _rem_geo_type(INTERP_KERNEL::NORM_ERROR)
 {
 }
 
@@ -57,39 +57,44 @@ MEDFileJointCorrespondence::MEDFileJointCorrespondence():
  *  \param [in] loc_geo_type - the local geometry type of correspondence.
  *  \param [in] rem_geo_type - the remote geometry type of correspondence.
  */
-MEDFileJointCorrespondence::MEDFileJointCorrespondence(DataArrayIdType* correspondence,
-                                                       bool          isNodal,
-                                                       INTERP_KERNEL::NormalizedCellType loc_geo_type,
-                                                       INTERP_KERNEL::NormalizedCellType rem_geo_type):
-  _is_nodal( isNodal ),
-  _loc_geo_type( loc_geo_type ),
-  _rem_geo_type( rem_geo_type )
+MEDFileJointCorrespondence::MEDFileJointCorrespondence(
+    DataArrayIdType *correspondence,
+    bool isNodal,
+    INTERP_KERNEL::NormalizedCellType loc_geo_type,
+    INTERP_KERNEL::NormalizedCellType rem_geo_type
+)
+    : _is_nodal(isNodal), _loc_geo_type(loc_geo_type), _rem_geo_type(rem_geo_type)
 {
-  MEDFileJointCorrespondence::setCorrespondence( correspondence );
+    MEDFileJointCorrespondence::setCorrespondence(correspondence);
 }
 
-MEDFileJointCorrespondence* MEDFileJointCorrespondence::New(DataArrayIdType* correspondence,
-                                                            INTERP_KERNEL::NormalizedCellType loc_geo_type,
-                                                            INTERP_KERNEL::NormalizedCellType rem_geo_type)
+MEDFileJointCorrespondence *
+MEDFileJointCorrespondence::New(
+    DataArrayIdType *correspondence,
+    INTERP_KERNEL::NormalizedCellType loc_geo_type,
+    INTERP_KERNEL::NormalizedCellType rem_geo_type
+)
 {
-  return new MEDFileJointCorrespondence(correspondence, /*isNodal=*/false, loc_geo_type, rem_geo_type );
+    return new MEDFileJointCorrespondence(correspondence, /*isNodal=*/false, loc_geo_type, rem_geo_type);
 }
 
 /*!
  * Returns a new MEDFileJointCorrespondence of nodes
  */
-MEDFileJointCorrespondence *MEDFileJointCorrespondence::New(DataArrayIdType* correspondence)
+MEDFileJointCorrespondence *
+MEDFileJointCorrespondence::New(DataArrayIdType *correspondence)
 {
-  return new MEDFileJointCorrespondence(correspondence);
+    return new MEDFileJointCorrespondence(correspondence);
 }
 
 /*!
  * Returns a new undefined MEDFileJointCorrespondence
  */
 
-MEDFileJointCorrespondence *MEDFileJointCorrespondence::New()
+MEDFileJointCorrespondence *
+MEDFileJointCorrespondence::New()
 {
-  return new MEDFileJointCorrespondence();
+    return new MEDFileJointCorrespondence();
 }
 
 /*!
@@ -104,58 +109,85 @@ MEDFileJointCorrespondence *MEDFileJointCorrespondence::New()
  *  \throw If the mesh name is not set.
  *  \throw If \a mode == 1 and the same data is present in an existing file.
  */
-void MEDFileJointCorrespondence::write(const std::string& fileName, int mode, const std::string& localMeshName, const std::string& jointName, int order, int iteration) const
+void
+MEDFileJointCorrespondence::write(
+    const std::string &fileName,
+    int mode,
+    const std::string &localMeshName,
+    const std::string &jointName,
+    int order,
+    int iteration
+) const
 {
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
+    med_access_mode medmod = MEDFileUtilities::TraduceWriteMode(mode);
+    MEDFileUtilities::AutoFid fid = MEDfileOpen(fileName.c_str(), medmod);
 
-  std::ostringstream oss; oss << "MEDFileJointCorrespondence : error on attempt to write in file : \"" << fileName << "\"";
-  MEDFileUtilities::CheckMEDCode((int)fid,fid,oss.str());
+    std::ostringstream oss;
+    oss << "MEDFileJointCorrespondence : error on attempt to write in file : \"" << fileName << "\"";
+    MEDFileUtilities::CheckMEDCode((int)fid, fid, oss.str());
 
-  if (( !_is_nodal ) &&
-      ( _loc_geo_type == INTERP_KERNEL::NORM_ERROR ||
-        _rem_geo_type == INTERP_KERNEL::NORM_ERROR ))
+    if ((!_is_nodal) && (_loc_geo_type == INTERP_KERNEL::NORM_ERROR || _rem_geo_type == INTERP_KERNEL::NORM_ERROR))
     {
-      throw INTERP_KERNEL::Exception( "Geometric type not specified for a cell Joint" );
+        throw INTERP_KERNEL::Exception("Geometric type not specified for a cell Joint");
     }
 
-  if ( (const DataArrayIdType *)_correspondence )
+    if ((const DataArrayIdType *)_correspondence)
     {
-      writeLL(fid, localMeshName, jointName, order, iteration);
+        writeLL(fid, localMeshName, jointName, order, iteration);
     }
-  else
+    else
     {
-      throw INTERP_KERNEL::Exception("MEDFileJointCorrespondence::write : correspondence array not defined");
+        throw INTERP_KERNEL::Exception("MEDFileJointCorrespondence::write : correspondence array not defined");
     }
 }
 
-void MEDFileJointCorrespondence::writeLL(med_idt fid, const std::string& localMeshName, const std::string& jointName, int order, int iteration) const
+void
+MEDFileJointCorrespondence::writeLL(
+    med_idt fid, const std::string &localMeshName, const std::string &jointName, int order, int iteration
+) const
 {
-  if ( _is_nodal )
+    if (_is_nodal)
     {
-      MEDFILESAFECALLERWR0(MEDsubdomainCorrespondenceWr,(fid, localMeshName.c_str(), jointName.c_str(),
-                                                         order, iteration,
-                                                         MED_NODE, MED_NONE,
-                                                         MED_NODE, MED_NONE,
-                                                         ToMedInt(_correspondence->getNbOfElems()/2),
-                                                         ToMedIntArray(_correspondence)->getConstPointer()));
+        MEDFILESAFECALLERWR0(
+            MEDsubdomainCorrespondenceWr,
+            (fid,
+             localMeshName.c_str(),
+             jointName.c_str(),
+             order,
+             iteration,
+             MED_NODE,
+             MED_NONE,
+             MED_NODE,
+             MED_NONE,
+             ToMedInt(_correspondence->getNbOfElems() / 2),
+             ToMedIntArray(_correspondence)->getConstPointer())
+        );
     }
-  else
+    else
     {
-      MEDFILESAFECALLERWR0(MEDsubdomainCorrespondenceWr,(fid, localMeshName.c_str(), jointName.c_str(),
-                                                         order, iteration,
-                                                         MED_CELL, typmai3[ _loc_geo_type ],
-                                                         MED_CELL, typmai3[ _rem_geo_type ],
-                                                         ToMedInt(_correspondence->getNbOfElems()/2),
-                                                         ToMedIntArray(_correspondence)->getConstPointer()));
+        MEDFILESAFECALLERWR0(
+            MEDsubdomainCorrespondenceWr,
+            (fid,
+             localMeshName.c_str(),
+             jointName.c_str(),
+             order,
+             iteration,
+             MED_CELL,
+             typmai3[_loc_geo_type],
+             MED_CELL,
+             typmai3[_rem_geo_type],
+             ToMedInt(_correspondence->getNbOfElems() / 2),
+             ToMedIntArray(_correspondence)->getConstPointer())
+        );
     }
 }
 
-void MEDFileJointCorrespondence::setCorrespondence(DataArrayIdType *corr)
+void
+MEDFileJointCorrespondence::setCorrespondence(DataArrayIdType *corr)
 {
-  _correspondence=corr;
-  if ( corr )
-    corr->incrRef();
+    _correspondence = corr;
+    if (corr)
+        corr->incrRef();
 }
 
 /*!
@@ -163,29 +195,32 @@ void MEDFileJointCorrespondence::setCorrespondence(DataArrayIdType *corr)
  *  \param [in] other - the mesh to compare with.
  *  \return bool - \c true if the meshes are equal, \c false, else.
  */
-bool MEDFileJointCorrespondence::isEqual(const MEDFileJointCorrespondence *other) const
+bool
+MEDFileJointCorrespondence::isEqual(const MEDFileJointCorrespondence *other) const
 {
-  if(_is_nodal!=other->_is_nodal)
-    return false;
-  if(_loc_geo_type!=other->_loc_geo_type)
-    return false;
-  if(_rem_geo_type!=other->_rem_geo_type)
-    return false;
-  if(!_correspondence->isEqual(*other->_correspondence))
-    return false;
-  return true;
+    if (_is_nodal != other->_is_nodal)
+        return false;
+    if (_loc_geo_type != other->_loc_geo_type)
+        return false;
+    if (_rem_geo_type != other->_rem_geo_type)
+        return false;
+    if (!_correspondence->isEqual(*other->_correspondence))
+        return false;
+    return true;
 }
 
-MEDFileJointCorrespondence *MEDFileJointCorrespondence::deepCopy() const
+MEDFileJointCorrespondence *
+MEDFileJointCorrespondence::deepCopy() const
 {
-  MCAuto<MEDFileJointCorrespondence> ret=new MEDFileJointCorrespondence(*this);
-  return ret.retn();
+    MCAuto<MEDFileJointCorrespondence> ret = new MEDFileJointCorrespondence(*this);
+    return ret.retn();
 }
 
-MEDFileJointCorrespondence *MEDFileJointCorrespondence::shallowCpy() const
+MEDFileJointCorrespondence *
+MEDFileJointCorrespondence::shallowCpy() const
 {
-  MCAuto<MEDFileJointCorrespondence> ret=new MEDFileJointCorrespondence(*this);
-  return ret.retn();
+    MCAuto<MEDFileJointCorrespondence> ret = new MEDFileJointCorrespondence(*this);
+    return ret.retn();
 }
 
 /*!
@@ -193,51 +228,54 @@ MEDFileJointCorrespondence *MEDFileJointCorrespondence::shallowCpy() const
  * the number correspondence.
  *  \return std::string - the joint information string.
  */
-std::string MEDFileJointCorrespondence::simpleRepr() const
+std::string
+MEDFileJointCorrespondence::simpleRepr() const
 {
-  std::ostringstream oss;
-  oss << "(*************************************)\n(* JOINT_CORRESPOND INFORMATION: *)\n(*************************************)\n";
-  oss << "- entity type of the correspondence : " << ( getIsNodal() ? "NODE" : "CELL" ) << "\n";
-  oss << "- Local geometry type of the correspondence : " << INTERP_KERNEL::CellModel::GetCellModel( _loc_geo_type ).getRepr() << "\n";
-  oss << "- Remote geometry type of the correspondence : " << INTERP_KERNEL::CellModel::GetCellModel( _rem_geo_type ).getRepr() << "\n";
-  if ( (const DataArrayIdType *)_correspondence )
+    std::ostringstream oss;
+    oss << "(*************************************)\n(* JOINT_CORRESPOND INFORMATION: "
+           "*)\n(*************************************)\n";
+    oss << "- entity type of the correspondence : " << (getIsNodal() ? "NODE" : "CELL") << "\n";
+    oss << "- Local geometry type of the correspondence : "
+        << INTERP_KERNEL::CellModel::GetCellModel(_loc_geo_type).getRepr() << "\n";
+    oss << "- Remote geometry type of the correspondence : "
+        << INTERP_KERNEL::CellModel::GetCellModel(_rem_geo_type).getRepr() << "\n";
+    if ((const DataArrayIdType *)_correspondence)
     {
-      oss << "- Number entity of the correspondence : " << getCorrespondence()->getNumberOfTuples() << "\n";
+        oss << "- Number entity of the correspondence : " << getCorrespondence()->getNumberOfTuples() << "\n";
 
-      const DataArrayIdType* tmp=getCorrespondence();
-      oss << "- Correspondence : <<";
-      for(const mcIdType *it=tmp->begin();it!=tmp->end();it++)
-        oss<< *it << " ";
+        const DataArrayIdType *tmp = getCorrespondence();
+        oss << "- Correspondence : <<";
+        for (const mcIdType *it = tmp->begin(); it != tmp->end(); it++) oss << *it << " ";
     }
-  else
+    else
     {
-      oss << "- Number entity of the correspondence : 0\n";
+        oss << "- Number entity of the correspondence : 0\n";
     }
-  oss << std::endl;
-  return oss.str();
+    oss << std::endl;
+    return oss.str();
 }
 
+MEDFileJointOneStep::MEDFileJointOneStep() : _order(-1), _iteration(-1) {}
 
-MEDFileJointOneStep::MEDFileJointOneStep():_order(-1),_iteration(-1)
+std::size_t
+MEDFileJointOneStep::getHeapMemorySizeWithoutChildren() const
 {
+    return _correspondences.capacity() * sizeof(MCAuto<DataArrayIdType>);
 }
 
-std::size_t MEDFileJointOneStep::getHeapMemorySizeWithoutChildren() const
+std::vector<const BigMemoryObject *>
+MEDFileJointOneStep::getDirectChildrenWithNull() const
 {
-  return _correspondences.capacity()*sizeof(MCAuto<DataArrayIdType>);
+    return std::vector<const BigMemoryObject *>();
 }
 
-std::vector<const BigMemoryObject *> MEDFileJointOneStep::getDirectChildrenWithNull() const
+MEDFileJointOneStep *
+MEDFileJointOneStep::New(int dt, int it)
 {
-  return std::vector<const BigMemoryObject *>();
-}
-
-MEDFileJointOneStep *MEDFileJointOneStep::New(int dt, int it)
-{
-  MEDFileJointOneStep* j = new MEDFileJointOneStep();
-  j->setOrder( dt );
-  j->setIteration( it );
-  return j;
+    MEDFileJointOneStep *j = new MEDFileJointOneStep();
+    j->setOrder(dt);
+    j->setIteration(it);
+    return j;
 }
 
 /*!
@@ -250,43 +288,71 @@ MEDFileJointOneStep *MEDFileJointOneStep::New(int dt, int it)
  *  \throw If the file is not readable.
  *  \throw If there is no mesh with given attributes in the file.
  */
-MEDFileJointOneStep *MEDFileJointOneStep::New(const std::string& fileName, const std::string& mName, const std::string& jointName, int num)
+MEDFileJointOneStep *
+MEDFileJointOneStep::New(const std::string &fileName, const std::string &mName, const std::string &jointName, int num)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(), MED_ACC_RDONLY);
-  return new MEDFileJointOneStep(fid, mName, jointName, num);
+    MEDFileUtilities::CheckFileForRead(fileName);
+    MEDFileUtilities::AutoFid fid = MEDfileOpen(fileName.c_str(), MED_ACC_RDONLY);
+    return new MEDFileJointOneStep(fid, mName, jointName, num);
 }
 
-MEDFileJointOneStep* MEDFileJointOneStep::New(med_idt fid, const std::string& mName, const std::string& jointName, int num)
+MEDFileJointOneStep *
+MEDFileJointOneStep::New(med_idt fid, const std::string &mName, const std::string &jointName, int num)
 {
-  return new MEDFileJointOneStep( fid, mName, jointName, num);
+    return new MEDFileJointOneStep(fid, mName, jointName, num);
 }
 
-MEDFileJointOneStep::MEDFileJointOneStep(med_idt fid, const std::string& mName, const std::string& jointName, int num)
+MEDFileJointOneStep::MEDFileJointOneStep(med_idt fid, const std::string &mName, const std::string &jointName, int num)
 {
-  med_int order, iteration, ncorrespondence;
-  MEDFILESAFECALLERRD0(MEDsubdomainComputingStepInfo,(fid, mName.c_str(), jointName.c_str(), num, &order, &iteration, &ncorrespondence));
-  MEDFileJointOneStep::setOrder(FromMedInt<int>(order));
-  MEDFileJointOneStep::setIteration(FromMedInt<int>(iteration));
-  for ( int cur_it = 1; cur_it <= ncorrespondence; ++cur_it )
+    med_int order, iteration, ncorrespondence;
+    MEDFILESAFECALLERRD0(
+        MEDsubdomainComputingStepInfo,
+        (fid, mName.c_str(), jointName.c_str(), num, &order, &iteration, &ncorrespondence)
+    );
+    MEDFileJointOneStep::setOrder(FromMedInt<int>(order));
+    MEDFileJointOneStep::setIteration(FromMedInt<int>(iteration));
+    for (int cur_it = 1; cur_it <= ncorrespondence; ++cur_it)
     {
-      med_int num_entity;
-      med_entity_type loc_ent_type, rem_ent_type;
-      med_geometry_type loc_geo_type, rem_geo_type;
-      MEDFILESAFECALLERRD0(MEDsubdomainCorrespondenceSizeInfo,(fid, mName.c_str(), jointName.c_str(), order, iteration, cur_it,
-                                                               &loc_ent_type, &loc_geo_type, &rem_ent_type, &rem_geo_type, &num_entity));
-      if ( num_entity > 0 )
+        med_int num_entity;
+        med_entity_type loc_ent_type, rem_ent_type;
+        med_geometry_type loc_geo_type, rem_geo_type;
+        MEDFILESAFECALLERRD0(
+            MEDsubdomainCorrespondenceSizeInfo,
+            (fid,
+             mName.c_str(),
+             jointName.c_str(),
+             order,
+             iteration,
+             cur_it,
+             &loc_ent_type,
+             &loc_geo_type,
+             &rem_ent_type,
+             &rem_geo_type,
+             &num_entity)
+        );
+        if (num_entity > 0)
         {
-          MCAuto<DataArrayMedInt> correspondence=DataArrayMedInt::New();
-          correspondence->alloc(num_entity*2, 1);
-          MEDFILESAFECALLERRD0(MEDsubdomainCorrespondenceRd,(fid, mName.c_str(), jointName.c_str(), order, iteration, loc_ent_type,
-                                                             loc_geo_type, rem_ent_type, rem_geo_type, correspondence->getPointer()));
-          MEDFileJointCorrespondence *cor=MEDFileJointCorrespondence::New();
-          cor->setIsNodal( loc_ent_type == MED_NODE );
-          cor->setLocalGeometryType ( convertGeometryType( loc_geo_type ));
-          cor->setRemoteGeometryType( convertGeometryType( rem_geo_type ));
-          cor->setCorrespondence( FromMedIntArray<mcIdType>(correspondence ));
-          _correspondences.push_back(cor);
+            MCAuto<DataArrayMedInt> correspondence = DataArrayMedInt::New();
+            correspondence->alloc(num_entity * 2, 1);
+            MEDFILESAFECALLERRD0(
+                MEDsubdomainCorrespondenceRd,
+                (fid,
+                 mName.c_str(),
+                 jointName.c_str(),
+                 order,
+                 iteration,
+                 loc_ent_type,
+                 loc_geo_type,
+                 rem_ent_type,
+                 rem_geo_type,
+                 correspondence->getPointer())
+            );
+            MEDFileJointCorrespondence *cor = MEDFileJointCorrespondence::New();
+            cor->setIsNodal(loc_ent_type == MED_NODE);
+            cor->setLocalGeometryType(convertGeometryType(loc_geo_type));
+            cor->setRemoteGeometryType(convertGeometryType(rem_geo_type));
+            cor->setCorrespondence(FromMedIntArray<mcIdType>(correspondence));
+            _correspondences.push_back(cor);
         }
     }
 }
@@ -301,53 +367,69 @@ MEDFileJointOneStep::MEDFileJointOneStep(med_idt fid, const std::string& mName, 
  *  \throw If the mesh name is not set.
  *  \throw If \a mode == 1 and the same data is present in an existing file.
  */
-void MEDFileJointOneStep::write(const std::string& fileName, int mode, const std::string& localMeshName, const std::string& jointName) const
+void
+MEDFileJointOneStep::write(
+    const std::string &fileName, int mode, const std::string &localMeshName, const std::string &jointName
+) const
 {
-  med_access_mode medmod=MEDFileUtilities::TraduceWriteMode(mode);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(),medmod);
-  std::ostringstream oss; oss << "MEDFileJointOneStep : error on attempt to write in file : \"" << fileName << "\"";
-  MEDFileUtilities::CheckMEDCode((int)fid,fid,oss.str());
-  if ( _correspondences.empty() )
-    throw INTERP_KERNEL::Exception("MEDFileJointOneStep::write : no correspondences defined !");
-  writeLL(fid, localMeshName, jointName);
+    med_access_mode medmod = MEDFileUtilities::TraduceWriteMode(mode);
+    MEDFileUtilities::AutoFid fid = MEDfileOpen(fileName.c_str(), medmod);
+    std::ostringstream oss;
+    oss << "MEDFileJointOneStep : error on attempt to write in file : \"" << fileName << "\"";
+    MEDFileUtilities::CheckMEDCode((int)fid, fid, oss.str());
+    if (_correspondences.empty())
+        throw INTERP_KERNEL::Exception("MEDFileJointOneStep::write : no correspondences defined !");
+    writeLL(fid, localMeshName, jointName);
 }
 
-void MEDFileJointOneStep::writeLL(med_idt fid, const std::string& localMeshName, const std::string& jointName) const
+void
+MEDFileJointOneStep::writeLL(med_idt fid, const std::string &localMeshName, const std::string &jointName) const
 {
-  for(std::vector< MCAuto<MEDFileJointCorrespondence> >::const_iterator it=_correspondences.begin();it!=_correspondences.end();it++)
+    for (std::vector<MCAuto<MEDFileJointCorrespondence> >::const_iterator it = _correspondences.begin();
+         it != _correspondences.end();
+         it++)
     {
-      (*it)->writeLL(fid, localMeshName, jointName, getOrder(), getIteration());
+        (*it)->writeLL(fid, localMeshName, jointName, getOrder(), getIteration());
     }
 }
 
-void MEDFileJointOneStep::pushCorrespondence(MEDFileJointCorrespondence* correspondence)
+void
+MEDFileJointOneStep::pushCorrespondence(MEDFileJointCorrespondence *correspondence)
 {
-  if(!correspondence)
-    throw INTERP_KERNEL::Exception("MEDFileJointCorrespondence::pushCorrespondence : invalid input pointer ! should be different from 0 !");
-  _correspondences.push_back(correspondence);
-  correspondence->incrRef();
+    if (!correspondence)
+        throw INTERP_KERNEL::Exception(
+            "MEDFileJointCorrespondence::pushCorrespondence : invalid input pointer ! should be different from 0 !"
+        );
+    _correspondences.push_back(correspondence);
+    correspondence->incrRef();
 }
 
-void MEDFileJointOneStep::clearCorrespondences()
+void
+MEDFileJointOneStep::clearCorrespondences()
 {
-  _correspondences.clear();
+    _correspondences.clear();
 }
 
-int MEDFileJointOneStep::getNumberOfCorrespondences() const
+int
+MEDFileJointOneStep::getNumberOfCorrespondences() const
 {
-  return (int)_correspondences.size();
+    return (int)_correspondences.size();
 }
 
 /** Return a borrowed reference (caller is not responsible) */
-MEDFileJointCorrespondence *MEDFileJointOneStep::getCorrespondenceAtPos(int i) const
+MEDFileJointCorrespondence *
+MEDFileJointOneStep::getCorrespondenceAtPos(int i) const
 {
-  if(i<0 || i>=(int)_correspondences.size())
+    if (i < 0 || i >= (int)_correspondences.size())
     {
-      std::ostringstream oss; oss << "MEDFileJointOneStep::getCorrespondenceAtPos : invalid correspondence id given in parameter ! Should be in [0;" << _correspondences.size() << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "MEDFileJointOneStep::getCorrespondenceAtPos : invalid correspondence id given in parameter ! Should be "
+               "in [0;"
+            << _correspondences.size() << ") !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  const MEDFileJointCorrespondence* ret = _correspondences[i];
-  return const_cast<MEDFileJointCorrespondence *>( ret );
+    const MEDFileJointCorrespondence *ret = _correspondences[i];
+    return const_cast<MEDFileJointCorrespondence *>(ret);
 }
 
 /*!
@@ -355,50 +437,54 @@ MEDFileJointCorrespondence *MEDFileJointOneStep::getCorrespondenceAtPos(int i) c
  *  \param [in] other - the Joint to compare with.
  *  \return bool - \c true if the Joints are equal, \c false, else.
  */
-bool MEDFileJointOneStep::isEqual(const MEDFileJointOneStep *other) const
+bool
+MEDFileJointOneStep::isEqual(const MEDFileJointOneStep *other) const
 {
-  if(_order!=other->_order)
-    return false;
-  if(_iteration!=other->_iteration)
-    return false;
-  if ( getNumberOfCorrespondences() != other->getNumberOfCorrespondences() )
-    return false;
+    if (_order != other->_order)
+        return false;
+    if (_iteration != other->_iteration)
+        return false;
+    if (getNumberOfCorrespondences() != other->getNumberOfCorrespondences())
+        return false;
 
-  std::vector<bool> found( getNumberOfCorrespondences(), false );
-  for(int i=0; i<getNumberOfCorrespondences(); i++)
+    std::vector<bool> found(getNumberOfCorrespondences(), false);
+    for (int i = 0; i < getNumberOfCorrespondences(); i++)
     {
-      int j;
-      for(j=0; j<getNumberOfCorrespondences(); j++)
+        int j;
+        for (j = 0; j < getNumberOfCorrespondences(); j++)
         {
-          if ( !found[ j ] &&
-               getCorrespondenceAtPos(i)->isEqual(other->getCorrespondenceAtPos(j)))
+            if (!found[j] && getCorrespondenceAtPos(i)->isEqual(other->getCorrespondenceAtPos(j)))
             {
-              found[ j ] = true;
-              break;
+                found[j] = true;
+                break;
             }
         }
-      if ( j == getNumberOfCorrespondences() )
-        return false;
+        if (j == getNumberOfCorrespondences())
+            return false;
     }
-  return true;
+    return true;
 }
 
-MEDFileJointOneStep *MEDFileJointOneStep::deepCopy() const
+MEDFileJointOneStep *
+MEDFileJointOneStep::deepCopy() const
 {
-  std::vector< MCAuto<MEDFileJointCorrespondence> > correspondences(_correspondences.size());
-  std::size_t i=0;
-  for(std::vector< MCAuto<MEDFileJointCorrespondence> >::const_iterator it=_correspondences.begin();it!=_correspondences.end();it++,i++)
-    if((const MEDFileJointCorrespondence *)*it)
-      correspondences[i]=(*it)->deepCopy();
-  MCAuto<MEDFileJointOneStep> ret= new MEDFileJointOneStep;
-  ret->_correspondences=correspondences;
-  return ret.retn();
+    std::vector<MCAuto<MEDFileJointCorrespondence> > correspondences(_correspondences.size());
+    std::size_t i = 0;
+    for (std::vector<MCAuto<MEDFileJointCorrespondence> >::const_iterator it = _correspondences.begin();
+         it != _correspondences.end();
+         it++, i++)
+        if ((const MEDFileJointCorrespondence *)*it)
+            correspondences[i] = (*it)->deepCopy();
+    MCAuto<MEDFileJointOneStep> ret = new MEDFileJointOneStep;
+    ret->_correspondences = correspondences;
+    return ret.retn();
 }
 
-MEDFileJointOneStep *MEDFileJointOneStep::shallowCpy() const
+MEDFileJointOneStep *
+MEDFileJointOneStep::shallowCpy() const
 {
-  MCAuto<MEDFileJointOneStep> ret=new MEDFileJointOneStep(*this);
-  return ret.retn();
+    MCAuto<MEDFileJointOneStep> ret = new MEDFileJointOneStep(*this);
+    return ret.retn();
 }
 
 /*!
@@ -406,72 +492,83 @@ MEDFileJointOneStep *MEDFileJointOneStep::shallowCpy() const
  * the number of correspondences.
  *  \return std::string - the joint information string.
  */
-std::string MEDFileJointOneStep::simpleRepr() const
+std::string
+MEDFileJointOneStep::simpleRepr() const
 {
-  std::ostringstream oss;
-  oss << "(*************************************)\n(* JOINT_ONE_STEP INFORMATION: *)\n(*************************************)\n";
-  oss << "- Number of the correspondences : <<" << _correspondences.size() << ">>\n";
-  for(std::vector< MCAuto<MEDFileJointCorrespondence> >::const_iterator it=_correspondences.begin();it!=_correspondences.end();it++)
+    std::ostringstream oss;
+    oss << "(*************************************)\n(* JOINT_ONE_STEP INFORMATION: "
+           "*)\n(*************************************)\n";
+    oss << "- Number of the correspondences : <<" << _correspondences.size() << ">>\n";
+    for (std::vector<MCAuto<MEDFileJointCorrespondence> >::const_iterator it = _correspondences.begin();
+         it != _correspondences.end();
+         it++)
     {
-      oss << (*it)->simpleRepr();
+        oss << (*it)->simpleRepr();
     }
-  return oss.str();
+    return oss.str();
 }
 
-INTERP_KERNEL::NormalizedCellType MEDFileJointOneStep::convertGeometryType(med_geometry_type geotype)
+INTERP_KERNEL::NormalizedCellType
+MEDFileJointOneStep::convertGeometryType(med_geometry_type geotype)
 {
-  INTERP_KERNEL::NormalizedCellType result=INTERP_KERNEL::NORM_ERROR;
-  for(int i=0; i<MED_N_CELL_FIXED_GEO; i++)
+    INTERP_KERNEL::NormalizedCellType result = INTERP_KERNEL::NORM_ERROR;
+    for (int i = 0; i < MED_N_CELL_FIXED_GEO; i++)
     {
-      if (typmai[i]==geotype)
+        if (typmai[i] == geotype)
         {
-          result=typmai2[i];
-          break;
+            result = typmai2[i];
+            break;
         }
     }
-  return result;
+    return result;
 }
 
-std::size_t MEDFileJoint::getHeapMemorySizeWithoutChildren() const
+std::size_t
+MEDFileJoint::getHeapMemorySizeWithoutChildren() const
 {
-  return _joint.capacity()*sizeof(MCAuto<MEDFileJointOneStep>);
+    return _joint.capacity() * sizeof(MCAuto<MEDFileJointOneStep>);
 }
 
-std::vector<const BigMemoryObject *> MEDFileJoint::getDirectChildrenWithNull() const
+std::vector<const BigMemoryObject *>
+MEDFileJoint::getDirectChildrenWithNull() const
 {
-  return std::vector<const BigMemoryObject *>();
+    return std::vector<const BigMemoryObject *>();
 }
 
-MEDFileJoint *MEDFileJoint::New()
+MEDFileJoint *
+MEDFileJoint::New()
 {
-  return new MEDFileJoint();
+    return new MEDFileJoint();
 }
 
-MEDFileJoint *MEDFileJoint::New(const std::string& fileName, const std::string& mName, int curJoint)
+MEDFileJoint *
+MEDFileJoint::New(const std::string &fileName, const std::string &mName, int curJoint)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(), MED_ACC_RDONLY);
-  return new MEDFileJoint(fid,mName,curJoint);
+    MEDFileUtilities::CheckFileForRead(fileName);
+    MEDFileUtilities::AutoFid fid = MEDfileOpen(fileName.c_str(), MED_ACC_RDONLY);
+    return new MEDFileJoint(fid, mName, curJoint);
 }
 
-MEDFileJoint *MEDFileJoint::New(med_idt fid, const std::string& mName, int curJoint)
+MEDFileJoint *
+MEDFileJoint::New(med_idt fid, const std::string &mName, int curJoint)
 {
-  return new MEDFileJoint(fid,mName,curJoint);
+    return new MEDFileJoint(fid, mName, curJoint);
 }
 
-MEDFileJoint *MEDFileJoint::New(const std::string& jointName, const std::string& locMeshName, const std::string& remoteMeshName, int remoteMeshNum)
+MEDFileJoint *
+MEDFileJoint::New(
+    const std::string &jointName, const std::string &locMeshName, const std::string &remoteMeshName, int remoteMeshNum
+)
 {
-  MEDFileJoint* j = new MEDFileJoint();
-  j->setJointName( jointName );
-  j->setLocalMeshName( locMeshName );
-  j->setRemoteMeshName( remoteMeshName );
-  j->setDomainNumber( remoteMeshNum );
-  return j;
+    MEDFileJoint *j = new MEDFileJoint();
+    j->setJointName(jointName);
+    j->setLocalMeshName(locMeshName);
+    j->setRemoteMeshName(remoteMeshName);
+    j->setDomainNumber(remoteMeshNum);
+    return j;
 }
 
-MEDFileJoint::MEDFileJoint()
-{
-}
+MEDFileJoint::MEDFileJoint() {}
 
 /*!
  * Returns a new MEDFileJoint holding the mesh data that has been read from a given MED
@@ -482,58 +579,82 @@ MEDFileJoint::MEDFileJoint()
  *  \throw If the file is not readable.
  *  \throw If there is no mesh with given attributes in the file.
  */
-MEDFileJoint::MEDFileJoint(med_idt fid, const std::string& mName, int curJoint)
+MEDFileJoint::MEDFileJoint(med_idt fid, const std::string &mName, int curJoint)
 {
-  INTERP_KERNEL::AutoPtr<char> joint_name=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
-  INTERP_KERNEL::AutoPtr<char> desc_name=MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE);
-  INTERP_KERNEL::AutoPtr<char> rem_mesh_name=MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
-  med_int domain_number=0, nstep=0, nocstpncorrespondence=0;
-  MEDFILESAFECALLERRD0(MEDsubdomainJointInfo,(fid,mName.c_str(), curJoint, joint_name, desc_name, &domain_number,rem_mesh_name,
-                                              &nstep, &nocstpncorrespondence));
-  setLocalMeshName(mName);
-  setRemoteMeshName(MEDLoaderBase::buildStringFromFortran(rem_mesh_name,MED_NAME_SIZE));
-  setDescription(MEDLoaderBase::buildStringFromFortran(desc_name,MED_COMMENT_SIZE));
-  setJointName(MEDLoaderBase::buildStringFromFortran(joint_name,MED_NAME_SIZE));
-  setDomainNumber(FromMedInt<int>(domain_number));
-  for(int cur_step=1; cur_step <= nstep; ++cur_step)
+    INTERP_KERNEL::AutoPtr<char> joint_name = MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+    INTERP_KERNEL::AutoPtr<char> desc_name = MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE);
+    INTERP_KERNEL::AutoPtr<char> rem_mesh_name = MEDLoaderBase::buildEmptyString(MED_NAME_SIZE);
+    med_int domain_number = 0, nstep = 0, nocstpncorrespondence = 0;
+    MEDFILESAFECALLERRD0(
+        MEDsubdomainJointInfo,
+        (fid,
+         mName.c_str(),
+         curJoint,
+         joint_name,
+         desc_name,
+         &domain_number,
+         rem_mesh_name,
+         &nstep,
+         &nocstpncorrespondence)
+    );
+    setLocalMeshName(mName);
+    setRemoteMeshName(MEDLoaderBase::buildStringFromFortran(rem_mesh_name, MED_NAME_SIZE));
+    setDescription(MEDLoaderBase::buildStringFromFortran(desc_name, MED_COMMENT_SIZE));
+    setJointName(MEDLoaderBase::buildStringFromFortran(joint_name, MED_NAME_SIZE));
+    setDomainNumber(FromMedInt<int>(domain_number));
+    for (int cur_step = 1; cur_step <= nstep; ++cur_step)
     {
-      MEDFileJointOneStep *cor=MEDFileJointOneStep::New(fid, mName.c_str(), getJointName(), cur_step);
-      _joint.push_back(cor);
+        MEDFileJointOneStep *cor = MEDFileJointOneStep::New(fid, mName.c_str(), getJointName(), cur_step);
+        _joint.push_back(cor);
     }
 }
 
-void MEDFileJoint::writeLL(med_idt fid) const
+void
+MEDFileJoint::writeLL(med_idt fid) const
 {
-  // if ( _loc_mesh_name.empty() )
-  //   throw INTERP_KERNEL::Exception("MEDFileJoint::write : name of a local mesh not defined!");
-  MEDFILESAFECALLERWR0(MEDsubdomainJointCr,(fid,getLocalMeshName().c_str(),getJointName().c_str(),getDescription().c_str(),getDomainNumber(),getRemoteMeshName().c_str()));
-  for(std::vector< MCAuto<MEDFileJointOneStep> >::const_iterator it=_joint.begin();it!=_joint.end();it++)
-    (*it)->writeLL(fid, getLocalMeshName(),getJointName());
+    // if ( _loc_mesh_name.empty() )
+    //   throw INTERP_KERNEL::Exception("MEDFileJoint::write : name of a local mesh not defined!");
+    MEDFILESAFECALLERWR0(
+        MEDsubdomainJointCr,
+        (fid,
+         getLocalMeshName().c_str(),
+         getJointName().c_str(),
+         getDescription().c_str(),
+         getDomainNumber(),
+         getRemoteMeshName().c_str())
+    );
+    for (std::vector<MCAuto<MEDFileJointOneStep> >::const_iterator it = _joint.begin(); it != _joint.end(); it++)
+        (*it)->writeLL(fid, getLocalMeshName(), getJointName());
 }
 
-void MEDFileJoint::pushStep(MEDFileJointOneStep* step)
+void
+MEDFileJoint::pushStep(MEDFileJointOneStep *step)
 {
-  if(!step)
-    throw INTERP_KERNEL::Exception("MEDFileJoint::pushStep : invalid input pointer ! should be different from 0 !");
-  _joint.push_back(step);
-  step->incrRef();
+    if (!step)
+        throw INTERP_KERNEL::Exception("MEDFileJoint::pushStep : invalid input pointer ! should be different from 0 !");
+    _joint.push_back(step);
+    step->incrRef();
 }
 
-int MEDFileJoint::getNumberOfSteps() const
+int
+MEDFileJoint::getNumberOfSteps() const
 {
-  return (int)_joint.size();
+    return (int)_joint.size();
 }
 
 /** Return a borrowed reference (caller is not responsible) */
-MEDFileJointOneStep *MEDFileJoint::getStepAtPos(int i) const
+MEDFileJointOneStep *
+MEDFileJoint::getStepAtPos(int i) const
 {
-  if(i<0 || i>=(int)_joint.size())
+    if (i < 0 || i >= (int)_joint.size())
     {
-      std::ostringstream oss; oss << "MEDFileJoint::getStepAtPos : invalid step id given in parameter ! Should be in [0;" << _joint.size() << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "MEDFileJoint::getStepAtPos : invalid step id given in parameter ! Should be in [0;" << _joint.size()
+            << ") !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  const MEDFileJointOneStep* ret = _joint[i];
-  return const_cast<MEDFileJointOneStep *>( ret );
+    const MEDFileJointOneStep *ret = _joint[i];
+    return const_cast<MEDFileJointOneStep *>(ret);
 }
 
 /*!
@@ -541,68 +662,73 @@ MEDFileJointOneStep *MEDFileJoint::getStepAtPos(int i) const
  *  \param [in] other - the Joint to compare with.
  *  \return bool - \c true if the Joints are equal, \c false, else.
  */
-bool MEDFileJoint::isEqual(const MEDFileJoint *other) const
+bool
+MEDFileJoint::isEqual(const MEDFileJoint *other) const
 {
-  if(_loc_mesh_name!=other->_loc_mesh_name)
-    return false;
-  if(_joint_name!=other->_joint_name)
-    return false;
-  if(_desc_name!=other->_desc_name)
-      return false;
-  if(_rem_mesh_name!=other->_rem_mesh_name)
-    return false;
-  if(_domain_number!=other->_domain_number)
-    return false;
-  int nbTS(getNumberOfSteps());
-  if(nbTS!=other->getNumberOfSteps())
-    return false;
-  std::vector<bool> found(nbTS,false);
-  for(int i=0;i<nbTS;i++)
+    if (_loc_mesh_name != other->_loc_mesh_name)
+        return false;
+    if (_joint_name != other->_joint_name)
+        return false;
+    if (_desc_name != other->_desc_name)
+        return false;
+    if (_rem_mesh_name != other->_rem_mesh_name)
+        return false;
+    if (_domain_number != other->_domain_number)
+        return false;
+    int nbTS(getNumberOfSteps());
+    if (nbTS != other->getNumberOfSteps())
+        return false;
+    std::vector<bool> found(nbTS, false);
+    for (int i = 0; i < nbTS; i++)
     {
-      int j;
-      for(j=0;j<nbTS;j++)
+        int j;
+        for (j = 0; j < nbTS; j++)
         {
-          if(!found[j] && getStepAtPos(i)->isEqual(other->getStepAtPos(j)))
+            if (!found[j] && getStepAtPos(i)->isEqual(other->getStepAtPos(j)))
             {
-              found[j]=true;
-              break;
+                found[j] = true;
+                break;
             }
         }
-      if(j==nbTS)
-        return false;
+        if (j == nbTS)
+            return false;
     }
-  return true;
+    return true;
 }
 
-MEDFileJoint *MEDFileJoint::deepCopy() const
+MEDFileJoint *
+MEDFileJoint::deepCopy() const
 {
-  std::vector< MCAuto<MEDFileJointOneStep> > joint(_joint.size());
-  std::size_t i=0;
-  for(std::vector< MCAuto<MEDFileJointOneStep> >::const_iterator it=_joint.begin();it!=_joint.end();it++,i++)
-    if((const MEDFileJointOneStep *)*it)
-      joint[i]=(*it)->deepCopy();
-  MCAuto<MEDFileJoint> ret=new MEDFileJoint(*this);
-  ret->_joint=joint;
-  return ret.retn();
+    std::vector<MCAuto<MEDFileJointOneStep> > joint(_joint.size());
+    std::size_t i = 0;
+    for (std::vector<MCAuto<MEDFileJointOneStep> >::const_iterator it = _joint.begin(); it != _joint.end(); it++, i++)
+        if ((const MEDFileJointOneStep *)*it)
+            joint[i] = (*it)->deepCopy();
+    MCAuto<MEDFileJoint> ret = new MEDFileJoint(*this);
+    ret->_joint = joint;
+    return ret.retn();
 }
 
-MEDFileJoint *MEDFileJoint::shallowCpy() const
+MEDFileJoint *
+MEDFileJoint::shallowCpy() const
 {
-  MCAuto<MEDFileJoint> ret=new MEDFileJoint(*this);
-  return ret.retn();
+    MCAuto<MEDFileJoint> ret = new MEDFileJoint(*this);
+    return ret.retn();
 }
 
-bool MEDFileJoint::changeJointNames(const std::vector< std::pair<std::string,std::string> >& modifTab)
+bool
+MEDFileJoint::changeJointNames(const std::vector<std::pair<std::string, std::string> > &modifTab)
 {
-  for(std::vector< std::pair<std::string,std::string> >::const_iterator it=modifTab.begin();it!=modifTab.end();it++)
+    for (std::vector<std::pair<std::string, std::string> >::const_iterator it = modifTab.begin(); it != modifTab.end();
+         it++)
     {
-      if((*it).first==_joint_name)
+        if ((*it).first == _joint_name)
         {
-          _joint_name=(*it).second;
-          return true;
+            _joint_name = (*it).second;
+            return true;
         }
     }
-  return false;
+    return false;
 }
 
 /*!
@@ -610,208 +736,235 @@ bool MEDFileJoint::changeJointNames(const std::vector< std::pair<std::string,std
  * the number correspondence.
  *  \return std::string - the joint information string.
  */
-std::string MEDFileJoint::simpleRepr() const
+std::string
+MEDFileJoint::simpleRepr() const
 {
-  std::ostringstream oss;
-  oss << "(*************************************)\n(* JOINT INFORMATION: *)\n(*************************************)\n";
-  oss << "- Local Mesh name : <<" << getLocalMeshName() << ">>\n";
-  oss << "- Remote Mesh name : <<" << getRemoteMeshName() << ">>\n";
-  oss << "- Description : <<" << getDescription() << ">>\n";
-  oss << "- Joint name : <<" << getJointName() << ">>\n";
-  oss << "- Domain number : " << getDomainNumber() << "\n";
-  for(std::vector< MCAuto<MEDFileJointOneStep> >::const_iterator it=_joint.begin();it!=_joint.end();it++)
+    std::ostringstream oss;
+    oss << "(*************************************)\n(* JOINT INFORMATION: "
+           "*)\n(*************************************)\n";
+    oss << "- Local Mesh name : <<" << getLocalMeshName() << ">>\n";
+    oss << "- Remote Mesh name : <<" << getRemoteMeshName() << ">>\n";
+    oss << "- Description : <<" << getDescription() << ">>\n";
+    oss << "- Joint name : <<" << getJointName() << ">>\n";
+    oss << "- Domain number : " << getDomainNumber() << "\n";
+    for (std::vector<MCAuto<MEDFileJointOneStep> >::const_iterator it = _joint.begin(); it != _joint.end(); it++)
     {
-      oss << (*it)->simpleRepr();
+        oss << (*it)->simpleRepr();
     }
-  return oss.str();
+    return oss.str();
 }
 
-MEDFileJoints *MEDFileJoints::New()
+MEDFileJoints *
+MEDFileJoints::New()
 {
-  return new MEDFileJoints;
+    return new MEDFileJoints;
 }
 
-MEDFileJoints *MEDFileJoints::New(const std::string& fileName, const std::string& meshName)
+MEDFileJoints *
+MEDFileJoints::New(const std::string &fileName, const std::string &meshName)
 {
-  MEDFileUtilities::CheckFileForRead(fileName);
-  MEDFileUtilities::AutoFid fid=MEDfileOpen(fileName.c_str(), MED_ACC_RDONLY);
-  return new MEDFileJoints( fid, meshName );
+    MEDFileUtilities::CheckFileForRead(fileName);
+    MEDFileUtilities::AutoFid fid = MEDfileOpen(fileName.c_str(), MED_ACC_RDONLY);
+    return new MEDFileJoints(fid, meshName);
 }
 
-MEDFileJoints *MEDFileJoints::New(med_idt fid, const std::string& meshName)
+MEDFileJoints *
+MEDFileJoints::New(med_idt fid, const std::string &meshName)
 {
-  return new MEDFileJoints( fid, meshName );
+    return new MEDFileJoints(fid, meshName);
 }
 
-void MEDFileJoints::writeLL(med_idt fid) const
+void
+MEDFileJoints::writeLL(med_idt fid) const
 {
-  for(std::vector< MCAuto<MEDFileJoint> >::const_iterator it=_joints.begin();it!=_joints.end();it++)
-    (*it)->writeLL(fid);
+    for (std::vector<MCAuto<MEDFileJoint> >::const_iterator it = _joints.begin(); it != _joints.end(); it++)
+        (*it)->writeLL(fid);
 }
 
-std::string MEDFileJoints::getMeshName() const
+std::string
+MEDFileJoints::getMeshName() const
 {
-  for ( size_t i = 0; i <= _joints.size(); ++i )
-    if ( (const MEDFileJoint*) _joints[i] )
-      return _joints[i]->getLocalMeshName();
+    for (size_t i = 0; i <= _joints.size(); ++i)
+        if ((const MEDFileJoint *)_joints[i])
+            return _joints[i]->getLocalMeshName();
 
-  return "";
+    return "";
 }
 
-int MEDFileJoints::getNumberOfJoints() const
+int
+MEDFileJoints::getNumberOfJoints() const
 {
-  return (int)_joints.size();
+    return (int)_joints.size();
 }
 
 /** Return a borrowed reference (caller is not responsible) */
-MEDFileJoint *MEDFileJoints::getJointAtPos(int i) const
+MEDFileJoint *
+MEDFileJoints::getJointAtPos(int i) const
 {
-  if(i<0 || i>=(int)_joints.size())
+    if (i < 0 || i >= (int)_joints.size())
     {
-      std::ostringstream oss; oss << "MEDFileJoints::getJointAtPos : invalid joint id given in parameter ! Should be in [0;" << _joints.size() << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "MEDFileJoints::getJointAtPos : invalid joint id given in parameter ! Should be in [0;" << _joints.size()
+            << ") !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  const MEDFileJoint* ret = _joints[i];
-  return const_cast<MEDFileJoint *>( ret );
+    const MEDFileJoint *ret = _joints[i];
+    return const_cast<MEDFileJoint *>(ret);
 }
-
 
 /** Return a borrowed reference (caller is not responsible) */
-MEDFileJoint *MEDFileJoints::getJointWithName(const std::string& jname) const
+MEDFileJoint *
+MEDFileJoints::getJointWithName(const std::string &jname) const
 {
-  std::vector<std::string> js=getJointsNames();
-  std::vector<std::string>::iterator it=std::find(js.begin(),js.end(),jname);
-  if(it==js.end())
+    std::vector<std::string> js = getJointsNames();
+    std::vector<std::string>::iterator it = std::find(js.begin(), js.end(), jname);
+    if (it == js.end())
     {
-      std::ostringstream oss; oss << "MEDFileJoints::getJointWithName : Joint  \"" << jname << "\" does not exist in this ! Existing are : ";
-      std::copy(js.begin(),js.end(),std::ostream_iterator<std::string>(oss," "));
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "MEDFileJoints::getJointWithName : Joint  \"" << jname << "\" does not exist in this ! Existing are : ";
+        std::copy(js.begin(), js.end(), std::ostream_iterator<std::string>(oss, " "));
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  return getJointAtPos((int)std::distance(js.begin(),it));
+    return getJointAtPos((int)std::distance(js.begin(), it));
 }
 
-std::vector<std::string> MEDFileJoints::getJointsNames() const
+std::vector<std::string>
+MEDFileJoints::getJointsNames() const
 {
-  std::vector<std::string> ret(_joints.size());
-  int i=0;
-  for(std::vector< MCAuto<MEDFileJoint> >::const_iterator it=_joints.begin();it!=_joints.end();it++,i++)
+    std::vector<std::string> ret(_joints.size());
+    int i = 0;
+    for (std::vector<MCAuto<MEDFileJoint> >::const_iterator it = _joints.begin(); it != _joints.end(); it++, i++)
     {
-      const MEDFileJoint *f=(*it);
-      if(f)
+        const MEDFileJoint *f = (*it);
+        if (f)
         {
-          ret[i]=f->getJointName();
+            ret[i] = f->getJointName();
         }
-      else
+        else
         {
-          std::ostringstream oss; oss << "MEDFileJoints::getJointsNames : At rank #" << i << " joint is not defined !";
-          throw INTERP_KERNEL::Exception(oss.str().c_str());
+            std::ostringstream oss;
+            oss << "MEDFileJoints::getJointsNames : At rank #" << i << " joint is not defined !";
+            throw INTERP_KERNEL::Exception(oss.str().c_str());
         }
     }
-  return ret;
+    return ret;
 }
 
-bool MEDFileJoints::changeJointNames(const std::vector< std::pair<std::string,std::string> >& modifTab)
+bool
+MEDFileJoints::changeJointNames(const std::vector<std::pair<std::string, std::string> > &modifTab)
 {
-  bool ret=false;
-  for(std::vector< MCAuto<MEDFileJoint> >::iterator it=_joints.begin();it!=_joints.end();it++)
+    bool ret = false;
+    for (std::vector<MCAuto<MEDFileJoint> >::iterator it = _joints.begin(); it != _joints.end(); it++)
     {
-      MEDFileJoint *cur(*it);
-      if(cur)
-        ret=cur->changeJointNames(modifTab) || ret;
+        MEDFileJoint *cur(*it);
+        if (cur)
+            ret = cur->changeJointNames(modifTab) || ret;
     }
-  return ret;
+    return ret;
 }
 
-void MEDFileJoints::resize(int newSize)
+void
+MEDFileJoints::resize(int newSize)
 {
-  _joints.resize(newSize);
+    _joints.resize(newSize);
 }
 
-void MEDFileJoints::pushJoint(MEDFileJoint *joint)
+void
+MEDFileJoints::pushJoint(MEDFileJoint *joint)
 {
-  if(!joint)
-    throw INTERP_KERNEL::Exception("MEDFileJoints::pushJoint() : invalid input pointer ! should be different from 0 !");
-  if ( !_joints.empty() &&
-       _joints[0]->getLocalMeshName() != joint->getLocalMeshName() )
-    throw INTERP_KERNEL::Exception("MEDFileJoints::pushJoint() : different names of local meshes ! should be equal !");
+    if (!joint)
+        throw INTERP_KERNEL::Exception(
+            "MEDFileJoints::pushJoint() : invalid input pointer ! should be different from 0 !"
+        );
+    if (!_joints.empty() && _joints[0]->getLocalMeshName() != joint->getLocalMeshName())
+        throw INTERP_KERNEL::Exception(
+            "MEDFileJoints::pushJoint() : different names of local meshes ! should be equal !"
+        );
 
-  _joints.push_back(joint);
-  joint->incrRef();
+    _joints.push_back(joint);
+    joint->incrRef();
 }
 
-void MEDFileJoints::setJointAtPos(int i, MEDFileJoint *joint)
+void
+MEDFileJoints::setJointAtPos(int i, MEDFileJoint *joint)
 {
-  if(!joint)
-    throw INTERP_KERNEL::Exception("MEDFileJoints::setJointAtPos : invalid input pointer ! should be different from 0 !");
-  if(i>=(int)_joints.size())
-    _joints.resize(i+1);
-  _joints[i]=joint;
-  joint->incrRef();
+    if (!joint)
+        throw INTERP_KERNEL::Exception(
+            "MEDFileJoints::setJointAtPos : invalid input pointer ! should be different from 0 !"
+        );
+    if (i >= (int)_joints.size())
+        _joints.resize(i + 1);
+    _joints[i] = joint;
+    joint->incrRef();
 }
 
-void MEDFileJoints::destroyJointAtPos(int i)
+void
+MEDFileJoints::destroyJointAtPos(int i)
 {
-  if(i<0 || i>=(int)_joints.size())
+    if (i < 0 || i >= (int)_joints.size())
     {
-      std::ostringstream oss; oss << "MEDFileJoints::destroyJointAtPos : Invalid given id in input (" << i << ") should be in [0," << _joints.size() << ") !";
-      throw INTERP_KERNEL::Exception(oss.str().c_str());
+        std::ostringstream oss;
+        oss << "MEDFileJoints::destroyJointAtPos : Invalid given id in input (" << i << ") should be in [0,"
+            << _joints.size() << ") !";
+        throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  _joints.erase(_joints.begin()+i);
+    _joints.erase(_joints.begin() + i);
 }
 
-MEDFileJoints::MEDFileJoints()
+MEDFileJoints::MEDFileJoints() {}
+
+MEDFileJoints::MEDFileJoints(med_idt fid, const std::string &meshName)
 {
+    med_int num_joint = MEDnSubdomainJoint(fid, meshName.c_str());
+    for (int i = 1; i <= num_joint; i++) _joints.push_back(MEDFileJoint::New(fid, meshName, i));
 }
 
-MEDFileJoints::MEDFileJoints(med_idt fid, const std::string& meshName)
+MEDFileJoints *
+MEDFileJoints::deepCopy() const
 {
-  med_int num_joint=MEDnSubdomainJoint(fid, meshName.c_str() );
-  for(int i = 1; i <= num_joint; i++)
-    _joints.push_back(MEDFileJoint::New(fid,meshName,i));
+    std::vector<MCAuto<MEDFileJoint> > joints(_joints.size());
+    std::size_t i = 0;
+    for (std::vector<MCAuto<MEDFileJoint> >::const_iterator it = _joints.begin(); it != _joints.end(); it++, i++)
+        if ((const MEDFileJoint *)*it)
+            joints[i] = (*it)->deepCopy();
+    MCAuto<MEDFileJoints> ret = MEDFileJoints::New();
+    ret->_joints = joints;
+    return ret.retn();
 }
 
-MEDFileJoints *MEDFileJoints::deepCopy() const
+std::size_t
+MEDFileJoints::getHeapMemorySizeWithoutChildren() const
 {
-  std::vector< MCAuto<MEDFileJoint> > joints(_joints.size());
-  std::size_t i=0;
-  for(std::vector< MCAuto<MEDFileJoint> >::const_iterator it=_joints.begin();it!=_joints.end();it++,i++)
-    if((const MEDFileJoint *)*it)
-      joints[i]=(*it)->deepCopy();
-  MCAuto<MEDFileJoints> ret=MEDFileJoints::New();
-  ret->_joints=joints;
-  return ret.retn();
+    return _joints.capacity() * (sizeof(MCAuto<MEDFileJoint>));
 }
 
-std::size_t MEDFileJoints::getHeapMemorySizeWithoutChildren() const
+std::vector<const BigMemoryObject *>
+MEDFileJoints::getDirectChildrenWithNull() const
 {
-  return _joints.capacity()*(sizeof(MCAuto<MEDFileJoint>));
+    std::vector<const BigMemoryObject *> ret;
+    for (std::vector<MCAuto<MEDFileJoint> >::const_iterator it = _joints.begin(); it != _joints.end(); it++)
+        ret.push_back((const MEDFileJoint *)*it);
+    return ret;
 }
 
-std::vector<const BigMemoryObject *> MEDFileJoints::getDirectChildrenWithNull() const
+std::string
+MEDFileJoints::simpleRepr() const
 {
-  std::vector<const BigMemoryObject *> ret;
-  for(std::vector< MCAuto<MEDFileJoint> >::const_iterator it=_joints.begin();it!=_joints.end();it++)
-    ret.push_back((const MEDFileJoint *)*it);
-  return ret;
+    std::ostringstream oss;
+    oss << "(*****************)\n(* MEDFileJoints *)\n(*****************)\n\n";
+    simpleReprWithoutHeader(oss);
+    return oss.str();
 }
 
-std::string MEDFileJoints::simpleRepr() const
+void
+MEDFileJoints::simpleReprWithoutHeader(std::ostream &oss) const
 {
-  std::ostringstream oss;
-  oss << "(*****************)\n(* MEDFileJoints *)\n(*****************)\n\n";
-  simpleReprWithoutHeader(oss);
-  return oss.str();
-}
-
-void MEDFileJoints::simpleReprWithoutHeader(std::ostream& oss) const
-{
-  int nbOfJoints=getNumberOfJoints();
-  oss << "There are " << nbOfJoints << " joints with the following names : \n";
-  std::vector<std::string> jns=getJointsNames();
-  for(int i=0;i<nbOfJoints;i++)
-    oss << "  - #" << i << " \"" << jns[i] << "\"\n";
-  for(std::vector< MCAuto<MEDFileJoint> >::const_iterator it=_joints.begin();it!=_joints.end();it++)
+    int nbOfJoints = getNumberOfJoints();
+    oss << "There are " << nbOfJoints << " joints with the following names : \n";
+    std::vector<std::string> jns = getJointsNames();
+    for (int i = 0; i < nbOfJoints; i++) oss << "  - #" << i << " \"" << jns[i] << "\"\n";
+    for (std::vector<MCAuto<MEDFileJoint> >::const_iterator it = _joints.begin(); it != _joints.end(); it++)
     {
-      oss << (*it)->simpleRepr();
+        oss << (*it)->simpleRepr();
     }
 }

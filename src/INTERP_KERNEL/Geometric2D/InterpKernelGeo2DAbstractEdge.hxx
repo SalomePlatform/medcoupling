@@ -29,41 +29,43 @@
 
 namespace INTERP_KERNEL
 {
-  class Edge;
-  class Node;
-  class Bounds;
+class Edge;
+class Node;
+class Bounds;
 
-  class ComposedEdge;
-  class ElementaryEdge;
+class ComposedEdge;
+class ElementaryEdge;
 
-  /*!
-   * Asumption is done with this iterator that we iterate on a container containing more than one edge.
-   */
-  class IteratorOnComposedEdge
-  {
+/*!
+ * Asumption is done with this iterator that we iterate on a container containing more than one edge.
+ */
+class IteratorOnComposedEdge
+{
     friend class ComposedEdge;
     friend class ElementaryEdge;
     friend class QuadraticPolygon;
-  public:
+
+   public:
     INTERPKERNEL_EXPORT IteratorOnComposedEdge();
     INTERPKERNEL_EXPORT IteratorOnComposedEdge(ComposedEdge *compEdges);
-    bool isValid() const { return _list_handle!=0; }
-    INTERPKERNEL_EXPORT void operator=(const IteratorOnComposedEdge& other);
-    void first() { _deep_it=_list_handle->begin(); }
+    bool isValid() const { return _list_handle != 0; }
+    INTERPKERNEL_EXPORT void operator=(const IteratorOnComposedEdge &other);
+    void first() { _deep_it = _list_handle->begin(); }
     void next() { _deep_it++; }
     INTERPKERNEL_EXPORT void last();
     INTERPKERNEL_EXPORT void nextLoop();
     INTERPKERNEL_EXPORT void previousLoop();
-    bool finished() const { return _deep_it==_list_handle->end(); }
-    INTERPKERNEL_EXPORT bool goToNextInOn(bool direction, int& i, int nbMax);
+    bool finished() const { return _deep_it == _list_handle->end(); }
+    INTERPKERNEL_EXPORT bool goToNextInOn(bool direction, int &i, int nbMax);
     ElementaryEdge *current() { return *_deep_it; }
     INTERPKERNEL_EXPORT void assignMySelfToAllElems(ComposedEdge *elems);
     INTERPKERNEL_EXPORT void insertElemEdges(ComposedEdge *elems, bool changeMySelf);
     INTERPKERNEL_EXPORT void eraseCurrent();
-  private:
+
+   private:
     std::list<ElementaryEdge *>::iterator _deep_it;
-    std::list<ElementaryEdge *>* _list_handle;
-  };
-}
+    std::list<ElementaryEdge *> *_list_handle;
+};
+}  // namespace INTERP_KERNEL
 
 #endif

@@ -34,4 +34,3 @@
  * \namespace ICoCo
  * \brief Interface for COde COupling. See the page \ref icoco.
  */
-

@@ -25,16 +25,17 @@
 
 namespace MEDPARTITIONER
 {
-  class MeshCollection;
-  class MEDPARTITIONER_EXPORT MeshCollectionMedXmlDriver : public MeshCollectionDriver
-  {
-  public:
-    MeshCollectionMedXmlDriver(MeshCollection*);
-    virtual ~MeshCollectionMedXmlDriver() { }
-    int read(const char*, ParaDomainSelector* sel=0);
-    void write(const char*, ParaDomainSelector* sel=0) const;
-  private :
+class MeshCollection;
+class MEDPARTITIONER_EXPORT MeshCollectionMedXmlDriver : public MeshCollectionDriver
+{
+   public:
+    MeshCollectionMedXmlDriver(MeshCollection *);
+    virtual ~MeshCollectionMedXmlDriver() {}
+    int read(const char *, ParaDomainSelector *sel = 0);
+    void write(const char *, ParaDomainSelector *sel = 0) const;
+
+   private:
     std::string _master_filename;
-  };
-}
+};
+}  // namespace MEDPARTITIONER
 #endif

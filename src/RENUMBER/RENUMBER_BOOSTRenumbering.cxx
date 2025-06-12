@@ -28,26 +28,39 @@
 #include <boost/graph/properties.hpp>
 #include <boost/graph/bandwidth.hpp>
 
-void BOOSTRenumbering::renumber(const mcIdType *graph, const mcIdType *index_graph, mcIdType nbCell, MEDCoupling::DataArrayIdType *&iperm, MEDCoupling::DataArrayIdType *&perm)
+void
+BOOSTRenumbering::renumber(
+    const mcIdType *graph,
+    const mcIdType *index_graph,
+    mcIdType nbCell,
+    MEDCoupling::DataArrayIdType *&iperm,
+    MEDCoupling::DataArrayIdType *&perm
+)
 {
-  MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> out0(MEDCoupling::DataArrayIdType::New()),out1(MEDCoupling::DataArrayIdType::New());
-  out0->alloc(nbCell,1); out1->alloc(nbCell,1);
-  out0->fillWithZero(); out1->fillWithZero();
-  //
-  typedef boost::adjacency_list<boost::vecS, boost::vecS, boost::undirectedS,
-     boost::property<boost::vertex_color_t, boost::default_color_type,
-       boost::property<boost::vertex_degree_t,mcIdType> > > Graph;
-  Graph G(nbCell);
-  for (mcIdType i=0;i<nbCell;++i)
-    for (mcIdType j=index_graph[i];j<index_graph[i+1];++j)
-      add_edge(i,graph[j],G);
-  boost::property_map<Graph, boost::vertex_index_t>::type
-    index_map = boost::get(boost::vertex_index, G);
-  boost::cuthill_mckee_ordering(G, out0->getPointer(), boost::get(boost::vertex_color, G),
-                           boost::make_degree_map(G));
-  mcIdType *out0Ptr(out0->getPointer()),*out1Ptr(out1->getPointer());
-  for(mcIdType c=0;c!=nbCell;++c)
-    out1Ptr[index_map[out0Ptr[nbCell-c-1]]]=c;
-  out0->reverse();
-  iperm=out0.retn(); perm=out1.retn();
+    MEDCoupling::MCAuto<MEDCoupling::DataArrayIdType> out0(MEDCoupling::DataArrayIdType::New()),
+        out1(MEDCoupling::DataArrayIdType::New());
+    out0->alloc(nbCell, 1);
+    out1->alloc(nbCell, 1);
+    out0->fillWithZero();
+    out1->fillWithZero();
+    //
+    typedef boost::adjacency_list<
+        boost::vecS,
+        boost::vecS,
+        boost::undirectedS,
+        boost::property<
+            boost::vertex_color_t,
+            boost::default_color_type,
+            boost::property<boost::vertex_degree_t, mcIdType> > >
+        Graph;
+    Graph G(nbCell);
+    for (mcIdType i = 0; i < nbCell; ++i)
+        for (mcIdType j = index_graph[i]; j < index_graph[i + 1]; ++j) add_edge(i, graph[j], G);
+    boost::property_map<Graph, boost::vertex_index_t>::type index_map = boost::get(boost::vertex_index, G);
+    boost::cuthill_mckee_ordering(G, out0->getPointer(), boost::get(boost::vertex_color, G), boost::make_degree_map(G));
+    mcIdType *out0Ptr(out0->getPointer()), *out1Ptr(out1->getPointer());
+    for (mcIdType c = 0; c != nbCell; ++c) out1Ptr[index_map[out0Ptr[nbCell - c - 1]]] = c;
+    out0->reverse();
+    iperm = out0.retn();
+    perm = out1.retn();
 }

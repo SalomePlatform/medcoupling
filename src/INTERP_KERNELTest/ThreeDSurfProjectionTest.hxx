@@ -26,19 +26,20 @@
 
 namespace INTERP_TEST
 {
-  /**
-   * \brief Class dedicated of the test of the preprocessing of 3D surf cells before performing invoking 2D algorithms.
-   */
-  class INTERPKERNELTEST_EXPORT ThreeDSurfProjectionTest : public CppUnit::TestFixture
-  {
-    CPPUNIT_TEST_SUITE( ThreeDSurfProjectionTest );
-    CPPUNIT_TEST ( test1 );
-    CPPUNIT_TEST ( test2 );
+/**
+ * \brief Class dedicated of the test of the preprocessing of 3D surf cells before performing invoking 2D algorithms.
+ */
+class INTERPKERNELTEST_EXPORT ThreeDSurfProjectionTest : public CppUnit::TestFixture
+{
+    CPPUNIT_TEST_SUITE(ThreeDSurfProjectionTest);
+    CPPUNIT_TEST(test1);
+    CPPUNIT_TEST(test2);
     CPPUNIT_TEST_SUITE_END();
-  public:
+
+   public:
     void test1();
     void test2();
-  };
-}
+};
+}  // namespace INTERP_TEST
 
 #endif

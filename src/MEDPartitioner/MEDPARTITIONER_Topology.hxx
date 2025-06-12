@@ -28,39 +28,43 @@
 
 namespace MEDCoupling
 {
-  class MEDCouplingUMesh;
+class MEDCouplingUMesh;
 }
 
 namespace MEDPARTITIONER
 {
-  class Graph;
-  class ConnectZone;
-  class MeshCollection;
-  class MEDPARTITIONER_FaceModel;
+class Graph;
+class ConnectZone;
+class MeshCollection;
+class MEDPARTITIONER_FaceModel;
 
-  class MEDPARTITIONER_EXPORT Topology
-  {
-  public:
-    Topology() { }
-    Topology(std::vector<MEDCoupling::MEDCouplingUMesh*>, std::vector<MEDPARTITIONER::ConnectZone*>) { }
-    virtual ~Topology() { }
+class MEDPARTITIONER_EXPORT Topology
+{
+   public:
+    Topology() {}
+    Topology(std::vector<MEDCoupling::MEDCouplingUMesh *>, std::vector<MEDPARTITIONER::ConnectZone *>) {}
+    virtual ~Topology() {}
 
     /*! converts a list of global cell numbers
      *  to a distributed array with local cell numbers
      */
-    virtual void convertGlobalNodeList(const mcIdType *list, mcIdType nb, mcIdType *local, int*ip) = 0;
+    virtual void convertGlobalNodeList(const mcIdType *list, mcIdType nb, mcIdType *local, int *ip) = 0;
     virtual void convertGlobalNodeList(const mcIdType *list, mcIdType nb, mcIdType *local, int ip) = 0;
-    //converts a list of global node numbers
+    // converts a list of global node numbers
     /*! to a distributed array with local cell numbers */
-    virtual void convertGlobalCellList(const mcIdType*list , mcIdType nb, mcIdType *local, int*ip) = 0;
+    virtual void convertGlobalCellList(const mcIdType *list, mcIdType nb, mcIdType *local, int *ip) = 0;
 
     /*! converts a list of global face numbers
      *  to a distributed array with local face numbers
      */
-     virtual void convertGlobalFaceList(const mcIdType*list , mcIdType nb, mcIdType* local, int*ip) = 0;
-    virtual void convertGlobalFaceList(const mcIdType*list , mcIdType nb, mcIdType* local, int ip) = 0;
-    virtual void convertGlobalFaceListWithTwins(const mcIdType *face_list, mcIdType nbface, mcIdType*& local, int*& ip, mcIdType*& full_array, mcIdType& size) = 0;
-    virtual void convertGlobalNodeListWithTwins(const mcIdType *face_list, mcIdType nbnode, mcIdType*& local, int*& ip, mcIdType*& full_array, mcIdType& size) = 0;
+    virtual void convertGlobalFaceList(const mcIdType *list, mcIdType nb, mcIdType *local, int *ip) = 0;
+    virtual void convertGlobalFaceList(const mcIdType *list, mcIdType nb, mcIdType *local, int ip) = 0;
+    virtual void convertGlobalFaceListWithTwins(
+        const mcIdType *face_list, mcIdType nbface, mcIdType *&local, int *&ip, mcIdType *&full_array, mcIdType &size
+    ) = 0;
+    virtual void convertGlobalNodeListWithTwins(
+        const mcIdType *face_list, mcIdType nbnode, mcIdType *&local, int *&ip, mcIdType *&full_array, mcIdType &size
+    ) = 0;
     /*! number of doamins */
     virtual int nbDomain() const = 0;
     /*! number of cells */
@@ -70,22 +74,22 @@ namespace MEDPARTITIONER
     /*! number of cells on a specific domain */
     virtual mcIdType nbCells(int idomain) const = 0;
     /*! converting node global numberings to local numberings */
-    virtual void convertToLocal2ndVersion(mcIdType*,mcIdType,int) = 0;
-    virtual mcIdType convertNodeToGlobal(int ip,mcIdType icell) const = 0;
-    virtual mcIdType convertFaceToGlobal(int ip,mcIdType icell) const = 0;
-    virtual mcIdType convertCellToGlobal(int ip,mcIdType icell) const = 0;
-    virtual void convertNodeToGlobal(int ip,const mcIdType *local, mcIdType n, mcIdType *global) const = 0;
-    virtual void convertCellToGlobal(int ip,const mcIdType *local, mcIdType n, mcIdType *global) const = 0;
-    virtual void convertFaceToGlobal(int ip,const mcIdType *local, mcIdType n, mcIdType *global) const = 0;
+    virtual void convertToLocal2ndVersion(mcIdType *, mcIdType, int) = 0;
+    virtual mcIdType convertNodeToGlobal(int ip, mcIdType icell) const = 0;
+    virtual mcIdType convertFaceToGlobal(int ip, mcIdType icell) const = 0;
+    virtual mcIdType convertCellToGlobal(int ip, mcIdType icell) const = 0;
+    virtual void convertNodeToGlobal(int ip, const mcIdType *local, mcIdType n, mcIdType *global) const = 0;
+    virtual void convertCellToGlobal(int ip, const mcIdType *local, mcIdType n, mcIdType *global) const = 0;
+    virtual void convertFaceToGlobal(int ip, const mcIdType *local, mcIdType n, mcIdType *global) const = 0;
     /*! retrieving number of nodes */
     virtual mcIdType getNodeNumber(int idomain) const = 0;
     virtual mcIdType getNodeNumber() const = 0;
     /*! retrieving list of nodes */
     virtual void getNodeList(int idomain, mcIdType *list) const = 0;
-    virtual std::vector<mcIdType> & getFusedCellNumbers(int idomain) = 0;
-    virtual const std::vector<mcIdType> & getFusedCellNumbers(int idomain) const = 0;
-    virtual std::vector<mcIdType> & getFusedFaceNumbers(int idomain) = 0;
-    virtual const std::vector<mcIdType> & getFusedFaceNumbers(int idomain) const = 0;
+    virtual std::vector<mcIdType> &getFusedCellNumbers(int idomain) = 0;
+    virtual const std::vector<mcIdType> &getFusedCellNumbers(int idomain) const = 0;
+    virtual std::vector<mcIdType> &getFusedFaceNumbers(int idomain) = 0;
+    virtual const std::vector<mcIdType> &getFusedFaceNumbers(int idomain) const = 0;
     /*! retrieving number of nodes */
     virtual mcIdType getCellNumber(int idomain) const = 0;
     /*! retrieving list of nodes */
@@ -100,14 +104,14 @@ namespace MEDPARTITIONER
     /*! returns max global face number */
     virtual mcIdType getMaxGlobalFace() const = 0;
     /*! converting a global cell number to a local representation */
-    virtual std::pair<int,mcIdType> convertGlobalCell(mcIdType iglobal) const = 0;
+    virtual std::pair<int, mcIdType> convertGlobalCell(mcIdType iglobal) const = 0;
     /*! converting a global face number to a local representation */
     virtual mcIdType convertGlobalFace(mcIdType iglobal, int idomain) = 0;
     /*! converting a global node number to a local representation */
     virtual mcIdType convertGlobalNode(mcIdType iglobal, int idomain) = 0;
     /*! getting a reference to connect zones vector */
-    virtual std::vector<MEDPARTITIONER::ConnectZone*>& getCZ() = 0;
-  };
-}
+    virtual std::vector<MEDPARTITIONER::ConnectZone *> &getCZ() = 0;
+};
+}  // namespace MEDPARTITIONER
 
 #endif

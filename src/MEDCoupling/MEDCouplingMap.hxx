@@ -32,25 +32,27 @@
 
 namespace MEDCoupling
 {
-  template<class ID, class T>
-  class MapKeyVal : public RefCountObject, public TimeLabel
-  {
-  public:
-    static MCAuto< MapKeyVal<ID, T> > New();
+template <class ID, class T>
+class MapKeyVal : public RefCountObject, public TimeLabel
+{
+   public:
+    static MCAuto<MapKeyVal<ID, T> > New();
     std::string getClassName() const override { return std::string("MapKeyVal"); }
-    std::map<ID,T>& data() { return _m; }
-    const std::map<ID,T>& data() const { return _m; }
+    std::map<ID, T> &data() { return _m; }
+    const std::map<ID, T> &data() const { return _m; }
     std::size_t getHeapMemorySizeWithoutChildren() const;
-    std::vector<const BigMemoryObject*> getDirectChildrenWithNull() const;
-    void updateTime() const { }
-  private:
-    MapKeyVal() { }
-    ~MapKeyVal() { }
-  private:
-    std::map<ID,T> _m;
-  };
+    std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
+    void updateTime() const {}
 
-  using MapII = MapKeyVal<mcIdType, mcIdType>;
-}
+   private:
+    MapKeyVal() {}
+    ~MapKeyVal() {}
+
+   private:
+    std::map<ID, T> _m;
+};
+
+using MapII = MapKeyVal<mcIdType, mcIdType>;
+}  // namespace MEDCoupling
 
 #endif

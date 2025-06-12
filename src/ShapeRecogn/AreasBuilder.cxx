@@ -31,27 +31,31 @@ AreasBuilder::AreasBuilder(const Nodes *nodes) : nodes(nodes), areas(new Areas(n
     threshold = std::max<size_t>(THRESHOLD_MIN_NB_NODES, nbNodes / THRESHOLD_MAX_NB_AREAS);
 }
 
-void AreasBuilder::build()
+void
+AreasBuilder::build()
 {
     explore();
     expand();
     rebuild();
 }
 
-void AreasBuilder::explore()
+void
+AreasBuilder::explore()
 {
     exploreAreas();
     areas->cleanInvalidNodeAreas();
     filterHighPass();
 }
 
-void AreasBuilder::expand()
+void
+AreasBuilder::expand()
 {
     expandAreas();
     filterHighPass();
 }
 
-void AreasBuilder::rebuild()
+void
+AreasBuilder::rebuild()
 {
     rebuildInvalidAreas();
     filterHighPass();
@@ -59,12 +63,14 @@ void AreasBuilder::rebuild()
     filterHighPass();
 }
 
-Areas *AreasBuilder::getAreas() const
+Areas *
+AreasBuilder::getAreas() const
 {
     return areas;
 }
 
-void AreasBuilder::exploreAreas()
+void
+AreasBuilder::exploreAreas()
 {
     // int nbNodesExplored = 0;
     std::vector<bool> exploredNodeIds(nodes->getNbNodes(), false);
@@ -75,8 +81,7 @@ void AreasBuilder::exploreAreas()
     mcIdType areaId = -1;
     for (mcIdType nodeId = 0; nodeId < nodes->getNbNodes(); ++nodeId)
     {
-        if (!exploredNodeIds[nodeId] &&
-            nodes->getPrimitiveType(nodeId) != PrimitiveType::Unknown)
+        if (!exploredNodeIds[nodeId] && nodes->getPrimitiveType(nodeId) != PrimitiveType::Unknown)
         {
             exploredNodeIds[nodeId] = true;
             if (areaId != -1 && areas->getNumberOfNodes(areaId) < threshold)
@@ -103,8 +108,7 @@ void AreasBuilder::exploreAreas()
                     const std::vector<mcIdType> neighborsOfNeighbor = nodes->getNeighbors(neighborId);
                     for (mcIdType neighborIdOfNeighbor : neighborsOfNeighbor)
                     {
-                        if (!exploredNodeIds[neighborIdOfNeighbor] &&
-                            areas->getAreaId(neighborIdOfNeighbor) <= -1 &&
+                        if (!exploredNodeIds[neighborIdOfNeighbor] && areas->getAreaId(neighborIdOfNeighbor) <= -1 &&
                             // Already in doesItMatch but avoid useless insertion
                             nodes->getPrimitiveType(neighborIdOfNeighbor) == areas->getPrimitiveType(areaId))
                             nodesToExplore.insert(neighborIdOfNeighbor);
@@ -118,7 +122,8 @@ void AreasBuilder::exploreAreas()
     }
 }
 
-void AreasBuilder::expandAreas()
+void
+AreasBuilder::expandAreas()
 {
     // Expand by topological order
     expandAreasByType(PrimitiveType::Plane);
@@ -128,7 +133,8 @@ void AreasBuilder::expandAreas()
     expandAreasByType(PrimitiveType::Torus);
 }
 
-void AreasBuilder::expandAreasByType(PrimitiveType primitive)
+void
+AreasBuilder::expandAreasByType(PrimitiveType primitive)
 {
     std::unordered_set<mcIdType> nodesToExplore;
     // Reserve a set with the size of nodes to avoid reallocation for each insert/erase
@@ -171,7 +177,8 @@ void AreasBuilder::expandAreasByType(PrimitiveType primitive)
     }
 }
 
-void AreasBuilder::rebuildInvalidAreas()
+void
+AreasBuilder::rebuildInvalidAreas()
 {
     std::vector<mcIdType> exploredNodeIds(nodes->getNbNodes(), false);
     std::vector<bool> isIinvalidNodes(nodes->getNbNodes(), false);
@@ -188,15 +195,12 @@ void AreasBuilder::rebuildInvalidAreas()
             mcIdType areaId = areas->addArea(PrimitiveType::Cone);
             areas->addNode(areaId, nodeId);
             const std::vector<mcIdType> neighbors = nodes->getNeighbors(nodeId);
-            for (mcIdType neighborId : neighbors)
-                nodesToExplore.insert(neighborId);
+            for (mcIdType neighborId : neighbors) nodesToExplore.insert(neighborId);
             while (!nodesToExplore.empty())
             {
                 mcIdType neighborId = *nodesToExplore.begin();
                 nodesToExplore.erase(neighborId);
-                if (
-                    (areas->getAreaId(neighborId) == -1 ||
-                     isIinvalidNodes[neighborId]))
+                if ((areas->getAreaId(neighborId) == -1 || isIinvalidNodes[neighborId]))
                 {
                     exploredNodeIds[neighborId] = true;
                     areas->addNode(areaId, neighborId);
@@ -212,7 +216,8 @@ void AreasBuilder::rebuildInvalidAreas()
     }
 }
 
-void AreasBuilder::filterHighPass()
+void
+AreasBuilder::filterHighPass()
 {
     mcIdType nbAreas = areas->getNumberOfAreas();
     for (mcIdType areaId = (nbAreas - 1); areaId >= 0; --areaId)
@@ -222,7 +227,8 @@ void AreasBuilder::filterHighPass()
     }
 }
 
-bool AreasBuilder::doesItMatch(mcIdType areaId, mcIdType nodeId) const
+bool
+AreasBuilder::doesItMatch(mcIdType areaId, mcIdType nodeId) const
 {
     PrimitiveType areaType = areas->getPrimitiveType(areaId);
     PrimitiveType neighborType = nodes->getPrimitiveType(nodeId);
@@ -231,33 +237,31 @@ bool AreasBuilder::doesItMatch(mcIdType areaId, mcIdType nodeId) const
     {
         switch (areaType)
         {
-        case PrimitiveType::Plane:
-        case PrimitiveType::Torus:
-            isMatching = true;
+            case PrimitiveType::Plane:
+            case PrimitiveType::Torus:
+                isMatching = true;
+                break;
+            case PrimitiveType::Sphere:
+            {
+                double kmoy = fabs((areas->getAdimK1(areaId) + areas->getAdimK2(areaId)) / 2.0);
+                double nodeKmoy = fabs((nodes->getAdimK1(nodeId) + nodes->getAdimK2(nodeId)) / 2.0);
+                isMatching = fabs((nodeKmoy - kmoy)) < TOL_MATCH_SPHERE;
+            }
             break;
-        case PrimitiveType::Sphere:
-        {
-            double kmoy = fabs(
-                (areas->getAdimK1(areaId) + areas->getAdimK2(areaId)) / 2.0);
-            double nodeKmoy = fabs(
-                (nodes->getAdimK1(nodeId) + nodes->getAdimK2(nodeId)) / 2.0);
-            isMatching = fabs((nodeKmoy - kmoy)) < TOL_MATCH_SPHERE;
-        }
-        break;
-        case PrimitiveType::Cylinder:
-            isMatching = fabs(areas->getAdimKdiff0(areaId) -
-                              nodes->getAdimKdiff0(nodeId)) < TOL_MATCH_CYLINDER;
-            break;
-        case PrimitiveType::Cone:
-        case PrimitiveType::Unknown:
-        default:
-            break;
+            case PrimitiveType::Cylinder:
+                isMatching = fabs(areas->getAdimKdiff0(areaId) - nodes->getAdimKdiff0(nodeId)) < TOL_MATCH_CYLINDER;
+                break;
+            case PrimitiveType::Cone:
+            case PrimitiveType::Unknown:
+            default:
+                break;
         }
     }
     return isMatching;
 }
 
-bool AreasBuilder::doesItBelong(mcIdType areaId, mcIdType nodeId) const
+bool
+AreasBuilder::doesItBelong(mcIdType areaId, mcIdType nodeId) const
 {
     bool isClose = false;
     if (areas->isNodeCompatible(areaId, nodeId))
@@ -265,126 +269,112 @@ bool AreasBuilder::doesItBelong(mcIdType areaId, mcIdType nodeId) const
         PrimitiveType areaType = areas->getPrimitiveType(areaId);
         switch (areaType)
         {
-        case PrimitiveType::Plane:
-        {
-            isClose = distanceToPlane(
-                          nodes->getCoordinates(nodeId),
-                          areas->getAffinePoint(areaId),
-                          areas->getNormal(areaId)) < DELTA_PLANE;
-        }
-        break;
-        case PrimitiveType::Sphere:
-        {
-            double distanceToCenter = distanceToSphere(
-                nodes->getCoordinates(nodeId),
-                areas->getCenter(areaId));
-            double radius = areas->getRadius(areaId);
-            isClose = fabs((distanceToCenter - radius) / radius) < DELTA_SPHERE;
-        }
-        break;
-        case PrimitiveType::Cylinder:
-        {
-            double distance = distanceToCylinder(
-                nodes->getCoordinates(nodeId),
-                areas->getAxis(areaId),
-                areas->getAxisPoint(areaId));
-            double radius = areas->getRadius(areaId);
-            isClose = fabs((distance - radius) / radius) < DELTA_CYLINDER;
-        }
-        break;
-        case PrimitiveType::Cone:
-        {
-            double radius = areas->getRadius(areaId);
-            isClose = distanceToCone(
-                          nodes->getCoordinates(nodeId),
-                          areas->getAxis(areaId),
-                          areas->getApex(areaId),
-                          areas->getAngle(areaId)) /
-                          fabs(radius) <
-                      DELTA_CONE;
-        }
-        break;
-        case PrimitiveType::Torus:
-        case PrimitiveType::Unknown:
-        default:
+            case PrimitiveType::Plane:
+            {
+                isClose = distanceToPlane(
+                              nodes->getCoordinates(nodeId), areas->getAffinePoint(areaId), areas->getNormal(areaId)
+                          ) < DELTA_PLANE;
+            }
             break;
+            case PrimitiveType::Sphere:
+            {
+                double distanceToCenter = distanceToSphere(nodes->getCoordinates(nodeId), areas->getCenter(areaId));
+                double radius = areas->getRadius(areaId);
+                isClose = fabs((distanceToCenter - radius) / radius) < DELTA_SPHERE;
+            }
+            break;
+            case PrimitiveType::Cylinder:
+            {
+                double distance = distanceToCylinder(
+                    nodes->getCoordinates(nodeId), areas->getAxis(areaId), areas->getAxisPoint(areaId)
+                );
+                double radius = areas->getRadius(areaId);
+                isClose = fabs((distance - radius) / radius) < DELTA_CYLINDER;
+            }
+            break;
+            case PrimitiveType::Cone:
+            {
+                double radius = areas->getRadius(areaId);
+                isClose = distanceToCone(
+                              nodes->getCoordinates(nodeId),
+                              areas->getAxis(areaId),
+                              areas->getApex(areaId),
+                              areas->getAngle(areaId)
+                          ) / fabs(radius) <
+                          DELTA_CONE;
+            }
+            break;
+            case PrimitiveType::Torus:
+            case PrimitiveType::Unknown:
+            default:
+                break;
         }
     }
     return isClose;
 }
 
-bool AreasBuilder::isInvalidCylinderNode(mcIdType nodeId) const
+bool
+AreasBuilder::isInvalidCylinderNode(mcIdType nodeId) const
 {
     mcIdType areaId = areas->getAreaId(nodeId);
-    if (areaId != -1 &&
-        nodes->getPrimitiveType(nodeId) == PrimitiveType::Cylinder &&
+    if (areaId != -1 && nodes->getPrimitiveType(nodeId) == PrimitiveType::Cylinder &&
         areas->getPrimitiveType(areaId) == PrimitiveType::Cylinder)
     {
-        double angle = MathOps::computeAngle(
-            nodes->getWeakDirection(nodeId),
-            areas->getAxis(areaId));
+        double angle = MathOps::computeAngle(nodes->getWeakDirection(nodeId), areas->getAxis(areaId));
         return angle >= THETA_MAX_CYLINDER && angle <= (M_PI - THETA_MAX_CYLINDER);
     }
     return false;
 }
 
-double AreasBuilder::distanceToPlane(
-    const std::array<double, 3> &nodeCoords,
-    const std::array<double, 3> &point,
-    const std::array<double, 3> &normal)
+double
+AreasBuilder::distanceToPlane(
+    const std::array<double, 3> &nodeCoords, const std::array<double, 3> &point, const std::array<double, 3> &normal
+)
 {
     std::array<double, 3> vec{0.0, 0.0, 0.0};
-    for (size_t i = 0; i < nodeCoords.size(); ++i)
-        vec[i] = nodeCoords[i] - point[i];
+    for (size_t i = 0; i < nodeCoords.size(); ++i) vec[i] = nodeCoords[i] - point[i];
     return fabs(MathOps::dot(vec, normal)) / MathOps::computeNorm(normal);
 }
 
-double AreasBuilder::distanceToSphere(
-    const std::array<double, 3> &nodeCoords,
-    const std::array<double, 3> &center)
+double
+AreasBuilder::distanceToSphere(const std::array<double, 3> &nodeCoords, const std::array<double, 3> &center)
 {
     return MathOps::computeNorm(
-        std::array<double, 3>{
-            nodeCoords[0] - center[0],
-            nodeCoords[1] - center[1],
-            nodeCoords[2] - center[2]});
+        std::array<double, 3>{nodeCoords[0] - center[0], nodeCoords[1] - center[1], nodeCoords[2] - center[2]}
+    );
 }
 
-double AreasBuilder::distanceToCylinder(
-    const std::array<double, 3> &nodeCoords,
-    const std::array<double, 3> &axis,
-    const std::array<double, 3> &axisPoint)
+double
+AreasBuilder::distanceToCylinder(
+    const std::array<double, 3> &nodeCoords, const std::array<double, 3> &axis, const std::array<double, 3> &axisPoint
+)
 {
-
     std::array<double, 3> pa = {
-        axisPoint[0] - nodeCoords[0],
-        axisPoint[1] - nodeCoords[1],
-        axisPoint[2] - nodeCoords[2]};
+        axisPoint[0] - nodeCoords[0], axisPoint[1] - nodeCoords[1], axisPoint[2] - nodeCoords[2]
+    };
     double innerProduct = MathOps::dot(pa, axis);
     return MathOps::computeNorm(
-        std::array<double, 3>({pa[0] - innerProduct * axis[0],
-                               pa[1] - innerProduct * axis[1],
-                               pa[2] - innerProduct * axis[2]}));
+        std::array<double, 3>(
+            {pa[0] - innerProduct * axis[0], pa[1] - innerProduct * axis[1], pa[2] - innerProduct * axis[2]}
+        )
+    );
 }
 
-double AreasBuilder::distanceToCone(
+double
+AreasBuilder::distanceToCone(
     const std::array<double, 3> &nodeCoords,
     const std::array<double, 3> &axis,
     const std::array<double, 3> &apex,
-    double angle)
+    double angle
+)
 {
-    std::array<double, 3> ps{
-        apex[0] - nodeCoords[0],
-        apex[1] - nodeCoords[1],
-        apex[2] - nodeCoords[2]};
+    std::array<double, 3> ps{apex[0] - nodeCoords[0], apex[1] - nodeCoords[1], apex[2] - nodeCoords[2]};
     std::array<double, 3> v(axis);
     if (MathOps::dot(axis, ps) <= 0)
     {
-        for (size_t i = 0; i < 3; ++i)
-            v[i] *= -1;
+        for (size_t i = 0; i < 3; ++i) v[i] *= -1;
     }
-    double a = MathOps::computeNorm(
-        MathOps::cross(ps, v));
+    double a = MathOps::computeNorm(MathOps::cross(ps, v));
     double b = MathOps::dot(ps, v);
     return fabs(a * cos(angle) - b * sin(angle));
 }

@@ -27,14 +27,14 @@
 
 namespace MEDPARTITIONER
 {
-  class MEDPARTITIONER_EXPORT SCOTCHGraph : public Graph
-  {
-  public:
+class MEDPARTITIONER_EXPORT SCOTCHGraph : public Graph
+{
+   public:
     SCOTCHGraph();
-    SCOTCHGraph(MEDCoupling::MEDCouplingSkyLineArray*, int* edgeweight=0);
+    SCOTCHGraph(MEDCoupling::MEDCouplingSkyLineArray *, int *edgeweight = 0);
     virtual ~SCOTCHGraph();
-    void partGraph(int ndomain, const std::string& options_string="", ParaDomainSelector* sel=0);
-  };
-}
+    void partGraph(int ndomain, const std::string &options_string = "", ParaDomainSelector *sel = 0);
+};
+}  // namespace MEDPARTITIONER
 
 #endif

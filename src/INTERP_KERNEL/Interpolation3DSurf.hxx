@@ -27,18 +27,31 @@
 
 namespace INTERP_KERNEL
 {
-  class INTERPKERNEL_EXPORT Interpolation3DSurf : public InterpolationPlanar<Interpolation3DSurf>
-  {
-  public:
+class INTERPKERNEL_EXPORT Interpolation3DSurf : public InterpolationPlanar<Interpolation3DSurf>
+{
+   public:
     Interpolation3DSurf();
-    Interpolation3DSurf(const InterpolationOptions& io);
-    void setOptions(double precision, int printLevel, double medianPlane,
-                    IntersectionType intersectionType, bool doRotate, int orientation=0);
-  public:
-    template<class MyMeshType, class MyMatrixRow>
-    void performAdjustmentOfBB(PlanarIntersector<MyMeshType,MyMatrixRow>* intersector, std::vector<double>& bbox) const
-    { intersector->adjustBoundingBoxes(bbox,InterpolationPlanar<Interpolation3DSurf>::getBoundingBoxAdjustment(),InterpolationPlanar<Interpolation3DSurf>::getBoundingBoxAdjustmentAbs()); }
-  };
-}
+    Interpolation3DSurf(const InterpolationOptions &io);
+    void setOptions(
+        double precision,
+        int printLevel,
+        double medianPlane,
+        IntersectionType intersectionType,
+        bool doRotate,
+        int orientation = 0
+    );
+
+   public:
+    template <class MyMeshType, class MyMatrixRow>
+    void performAdjustmentOfBB(PlanarIntersector<MyMeshType, MyMatrixRow> *intersector, std::vector<double> &bbox) const
+    {
+        intersector->adjustBoundingBoxes(
+            bbox,
+            InterpolationPlanar<Interpolation3DSurf>::getBoundingBoxAdjustment(),
+            InterpolationPlanar<Interpolation3DSurf>::getBoundingBoxAdjustmentAbs()
+        );
+    }
+};
+}  // namespace INTERP_KERNEL
 
 #endif

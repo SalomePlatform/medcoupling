@@ -24,20 +24,21 @@
 
 namespace INTERP_KERNEL
 {
-  class INTERPKERNEL_EXPORT LUDecomp
-  {
-  private:
+class INTERPKERNEL_EXPORT LUDecomp
+{
+   private:
     mcIdType n;
     INTERP_KERNEL::DenseMatrix lu;
     std::vector<mcIdType> indx;
     double d;
-    const INTERP_KERNEL::DenseMatrix& aref;
-  public:
-    LUDecomp (const INTERP_KERNEL::DenseMatrix& a);
-    void solve(const std::vector<double>& b, std::vector<double> &x);
-    void solve(const INTERP_KERNEL::DenseMatrix& b, INTERP_KERNEL::DenseMatrix &x);
+    const INTERP_KERNEL::DenseMatrix &aref;
+
+   public:
+    LUDecomp(const INTERP_KERNEL::DenseMatrix &a);
+    void solve(const std::vector<double> &b, std::vector<double> &x);
+    void solve(const INTERP_KERNEL::DenseMatrix &b, INTERP_KERNEL::DenseMatrix &x);
     void inverse(INTERP_KERNEL::DenseMatrix &ainv);
     double det();
-    void mprove(const std::vector<double>& b, std::vector<double> &x);
-  };
-}
+    void mprove(const std::vector<double> &b, std::vector<double> &x);
+};
+}  // namespace INTERP_KERNEL

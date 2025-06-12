@@ -28,36 +28,37 @@
 
 namespace INTERP_KERNEL
 {
-  /*!
-   * Contrary to its name this class deals with 1D mesh in source and 2D mesh in target.
-   * The meshdim of 'MyMeshType' in input is ignored that's why 'meshS' and 'meshT'
-   * have the same type.
-   * '_duplicate_faces' attribute stores duplicated faces in the following format.
-   * The key of '_duplicate_faces' represents the 1D cellId that is shared by
-   * more than one 2D target cell, and the value of '_duplicate_faces'
-   * the 2D target cells. The size of the value of '_duplicate_faces' is more than or equal to 2.
-   */
-  class Interpolation2D1D : public Interpolation<Interpolation2D1D>
-  {
-  public:
-    typedef std::map<mcIdType,std::set<mcIdType> > DuplicateFacesType;
+/*!
+ * Contrary to its name this class deals with 1D mesh in source and 2D mesh in target.
+ * The meshdim of 'MyMeshType' in input is ignored that's why 'meshS' and 'meshT'
+ * have the same type.
+ * '_duplicate_faces' attribute stores duplicated faces in the following format.
+ * The key of '_duplicate_faces' represents the 1D cellId that is shared by
+ * more than one 2D target cell, and the value of '_duplicate_faces'
+ * the 2D target cells. The size of the value of '_duplicate_faces' is more than or equal to 2.
+ */
+class Interpolation2D1D : public Interpolation<Interpolation2D1D>
+{
+   public:
+    typedef std::map<mcIdType, std::set<mcIdType> > DuplicateFacesType;
 
     Interpolation2D1D() { setOrientation(2); }
-    Interpolation2D1D(const InterpolationOptions& io):Interpolation<Interpolation2D1D>(io) { }
-  public:
+    Interpolation2D1D(const InterpolationOptions &io) : Interpolation<Interpolation2D1D>(io) {}
 
+   public:
     // Main function to interpolate triangular and quadratic meshes
-    template<class MyMeshType, class MatrixType>
-    typename MyMeshType::MyConnType interpolateMeshes(const MyMeshType& meshS, const MyMeshType& meshT, MatrixType& result, const std::string& method);
-    DuplicateFacesType retrieveDuplicateFaces() const
-    {
-      return _duplicate_faces;
-    }
-  private:
+    template <class MyMeshType, class MatrixType>
+    typename MyMeshType::MyConnType interpolateMeshes(
+        const MyMeshType &meshS, const MyMeshType &meshT, MatrixType &result, const std::string &method
+    );
+    DuplicateFacesType retrieveDuplicateFaces() const { return _duplicate_faces; }
+
+   private:
     DuplicateFacesType _duplicate_faces;
-  private:
+
+   private:
     double _dim_caracteristic;
-  };
-}
+};
+}  // namespace INTERP_KERNEL
 
 #endif

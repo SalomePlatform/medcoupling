@@ -29,27 +29,31 @@
 
 namespace MEDCoupling
 {
-  class MEDFileMeshSupports : public RefCountObject, public MEDFileWritableStandAlone
-  {
-  public:
-    MEDLOADER_EXPORT static MEDFileMeshSupports *New(const std::string& fileName);
+class MEDFileMeshSupports : public RefCountObject, public MEDFileWritableStandAlone
+{
+   public:
+    MEDLOADER_EXPORT static MEDFileMeshSupports *New(const std::string &fileName);
     MEDLOADER_EXPORT static MEDFileMeshSupports *New(med_idt fid);
     MEDLOADER_EXPORT static MEDFileMeshSupports *New();
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileMeshSupports"); }
-  public:
+
+   public:
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT void writeLL(med_idt fid) const;
     MEDLOADER_EXPORT std::vector<std::string> getSupMeshNames() const;
-    MEDLOADER_EXPORT const MEDFileUMesh *getSupMeshWithName(const std::string& name) const;
-    MEDLOADER_EXPORT mcIdType getNumberOfNodesInConnOf(TypeOfField entity, INTERP_KERNEL::NormalizedCellType gt, const std::string& name) const;
-  private:
+    MEDLOADER_EXPORT const MEDFileUMesh *getSupMeshWithName(const std::string &name) const;
+    MEDLOADER_EXPORT mcIdType
+    getNumberOfNodesInConnOf(TypeOfField entity, INTERP_KERNEL::NormalizedCellType gt, const std::string &name) const;
+
+   private:
     MEDFileMeshSupports(med_idt fid);
     MEDFileMeshSupports();
     ~MEDFileMeshSupports();
-  private:
-    std::vector< MCAuto<MEDFileUMesh> > _supports;
-  };
-}
+
+   private:
+    std::vector<MCAuto<MEDFileUMesh> > _supports;
+};
+}  // namespace MEDCoupling
 
 #endif

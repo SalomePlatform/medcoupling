@@ -25,31 +25,49 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix, class ConcreteP0P1Intersector>
-  class PlanarIntersectorP0P1Bary : public PlanarIntersector<MyMeshType,MyMatrix>
-  {
-  public:
-    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+template <class MyMeshType, class MyMatrix, class ConcreteP0P1Intersector>
+class PlanarIntersectorP0P1Bary : public PlanarIntersector<MyMeshType, MyMatrix>
+{
+   public:
+    static const int SPACEDIM = MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM = MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
-    static const NumberingPolicy numPol=MyMeshType::My_numPol;
-  protected:
-    PlanarIntersectorP0P1Bary(const MyMeshType& meshT, const MyMeshType& meshS, double dimCaracteristic, double precision, double md3DSurf, double minDot3DSurf, double medianPlane, bool doRotate, int orientation, int printLevel);
-  public:
-    void intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res);
+    static const NumberingPolicy numPol = MyMeshType::My_numPol;
+
+   protected:
+    PlanarIntersectorP0P1Bary(
+        const MyMeshType &meshT,
+        const MyMeshType &meshS,
+        double dimCaracteristic,
+        double precision,
+        double md3DSurf,
+        double minDot3DSurf,
+        double medianPlane,
+        bool doRotate,
+        int orientation,
+        int printLevel
+    );
+
+   public:
+    void intersectCells(ConnType icellT, const std::vector<ConnType> &icellsS, MyMatrix &res);
     ConnType getNumberOfRowsOfResMatrix() const;
     ConnType getNumberOfColsOfResMatrix() const;
     /*!
      * Contrary to intersectCells method here icellS and icellT are \b not in \b C mode but in mode of MyMeshType.
      */
-    double intersectGeoBary(const std::vector<double>&  sourceCell,
-                            bool                        sourceCellQuadratic,
-                            const double *              targetTria,
-                            std::vector<double>&        res)
-    { return asLeaf().intersectGeoBary(sourceCell,sourceCellQuadratic,targetTria,res); }
-  protected:
-    ConcreteP0P1Intersector& asLeaf() { return static_cast<ConcreteP0P1Intersector&>(*this); }
-  };
-}
+    double intersectGeoBary(
+        const std::vector<double> &sourceCell,
+        bool sourceCellQuadratic,
+        const double *targetTria,
+        std::vector<double> &res
+    )
+    {
+        return asLeaf().intersectGeoBary(sourceCell, sourceCellQuadratic, targetTria, res);
+    }
+
+   protected:
+    ConcreteP0P1Intersector &asLeaf() { return static_cast<ConcreteP0P1Intersector &>(*this); }
+};
+}  // namespace INTERP_KERNEL
 
 #endif

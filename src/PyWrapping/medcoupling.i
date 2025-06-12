@@ -319,4 +319,3 @@ def MEDCouplingDenseMatrixIsub(self,*args):
 #endif
 
 %include "medcoupling_pycode"
-

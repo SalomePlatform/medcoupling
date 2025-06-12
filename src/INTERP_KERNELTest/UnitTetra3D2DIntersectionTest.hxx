@@ -26,22 +26,23 @@
 
 namespace INTERP_TEST
 {
-  /**
-   * \brief Test suite testing UnitTetra3D2DIntersection class.
-   *
-   */
-  class INTERPKERNELTEST_EXPORT UnitTetra3D2DIntersectionTest : public CppUnit::TestFixture
-  {
-    CPPUNIT_TEST_SUITE( UnitTetra3D2DIntersectionTest );
-    CPPUNIT_TEST( test_UnitTetra3D2DIntersection_1 );
-    CPPUNIT_TEST( test_UnitTetra3D2DIntersection_2 );
-    CPPUNIT_TEST( test_UnitTetra3D2DIntersection_3 );
+/**
+ * \brief Test suite testing UnitTetra3D2DIntersection class.
+ *
+ */
+class INTERPKERNELTEST_EXPORT UnitTetra3D2DIntersectionTest : public CppUnit::TestFixture
+{
+    CPPUNIT_TEST_SUITE(UnitTetra3D2DIntersectionTest);
+    CPPUNIT_TEST(test_UnitTetra3D2DIntersection_1);
+    CPPUNIT_TEST(test_UnitTetra3D2DIntersection_2);
+    CPPUNIT_TEST(test_UnitTetra3D2DIntersection_3);
     CPPUNIT_TEST_SUITE_END();
-  public:
+
+   public:
     void test_UnitTetra3D2DIntersection_1();
     void test_UnitTetra3D2DIntersection_2();
     void test_UnitTetra3D2DIntersection_3();
-  };
-}
+};
+}  // namespace INTERP_TEST
 
 #endif

@@ -21,17 +21,13 @@
 
 namespace INTERP_KERNEL
 {
-  /////////////////////////////////////////////////////////////////////
-  /// ElementBBoxOrder                                    /////////////
-  /////////////////////////////////////////////////////////////////////
-  /**
-   * Constructor
-   *
-   * @param  coord   BoundingBox coordinate (XMIN, XMAX, etc) on which to base the ordering
-   */
-  ElementBBoxOrder::ElementBBoxOrder(BoundingBox::BoxCoord coord)
-    : _coord(coord)
-  {
-  }
-}
-
+/////////////////////////////////////////////////////////////////////
+/// ElementBBoxOrder                                    /////////////
+/////////////////////////////////////////////////////////////////////
+/**
+ * Constructor
+ *
+ * @param  coord   BoundingBox coordinate (XMIN, XMAX, etc) on which to base the ordering
+ */
+ElementBBoxOrder::ElementBBoxOrder(BoundingBox::BoxCoord coord) : _coord(coord) {}
+}  // namespace INTERP_KERNEL

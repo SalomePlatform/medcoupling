@@ -23,72 +23,77 @@
 
 using namespace INTERP_KERNEL;
 
-Node::Node(double x, double y):_cnt(1),_loc(UNKNOWN)
+Node::Node(double x, double y) : _cnt(1), _loc(UNKNOWN)
 {
-  _coords[0]=x; _coords[1]=y;
+    _coords[0] = x;
+    _coords[1] = y;
 }
 
-Node::Node(const double *coords):_cnt(1),_loc(UNKNOWN)
+Node::Node(const double *coords) : _cnt(1), _loc(UNKNOWN)
 {
-  _coords[0]=coords[0];
-  _coords[1]=coords[1];
+    _coords[0] = coords[0];
+    _coords[1] = coords[1];
 }
 
-Node::Node(std::istream& stream):_cnt(1),_loc(UNKNOWN)
+Node::Node(std::istream &stream) : _cnt(1), _loc(UNKNOWN)
 {
-  int tmp;
-  stream >> tmp;
-  _coords[0]=((double) tmp)/1e4;
-  stream >> tmp;
-  _coords[1]=((double) tmp)/1e4;
+    int tmp;
+    stream >> tmp;
+    _coords[0] = ((double)tmp) / 1e4;
+    stream >> tmp;
+    _coords[1] = ((double)tmp) / 1e4;
 }
 
-Node::~Node()
+Node::~Node() {}
+
+bool
+Node::decrRef()
 {
+    bool ret = (--_cnt == 0);
+    if (ret)
+        delete this;
+    return ret;
 }
 
-bool Node::decrRef()
+bool
+Node::isEqual(const Node &other) const
 {
-  bool ret=(--_cnt==0);
-  if(ret)
-    delete this;
-  return ret;
+    const unsigned SPACEDIM = 2;
+    bool ret = true;
+    for (unsigned i = 0; i < SPACEDIM; i++) ret &= areDoubleEquals((*this)[i], other[i]);
+    return ret;
 }
 
-bool Node::isEqual(const Node& other) const
+double
+Node::getSlope(const Node &other) const
 {
-  const unsigned SPACEDIM=2;
-  bool ret=true;
-  for(unsigned i=0;i<SPACEDIM;i++)
-    ret&=areDoubleEquals((*this)[i],other[i]);
-  return ret;
-}
-
-double Node::getSlope(const Node& other) const
-{
-  return computeSlope(*this, other);
+    return computeSlope(*this, other);
 }
 
 /*!
  * Convenient method. Equivalent to isEqual method. In case of true is returned, '&other' is
  * added in 'track' container.
  */
-bool Node::isEqualAndKeepTrack(const Node& other, std::vector<Node *>& track) const
+bool
+Node::isEqualAndKeepTrack(const Node &other, std::vector<Node *> &track) const
 {
-  bool ret=isEqual(other);
-  if(ret)
-    track.push_back(const_cast<Node *>(&other));
-  return ret;
+    bool ret = isEqual(other);
+    if (ret)
+        track.push_back(const_cast<Node *>(&other));
+    return ret;
 }
 
-void Node::dumpInXfigFile(std::ostream& stream, int resolution, const Bounds& box) const
+void
+Node::dumpInXfigFile(std::ostream &stream, int resolution, const Bounds &box) const
 {
-  stream << box.fitXForXFig(_coords[0],resolution) << " " << box.fitYForXFig(_coords[1],resolution) << " ";
+    stream << box.fitXForXFig(_coords[0], resolution) << " " << box.fitYForXFig(_coords[1], resolution) << " ";
 }
 
-double Node::distanceWithSq(const Node& other) const
+double
+Node::distanceWithSq(const Node &other) const
 {
-  return (_coords[0]-other._coords[0])*(_coords[0]-other._coords[0])+(_coords[1]-other._coords[1])*(_coords[1]-other._coords[1]);
+    return (_coords[0] - other._coords[0]) * (_coords[0] - other._coords[0]) +
+           (_coords[1] - other._coords[1]) * (_coords[1] - other._coords[1]);
 }
 
 /*!
@@ -96,28 +101,30 @@ double Node::distanceWithSq(const Node& other) const
  * Here in [0; Pi). Typically this method returns the same value by exchanging pt1 and pt2.
  * Use in process of detection of a point in or not in polygon.
  */
-double Node::computeSlope(const double *pt1, const double *pt2)
+double
+Node::computeSlope(const double *pt1, const double *pt2)
 {
-  double x=pt2[0]-pt1[0];
-  double y=pt2[1]-pt1[1];
-  double norm=sqrt(x*x+y*y);
-  double ret=EdgeArcCircle::SafeAcos(fabs(x)/norm);
-  if( (x>=0. && y>=0.) || (x<0. && y<0.) )
-    return ret;
-  else
-    return M_PI-ret;
+    double x = pt2[0] - pt1[0];
+    double y = pt2[1] - pt1[1];
+    double norm = sqrt(x * x + y * y);
+    double ret = EdgeArcCircle::SafeAcos(fabs(x) / norm);
+    if ((x >= 0. && y >= 0.) || (x < 0. && y < 0.))
+        return ret;
+    else
+        return M_PI - ret;
 }
 
 /*!
  * WARNING different from 'computeSlope' method. Here angle in -Pi;Pi is returned.
  * This method is anti-symetric.
  */
-double Node::computeAngle(const double *pt1, const double *pt2)
+double
+Node::computeAngle(const double *pt1, const double *pt2)
 {
-  double x=pt2[0]-pt1[0];
-  double y=pt2[1]-pt1[1];
-  double norm=sqrt(x*x+y*y);
-  return EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(x/norm,y/norm);
+    double x = pt2[0] - pt1[0];
+    double y = pt2[1] - pt1[1];
+    double norm = sqrt(x * x + y * y);
+    return EdgeArcCircle::GetAbsoluteAngleOfNormalizedVect(x / norm, y / norm);
 }
 
 /*!
@@ -126,10 +133,11 @@ double Node::computeAngle(const double *pt1, const double *pt2)
  * @param yBary is the opposite of the Y translation to do.
  * @param dimChar is the reduction factor.
  */
-void Node::applySimilarity(double xBary, double yBary, double dimChar)
+void
+Node::applySimilarity(double xBary, double yBary, double dimChar)
 {
-  _coords[0]=(_coords[0]-xBary)/dimChar;
-  _coords[1]=(_coords[1]-yBary)/dimChar;
+    _coords[0] = (_coords[0] - xBary) / dimChar;
+    _coords[1] = (_coords[1] - yBary) / dimChar;
 }
 
 /*!
@@ -139,61 +147,84 @@ void Node::applySimilarity(double xBary, double yBary, double dimChar)
  * @param yBary is the opposite of the Y translation to do.
  * @param dimChar is the reduction factor.
  */
-void Node::unApplySimilarity(double xBary, double yBary, double dimChar)
+void
+Node::unApplySimilarity(double xBary, double yBary, double dimChar)
 {
-  _coords[0]=_coords[0]*dimChar+xBary;
-  _coords[1]=_coords[1]*dimChar+yBary;
+    _coords[0] = _coords[0] * dimChar + xBary;
+    _coords[1] = _coords[1] * dimChar + yBary;
 }
 
 /*!
  * Called by QuadraticPolygon::splitAbs method.
  */
-void Node::fillGlobalInfoAbs(const std::map<INTERP_KERNEL::Node *,mcIdType>& mapThis, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapOther, mcIdType offset1, mcIdType offset2, double fact, double baryX, double baryY,
-                             std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType>& mapAddCoo, mcIdType *nodeId) const
+void
+Node::fillGlobalInfoAbs(
+    const std::map<INTERP_KERNEL::Node *, mcIdType> &mapThis,
+    const std::map<INTERP_KERNEL::Node *, mcIdType> &mapOther,
+    mcIdType offset1,
+    mcIdType offset2,
+    double fact,
+    double baryX,
+    double baryY,
+    std::vector<double> &addCoo,
+    std::map<INTERP_KERNEL::Node *, mcIdType> &mapAddCoo,
+    mcIdType *nodeId
+) const
 {
-  std::map<INTERP_KERNEL::Node *,mcIdType>::const_iterator it=mapOther.find(const_cast<Node *>(this));
-  if(it!=mapOther.end())     // order matters, try in mapOther first.
+    std::map<INTERP_KERNEL::Node *, mcIdType>::const_iterator it = mapOther.find(const_cast<Node *>(this));
+    if (it != mapOther.end())  // order matters, try in mapOther first.
     {
-      *nodeId=(*it).second+offset1;
-      return;
+        *nodeId = (*it).second + offset1;
+        return;
     }
-  it=mapThis.find(const_cast<Node *>(this));
-  if(it!=mapThis.end())
+    it = mapThis.find(const_cast<Node *>(this));
+    if (it != mapThis.end())
     {
-      *nodeId=(*it).second;
-      return;
+        *nodeId = (*it).second;
+        return;
     }
-  it=mapAddCoo.find(const_cast<Node *>(this));
-  if(it!=mapAddCoo.end())
+    it = mapAddCoo.find(const_cast<Node *>(this));
+    if (it != mapAddCoo.end())
     {
-      *nodeId=(*it).second;
-      return;
+        *nodeId = (*it).second;
+        return;
     }
-  int id=(int)addCoo.size()/2;
-  addCoo.push_back(fact*_coords[0]+baryX);
-  addCoo.push_back(fact*_coords[1]+baryY);
-  *nodeId=offset2+id;
-  mapAddCoo[const_cast<Node *>(this)]=offset2+id;
+    int id = (int)addCoo.size() / 2;
+    addCoo.push_back(fact * _coords[0] + baryX);
+    addCoo.push_back(fact * _coords[1] + baryY);
+    *nodeId = offset2 + id;
+    mapAddCoo[const_cast<Node *>(this)] = offset2 + id;
 }
 
 /*!
  * Called by QuadraticPolygon::splitAbs method.
  */
-void Node::fillGlobalInfoAbs2(const std::map<INTERP_KERNEL::Node *,mcIdType>& mapThis, const std::map<INTERP_KERNEL::Node *,mcIdType>& mapOther, mcIdType offset1, mcIdType offset2, double fact, double baryX, double baryY,
-                              std::vector<double>& addCoo, std::map<INTERP_KERNEL::Node *,mcIdType>& mapAddCoo, std::vector<mcIdType>& pointsOther) const
+void
+Node::fillGlobalInfoAbs2(
+    const std::map<INTERP_KERNEL::Node *, mcIdType> &mapThis,
+    const std::map<INTERP_KERNEL::Node *, mcIdType> &mapOther,
+    mcIdType offset1,
+    mcIdType offset2,
+    double fact,
+    double baryX,
+    double baryY,
+    std::vector<double> &addCoo,
+    std::map<INTERP_KERNEL::Node *, mcIdType> &mapAddCoo,
+    std::vector<mcIdType> &pointsOther
+) const
 {
-  mcIdType tmp;
-  std::size_t sz1=addCoo.size();
-  fillGlobalInfoAbs(mapThis,mapOther,offset1,offset2,fact,baryX,baryY,addCoo,mapAddCoo,&tmp);
-  if(sz1!=addCoo.size()     // newly created point
-      || (tmp >= offset2    // or previously created point merged with a neighbour
-          && (pointsOther.size() == 0 || pointsOther.back() != tmp)))
+    mcIdType tmp;
+    std::size_t sz1 = addCoo.size();
+    fillGlobalInfoAbs(mapThis, mapOther, offset1, offset2, fact, baryX, baryY, addCoo, mapAddCoo, &tmp);
+    if (sz1 != addCoo.size()  // newly created point
+        || (tmp >= offset2    // or previously created point merged with a neighbour
+            && (pointsOther.size() == 0 || pointsOther.back() != tmp)))
     {
-      pointsOther.push_back(tmp);
-      return ;
+        pointsOther.push_back(tmp);
+        return;
     }
-  std::vector<mcIdType>::const_iterator it=std::find(pointsOther.begin(),pointsOther.end(),tmp);
-  if(it!=pointsOther.end())
-    return ;
-  pointsOther.push_back(tmp);
+    std::vector<mcIdType>::const_iterator it = std::find(pointsOther.begin(), pointsOther.end(), tmp);
+    if (it != pointsOther.end())
+        return;
+    pointsOther.push_back(tmp);
 }

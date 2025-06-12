@@ -71,4 +71,3 @@ namespace MEDPARTITIONER
     void write(const std::string& filename);
   };
 }
-

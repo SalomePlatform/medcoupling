@@ -20,15 +20,15 @@
 #ifndef __INTERPKERNELDEFINES_HXX__
 #define __INTERPKERNELDEFINES_HXX__
 
-//export symbols
+// export symbols
 #ifdef WIN32
-# if defined INTERPKERNEL_EXPORTS || defined interpkernel_EXPORTS
-#  define INTERPKERNEL_EXPORT __declspec(dllexport)
-# else
-#  define INTERPKERNEL_EXPORT __declspec(dllimport)
-# endif
+#if defined INTERPKERNEL_EXPORTS || defined interpkernel_EXPORTS
+#define INTERPKERNEL_EXPORT __declspec(dllexport)
 #else
-# define INTERPKERNEL_EXPORT
+#define INTERPKERNEL_EXPORT __declspec(dllimport)
+#endif
+#else
+#define INTERPKERNEL_EXPORT
 #endif
 
 #endif

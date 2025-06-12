@@ -22,7 +22,7 @@
 
 #include <cstdlib>
 #ifdef WIN32
-#include<direct.h>
+#include <direct.h>
 #define getcwd _getcwd
 #else
 #include <unistd.h>
@@ -33,19 +33,22 @@
 
 namespace INTERP_TEST
 {
-  std::string getResourceFile( const std::string& filename, int levelUp)
-  {
+std::string
+getResourceFile(const std::string &filename, int levelUp)
+{
     std::string resourceFile = "";
-    if ( getenv("MEDCOUPLING_ROOT_DIR") ) {
+    if (getenv("MEDCOUPLING_ROOT_DIR"))
+    {
         // use MEDCOUPLING_ROOT_DIR env.var
         resourceFile = getenv("MEDCOUPLING_ROOT_DIR");
         resourceFile += "/share/resources/med/";
         resourceFile += filename;
         std::ifstream my_file(resourceFile.c_str());
         if (my_file.good())
-          return resourceFile;
+            return resourceFile;
     }
-    if ( getenv("MEDCOUPLING_RESOURCE_DIR") ) {
+    if (getenv("MEDCOUPLING_RESOURCE_DIR"))
+    {
         // use MEDCOUPLING_RESOURCE_DIR env.var
         resourceFile = getenv("MEDCOUPLING_RESOURCE_DIR");
         resourceFile.erase(std::remove(resourceFile.begin(), resourceFile.end(), ':'), resourceFile.end());
@@ -53,26 +56,25 @@ namespace INTERP_TEST
         resourceFile += filename;
         std::ifstream my_file(resourceFile.c_str());
         if (my_file.good())
-          return resourceFile;
+            return resourceFile;
     }
     // else
-    char * tmp_c = getcwd(NULL, 0);
+    char *tmp_c = getcwd(NULL, 0);
     resourceFile = tmp_c;
     free(tmp_c);
     resourceFile += "/";
-    for(int i=0; i<levelUp; i++)
-      resourceFile += "../";
+    for (int i = 0; i < levelUp; i++) resourceFile += "../";
     resourceFile += "resources/";
     resourceFile += filename;
     std::ifstream my_file(resourceFile.c_str());
     if (!my_file.good())
-      {
+    {
         std::stringstream ss;
         ss << "INTERP_TEST::getResourceFile(): could not open resource test file: " << filename << "\n";
         throw INTERP_KERNEL::Exception(ss.str().c_str());
-      }
+    }
 
     return resourceFile;
-  }
+}
 
-} // namespace INTERP_TEST
+}  // namespace INTERP_TEST

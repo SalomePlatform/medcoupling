@@ -23,31 +23,34 @@
 
 #include <sstream>
 
-template<class MAPCLS>
-void MEDCoupling::MEDCouplingUMesh::renumberNodesInConnT(const MAPCLS& newNodeNumbersO2N)
+template <class MAPCLS>
+void
+MEDCoupling::MEDCouplingUMesh::renumberNodesInConnT(const MAPCLS &newNodeNumbersO2N)
 {
-  checkConnectivityFullyDefined();
-  mcIdType *conn(getNodalConnectivity()->getPointer());
-  const mcIdType *connIndex(getNodalConnectivityIndex()->getConstPointer());
-  mcIdType nbOfCells=ToIdType(getNumberOfCells());
-  for(mcIdType i=0;i<nbOfCells;i++)
-    for(mcIdType iconn=connIndex[i]+1;iconn!=connIndex[i+1];iconn++)
-      {
-        mcIdType& node=conn[iconn];
-        if(node>=0)//avoid polyhedron separator
-          {
-            auto it(newNodeNumbersO2N.find(node));
-            if(it!=newNodeNumbersO2N.end())
-              {
-                node=(*it).second;
-              }
-            else
-              {
-                std::ostringstream oss; oss << "MEDCouplingUMesh::renumberNodesInConn(map) : presence in connectivity for cell #" << i << " of node #" << node << " : Not in map !";
-                throw INTERP_KERNEL::Exception(oss.str());
-              }
-          }
-      }
-  _nodal_connec->declareAsNew();
-  updateTime();
+    checkConnectivityFullyDefined();
+    mcIdType *conn(getNodalConnectivity()->getPointer());
+    const mcIdType *connIndex(getNodalConnectivityIndex()->getConstPointer());
+    mcIdType nbOfCells = ToIdType(getNumberOfCells());
+    for (mcIdType i = 0; i < nbOfCells; i++)
+        for (mcIdType iconn = connIndex[i] + 1; iconn != connIndex[i + 1]; iconn++)
+        {
+            mcIdType &node = conn[iconn];
+            if (node >= 0)  // avoid polyhedron separator
+            {
+                auto it(newNodeNumbersO2N.find(node));
+                if (it != newNodeNumbersO2N.end())
+                {
+                    node = (*it).second;
+                }
+                else
+                {
+                    std::ostringstream oss;
+                    oss << "MEDCouplingUMesh::renumberNodesInConn(map) : presence in connectivity for cell #" << i
+                        << " of node #" << node << " : Not in map !";
+                    throw INTERP_KERNEL::Exception(oss.str());
+                }
+            }
+        }
+    _nodal_connec->declareAsNew();
+    updateTime();
 }

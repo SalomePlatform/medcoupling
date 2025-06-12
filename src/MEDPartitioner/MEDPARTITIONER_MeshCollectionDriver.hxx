@@ -27,37 +27,45 @@
 
 namespace MEDCoupling
 {
-  class DataArrayDouble;
-  class MEDCouplingFieldDouble;
-  class MEDFileData;
-  class MEDFileMesh;
-  class MEDFileUMesh;
-}
+class DataArrayDouble;
+class MEDCouplingFieldDouble;
+class MEDFileData;
+class MEDFileMesh;
+class MEDFileUMesh;
+}  // namespace MEDCoupling
 
 namespace MEDPARTITIONER
 {
-  class MeshCollection;
-  class ParaDomainSelector;
+class MeshCollection;
+class ParaDomainSelector;
 
-  class MEDPARTITIONER_EXPORT MeshCollectionDriver
-  {
-  public:
-    MeshCollectionDriver(MeshCollection*);
-    virtual ~MeshCollectionDriver() { }
-    virtual int read(const char*, ParaDomainSelector* sel=0) = 0;
-    int readSeq(const char*,const char*);
+class MEDPARTITIONER_EXPORT MeshCollectionDriver
+{
+   public:
+    MeshCollectionDriver(MeshCollection *);
+    virtual ~MeshCollectionDriver() {}
+    virtual int read(const char *, ParaDomainSelector *sel = 0) = 0;
+    int readSeq(const char *, const char *);
     MEDCoupling::MEDFileData *getMEDFileData();
-    virtual void write(const char*, ParaDomainSelector* sel=0) const = 0;
-    void readMEDFileData(const MEDCoupling::MEDFileData* filedata);
-  protected:
+    virtual void write(const char *, ParaDomainSelector *sel = 0) const = 0;
+    void readMEDFileData(const MEDCoupling::MEDFileData *filedata);
+
+   protected:
     void readSubdomain(int idomain);
-    void readData(MEDCoupling::MEDFileUMesh* mfm, int idomain) const;
-    void readFileData(std::string file,std::string meshname,int idomain) const;
-    MEDCoupling::MEDFileMesh* getMesh(int idomain) const;
-    MEDCoupling::MEDCouplingFieldDouble* getField(std::string key, std::string description, MEDCoupling::DataArrayDouble* data, MEDCoupling::MEDFileMesh* mfm, int idomain) const;
-    void writeMedFile(int idomain, const std::string& distfilename) const;
-  protected:
-    MeshCollection* _collection;
-  };
-}
+    void readData(MEDCoupling::MEDFileUMesh *mfm, int idomain) const;
+    void readFileData(std::string file, std::string meshname, int idomain) const;
+    MEDCoupling::MEDFileMesh *getMesh(int idomain) const;
+    MEDCoupling::MEDCouplingFieldDouble *getField(
+        std::string key,
+        std::string description,
+        MEDCoupling::DataArrayDouble *data,
+        MEDCoupling::MEDFileMesh *mfm,
+        int idomain
+    ) const;
+    void writeMedFile(int idomain, const std::string &distfilename) const;
+
+   protected:
+    MeshCollection *_collection;
+};
+}  // namespace MEDPARTITIONER
 #endif

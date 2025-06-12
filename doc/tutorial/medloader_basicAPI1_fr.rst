@@ -79,11 +79,11 @@ Nous relisons ensuite MyFirstField.med : ::
 
 	f2 = mc.ReadFieldCell("MyFirstField.med", f.getMesh().getName(), 0, f.getName(), 7, 8)
 	print("Is the read field identical to 'f' ?", f2.isEqual(f,1e-12,1e-12))
-	
+
 .. note:: Lors de la lecture du champ, on doit donc connaître: son nom, le nom de sa mesh de support
 	et le pas de temps voulu. Des fonctions du type ``MEDFileFields.getFieldsNames()`` ou encore
 	``MEDFileMeshes.getMeshesNames()`` aident à cela.
-	
+
 .. note:: Le nom ``ReadFieldCell()`` rappelle que le champ doit être lu aux cellules. Souvenez-vous que suivant la
 	norme MED fichier, un même champ peut avoir une partie de ses données stockées aux cellules, mais aussi
 	simultanément aux noeuds, aux points de Gauss, etc ... même si ce genre de mélange exotique n'est généralement
@@ -96,12 +96,12 @@ Ici contrairement au cas précédent, nous écrivons en plusieurs fois dans le *
 Ecrivons tout d'abord le maillage. ::
 
 	mc.WriteUMesh("MySecondField.med",f.getMesh(),True)
-	
+
 Ensuite, nous écrivons seulement les informations relatives au champ (principalement son tableau de valeurs en fait
 ). ::
 
 	mc.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med",f)   # mesh is not re-written
-	
+
 Nous rajoutons ensuite un second pas de temps sur le *même* maillage. ::
 
 	f2 = f.clone(True)         # 'True' means that we need a deep copy

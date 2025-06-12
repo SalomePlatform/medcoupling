@@ -1,46 +1,48 @@
 # Copyright (C) 2012-2025  CEA, EDF
 #
-# This library is free software; you can redistribute it and/or
-# modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either
-# version 2.1 of the License, or (at your option) any later version.
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
 #
-# This library is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with this library; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public License along
+# with this library; if not, write to the Free Software Foundation, Inc., 59
+# Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email :
+# webmaster.salome@opencascade.com
 #
 
-INCLUDE(${SWIG_USE_FILE})
+include(${SWIG_USE_FILE})
 
-ADD_DEFINITIONS(${PYTHON_DEFINITIONS} ${NUMPY_DEFINITIONS} ${SCIPY_DEFINITIONS})
+add_definitions(${PYTHON_DEFINITIONS} ${NUMPY_DEFINITIONS} ${SCIPY_DEFINITIONS})
 
-IF (NOT DEFINED MSVC)
-  ADD_DEFINITIONS(-Wsign-compare -Wconversion)
-ENDIF()
+if(NOT DEFINED MSVC)
+  add_definitions(-Wsign-compare -Wconversion)
+endif()
 
-SET_SOURCE_FILES_PROPERTIES(MEDRenumber.i PROPERTIES CPLUSPLUS ON)
-IF ("${PYTHON_VERSION_MAJOR}" STREQUAL "3")
-  SET_SOURCE_FILES_PROPERTIES(MEDRenumber.i PROPERTIES SWIG_FLAGS "-py3")
-ELSE()
-  SET_SOURCE_FILES_PROPERTIES(MEDRenumber.i PROPERTIES SWIG_DEFINITIONS "-shadow")
-ENDIF()
-SET(SWIG_MODULE_MEDRenumber_EXTRA_FLAGS "${NUMPY_DEFINITIONS};${SCIPY_DEFINITIONS};-DWITHOUT_AUTOFIELD")
-IF(MEDCOUPLING_USE_64BIT_IDS)
-  STRING(APPEND SWIG_MODULE_MEDRenumber_EXTRA_FLAGS ";-DMEDCOUPLING_USE_64BIT_IDS")
-ENDIF(MEDCOUPLING_USE_64BIT_IDS)
+set_source_files_properties(MEDRenumber.i PROPERTIES CPLUSPLUS ON)
+if("${PYTHON_VERSION_MAJOR}" STREQUAL "3")
+  set_source_files_properties(MEDRenumber.i PROPERTIES SWIG_FLAGS "-py3")
+else()
+  set_source_files_properties(MEDRenumber.i PROPERTIES SWIG_DEFINITIONS
+                                                       "-shadow")
+endif()
+set(SWIG_MODULE_MEDRenumber_EXTRA_FLAGS
+    "${NUMPY_DEFINITIONS};${SCIPY_DEFINITIONS};-DWITHOUT_AUTOFIELD")
+if(MEDCOUPLING_USE_64BIT_IDS)
+  string(APPEND SWIG_MODULE_MEDRenumber_EXTRA_FLAGS
+         ";-DMEDCOUPLING_USE_64BIT_IDS")
+endif(MEDCOUPLING_USE_64BIT_IDS)
 
-SET (MEDRenumber_SWIG_DPYS_FILES
-  MEDRenumberCommon.i
-  MEDRenumberImpl.i)
+set(MEDRenumber_SWIG_DPYS_FILES MEDRenumberCommon.i MEDRenumberImpl.i)
 
-INCLUDE_DIRECTORIES(
+include_directories(
   ${NUMPY_INCLUDE_DIR}
   ${PYTHON_INCLUDE_DIRS}
   ${PTHREAD_INCLUDE_DIR} # pthread dependency due to python2.7 library
@@ -53,51 +55,66 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Bases
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/Geometric2D
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/ExprEval
-  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/GaussPoints
-  )
+  ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/GaussPoints)
 
-IF(WIN32)
-  SET_PROPERTY(SOURCE MEDRenumber.i PROPERTY COMPILE_DEFINITIONS WIN32)
-ENDIF()
-IF(${CMAKE_VERSION} VERSION_LESS "3.8.0")
-  SWIG_ADD_MODULE(MEDRenumber python MEDRenumber.i)
-ELSE()
-  SWIG_ADD_LIBRARY(MEDRenumber LANGUAGE python SOURCES MEDRenumber.i)
-ENDIF()
+if(WIN32)
+  set_property(SOURCE MEDRenumber.i PROPERTY COMPILE_DEFINITIONS WIN32)
+endif()
+if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
+  swig_add_module(MEDRenumber python MEDRenumber.i)
+else()
+  swig_add_library(
+    MEDRenumber
+    LANGUAGE python
+    SOURCES MEDRenumber.i)
+endif()
 
-SWIG_LINK_LIBRARIES(MEDRenumber ${PLATFORM_LIBS} renumbercpp)
-IF (WIN32)
-  # PYTHON_LIBRARIES only needed on win32 see https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
-  SWIG_LINK_LIBRARIES(MEDRenumber ${PYTHON_LIBRARIES})
-ENDIF()
-SWIG_CHECK_GENERATION(MEDRenumber)
+swig_link_libraries(MEDRenumber ${PLATFORM_LIBS} renumbercpp)
+if(WIN32)
+  # PYTHON_LIBRARIES only needed on win32 see
+  # https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
+  swig_link_libraries(MEDRenumber ${PYTHON_LIBRARIES})
+endif()
+swig_check_generation(MEDRenumber)
 
-IF(WIN32)
-  SET_TARGET_PROPERTIES(_MEDRenumber PROPERTIES DEBUG_OUTPUT_NAME _MEDRenumber_d)
-ENDIF(WIN32)
-INSTALL(TARGETS ${SWIG_MODULE_MEDRenumber_REAL_NAME} DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
+if(WIN32)
+  set_target_properties(_MEDRenumber PROPERTIES DEBUG_OUTPUT_NAME
+                                                _MEDRenumber_d)
+endif(WIN32)
+install(TARGETS ${SWIG_MODULE_MEDRenumber_REAL_NAME}
+        DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
-SALOME_INSTALL_SCRIPTS(${CMAKE_CURRENT_BINARY_DIR}/MEDRenumber.py ${MEDCOUPLING_INSTALL_PYTHON} EXTRA_DPYS "${SWIG_MODULE_MEDRenumber_REAL_NAME}")
+salome_install_scripts(
+  ${CMAKE_CURRENT_BINARY_DIR}/MEDRenumber.py ${MEDCOUPLING_INSTALL_PYTHON}
+  EXTRA_DPYS "${SWIG_MODULE_MEDRenumber_REAL_NAME}")
 
-INSTALL(FILES MEDRenumber.i MEDRenumberCommon.i MEDRenumberImpl.i DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
-INSTALL(FILES MEDRenumberTest.py DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_PYTHON})
+install(FILES MEDRenumber.i MEDRenumberCommon.i MEDRenumberImpl.i
+        DESTINATION ${MEDCOUPLING_INSTALL_HEADERS})
+install(FILES MEDRenumberTest.py
+        DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_PYTHON})
 
-IF(MEDCOUPLING_BUILD_PY_TESTS)
-    SALOME_ACCUMULATE_ENVIRONMENT(PYTHONPATH NOCHECK ${CMAKE_CURRENT_BINARY_DIR}/../PyWrapping)
-    SALOME_GENERATE_TESTS_ENVIRONMENT(tests_env)
-    ADD_TEST(MEDRenumberTest ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/MEDRenumberTest.py)
-    SET_TESTS_PROPERTIES(MEDRenumberTest PROPERTIES ENVIRONMENT "${tests_env}")
-    IF(MEDCOUPLING_ENABLE_PARTITIONER)
-      ADD_TEST(MEDRenumberUserGuide ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/UsersGuideExamplesTest.py)
-      SET_TESTS_PROPERTIES(MEDRenumberUserGuide PROPERTIES ENVIRONMENT "${tests_env}")
-    ENDIF()
-ENDIF()
+if(MEDCOUPLING_BUILD_PY_TESTS)
+  salome_accumulate_environment(PYTHONPATH NOCHECK
+                                ${CMAKE_CURRENT_BINARY_DIR}/../PyWrapping)
+  salome_generate_tests_environment(tests_env)
+  add_test(MEDRenumberTest ${PYTHON_EXECUTABLE}
+           ${CMAKE_CURRENT_SOURCE_DIR}/MEDRenumberTest.py)
+  set_tests_properties(MEDRenumberTest PROPERTIES ENVIRONMENT "${tests_env}")
+  if(MEDCOUPLING_ENABLE_PARTITIONER)
+    add_test(MEDRenumberUserGuide ${PYTHON_EXECUTABLE}
+             ${CMAKE_CURRENT_SOURCE_DIR}/UsersGuideExamplesTest.py)
+    set_tests_properties(MEDRenumberUserGuide PROPERTIES ENVIRONMENT
+                                                         "${tests_env}")
+  endif()
+endif()
 
 # Application tests
 
-SET(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/RENUMBER_Swig)
-INSTALL(FILES MEDRenumberTest.py UsersGuideExamplesTest.py DESTINATION ${TEST_INSTALL_DIRECTORY})
+set(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/RENUMBER_Swig)
+install(FILES MEDRenumberTest.py UsersGuideExamplesTest.py
+        DESTINATION ${TEST_INSTALL_DIRECTORY})
 
-INSTALL(FILES CTestTestfileInstall.cmake
-        DESTINATION ${TEST_INSTALL_DIRECTORY}
-        RENAME CTestTestfile.cmake)
+install(
+  FILES CTestTestfileInstall.cmake
+  DESTINATION ${TEST_INSTALL_DIRECTORY}
+  RENAME CTestTestfile.cmake)

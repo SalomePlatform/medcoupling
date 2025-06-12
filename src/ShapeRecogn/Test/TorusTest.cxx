@@ -22,14 +22,15 @@
 #include "ShapeRecognMeshBuilder.hxx"
 #include "Areas.hxx"
 #include "MathOps.hxx"
-#include "TestInterpKernelUtils.hxx" // getResourceFile()
+#include "TestInterpKernelUtils.hxx"  // getResourceFile()
 #include "ShapeRecognMesh.hxx"
 
 #include "ShapeRecognTest.hxx"
 
 using namespace MEDCoupling;
 
-void TorusTest::setUp()
+void
+TorusTest::setUp()
 {
     std::string file = INTERP_TEST::getResourceFile("ShapeRecognTorus.med", 3);
     srMesh = BuildShapeRecognMeshBuilderFromFile(file);
@@ -37,12 +38,14 @@ void TorusTest::setUp()
     areas = srMesh->getAreas();
 }
 
-void TorusTest::tearDown()
+void
+TorusTest::tearDown()
 {
     areas = 0;
 }
 
-void TorusTest::testArea()
+void
+TorusTest::testArea()
 {
     CPPUNIT_ASSERT_EQUAL(275, (int)srMesh->getNodes()->getNbNodes());
     CPPUNIT_ASSERT_EQUAL(1, (int)areas->getNumberOfAreas());
@@ -53,6 +56,5 @@ void TorusTest::testArea()
     CPPUNIT_ASSERT_DOUBLES_EQUAL(1.156428, areas->getRadius(0), 1E-1);
     std::array<double, 3> centerRef = {7.687022, -3.726887, -9.02};
     std::array<double, 3> center = areas->getCenter(0);
-    for (size_t j = 0; j < 3; ++j)
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(centerRef[j], center[j], 1E-2);
+    for (size_t j = 0; j < 3; ++j) CPPUNIT_ASSERT_DOUBLES_EQUAL(centerRef[j], center[j], 1E-2);
 }

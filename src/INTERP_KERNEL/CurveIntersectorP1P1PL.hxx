@@ -25,26 +25,35 @@
 
 namespace INTERP_KERNEL
 {
-  template<class MyMeshType, class MyMatrix>
-  class CurveIntersectorP1P1PL : public CurveIntersector<MyMeshType,MyMatrix>
-  {
-  public:
-    static const int SPACEDIM=MyMeshType::MY_SPACEDIM;
-    static const int MESHDIM=MyMeshType::MY_MESHDIM;
+template <class MyMeshType, class MyMatrix>
+class CurveIntersectorP1P1PL : public CurveIntersector<MyMeshType, MyMatrix>
+{
+   public:
+    static const int SPACEDIM = MyMeshType::MY_SPACEDIM;
+    static const int MESHDIM = MyMeshType::MY_MESHDIM;
     typedef typename MyMeshType::MyConnType ConnType;
-    static const NumberingPolicy numPol=MyMeshType::My_numPol;
+    static const NumberingPolicy numPol = MyMeshType::My_numPol;
 
-    CurveIntersectorP1P1PL(const MyMeshType& meshT, const MyMeshType& meshS,
-                           double  precision, double tolerance,
-                           double medianLine, int printLevel);
-  public:
-    void intersectCells(ConnType icellT, const std::vector<ConnType>& icellsS, MyMatrix& res);
+    CurveIntersectorP1P1PL(
+        const MyMeshType &meshT,
+        const MyMeshType &meshS,
+        double precision,
+        double tolerance,
+        double medianLine,
+        int printLevel
+    );
+
+   public:
+    void intersectCells(ConnType icellT, const std::vector<ConnType> &icellsS, MyMatrix &res);
     ConnType getNumberOfRowsOfResMatrix() const;
     ConnType getNumberOfColsOfResMatrix() const;
-  private:
-    static void AppendValueInMatrix(MyMatrix& res, ConnType nodeIdT, ConnType nodeIdS0, double val0, ConnType nodeIdS1, double val1);
-    static void AppendValueInMatrix2(typename MyMatrix::value_type& resRow, ConnType nodeIdS0, double val0);
-  };
-}
+
+   private:
+    static void AppendValueInMatrix(
+        MyMatrix &res, ConnType nodeIdT, ConnType nodeIdS0, double val0, ConnType nodeIdS1, double val1
+    );
+    static void AppendValueInMatrix2(typename MyMatrix::value_type &resRow, ConnType nodeIdS0, double val0);
+};
+}  // namespace INTERP_KERNEL
 
 #endif

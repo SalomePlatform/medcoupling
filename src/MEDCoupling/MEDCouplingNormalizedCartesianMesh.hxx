@@ -25,29 +25,31 @@
 
 namespace MEDCoupling
 {
-  class MEDCouplingCMesh;
+class MEDCouplingCMesh;
 }
 
-template<int SPACEDIM>
+template <int SPACEDIM>
 class MEDCouplingNormalizedCartesianMesh
 {
-public:
-  static const int MY_SPACEDIM=SPACEDIM;
-  static const int MY_MESHDIM=SPACEDIM;
-  typedef mcIdType MyConnType;
-  static const INTERP_KERNEL::NumberingPolicy My_numPol=INTERP_KERNEL::ALL_C_MODE;
-public:
-  MEDCouplingNormalizedCartesianMesh(const MEDCoupling::MEDCouplingCMesh *mesh);
-  //void getBoundingBox(double *boundingBox) const;
-  //INTERP_KERNEL::NormalizedCellType getTypeOfElement(int eltId) const;
-  //int getNumberOfNodesOfElement(int eltId) const;
-  //int getNumberOfNodes() const;
-  mcIdType getNumberOfElements() const;
-  mcIdType nbCellsAlongAxis(int axis) const;
-  const double * getCoordsAlongAxis(int axis) const;
-  ~MEDCouplingNormalizedCartesianMesh();
-private:
-  const MEDCoupling::MEDCouplingCMesh *_mesh;
+   public:
+    static const int MY_SPACEDIM = SPACEDIM;
+    static const int MY_MESHDIM = SPACEDIM;
+    typedef mcIdType MyConnType;
+    static const INTERP_KERNEL::NumberingPolicy My_numPol = INTERP_KERNEL::ALL_C_MODE;
+
+   public:
+    MEDCouplingNormalizedCartesianMesh(const MEDCoupling::MEDCouplingCMesh *mesh);
+    // void getBoundingBox(double *boundingBox) const;
+    // INTERP_KERNEL::NormalizedCellType getTypeOfElement(int eltId) const;
+    // int getNumberOfNodesOfElement(int eltId) const;
+    // int getNumberOfNodes() const;
+    mcIdType getNumberOfElements() const;
+    mcIdType nbCellsAlongAxis(int axis) const;
+    const double *getCoordsAlongAxis(int axis) const;
+    ~MEDCouplingNormalizedCartesianMesh();
+
+   private:
+    const MEDCoupling::MEDCouplingCMesh *_mesh;
 };
 
 #endif
