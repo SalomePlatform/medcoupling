@@ -50,6 +50,81 @@ def _getGeoTypeDict():
     return dico
 
 
+def _getReorderArray(mailGt: str):
+    """
+    This method gives components permutation array in order to goes from mail to med format convention
+    :input mailGt: str of geometric type in mail format
+    :return: list of components to reorder.
+    """
+    import MEDLoader as ml
+
+    typesToReorder = {
+        "PENTA15": [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 13, 14, 9, 10, 11],
+        "PENTA18": [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 13, 14, 9, 10, 11, 15, 16, 17],
+        "HEXA20": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            16,
+            17,
+            18,
+            19,
+            12,
+            13,
+            14,
+            15,
+        ],
+        "HEXA27": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            16,
+            17,
+            18,
+            19,
+            12,
+            13,
+            14,
+            15,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+        ],
+    }
+    if mailGt not in typesToReorder:
+        return list(
+            range(
+                ml.MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(
+                    _getGeoTypeDict()[mailGt]
+                )
+            )
+        )
+    else:
+        return typesToReorder[mailGt]
+
+
 def _buildUmesh(coords, elements, title, groupesNo, groupesMa, mapGeoCellName):
     """
     Creates a MEDCouplingUMesh object from coordinate list and element connectivity.
@@ -97,6 +172,7 @@ def _buildUmesh(coords, elements, title, groupesNo, groupesMa, mapGeoCellName):
         offset = 0
         for mailGt, mcGt in sorted(gts, key=lambda x: _getGeoTypeDict()[x[0]]):
             connQuad4 = ml.DataArrayInt(elements[mailGt])
+            connQuad4 = connQuad4[:, _getReorderArray(mailGt)]
             connQuad4.rearrange(1)
             mQuad4 = ml.MEDCoupling1SGTUMesh("", mcGt)
             mQuad4.setCoords(coordsMC)
