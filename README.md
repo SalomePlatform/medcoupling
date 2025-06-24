@@ -53,6 +53,38 @@ the [SALOME platform website](https://salome-platform.org).
 For more flexibility, you can also build MEDCoupling from source—see the
 [Developer Guide](#building-from-source) section below.
 
+
+### Minimal standalone Installation
+
+First you need to clone configuration and medcoupling repositories:
+
+     git clone https://github.com/SalomePlatform/configuration.git
+     git clone https://github.com/SalomePlatform/medcoupling.git
+
+Then you can specify a minimal cmake configuration:
+
+     mkdir build
+     cd build
+     cmake -DCONFIGURATION_ROOT_DIR=$PWD/../configuration  -DMEDCOUPLING_MICROMED=ON -DMEDCOUPLING_ENABLE_PYTHON=OFF -DMEDCOUPLING_ENABLE_RENUMBER=OFF -DMEDCOUPLING_BUILD_DOC=OFF -DMEDCOUPLING_USE_MPI=OFF -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$PWD/../install $PWD/../medcoupling
+     make -j4
+     make install
+
+Remarks:
+	- this installation should work with libcppunit installed in your system ([sudo] apt-get install libcppunit-dev );
+	- you may need to specify CPPUNIT_ROOT_DIR.
+
+If you have specific needs you can use the following cmake flags:
+- `MEDCOUPLING_ENABLE_PYTHON=ON` : to enable PYTHON wrappers (dependencies: swig & numpy & scipy)
+- `MEDCOUPLING_MICROMED=OFF` : to enable medfichier  (dependencies: hdf5 & medfile)
+- `MEDCOUPLING_USE_MPI=ON` : to enable parallel interpolator (dependency: MPI)
+- `MEDCOUPLING_ENABLE_PARTITIONER=ON` : to enable partitioner (dependencies: metis | parmetis | scotch | ptscotch )
+- `MEDCOUPLING_ENABLE_RENUMBER=ON` : to enable renumbering (dependencies: boost | scotch)
+
+
+Finally you can run tests:
+	make test
+
+
 ### Usage Highlights
 
 MEDCoupling provides a rich set of tools for building, analyzing, and
