@@ -62,30 +62,6 @@ class MinusOneSonsGeneratorBiQuadratic
     const INTERP_KERNEL::CellModel &_cm;
 };
 
-class MinusTwoSonsGenerator
-{
-   public:
-    MinusTwoSonsGenerator(const INTERP_KERNEL::CellModel &cm) : _cm(cm) {}
-    unsigned getNumberOfSons2(const mcIdType *conn, mcIdType lgth) const
-    {
-        return _cm.getNumberOfEdgesIn3D(conn, lgth);
-    }
-    unsigned fillSonCellNodalConnectivity2(
-        int sonId,
-        const mcIdType *nodalConn,
-        mcIdType lgth,
-        mcIdType *sonNodalConn,
-        INTERP_KERNEL::NormalizedCellType &typeOfSon
-    ) const
-    {
-        return _cm.fillSonEdgesNodalConnectivity3D(sonId, nodalConn, lgth, sonNodalConn, typeOfSon);
-    }
-    static const int DELTA = 2;
-
-   private:
-    const INTERP_KERNEL::CellModel &_cm;
-};
-
 class MicroEdgesGenerator2D
 {
    public:

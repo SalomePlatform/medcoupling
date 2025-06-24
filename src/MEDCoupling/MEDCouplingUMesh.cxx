@@ -52,6 +52,7 @@
 #include <cstring>
 #include <limits>
 #include <list>
+#include <set>
 
 using namespace MEDCoupling;
 
@@ -844,6 +845,80 @@ MEDCouplingUMesh::explodeMeshTo(
     }
     THROW_IK_EXCEPTION("Not valid input targetDeltaLevel regarding mesh dimension");
 }
+
+class MinusTwoSonsGenerator
+{
+   public:
+    MinusTwoSonsGenerator(const INTERP_KERNEL::CellModel &cm) : _cm(cm) {}
+    unsigned getNumberOfSons2(const mcIdType *conn, mcIdType lgth) const
+    {
+        if (_cm.getEnum() != INTERP_KERNEL::NORM_POLYHED)
+            return _cm.getNumberOfEdgesIn3D(conn, lgth);
+        else
+        {
+            std::map<mcIdType, mcIdType> zeMap;
+            std::set<mcIdType> s(conn, conn + lgth);
+            s.erase(-1);
+            {
+                std::vector<mcIdType> n2o(s.begin(), s.end());
+                {
+                    for (mcIdType i = 0; i < ToIdType(n2o.size()); ++i) zeMap[n2o[i]] = i;
+                }
+                _n2o = std::move(n2o);
+            }
+            MCAuto<DataArrayDouble> coo = DataArrayDouble::New();
+            coo->alloc(ToIdType(s.size()), 3);
+            MCAuto<MEDCouplingUMesh> m3d(MEDCouplingUMesh::New("", 3));
+            m3d->setCoords(coo);
+            m3d->allocateCells();
+            m3d->insertNextCell(INTERP_KERNEL::NORM_POLYHED, lgth, conn);
+            m3d->renumberNodesInConn(zeMap);
+            m3d->checkConsistencyLight();
+            {
+                MCAuto<DataArrayIdType> d0(DataArrayIdType::New()), d1(DataArrayIdType::New()),
+                    d2(DataArrayIdType::New()), d3(DataArrayIdType::New());
+                MCAuto<MEDCouplingUMesh> m2d(m3d->buildDescendingConnectivity(d0, d1, d2, d3));
+                d0 = DataArrayIdType::New();
+                d1 = DataArrayIdType::New();
+                d2 = DataArrayIdType::New();
+                d3 = DataArrayIdType::New();
+                MCAuto<MEDCouplingUMesh> m1dTmp = m2d->buildDescendingConnectivity(d0, d1, d2, d3);
+                _m1d_for_polyhed = MEDCoupling1SGTUMesh::New(m1dTmp.iAmATrollConstCast());
+            }
+            return static_cast<unsigned>(_m1d_for_polyhed->getNumberOfCells());
+        }
+    }
+    unsigned fillSonCellNodalConnectivity2(
+        int sonId,
+        const mcIdType *nodalConn,
+        mcIdType lgth,
+        mcIdType *sonNodalConn,
+        INTERP_KERNEL::NormalizedCellType &typeOfSon
+    ) const
+    {
+        if (_cm.getEnum() != INTERP_KERNEL::NORM_POLYHED)
+            return _cm.fillSonEdgesNodalConnectivity3D(sonId, nodalConn, lgth, sonNodalConn, typeOfSon);
+        else
+        {
+            typeOfSon = INTERP_KERNEL::NORM_SEG2;
+            const mcIdType *conn(_m1d_for_polyhed->getNodalConnectivity()->begin());
+            sonNodalConn[0] = _n2o[conn[2 * sonId]];
+            sonNodalConn[1] = _n2o[conn[2 * sonId + 1]];
+            if (sonId == _m1d_for_polyhed->getNumberOfCells() - 1)
+            {
+                _m1d_for_polyhed.nullify();
+                _n2o.clear();
+            }
+            return 2;
+        }
+    }
+    static const int DELTA = 2;
+
+   private:
+    const INTERP_KERNEL::CellModel &_cm;
+    mutable MCAuto<MEDCoupling1SGTUMesh> _m1d_for_polyhed;
+    mutable std::vector<mcIdType> _n2o;
+};
 
 /*!
  * \a this has to have a mesh dimension equal to 3. If it is not the case an INTERP_KERNEL::Exception will be thrown.

@@ -1467,7 +1467,7 @@ CellModel::getNumberOfEdgesIn3D(const mcIdType *conn, mcIdType lgth) const
     if (!isDynamic())
         return _nb_of_little_sons;
     else  // polyhedron
-        return FromIdType<unsigned>(lgth - ToIdType(std::count(conn, conn + lgth, -1) / 2));
+        THROW_IK_EXCEPTION("getNumberOfEdgesIn3D not implemented !");
 }
 
 /*!
