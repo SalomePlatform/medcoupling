@@ -47,7 +47,7 @@ class CellModel
    public:
     static const unsigned MAX_NB_OF_SONS = 8;
     static const unsigned MAX_NB_OF_NODES_PER_ELEM = 30;
-    static const unsigned MAX_NB_OF_LITTLE_SONS = 12;
+    static const unsigned MAX_NB_OF_LITTLE_SONS = 18;
 
    private:
     CellModel(NormalizedCellType type);

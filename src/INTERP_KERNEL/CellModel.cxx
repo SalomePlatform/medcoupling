@@ -897,6 +897,46 @@ CellModel::CellModel(NormalizedCellType type) : _type(type)
             _sons_con[7][2] = 6;
             _sons_con[7][3] = 0;
             _nb_of_sons_con[7] = 4;
+            //
+            _nb_of_little_sons = 18;
+            _little_sons_con[0][0] = 0;
+            _little_sons_con[0][1] = 1;
+            _little_sons_con[1][0] = 1;
+            _little_sons_con[1][1] = 2;
+            _little_sons_con[2][0] = 2;
+            _little_sons_con[2][1] = 3;
+            _little_sons_con[3][0] = 3;
+            _little_sons_con[3][1] = 4;
+            _little_sons_con[4][0] = 4;
+            _little_sons_con[4][1] = 5;
+            _little_sons_con[5][0] = 5;
+            _little_sons_con[5][1] = 0;
+            //
+            _little_sons_con[6][0] = 6;
+            _little_sons_con[6][1] = 7;
+            _little_sons_con[7][0] = 7;
+            _little_sons_con[7][1] = 8;
+            _little_sons_con[8][0] = 8;
+            _little_sons_con[8][1] = 9;
+            _little_sons_con[9][0] = 9;
+            _little_sons_con[9][1] = 10;
+            _little_sons_con[10][0] = 10;
+            _little_sons_con[10][1] = 11;
+            _little_sons_con[11][0] = 11;
+            _little_sons_con[11][1] = 6;
+            //
+            _little_sons_con[12][0] = 0;
+            _little_sons_con[12][1] = 6;
+            _little_sons_con[13][0] = 1;
+            _little_sons_con[13][1] = 7;
+            _little_sons_con[14][0] = 2;
+            _little_sons_con[14][1] = 8;
+            _little_sons_con[15][0] = 3;
+            _little_sons_con[15][1] = 9;
+            _little_sons_con[16][0] = 4;
+            _little_sons_con[16][1] = 10;
+            _little_sons_con[17][0] = 5;
+            _little_sons_con[17][1] = 11;
         }
         break;
         case NORM_PYRA13:

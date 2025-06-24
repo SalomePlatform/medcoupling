@@ -9714,6 +9714,80 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertTrue(c.isEqual(DataArrayInt([0, 3, 107, 4, 5, 10, 12, 17])))
         self.assertTrue(ci.isEqual(DataArrayInt([0, 3, 5, 8])))
 
+    def test_Mesh_Explode3DMesh_hexgp12(self):
+        """
+        [EDF32937] : UMesh.explode3DMesh on NORM_HEXGP12 cell
+        """
+        from math import pi
+
+        theta_arr = DataArrayDouble(6)
+        theta_arr.iota()
+        theta_arr *= 2 * pi / 6
+        r_arr = DataArrayDouble(6)
+        r_arr[:] = 1
+        coo = DataArrayDouble.Meld([r_arr, theta_arr])
+        coo = coo.fromPolarToCart()
+        coo = coo.changeNbOfComponents(3, 0.0)
+        coo2 = coo[:]
+        coo2[:, 2] = 1
+        coo = DataArrayDouble.Aggregate([coo, coo2])
+        m = MEDCouplingUMesh("NORM_HEXGP12", 3)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(NORM_HEXGP12, list(range(12)))
+
+        m1D, d, di, rd, rdi = m.explode3DMeshTo1D()
+        self.assertTrue(
+            MEDCoupling1SGTUMesh(m1D)
+            .getNodalConnectivity()
+            .isEqual(
+                DataArrayInt(
+                    [
+                        0,
+                        1,
+                        1,
+                        2,
+                        2,
+                        3,
+                        3,
+                        4,
+                        4,
+                        5,
+                        5,
+                        0,
+                        6,
+                        7,
+                        7,
+                        8,
+                        8,
+                        9,
+                        9,
+                        10,
+                        10,
+                        11,
+                        11,
+                        6,
+                        0,
+                        6,
+                        1,
+                        7,
+                        2,
+                        8,
+                        3,
+                        9,
+                        4,
+                        10,
+                        5,
+                        11,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(d.isIota(18))
+        self.assertTrue(di.isEqual(DataArrayInt([0, 18])))
+        self.assertTrue(rdi.isIota(19))
+        self.assertTrue(rd.isUniform(0) and len(rd) == 18)
+
 
 if __name__ == "__main__":
     unittest.main()
