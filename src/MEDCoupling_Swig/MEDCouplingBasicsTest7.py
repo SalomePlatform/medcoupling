@@ -9788,6 +9788,212 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
         self.assertTrue(rdi.isIota(19))
         self.assertTrue(rd.isUniform(0) and len(rd) == 18)
 
+    def test_Mesh_Explode3DMesh_polyedra(self):
+        m = MEDCouplingCMesh()
+        m.setCoords(
+            DataArrayDouble([0, 1, 2, 3]),
+            DataArrayDouble([0, 1]),
+            DataArrayDouble([0, 1]),
+        )
+        m = m.buildUnstructured()
+        m0 = m[0]
+        m1 = m[1]
+        m2 = m[2]
+        m1.convertAllToPoly()
+        m = MEDCouplingUMesh.MergeUMeshesOnSameCoords([m0, m1, m2])
+        m1d, d, di, rd, rdi = m.explode3DMeshTo1D()
+        m1d = MEDCoupling1SGTUMesh(m1d)
+        self.assertTrue(
+            m1d.getNodalConnectivity().isEqual(
+                DataArrayInt(
+                    [
+                        1,
+                        0,
+                        0,
+                        4,
+                        4,
+                        5,
+                        5,
+                        1,
+                        9,
+                        8,
+                        8,
+                        12,
+                        12,
+                        13,
+                        13,
+                        9,
+                        1,
+                        9,
+                        0,
+                        8,
+                        4,
+                        12,
+                        5,
+                        13,
+                        2,
+                        1,
+                        5,
+                        6,
+                        6,
+                        2,
+                        10,
+                        14,
+                        14,
+                        13,
+                        9,
+                        10,
+                        2,
+                        10,
+                        14,
+                        6,
+                        3,
+                        2,
+                        6,
+                        7,
+                        7,
+                        3,
+                        11,
+                        10,
+                        14,
+                        15,
+                        15,
+                        11,
+                        3,
+                        11,
+                        7,
+                        15,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            d.isEqual(
+                DataArrayInt(
+                    [
+                        0,
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        3,
+                        13,
+                        14,
+                        15,
+                        16,
+                        7,
+                        17,
+                        18,
+                        8,
+                        11,
+                        19,
+                        20,
+                        14,
+                        21,
+                        22,
+                        23,
+                        15,
+                        24,
+                        25,
+                        26,
+                        18,
+                        19,
+                        27,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(di.isEqual(DataArrayInt([0, 12, 24, 36])))
+        self.assertTrue(
+            rdi.isEqual(
+                DataArrayInt(
+                    [
+                        0,
+                        1,
+                        2,
+                        3,
+                        5,
+                        6,
+                        7,
+                        8,
+                        10,
+                        12,
+                        13,
+                        14,
+                        16,
+                        17,
+                        18,
+                        20,
+                        22,
+                        23,
+                        24,
+                        26,
+                        28,
+                        29,
+                        30,
+                        31,
+                        32,
+                        33,
+                        34,
+                        35,
+                        36,
+                    ]
+                )
+            )
+        )
+        self.assertTrue(
+            rd.isEqual(
+                DataArrayInt(
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        1,
+                        1,
+                        1,
+                        1,
+                        2,
+                        1,
+                        2,
+                        1,
+                        1,
+                        1,
+                        2,
+                        1,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                        2,
+                    ]
+                )
+            )
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
