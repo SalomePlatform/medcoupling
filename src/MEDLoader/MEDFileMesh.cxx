@@ -5685,14 +5685,48 @@ MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMesh *> &meshes)
         throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : empty input vector !");
     std::size_t sz(meshes.size()), i(0);
     std::vector<const DataArrayDouble *> coos(sz);
-    std::vector<const DataArrayIdType *> fam_coos(sz), num_coos(sz);
+    std::vector<MCAuto<DataArrayIdType>> fam_coos(sz);
+    std::vector<MCConstAuto<DataArrayIdType>> num_coos(sz);
+    bool famAllNull(true), numAllNull(true);
     for (auto it = meshes.begin(); it != meshes.end(); it++, i++)
     {
         if (!(*it))
             throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : presence of NULL pointer in input vector !");
         coos[i] = (*it)->getCoords();
-        fam_coos[i] = (*it)->getFamilyFieldAtLevel(1);
-        num_coos[i] = (*it)->getNumberFieldAtLevel(1);
+        auto famNodePtr = (*it)->getFamilyFieldAtLevel(1);
+        if (famNodePtr)
+            fam_coos[i] = famNodePtr->deepCopy();
+        famAllNull &= fam_coos[i].isNull();
+        num_coos[i].takeRef((*it)->getNumberFieldAtLevel(1));
+        numAllNull &= num_coos[i].isNull();
+    }
+    if (!famAllNull)
+    {
+        std::size_t i(0);
+        for (auto it = meshes.begin(); it != meshes.end(); it++, i++)
+        {
+            if (fam_coos[i].isNull())
+            {
+                MCAuto<DataArrayIdType> arr(DataArrayIdType::New());
+                arr->alloc((*it)->getNumberOfNodes(), 1);
+                arr->fillWithZero();
+                fam_coos[i] = arr;
+            }
+        }
+    }
+    if (!numAllNull)
+    {
+        std::size_t i(0);
+        for (auto it = meshes.begin(); it != meshes.end(); it++, i++)
+        {
+            if (num_coos[i].isNull())
+            {
+                MCConstAuto<DataArrayIdType> arr(DataArrayIdType::New());
+                arr.shameOnMeConstCast()->alloc((*it)->getNumberOfNodes(), 1);
+                arr.shameOnMeConstCast()->fillWithZero();
+                num_coos[i] = arr;
+            }
+        }
     }
     const MEDFileUMesh *ref(meshes[0]);
     int spaceDim(ref->getSpaceDimension()), meshDim(ref->getMeshDimension());
@@ -5716,6 +5750,7 @@ MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMesh *> &meshes)
                 min_fam_num = it3.second;
     }
 
+    i = 0;
     for (const auto &msh : meshes)
     {
         if (msh->getSpaceDimension() != spaceDim)
@@ -5814,6 +5849,11 @@ MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMesh *> &meshes)
                 m_fam[level].push_back(msh->getFamilyFieldAtLevel(level));  // No copy needed
         }
 
+        if (fam_coos[i].isNotNull())
+        {
+            for (const auto &subN : substituteN) fam_coos[i]->changeValue(subN.first, subN.second);
+        }
+
         const std::map<std::string, std::vector<std::string>> &locMap2(msh->getGroupInfo());
         for (const auto &grpItem : locMap2)
         {
@@ -5841,19 +5881,20 @@ MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMesh *> &meshes)
             else
                 grpFamMap[grpName] = famLst;
         }
+        i++;
     }
     // Easy part : nodes
     MCAuto<MEDFileUMesh> ret(MEDFileUMesh::New());
     MCAuto<DataArrayDouble> coo(DataArrayDouble::Aggregate(coos));
     ret->setCoords(coo);
-    if (std::find(fam_coos.begin(), fam_coos.end(), (const DataArrayIdType *)0) == fam_coos.end())
+    if (!famAllNull)
     {
-        MCAuto<DataArrayIdType> fam_coo(DataArrayIdType::Aggregate(fam_coos));
+        MCAuto<DataArrayIdType> fam_coo(DataArrayIdType::Aggregate(FromVecAutoToVecOfConst(fam_coos)));
         ret->setFamilyFieldArr(1, fam_coo);
     }
-    if (std::find(num_coos.begin(), num_coos.end(), (const DataArrayIdType *)0) == num_coos.end())
+    if (!numAllNull)
     {
-        MCAuto<DataArrayIdType> num_coo(DataArrayIdType::Aggregate(num_coos));
+        MCAuto<DataArrayIdType> num_coo(DataArrayIdType::Aggregate(FromVecAutoToVecOfConst(num_coos)));
         ret->setRenumFieldArr(1, num_coo);
     }
     // cells
