@@ -299,4 +299,16 @@ class MCConstAuto
    private:
     const T *_ptr;
 };
+
+template <class T>
+std::vector<const T *>
+FromVecAutoToVecOfConst(const std::vector<MCConstAuto<T>> &inputVec)
+{
+    std::size_t size(inputVec.size());
+    std::vector<const T *> ret(size);
+    typename std::vector<const T *>::iterator itArrays(ret.begin());
+    std::for_each(inputVec.begin(), inputVec.end(), [&itArrays](MCConstAuto<T> elt) { *itArrays++ = elt; });
+    return ret;
+}
+
 }  // namespace MEDCoupling

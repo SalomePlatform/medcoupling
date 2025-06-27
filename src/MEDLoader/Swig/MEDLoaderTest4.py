@@ -16475,6 +16475,74 @@ class MEDLoaderTest4(unittest.TestCase):
         medfieldFromFile3 = MEDFileFields(fname)
         self.assertEqual(medfieldFromFile3[0][0].getDescription(), zeDescription)
 
+    def test52(self):
+        """
+        [EDF32671] : Management of empty family on nodes array in MEDFileUMesh.Aggregate
+        """
+        arr = DataArrayDouble(10)
+        arr.iota()
+        m1D_0 = MEDCouplingUMesh.Build1DMeshFromCoords(arr)
+        m1D_1 = m1D_0.deepCopy()
+        m1D_1.translate([40.0])
+        m1D_2 = m1D_0.deepCopy()
+        m1D_2.translate([20.0])
+
+        ###
+        mm0 = MEDFileUMesh()
+        mm1 = MEDFileUMesh()
+        mm0[0] = m1D_0
+        mm1[0] = m1D_1
+        grp0_0 = DataArrayInt([0, 2, 3])
+        grp0_0.setName("grp0")
+        mm0.addGroup(1, grp0_0)
+        grp1_0 = DataArrayInt([3, 4, 5])
+        grp1_0.setName("grp1")
+        mm0.addGroup(1, grp1_0)
+        grp0_1 = DataArrayInt([6, 7, 9])
+        grp0_1.setName("grp0")
+        mm1.addGroup(1, grp0_1)
+        mmagg = MEDFileUMesh.Aggregate([mm0, mm1])
+        self.assertTrue(
+            mmagg.getGroupArr(1, "grp0").isEqualWithoutConsideringStr(
+                DataArrayInt([0, 2, 3, 16, 17, 19])
+            )
+        )
+        self.assertTrue(
+            mmagg.getGroupArr(1, "grp1").isEqualWithoutConsideringStr(
+                DataArrayInt([3, 4, 5])
+            )
+        )
+        ###
+        mm0 = MEDFileUMesh()
+        mm1 = MEDFileUMesh()
+        mm2 = MEDFileUMesh()
+        mm0[0] = m1D_0
+        mm1[0] = m1D_1
+        mm2[0] = m1D_2
+        grp0_0 = DataArrayInt([0, 2, 3])
+        grp0_0.setName("grp0")
+        mm0.addGroup(1, grp0_0)
+        grp1_0 = DataArrayInt([3, 4, 5])
+        grp1_0.setName("grp1")
+        mm0.addGroup(1, grp1_0)
+        grp0_1 = DataArrayInt([6, 7, 9])
+        grp0_1.setName("grp0")
+        mm1.addGroup(1, grp0_1)
+        self.assertTrue(
+            mm2.getFamilyFieldAtLevel(1) is None
+        )  # <- aim of the test is here check that groups on nodes are OK even if a family field is empty
+        mmagg = MEDFileUMesh.Aggregate([mm0, mm2, mm1])
+        self.assertTrue(
+            mmagg.getGroupArr(1, "grp0").isEqualWithoutConsideringStr(
+                DataArrayInt([0, 2, 3, 26, 27, 29])
+            )
+        )
+        self.assertTrue(
+            mmagg.getGroupArr(1, "grp1").isEqualWithoutConsideringStr(
+                DataArrayInt([3, 4, 5])
+            )
+        )
+
     pass
 
 
