@@ -17,12 +17,11 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __DISJOINTDEC_HXX__
-#define __DISJOINTDEC_HXX__
+#pragma once
 
 #include "MEDCouplingFieldDouble.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
-#include "DEC.hxx"
+#include "DisjointDECAbstract.hxx"
 
 #include <mpi.h>
 #include <set>
@@ -65,21 +64,10 @@ class ParaFIELD;
  * DECs in general and are all inherited from the class \ref MEDCoupling::DECOptions "DECOptions"
  *
  */
-
-class DisjointDEC : public DEC
+class DisjointDEC : public DisjointDECAbstract
 {
    public:
-    DisjointDEC()
-        : _local_field(0),
-          _union_group(0),
-          _source_group(0),
-          _target_group(0),
-          _comm_interface(0),
-          _owns_field(false),
-          _owns_groups(false),
-          _union_comm(MPI_COMM_NULL)
-    {
-    }
+    DisjointDEC() : _local_field(nullptr), _owns_field(false) {}
     DisjointDEC(ProcessorGroup &source_group, ProcessorGroup &target_group);
     DisjointDEC(const DisjointDEC &);
     DisjointDEC &operator=(const DisjointDEC &s);
@@ -102,31 +90,13 @@ class DisjointDEC : public DEC
 
     virtual void computeProcGroup() {}
     void renormalizeTargetField(bool isWAbs);
-    //
-    ProcessorGroup *getSourceGrp() const { return _source_group; }
-    ProcessorGroup *getTargetGrp() const { return _target_group; }
-    bool isInSourceSide() const;
-    bool isInTargetSide() const;
-    bool isInUnion() const;
 
    protected:
-    void compareFieldAndMethod() const;
     void cleanInstance();
-    void copyInstance(const DisjointDEC &other);
-    void checkPartitionGroup() const;
+    void compareFieldAndMethod() const;
 
    protected:
     const ParaFIELD *_local_field;
-    //! Processor group representing the union of target and source processors
-    ProcessorGroup *_union_group;
-    ProcessorGroup *_source_group;
-    ProcessorGroup *_target_group;
-
-    const CommInterface *_comm_interface;
     bool _owns_field;
-    bool _owns_groups;
-    MPI_Comm _union_comm;
 };
 }  // namespace MEDCoupling
-
-#endif

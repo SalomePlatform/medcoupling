@@ -159,7 +159,11 @@ install(
         test_StructuredCoincidentDEC.py
         ParaMEDMEMTestTools.py
         test_BasicOperation.py
+        test_CFEMDEC.py
+        test_CFEMDEC.med
   DESTINATION ${TEST_INSTALL_DIRECTORY})
+
+install(FILES ParaMEDMEMFinalize.py DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 # export MPIEXEC and _oversub_opt to CTestTestfile.cmake of salome test
 # mechanism
 configure_file(CTestTestfileInstall.cmake.in "CTestTestfileST.cmake" @ONLY)

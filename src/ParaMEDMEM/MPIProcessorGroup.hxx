@@ -65,13 +65,14 @@ class MPIProcessorGroup : public ProcessorGroup
     ProcessorGroup *createComplementProcGroup() const;
     ProcessorGroup *createProcGroup() const;
     MPI_Comm getWorldComm() { return _world_comm; }
+    MPI_Group getGroup() const { return _group; }
 
    private:
     void updateMPISpecificAttributes();
 
    private:
-    const MPI_Comm
-        _world_comm;  // just an observer - current instance is not responsible for the management of this comm
+    // just an observer - current instance is not responsible for the management of this comm
+    const MPI_Comm _world_comm;
     MPI_Group _group;
     MPI_Comm _comm;
 };
