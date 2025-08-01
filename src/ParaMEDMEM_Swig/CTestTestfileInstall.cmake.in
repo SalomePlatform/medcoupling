@@ -58,3 +58,8 @@ set(tfile PyPara_OverlapDEC_Proc4)
 set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
 add_test(${TEST_NAME} ${MPIEXEC} -np 4 ${_oversub_opt} -path "${PATH_FOR_PYTHON}" python3 test_OverlapDEC.py)
 set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
+
+set(tfile PyPara_CFEMDEC_0)
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+add_test(${TEST_NAME} ${MPIEXEC} -np 7 ${_oversub_opt} -path "${PATH_FOR_PYTHON}" python3 test_CFEMDEC.py)
+set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})

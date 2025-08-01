@@ -29,6 +29,7 @@
 #include "ByStringMPIProcessorGroup.hxx"
 #include "DEC.hxx"
 #include "InterpKernelDEC.hxx"
+#include "CFEMDEC.hxx"
 #include "NonCoincidentDEC.hxx"
 #include "StructuredCoincidentDEC.hxx"
 #include "OverlapDEC.hxx"
@@ -55,6 +56,7 @@ using namespace ICoCo;
 %include "ByStringMPIProcessorGroup.hxx"
 %include "ComponentTopology.hxx"
 %include "DEC.hxx"
+%include "DisjointDECAbstract.hxx"
 %include "DisjointDEC.hxx"
 %include "StructuredCoincidentDEC.hxx"
 
@@ -79,6 +81,8 @@ using namespace ICoCo;
 %newobject MEDCoupling::InterpKernelDEC::_NewWithComm_internal;
 %newobject MEDCoupling::InterpKernelDEC::retrieveNonFetchedIds;
 %newobject MEDCoupling::OverlapDEC::_NewWithComm_internal;
+%newobject MEDCoupling::CFEMDEC::receiveFromSource;
+%newobject MEDCoupling::CFEMDEC::receiveFromTarget;
 
 %feature("unref") ParaSkyLineArray "$this->decrRef();"
 %feature("unref") ParaUMesh "$this->decrRef();"
@@ -326,7 +330,7 @@ namespace MEDCoupling
 
         static InterpKernelDEC* _NewWithComm_internal(const std::set<int>& src_ids, const std::set<int>& trg_ids, long long another_comm)
         {
-          return new InterpKernelDEC(src_ids,trg_ids, *(MPI_Comm*)another_comm); // I know, ugly cast ...
+          return new InterpKernelDEC(src_ids,trg_ids, *(reinterpret_cast<MPI_Comm*>(another_comm))); // I know, ugly cast ...
         }
 
         DataArrayIdType *retrieveNonFetchedIds() const
@@ -373,10 +377,56 @@ namespace MEDCoupling
           // It is just here to provide a constructor taking a **pointer** to a comm - See pythoncode below.
           static OverlapDEC* _NewWithComm_internal(const std::set<int>& ids, long long another_comm)
           {
-            return new OverlapDEC(ids, *(MPI_Comm*)another_comm); // I know, ugly cast ...
+            return new OverlapDEC(ids, *(reinterpret_cast<MPI_Comm*>(another_comm)) ); // I know, ugly cast ...
           }
         }
    };
+
+   class CFEMDEC : public DisjointDECAbstract, public INTERP_KERNEL::InterpolationOptions
+  {
+    public:
+      CFEMDEC();
+      CFEMDEC(ProcessorGroup& source_group, ProcessorGroup& target_group);
+      CFEMDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids); // hide last optional parameter!
+      void synchronize();
+      void sendRecvData(bool way = true);
+      void attachLocalMesh(MEDCouplingUMesh *mesh, DataArrayIdType *globalNodeIds);
+      void sendToTarget( MEDCouplingFieldDouble *srcFieldOnLocal );
+      void sendToSource( MEDCouplingFieldDouble *trgFieldOnLocal );
+      %extend
+      {
+        // Provides a direct ctor for which the communicator can be passed with "MPI._addressof(the_com)":
+        CFEMDEC(const std::set<int>& src_ids, const std::set<int>& trg_ids, long long comm_ptr)
+        {
+            return new CFEMDEC(src_ids, trg_ids, *((MPI_Comm*)comm_ptr));
+        }
+
+        // This one should really not be called directly by the user since it still has an interface with a pointer to MPI_Comm
+        // which Swig doesn't handle nicely.
+        // It is just here to provide a constructor taking a **pointer** to a comm - See pythoncode below.
+        static CFEMDEC* _NewWithPG_internal(ProcessorGroup& source_group, ProcessorGroup& target_group)
+        {
+          return new CFEMDEC(source_group,target_group);
+        }
+
+        static CFEMDEC* _NewWithComm_internal(const std::set<int>& src_ids, const std::set<int>& trg_ids, long long another_comm)
+        {
+          return new CFEMDEC(src_ids,trg_ids, *(reinterpret_cast<MPI_Comm*>(another_comm))); // I know, ugly cast ...
+        }
+
+        MEDCouplingFieldDouble *receiveFromSource()
+        {
+          MCAuto<MEDCouplingFieldDouble> ret = self->receiveFromSource();
+          return ret.retn();
+        }
+
+        MEDCouplingFieldDouble *receiveFromTarget()
+        {
+          MCAuto<MEDCouplingFieldDouble> ret = self->receiveFromTarget();
+          return ret.retn();
+        }
+      }
+  };
 
 } // end namespace MEDCoupling
 
@@ -422,51 +472,8 @@ else:
 
 %pythoncode %{
 
-# And here we use mpi4py ability to provide its internal (C++) pointer to the communicator:
-# NB: doing a proper typemap from MPI_Comm from Python to C++ requires the inclusion of mpi4py headers and .i file ... an extra dependency ...
-def _IKDEC_WithComm_internal(src_procs, tgt_procs, mpicomm=None):
-    from mpi4py import MPI
-    # Check iterable:
-    try:
-        s, t = [el for el in src_procs], [el for el in tgt_procs]
-    except:
-        s, t = None, None
-    msg =  "InterpKernelDEC: invalid type in ctor arguments! Possible signatures are:\n"
-    msg += "   - InterpKernelDEC(ProcessorGroup, ProcessorGroup)\n"
-    msg += "   - InterpKernelDEC(<iterable>, <iterable>)\n"
-    msg += "   - InterpKernelDEC(<iterable>, <iterable>, MPI_Comm*) : WARNING here the address of the communicator should be passed with MPI._addressof(the_com)\n"
-    msg += "   - InterpKernelDEC.New(ProcessorGroup, ProcessorGroup)\n"
-    msg += "   - InterpKernelDEC.New(<iterable>, <iterable>)\n"
-    msg += "   - InterpKernelDEC.New(<iterable>, <iterable>, MPI_Comm)\n"
-    if mpicomm is None:
-        if isinstance(src_procs, ProcessorGroup) and isinstance(tgt_procs, ProcessorGroup):
-            return InterpKernelDEC._NewWithPG_internal(src_procs, tgt_procs)
-        elif not s is None:  # iterable
-            return InterpKernelDEC._NewWithComm_internal(s, t, MPI._addressof(MPI.COMM_WORLD))
-        else:
-            raise InterpKernelException(msg)
-    else:
-        if s is None: raise InterpKernelException(msg)  # must be iterable
-        return InterpKernelDEC._NewWithComm_internal(s, t, MPI._addressof(mpicomm))
-
-def _ODEC_WithComm_internal(procs, mpicomm=None):
-    from mpi4py import MPI
-    # Check iterable:
-    try:
-        g = [el for el in procs]
-    except:
-        msg =  "OverlapDEC: invalid type in ctor arguments! Possible signatures are:\n"
-        msg += "   - OverlapDEC.New(<iterable>)\n"
-        msg += "   - OverlapDEC.New(<iterable>, MPI_Comm)\n"
-        msg += "   - OverlapDEC(<iterable>)\n"
-        msg += "   - OverlapDEC(<iterable>, MPI_Comm*) : WARNING here the address of the communicator should be passed with MPI._addressof(the_com)\n"
-        raise InterpKernelException(msg)
-    if mpicomm is None:
-        return OverlapDEC(g)
-    else:
-        return OverlapDEC._NewWithComm_internal(g, MPI._addressof(mpicomm))
-
-InterpKernelDEC.New = _IKDEC_WithComm_internal
-OverlapDEC.New = _ODEC_WithComm_internal
+import ParaMEDMEMFinalize
+InterpKernelDEC.New = ParaMEDMEMFinalize._IKDEC_WithComm_internal
+OverlapDEC.New = ParaMEDMEMFinalize._ODEC_WithComm_internal
 
 %}
