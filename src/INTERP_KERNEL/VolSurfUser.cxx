@@ -307,6 +307,12 @@ DistanceFromPtToPolygonInSpaceDim3(
     return sqrt(ret);
 }
 
+inline double
+signOf(double val)
+{
+    return val >= 0. ? 1.0 : -1.0;
+}
+
 /*!
  * \param [out] matrix contain a dense matrix of size 12 with 3 rows containing each 4 columns. This matrix is the
  * reduction of 4x4 matrix but the last line containing [0,0,0,1] is omitted.
@@ -334,7 +340,8 @@ ComputeRotTranslationMatrixToPut3PointsOnOXY(const double *p0, const double *p1,
     z = p2[2] - p0[2];
     double y1 = x * r0[3] + y * r0[4] + z * r0[5], z1 = x * r0[6] + y * r0[7] + z * r0[8];
     c = y1 / sqrt(y1 * y1 + z1 * z1);
-    s = sqrt(1. - c * c);
+    // EDF33340
+    s = -signOf(z1) * sqrt(1. - c * c);
     //
     std::copy(r0, r0 + 3, matrix);
     matrix[4] = c * r0[3] - s * r0[6];
