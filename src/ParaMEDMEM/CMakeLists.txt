@@ -72,8 +72,7 @@ set(paramedmem_SOURCES
     CFEMDEC.cxx)
 
 add_library(paramedmem ${paramedmem_SOURCES})
-target_link_libraries(paramedmem medcouplingremapper medcouplingcpp medicoco
-                      ${MPI_LIBRARIES})
+target_link_libraries(paramedmem medcouplingcpp medicoco ${MPI_LIBRARIES})
 install(
   TARGETS paramedmem
   EXPORT ${PROJECT_NAME}TargetGroup
