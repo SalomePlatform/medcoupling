@@ -30,20 +30,24 @@ namespace MEDCoupling
 template <class T>
 struct MPITraits
 {
-    static constexpr MPI_Datatype MPIType = MPI_CHAR;
+    static const MPI_Datatype MPIType;
 };
+template<> const MPI_Datatype MPITraits<char>::MPIType = MPI_CHAR;
 
 template <>
 struct MPITraits<std::int64_t>
 {
-    static constexpr MPI_Datatype MPIType = MPI_INT64_T;
+    static const MPI_Datatype MPIType;
     using ArrayType = DataArrayInt64;
 };
+const MPI_Datatype MPITraits<std::int64_t>::MPIType = MPI_INT64_T;
 
 template <>
 struct MPITraits<double>
 {
-    static constexpr MPI_Datatype MPIType = MPI_DOUBLE;
+    static const MPI_Datatype MPIType;
     using ArrayType = DataArrayDouble;
 };
+const MPI_Datatype MPITraits<double>::MPIType = MPI_DOUBLE;
+
 }  // namespace MEDCoupling
