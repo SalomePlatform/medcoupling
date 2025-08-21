@@ -1014,7 +1014,10 @@ AddCellInMesh2D(
     {
         const INTERP_KERNEL::Edge *ee(*it);
         if (dynamic_cast<const INTERP_KERNEL::EdgeArcCircle *>(ee))
+        {
             isQuad = true;
+            break;
+        }
     }
     if (!isQuad)
         mesh2D->insertNextCell(INTERP_KERNEL::NORM_POLYGON, ToIdType(conn.size()), &conn[0]);
@@ -1066,21 +1069,23 @@ BuildMesh2DCutInternal2(
     std::size_t ii, jj;
     const mcIdType *cSplitPtr(splitMesh1D->getNodalConnectivity()->begin()),
         *ciSplitPtr(splitMesh1D->getNodalConnectivityIndex()->begin());
-    for (ii = 0; ii < nb && edge1Bis[2 * ii] != cSplitPtr[ciSplitPtr[0] + 1]; ii++);
-    for (jj = ii; jj < nb && edge1Bis[2 * jj + 1] != cSplitPtr[ciSplitPtr[iEnd - 1] + 2]; jj++);
+    for (ii = 0; ii < nb && edge1Bis[2 * ii] != cSplitPtr[ciSplitPtr[0] + 1]; ii++);  // find where the cutting starts
+    for (jj = ii; jj < nb && edge1Bis[2 * jj + 1] != cSplitPtr[ciSplitPtr[iEnd - 1] + 2]; jj++);  // find where it ends
     //
-    if (jj == nb)
-    {  // the edges splitMesh1D[iStart:iEnd] does not fully cut the current 2D cell -> single output cell
+    if (jj == nb)  // the edges splitMesh1D[iStart:iEnd] does not fully cut the current 2D cell -> single output cell
+    {
         out0.resize(1);
         out1.resize(1);
-        std::vector<mcIdType> &connOut(out0[0]);
-        connOut.resize(nbOfEdgesOf2DCellSplit);
-        std::vector<MCAuto<INTERP_KERNEL::Edge> > &edgesPtr(out1[0]);
-        edgesPtr.resize(nbOfEdgesOf2DCellSplit);
-        for (std::size_t kk = 0; kk < nbOfEdgesOf2DCellSplit; kk++)
+        std::vector<mcIdType> &connOut = out0[0];
+        std::vector<MCAuto<INTERP_KERNEL::Edge> > &edgesPtr = out1[0];
+        // edge1Bis was duplicated; keep only the first half (original connectivity).
+        // keep only one node : [0, 1, 1, 2, 2, ..., 0] -> [0, 1, 2, ...]
+        connOut.resize(edge1Bis.size() / 4);
+        edgesPtr.resize(edge1BisPtr.size() / 4);
+        for (std::size_t kk = 0; kk < connOut.size(); kk++)
         {
             connOut[kk] = edge1Bis[2 * kk];
-            edgesPtr[kk] = edge1BisPtr[2 * kk];
+            edgesPtr[kk] = edge1BisPtr[(2 * kk - 1 + edge1Bis.size()) % (edge1Bis.size() / 2)];
         }
     }
     else
@@ -2812,7 +2817,6 @@ MEDCouplingUMesh::Intersect2DMeshWith1DLine(
     }
     ret3->changeValue(std::numeric_limits<mcIdType>::max(), -1);
     ret3->rearrange(2);
-    //
     splitMesh1D = ret1.retn();
     splitMesh2D = ret2D.retn();
     cellIdInMesh2D = ret2.retn();

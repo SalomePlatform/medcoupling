@@ -7957,6 +7957,377 @@ class MEDCouplingIntersectTest(unittest.TestCase):
             1.0e-8,
         )
 
+    def testSwig2Intersect2dMeshWith1DLineQuadPgons(self):
+        import medcoupling as mc
+        import numpy as np
+
+        # Point coordinates
+        # fmt: off
+        coords = [
+            -5.00000000, -5.00000000,
+            -5.00000000,  5.00000000,
+             5.00000000,  5.00000000,
+             5.00000000, -5.00000000,
+             3.00000000,  0.00000000,
+             2.12132034,  2.12132034,
+             0.0,         3.00000000,
+            -2.12132034,  2.12132034,
+            -3.00000000,  0.0,
+            -2.12132034, -2.12132034,
+             0.0,        -3.00000000,
+             2.12132034, -2.12132034,
+            -5.00000000,  0.00000000,
+             0.00000000,  5.00000000,
+             5.00000000,  0.00000000,
+             0.00000000, -5.00000000,
+             3.56066017, -3.56066017,
+            -3.56066017, -3.56066017,
+        ]
+        # fmt: on
+
+        # Connectivity
+        conn = [3, 0, 9, 11, 15, 17, 10, 16]
+        conn1 = [11, 9, 7, 5, 10, 8, 6, 4]
+        conn2 = [0, 1, 2, 3, 11, 5, 7, 9, 12, 13, 14, 16, 4, 6, 8, 17]
+
+        coo = np.array(coords).reshape((18, 2))
+        selec = np.arange(len(conn)) % 3 == 2
+        conn_bis = np.array(conn)
+        conn_bis = conn_bis[np.bitwise_not(selec)]
+        coo = coo[conn_bis]
+
+        # Mesh 2D
+        baseMesh = mc.MEDCouplingUMesh("mesh", 2)
+        baseMesh.allocateCells(3)
+        meshCoords = mc.DataArrayDouble(coords, len(coords) // 2, 2)
+        baseMesh.setCoords(meshCoords)
+        baseMesh.insertNextCell(mc.NORM_QPOLYG, conn)
+        baseMesh.insertNextCell(mc.NORM_QPOLYG, conn2)
+        baseMesh.insertNextCell(mc.NORM_QPOLYG, conn1)
+        baseMesh.finishInsertingCells()
+        # mc.WriteUMesh("mesh2D.med", baseMesh, True)
+
+        # Mesh 1D
+        coords1 = [-4.0, 1.0, 4.0, 0.0]
+        connec = [0, 1]
+        segMesh = mc.MEDCouplingUMesh.New("segment", 1)
+        segMesh.allocateCells(1)
+        meshCoords = mc.DataArrayDouble.New(coords1, len(coords1) // 2, 2)
+        segMesh.setCoords(meshCoords)
+        segMesh.insertNextCell(mc.NORM_SEG2, connec)
+        segMesh.finishInsertingCells()
+        # mc.WriteUMesh("mesh1D.med", segMesh, True)
+
+        (res2d, res1d, resToSelf, mapLeftRight) = (
+            mc.MEDCouplingUMesh.Intersect2DMeshWith1DLine(baseMesh, segMesh, 1.0e-8)
+        )
+
+        # fmt: off
+        self.assertEqual(
+            res2d.getNodalConnectivity().toNumPyArray().tolist(), [
+                32, 3, 0, 9, 11, 15, 17, 10, 16,
+                32, 0, 1, 2, 3, 11, 20, 5, 7, 21, 9, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41,
+                32, 7, 5, 20, 21, 42, 43, 44, 45,
+                32, 11, 9, 21, 20, 46, 47, 48, 49
+            ]
+        )
+        # fmt: on
+        self.assertEqual(
+            res2d.getNodalConnectivityIndex().toNumPyArray().tolist(),
+            [0, 9, 30, 39, 48],
+        )
+        self.assertEqual(
+            res2d.getCoords().toNumPyArray().tolist(),
+            [
+                [-5.0, -5.0],
+                [-5.0, 5.0],
+                [5.0, 5.0],
+                [5.0, -5.0],
+                [3.0, 0.0],
+                [2.12132034, 2.12132034],
+                [0.0, 3.0],
+                [-2.12132034, 2.12132034],
+                [-3.0, 0.0],
+                [-2.12132034, -2.12132034],
+                [0.0, -3.0],
+                [2.12132034, -2.12132034],
+                [-5.0, 0.0],
+                [0.0, 5.0],
+                [5.0, 0.0],
+                [0.0, -5.0],
+                [3.56066017, -3.56066017],
+                [-3.56066017, -3.56066017],
+                [-4.0, 1.0],
+                [4.0, 0.0],
+                [2.997381031831442, 0.12532737102106972],
+                [-2.874304108045068, 0.8592880135056334],
+                [-5.0, 0.0],
+                [0.0, 5.0],
+                [5.0, 0.0],
+                [3.5606601700000002, -3.5606601700000002],
+                [2.795019217457622, -1.089893374140965],
+                [2.7470480379859925, 1.205706045560898],
+                [1.8369701881967373e-16, 3.0],
+                [-2.5762855640346065, 1.537124808849863],
+                [-2.90862037052703, -0.7347976163638755],
+                [-3.5606601700000002, -3.5606601700000002],
+                [-5.0, 0.0],
+                [0.0, 5.0],
+                [5.0, 0.0],
+                [3.5606601700000002, -3.5606601700000002],
+                [2.795019217457622, -1.089893374140965],
+                [2.7470480379859925, 1.205706045560898],
+                [1.8369701881967373e-16, 3.0],
+                [-2.5762855640346065, 1.537124808849863],
+                [-2.90862037052703, -0.7347976163638755],
+                [-3.5606601700000002, -3.5606601700000002],
+                [1.8369701881967373e-16, 3.0],
+                [2.7470480379859925, 1.205706045560898],
+                [0.061538461893187124, 0.4923076922633516],
+                [-2.5762855640346065, 1.537124808849863],
+                [1.8369701881967373e-16, -3.0],
+                [-2.90862037052703, -0.7347976163638755],
+                [0.061538461893187124, 0.4923076922633516],
+                [2.795019217457622, -1.089893374140965],
+            ],
+        )
+        self.assertEqual(
+            res1d.getNodalConnectivity().toNumPyArray().tolist(),
+            [1, 18, 21, 1, 21, 20, 1, 20, 19],
+        )
+        self.assertEqual(
+            res1d.getNodalConnectivityIndex().toNumPyArray().tolist(), [0, 3, 6, 9]
+        )
+        self.assertEqual(
+            res1d.getCoords().toNumPyArray().tolist(),
+            [
+                [-5.0, -5.0],
+                [-5.0, 5.0],
+                [5.0, 5.0],
+                [5.0, -5.0],
+                [3.0, 0.0],
+                [2.12132034, 2.12132034],
+                [0.0, 3.0],
+                [-2.12132034, 2.12132034],
+                [-3.0, 0.0],
+                [-2.12132034, -2.12132034],
+                [0.0, -3.0],
+                [2.12132034, -2.12132034],
+                [-5.0, 0.0],
+                [0.0, 5.0],
+                [5.0, 0.0],
+                [0.0, -5.0],
+                [3.56066017, -3.56066017],
+                [-3.56066017, -3.56066017],
+                [-4.0, 1.0],
+                [4.0, 0.0],
+                [2.997381031831442, 0.12532737102106972],
+                [-2.874304108045068, 0.8592880135056334],
+                [-5.0, 0.0],
+                [0.0, 5.0],
+                [5.0, 0.0],
+                [3.5606601700000002, -3.5606601700000002],
+                [2.795019217457622, -1.089893374140965],
+                [2.7470480379859925, 1.205706045560898],
+                [1.8369701881967373e-16, 3.0],
+                [-2.5762855640346065, 1.537124808849863],
+                [-2.90862037052703, -0.7347976163638755],
+                [-3.5606601700000002, -3.5606601700000002],
+                [-5.0, 0.0],
+                [0.0, 5.0],
+                [5.0, 0.0],
+                [3.5606601700000002, -3.5606601700000002],
+                [2.795019217457622, -1.089893374140965],
+                [2.7470480379859925, 1.205706045560898],
+                [1.8369701881967373e-16, 3.0],
+                [-2.5762855640346065, 1.537124808849863],
+                [-2.90862037052703, -0.7347976163638755],
+                [-3.5606601700000002, -3.5606601700000002],
+                [1.8369701881967373e-16, 3.0],
+                [2.7470480379859925, 1.205706045560898],
+                [0.061538461893187124, 0.4923076922633516],
+                [-2.5762855640346065, 1.537124808849863],
+                [1.8369701881967373e-16, -3.0],
+                [-2.90862037052703, -0.7347976163638755],
+                [0.061538461893187124, 0.4923076922633516],
+                [2.795019217457622, -1.089893374140965],
+            ],
+        )
+
+    def testSwig2Intersect2dMeshTri6With1DLine(self):
+        import medcoupling as mc
+
+        # Mesh 1D (segment)
+        coords1 = [-1.0, 1.0, 1.0, 0.0]
+        segCoords = mc.DataArrayDouble.New(coords1, 2, 2)
+        segment = mc.MEDCouplingUMesh.New("segment", 1)
+        segment.setCoords(segCoords)
+        segment.allocateCells(1)
+        segment.insertNextCell(mc.NORM_SEG2, [0, 1])
+        segment.finishInsertingCells()
+
+        # Mesh one tri6
+        # fmt: off
+        coords2 = [
+            -5.0,  -5.0,
+             5.0,  -5.0,
+             3.0,   0.0,
+            -3.0,   0.0,
+             0.0,   5.0,
+             0.0,  -5.0,
+        ]
+        # fmt: on
+        meshCoords = mc.DataArrayDouble.New(coords2, len(coords2) // 2, 2)
+
+        oneTri6 = mc.MEDCouplingUMesh.New("oneTri6", 2)
+        oneTri6.setCoords(meshCoords)
+        oneTri6.allocateCells(1)
+        oneTri6.insertNextCell(mc.NORM_TRI6, [1, 4, 0, 2, 3, 5])
+        oneTri6.finishInsertingCells()
+
+        # Intersect oneTri6 with segment
+        resOneTri6_1, resOneTri6_2, _, _ = (
+            mc.MEDCouplingUMesh.Intersect2DMeshWith1DLine(oneTri6, segment, 1e-8)
+        )
+
+        # Verifications
+        self.assertEqual(
+            resOneTri6_1.getNodalConnectivity().toNumPyArray().tolist(),
+            [32, 1, 4, 0, 8, 9, 10],
+        )
+        self.assertEqual(
+            resOneTri6_1.getNodalConnectivityIndex().toNumPyArray().tolist(), [0, 7]
+        )
+        self.assertEqual(
+            resOneTri6_1.getCoords().toNumPyArray().tolist(),
+            [
+                [-5.0, -5.0],
+                [5.0, -5.0],
+                [3.0, 0.0],
+                [-3.0, 0.0],
+                [0.0, 5.0],
+                [0.0, -5.0],
+                [-1.0, 1.0],
+                [1.0, 0.0],
+                [2.900636936215161, 0.20031846810758225],
+                [-2.900636936215161, 0.20031846810758758],
+                [0.0, -5.0],
+            ],
+        )
+        self.assertEqual(
+            resOneTri6_2.getNodalConnectivity().toNumPyArray().tolist(), [1, 6, 7]
+        )
+        self.assertEqual(
+            resOneTri6_2.getNodalConnectivityIndex().toNumPyArray().tolist(), [0, 3]
+        )
+        self.assertEqual(
+            resOneTri6_2.getCoords().toNumPyArray().tolist(),
+            [
+                [-5.0, -5.0],
+                [5.0, -5.0],
+                [3.0, 0.0],
+                [-3.0, 0.0],
+                [0.0, 5.0],
+                [0.0, -5.0],
+                [-1.0, 1.0],
+                [1.0, 0.0],
+                [2.900636936215161, 0.20031846810758225],
+                [-2.900636936215161, 0.20031846810758758],
+                [0.0, -5.0],
+            ],
+        )
+
+    def testSwig2Intersect2dMeshQpolygWith1DLine(self):
+        import medcoupling as mc
+
+        # Mesh 1D (segment)
+        coords1 = [-1.0, 1.0, 1.0, 0.0]
+        segCoords = mc.DataArrayDouble.New(coords1, 2, 2)
+        segment = mc.MEDCouplingUMesh.New("segment", 1)
+        segment.setCoords(segCoords)
+        segment.allocateCells(1)
+        segment.insertNextCell(mc.NORM_SEG2, [0, 1])
+        segment.finishInsertingCells()
+
+        # Mesh one qpolyg
+        # fmt: off
+        coords2 = [
+                    3.0,         0.0,
+             2.12132034,  2.12132034,
+                    0.0,         3.0,
+            -2.12132034,  2.12132034,
+                   -3.0,         0.0,
+            -2.12132034, -2.12132034,
+                    0.0,        -3.0,
+             2.12132034, -2.12132034,
+        ]
+        # fmt: on
+        meshCoords = mc.DataArrayDouble.New(coords2, len(coords2) // 2, 2)
+
+        oneQpolyg = mc.MEDCouplingUMesh.New("oneQPolyg", 2)
+        oneQpolyg.setCoords(meshCoords)
+        oneQpolyg.allocateCells(1)
+        oneQpolyg.insertNextCell(mc.NORM_QPOLYG, [7, 5, 3, 1, 6, 4, 2, 0])
+        oneQpolyg.finishInsertingCells()
+
+        # Intersect oneQpolyg with segment
+        resOneQPolyg_1, resOneQPolyg_2, _, _ = (
+            mc.MEDCouplingUMesh.Intersect2DMeshWith1DLine(oneQpolyg, segment, 1e-8)
+        )
+
+        # Verifications
+        self.assertEqual(
+            resOneQPolyg_1.getNodalConnectivity().toNumPyArray().tolist(),
+            [32, 7, 5, 3, 1, 10, 11, 12, 13],
+        )
+        self.assertEqual(
+            resOneQPolyg_1.getNodalConnectivityIndex().toNumPyArray().tolist(), [0, 9]
+        )
+        self.assertEqual(
+            resOneQPolyg_1.getCoords().toNumPyArray().tolist(),
+            [
+                [3.0, 0.0],
+                [2.12132034, 2.12132034],
+                [0.0, 3.0],
+                [-2.12132034, 2.12132034],
+                [-3.0, 0.0],
+                [-2.12132034, -2.12132034],
+                [0.0, -3.0],
+                [2.12132034, -2.12132034],
+                [-1.0, 1.0],
+                [1.0, 0.0],
+                [1.8369701881967373e-16, -3.0],
+                [-3.0, -3.6739403763934745e-16],
+                [1.8369701881967373e-16, 3.0],
+                [3.0, 0.0],
+            ],
+        )
+        self.assertEqual(
+            resOneQPolyg_2.getNodalConnectivity().toNumPyArray().tolist(), [1, 8, 9]
+        )
+        self.assertEqual(
+            resOneQPolyg_2.getNodalConnectivityIndex().toNumPyArray().tolist(), [0, 3]
+        )
+        self.assertEqual(
+            resOneQPolyg_2.getCoords().toNumPyArray().tolist(),
+            [
+                [3.0, 0.0],
+                [2.12132034, 2.12132034],
+                [0.0, 3.0],
+                [-2.12132034, 2.12132034],
+                [-3.0, 0.0],
+                [-2.12132034, -2.12132034],
+                [0.0, -3.0],
+                [2.12132034, -2.12132034],
+                [-1.0, 1.0],
+                [1.0, 0.0],
+                [1.8369701881967373e-16, -3.0],
+                [-3.0, -3.6739403763934745e-16],
+                [1.8369701881967373e-16, 3.0],
+                [3.0, 0.0],
+            ],
+        )
+
     def testSwig2Conformize2D1(self):
         eps = 1.0e-8
         coo = [
