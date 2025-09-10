@@ -5,11 +5,11 @@
 ###
 
 import os
-import salome
+from salome.kernel import salome
 
 salome.salome_init()
 
-import iparameters
+from salome.kernel import iparameters
 
 ipar = iparameters.IParameters(
     salome.myStudy.GetCommonParameters("Interface Applicative", 1), True

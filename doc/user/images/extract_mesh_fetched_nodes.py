@@ -5,12 +5,12 @@
 ###
 
 import sys
-import salome
+from salome.kernel import salome
 
 salome.salome_init()
 theStudy = salome.myStudy
 
-import iparameters
+from salome.kernel import iparameters
 
 ipar = iparameters.IParameters(
     salome.myStudy.GetCommonParameters("Interface Applicative", 1), True
@@ -94,7 +94,7 @@ WriteMesh("part.med", part, True)
 ### SMESH component
 ###
 
-import SMESH, SALOMEDS
+from salome.kernel import SMESH, SALOMEDS
 from salome.smesh import smeshBuilder
 
 smesh = smeshBuilder.New(theStudy)
@@ -105,7 +105,7 @@ smesh = smeshBuilder.New(theStudy)
 smesh.SetName(mesh.GetMesh(), "mesh")
 
 ### Store presentation parameters of displayed objects
-import iparameters
+from salome.kernel import iparameters
 
 ipar = iparameters.IParameters(
     theStudy.GetModuleParameters("Interface Applicative", "SMESH", 1)

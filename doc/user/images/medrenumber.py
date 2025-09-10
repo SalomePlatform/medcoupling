@@ -5,17 +5,17 @@
 ###
 
 import sys
-import salome
+from salome.kernel import salome
 
 salome.salome_init()
 theStudy = salome.myStudy
 
-import salome_notebook
+from salome.kernel import salome_notebook
 
 notebook = salome_notebook.NoteBook(theStudy)
 sys.path.insert(0, r"/misc/dn27/users_Linux/eap/salome/tmp")
 
-import iparameters
+from salome.kernel import iparameters
 
 ipar = iparameters.IParameters(
     salome.myStudy.GetCommonParameters("Interface Applicative", 1), True
@@ -83,10 +83,10 @@ ipar.append("AP_MODULES_LIST", "Mesh")
 ### GEOM component
 ###
 
-import GEOM
+from salome.kernel import GEOM
 from salome.geom import geomBuilder
 import math
-import SALOMEDS
+from salome.kernel import SALOMEDS
 
 
 geompy = geomBuilder.New(theStudy)
@@ -98,7 +98,7 @@ geompy.addToStudy(Face_1, "Face_1")
 ### SMESH component
 ###
 
-import SMESH, SALOMEDS
+from salome.kernel import SMESH, SALOMEDS
 from salome.smesh import smeshBuilder
 
 smesh = smeshBuilder.New(theStudy)
@@ -129,7 +129,7 @@ Mesh_renum.TranslateObject(Mesh_renum, [120, 0, 0], 0)
 
 
 ### Store presentation parameters of displayed objects
-import iparameters
+from salome.kernel import iparameters
 
 ipar = iparameters.IParameters(
     theStudy.GetModuleParameters("Interface Applicative", "SMESH", 1)

@@ -5,17 +5,17 @@
 ###
 
 import sys
-import salome
+from salome.kernel import salome
 
 salome.salome_init()
 theStudy = salome.myStudy
 
-import salome_notebook
+from salome.kernel import salome_notebook
 
 notebook = salome_notebook.NoteBook(theStudy)
 sys.path.insert(0, r"/misc/dn27/users_Linux/eap/salome/tmp")
 
-import iparameters
+from salome.kernel import iparameters
 
 ipar = iparameters.IParameters(
     salome.myStudy.GetCommonParameters("Interface Applicative", 1), True
@@ -124,7 +124,7 @@ part0_with_layer.setName("part0_with_layer")
 
 WriteMesh("part.med", part0_with_layer, False)
 
-import SMESH, SALOMEDS
+from salome.kernel import SMESH, SALOMEDS
 from salome.smesh import smeshBuilder
 
 smesh = smeshBuilder.New(theStudy)
@@ -134,7 +134,7 @@ smesh = smeshBuilder.New(theStudy)
 Mesh_2_WL.TranslateObject(Mesh_2_WL, [5, 0, 0], 0)
 
 ### Store presentation parameters of displayed objects
-import iparameters
+from salome.kernel import iparameters
 
 ipar = iparameters.IParameters(
     theStudy.GetModuleParameters("Interface Applicative", "SMESH", 1)

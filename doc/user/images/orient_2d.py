@@ -5,13 +5,13 @@
 ###
 
 import sys
-import salome
+from salome.kernel import salome
 import math
 
 salome.salome_init()
 theStudy = salome.myStudy
 
-import iparameters
+from salome.kernel import iparameters
 
 ipar = iparameters.IParameters(
     salome.myStudy.GetCommonParameters("Interface Applicative", 1), True
@@ -85,7 +85,7 @@ mesh2d = MEDCouplingCMesh("mesh2")
 mesh2d.setCoords(coordsArr, coordsArr[:2])
 WriteMesh("mesh1.med", mesh2d, True)
 
-import SMESH, SALOMEDS
+from salome.kernel import SMESH, SALOMEDS
 from salome.smesh import smeshBuilder
 
 smesh = smeshBuilder.New(theStudy)
@@ -95,7 +95,7 @@ m2 = m_2d.TranslateObjectMakeMesh(m_2d, [-6, 0, 0])
 m2.Reorient([2, 4])
 
 ### Store presentation parameters of displayed objects
-import iparameters
+from salome.kernel import iparameters
 
 ipar = iparameters.IParameters(
     theStudy.GetModuleParameters("Interface Applicative", "SMESH", 1)

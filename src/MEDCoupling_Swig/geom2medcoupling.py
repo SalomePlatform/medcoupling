@@ -27,11 +27,11 @@ def __to_geomshape_3D(mcmesh):
     """
     Precondition mcmesh is a MEDCouplingUMesh containing exactly one linear 3D cell.
     """
-    import salome
+    from salome.kernel import salome
 
     salome.standalone()
     salome.salome_init()
-    import GEOM
+    from salome.kernel import GEOM
     from salome.geom import geomBuilder
 
     geompy = geomBuilder.New()
@@ -105,7 +105,7 @@ def compute_interpolation_P0P0_matrix_with_geom(srcMesh, trgMesh):
             from salome.geom import geomBuilder
 
             geompy = geomBuilder.New()
-            import GEOM
+            from salome.kernel import GEOM
 
             geompy.ExportBREP(src_geom, "src.brep")
             geompy.ExportBREP(trg_geom, "trg.brep")

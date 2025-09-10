@@ -5,7 +5,7 @@
 ###
 
 import os
-import salome
+from salome.kernel import salome
 
 salome.salome_init()
 theStudy = salome.myStudy
@@ -33,7 +33,7 @@ WriteMesh(medfile, mesh, True)
 f = mesh.getMeasureField(True)
 WriteFieldUsingAlreadyWrittenMesh(medfile, f)
 
-import iparameters
+from salome.kernel import iparameters
 
 ipar = iparameters.IParameters(
     salome.myStudy.GetCommonParameters("Interface Applicative", 1), True
