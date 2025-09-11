@@ -249,6 +249,10 @@ CellModel::CellModel(NormalizedCellType type) : _type(type)
             _nb_of_sons_con[0] = 1;
             _sons_con[1][0] = 1;
             _nb_of_sons_con[1] = 1;
+            _extrude_con[0] = 0;
+            _extrude_con[1] = 1;
+            _extrude_con[2] = MAX_NB_OF_NODES_PER_ELEM + 1;
+            _extrude_con[3] = MAX_NB_OF_NODES_PER_ELEM + 0;
         }
         break;
         case NORM_SEG3:
@@ -269,6 +273,14 @@ CellModel::CellModel(NormalizedCellType type) : _type(type)
             _nb_of_sons_con[1] = 1;
             _sons_con[2][0] = 2;
             _nb_of_sons_con[2] = 1;
+            _extrude_con[0] = 0;
+            _extrude_con[1] = 1;
+            _extrude_con[2] = 2 * MAX_NB_OF_NODES_PER_ELEM + 1;
+            _extrude_con[3] = 2 * MAX_NB_OF_NODES_PER_ELEM + 0;
+            _extrude_con[4] = 2;
+            _extrude_con[5] = MAX_NB_OF_NODES_PER_ELEM + 1;
+            _extrude_con[6] = 2 * MAX_NB_OF_NODES_PER_ELEM + 2;
+            _extrude_con[7] = MAX_NB_OF_NODES_PER_ELEM + 0;
         }
         break;
         case NORM_SEG4:
