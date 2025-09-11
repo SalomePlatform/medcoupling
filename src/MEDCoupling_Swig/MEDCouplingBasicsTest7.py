@@ -9539,6 +9539,112 @@ class MEDCouplingBasicsTest7(unittest.TestCase):
                 ].isEqual(m.getCoords(), 1e-12)
             )
 
+    def testUMeshExtrudeConnectivity_seg23(self):
+        """
+        [EDF33451] : Fix MEDCouplingUMesh.extrudeConnectivity for seg2 et seg3
+        """
+        m = MEDCouplingUMesh("", 1)
+        m.setCoords(DataArrayDouble([(0, 0, 0), (0, 1, 0), (0, 2, 0)]))
+        m.allocateCells()
+        m.insertNextCell(NORM_SEG2, [0, 1])
+        m.insertNextCell(NORM_SEG2, [1, 2])
+        mext = m.extrudeConnectivity(3)
+        mext.checkConsistency()
+        conn = MEDCoupling1SGTUMesh(mext).getNodalConnectivity()
+        self.assertTrue(
+            conn.isEqual(
+                DataArrayInt(
+                    [
+                        0,
+                        1,
+                        4,
+                        3,
+                        1,
+                        2,
+                        5,
+                        4,
+                        3,
+                        4,
+                        7,
+                        6,
+                        4,
+                        5,
+                        8,
+                        7,
+                        6,
+                        7,
+                        10,
+                        9,
+                        7,
+                        8,
+                        11,
+                        10,
+                    ]
+                )
+            )
+        )
+        m = m.deepCopy()
+        m.convertLinearCellsToQuadratic()
+        mext2 = m.extrudeConnectivity(3)
+        mext2.checkConsistency()
+        conn2 = MEDCoupling1SGTUMesh(mext2).getNodalConnectivity()
+        self.assertTrue(
+            conn2.isEqual(
+                DataArrayInt(
+                    [
+                        0,
+                        1,
+                        11,
+                        10,
+                        3,
+                        6,
+                        13,
+                        5,
+                        1,
+                        2,
+                        12,
+                        11,
+                        4,
+                        7,
+                        14,
+                        6,
+                        10,
+                        11,
+                        21,
+                        20,
+                        13,
+                        16,
+                        23,
+                        15,
+                        11,
+                        12,
+                        22,
+                        21,
+                        14,
+                        17,
+                        24,
+                        16,
+                        20,
+                        21,
+                        31,
+                        30,
+                        23,
+                        26,
+                        33,
+                        25,
+                        21,
+                        22,
+                        32,
+                        31,
+                        24,
+                        27,
+                        34,
+                        26,
+                    ]
+                )
+            )
+        )
+
     def testUMesh_orientCorrectly3DCells(self):
         """
         [EDF32603] : MEDCouplingUMesh.orientCorrectly3DCells
