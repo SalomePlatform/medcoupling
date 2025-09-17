@@ -59,56 +59,62 @@ def _getReorderArray(mailGt: str):
     import MEDLoader as ml
 
     typesToReorder = {
-        "PENTA15": [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 13, 14, 9, 10, 11],
-        "PENTA18": [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 13, 14, 9, 10, 11, 15, 16, 17],
+        "TETRA4": [0, 2, 1, 3],
+        "TETRA10": [0, 2, 1, 3, 6, 5, 4, 7, 9, 8],
+        "PYRAM5": [0, 3, 2, 1, 4],
+        "PYRAM13": [0, 3, 2, 1, 4, 8, 7, 6, 5, 9, 12, 11, 10],
+        "PENTA6": [0, 2, 1, 3, 5, 4],
+        "PENTA15": [0, 2, 1, 3, 5, 4, 8, 7, 6, 14, 13, 12, 9, 11, 10],
+        "PENTA18": [0, 2, 1, 3, 5, 4, 8, 7, 6, 14, 13, 12, 9, 11, 10, 17, 16, 15],
+        "HEXA8": [0, 3, 2, 1, 4, 7, 6, 5],
         "HEXA20": [
             0,
-            1,
-            2,
             3,
+            2,
+            1,
             4,
-            5,
-            6,
             7,
-            8,
-            9,
-            10,
+            6,
+            5,
             11,
-            16,
-            17,
-            18,
+            10,
+            9,
+            8,
             19,
+            18,
+            17,
+            16,
             12,
-            13,
-            14,
             15,
+            14,
+            13,
         ],
         "HEXA27": [
             0,
-            1,
-            2,
             3,
+            2,
+            1,
             4,
-            5,
-            6,
             7,
-            8,
-            9,
-            10,
+            6,
+            5,
             11,
-            16,
-            17,
-            18,
+            10,
+            9,
+            8,
             19,
+            18,
+            17,
+            16,
             12,
-            13,
-            14,
             15,
+            14,
+            13,
             20,
-            21,
-            22,
-            23,
             24,
+            23,
+            22,
+            21,
             25,
             26,
         ],
@@ -159,6 +165,7 @@ def _buildUmesh(coords, elements, title, groupesNo, groupesMa, mapGeoCellName):
 
     dicoCellDim = {}  # Dictionary for geometric types and their dimensions
     mapGeoIdMm = {}  # Dictionary for geometric types and their mm IDs
+    renumDim = {}  # Dictionary containing if necessary renumbering of cells o2n
 
     for dim in reversed(list(allDims)):
         # Filter the geo types of the current dimension
@@ -171,16 +178,16 @@ def _buildUmesh(coords, elements, title, groupesNo, groupesMa, mapGeoCellName):
         ms = []
         offset = 0
         for mailGt, mcGt in sorted(gts, key=lambda x: _getGeoTypeDict()[x[0]]):
-            connQuad4 = ml.DataArrayInt(elements[mailGt])
-            connQuad4 = connQuad4[:, _getReorderArray(mailGt)]
-            connQuad4.rearrange(1)
-            mQuad4 = ml.MEDCoupling1SGTUMesh("", mcGt)
-            mQuad4.setCoords(coordsMC)
-            mQuad4.setNodalConnectivity(connQuad4)
-            ms.append(mQuad4.buildUnstructured())
+            connGt = ml.DataArrayInt(elements[mailGt])
+            connGt = connGt[:, _getReorderArray(mailGt)]
+            connGt.rearrange(1)
+            mGt = ml.MEDCoupling1SGTUMesh("", mcGt)
+            mGt.setCoords(coordsMC)
+            mGt.setNodalConnectivity(connGt)
+            ms.append(mGt.buildUnstructured())
             dicoOffset[mailGt] = offset
             i = offset
-            offset += mQuad4.getNumberOfCells()
+            offset += mGt.getNumberOfCells()
             dicoCellDim[mailGt] = dim
             IdCellMm = []
             while i < offset:
@@ -189,7 +196,16 @@ def _buildUmesh(coords, elements, title, groupesNo, groupesMa, mapGeoCellName):
 
             mapGeoIdMm[mailGt] = IdCellMm
 
-        mm[dim - maxDim] = ml.MEDCouplingUMesh.MergeUMeshesOnSameCoords(ms)
+        # see EDF33583 for zzzz366a.mail
+        um = ml.MEDCouplingUMesh.MergeUMeshesOnSameCoords(ms)
+
+        o2n = um.sortCellsInMEDFileFrmt()
+
+        if o2n:
+            n2o = o2n.invertArrayO2N2N2O(um.getNumberOfCells())
+            renumDim[dim] = n2o
+
+        mm[dim - maxDim] = um
 
     mapIdNameCell = {}
     for key in mapGeoIdMm:
@@ -200,7 +216,17 @@ def _buildUmesh(coords, elements, title, groupesNo, groupesMa, mapGeoCellName):
         # Merge the lists with zip, but we manage the size difference if necessary
         mapIdNameCell[key] = list(zip(list2, list1))  # Pairs of corresponding elements
 
-    mm.setName(title)
+    meshName = title[:64].strip()  # 64 == MED_NAME_SIZE
+
+    # see EDF34008 && EDF33583
+    IMPLICIT_MED_FILE_MAX_MESH_NAME_SIZE = 36
+
+    if len(meshName) >= IMPLICIT_MED_FILE_MAX_MESH_NAME_SIZE:
+        print(
+            f"Name of mesh is >= {IMPLICIT_MED_FILE_MAX_MESH_NAME_SIZE}. MED file will fail : see MED file bug EDF34008"
+        )
+
+    mm.setName(meshName)
 
     dimPerCell = {}
     idMedPerCell = {}
@@ -219,7 +245,15 @@ def _buildUmesh(coords, elements, title, groupesNo, groupesMa, mapGeoCellName):
             idsOfCellsWithDim = ml.DataArrayInt(dimPerCellVect).findIdsEqual(
                 dimOfCellGrp
             )
-            arr = ml.DataArrayInt(idMedVect)[idsOfCellsWithDim]
+            arr0 = ml.DataArrayInt(idMedVect)[idsOfCellsWithDim]
+            arr = ml.DataArrayInt(sorted(arr0.getValues()))
+
+            #
+            if dimOfCellGrp in renumDim:
+                if renumDim[dimOfCellGrp]:
+                    arr.transformWithIndArr(renumDim[dimOfCellGrp])
+                    arr.sort()
+            #
             arr.setName(cellGrp)
             mm.addGroup(dimOfCellGrp - maxDim, arr)
 
@@ -233,10 +267,92 @@ def _buildUmesh(coords, elements, title, groupesNo, groupesMa, mapGeoCellName):
     return mm
 
 
-def _parseMeshFile(fichier):
+def _zip_line(line):
+    # Restituer la ligne sans champs et les champs à part
+    spline = line.split()
+    fields = dict(i.split("=") for i in spline if ("=" in i and len(i.split("=")) == 2))
+    zipped = " ".join((i for i in spline if "=" not in i)).strip()
+    return zipped, fields
+
+
+def _zip_block(block):
+    strip = {" =": "=", "= ": "="}
+    # Supprimer l'ensemble des espaces avant et après le =
+    # Afin d'identifier les champs
+    while any(key in block for key in strip.keys()):
+        for k, sk in strip.items():
+            block = block.replace(k, sk)
+    lines = (line for line in block.split("\n") if len(line) > 0)
+
+    fields = {}
+    zipped_lines = []
+    for item in lines:
+        zipped, flds = _zip_line(item)
+        if len(zipped) > 0:
+            zipped_lines.append(zipped)
+        fields.update(flds)
+
+    block_name = zipped_lines[0]
+    block_body = " ".join(zipped_lines[1:]).split()
+    return block_name, block_body, fields
+
+
+def _remove_comments_and_split(fstream):
+    comment = "%"
+    txt = "\n".join(line.partition(comment)[0].strip() for line in fstream)
+    return txt.split("FINSF")
+
+
+def _parseCoordsBlock(bname, bbody):
+    """Parse coordinates in a block"""
+    space_dim = int(bname.strip("COOR_").strip("D"))
+    n = space_dim + 1
+
+    coords = []
+    nodesMap = {}
+
+    for i in range(0, len(bbody), n):
+        nodesMap[bbody[i]] = len(coords)
+        coor_str = [s.replace("D", "E").replace("d", "e") for s in bbody[i + 1 : i + n]]
+        coords.append(list(map(float, coor_str)))
+
+    return coords, nodesMap
+
+
+def _getGrpName(bfields):
+    """Get name for group"""
+    try:
+        grp_name = bfields["NOM"]
+    except:
+        val = bfields[list(bfields.keys())[0]]
+        raise ValueError(f" Group name '{val}' is missing or badly formatted.")
+    return grp_name
+
+
+def _parseElementsBlock(bname, bbody):
+    """Parse all elements in a block"""
+    import MEDLoader as ml
+
+    etype = bname
+    nb_nodes = ml.MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(
+        _getGeoTypeDict()[etype]
+    )
+    n = nb_nodes + 1
+
+    elements = []
+    cellsName = []
+
+    for i in range(0, len(bbody), n):
+        cellsName.append(bbody[i])
+        elements.append(bbody[i + 1 : i + n])
+
+    return elements, cellsName
+
+
+def _parseMeshFile(filename):
     # Open and read all lines from the mesh file
-    with open(fichier, "r") as f:
-        lines = iter(f.readlines())  # Create an iterator over the lines of the file
+    with open(filename, "r") as f:
+        mesh_blocks = _remove_comments_and_split(f)
 
     # Initialize variables and flags
     coords, nodesMap, elements = [], {}, {}
@@ -245,152 +361,57 @@ def _parseMeshFile(fichier):
     # element : Dict of element_type → list of connectivity lists
     groupesNo, groupesMa = {}, {}  # dict of nodes and mesh group
     mapGeoCellName = {}  # Map of element type → list of cells IDs
-    title, dim = "", 0
+    title = "mesh"
 
-    # Parsing state variables
-    mode = None
-    currentElemType = ""
-    currentElemList = []
-    currentGroup = []
-    groupName = ""
+    for block in mesh_blocks:
+        bname, bbody, bfields = _zip_block(block)
 
-    # Loop through each line in the file
-    lineNum = 0
-    for line in lines:
-        lineNum += 1
-        line = line.strip()
-        if not line or line.startswith("#"):  # Skip empty lines and comments
-            continue
+        if bname in ("COOR_3D", "COOR_2D"):
+            coords, nodesMap = _parseCoordsBlock(bname, bbody)
 
-        # Handle mode switching based on section headers
-        if _is_mode_switch(line):
-            mode, dim, currentElemType, currentElemList = _update_mode(
-                line, elements, mapGeoCellName, dim
-            )
-            if mode in ["groupNo", "groupMa"]:
-                groupName, currentGroup = line, []  # Reset group data
-            continue
-        elif line.startswith("FINSF"):
-            _handleGroupEnd(mode, groupName, currentGroup, groupesNo, groupesMa)
-            mode, groupName, currentGroup = None, "", []  # Reset mode and group data
-            continue
+        elif bname in ("GROUP_MA",):
+            if len(bfields) > 0:
+                grp_name = _getGrpName(bfields)
+                groupesMa[grp_name] = bbody
+            else:
+                grp_name = bbody[0]
+                groupesMa[grp_name] = bbody[1:]
 
-        # Dispatch parsing based on current mode
-        if mode == "title":
-            title = line.strip()  # Store mesh title
-        elif mode == "coords":
-            _parseCoordsLine(line, dim, coords, nodesMap)  # Parse node coordinates
-        elif mode == "elements":
-            lineNum = _parseElementsLine(
-                line, lines, currentElemType, elements, currentElemList, lineNum
-            )  # Parse element connectivity
-        elif mode == "groupNo" or mode == "groupMa":
-            groupName, currentGroup = _parseGroupLine(
-                line, groupName, currentGroup, lineNum
-            )  # Parse group definitions
+        elif bname in ("GROUP_NO",):
+            if len(bfields) > 0:
+                grp_name = _getGrpName(bfields)
+                groupesNo[grp_name] = bbody
+            else:
+                grp_name = bbody[0]
+                groupesNo[grp_name] = bbody[1:]
+
+        elif bname in _getGeoTypeDict():
+            etype = bname
+            new_elem, new_name = _parseElementsBlock(etype, bbody)
+
+            elements.setdefault(etype, [])
+            elements[etype].extend(new_elem)
+            mapGeoCellName.setdefault(etype, [])
+            mapGeoCellName[etype].extend(new_name)
+        elif bname in ("TITRE"):
+            if len(bbody) > 0:
+                title = ""
+                if len(bfields) > 0:
+                    key = list(bfields.keys())[0]
+                    title = key + " = " + bfields[key]
+                for word in bbody:
+                    title += " " + word
+        else:
+            pass
 
     # Transforming connectivities into integer indices
     for etype in elements:
         elements[etype] = [[nodesMap[n] for n in conn] for conn in elements[etype]]
     # Transform node groups into indices
     for group in groupesNo:
-        groupesNo[group] = [nodesMap[n] for n in groupesNo[group]]
-    #     # Transformer les groupes de mailles en indices
-    # for groupName in groupesMa:
-    #     groupesMa[groupName] = [int(m[1:]) for m in groupesMa[groupName] if m.startswith('M')]
+        groupesNo[group] = sorted([nodesMap[n] for n in groupesNo[group]])
 
     return coords, elements, title, groupesNo, groupesMa, mapGeoCellName
-
-
-def _is_mode_switch(line):
-    #  Check if the current line indicates a mode change (section header).
-    return (
-        line.startswith("TITRE")
-        or line.startswith("COOR_")
-        or line in _getGeoTypeDict()
-        or line.startswith("GROUP_NO")
-        or line.startswith("GROUP_MA")
-    )
-
-
-def _update_mode(line, elements, mapGeoCellName, dim):
-    #  Update parsing mode and initialize relevant data structures.
-    if line.startswith("TITRE"):
-        return "title", dim, "", []
-    elif line.startswith("COOR_2D"):
-        dim = 2
-        return "coords", dim, "", []
-    elif line.startswith("COOR_3D"):
-        dim = 3
-        return "coords", dim, "", []
-    elif line in _getGeoTypeDict():
-        elements.setdefault(line, [])
-        mapGeoCellName[line] = []
-        return "elements", dim, line, mapGeoCellName[line]
-    elif line.startswith("GROUP_NO"):
-        return "groupNo", dim, "", []
-    elif line.startswith("GROUP_MA"):
-        return "groupMa", dim, "", []
-    return None, dim, "", []
-
-
-def _parseCoordsLine(line, dim, coords, nodesMap):
-    # Parse a single coordinate line and update coords and node map.
-    # if len(parts) < (1 + dim): genrate an error? ??
-    parts = line.split()
-    nid = parts[0]
-    coord = list(map(float, parts[1 : 1 + dim]))
-    nodesMap[nid] = len(coords)
-    coords.append(coord)
-
-
-def _parseElementsLine(line, lines, elementType, elements, cell_names, lineNum):
-    # Parse a line from an element block, handling multi-line node connectivity.
-    import MEDLoader as ml
-
-    parts = line.split()
-    if not parts:
-        return
-    name = parts[0]
-    conn = parts[1:]
-    nodes_needed = ml.MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(
-        _getGeoTypeDict()[elementType]
-    )
-    while len(conn) < nodes_needed:
-        conn += next(lines).strip().split()
-        lineNum += 1
-    elements[elementType].append(conn)
-    cell_names.append(name)
-    return lineNum
-
-
-def _parseGroupLine(line, groupName, groupData, lineNum):
-    #  Parse a line inside a GROUP_NO or GROUP_MA section.
-    import re
-
-    if groupName == "GROUP_NO" or groupName == "GROUP_MA":
-        groupName = line
-        return groupName, []
-    elif groupName.startswith("GROUP_NO") or groupName.startswith("GROUP_MA"):
-        pat = "[\s]*NOM[\s]*\=[\s]*"
-        if not re.search(pat, groupName):
-            raise ValueError(
-                f" Group name is missing or badly formatted on line {lineNum - 1}"
-            )
-        parts = re.split(pat, groupName)
-        groupName = parts[1].strip()
-    groupData.extend(line.split())
-    return groupName, groupData
-
-
-def _handleGroupEnd(mode, groupName, groupData, groupesNo, groupesMa):
-    # Finalize group and store it in the correct dictionary
-    if not groupName:
-        return
-    if mode == "groupNo":
-        groupesNo[groupName] = groupData[:]
-    elif mode == "groupMa":
-        groupesMa[groupName] = groupData[:]
 
 
 def LoadMailFileInMEDFileUMeshInstance(inputMailFilePath: str):

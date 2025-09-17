@@ -235,7 +235,7 @@ class TestFullParseMeshFile(unittest.TestCase):
             ]
         )
         self.assertTrue(mm.getCoords().isEqual(cooRef, 1e-12))
-        self.assertTrue(mm.getName() == "%  GIBI FECIT")
+        self.assertTrue(mm.getName() == "GIBI FECIT")
         self.assertTrue(mm.getNonEmptyLevels() == (0, -1))
         # niveau0
         self.assertTrue(
@@ -1503,7 +1503,7 @@ class TestFullParseMeshFile(unittest.TestCase):
             mm = LoadMailFileInMEDFileUMeshInstance(filename)
             assert False, "Expected ValueError not raised"
         except ValueError as e:
-            assert "Group name is missing or badly formatted on line 32" in str(e)
+            assert "Group name 'les_seg2' is missing or badly formatted." in str(e)
 
     def testHexa20(self):
         """
@@ -1541,10 +1541,10 @@ N20  1.000000000000000E+00 1.000000000000000E+00 5.000000000000000E-01
 FINSF
 
 HEXA20
-M1     N1 N2 N3 N4 N5 N6 N7
-      N8 N9 N10 N11 N12 N17
-      N18 N19 N20 N13 N14
-      N15 N16
+M1     N1 N2 N4 N3 N5 N6 N8
+      N7 N9 N12 N11 N10 N18
+      N17 N20 N19 N13 N16
+      N15 N14
 FINSF
 
 FIN
@@ -1630,25 +1630,25 @@ FIN
                         [
                             30,
                             0,
-                            1,
                             2,
                             3,
+                            1,
                             4,
-                            5,
                             6,
                             7,
-                            8,
+                            5,
                             9,
                             10,
                             11,
-                            12,
+                            8,
                             13,
                             14,
                             15,
-                            16,
+                            12,
                             17,
                             18,
                             19,
+                            16,
                         ]
                     )
                 )
