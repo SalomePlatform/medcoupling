@@ -220,23 +220,15 @@ MEDCouplingUMesh::getCellsContainingPointsAlg(
  * For speed reasons no check of this will be done.
  */
 template <class SonsGenerator>
-MEDCouplingUMesh *
-MEDCouplingUMesh::buildDescendingConnectivityGen(
-    DataArrayIdType *desc,
-    DataArrayIdType *descIndx,
-    DataArrayIdType *revDesc,
-    DataArrayIdType *revDescIndx,
-    DimM1DescNbrer nbrer
+MCAuto<MEDCouplingUMesh>
+MEDCouplingUMesh::buildDescendingConnectivityNoFuseGen(
+    DataArrayIdType *descIndx, MCAuto<DataArrayIdType> &revNodalIndx, MCAuto<DataArrayIdType> &revDesc2
 ) const
 {
-    if (!desc || !descIndx || !revDesc || !revDescIndx)
-        throw INTERP_KERNEL::Exception(
-            "MEDCouplingUMesh::buildDescendingConnectivityGen : present of a null pointer in input !"
-        );
     checkConnectivityFullyDefined();
     mcIdType nbOfCells = getNumberOfCells();
     mcIdType nbOfNodes = getNumberOfNodes();
-    MCAuto<DataArrayIdType> revNodalIndx = DataArrayIdType::New();
+    revNodalIndx = DataArrayIdType::New();
     revNodalIndx->alloc(nbOfNodes + 1, 1);
     revNodalIndx->fillWithZero();
     mcIdType *revNodalIndxPtr = revNodalIndx->getPointer();
@@ -248,7 +240,7 @@ MEDCouplingUMesh::buildDescendingConnectivityGen(
     ret->setCoords(getCoords());
     ret->allocateCells(2 * nbOfCells);
     descIndx->alloc(nbOfCells + 1, 1);
-    MCAuto<DataArrayIdType> revDesc2(DataArrayIdType::New());
+    revDesc2 = DataArrayIdType::New();
     revDesc2->reserve(2 * nbOfCells);
     mcIdType *descIndxPtr = descIndx->getPointer();
     *descIndxPtr++ = 0;
@@ -273,7 +265,6 @@ MEDCouplingUMesh::buildDescendingConnectivityGen(
         }
         descIndxPtr[0] = descIndxPtr[-1] + ToIdType(nbOfSons);
     }
-    mcIdType nbOfCellsM1 = ret->getNumberOfCells();
     std::transform(
         revNodalIndxPtr + 1,
         revNodalIndxPtr + nbOfNodes + 1,
@@ -281,6 +272,32 @@ MEDCouplingUMesh::buildDescendingConnectivityGen(
         revNodalIndxPtr + 1,
         std::plus<mcIdType>()
     );
+    return ret;
+}
+
+/*!
+ * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
+ * For speed reasons no check of this will be done.
+ */
+template <class SonsGenerator>
+MEDCouplingUMesh *
+MEDCouplingUMesh::buildDescendingConnectivityGen(
+    DataArrayIdType *desc,
+    DataArrayIdType *descIndx,
+    DataArrayIdType *revDesc,
+    DataArrayIdType *revDescIndx,
+    DimM1DescNbrer nbrer
+) const
+{
+    if (!desc || !descIndx || !revDesc || !revDescIndx)
+        throw INTERP_KERNEL::Exception(
+            "MEDCouplingUMesh::buildDescendingConnectivityGen : present of a null pointer in input !"
+        );
+    DataArrayIdType *commonCells(nullptr), *commonCellsI(nullptr);
+    MCAuto<DataArrayIdType> revNodalIndx, revDesc2;
+    MCAuto<MEDCouplingUMesh> ret(buildDescendingConnectivityNoFuseGen<SonsGenerator>(descIndx, revNodalIndx, revDesc2));
+    const mcIdType *revNodalIndxPtr(revNodalIndx->begin());
+    mcIdType nbOfCellsM1 = ret->getNumberOfCells();
     MCAuto<DataArrayIdType> revNodal = DataArrayIdType::New();
     revNodal->alloc(revNodalIndx->back(), 1);
     std::fill(revNodal->getPointer(), revNodal->getPointer() + revNodalIndx->back(), -1);
@@ -299,8 +316,6 @@ MEDCouplingUMesh::buildDescendingConnectivityGen(
                     std::bind(std::equal_to<mcIdType>(), std::placeholders::_1, -1)
                 ) = eltId;
     }
-    //
-    DataArrayIdType *commonCells = 0, *commonCellsI = 0;
     FindCommonCellsAlg(
         3,
         0,

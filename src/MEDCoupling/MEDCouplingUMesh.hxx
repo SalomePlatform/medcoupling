@@ -136,6 +136,12 @@ class MEDCouplingUMesh : public MEDCouplingPointSet
     MEDCOUPLING_EXPORT static int AreCellsEqualPolicy7(
         const mcIdType *conn, const mcIdType *connI, mcIdType cell1, mcIdType cell2
     );
+    MEDCOUPLING_EXPORT static int AreCellsEqualPolicy8(
+        const mcIdType *conn, const mcIdType *connI, mcIdType cell1, mcIdType cell2
+    );
+    MEDCOUPLING_EXPORT static int AreCellsEqualPolicy9(
+        const mcIdType *conn, const mcIdType *connI, mcIdType cell1, mcIdType cell2
+    );
     MEDCOUPLING_EXPORT void convertToPolyTypes(const mcIdType *cellIdsToConvertBg, const mcIdType *cellIdsToConvertEnd);
     MEDCOUPLING_EXPORT void convertAllToPoly();
     MEDCOUPLING_EXPORT void convertExtrudedPolyhedra();
@@ -171,6 +177,12 @@ class MEDCouplingUMesh : public MEDCouplingPointSet
         MCAuto<DataArrayIdType> &descIndx,
         MCAuto<DataArrayIdType> &revDesc,
         MCAuto<DataArrayIdType> &revDescIndx
+    ) const;
+    MEDCOUPLING_EXPORT MCAuto<MEDCouplingUMesh> buildDescendingConnectivityCrude(
+        MCAuto<DataArrayIdType> &descIndx, MCAuto<DataArrayIdType> &revNodalIndx, MCAuto<DataArrayIdType> &revDesc
+    ) const;
+    MEDCOUPLING_EXPORT MCAuto<MEDCouplingUMesh> explode3DMeshTo1DCrude(
+        MCAuto<DataArrayIdType> &descIndx, MCAuto<DataArrayIdType> &revNodalIndx, MCAuto<DataArrayIdType> &revDesc
     ) const;
     MEDCOUPLING_EXPORT MEDCouplingUMesh *explode3DMeshTo1D(
         DataArrayIdType *desc, DataArrayIdType *descIndx, DataArrayIdType *revDesc, DataArrayIdType *revDescIndx
@@ -545,6 +557,27 @@ class MEDCouplingUMesh : public MEDCouplingPointSet
     );
     MEDCouplingUMesh *buildPartOfMySelfKeepCoords(const mcIdType *begin, const mcIdType *end) const;
     MEDCouplingUMesh *buildPartOfMySelfKeepCoordsSlice(mcIdType start, mcIdType end, mcIdType step) const;
+    static void FindCommonCellsAlgCompType8_9(
+        int compType,
+        mcIdType startCellId,
+        const DataArrayIdType *nodal,
+        const DataArrayIdType *nodalI,
+        const DataArrayIdType *revNodal,
+        const DataArrayIdType *revNodalI,
+        DataArrayIdType *&commonCellsArr,
+        DataArrayIdType *&commonCellsIArr
+    );
+    template <class Functor>
+    static void FindCommonCellsAlgPrivate(
+        int compType,
+        mcIdType startCellId,
+        const DataArrayIdType *nodal,
+        const DataArrayIdType *nodalI,
+        const DataArrayIdType *revNodal,
+        const DataArrayIdType *revNodalI,
+        DataArrayIdType *&commonCellsArr,
+        DataArrayIdType *&commonCellsIArr
+    );
     DataArrayIdType *convertLinearCellsToQuadratic1D0(
         DataArrayIdType *&conn,
         DataArrayIdType *&connI,
@@ -620,6 +653,10 @@ class MEDCouplingUMesh : public MEDCouplingPointSet
         const mcIdType *conn1,
         const mcIdType *conn2
     );
+    template <class SonsGenerator>
+    MCAuto<MEDCouplingUMesh> buildDescendingConnectivityNoFuseGen(
+        DataArrayIdType *descIndx, MCAuto<DataArrayIdType> &revNodalIndx, MCAuto<DataArrayIdType> &revDesc2
+    ) const;
     template <class SonsGenerator>
     MEDCouplingUMesh *buildDescendingConnectivityGen(
         DataArrayIdType *desc,

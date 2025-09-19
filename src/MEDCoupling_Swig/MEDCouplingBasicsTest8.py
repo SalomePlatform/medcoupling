@@ -66,6 +66,71 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
         self.assertAlmostEqual(distance4, 1.0330392593158102, 12)
         pass
 
+    def test_UMesh_buildDescendingCrude_explodeCrude_0(self):
+        """
+        [EDF33593] : fine control on buildDescendingConnectivity
+        """
+        NX = 4
+        arr = mc.DataArrayDouble(NX)
+        arr.iota()
+        m = mc.MEDCouplingCMesh()
+        m.setCoords(arr, arr)
+        m2D = m.buildUnstructured()
+        m1D, descIndx, revNodalIndex, revDesc = m2D.buildDescendingConnectivityCrude()
+        # revDesc
+        self.assertTrue(len(revDesc), (NX - 1) * (NX - 1) + 4)
+        revDesc.rearrange(4)
+        self.assertTrue(revDesc[:, 0].isIota((NX - 1) * (NX - 1)))
+        for i in range(1, 4):
+            self.assertTrue(revDesc[:, 0].isEqual(revDesc[:, i]))
+        # revNodalIndex : for each node gives # of seg2 sharing it
+        self.assertEqual(len(revNodalIndex), NX * NX + 1)
+        self.assertTrue(
+            revNodalIndex.isEqual(
+                mc.DataArrayInt(
+                    [0, 2, 6, 10, 12, 16, 24, 32, 36, 40, 48, 56, 60, 62, 66, 70, 72]
+                )
+            )
+        )
+        #
+        self.assertTrue((descIndx // 4).isIota((NX - 1) * (NX - 1) + 1))
+        m1D.checkConsistency()
+        m1D = mc.MEDCoupling1SGTUMesh(m1D)
+        self.assertEqual(
+            m1D.getCoords().getHiddenCppPointer(), m2D.getCoords().getHiddenCppPointer()
+        )
+        self.assertEqual(m1D.getNumberOfCells(), 4 * (NX - 1) * (NX - 1))
+        self.assertEqual(m1D.getCellModelEnum(), mc.NORM_SEG2)
+        #
+        m = mc.MEDCouplingCMesh()
+        m.setCoords(arr, arr, arr)
+        m3D = m.buildUnstructured()
+        m1D, descIndx, revNodalIndex, revDesc = m3D.explode3DMeshTo1DCrude()
+        m1D.checkConsistency()
+        m1D = mc.MEDCoupling1SGTUMesh(m1D)
+        self.assertEqual(
+            m1D.getCoords().getHiddenCppPointer(), m3D.getCoords().getHiddenCppPointer()
+        )
+        self.assertEqual(m1D.getNumberOfCells(), 12 * (NX - 1) * (NX - 1) * (NX - 1))
+        self.assertEqual(m1D.getCellModelEnum(), mc.NORM_SEG2)
+        pass
+
+    def test_UMesh_findCommonCells_ct89_0(self):
+        """
+        [EDF33593] : add compType 8 and 9 to findCommonCells
+        """
+        coo = mc.DataArrayDouble([(0, 0), (1, 0), (2, 0), (1, 0)])
+        m = mc.MEDCouplingUMesh("mesh", 1)
+        m.setCoords(coo)
+        m.allocateCells()
+        m.insertNextCell(mc.NORM_SEG3, [0, 2, 1])
+        m.insertNextCell(mc.NORM_SEG3, [0, 2, 3])
+        m.insertNextCell(mc.NORM_SEG3, [0, 2, 1])
+        m.checkConsistency()
+        self.assertTrue(m.findCommonCells(8)[0].isEqual(mc.DataArrayInt([0, 1, 2])))
+        self.assertTrue(m.findCommonCells(9)[0].isEqual(mc.DataArrayInt([0, 1])))
+        self.assertTrue(m.findCommonCells(2)[0].isEqual(mc.DataArrayInt([0, 2])))
+
 
 if __name__ == "__main__":
     unittest.main()
