@@ -44,7 +44,6 @@ def getLogger(level=logging.INFO):
     FORMAT = "%(levelname)s : %(asctime)s : [%(filename)s:%(funcName)s:%(lineno)s] : %(message)s"
     logging.basicConfig(format=FORMAT, level=level)
     return logging.getLogger()
-    logger = getLogger(logLev)
 
 
 def MEDFileUMeshFuseNodesAndCellsAdv(
@@ -53,12 +52,18 @@ def MEDFileUMeshFuseNodesAndCellsAdv(
     """
     Same than MEDFileUMeshfuseNodesAndCells except that
 
+    WARNING !!!! self is expected to follow MED file convention. Positive fam values for nodes, negative for cells.
+
     :return: a tuple a size 2. First element is MEDFileUMesh instance containing the result of nodes and cells fusion, 2nd element is dict storing for each level ext n2o conversions applied during transformation. key is levelext. Value is n2o array associated.
     """
     import MEDLoader as ml
 
     def updateMap(
-        mm: ml.MEDFileUMesh, lev: int, famMap: ml.DataArrayInt, famMapI: ml.DataArrayInt
+        mm: ml.MEDFileUMesh,
+        lev: int,
+        famMap: ml.DataArrayInt,
+        famMapI: ml.DataArrayInt,
+        famIdOffset: int,
     ):
         """
         mm instance to be updated
@@ -72,7 +77,7 @@ def MEDFileUMeshFuseNodesAndCellsAdv(
 
         nbOfPartSetToBeUpdated = len(famMapI) - 1
         for partSetId in range(nbOfPartSetToBeUpdated):
-            newFamId = famIdManager(lev, famMap[famMapI[partSetId]])
+            newFamId = famIdManager(lev, famMap[famMapI[partSetId]] + famIdOffset)
             newFamName = f"Family_{newFamId}"
             logger.debug(f"For level {lev} new family : {newFamId}")
             mm.addFamily(newFamName, newFamId)
@@ -85,6 +90,7 @@ def MEDFileUMeshFuseNodesAndCellsAdv(
                     mm.addFamilyOnGrp(grpToBeUpdated, newFamName)
         pass
 
+    famIdZeroForNewFamilies = self.getMaxAbsFamilyIdInArrays() + 1
     n2oHolder = {}
     logger = getLogger(level=logLev)
     initNbNodes = len(self.getCoords())
@@ -122,11 +128,19 @@ def MEDFileUMeshFuseNodesAndCellsAdv(
         famsCell = self.getFamilyFieldAtLevel(lev)
         if famsCell:
             famsCell = -famsCell
+            localFamRef = famsCell.getMaxAbsValueInArray() + 1
             famsMergedCell, famMap, famMapI = famsCell.forThisAsPartitionBuildReduction(
                 cce, ccei
             )  # <- method updating family field array
-            updateMap(mmOut, lev, famMap, famMapI)
+            nbOfNewFamsToCreate = famMapI.getNumberOfTuples() - 1
+            famsMergedCell[famsMergedCell.findIdsGreaterOrEqualTo(localFamRef)] += (
+                famIdZeroForNewFamilies - localFamRef
+            )
+            updateMap(
+                mmOut, lev, famMap, famMapI, famIdZeroForNewFamilies - localFamRef
+            )
             famsMergedCell = -famsMergedCell
+            famIdZeroForNewFamilies += nbOfNewFamsToCreate
         o2nCells, newNbCells = ml.DataArrayInt.ConvertIndexArrayToO2N(
             m1.getNumberOfCells(), cce, ccei
         )
@@ -141,10 +155,14 @@ def MEDFileUMeshFuseNodesAndCellsAdv(
 
     famsNode = self.getFamilyFieldAtLevel(1)
     if famsNode:
+        localFamRef = famsNode.getMaxAbsValueInArray() + 1
         famsMergedNode, famMap, famMapI = famsNode.forThisAsPartitionBuildReduction(
             cNode, ciNodes
         )
-        updateMap(mmOut, 1, famMap, famMapI)
+        famsMergedNode[famsMergedNode.findIdsGreaterOrEqualTo(localFamRef)] += (
+            famIdZeroForNewFamilies - localFamRef
+        )
+        updateMap(mmOut, 1, famMap, famMapI, famIdZeroForNewFamilies - localFamRef)
         mmOut.setFamilyFieldArr(1, famsMergedNode)
     return mmOut, n2oHolder
 
@@ -335,6 +353,8 @@ def FuseCellsAndNodesInMEDFile(
 ):
     """
     This method read fnameIn MED file, perform operation of fusion and write the result back MED fnameOut file.
+
+    Warning : fnameIn is expected to follow MED file convention. Positive fam values for nodes, negative for cells.
 
     Warning : fnameIn and fnameOut are expected to be separate files.
 
