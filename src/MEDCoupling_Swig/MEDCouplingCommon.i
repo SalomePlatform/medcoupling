@@ -2742,6 +2742,20 @@ namespace MEDCoupling
         return ret;
       }
 
+      PyObject *explode3DMeshTo1DCrude() const
+      {
+        MCAuto<DataArrayIdType> d0=DataArrayIdType::New();
+        MCAuto<DataArrayIdType> d1=DataArrayIdType::New();
+        MCAuto<DataArrayIdType> d2=DataArrayIdType::New();
+        MCAuto<MEDCouplingUMesh> m( self->explode3DMeshTo1DCrude(d0,d1,d2) );
+        PyObject *ret=PyTuple_New(4);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(m.retn()),SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d0.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(d1.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(d2.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
       PyObject *explode3DMeshTo1D() const
       {
         MCAuto<DataArrayIdType> d0=DataArrayIdType::New();
@@ -2797,6 +2811,20 @@ namespace MEDCoupling
         PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(d1.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(d2.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,4,SWIG_NewPointerObj(SWIG_as_voidptr(d3.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
+      PyObject *buildDescendingConnectivityCrude() const
+      {
+        MCAuto<DataArrayIdType> d0=DataArrayIdType::New();
+        MCAuto<DataArrayIdType> d1=DataArrayIdType::New();
+        MCAuto<DataArrayIdType> d2=DataArrayIdType::New();
+        MCAuto<MEDCouplingUMesh> m( self->buildDescendingConnectivityCrude(d0,d1,d2) );
+        PyObject *ret=PyTuple_New(4);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(m.retn()),SWIGTYPE_p_MEDCoupling__MEDCouplingUMesh, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(d0.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,2,SWIG_NewPointerObj(SWIG_as_voidptr(d1.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,3,SWIG_NewPointerObj(SWIG_as_voidptr(d2.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
         return ret;
       }
 

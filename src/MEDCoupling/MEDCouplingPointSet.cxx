@@ -1483,6 +1483,12 @@ MEDCouplingPointSet::buildPartOfMySelfNode(const mcIdType *begin, const mcIdType
  *   - 2 : "nodal". Two cells are considered equal \c iff they
  *         are based on same nodes and have the same type. This is the weakest
  *         policy, it can be used by users not sensitive to cell orientation.
+ *   - 7 : Less restrictive than 1 but more restrictive than 2. If nodal conn of A is a permutation
+ *         of nodal conn of B then A and B are considered same. This mode detect orientation like compType 1. Works
+ *         only for 2D and 1D.
+ *   - 8 : Only for SEG3. 2 SEG3 are considered equal if their extrimities are same. This mode detect orientation like
+ *   - 9 : Only for SEG3. 2 SEG3 are considered equal if their extrimities are same AND middle points differents. This
+ * mode detect orientation like compType 1.
  *  \param [in] startCellId - specifies the cell id at which search for equal cells
  *         starts. By default it is 0, which means that all cells in \a this will be
  *         scanned.

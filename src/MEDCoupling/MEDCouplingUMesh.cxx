@@ -778,7 +778,7 @@ MEDCouplingUMesh::getReverseNodalConnectivity(DataArrayIdType *revNodal, DataArr
  *  \ref cpp_mcumesh_buildDescendingConnectivity "Here is a C++ example".<br>
  *  \ref  py_mcumesh_buildDescendingConnectivity "Here is a Python example".
  *  \endif
- * \sa buildDescendingConnectivity2()
+ * \sa buildDescendingConnectivity2, buildDescendingConnectivityCrude
  */
 MEDCouplingUMesh *
 MEDCouplingUMesh::buildDescendingConnectivity(
@@ -788,6 +788,20 @@ MEDCouplingUMesh::buildDescendingConnectivity(
     return buildDescendingConnectivityGen<MinusOneSonsGenerator>(
         desc, descIndx, revDesc, revDescIndx, MEDCouplingFastNbrer
     );
+}
+
+/*!
+ * Equivalent to buildDescendingConnectivity method. Except that here no fusion of same cells are performed in returned
+ * mesh.
+ *
+ * \sa buildDescendingConnectivity
+ */
+MCAuto<MEDCouplingUMesh>
+MEDCouplingUMesh::buildDescendingConnectivityCrude(
+    MCAuto<DataArrayIdType> &descIndx, MCAuto<DataArrayIdType> &revNodalIndx, MCAuto<DataArrayIdType> &revDesc
+) const
+{
+    return this->buildDescendingConnectivityNoFuseGen<MinusOneSonsGenerator>(descIndx, revNodalIndx, revDesc);
 }
 
 /*!
@@ -926,7 +940,7 @@ class MinusTwoSonsGenerator
  * the transition from mesh dimension 3 to sub edges (dimension 1) in one shot. That is to say that this method is
  * equivalent to 2 successive calls to MEDCouplingUMesh::buildDescendingConnectivity. This method returns 4 arrays and a
  * mesh as MEDCouplingUMesh::buildDescendingConnectivity does.
- * \sa MEDCouplingUMesh::buildDescendingConnectivity
+ * \sa MEDCouplingUMesh::buildDescendingConnectivity, MEDCouplingUMesh::explode3DMeshTo1DCrude
  */
 MEDCouplingUMesh *
 MEDCouplingUMesh::explode3DMeshTo1D(
@@ -941,6 +955,19 @@ MEDCouplingUMesh::explode3DMeshTo1D(
     return buildDescendingConnectivityGen<MinusTwoSonsGenerator>(
         desc, descIndx, revDesc, revDescIndx, MEDCouplingFastNbrer
     );
+}
+
+/*!
+ * Equivalent to explode3DMeshTo1D method. Except that here no fusion of same cells are performed in returned mesh.
+ *
+ * /sa explode3DMeshTo1D
+ */
+MCAuto<MEDCouplingUMesh>
+MEDCouplingUMesh::explode3DMeshTo1DCrude(
+    MCAuto<DataArrayIdType> &descIndx, MCAuto<DataArrayIdType> &revNodalIndx, MCAuto<DataArrayIdType> &revDesc
+) const
+{
+    return this->buildDescendingConnectivityNoFuseGen<MinusTwoSonsGenerator>(descIndx, revNodalIndx, revDesc);
 }
 
 /*!
@@ -2043,8 +2070,12 @@ MEDCouplingUMesh::AreCellsEqual(
             return AreCellsEqualPolicy2NoType(conn, connI, cell1, cell2);
         case 7:
             return AreCellsEqualPolicy7(conn, connI, cell1, cell2);
+        case 8:
+            return AreCellsEqualPolicy8(conn, connI, cell1, cell2);
+        case 9:
+            return AreCellsEqualPolicy9(conn, connI, cell1, cell2);
     }
-    throw INTERP_KERNEL::Exception("Unknown comparison asked ! Must be in 0,1,2,3 or 7.");
+    throw INTERP_KERNEL::Exception("Unknown comparison asked ! Must be in 0,1,2,3,7,8 or 9.");
 }
 
 /*!
@@ -2204,41 +2235,80 @@ MEDCouplingUMesh::AreCellsEqualPolicy7(const mcIdType *conn, const mcIdType *con
 }
 
 /*!
- * This method find cells that are equal (regarding \a compType) in \a this. The comparison is specified by \a compType
- * (see zipConnectivityTraducer). This method keeps the coordinates of \a this. The comparison starts at rank \a
- * startCellId cell id (included). If \a startCellId is equal to 0 algorithm starts at cell #0 and for each cell
- * candidates being searched have cell id higher than current cellId. If \a startCellId is greater than 0 algorithm
- * starts at cell #startCellId but for each cell all candidates are considered. This method is time consuming.
- *
- * \param [in] compType input specifying the technique used to compare cells each other.
- *   - 0 : exactly. A cell is detected to be the same if and only if the connectivity is exactly the same without
- * permutation and types same too. This is the strongest policy.
- *   - 1 : permutation same orientation. cell1 and cell2 are considered equal if the connectivity of cell2 can be
- * deduced by those of cell1 by direct permutation (with exactly the same orientation) and their type equal. For 1D mesh
- * the policy 1 is equivalent to 0.
- *   - 2 : nodal. cell1 and cell2 are equal if and only if cell1 and cell2 have same type and have the same nodes
- * constituting connectivity. This is the laziest policy. This policy can be used for users not sensitive to orientation
- * of cell
- * \param [in] startCellId specifies the cellId starting from which the equality computation will be carried out. By
- * default it is 0, which it means that all cells in \a this will be scanned.
- * \param [out] commonCellsArr common cells ids (\ref numbering-indirect)
- * \param [out] commonCellsIArr common cells ids (\ref numbering-indirect)
- *
+ * This method is the last step of the MEDCouplingPointSet::zipConnectivityTraducer with policy 8.
  */
-void
-MEDCouplingUMesh::findCommonCells(
-    int compType, mcIdType startCellId, DataArrayIdType *&commonCellsArr, DataArrayIdType *&commonCellsIArr
-) const
+int
+MEDCouplingUMesh::AreCellsEqualPolicy8(const mcIdType *conn, const mcIdType *connI, mcIdType cell1, mcIdType cell2)
 {
-    MCAuto<DataArrayIdType> revNodal = DataArrayIdType::New(), revNodalI = DataArrayIdType::New();
-    getReverseNodalConnectivity(revNodal, revNodalI);
-    FindCommonCellsAlg(
-        compType, startCellId, _nodal_connec, _nodal_connec_index, revNodal, revNodalI, commonCellsArr, commonCellsIArr
-    );
+    mcIdType sz = connI[cell1 + 1] - connI[cell1];
+    if (sz == connI[cell2 + 1] - connI[cell2])
+    {
+        if (conn[connI[cell1]] == conn[connI[cell2]])
+        {
+            INTERP_KERNEL::NormalizedCellType ct((INTERP_KERNEL::NormalizedCellType)conn[connI[cell1]]);
+            if (ct == INTERP_KERNEL::NORM_SEG3)
+            {
+                if ((conn[connI[cell1] + 1] == conn[connI[cell2] + 1]) &&
+                    (conn[connI[cell1] + 2] == conn[connI[cell2] + 2]))
+                    return 1;
+                if ((conn[connI[cell1] + 1] == conn[connI[cell2] + 2]) &&
+                    (conn[connI[cell1] + 2] == conn[connI[cell2] + 1]))
+                    return 2;
+            }
+            else
+                THROW_IK_EXCEPTION("Cell check policy 8 : Cell #" << cell1 << " and " << cell2 << " are not SEG3 !");
+        }
+    }
+    return 0;
 }
 
+/*!
+ * This method is the last step of the MEDCouplingPointSet::zipConnectivityTraducer with policy 8.
+ */
+int
+MEDCouplingUMesh::AreCellsEqualPolicy9(const mcIdType *conn, const mcIdType *connI, mcIdType cell1, mcIdType cell2)
+{
+    mcIdType sz = connI[cell1 + 1] - connI[cell1];
+    if (sz == connI[cell2 + 1] - connI[cell2])
+    {
+        if (conn[connI[cell1]] == conn[connI[cell2]])
+        {
+            INTERP_KERNEL::NormalizedCellType ct((INTERP_KERNEL::NormalizedCellType)conn[connI[cell1]]);
+            if (ct == INTERP_KERNEL::NORM_SEG3)
+            {
+                if ((conn[connI[cell1] + 1] == conn[connI[cell2] + 1]) &&
+                    (conn[connI[cell1] + 2] == conn[connI[cell2] + 2]) &&
+                    (conn[connI[cell1] + 3] != conn[connI[cell2] + 3]))
+                    return 1;
+                if ((conn[connI[cell1] + 1] == conn[connI[cell2] + 2]) &&
+                    (conn[connI[cell1] + 2] == conn[connI[cell2] + 1]) &&
+                    (conn[connI[cell1] + 3] != conn[connI[cell2] + 3]))
+                    return 2;
+            }
+            else
+                THROW_IK_EXCEPTION("Cell check policy 8 : Cell #" << cell1 << " and " << cell2 << " are not SEG3 !");
+        }
+    }
+    return 0;
+}
+
+class ClassicalCommonFunctor
+{
+   public:
+    ClassicalCommonFunctor() = default;
+    const mcIdType *endIterator(const mcIdType *bg, const mcIdType *end) { return end; }
+};
+
+class CompType89CommonFunctor
+{
+   public:
+    CompType89CommonFunctor() = default;
+    const mcIdType *endIterator(const mcIdType *bg, const mcIdType *end) { return bg + 2; }
+};
+
+template <class Functor>
 void
-MEDCouplingUMesh::FindCommonCellsAlg(
+MEDCouplingUMesh::FindCommonCellsAlgPrivate(
     int compType,
     mcIdType startCellId,
     const DataArrayIdType *nodal,
@@ -2249,6 +2319,7 @@ MEDCouplingUMesh::FindCommonCellsAlg(
     DataArrayIdType *&commonCellsIArr
 )
 {
+    Functor functor;
     MCAuto<DataArrayIdType> commonCells = DataArrayIdType::New(), commonCellsI = DataArrayIdType::New();
     commonCells->alloc(0, 1);
     mcIdType nbOfCells = nodalI->getNumberOfTuples() - 1;
@@ -2261,23 +2332,29 @@ MEDCouplingUMesh::FindCommonCellsAlg(
     {
         for (mcIdType i = startCellId; i < nbOfCells; i++)
         {
-            if (!isFetched[i])
+            if (!isFetched[i])  // if fetched i is already in a common pack
             {
+                // get rid off -1 at begining (deg polyedra)
                 const mcIdType *connOfNode = std::find_if(
                     connPtr + connIPtr[i] + 1,
-                    connPtr + connIPtr[i + 1],
+                    functor.endIterator(connPtr + connIPtr[i] + 1, connPtr + connIPtr[i + 1]),
                     std::bind(std::not_equal_to<mcIdType>(), std::placeholders::_1, -1)
                 );
                 std::vector<mcIdType> v, v2;
-                if (connOfNode != connPtr + connIPtr[i + 1])
+                if (connOfNode != functor.endIterator(connPtr + connIPtr[i] + 1, connPtr + connIPtr[i + 1]))
                 {
+                    // use rev nodal to find candidates
+                    // locate pos in revnodal of cur cell #i
                     const mcIdType *locRevNodal = std::find(
                         revNodalPtr + revNodalIPtr[*connOfNode], revNodalPtr + revNodalIPtr[*connOfNode + 1], i
                     );
+                    // all candidates of common cells (cells sharing *connNode with rank > i ) are in v2
                     v2.insert(v2.end(), locRevNodal, revNodalPtr + revNodalIPtr[*connOfNode + 1]);
                     connOfNode++;
                 }
-                for (; connOfNode != connPtr + connIPtr[i + 1] && v2.size() > 1; connOfNode++)
+                for (; connOfNode != functor.endIterator(connPtr + connIPtr[i] + 1, connPtr + connIPtr[i + 1]) &&
+                       v2.size() > 1;
+                     connOfNode++)
                     if (*connOfNode >= 0)
                     {
                         v = v2;
@@ -2310,19 +2387,21 @@ MEDCouplingUMesh::FindCommonCellsAlg(
             {
                 const mcIdType *connOfNode = std::find_if(
                     connPtr + connIPtr[i] + 1,
-                    connPtr + connIPtr[i + 1],
+                    functor.endIterator(connPtr + connIPtr[i] + 1, connPtr + connIPtr[i + 1]),
                     std::bind(std::not_equal_to<mcIdType>(), std::placeholders::_1, -1)
                 );
                 // v2 contains the result of successive intersections using rev nodal on on each node of cell #i
                 std::vector<mcIdType> v, v2;
-                if (connOfNode != connPtr + connIPtr[i + 1])
+                if (connOfNode != functor.endIterator(connPtr + connIPtr[i] + 1, connPtr + connIPtr[i + 1]))
                 {
                     v2.insert(
                         v2.end(), revNodalPtr + revNodalIPtr[*connOfNode], revNodalPtr + revNodalIPtr[*connOfNode + 1]
                     );
                     connOfNode++;
                 }
-                for (; connOfNode != connPtr + connIPtr[i + 1] && v2.size() > 1; connOfNode++)
+                for (; connOfNode != functor.endIterator(connPtr + connIPtr[i] + 1, connPtr + connIPtr[i + 1]) &&
+                       v2.size() > 1;
+                     connOfNode++)
                     if (*connOfNode >= 0)
                     {
                         v = v2;
@@ -2358,6 +2437,100 @@ MEDCouplingUMesh::FindCommonCellsAlg(
     }
     commonCellsArr = commonCells.retn();
     commonCellsIArr = commonCellsI.retn();
+}
+
+void
+MEDCouplingUMesh::FindCommonCellsAlgCompType8_9(
+    int compType,
+    mcIdType startCellId,
+    const DataArrayIdType *nodal,
+    const DataArrayIdType *nodalI,
+    const DataArrayIdType *revNodal,
+    const DataArrayIdType *revNodalI,
+    DataArrayIdType *&commonCellsArr,
+    DataArrayIdType *&commonCellsIArr
+)
+{
+    FindCommonCellsAlgPrivate<CompType89CommonFunctor>(
+        compType, startCellId, nodal, nodalI, revNodal, revNodalI, commonCellsArr, commonCellsIArr
+    );
+}
+
+/*!
+ * This method find cells that are equal (regarding \a compType) in \a this. The comparison is specified by \a compType
+ * (see zipConnectivityTraducer). This method keeps the coordinates of \a this. The comparison starts at rank \a
+ * startCellId cell id (included). If \a startCellId is equal to 0 algorithm starts at cell #0 and for each cell
+ * candidates being searched have cell id higher than current cellId. If \a startCellId is greater than 0 algorithm
+ * starts at cell #startCellId but for each cell all candidates are considered. This method is time consuming.
+ *
+ * \param [in] compType input specifying the technique used to compare cells each other.
+ *   - 0 : exactly. A cell is detected to be the same if and only if the connectivity is exactly the same without
+ * permutation and types same too. This is the strongest policy.
+ *   - 1 : permutation same orientation. cell1 and cell2 are considered equal if the connectivity of cell2 can be
+ * deduced by those of cell1 by direct permutation (with exactly the same orientation) and their type equal. For 1D mesh
+ * the policy 1 is equivalent to 0.
+ *   - 2 : nodal. cell1 and cell2 are equal if and only if cell1 and cell2 have same type and have the same nodes
+ * constituting connectivity. This is the laziest policy. This policy can be used for users not sensitive to orientation
+ * of cell
+ * \param [in] startCellId specifies the cellId starting from which the equality computation will be carried out. By
+ * default it is 0, which it means that all cells in \a this will be scanned.
+ * \param [out] commonCellsArr common cells ids (\ref numbering-indirect)
+ * \param [out] commonCellsIArr common cells ids (\ref numbering-indirect)
+ *
+ */
+void
+MEDCouplingUMesh::findCommonCells(
+    int compType, mcIdType startCellId, DataArrayIdType *&commonCellsArr, DataArrayIdType *&commonCellsIArr
+) const
+{
+    MCAuto<DataArrayIdType> revNodal = DataArrayIdType::New(), revNodalI = DataArrayIdType::New();
+    getReverseNodalConnectivity(revNodal, revNodalI);
+    int meshDim(getMeshDimension());
+    if (compType != 8 && compType != 9)
+    {
+        FindCommonCellsAlg(
+            compType,
+            startCellId,
+            _nodal_connec,
+            _nodal_connec_index,
+            revNodal,
+            revNodalI,
+            commonCellsArr,
+            commonCellsIArr
+        );
+    }
+    else
+    {
+        if (meshDim != 1)
+            THROW_IK_EXCEPTION("ComType " << compType << "is for mesh dimension equal to " << 1);
+        FindCommonCellsAlgCompType8_9(
+            compType,
+            startCellId,
+            _nodal_connec,
+            _nodal_connec_index,
+            revNodal,
+            revNodalI,
+            commonCellsArr,
+            commonCellsIArr
+        );
+    }
+}
+
+void
+MEDCouplingUMesh::FindCommonCellsAlg(
+    int compType,
+    mcIdType startCellId,
+    const DataArrayIdType *nodal,
+    const DataArrayIdType *nodalI,
+    const DataArrayIdType *revNodal,
+    const DataArrayIdType *revNodalI,
+    DataArrayIdType *&commonCellsArr,
+    DataArrayIdType *&commonCellsIArr
+)
+{
+    FindCommonCellsAlgPrivate<ClassicalCommonFunctor>(
+        compType, startCellId, nodal, nodalI, revNodal, revNodalI, commonCellsArr, commonCellsIArr
+    );
 }
 
 /*!
