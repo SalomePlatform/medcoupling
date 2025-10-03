@@ -3608,32 +3608,32 @@ class MEDCouplingBasicsTest2(unittest.TestCase):
         self.assertRaises(InterpKernelException, dbl3.applyInv, 1.0)  # div by zero
         self.assertRaises(InterpKernelException, dbl2.findIdsInRange, 1.0, 2.0)
         a = []
-        self.assertRaises(InterpKernelException, DataArrayDouble_Aggregate, a)
-        self.assertRaises(InterpKernelException, DataArrayDouble_Meld, a)
+        self.assertRaises(InterpKernelException, DataArrayDouble.Aggregate, a)
+        self.assertRaises(InterpKernelException, DataArrayDouble.Meld, a)
 
         a = [dbl2, dbl]  # Nb of components mismatch
-        self.assertRaises(InterpKernelException, DataArrayDouble_Aggregate, a)
+        self.assertRaises(InterpKernelException, DataArrayDouble.Aggregate, a)
 
-        self.assertRaises(InterpKernelException, DataArrayDouble_Dot, dbl2, dbl)
+        self.assertRaises(InterpKernelException, DataArrayDouble.Dot, dbl2, dbl)
 
         self.assertRaises(
-            InterpKernelException, DataArrayDouble_CrossProduct, dbl2, dbl
+            InterpKernelException, DataArrayDouble.CrossProduct, dbl2, dbl
         )  # Nb of components mismatch
         self.assertRaises(
-            InterpKernelException, DataArrayDouble_CrossProduct, dbl2, dbl2
+            InterpKernelException, DataArrayDouble.CrossProduct, dbl2, dbl2
         )  # Nb of components must be equal to 3
         dbl4 = DataArrayDouble.New()
         dbl4.alloc(6, 3)
         dbl5 = DataArrayDouble.New()
         dbl5.alloc(7, 3)
         self.assertRaises(
-            InterpKernelException, DataArrayDouble_CrossProduct, dbl4, dbl5
+            InterpKernelException, DataArrayDouble.CrossProduct, dbl4, dbl5
         )  # Nb of tuples mismatch
 
         a[0] = dbl4  # Nb of tuple mismatch
         a[1] = dbl5  # Nb of tuple mismatch
-        self.assertRaises(InterpKernelException, DataArrayDouble_Meld, a)
-        self.assertRaises(InterpKernelException, DataArrayDouble_Dot, dbl4, dbl5)
+        self.assertRaises(InterpKernelException, DataArrayDouble.Meld, a)
+        self.assertRaises(InterpKernelException, DataArrayDouble.Dot, dbl4, dbl5)
         pass
 
     def testDAIGetIdsEqual1(self):
