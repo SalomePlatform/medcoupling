@@ -10494,13 +10494,16 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
             refPtr, m.getCoords().getHiddenCppPointer()
         )  # not same coordinates here
         self.assertTrue(coo2.isEqual(m.getCoords()[:20], 1e-12))
+        # Ensure a node is created once connectivity has been fixed
         self.assertTrue(
-            m.getCoords()[20:].isEqual(DataArrayDouble([(1.0, 0.0), (7.0, 6.0)]), 1e-12)
+            m.getCoords()[20:].isEqual(DataArrayDouble([(1.0, 0.0)]), 1e-12)
         )
+        # Remove unused nodes
+        m.zipCoords()
         self.assertTrue(
-            m.getNodalConnectivity().isEqual(DataArrayInt([32, 0, 3, 4, 20, 21, 16]))
+            m.getNodalConnectivity().isEqual(DataArrayInt([32, 0, 2, 4, 1, 3, 9, 5, 6, 7, 8]))
         )
-        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 7])))
+        self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 11])))
         pass
 
     def testSwig2ColinearizeKeepingConform2D1(self):
@@ -10983,18 +10986,13 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
 
         # Now an actual (neutronic) case: circle made of 4 SEG3. Should be reduced to 2 SEG3
         m = MEDCouplingDataForTest.buildCircle2(0.0, 0.0, 1.0)
-        c, cI = [
-            DataArrayInt(l) for l in [[NORM_QPOLYG, 7, 5, 3, 1, 6, 4, 2, 0], [0, 9]]
-        ]
-        m.colinearize2D(1e-10)
+        # Check that nothing changes with colinearize2D
+        self.assertTrue(m.colinearize2D(1e-10).isEqual(DataArrayInt([])))
         m.checkConsistency()
         self.assertEqual(
-            [NORM_QPOLYG, 3, 5, 8, 4], m.getNodalConnectivity().getValues()
+            [NORM_QPOLYG, 7, 5, 3, 1, 6, 4, 2, 0], m.getNodalConnectivity().getValues()
         )
-        self.assertTrue(
-            m.getCoords()[8].isEqual(DataArrayDouble([(1.0, 0.0)]), 1.0e-12)
-        )
-        self.assertEqual([0, 5], m.getNodalConnectivityIndex().getValues())
+        self.assertEqual([0, 9], m.getNodalConnectivityIndex().getValues())
 
     def testSwig2Colinearize2D4(self):
         """From ALAMOS. Colinearize around last seg in the connectivity was buggy."""

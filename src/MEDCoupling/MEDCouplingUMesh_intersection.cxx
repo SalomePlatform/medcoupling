@@ -3073,10 +3073,75 @@ MEDCouplingUMesh::internalColinearize2D(double eps, bool stayConform)
                 true;  // we know that a 0D mesh has a connectivity of the form [NORM_POINT1, i1, NORM_POINT1, i2, ...]
     }
 
+
     MCAuto<DataArrayDouble> appendedCoords(DataArrayDouble::New());
     appendedCoords->alloc(0, 1);  // 1 not 2 it is not a bug.
     const double *coords(_coords->begin());
     mcIdType *newciptr(newci->getPointer());
+
+    // For quadratic cells, mark both end vertices of any edge whose midpoint is not colinear
+    // with its endpoints (i.e., the edge is an arc).
+    {
+        const mcIdType nbXY = _coords->getNumberOfTuples();
+        const double tol2 = eps*eps; // angle tolerance squared (|sinθ|^2)
+
+        for(mcIdType icell=0; icell<nbOfCells; ++icell){
+            const mcIdType* beg = cptr + ciptr[icell];
+            const mcIdType* end = cptr + ciptr[icell+1];
+            if(end - beg <= 1) continue;
+
+            const auto& cm = INTERP_KERNEL::CellModel::GetCellModel(
+            (INTERP_KERNEL::NormalizedCellType)beg[0]);
+            if(!cm.isQuadratic()) continue; // only quadratic cells
+
+            const mcIdType* conn = beg + 1;                 // connectivity without type
+            const mcIdType szCell = (mcIdType)(end - beg - 1);
+
+            // nv: number of vertices (2D = number of edges)
+            mcIdType nv = (mcIdType)cm.getNumberOfSons2(const_cast<mcIdType*>(conn), szCell);
+            if(nv <= 1 || conn + nv > end) continue;
+
+            // nMid: available mid-edge nodes after vertices
+            mcIdType nMid = (mcIdType)(end - (conn + nv));
+            if(nMid <= 0) continue;
+
+            // use at most nv midpoints (ignore center like QUAD9)
+            mcIdType nUse = nMid < nv ? nMid : nv;
+
+            for(mcIdType k=0; k<nUse; ++k){
+                const mcIdType a = conn[(k   ) % nv];   // edge vertex A
+                const mcIdType b = conn[(k+1) % nv];    // edge vertex B
+                const mcIdType m = conn[nv + k];        // edge midpoint M
+                if(a < 0 || b < 0 || m < 0) continue;
+                if(a >= nbXY || b >= nbXY || m >= nbXY) continue;
+
+                // read coordinates
+                const double* A = &coords[2*a];
+                const double* B = &coords[2*b];
+                const double* M = &coords[2*m];                
+                // 2D cross product (scalar): |MA||MB|sinθ, zero if colinear
+                double V[2];
+                INTERP_KERNEL::crossprod<2>(M, A, B, V);
+                const double cross = V[0];
+                // vectors MA = A - M, MB = B - M
+                const double MAx = A[0] - M[0];
+                const double MAy = A[1] - M[1];
+                const double MBx = B[0] - M[0];
+                const double MBy = B[1] - M[1];    
+                // squared norms: |MA|^2 and |MB|^2 
+                const double nma2  = MAx*MAx + MAy*MAy;
+                const double nmb2  = MBx*MBx + MBy*MBy;
+                if(nma2 == 0.0 || nmb2 == 0.0) continue; // degenerate (M==A or M==B)
+                // test |sinθ| > eps  ⇔  cross^2 > (eps^2)*|MA|^2*|MB|^2
+                if(cross*cross > tol2 * nma2 * nmb2){
+                    // protect both edge endpoints: the edge is curved
+                    forbiddenPoints[a] = true;
+                    forbiddenPoints[b] = true;
+                }
+            }
+        }
+    }
+
     for (mcIdType i = 0; i < nbOfCells; i++, newciptr++, ciptr++)
     {
         if (Colinearize2DCell(
