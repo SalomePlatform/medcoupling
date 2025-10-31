@@ -30,6 +30,7 @@ SET(BASE_TESTS
   MEDCouplingExamplesTest.py
   MEDCouplingRemapperTest.py
   UsersGuideExamplesTest.py
+  MEDCouplingColinearizeKeepConformTest.py
 )
 
 # if numpy is used
