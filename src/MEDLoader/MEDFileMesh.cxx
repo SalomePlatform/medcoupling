@@ -2221,9 +2221,12 @@ MEDFileMesh::simpleRepr() const
 }
 
 /*!
- * Simple loop over MEDFileMesh::addGroup method.
+ * Simple loop over MEDFileMesh::addGroup method. This method **appends** groups \a grps in \a this.
+ * All groups previously set before the call of this method will not be modified by the call of this method (contrary to
+ * MEDFileMesh::setGroupsAtLevel that clear all). If you intend to initialize groups from scratch use \a
+ * MEDFileMesh::setGroupsAtLevel instead for performance reasons.
  *
- * \sa MEDFileMesh::addGroup
+ * \sa MEDFileMesh::addGroup, MEDFileMesh::setGroupsAtLevel
  */
 void
 MEDFileMesh::addGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayIdType *> &grps)
@@ -2389,8 +2392,12 @@ MEDFileMesh::getNodeFamiliesArr(const std::vector<std::string> &fams, bool renum
 }
 
 /*!
- * Adds groups of given dimension and creates corresponding families and family fields
+ * Sets groups **from scratch** of given dimension and creates corresponding families and family fields
  * given ids of mesh entities of each group.
+ *
+ * \warning This method **clears** all groups / families info previously set before the call of this method. If you want
+ * to keep them existing use MEDFileMesh::addGroupsAtLevel instead.
+ *
  *  \param [in] meshDimRelToMaxExt - the relative mesh dimension of given mesh entities.
  *  \param [in] grps - a sequence of arrays of ids each describing a group.
  *  \param [in] renum - \c true means that \a grps contains not ids but optional numbers
@@ -2399,6 +2406,8 @@ MEDFileMesh::getNodeFamiliesArr(const std::vector<std::string> &fams, bool renum
  *  \throw If \a grps includes a group with an empty name.
  *  \throw If \a grps includes invalid ids (or numbers if \a renum == \c true ).
  *  \throw If there are no mesh entities of \a meshDimRelToMaxExt dimension in \a this mesh.
+ *
+ * \sa MEDFileMesh::addGroupsAtLevel
  */
 void
 MEDFileMesh::setGroupsAtLevel(int meshDimRelToMaxExt, const std::vector<const DataArrayIdType *> &grps, bool renum)
