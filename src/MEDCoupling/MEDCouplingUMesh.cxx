@@ -9677,7 +9677,20 @@ MEDCouplingUMesh::writeVTKLL(
             *w1 = -1;
             *w3 = szConn + cIPtr[i + 1] - cIPtr[i] - 1;
             szConn += cIPtr[i + 1] - cIPtr[i] - 1;
-            w4 = std::copy(cPtr + cIPtr[i] + 1, cPtr + cIPtr[i + 1], w4);
+            if ((INTERP_KERNEL::NormalizedCellType)cPtr[cIPtr[i]] != INTERP_KERNEL::NORM_HEXA27)
+            {
+                w4 = std::copy(cPtr + cIPtr[i] + 1, cPtr + cIPtr[i + 1], w4);
+            }
+            else
+            {
+                if (cIPtr[i + 1] - cIPtr[i] != 28)
+                    THROW_IK_EXCEPTION("For HEXA27 cell #" << i << " len mismatches !");
+                for (unsigned char iH = 0; iH < 27; ++iH)
+                {
+                    w4[iH] = cPtr[cIPtr[i] + 1 + MEDCoupling1GTUMesh::HEXA27_PERM_ARRAY[iH]];
+                }
+                w4 += 27;
+            }
         }
         else
         {
