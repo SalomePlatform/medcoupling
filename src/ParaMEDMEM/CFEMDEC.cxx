@@ -357,7 +357,9 @@ CFEMDECOneWay::synchronize()
     std::vector<MCAuto<DataArrayIdType>> srcGlobalNodeIds(
         gatherTArrayOnProc<mcIdType>(_to_master->getUnionGrp(), rkGathering, gni)
     );
+    reinitializeOnNewMesh();
     computeMatrix(srcMeshes, srcGlobalNodeIds);
+    _local_mesh_stamp_on_sync = locMesh;
 }
 
 void
@@ -365,6 +367,56 @@ CFEMDECOneWay::smartSynchronize()
 {
     if (isMatrixToRecompute())
         synchronize();
+}
+
+static std::size_t
+FromVectorStringToCharSize(const std::vector<std::string> &vs)
+{
+    std::size_t sizeOfStr(0);
+    std::for_each(
+        vs.cbegin(), vs.cend(), [&sizeOfStr](const std::string &elt) { sizeOfStr += (int)elt.size() + 1; }
+    );  // +1 for C nul char at the end
+    return sizeOfStr;
+}
+
+static std::unique_ptr<char[]>
+FromVectorStringToChar(const std::vector<std::string> &vs)
+{
+    std::size_t retSz(FromVectorStringToCharSize(vs));
+    std::unique_ptr<char[]> ret(new char[retSz]);
+    std::size_t pos(0);
+    std::for_each(
+        vs.cbegin(),
+        vs.cend(),
+        [&pos, &ret](const std::string &elt)
+        {
+            std::size_t sz(elt.size());
+            std::copy(elt.cbegin(), elt.cbegin() + sz, ret.get() + pos);
+            ret[pos + sz] = '\0';
+            pos += sz + 1;
+        }
+    );
+    return ret;
+}
+
+static std::vector<std::string>
+FromCharToVectorString(const char *st, std::size_t len, int szOfOutVec)
+{
+    std::vector<std::string> ret(szOfOutVec);
+    std::size_t pos(0);
+    for (auto iComp = 0; iComp < szOfOutVec; ++iComp)
+    {
+        std::size_t pos2(pos);
+        while (pos2 < len)
+        {
+            if (st[pos2] == '\0')
+                break;
+            pos2++;
+        }
+        ret[iComp] = std::string(st + pos, st + pos2);
+        pos = pos2 + 1;
+    }
+    return ret;
 }
 
 /*!
@@ -377,31 +429,50 @@ CFEMDECOneWaySource::sendToTarget(MEDCouplingFieldDouble *srcFieldOnLocal)
     checkMesh(srcFieldOnLocal);
     // management of number of components
     int nbCompo((int)srcFieldOnLocal->getNumberOfComponents());
+    std::vector<std::string> comps(srcFieldOnLocal->getArray()->getInfoOnComponents());
+    int sizeOfStr(int(FromVectorStringToCharSize(comps)));
     int nbSrcProcs(_to_master->getSourceGrp()->size());
     {
-        std::unique_ptr<int[]> nbCompos(new int[nbSrcProcs]);
+        int tmp[2] = {nbCompo, sizeOfStr};
+        std::unique_ptr<int[]> nbCompos(new int[2 * nbSrcProcs]);
         _to_master->getSourceGrp()->getCommInterface().allGather(
-            &nbCompo, 1, MPI_INT32_T, nbCompos.get(), 1, MPI_INT32_T, *_to_master->getSourceGrp()->getComm()
+            tmp, 2, MPI_INT32_T, nbCompos.get(), 2, MPI_INT32_T, *_to_master->getSourceGrp()->getComm()
         );
-        std::for_each(
-            nbCompos.get(),
-            nbCompos.get() + nbSrcProcs,
-            [nbCompo](int v)
+        for (auto iSrcProc = 0; iSrcProc < nbSrcProcs; ++iSrcProc)
+        {
+            if (nbCompos[2 * iSrcProc + 0] != nbCompo)
             {
-                if (v != nbCompo)
-                    THROW_IK_EXCEPTION(
-                        "Nb of compos is not the same for all source procs ! ( " << v << " != " << nbCompo << " )"
-                    )
+                THROW_IK_EXCEPTION(
+                    "Nb of compos is not the same for all source procs ! ( " << nbCompos[2 * iSrcProc + 0]
+                                                                             << " != " << nbCompo << " )"
+                );
             }
-        );
+            if (nbCompos[2 * iSrcProc + 1] != sizeOfStr)
+            {
+                THROW_IK_EXCEPTION(
+                    "Size of strings in components is not the same for all source procs ! ( "
+                    << nbCompos[2 * iSrcProc + 1] << " != " << sizeOfStr << " )"
+                );
+            }
+        }
     }
     // send nbCompo to all target procs. First send nbCompo to proc #0 of targets
+    // send compostrings to all target procs. First send compostrings to proc #0 of targets
     int rkDest(_to_master->getUnionGrp()->translateRank(_to_master->getTargetGrp(), 0));
     if (_to_master->getSourceGrp()->myRank() == 0)
     {
-        _to_master->getUnionGrp()->getCommInterface().send(
-            &nbCompo, 1, MPI_INT32_T, rkDest, 1234, *_to_master->getUnionGrp()->getComm()
-        );
+        {
+            int tmp[2] = {nbCompo, sizeOfStr};
+            _to_master->getUnionGrp()->getCommInterface().send(
+                tmp, 2, MPI_INT32_T, rkDest, 1234, *_to_master->getUnionGrp()->getComm()
+            );
+        }
+        {
+            std::unique_ptr<char[]> stringsToSend(FromVectorStringToChar(comps));
+            _to_master->getUnionGrp()->getCommInterface().send(
+                stringsToSend.get(), sizeOfStr, MPI_INT8_T, rkDest, 1235, *_to_master->getUnionGrp()->getComm()
+            );
+        }
     }
     gatherTArrayOnProc<double>(_to_master->getUnionGrp(), rkDest, srcFieldOnLocal->getArray());
 }
@@ -459,19 +530,42 @@ MatrixVectorMultiply(const std::vector<std::map<mcIdType, double>> &matrix, cons
 MCAuto<MEDCouplingFieldDouble>
 CFEMDECOneWayTarget::receiveFromSource()
 {
+    constexpr char NB_COMPO_POS = 0, SIZE_OF_STR_POS = 1;
     smartSynchronize();
-    int nbCompo(0);
+    int tmp[2] = {0 /*nbCompo*/, 0 /*sizeOfStr*/};
+    std::unique_ptr<char[]> stringsToRecv;
     if (_to_master->getTargetGrp()->myRank() == 0)
     {
         int rkOrig(_to_master->getUnionGrp()->translateRank(_to_master->getSourceGrp(), 0));
         MPI_Status status;
         _to_master->getUnionGrp()->getCommInterface().recv(
-            &nbCompo, 1, MPI_INT32_T, rkOrig, 1234, *_to_master->getUnionGrp()->getComm(), &status
+            tmp, 2, MPI_INT32_T, rkOrig, 1234, *_to_master->getUnionGrp()->getComm(), &status
+        );
+        stringsToRecv.reset(new char[tmp[SIZE_OF_STR_POS]]);
+        _to_master->getUnionGrp()->getCommInterface().recv(
+            stringsToRecv.get(),
+            tmp[SIZE_OF_STR_POS],
+            MPI_INT8_T,
+            rkOrig,
+            1235,
+            *_to_master->getUnionGrp()->getComm(),
+            &status
         );
     }
     // broadcast nb compo over target group procs
     _to_master->getTargetGrp()->getCommInterface().broadcast(
-        &nbCompo, 1, MPI_INT32_T, 0, *_to_master->getTargetGrp()->getComm()
+        tmp, 2, MPI_INT32_T, 0, *_to_master->getTargetGrp()->getComm()
+    );
+    if (_to_master->getTargetGrp()->myRank() != 0)
+    {
+        stringsToRecv.reset(new char[tmp[SIZE_OF_STR_POS]]);
+    }
+    // broadcast strings of components over target group procs
+    _to_master->getTargetGrp()->getCommInterface().broadcast(
+        stringsToRecv.get(), tmp[SIZE_OF_STR_POS], MPI_INT8_T, 0, *_to_master->getTargetGrp()->getComm()
+    );
+    std::vector<std::string> compsInfo(
+        FromCharToVectorString(stringsToRecv.get(), tmp[SIZE_OF_STR_POS], tmp[NB_COMPO_POS])
     );
     //
     int rkGathering(_to_master->getUnionGrp()->translateRank(_to_master->getTargetGrp(), 0));
@@ -482,7 +576,7 @@ CFEMDECOneWayTarget::receiveFromSource()
     }
     // broadcast of arrs on all procs of targets and assign srcValues
     MCAuto<DataArrayDouble> srcArr = DataArrayDouble::New();
-    srcArr->alloc(_nb_nodes_src_mesh, nbCompo);
+    srcArr->alloc(_nb_nodes_src_mesh, tmp[0]);
     //
     int szSrcGrp(_to_master->getSourceGrp()->size());
     if (_to_master->getTargetGrp()->myRank() != 0)
@@ -490,13 +584,19 @@ CFEMDECOneWayTarget::receiveFromSource()
     for (int i = 0; i < szSrcGrp; ++i)
     {
         MCAuto<DataArrayDouble> arrFieldSrc(bCastTArrayFromProc<double>(_to_master->getTargetGrp(), arrs[i], 0));
-        arrFieldSrc->rearrange(nbCompo);
+        arrFieldSrc->rearrange(tmp[NB_COMPO_POS]);
         srcArr->setPartOfValuesBase3(
-            arrFieldSrc, _src_rank_of_nodes_in_whole[i]->begin(), _src_rank_of_nodes_in_whole[i]->end(), 0, nbCompo, 1
+            arrFieldSrc,
+            _src_rank_of_nodes_in_whole[i]->begin(),
+            _src_rank_of_nodes_in_whole[i]->end(),
+            0,
+            tmp[NB_COMPO_POS],
+            1
         );
     }
     // matrix * vector (srcArr)
     MCAuto<DataArrayDouble> res(MatrixVectorMultiply(_matrix, srcArr));
+    res->setInfoOnComponents(compsInfo);
     //
     MCAuto<MEDCouplingFieldDouble> ret(MEDCouplingFieldDouble::New(ON_NODES_FE));
     ret->setArray(res);
