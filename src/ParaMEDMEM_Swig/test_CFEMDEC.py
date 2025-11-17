@@ -52,6 +52,7 @@ def createSourceFieldExNihilo(src_mesh):
     src_field.setArray(value)
     src_field.setName("Field")
     src_field.setNature(mc.IntensiveMaximum)
+    value.setInfoOnComponents(["ABC"])
     return src_field
 
 
@@ -82,6 +83,7 @@ def addGhostCells(fieldGlob, meshLoc):
     o2nIDS = ghostCells_mesh.zipCoordsTraducer()
     globalNodeIds = o2nIDS.invertArrayO2N2N2O(ghostCells_mesh.getNumberOfNodes())
     arrWithGhost = fieldGlob.getArray()[globalNodeIds]
+    arrWithGhost.copyStringInfoFrom(fieldGlob.getArray())
     tabO2N = mc.DataArrayInt(initialNbOfNodes)
     tabO2N.iota()
     tabO2N[1::2] += 1000000000
@@ -172,6 +174,7 @@ if rank in procs_source:
     arr2 = mc.DataArrayDouble(src_field_on_local.getArray().getNumberOfTuples(), 2)
     arr2[:, 0] = src_field_on_local.getArray()
     arr2[:, 1] = arr2[:, 0] * 2
+    arr2.setInfoOnComponents(["DEF", "GHIJK"])
     src_field_on_local.setArray(arr2)
     idec.sendToTarget(src_field_on_local)
 
@@ -217,9 +220,12 @@ if rank in procs_source:
         ]
     )
     zeResu3 = idec.receiveFromTarget()
+    assert zeResu3.getArray().getInfoOnComponents() == ["LMNOP"]
     a, n2o = src_mesh.getCoords().areIncludedInMe(zeResu3.getMesh().getCoords(), 1e-12)
     assert a
-    assert expected_values_on_whole_src_mesh[n2o].isEqual(zeResu3.getArray(), 1e-11)
+    assert expected_values_on_whole_src_mesh[n2o].isEqualWithoutConsideringStr(
+        zeResu3.getArray(), 1e-11
+    )
 
 if rank in procs_target:
     # computed with computeInSequentialReferenceField
@@ -413,20 +419,25 @@ if rank in procs_target:
     # first basic test. Scalar src -> trg
     idec.attachLocalMesh(trg_ghostCells_mesh, trg_globalNodeIds)
     zeResu = idec.receiveFromSource()
-    assert expected_trg_field_on_local.getArray().isEqual(zeResu.getArray(), 1e-11)
+    assert expected_trg_field_on_local.getArray().isEqualWithoutConsideringStr(
+        zeResu.getArray(), 1e-11
+    )
+    assert zeResu.getArray().getInfoOnComponents() == ["ABC"]
     # createFieldForParaView(zeResu).writeVTK(f"trg_field_array{rank}.vtu")
 
     # second test vector field src -> trg
     zeResu2 = idec.receiveFromSource()
     assert zeResu2.getArray().getNumberOfComponents() == 2
-    assert expected_trg_field_on_local.getArray().isEqual(
+    assert zeResu2.getArray().getInfoOnComponents() == ["DEF", "GHIJK"]
+    assert expected_trg_field_on_local.getArray().isEqualWithoutConsideringStr(
         zeResu2.getArray()[:, 0], 1e-11
     )
-    assert expected_trg_field_on_local.getArray().isEqual(
+    assert expected_trg_field_on_local.getArray().isEqualWithoutConsideringStr(
         zeResu2.getArray()[:, 1] / 2, 1e-11
     )
 
     # third test scalar field trg -> src
+    zeResu.getArray().setInfoOnComponents(["LMNOP"])
     idec.sendToSource(zeResu)
 
 # mpirun -np 7 xterm -e "gdb -x cmd.gdb --args python3 test_CFEMDEC.py"
