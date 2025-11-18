@@ -298,7 +298,7 @@ if(MEDCOUPLING_ENABLE_SHAPERECOGN)
     find_path(
       LAPACKE_INCLUDE_DIRS
       NAMES lapacke.h
-      HINTS ${LAPACK_LIBRARIES})
+      HINTS ${LAPACK_LIBRARIES} ${OpenBLAS_INCLUDE_DIRS})
     if(LAPACK_FOUND)
       message(STATUS "Lapacke libraries: ${LAPACK_LIBRARIES}")
       message(STATUS "Lapacke include dirs: ${LAPACKE_INCLUDE_DIRS}")

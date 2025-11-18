@@ -22,17 +22,17 @@
 
 #include <algorithm>
 #if defined(_MSC_VER)
-#include <complex.h>
-#define LAPACK_COMPLEX_CUSTOM
-#define lapack_complex_float _Fcomplex
-#define lapack_complex_double _Dcomplex
-#include <openblas/lapacke.h>
-#include <openblas/cblas.h>
-// #include <lapacke.h>
-// #include <cblas.h>
+  // see https://github.com/xianyi/OpenBLAS/issues/3661
+  #define _CRT_USE_C_COMPLEX_H
+  #include <complex.h>
+  #define LAPACK_COMPLEX_CUSTOM
+  #define lapack_complex_float _Fcomplex
+  #define lapack_complex_double _Dcomplex
+  #include <openblas/lapacke.h>
+  #include <openblas/cblas.h>
 #else
-#include <lapacke.h>
-#include <cblas.h>
+  #include <lapacke.h>
+  #include <cblas.h>
 #endif
 #include <iostream>
 #include <cfloat>
