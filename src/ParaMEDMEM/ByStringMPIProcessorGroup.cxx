@@ -24,6 +24,8 @@
 #include <algorithm>
 #include "mpi.h"
 
+#include <memory>
+
 using namespace std;
 
 namespace MEDCoupling
@@ -64,13 +66,13 @@ DefineSetIdByStringName(const CommInterface &interface, const std::string &simCo
     for (size_t rank = 1; rank < words_size.size(); rank++)
         displacement[rank] = words_size[rank - 1] + displacement[rank - 1];
 
-    char globalnames[displacement[size_world - 1]];
+    std::unique_ptr<char[]> globalnames(new char[displacement[size_world - 1]]);
 
     interface.allGatherV(
         simCodeTag.c_str(),
         stringSize,
         MPI_CHAR,
-        &globalnames,
+        globalnames.get(),
         words_size.data(),
         displacement.data(),
         MPI_CHAR,
@@ -79,9 +81,10 @@ DefineSetIdByStringName(const CommInterface &interface, const std::string &simCo
 
     for (size_t rank = 0; rank < (std::size_t)(size_world); rank++)
     {
-        std::string strByRank(&globalnames[displacement[rank]], words_size[rank]);
+        std::string strByRank(globalnames.get() + displacement[rank], words_size[rank]);
         myRanksSet[strByRank].insert((int)rank);
     }
+
     return myRanksSet;
 }
 

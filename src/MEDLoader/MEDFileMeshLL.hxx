@@ -21,6 +21,8 @@
 #ifndef __MEDFILEMESHLL_HXX__
 #define __MEDFILEMESHLL_HXX__
 
+#include "MEDLoaderDefines.hxx"
+
 #include "MEDFileBasis.hxx"
 #include "MEDFileMeshElt.hxx"
 
@@ -102,7 +104,7 @@ class StructMeshCls : public MeshOrStructMeshCls
     double checkMeshTimeStep(med_idt fid, const std::string &mName, int nstep, int dt, int it) const;
 };
 
-class MEDFileMeshL2 : public RefCountObject
+class MEDLOADER_EXPORT MEDFileMeshL2 : public RefCountObject
 {
    public:
     MEDFileMeshL2();

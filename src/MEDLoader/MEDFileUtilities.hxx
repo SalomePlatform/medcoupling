@@ -31,16 +31,16 @@
 
 namespace MEDFileUtilities
 {
-med_access_mode
+MEDLOADER_EXPORT med_access_mode
 TraduceWriteMode(int medloaderwritemode);
-const char *
+MEDLOADER_EXPORT const char *
 GetReadableMEDFieldType(med_field_type ft);
-void
+MEDLOADER_EXPORT void
 CheckMEDCode(int code, med_idt fid, const std::string &msg);
-void
+MEDLOADER_EXPORT void
 CheckFileForRead(const std::string &fileName);
 
-class AutoFid
+class MEDLOADER_EXPORT AutoFid
 {
    public:
     AutoFid(med_idt fid);
