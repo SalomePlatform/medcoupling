@@ -93,14 +93,18 @@ target_link_libraries(medcouplingcpp interpkernel)
 install(
   TARGETS medcouplingcpp
   EXPORT ${PROJECT_NAME}TargetGroup
-  DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
+  ARCHIVE DESTINATION ${MEDCOUPLING_INSTALL_LIBS}
+  RUNTIME DESTINATION ${MEDCOUPLING_INSTALL_BINS}
+  LIBRARY DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
 
 add_library(medcouplingremapper ${medcouplingremapper_SOURCES})
 target_link_libraries(medcouplingremapper medcouplingcpp)
 install(
   TARGETS medcouplingremapper
   EXPORT ${PROJECT_NAME}TargetGroup
-  DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
+  ARCHIVE DESTINATION ${MEDCOUPLING_INSTALL_LIBS}
+  RUNTIME DESTINATION ${MEDCOUPLING_INSTALL_BINS}
+  LIBRARY DESTINATION ${MEDCOUPLING_INSTALL_LIBS})
 
 file(GLOB medcoupling_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
 file(GLOB medcoupling_HEADERS_TXX "${CMAKE_CURRENT_SOURCE_DIR}/*.txx")

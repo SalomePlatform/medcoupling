@@ -123,10 +123,10 @@ MEDFilterEntity::fill(
         mcIdType nbOfEltsToLoad = dpd->getNumberOfElems();
 
         // convert to fortran indexing
-        std::vector<mcIdType> dpdPlus1;
+        std::vector<med_int> dpdPlus1;
         MCAuto<DataArrayIdType> partition(pd->toDAI());
         std::copy(partition->begin(), partition->end(), std::back_inserter(dpdPlus1));
-        std::for_each(dpdPlus1.begin(), dpdPlus1.end(), [](mcIdType &node) { node += 1; });
+        std::for_each(dpdPlus1.begin(), dpdPlus1.end(), [](med_int &node) { node += 1; });
 
         // Here, pd contains a random selection of non-contiguous values:
         // we need to use a more generic filter (less efficient)
