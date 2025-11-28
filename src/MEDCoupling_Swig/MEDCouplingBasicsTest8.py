@@ -133,7 +133,7 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
 
     def test_1GTUMesh_computeEulerCharacteristic(self):
         """
-        [EDF32937] : MEDCoupling1DGTUMesh.computeEulerCharacteristic
+        [EDF31086] : MEDCoupling1DGTUMesh.computeEulerCharacteristic
         """
         coo = mc.DataArrayDouble(
             [

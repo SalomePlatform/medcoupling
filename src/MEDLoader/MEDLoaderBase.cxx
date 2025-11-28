@@ -164,6 +164,19 @@ MEDLoaderBase::safeStrCpy(const char *src, int maxLgth, char *dest, int behaviou
             return;
         }
     }
+    //[EDF34088,33583] : '/' in name is not supported by MED file
+    {
+        std::string srcCheck(src);
+        std::string::size_type pos(srcCheck.find_first_of('/'));
+        if (pos != std::string::npos)
+        {
+            std::cout << "WARNING : String \"" << srcCheck
+                      << "\" contains / character. It\' s forbiden in all names in MED file. Prepare yourself for "
+                         "MEDfile problems."
+                      << std::endl;
+        }
+    }
+    //
     strcpy(dest, src);
 }
 
