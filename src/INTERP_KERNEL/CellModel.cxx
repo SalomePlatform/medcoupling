@@ -24,10 +24,12 @@
 #include "DiameterCalculator.hxx"
 #include "OrientationInverter.hxx"
 
+#include <functional>
 #include <algorithm>
 #include <sstream>
 #include <vector>
 #include <limits>
+#include <unordered_set>
 
 unsigned char MEDCOUPLING2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE + 1] = {
     1,
@@ -65,6 +67,83 @@ unsigned char MEDCOUPLING2VTKTYPETRADUCER[INTERP_KERNEL::NORM_MAXTYPE + 1] = {
     36,
     4
 };
+
+class NonOrderedPair
+{
+   public:
+    NonOrderedPair(mcIdType x, mcIdType y) : _a(x), _b(y) {}
+    mcIdType first() const { return _a; }
+    mcIdType second() const { return _b; }
+    mcIdType minVal() const { return std::min(_a, _b); }
+    mcIdType maxVal() const { return std::max(_a, _b); }
+    bool operator==(const NonOrderedPair &other) const
+    {
+        return minVal() == other.minVal() && maxVal() == other.maxVal();
+    }
+    bool operator<(const NonOrderedPair &other) const
+    {
+        mcIdType a(minVal()), b(maxVal());
+        return (a < other.minVal()) || (a == other.minVal() && b < other.maxVal());
+    }
+
+   private:
+    mcIdType _a, _b;
+};
+
+template <>
+struct std::hash<NonOrderedPair>
+{
+    size_t operator()(const NonOrderedPair &p) const
+    {
+        return std::hash<mcIdType>()(p.minVal()) * 31u ^ std::hash<mcIdType>()(p.maxVal());
+    }
+};
+
+class SetRespectingInsertionOrder
+{
+   public:
+    bool insert(const NonOrderedPair &value)
+    {
+        auto result(_set.insert(value));
+        if (result.second)
+        {
+            _vec.push_back(value);
+            return true;
+        }
+        return false;
+    }
+
+    const NonOrderedPair &operator[](size_t i) const { return _vec[i]; }
+
+    size_t size() const { return _vec.size(); }
+
+    typename std::vector<NonOrderedPair>::const_iterator cbegin() const { return _vec.cbegin(); }
+    typename std::vector<NonOrderedPair>::const_iterator cend() const { return _vec.cend(); }
+
+    bool contains(const NonOrderedPair &value) const { return _set.find(value) != _set.end(); }
+
+   private:
+    std::vector<NonOrderedPair> _vec;
+    std::unordered_set<NonOrderedPair> _set;
+};
+
+template <class T>
+static T
+EgdesOfPolyhedron(const mcIdType *nodalConnBg, const mcIdType *nodalConnEnd)
+{
+    T ret;
+    const mcIdType *work(nodalConnBg);
+    while (work != nodalConnEnd)
+    {
+        const mcIdType *workEnd(std::find(work, nodalConnEnd, -1));
+        std::size_t nbPtsInCurPolg(std::distance(work, workEnd));
+        for (std::size_t i = 0; i < nbPtsInCurPolg; ++i) ret.insert({work[i], work[(i + 1) % nbPtsInCurPolg]});
+        work = workEnd;
+        if (workEnd != nodalConnEnd)
+            work++;
+    }
+    return ret;
+}
 
 namespace INTERP_KERNEL
 {
@@ -1479,7 +1558,7 @@ CellModel::getNumberOfEdgesIn3D(const mcIdType *conn, mcIdType lgth) const
     if (!isDynamic())
         return _nb_of_little_sons;
     else  // polyhedron
-        THROW_IK_EXCEPTION("getNumberOfEdgesIn3D not implemented !");
+        return unsigned(EgdesOfPolyhedron<std::unordered_set<NonOrderedPair> >(conn, conn + lgth).size());
 }
 
 /*!
@@ -1644,6 +1723,27 @@ CellModel::fillSonCellNodalConnectivity4(
     }
     else
         return fillSonCellNodalConnectivity2(sonId, nodalConn, lgth, sonNodalConn, typeOfSon);
+}
+
+std::vector<mcIdType>
+CellModel::computeAllEdgesForPolyhedron(const mcIdType *nodalConnBg, const mcIdType *nodalConnEnd) const
+{
+    if (_type == NORM_POLYHED)
+    {
+        SetRespectingInsertionOrder res(EgdesOfPolyhedron<SetRespectingInsertionOrder>(nodalConnBg, nodalConnEnd));
+        std::size_t nbEdges(res.size());
+        std::vector<mcIdType> ret(2 * nbEdges);
+        for (std::size_t i = 0; i < nbEdges; ++i)
+        {
+            ret[2 * i] = res[i].first();
+            ret[2 * i + 1] = res[i].second();
+        }
+        return ret;
+    }
+    else
+    {
+        THROW_IK_EXCEPTION("computeAllEdgesForPolyhedron : only for polyhedron");
+    }
 }
 
 unsigned

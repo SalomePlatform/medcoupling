@@ -16,15 +16,36 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (EdF)
 
 using namespace MEDCoupling;
 
-class MinusOneSonsGenerator
+class CommonGenerator
 {
    public:
-    MinusOneSonsGenerator(const INTERP_KERNEL::CellModel &cm) : _cm(cm) {}
-    unsigned getNumberOfSons2(const mcIdType *conn, mcIdType lgth) const { return _cm.getNumberOfSons2(conn, lgth); }
+    CommonGenerator(const INTERP_KERNEL::CellModel &cm) : _cm(cm) {}
+    unsigned getNumberOfSons2(const mcIdType *startConn, mcIdType lgth) const
+    {
+        return _cm.getNumberOfSons2(startConn, lgth);
+    }
+
+   protected:
+    const INTERP_KERNEL::CellModel &_cm;
+};
+
+class MinusOneSonsCommonGenerator : public CommonGenerator
+{
+   public:
+    MinusOneSonsCommonGenerator(const INTERP_KERNEL::CellModel &cm) : CommonGenerator(cm) {}
+    unsigned getNumberOfSons2(const mcIdType *startConn, mcIdType lgth) const
+    {
+        return _cm.getNumberOfSons2(startConn, lgth);
+    }
+};
+
+class MinusOneSonsGenerator : public MinusOneSonsCommonGenerator
+{
+   public:
+    MinusOneSonsGenerator(const INTERP_KERNEL::CellModel &cm) : MinusOneSonsCommonGenerator(cm) {}
     unsigned fillSonCellNodalConnectivity2(
         int sonId,
         const mcIdType *nodalConn,
@@ -36,16 +57,12 @@ class MinusOneSonsGenerator
         return _cm.fillSonCellNodalConnectivity2(sonId, nodalConn, lgth, sonNodalConn, typeOfSon);
     }
     static const int DELTA = 1;
-
-   private:
-    const INTERP_KERNEL::CellModel &_cm;
 };
 
-class MinusOneSonsGeneratorBiQuadratic
+class MinusOneSonsGeneratorBiQuadratic : public MinusOneSonsCommonGenerator
 {
    public:
-    MinusOneSonsGeneratorBiQuadratic(const INTERP_KERNEL::CellModel &cm) : _cm(cm) {}
-    unsigned getNumberOfSons2(const mcIdType *conn, mcIdType lgth) const { return _cm.getNumberOfSons2(conn, lgth); }
+    MinusOneSonsGeneratorBiQuadratic(const INTERP_KERNEL::CellModel &cm) : MinusOneSonsCommonGenerator(cm) {}
     unsigned fillSonCellNodalConnectivity2(
         int sonId,
         const mcIdType *nodalConn,
@@ -57,16 +74,13 @@ class MinusOneSonsGeneratorBiQuadratic
         return _cm.fillSonCellNodalConnectivity4(sonId, nodalConn, lgth, sonNodalConn, typeOfSon);
     }
     static const int DELTA = 1;
-
-   private:
-    const INTERP_KERNEL::CellModel &_cm;
 };
 
-class MicroEdgesGenerator2D
+class MinusTwoSonsCommonGenerator : public CommonGenerator
 {
    public:
-    MicroEdgesGenerator2D(const INTERP_KERNEL::CellModel &cm) : _cm(cm) {}
-    unsigned getNumberOfSons2(const mcIdType *conn, mcIdType lgth) const { return _cm.getNumberOfMicroEdges(); }
+    MinusTwoSonsCommonGenerator(const INTERP_KERNEL::CellModel &cm) : CommonGenerator(cm) {}
+    unsigned getNumberOfSons2(const mcIdType *startConn, mcIdType lgth) const { return _cm.getNumberOfMicroEdges(); }
     unsigned fillSonCellNodalConnectivity2(
         int sonId,
         const mcIdType *nodalConn,
@@ -77,31 +91,20 @@ class MicroEdgesGenerator2D
     {
         return _cm.fillMicroEdgeNodalConnectivity(sonId, nodalConn, sonNodalConn, typeOfSon);
     }
+};
+
+class MicroEdgesGenerator2D : public MinusTwoSonsCommonGenerator
+{
+   public:
+    MicroEdgesGenerator2D(const INTERP_KERNEL::CellModel &cm) : MinusTwoSonsCommonGenerator(cm) {}
     static const int DELTA = 1;
-
-   private:
-    const INTERP_KERNEL::CellModel &_cm;
 };
 
-class MicroEdgesGenerator3D
+class MicroEdgesGenerator3D : public MinusTwoSonsCommonGenerator
 {
    public:
-    MicroEdgesGenerator3D(const INTERP_KERNEL::CellModel &cm) : _cm(cm) {}
-    unsigned getNumberOfSons2(const mcIdType *conn, mcIdType lgth) const { return _cm.getNumberOfMicroEdges(); }
-    unsigned fillSonCellNodalConnectivity2(
-        int sonId,
-        const mcIdType *nodalConn,
-        mcIdType lgth,
-        mcIdType *sonNodalConn,
-        INTERP_KERNEL::NormalizedCellType &typeOfSon
-    ) const
-    {
-        return _cm.fillMicroEdgeNodalConnectivity(sonId, nodalConn, sonNodalConn, typeOfSon);
-    }
+    MicroEdgesGenerator3D(const INTERP_KERNEL::CellModel &cm) : MinusTwoSonsCommonGenerator(cm) {}
     static const int DELTA = 2;
-
-   private:
-    const INTERP_KERNEL::CellModel &_cm;
 };
 
 mcIdType
@@ -251,8 +254,9 @@ MEDCouplingUMesh::buildDescendingConnectivityNoFuseGen(
         const INTERP_KERNEL::CellModel &cm =
             INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[pos]);
         SonsGenerator sg(cm);
-        unsigned nbOfSons = sg.getNumberOfSons2(conn + pos + 1, posP1 - pos - 1);
         INTERP_KERNEL::AutoPtr<mcIdType> tmp = new mcIdType[posP1 - pos];
+        //
+        unsigned nbOfSons = sg.getNumberOfSons2(conn + pos + 1, posP1 - pos - 1);
         for (unsigned i = 0; i < nbOfSons; i++)
         {
             INTERP_KERNEL::NormalizedCellType cmsId;
@@ -263,6 +267,7 @@ MEDCouplingUMesh::buildDescendingConnectivityNoFuseGen(
             ret->insertNextCell(cmsId, nbOfNodesSon, tmp);
             revDesc2->pushBackSilent(eltId);
         }
+        //
         descIndxPtr[0] = descIndxPtr[-1] + ToIdType(nbOfSons);
     }
     std::transform(

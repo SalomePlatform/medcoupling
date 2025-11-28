@@ -423,6 +423,7 @@ typedef long mcPyPtrType;
 %newobject MEDCoupling::MEDCoupling1DGTUMesh::New;
 %newobject MEDCoupling::MEDCoupling1DGTUMesh::getNodalConnectivityIndex;
 %newobject MEDCoupling::MEDCoupling1DGTUMesh::buildSetInstanceFromThis;
+%newobject MEDCoupling::MEDCoupling1DGTUMesh::computeEulerCharacteristic;
 %newobject MEDCoupling::MEDCoupling1DGTUMesh::Merge1DGTUMeshes;
 %newobject MEDCoupling::MEDCoupling1DGTUMesh::Merge1DGTUMeshesOnSameCoords;
 %newobject MEDCoupling::MEDCouplingMappedExtrudedMesh::New;
@@ -3362,6 +3363,12 @@ namespace MEDCoupling
         PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(ret0),SWIGTYPE_p_MEDCoupling__MEDCoupling1DGTUMesh, SWIG_POINTER_OWN | 0 ));
         PyTuple_SetItem(ret,1,ret1Py);
         return ret;
+      }
+
+      DataArrayInt32 *computeEulerCharacteristic() const
+      {
+        MCAuto< DataArrayInt32 > ret( self->computeEulerCharacteristic() );
+        return ret.retn();
       }
 
       static MEDCoupling1DGTUMesh *Merge1DGTUMeshes(PyObject *li)

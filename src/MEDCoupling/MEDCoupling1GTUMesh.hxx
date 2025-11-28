@@ -383,6 +383,7 @@ class MEDCoupling1DGTUMesh : public MEDCoupling1GTUMesh
         const std::vector<std::vector<mcIdType> > &parts
     );
     MEDCOUPLING_EXPORT MEDCoupling1DGTUMesh *buildSetInstanceFromThis(std::size_t spaceDim) const;
+    MEDCOUPLING_EXPORT MCAuto<DataArrayInt32> computeEulerCharacteristic() const;
 
    public:  // serialization
     MEDCOUPLING_EXPORT void getTinySerializationInformation(
