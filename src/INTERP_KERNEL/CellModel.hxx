@@ -16,10 +16,8 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (CEA/DEN)
 
-#ifndef __CELLMODEL_INTERP_KERNEL_HXX__
-#define __CELLMODEL_INTERP_KERNEL_HXX__
+#pragma once
 
 #include "INTERPKERNELDefines.hxx"
 
@@ -27,6 +25,7 @@
 #include "MCIdType.hxx"
 
 #include <map>
+#include <vector>
 
 constexpr int MEDCOUPLING2VTKTYPETRADUCER_LGTH = INTERP_KERNEL::NORM_MAXTYPE + 1;
 
@@ -103,6 +102,9 @@ class CellModel
     INTERPKERNEL_EXPORT unsigned fillSonCellNodalConnectivity4(
         int sonId, const mcIdType *nodalConn, mcIdType lgth, mcIdType *sonNodalConn, NormalizedCellType &typeOfSon
     ) const;
+    INTERPKERNEL_EXPORT std::vector<mcIdType> computeAllEdgesForPolyhedron(
+        const mcIdType *nodalConnBg, const mcIdType *nodalConnEnd
+    ) const;
     INTERPKERNEL_EXPORT unsigned fillSonEdgesNodalConnectivity3D(
         int sonId, const mcIdType *nodalConn, mcIdType lgth, mcIdType *sonNodalConn, NormalizedCellType &typeOfSon
     ) const;
@@ -137,5 +139,3 @@ class CellModel
     static const char *CELL_TYPES_REPR[];
 };
 }  // namespace INTERP_KERNEL
-
-#endif

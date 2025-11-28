@@ -4652,6 +4652,31 @@ MEDCoupling1DGTUMesh::buildSetInstanceFromThis(std::size_t spaceDim) const
 }
 
 /*!
+ * Return V - E + F ( for vertices, edges and faces ) for each polyedron in \a this.
+ */
+MCAuto<DataArrayInt32>
+MEDCoupling1DGTUMesh::computeEulerCharacteristic() const
+{
+    if (_cm->getEnum() != INTERP_KERNEL::NORM_POLYHED)
+        THROW_IK_EXCEPTION("Works only for polyhedra meshes");
+    this->checkFullyDefined();
+    mcIdType nbCells(this->getNumberOfCells());
+    MCAuto<DataArrayInt32> ret(DataArrayInt32::New());
+    const mcIdType *conn(_conn->begin()), *conni(_conn_indx->begin());
+    ret->alloc(nbCells);
+    int *retPtr(ret->getPointer());
+    for (mcIdType i = 0; i < nbCells; ++i)
+    {
+        std::set<mcIdType> pts(conn + conni[i], conn + conni[i + 1]);
+        unsigned F(unsigned(std::count(conn + conni[i], conn + conni[i + 1], -1) + 1));
+        unsigned V(unsigned(pts.size()) - 1);  // -1 to exclude -1 from counting
+        unsigned E(_cm->getNumberOfEdgesIn3D(conn + conni[i], conni[i + 1] - conni[i]));
+        retPtr[i] = V - E + F;
+    }
+    return ret;
+}
+
+/*!
  * This method aggregate the bbox of each cell and put it into bbox parameter.
  *
  * \param [in] arcDetEps - a parameter specifying in case of 2D quadratic polygon cell the detection limit between
