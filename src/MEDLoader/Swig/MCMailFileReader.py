@@ -218,14 +218,6 @@ def _buildUmesh(coords, elements, title, groupesNo, groupesMa, mapGeoCellName):
 
     meshName = title[:64].strip()  # 64 == MED_NAME_SIZE
 
-    # see EDF34008 && EDF33583
-    IMPLICIT_MED_FILE_MAX_MESH_NAME_SIZE = 36
-
-    if len(meshName) >= IMPLICIT_MED_FILE_MAX_MESH_NAME_SIZE:
-        print(
-            f"Name of mesh is >= {IMPLICIT_MED_FILE_MAX_MESH_NAME_SIZE}. MED file will fail : see MED file bug EDF34008"
-        )
-
     mm.setName(meshName)
 
     dimPerCell = {}
