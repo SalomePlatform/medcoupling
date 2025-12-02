@@ -888,6 +888,7 @@ class MinusTwoSonsGenerator
             return _cm.fillSonEdgesNodalConnectivity3D(sonId, nodalConn, lgth, sonNodalConn, typeOfSon);
         else
         {
+            typeOfSon = INTERP_KERNEL::NORM_SEG2;
             std::copy(_cache.data() + 2 * sonId, _cache.data() + 2 * (sonId + 1), sonNodalConn);
             return 2;
         }
