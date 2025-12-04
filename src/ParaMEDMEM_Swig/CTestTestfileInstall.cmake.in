@@ -27,10 +27,15 @@ set(_oversub_opt @_oversub_opt@)
 SET(TEST_NAMES ParaMEDMEMTest)
 
 # Find the path to the Python3 executable
-find_package(Python3 $ENV{PYTHON_VERSION} COMPONENTS Interpreter)
+if (DEFINED ENV{PYTHON_VERSION})
+  find_package(Python3 EXACT $ENV{PYTHON_VERSION} COMPONENTS Interpreter)
+else()
+  find_package(Python3 COMPONENTS Interpreter)
+endif()
+
 
 # force mpiexec to use PATH env var to detect right python into mpiexec command line
-if(!Python3_FOUND)
+if(NOT Python3_FOUND)
   message(STATUS "Python3 not found")
   set(Python3_EXECUTABLE "python3")
 endif()
