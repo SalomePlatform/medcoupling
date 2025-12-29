@@ -3066,20 +3066,20 @@ def GeneratePyfile10(tester):
     mesh1.setName("3DMesh_1")
     tester.assertTrue(mesh1_2.isEqual(mesh1, 1e-12))
     #
-    vec = ["Family_-3", "Family_-5"]
+    vec = ["Family_-4", "Family_-6"]
     mesh2_2 = ReadUMeshFromFamilies(fileName, mnane, 0, vec)
     mesh2_2.setName("mesh2")
     tester.assertTrue(mesh2_2.isEqual(mesh2, 1e-12))
     #
     ret = GetMeshFamiliesNamesOnGroup(fileName, "3DToto", "3DMesh_1")
     tester.assertEqual(4, len(ret))
-    ref = ["Family_-3", "Family_-4", "Family_-2", "Family_-5"]
+    ref = ["Family_-3", "Family_-4", "Family_-5", "Family_-6"]
     tester.assertIn(ref[0], ret)
     tester.assertIn(ref[1], ret)
     tester.assertIn(ref[2], ret)
     tester.assertIn(ref[3], ret)
     #
-    ret1 = GetMeshGroupsNamesOnFamily(fileName, "3DToto", "Family_-3")
+    ret1 = GetMeshGroupsNamesOnFamily(fileName, "3DToto", "Family_-4")
     tester.assertEqual(2, len(ret1))
     tester.assertEqual(ret1[0], "3DMesh_1")
     tester.assertEqual(ret1[1], "mesh2")

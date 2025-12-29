@@ -8727,7 +8727,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(
             a6.isEqual(
                 DataArrayInt(
-                    [-5, -5, -5, -5, -6, -6, -6, -5, -7, -7, -7, -5, -5, -5, -5, -5]
+                    [-7, -7, -7, -7, -8, -8, -8, -7, -9, -9, -9, -7, -7, -7, -7, -7]
                 )
             )
         )
@@ -8763,31 +8763,31 @@ class MEDLoaderTest4(unittest.TestCase):
             a10.isEqual(
                 DataArrayInt(
                     [
-                        1,
-                        1,
-                        1,
-                        1,
-                        1,
-                        1,
                         2,
                         2,
                         2,
-                        1,
+                        2,
+                        2,
+                        2,
                         3,
+                        3,
+                        3,
+                        2,
+                        4,
+                        5,
+                        3,
+                        3,
+                        2,
+                        4,
+                        5,
+                        3,
+                        3,
+                        2,
+                        4,
                         4,
                         2,
                         2,
-                        1,
-                        3,
-                        4,
                         2,
-                        2,
-                        1,
-                        3,
-                        3,
-                        1,
-                        1,
-                        1,
                     ]
                 )
             )
@@ -9008,13 +9008,13 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(a4 is None)
         self.assertTrue(a5 is None)
         a6, a7 = mml2.retrieveFamilyIdsOnCells()
-        self.assertTrue(a6.isEqual(DataArrayInt([-6, -6, -7, -7, -5, -5])))
+        self.assertTrue(a6.isEqual(DataArrayInt([-8, -8, -9, -9, -7, -7])))
         self.assertTrue(not a7)  # copy here
         a8, a9 = mml2.retrieveNumberIdsOnCells()
         self.assertTrue(a8.isEqual(DataArrayInt([44, 55, 88, 99, 132, 143])))
         self.assertTrue(not a9)  # copy here
         a10, a11 = mml2.retrieveFamilyIdsOnNodes()
-        self.assertTrue(a10.isEqual(DataArrayInt([1, 2, 2, 3, 4, 2, 3, 4, 2, 3, 3, 1])))
+        self.assertTrue(a10.isEqual(DataArrayInt([2, 3, 3, 4, 5, 3, 4, 5, 3, 4, 4, 2])))
         self.assertTrue(not a11)  # copy here
         a12, a13 = mml2.retrieveNumberIdsOnNodes()
         self.assertTrue(
