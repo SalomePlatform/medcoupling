@@ -705,7 +705,9 @@ LocInfo::BuildMeshPipeSEG3(
         zeAngle.takeRef(angle);
         zeScale.takeRef(scale);
     }
-    if (zeAngle->getNumberOfComponents() != 3 || zeScale->getNumberOfComponents() != 2 || nbg != 3)
+    auto nbTuplesPtsForLoc(ptsForLoc->getNumberOfTuples());
+    if (zeAngle->getNumberOfComponents() != 3 || zeScale->getNumberOfComponents() != 2 ||
+        nbTuplesPtsForLoc != nbg * nbCells)
         throw INTERP_KERNEL::Exception(MSG1);
     MCAuto<MEDCouplingFieldDouble> dir;
     {
@@ -746,7 +748,7 @@ LocInfo::BuildMeshPipeSEG3(
         AX1[1] = cos(ang0);  // rot Oy around OZ
         double ang1(M_PI / 2. - rot->getIJ(j, 1));
         DataArrayDouble::Rotate3DAlg(CENTER, AX1, -ang1, nbSecPts, p->begin(), p->getPointer());
-        for (int l = 0; l < 3; l++)
+        for (int l = 0; l < nbg; l++)
         {
             MCAuto<DataArrayDouble> p3(p->deepCopy());
             DataArrayDouble::Rotate3DAlg(
