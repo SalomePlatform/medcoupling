@@ -2288,8 +2288,8 @@ MEDCouplingBasicsTest1::testFuseUMeshesOnSameCoords()
     std::vector<std::vector<mcIdType> > fidsOfGroups;
     std::vector<const DataArrayIdType *> corr2(corr.begin(), corr.end());
     DataArrayIdType *arr2 = DataArrayIdType::MakePartition(corr2, m7->getNumberOfCells(), fidsOfGroups);
-    const mcIdType fidExp[4] = {5, 1, 3, 4};
-    const mcIdType fidsGrp[3][3] = {{1, 3, 5}, {3, 4, 5}, {4, 5, 23344}};
+    const mcIdType fidExp[4] = {1, 2, 3, 4};
+    const mcIdType fidsGrp[3][3] = {{1, 2, 3}, {1, 3, 4}, {1, 4, 7777777}};
     CPPUNIT_ASSERT_EQUAL(3, (int)fidsOfGroups.size());
     CPPUNIT_ASSERT_EQUAL(1, (int)arr2->getNumberOfComponents());
     CPPUNIT_ASSERT_EQUAL(4, (int)arr2->getNumberOfTuples());

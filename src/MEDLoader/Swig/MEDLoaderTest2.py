@@ -268,7 +268,7 @@ class MEDLoaderTest2(unittest.TestCase):
         mesh1.setName("3DMesh_1")
         self.assertTrue(mesh1_2.isEqual(mesh1, 1e-12))
         #
-        vec = ["Family_-5", "Family_-3"]
+        vec = ["Family_-4", "Family_-6"]
         mesh2_2 = ReadUMeshFromFamilies(fileName, mnane, 0, vec)
         mesh2_2.setName("mesh2")
         self.assertTrue(mesh2_2.isEqual(mesh2, 1e-12))

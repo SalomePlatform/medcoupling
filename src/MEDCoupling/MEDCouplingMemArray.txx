@@ -38,6 +38,7 @@
 #include <algorithm>
 #include <iterator>
 #include <fstream>
+#include <unordered_map>
 
 namespace MEDCoupling
 {
@@ -9289,45 +9290,78 @@ DataArrayDiscrete<T>::MakePartition(
 {
     std::vector<const DataArrayType *> groups2;
     for (typename std::vector<const DataArrayType *>::const_iterator it4 = groups.begin(); it4 != groups.end(); it4++)
+    {
         if (*it4)
+        {
             groups2.push_back(*it4);
+        }
+    }
     MCAuto<DataArrayIdType> ret = DataArrayIdType::New();
     ret->alloc(newNb, 1);
     mcIdType *retPtr = ret->getPointer();
     std::fill(retPtr, retPtr + newNb, 0);
-    mcIdType fid = 1;
-    for (typename std::vector<const DataArrayType *>::const_iterator iter = groups2.begin(); iter != groups2.end();
-         iter++)
+
+    const mcIdType N = newNb;
+    const std::size_t M = static_cast<std::size_t>(groups2.size());
+    const std::size_t WORDS = (M + 63) / 64;
+
+    std::vector<std::vector<uint64_t>> signatures(N, std::vector<uint64_t>(WORDS, 0ULL));
+
+    for (std::size_t i = 0; i < M; ++i)
     {
-        const T *ptr = (*iter)->getConstPointer();
-        std::size_t nbOfElem = (*iter)->getNbOfElems();
-        mcIdType sfid = fid;
-        for (mcIdType j = 0; j < sfid; j++)
+        std::size_t word = i / 64;
+        uint64_t bit = 1ULL << (i % 64);
+        for (const T *e = groups2[i]->begin(); e != groups2[i]->end(); ++e)
         {
-            bool found = false;
-            for (std::size_t i = 0; i < nbOfElem; i++)
+            if (*e >= 0 && *e < newNb)
             {
-                if (ptr[i] >= 0 && ptr[i] < newNb)
-                {
-                    if (retPtr[ptr[i]] == j)
-                    {
-                        retPtr[ptr[i]] = fid;
-                        found = true;
-                    }
-                }
-                else
-                {
-                    std::ostringstream oss;
-                    oss << "DataArrayInt::MakePartition : In group \"" << (*iter)->getName() << "\" in tuple #" << i
-                        << " value = " << ptr[i] << " ! Should be in [0," << newNb;
-                    oss << ") !";
-                    throw INTERP_KERNEL::Exception(oss.str().c_str());
-                }
+                signatures[*e][word] |= bit;
             }
-            if (found)
-                fid++;
+            else
+            {
+                THROW_IK_EXCEPTION(
+                    "DataArrayInt::MakePartition : In group \""
+                    << groups2[i]->getName() << "\" in tuple #" << std::distance(groups2[i]->begin(), e)
+                    << " value = " << e << " ! Should be in [0," << newNb << ") !"
+                );
+            }
         }
     }
+
+    // https://www.boost.org/doc/libs/1_35_0/doc/html/boost/hash_combine_id241013.html
+
+    struct VecHash
+    {
+        std::size_t operator()(const std::vector<uint64_t> &v) const
+        {
+            std::size_t h = 0;
+            for (uint64_t x : v)
+            {
+                h ^= std::hash<uint64_t>{}(x) + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);
+            }
+            return h;
+        }
+    };
+
+    std::unordered_map<std::vector<uint64_t>, mcIdType, VecHash> partitionMap;
+    partitionMap.reserve(N);
+
+    mcIdType nextPartitionId(1);
+
+    for (int e = 0; e < N; ++e)
+    {
+        auto it = partitionMap.find(signatures[e]);
+        if (it == partitionMap.end())
+        {
+            partitionMap.emplace(signatures[e], nextPartitionId);
+            retPtr[e] = nextPartitionId++;
+        }
+        else
+        {
+            retPtr[e] = it->second;
+        }
+    }
+    //
     fidsOfGroups.clear();
     fidsOfGroups.resize(groups2.size());
     mcIdType grId = 0;

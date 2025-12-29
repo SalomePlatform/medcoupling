@@ -139,6 +139,7 @@ def _buildUmesh(coords, elements, title, groupesNo, groupesMa, mapGeoCellName):
     elements : dict of element_type → list of lists of node indices
     """
     import MEDLoader as ml
+    import collections
 
     # Convert node coordinates to medCoupling array
     coordsMC = ml.DataArrayDouble(coords)
@@ -228,6 +229,9 @@ def _buildUmesh(coords, elements, title, groupesNo, groupesMa, mapGeoCellName):
                 _getGeoTypeDict()[gtMail]
             )
             idMedPerCell[cellName] = medId
+    #
+    grps = collections.defaultdict(list)
+    #
     for cellGrp in groupesMa:
         elems = groupesMa[cellGrp]
         dimPerCellVect = [dimPerCell[elem] for elem in elems]
@@ -247,7 +251,11 @@ def _buildUmesh(coords, elements, title, groupesNo, groupesMa, mapGeoCellName):
                     arr.sort()
             #
             arr.setName(cellGrp)
-            mm.addGroup(dimOfCellGrp - maxDim, arr)
+            grps[dimOfCellGrp - maxDim].append(arr)
+
+    for dimRelative in grps:
+        arrs = grps[dimRelative]
+        mm.setGroupsAtLevel(dimRelative, arrs)
 
     for nodesGrp in groupesNo:
         elems = groupesNo[nodesGrp]

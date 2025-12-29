@@ -2716,8 +2716,8 @@ class MEDCouplingBasicsTest1(unittest.TestCase):
             self.assertEqual(expectedVals2[i], list(vals))
             pass
         arr2, fidsOfGroups = DataArrayInt.MakePartition(corr, m7.getNumberOfCells())
-        fidExp = [5, 1, 3, 4]
-        fidsGrp = [[1, 3, 5], [3, 4, 5], [4, 5]]
+        fidExp = [1, 2, 3, 4]
+        fidsGrp = [[1, 2, 3], [1, 3, 4], [1, 4]]
         self.assertEqual(3, len(fidsOfGroups))
         self.assertEqual(1, arr2.getNumberOfComponents())
         self.assertEqual(4, arr2.getNumberOfTuples())
