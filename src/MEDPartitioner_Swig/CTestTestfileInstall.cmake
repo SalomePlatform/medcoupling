@@ -21,7 +21,6 @@
 set(TEST_NAMES MEDPartitionerTest)
 
 set(PYTHONPATH $ENV{PYTHONPATH})
-cmake_path(APPEND PYTHONPATH "../../bin")
 foreach(tfile ${TEST_NAMES})
   set(TEST_NAME ${COMPONENT_NAME}_${tfile})
   add_test(${TEST_NAME} python3 ${tfile}.py)
