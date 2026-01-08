@@ -1,0 +1,8 @@
+*.o
+*.pyc
+*.bak
+*.orig
+*.gcov
+
+.jenkins*
+.vscode/*

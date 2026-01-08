@@ -1,4 +1,5 @@
-# Copyright (C) 2017-2026  CEA, EDF
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-# Copyright (C) 2023-2026  CEA, EDF
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,19 +18,13 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(BASE_TESTS
-  MEDLoaderTest123.py
-  MEDLoaderTest4.py
-  MEDLoaderExamplesTest.py
-  UsersGuideExamplesTest_ML.py
-  MeshFormatWriterTest1.py
-  CrackAlongTest.py
-  MEDConverterTest.py
-)
 
-# if numpy is used
-SET(NUMPY_TESTS
-  MEDLoaderCouplingTrainingSession.py
-)
+"""
+Convenient utilities.
+"""
 
-SET(ALL_TESTS ${BASE_TESTS} ${NUMPY_TESTS})
+
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i : i + n]

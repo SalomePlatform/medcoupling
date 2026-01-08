@@ -108,8 +108,23 @@ salome_install_scripts(
   ${CMAKE_CURRENT_BINARY_DIR}/MEDLoader.py ${MEDCOUPLING_INSTALL_PYTHON}
   EXTRA_DPYS "${SWIG_MODULE_MEDLoader_REAL_NAME}")
 
-install(FILES MEDLoaderSplitter.py MEDLoaderFinalize.py MCMailFileReader.py
+install(FILES MEDLoaderSplitter.py MEDLoaderFinalize.py
         DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
+
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/abaqus.py
+              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/ansys.py
+              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/aster.py
+              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/cells.py
+              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/connectivity.py
+              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/logger.py
+              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/MEDConverter.py
+              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/MEDConverterMesh.py
+              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/systus.py
+              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/tetgen.py
+              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/utilities.py
+              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/zset.py
+              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/__init__.py
+        DESTINATION ${MEDCOUPLING_INSTALL_PYTHON}/MEDConverter)
 
 install(
   FILES ${ALL_TESTS}
@@ -118,7 +133,7 @@ install(
         MEDLoaderTest2.py
         MEDLoaderTest3.py
         CrackAlongTest.py
-        MailFileTest.py
+        MEDConverterTest.py
   DESTINATION ${MEDCOUPLING_INSTALL_SCRIPT_SCRIPTS})
 
 install(FILES CaseIO.py CaseReader.py CaseWriter.py VTKReader.py
@@ -191,10 +206,14 @@ set(MEDLOADER_TEST_FILES
     MEDLoaderTest2.py
     MEDLoaderTest3.py
     CrackAlongTest.py
-    MailFileTest.py
+    MEDConverterTest.py
     FilesForTest/quad9.mail
     FilesForTest/sslp200b.mail
     FilesForTest/WrongGrpName.mail
+    FilesForTest/ABAQUS_MIXT_ELEMENT.inp
+    FilesForTest/ANSYS_Modele_FE_Mixte_v4.cdb
+    FilesForTest/SYSTUS_MULTI_DONN1.ASC
+    FilesForTest/ZSET_MULTI.geof
     CaseIO.py
     CaseReader.py
     CaseWriter.py

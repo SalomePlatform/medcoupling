@@ -1503,7 +1503,7 @@ class TestFullParseMeshFile(unittest.TestCase):
             mm = LoadMailFileInMEDFileUMeshInstance(filename)
             assert False, "Expected ValueError not raised"
         except ValueError as e:
-            assert "Group name 'les_seg2' is missing or badly formatted." in str(e)
+            assert "Group use an unknown keyword: NAME=les_seg2." in str(e)
 
     def testHexa20(self):
         """
@@ -1653,6 +1653,282 @@ FIN
                     )
                 )
             )
+
+    def testINP(self):
+        filename = "ABAQUS_MIXT_ELEMENT.inp"
+
+        mm = LoadINPFileInMEDFileUMeshInstance(filename)
+
+        # TEST
+        self.assertTrue(len(mm.getCoords()) == 13)
+        self.assertTrue(mm.getName() == "ABAQUS_MIXT_ELEMENT")
+        self.assertTrue(mm.getNonEmptyLevels() == (0,))
+        # niveau0
+        self.assertTrue(
+            [
+                MEDCoupling1SGTUMesh(elt).getNumberOfCells()
+                for elt in mm[0].splitByType()
+            ]
+            == [1, 1, 1, 1]
+        )
+        self.assertTrue(
+            [
+                MEDCouplingUMesh.GetReprOfGeometricType(
+                    MEDCoupling1SGTUMesh(elt).getCellModelEnum()
+                )
+                for elt in mm[0].splitByType()
+            ]
+            == ["NORM_TETRA4", "NORM_PYRA5", "NORM_PENTA6", "NORM_HEXA8"]
+        )
+        self.assertTrue(
+            mm[0].getNodalConnectivityIndex().isEqual(DataArrayInt([0, 5, 11, 18, 27]))
+        )
+
+        self.assertTrue(mm.getMeshDimension() == 3)
+        # Test Groups
+        for elt in ("HEX8", "TET4", "PENTA6", "PYRA5"):
+            self.assertTrue(mm.getGrpNonEmptyLevelsExt(elt) == (0,))
+
+        self.assertTrue(
+            mm.getGroupArr(0, "HEX8").isEqualWithoutConsideringStr(DataArrayInt([3]))
+        )
+
+    def testCDB(self):
+        filename = "ANSYS_Modele_FE_Mixte_v4.cdb"
+
+        mm = LoadCDBFileInMEDFileUMeshInstance(filename)
+
+        # TEST
+        self.assertTrue(len(mm.getCoords()) == 286)
+        self.assertTrue(
+            mm.getName() == "SHELL181 + BEAM188 + BEAM189 + LINK180 + MASS21 + COMBIN14"
+        )
+        self.assertTrue(mm.getNonEmptyLevels() == (0, -1, -2))
+        # niveau0
+        self.assertTrue(
+            [
+                MEDCoupling1SGTUMesh(elt).getNumberOfCells()
+                for elt in mm[0].splitByType()
+            ]
+            == [32]
+        )
+        self.assertTrue(
+            [
+                MEDCouplingUMesh.GetReprOfGeometricType(
+                    MEDCoupling1SGTUMesh(elt).getCellModelEnum()
+                )
+                for elt in mm[0].splitByType()
+            ]
+            == [
+                "NORM_QUAD4",
+            ]
+        )
+        self.assertTrue(
+            mm[0]
+            .getNodalConnectivityIndex()
+            .isEqual(
+                DataArrayInt(
+                    [
+                        0,
+                        5,
+                        10,
+                        15,
+                        20,
+                        25,
+                        30,
+                        35,
+                        40,
+                        45,
+                        50,
+                        55,
+                        60,
+                        65,
+                        70,
+                        75,
+                        80,
+                        85,
+                        90,
+                        95,
+                        100,
+                        105,
+                        110,
+                        115,
+                        120,
+                        125,
+                        130,
+                        135,
+                        140,
+                        145,
+                        150,
+                        155,
+                        160,
+                    ]
+                )
+            )
+        )
+
+        self.assertTrue(mm.getMeshDimension() == 2)
+        # Test Groups
+        for elt in (
+            "EL_BEAM189",
+            "EL_BEAM189",
+            "EL_LINK180_BARRES",
+            "EL_LINK180_CABLES",
+        ):
+            self.assertTrue(mm.getGrpNonEmptyLevelsExt(elt) == (-1,))
+
+        self.assertTrue(
+            mm.getGroupArr(-1, "EL_BEAM189").isEqualWithoutConsideringStr(
+                DataArrayInt(
+                    [
+                        148,
+                        149,
+                        150,
+                        151,
+                        152,
+                        153,
+                        154,
+                        155,
+                        156,
+                        157,
+                        158,
+                        159,
+                        160,
+                        161,
+                        162,
+                        163,
+                        164,
+                        165,
+                        166,
+                        167,
+                        168,
+                        169,
+                        170,
+                        171,
+                    ]
+                )
+            )
+        )
+
+    def testASC(self):
+        filename = "SYSTUS_MULTI_DONN1.ASC"
+
+        mm = LoadASCFileInMEDFileUMeshInstance(filename)
+
+        # TEST
+        self.assertTrue(len(mm.getCoords()) == 61)
+        self.assertTrue(mm.getName() == "SYSTUS_MULTI_DONN1")
+        self.assertTrue(mm.getNonEmptyLevels() == (0, -1, -2, -3))
+        # niveau0
+        self.assertTrue(
+            [
+                MEDCoupling1SGTUMesh(elt).getNumberOfCells()
+                for elt in mm[0].splitByType()
+            ]
+            == [1, 1, 1, 2, 1, 1, 1, 2]
+        )
+        self.assertTrue(
+            [
+                MEDCouplingUMesh.GetReprOfGeometricType(
+                    MEDCoupling1SGTUMesh(elt).getCellModelEnum()
+                )
+                for elt in mm[0].splitByType()
+            ]
+            == [
+                "NORM_TETRA4",
+                "NORM_PYRA5",
+                "NORM_PENTA6",
+                "NORM_HEXA8",
+                "NORM_TETRA10",
+                "NORM_PYRA13",
+                "NORM_PENTA15",
+                "NORM_HEXA20",
+            ]
+        )
+        self.assertTrue(
+            mm[0]
+            .getNodalConnectivityIndex()
+            .isEqual(DataArrayInt([0, 5, 11, 18, 27, 36, 47, 61, 77, 98, 119]))
+        )
+
+        self.assertTrue(mm.getMeshDimension() == 3)
+        # Test Groups
+        for elt in (
+            "2D_QUAD",
+            "2D_LINEAIRE",
+        ):
+            self.assertTrue(mm.getGrpNonEmptyLevelsExt(elt) == (-1,))
+
+        self.assertTrue(
+            mm.getGroupArr(-1, "2D_QUAD").isEqualWithoutConsideringStr(
+                DataArrayInt(
+                    [
+                        2,
+                        3,
+                    ]
+                )
+            )
+        )
+
+    def testGEOF(self):
+        filename = "ZSET_MULTI.geof"
+
+        mm = LoadGeofFileInMEDFileUMeshInstance(filename)
+
+        # TEST
+        self.assertTrue(len(mm.getCoords()) == 61)
+        self.assertTrue(mm.getName() == "ZSET_MULTI")
+        self.assertTrue(mm.getNonEmptyLevels() == (0, -1, -2))
+        # niveau0
+        self.assertTrue(
+            [
+                MEDCoupling1SGTUMesh(elt).getNumberOfCells()
+                for elt in mm[0].splitByType()
+            ]
+            == [1, 1, 1, 2, 1, 1, 1, 2]
+        )
+        self.assertTrue(
+            [
+                MEDCouplingUMesh.GetReprOfGeometricType(
+                    MEDCoupling1SGTUMesh(elt).getCellModelEnum()
+                )
+                for elt in mm[0].splitByType()
+            ]
+            == [
+                "NORM_TETRA4",
+                "NORM_PYRA5",
+                "NORM_PENTA6",
+                "NORM_HEXA8",
+                "NORM_TETRA10",
+                "NORM_PYRA13",
+                "NORM_PENTA15",
+                "NORM_HEXA20",
+            ]
+        )
+        self.assertTrue(
+            mm[0]
+            .getNodalConnectivityIndex()
+            .isEqual(DataArrayInt([0, 5, 11, 18, 27, 36, 47, 61, 77, 98, 119]))
+        )
+
+        self.assertTrue(mm.getMeshDimension() == 3)
+        # Test Groups
+        for elt in (
+            "2D_QUAD",
+            "2D_LINEAIRE",
+        ):
+            self.assertTrue(mm.getGrpNonEmptyLevelsExt(elt) == (-1,))
+
+        self.assertTrue(
+            mm.getGroupArr(-1, "2D_QUAD").isEqualWithoutConsideringStr(
+                DataArrayInt(
+                    [
+                        2,
+                        3,
+                    ]
+                )
+            )
+        )
 
 
 if __name__ == "__main__":
