@@ -109,6 +109,7 @@ processing meshes and fields in scientific computing workflows:
 
 #### 💾 Input/Output & Interoperability
 - Read/write `.med` files (MEDFile format), compatible with SALOME, Code_Saturne, etc.
+- Read `.inp` files (Abaqus format), `.cdb` files (Ansys format), `.asc` files (SYSTUS format) and `.geof` files (ZSET format)
 - Support for time-dependent data and multi-step simulations.
 - Export data for post-processing in ParaView or SALOME.
 - Used a main `ICoCo` mesh and field transfer format for code coupling.
