@@ -49,6 +49,11 @@ MEDFileFieldsIterator.__next__ = MEDFileFieldsIterator.next
 %}
 
 %pythoncode %{
+def MEDFileFieldsIteratoriter(self):
+  return self
+MEDFileFieldsIterator.__iter__ = MEDFileFieldsIteratoriter
+MEDFileAnyTypeFieldMultiTSIterator.__iter__ = MEDFileFieldsIteratoriter
+MEDFileMeshesIterator.__iter__ = MEDFileFieldsIteratoriter
 def MEDCouplingMEDFileUMeshReduce(self):
   return MEDCouplingStdReduceFunct,(MEDFileUMesh,((),(self.__getstate__()),))
 MEDFileUMesh.__reduce__=MEDCouplingMEDFileUMeshReduce
@@ -99,4 +104,5 @@ def MEDCouplingMEDFileParametersReduce(self):
   return MEDCouplingStdReduceFunct,(MEDFileParameters,((self.serialize(),),(self.__getstate__()),))
 MEDFileParameters.__reduce__=MEDCouplingMEDFileParametersReduce
 del MEDCouplingMEDFileParametersReduce
+del MEDFileFieldsIteratoriter
 %}

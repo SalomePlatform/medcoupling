@@ -19,15 +19,15 @@
 #
 # Author : Anthony GEAY (CEA/DEN/DM2S/STMF/LGLS)
 
-from MEDLoader import *
-from MEDCouplingRemapper import *
-import math, sys
+import medcoupling as mc
+import math
 import tempfile, os, shutil
+import numpy as np
 
 zeDir = tempfile.mkdtemp()
 os.chdir(zeDir)
 
-d = DataArrayDouble.New(6, 2)
+d = mc.DataArrayDouble.New(6, 2)
 d[:, 0] = 3.0
 d[:, 1] = list(range(6))
 d[:, 1] *= math.pi / 3.0
@@ -53,7 +53,7 @@ for pos, t in enumerate(translationToPerform):
     ds[pos] += t
     pass
 #
-d2 = DataArrayDouble.Aggregate(ds)
+d2 = mc.DataArrayDouble.Aggregate(ds)
 oldNbOfTuples = d2.getNumberOfTuples()
 c, cI = d2.findCommonTuples(1e-12)
 tmp = c[cI[0] : cI[0 + 1]]
@@ -61,7 +61,7 @@ print(tmp)
 a = cI.deltaShiftIndex()
 b = a - 1
 myNewNbOfTuples = oldNbOfTuples - sum(b.getValues())
-o2n, newNbOfTuples = DataArrayInt.ConvertIndexArrayToO2N(oldNbOfTuples, c, cI)
+o2n, newNbOfTuples = mc.DataArrayInt.ConvertIndexArrayToO2N(oldNbOfTuples, c, cI)
 print("Ai je trouve le bon resultat ? %s" % (str(myNewNbOfTuples == newNbOfTuples)))
 assert myNewNbOfTuples == newNbOfTuples
 #
@@ -73,11 +73,11 @@ assert d3.isEqual(d3_bis, 1e-12)
 #
 d3 += [3.3, 4.4]
 # d3 contains coordinates
-m = MEDCouplingUMesh.New("My7hexagons", 2)
+m = mc.MEDCouplingUMesh.New("My7hexagons", 2)
 m.setCoords(d3)
 m.allocateCells(7)
 for i in range(7):
-    m.insertNextCell(NORM_POLYGON, o2n[6 * i : 6 * (i + 1)].getValues())
+    m.insertNextCell(mc.NORM_POLYGON, o2n[6 * i : 6 * (i + 1)].getValues())
     pass
 m.finishInsertingCells()
 m.checkConsistencyLight()
@@ -624,34 +624,34 @@ conn = [
     59,
     58,
 ]
-mesh3D = MEDCouplingUMesh.New("mesh3D", 3)
+mesh3D = mc.MEDCouplingUMesh.New("mesh3D", 3)
 mesh3D.allocateCells(18)
-mesh3D.insertNextCell(NORM_HEXA8, conn[0:8])
-mesh3D.insertNextCell(NORM_POLYHED, conn[8:51])
-mesh3D.insertNextCell(NORM_HEXA8, conn[51:59])
-mesh3D.insertNextCell(NORM_HEXA8, conn[59:67])
-mesh3D.insertNextCell(NORM_POLYHED, conn[67:110])
-mesh3D.insertNextCell(NORM_HEXA8, conn[110:118])
-mesh3D.insertNextCell(NORM_HEXA8, conn[118:126])
-mesh3D.insertNextCell(NORM_POLYHED, conn[126:169])
-mesh3D.insertNextCell(NORM_HEXA8, conn[169:177])
-mesh3D.insertNextCell(NORM_HEXA8, conn[177:185])
-mesh3D.insertNextCell(NORM_POLYHED, conn[185:228])
-mesh3D.insertNextCell(NORM_HEXA8, conn[228:236])
-mesh3D.insertNextCell(NORM_HEXA8, conn[236:244])
-mesh3D.insertNextCell(NORM_POLYHED, conn[244:287])
-mesh3D.insertNextCell(NORM_HEXA8, conn[287:295])
-mesh3D.insertNextCell(NORM_HEXA8, conn[295:303])
-mesh3D.insertNextCell(NORM_POLYHED, conn[303:346])
-mesh3D.insertNextCell(NORM_HEXA8, conn[346:354])
+mesh3D.insertNextCell(mc.NORM_HEXA8, conn[0:8])
+mesh3D.insertNextCell(mc.NORM_POLYHED, conn[8:51])
+mesh3D.insertNextCell(mc.NORM_HEXA8, conn[51:59])
+mesh3D.insertNextCell(mc.NORM_HEXA8, conn[59:67])
+mesh3D.insertNextCell(mc.NORM_POLYHED, conn[67:110])
+mesh3D.insertNextCell(mc.NORM_HEXA8, conn[110:118])
+mesh3D.insertNextCell(mc.NORM_HEXA8, conn[118:126])
+mesh3D.insertNextCell(mc.NORM_POLYHED, conn[126:169])
+mesh3D.insertNextCell(mc.NORM_HEXA8, conn[169:177])
+mesh3D.insertNextCell(mc.NORM_HEXA8, conn[177:185])
+mesh3D.insertNextCell(mc.NORM_POLYHED, conn[185:228])
+mesh3D.insertNextCell(mc.NORM_HEXA8, conn[228:236])
+mesh3D.insertNextCell(mc.NORM_HEXA8, conn[236:244])
+mesh3D.insertNextCell(mc.NORM_POLYHED, conn[244:287])
+mesh3D.insertNextCell(mc.NORM_HEXA8, conn[287:295])
+mesh3D.insertNextCell(mc.NORM_HEXA8, conn[295:303])
+mesh3D.insertNextCell(mc.NORM_POLYHED, conn[303:346])
+mesh3D.insertNextCell(mc.NORM_HEXA8, conn[346:354])
 mesh3D.finishInsertingCells()
-myCoords = DataArrayDouble.New(coords, 60, 3)
+myCoords = mc.DataArrayDouble.New(coords, 60, 3)
 myCoords.setInfoOnComponents(["X [m]", "Y [m]", "Z [m]"])
 mesh3D.setCoords(myCoords)
 mesh3D.orientCorrectlyPolyhedrons()
 mesh3D.sortCellsInMEDFileFrmt()
 mesh3D.checkConsistencyLight()
-renum = DataArrayInt.New(60)
+renum = mc.DataArrayInt.New(60)
 renum[:15] = list(range(15, 30))
 renum[15:30] = list(range(15))
 renum[30:45] = list(range(45, 60))
@@ -673,7 +673,7 @@ baryZ = bary[:, 2]
 cellIdsSol2 = baryZ.findIdsInRange(zLev[1], zLev[2])
 nodeIds = mesh3D.findNodesOnPlane([0.0, 0.0, zLev[0]], [0.0, 0.0, 1.0], 1e-10)
 mesh2D = mesh3D.buildFacePartOfMySelfNode(nodeIds, True)
-extMesh = MEDCouplingMappedExtrudedMesh.New(mesh3D, mesh2D, 0)
+extMesh = mc.MEDCouplingMappedExtrudedMesh.New(mesh3D, mesh2D, 0)
 cellIdsSol3 = extMesh.getMesh3DIds()[
     mesh2D.getNumberOfCells() : 2 * mesh2D.getNumberOfCells()
 ]
@@ -684,8 +684,8 @@ mesh3DPart = mesh3D[
     cellIdsSol2
 ]  # equivalent to mesh3DPart=mesh3D.buildPartOfMySelf(cellIdsSol2,True)
 mesh3DPart.zipCoords()
-print(mesh3DPart.checkConsecutiveCellTypesAndOrder([NORM_HEXA8, NORM_POLYHED]))
-assert mesh3DPart.checkConsecutiveCellTypesAndOrder([NORM_HEXA8, NORM_POLYHED])
+print(mesh3DPart.checkConsecutiveCellTypesAndOrder([mc.NORM_HEXA8, mc.NORM_POLYHED]))
+assert mesh3DPart.checkConsecutiveCellTypesAndOrder([mc.NORM_HEXA8, mc.NORM_POLYHED])
 print(mesh3DPart.checkConsecutiveCellTypes())
 assert mesh3DPart.checkConsecutiveCellTypes()
 # print mesh3DPart.advancedRepr()
@@ -711,7 +711,7 @@ mesh3DSlice2.zipCoords()
 #
 mesh3DSlice2bis = mesh3DSlice2.deepCopy()
 mesh3DSlice2bis.translate([0.0, 1000.0, 0.0])
-mesh3DSlice2All = MEDCouplingUMesh.MergeUMeshes([mesh3DSlice2, mesh3DSlice2bis])
+mesh3DSlice2All = mc.MEDCouplingUMesh.MergeUMeshes([mesh3DSlice2, mesh3DSlice2bis])
 mesh3DSlice2All.writeVTK("mesh3DSlice2All.vtu")
 #
 mesh3DSurf, desc, descIndx, revDesc, revDescIndx = mesh3D.buildDescendingConnectivity()
@@ -722,18 +722,18 @@ mesh3DSurfInside.writeVTK("mesh3DSurfInside.vtu")
 
 ######
 
-xarr = DataArrayDouble.New(11, 1)
+xarr = mc.DataArrayDouble.New(11, 1)
 xarr.iota(0.0)
-cmesh = MEDCouplingCMesh.New()
+cmesh = mc.MEDCouplingCMesh.New()
 cmesh.setCoords(xarr, xarr, xarr)
 mesh = cmesh.buildUnstructured()
-mesh.convertToPolyTypes(DataArrayInt.Range(0, mesh.getNumberOfCells(), 2))
+mesh.convertToPolyTypes(mc.DataArrayInt.Range(0, mesh.getNumberOfCells(), 2))
 #
 
-f = mesh.fillFromAnalytic(ON_CELLS, 1, "(x-5.)*(x-5.)+(y-5.)*(y-5.)+(z-5.)*(z-5.)")
+f = mesh.fillFromAnalytic(mc.ON_CELLS, 1, "(x-5.)*(x-5.)+(y-5.)*(y-5.)+(z-5.)*(z-5.)")
 f.setName("MyField")
 #
-f2 = MEDCouplingFieldDouble.New(ON_CELLS, ONE_TIME)
+f2 = mc.MEDCouplingFieldDouble.New(mc.ON_CELLS, mc.ONE_TIME)
 f2.setMesh(mesh)
 f2.setName("MyField2")
 f2.fillFromAnalytic(1, "(x-5.)*(x-5.)+(y-5.)*(y-5.)+(z-5.)*(z-5.)")
@@ -754,7 +754,7 @@ fPart1Cpy.getArray().abs()
 print("Fields are the same ? %s" % (fPart1Cpy.getArray().accumulate()[0] < 1e-12))
 assert fPart1Cpy.getArray().accumulate()[0] < 1e-12
 #
-fPart12 = MEDCouplingFieldDouble.MergeFields([fPart1, fPart2])
+fPart12 = mc.MEDCouplingFieldDouble.MergeFields([fPart1, fPart2])
 # evaluation on points
 bary = fPart12.getMesh().computeCellCenterOfMass()
 arr1 = fPart12.getValueOnMulti(bary)
@@ -780,7 +780,7 @@ assert (
     < 1e-8
 )
 # Explosion of field
-fVec = mesh.fillFromAnalytic(ON_CELLS, 3, "(x-5.)*IVec+(y-5.)*JVec+(z-5.)*KVec")
+fVec = mesh.fillFromAnalytic(mc.ON_CELLS, 3, "(x-5.)*IVec+(y-5.)*JVec+(z-5.)*KVec")
 fVecPart1 = fVec.buildSubPart(ids1)
 fVecPart1.setName("fVecPart1")
 cells = fPart1.getMesh().getNumberOfCells() * [None]
@@ -790,7 +790,7 @@ for icell, vec in enumerate(fVecPart1.getArray()):
     m.translate(vec)
     cells[icell] = m
     pass
-meshFVecPart1Exploded = MEDCouplingUMesh.MergeUMeshes(cells)
+meshFVecPart1Exploded = mc.MEDCouplingUMesh.MergeUMeshes(cells)
 fPart1.setMesh(meshFVecPart1Exploded)
 
 ####
@@ -816,50 +816,50 @@ targetCoords = [
     0.7,
 ]
 targetConn = [0, 3, 4, 1, 1, 4, 2, 4, 5, 2, 6, 7, 4, 3, 7, 8, 5, 4]
-targetMesh = MEDCouplingUMesh.New("MyMesh", 2)
+targetMesh = mc.MEDCouplingUMesh.New("MyMesh", 2)
 targetMesh.allocateCells(5)
-targetMesh.insertNextCell(NORM_TRI3, 3, targetConn[4:7])
-targetMesh.insertNextCell(NORM_TRI3, 3, targetConn[7:10])
-targetMesh.insertNextCell(NORM_QUAD4, 4, targetConn[0:4])
-targetMesh.insertNextCell(NORM_QUAD4, 4, targetConn[10:14])
-targetMesh.insertNextCell(NORM_QUAD4, 4, targetConn[14:18])
+targetMesh.insertNextCell(mc.NORM_TRI3, 3, targetConn[4:7])
+targetMesh.insertNextCell(mc.NORM_TRI3, 3, targetConn[7:10])
+targetMesh.insertNextCell(mc.NORM_QUAD4, 4, targetConn[0:4])
+targetMesh.insertNextCell(mc.NORM_QUAD4, 4, targetConn[10:14])
+targetMesh.insertNextCell(mc.NORM_QUAD4, 4, targetConn[14:18])
 targetMesh.finishInsertingCells()
-myCoords = DataArrayDouble.New(targetCoords, 9, 2)
+myCoords = mc.DataArrayDouble.New(targetCoords, 9, 2)
 myCoords.setInfoOnComponents(["X [km]", "YY [mm]"])
 targetMesh.setCoords(myCoords)
 #
-WriteUMesh("TargetMesh.med", targetMesh, True)
+mc.WriteUMesh("TargetMesh.med", targetMesh, True)
 #
-meshRead = ReadUMeshFromFile("TargetMesh.med", targetMesh.getName(), 0)
+meshRead = mc.ReadUMeshFromFile("TargetMesh.med", targetMesh.getName(), 0)
 print(
     "Is the mesh read in file equals targetMesh ? %s"
     % (meshRead.isEqual(targetMesh, 1e-12))
 )
 assert meshRead.isEqual(targetMesh, 1e-12)
 #
-f = MEDCouplingFieldDouble.New(ON_CELLS, ONE_TIME)
+f = mc.MEDCouplingFieldDouble.New(mc.ON_CELLS, mc.ONE_TIME)
 f.setTime(5.6, 7, 8)
 f.setArray(targetMesh.computeCellCenterOfMass())
 f.setMesh(targetMesh)
 f.setName("AFieldName")
-WriteField("MyFirstField.med", f, True)
+mc.WriteField("MyFirstField.med", f, True)
 #
-f2 = ReadFieldCell("MyFirstField.med", f.getMesh().getName(), 0, f.getName(), 7, 8)
+f2 = mc.ReadFieldCell("MyFirstField.med", f.getMesh().getName(), 0, f.getName(), 7, 8)
 print("Is the field read in file equals f ? %s" % (f2.isEqual(f, 1e-12, 1e-12)))
 assert f2.isEqual(f, 1e-12, 1e-12)
 #
-WriteUMesh("MySecondField.med", f.getMesh(), True)
-WriteFieldUsingAlreadyWrittenMesh("MySecondField.med", f)
+mc.WriteUMesh("MySecondField.med", f.getMesh(), True)
+mc.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med", f)
 #
 f2 = f.clone(True)
 f2.getArray()[:] *= 2.0
 f2.setTime(7.8, 9, 10)
-WriteFieldUsingAlreadyWrittenMesh("MySecondField.med", f2)
+mc.WriteFieldUsingAlreadyWrittenMesh("MySecondField.med", f2)
 #
-f3 = ReadFieldCell("MySecondField.med", f.getMesh().getName(), 0, f.getName(), 7, 8)
+f3 = mc.ReadFieldCell("MySecondField.med", f.getMesh().getName(), 0, f.getName(), 7, 8)
 print("Is the field read in file equals f ? %s" % (f.isEqual(f3, 1e-12, 1e-12)))
 assert f.isEqual(f3, 1e-12, 1e-12)
-f4 = ReadFieldCell("MySecondField.med", f.getMesh().getName(), 0, f.getName(), 9, 10)
+f4 = mc.ReadFieldCell("MySecondField.med", f.getMesh().getName(), 0, f.getName(), 9, 10)
 print("Is the field read in file equals f ? %s" % (f2.isEqual(f4, 1e-12, 1e-12)))
 assert f2.isEqual(f4, 1e-12, 1e-12)
 
@@ -886,15 +886,15 @@ targetCoords = [
     0.7,
 ]
 targetConn = [0, 3, 4, 1, 1, 4, 2, 4, 5, 2, 6, 7, 4, 3, 7, 8, 5, 4]
-targetMesh = MEDCouplingUMesh.New("MyMesh", 2)
+targetMesh = mc.MEDCouplingUMesh.New("MyMesh", 2)
 targetMesh.allocateCells(5)
-targetMesh.insertNextCell(NORM_TRI3, 3, targetConn[4:7])
-targetMesh.insertNextCell(NORM_TRI3, 3, targetConn[7:10])
-targetMesh.insertNextCell(NORM_QUAD4, 4, targetConn[0:4])
-targetMesh.insertNextCell(NORM_QUAD4, 4, targetConn[10:14])
-targetMesh.insertNextCell(NORM_QUAD4, 4, targetConn[14:18])
+targetMesh.insertNextCell(mc.NORM_TRI3, 3, targetConn[4:7])
+targetMesh.insertNextCell(mc.NORM_TRI3, 3, targetConn[7:10])
+targetMesh.insertNextCell(mc.NORM_QUAD4, 4, targetConn[0:4])
+targetMesh.insertNextCell(mc.NORM_QUAD4, 4, targetConn[10:14])
+targetMesh.insertNextCell(mc.NORM_QUAD4, 4, targetConn[14:18])
 targetMesh.finishInsertingCells()
-myCoords = DataArrayDouble.New(targetCoords, 9, 2)
+myCoords = mc.DataArrayDouble.New(targetCoords, 9, 2)
 myCoords.setInfoOnComponents(["X [km]", "YY [mm]"])
 targetMesh.setCoords(myCoords)
 #
@@ -902,27 +902,27 @@ targetMeshConsti = targetMesh.buildDescendingConnectivity()[0]
 targetMesh1 = targetMeshConsti[[3, 4, 7, 8]]
 targetMesh1.setName(targetMesh.getName())
 #
-meshMEDFile = MEDFileUMesh.New()
+meshMEDFile = mc.MEDFileUMesh.New()
 meshMEDFile.setMeshAtLevel(0, targetMesh)
 meshMEDFile.setMeshAtLevel(-1, targetMesh1)
 # Some groups on cells Level 0
-grp0_0 = DataArrayInt.New([0, 1, 3])
+grp0_0 = mc.DataArrayInt.New([0, 1, 3])
 grp0_0.setName("grp0_Lev0")
-grp1_0 = DataArrayInt.New([1, 2, 3, 4])
+grp1_0 = mc.DataArrayInt.New([1, 2, 3, 4])
 grp1_0.setName("grp1_Lev0")
 meshMEDFile.setGroupsAtLevel(0, [grp0_0, grp1_0])
 # Some groups on cells Level -1
-grp0_M1 = DataArrayInt.New([0, 1])
+grp0_M1 = mc.DataArrayInt.New([0, 1])
 grp0_M1.setName("grp0_LevM1")
-grp1_M1 = DataArrayInt.New([0, 1, 2])
+grp1_M1 = mc.DataArrayInt.New([0, 1, 2])
 grp1_M1.setName("grp1_LevM1")
-grp2_M1 = DataArrayInt.New([1, 2, 3])
+grp2_M1 = mc.DataArrayInt.New([1, 2, 3])
 grp2_M1.setName("grp2_LevM1")
 meshMEDFile.setGroupsAtLevel(-1, [grp0_M1, grp1_M1, grp2_M1])
 #
 meshMEDFile.write("TargetMesh2.med", 2)  # 2 stands for write from scratch
 #
-meshMEDFileRead = MEDFileMesh.New("TargetMesh2.med")
+meshMEDFileRead = mc.MEDFileMesh.New("TargetMesh2.med")
 meshRead0 = meshMEDFileRead.getMeshAtLevel(0)
 meshRead1 = meshMEDFileRead.getMeshAtLevel(-1)
 print(
@@ -943,25 +943,25 @@ assert grp0_0_read.isEqual(grp0_0)
 #
 # Fields
 #
-f = MEDCouplingFieldDouble.New(ON_CELLS, ONE_TIME)
+f = mc.MEDCouplingFieldDouble.New(mc.ON_CELLS, mc.ONE_TIME)
 f.setTime(5.6, 7, 8)
 f.setArray(targetMesh.computeCellCenterOfMass())
 f.setMesh(targetMesh)
 f.setName("AFieldName")
 #
-fMEDFile = MEDFileField1TS.New()
+fMEDFile = mc.MEDFileField1TS.New()
 fMEDFile.setFieldNoProfileSBT(f)
 #
 fMEDFile.write(
     "TargetMesh2.med", 0
 )  # 0 is very important here because we want to append to TargetMesh2.med and not to scratch it
 #
-fMEDFileRead = MEDFileField1TS.New("TargetMesh2.med", f.getName(), 7, 8)
+fMEDFileRead = mc.MEDFileField1TS.New("TargetMesh2.med", f.getName(), 7, 8)
 fRead1 = fMEDFileRead.getFieldOnMeshAtLevel(
-    ON_CELLS, 0, meshMEDFileRead
+    mc.ON_CELLS, 0, meshMEDFileRead
 )  # fastest method. No read in file.
 fRead2 = fMEDFileRead.getFieldAtLevel(
-    ON_CELLS, 0
+    mc.ON_CELLS, 0
 )  # basic method like, mesh is reread in file...
 print(
     "Does the field f remains the same using fast method ? %s"
@@ -976,19 +976,19 @@ assert fRead2.isEqual(f, 1e-12, 1e-12)
 #
 # Writing and Reading fields on profile using MEDLoader advanced API
 #
-pfl = DataArrayInt.New([1, 2, 3])
+pfl = mc.DataArrayInt.New([1, 2, 3])
 pfl.setName("My1stPfl")
 fPart = f.buildSubPart(pfl)
 fPart.setName("fPart")
 #
-fMEDFile2 = MEDFileField1TS.New()
+fMEDFile2 = mc.MEDFileField1TS.New()
 fMEDFile2.setFieldProfile(fPart, meshMEDFileRead, 0, pfl)
 fMEDFile2.write(
     "TargetMesh2.med", 0
 )  # 0 is very important here because we want to append to TargetMesh2.med and not to scratch it
 #
-fMEDFileRead2 = MEDFileField1TS.New("TargetMesh2.med", fPart.getName(), 7, 8)
-fPartRead, pflRead = fMEDFileRead2.getFieldWithProfile(ON_CELLS, 0, meshMEDFileRead)
+fMEDFileRead2 = mc.MEDFileField1TS.New("TargetMesh2.med", fPart.getName(), 7, 8)
+fPartRead, pflRead = fMEDFileRead2.getFieldWithProfile(mc.ON_CELLS, 0, meshMEDFileRead)
 print(fPartRead.isEqualWithoutConsideringStr(fPart.getArray(), 1e-12))
 assert fPartRead.isEqualWithoutConsideringStr(fPart.getArray(), 1e-12)
 print(pflRead.isEqualWithoutConsideringStr(pfl))
@@ -996,25 +996,25 @@ assert pflRead.isEqualWithoutConsideringStr(pfl)
 
 #####
 
-m0 = MEDCouplingCMesh()
-arr = DataArrayDouble(31, 1)
+m0 = mc.MEDCouplingCMesh()
+arr = mc.DataArrayDouble(31, 1)
 arr.iota(0.0)
 m0.setCoords(arr, arr)
 m0 = m0.buildUnstructured()
 m00 = m0[::2]
 m00.simplexize(0)
 m01 = m0[1::2]
-m0 = MEDCouplingUMesh.MergeUMeshes([m00, m01])
+m0 = mc.MEDCouplingUMesh.MergeUMeshes([m00, m01])
 m0.getCoords()[:] *= 1 / 15.0
 m0.setName("mesh")
 #
-CellField = MEDCouplingFieldDouble(ON_CELLS, ONE_TIME)
+CellField = mc.MEDCouplingFieldDouble(mc.ON_CELLS, mc.ONE_TIME)
 CellField.setTime(5.6, 5, 6)
 CellField.setMesh(m0)
 CellField.setName("CellField")
 CellField.fillFromAnalytic(1, "exp(-((x-1)*(x-1)+(y-1)*(y-1)))")
 CellField.getArray().setInfoOnComponent(0, "powercell [W]")
-NodeField = MEDCouplingFieldDouble(ON_NODES, ONE_TIME)
+NodeField = mc.MEDCouplingFieldDouble(mc.ON_NODES, mc.ONE_TIME)
 NodeField.setTime(5.6, 5, 6)
 NodeField.setMesh(m0)
 NodeField.setName("NodeField")
@@ -1034,23 +1034,27 @@ CellField1 = CellField[proc1]
 CellField1.setMesh(NodeField1.getMesh())
 #
 proc0_fname = "proc0.med"
-WriteField(proc0_fname, NodeField0, True)
-WriteFieldUsingAlreadyWrittenMesh(proc0_fname, CellField0)
+mc.WriteField(proc0_fname, NodeField0, True)
+mc.WriteFieldUsingAlreadyWrittenMesh(proc0_fname, CellField0)
 proc1_fname = "proc1.med"
-WriteField(proc1_fname, NodeField1, True)
-WriteFieldUsingAlreadyWrittenMesh(proc1_fname, CellField1)
+mc.WriteField(proc1_fname, NodeField1, True)
+mc.WriteFieldUsingAlreadyWrittenMesh(proc1_fname, CellField1)
 #
-CellField0_read = ReadFieldCell("proc0.med", "mesh", 0, "CellField", 5, 6)
-CellField1_read = ReadFieldCell("proc1.med", "mesh", 0, "CellField", 5, 6)
-CellField_read = MEDCouplingFieldDouble.MergeFields([CellField0_read, CellField1_read])
+CellField0_read = mc.ReadFieldCell("proc0.med", "mesh", 0, "CellField", 5, 6)
+CellField1_read = mc.ReadFieldCell("proc1.med", "mesh", 0, "CellField", 5, 6)
+CellField_read = mc.MEDCouplingFieldDouble.MergeFields(
+    [CellField0_read, CellField1_read]
+)
 CellFieldCpy = CellField.deepCopy()
 CellFieldCpy.substractInPlaceDM(CellField_read, 10, 1e-12)
 CellFieldCpy.getArray().abs()
 print(CellFieldCpy.getArray().isUniform(0.0, 1e-12))
 #
-NodeField0_read = ReadFieldNode("proc0.med", "mesh", 0, "NodeField", 5, 6)
-NodeField1_read = ReadFieldNode("proc1.med", "mesh", 0, "NodeField", 5, 6)
-NodeField_read = MEDCouplingFieldDouble.MergeFields([NodeField0_read, NodeField1_read])
+NodeField0_read = mc.ReadFieldNode("proc0.med", "mesh", 0, "NodeField", 5, 6)
+NodeField1_read = mc.ReadFieldNode("proc1.med", "mesh", 0, "NodeField", 5, 6)
+NodeField_read = mc.MEDCouplingFieldDouble.MergeFields(
+    [NodeField0_read, NodeField1_read]
+)
 NodeField_read.mergeNodes(1e-10)
 NodeFieldCpy = NodeField.deepCopy()
 NodeFieldCpy.mergeNodes(1e-10)
@@ -1059,16 +1063,16 @@ print(NodeFieldCpy.getArray().isUniform(0.0, 1e-12))
 assert NodeFieldCpy.getArray().isUniform(0.0, 1e-12)
 #
 fileNames = ["proc0.med", "proc1.med"]
-msML = [MEDFileMesh.New(fname) for fname in fileNames]
-fsML = [MEDFileFields.New(fname) for fname in fileNames]
-mergeMLMesh = MEDFileUMesh()
-mergeMLFields = MEDFileFields()
+msML = [mc.MEDFileMesh.New(fname) for fname in fileNames]
+fsML = [mc.MEDFileFields.New(fname) for fname in fileNames]
+mergeMLMesh = mc.MEDFileUMesh()
+mergeMLFields = mc.MEDFileFields()
 for lev in msML[0].getNonEmptyLevels():
     o2nML = len(msML[0].getNonEmptyLevels()) * [None]
     cs = [mML.getCoords() for mML in msML]
-    mergeMLMesh.setCoords(DataArrayDouble.Aggregate(cs))
+    mergeMLMesh.setCoords(mc.DataArrayDouble.Aggregate(cs))
     ms = [mML.getMeshAtLevel(lev) for mML in msML]
-    m = MEDCouplingUMesh.MergeUMeshes(ms)
+    m = mc.MEDCouplingUMesh.MergeUMeshes(ms)
     m.setCoords(mergeMLMesh.getCoords())
     o2nML[lev] = m.sortCellsInMEDFileFrmt()
     mergeMLMesh.setMeshAtLevel(lev, m)
@@ -1076,30 +1080,32 @@ for lev in msML[0].getNonEmptyLevels():
 #
 for fieldName in fsML[0].getFieldsNames():
     fmts = [fML[fieldName] for fML in fsML]
-    mergeField = MEDFileFieldMultiTS()
+    mergeField = mc.MEDFileFieldMultiTS()
     for dt, it, tim in fmts[0].getTimeSteps():
         fts = [fmt[dt, it] for fmt in fmts]
         arrs = len(fts) * [None]
         for typp in fts[0].getTypesOfFieldAvailable():
             arr1s = []
-            if typp == ON_CELLS:
+            if typp == mc.ON_CELLS:
                 for ft in fts:
                     for geoTyp, smth in ft.getFieldSplitedByType():
-                        if geoTyp != NORM_ERROR:
-                            smth1 = [x for x in smth if x[0] == ON_CELLS]
+                        if geoTyp != mc.NORM_ERROR:
+                            smth1 = [x for x in smth if x[0] == mc.ON_CELLS]
                             arr2s = [
                                 ft.getUndergroundDataArray()[elt[1][0] : elt[1][1]]
                                 for elt in smth1
                             ]
-                            arr1s.append(DataArrayDouble.Aggregate(arr2s))
+                            arr1s.append(mc.DataArrayDouble.Aggregate(arr2s))
                             pass
                         pass
                     pass
                 pass
             else:
                 for ft in fts:
-                    smth = [x for x in ft.getFieldSplitedByType() if x[0] == NORM_ERROR]
-                    arr2 = DataArrayDouble.Aggregate(
+                    smth = [
+                        x for x in ft.getFieldSplitedByType() if x[0] == mc.NORM_ERROR
+                    ]
+                    arr2 = mc.DataArrayDouble.Aggregate(
                         [
                             ft.getUndergroundDataArray()[
                                 elt[1][0][1][0] : elt[1][0][1][1]
@@ -1110,10 +1116,10 @@ for fieldName in fsML[0].getFieldsNames():
                     arr1s.append(arr2)
                     pass
                 pass
-            arr = DataArrayDouble.Aggregate(arr1s)
-            if typp == ON_CELLS:
+            arr = mc.DataArrayDouble.Aggregate(arr1s)
+            if typp == mc.ON_CELLS:
                 arr.renumberInPlace(o2nML[lev])
-            mcf = MEDCouplingFieldDouble(typp, ONE_TIME)
+            mcf = mc.MEDCouplingFieldDouble(typp, mc.ONE_TIME)
             mcf.setName(fieldName)
             mcf.setTime(tim, dt, it)
             mcf.setArray(arr)
@@ -1129,29 +1135,29 @@ mergeMLFields.write("merge.med", 0)
 
 #####
 
-arr = DataArrayDouble(11)
+arr = mc.DataArrayDouble(11)
 arr.iota(0)
-trgMesh = MEDCouplingCMesh()
+trgMesh = mc.MEDCouplingCMesh()
 trgMesh.setCoords(arr, arr)
 trgMesh = trgMesh.buildUnstructured()
 #
-arr = DataArrayDouble(21)
+arr = mc.DataArrayDouble(21)
 arr.iota(0)
 arr *= 0.5
-srcMesh = MEDCouplingCMesh()
+srcMesh = mc.MEDCouplingCMesh()
 srcMesh.setCoords(arr, arr)
 srcMesh = srcMesh.buildUnstructured()
 #
 tmp = srcMesh[:20]
 tmp.simplexize(0)
-srcMesh = MEDCouplingUMesh.MergeUMeshes([tmp, srcMesh[20:]])
+srcMesh = mc.MEDCouplingUMesh.MergeUMeshes([tmp, srcMesh[20:]])
 #
-remap = MEDCouplingRemapper()
+remap = mc.MEDCouplingRemapper()
 remap.prepare(srcMesh, trgMesh, "P0P0")
 #
 myMatrix = remap.getCrudeMatrix()
 print(myMatrix)  # pour voir a quoi elle ressemble
-sumByRows = DataArrayDouble(len(myMatrix))
+sumByRows = mc.DataArrayDouble(len(myMatrix))
 for i, wIt in enumerate(sumByRows):
     su = 0.0
     for it in myMatrix[i]:
@@ -1160,22 +1166,22 @@ for i, wIt in enumerate(sumByRows):
 print("Does interpolation look OK ? %s" % (str(sumByRows.isUniform(1.0, 1e-12))))
 assert sumByRows.isUniform(1.0, 1e-12)
 #
-srcField = MEDCouplingFieldDouble(ON_CELLS, ONE_TIME)
+srcField = mc.MEDCouplingFieldDouble(mc.ON_CELLS, mc.ONE_TIME)
 srcField.setMesh(srcMesh)
 srcField.fillFromAnalytic(1, "7-sqrt((x-5.)*(x-5.)+(y-5.)*(y-5.))")
 CellField.getArray().setInfoOnComponent(0, "powercell [W]")
 #
 # remap.transferField(srcField,1e300)
-srcField.setNature(IntensiveMaximum)
+srcField.setNature(mc.IntensiveMaximum)
 trgFieldCV = remap.transferField(srcField, 1e300)
 #
 print(
-    "IntensiveMaximum %lf == %lf"
+    "mc.IntensiveMaximum %lf == %lf"
     % (srcField.integral(True)[0], trgFieldCV.integral(True)[0])
 )
 assert abs(srcField.integral(True)[0] - trgFieldCV.integral(True)[0]) < 1e-6
 print(
-    "IntensiveMaximum %lf != %lf"
+    "mc.IntensiveMaximum %lf != %lf"
     % (srcField.getArray().accumulate()[0], trgFieldCV.getArray().accumulate()[0])
 )
 assert (
@@ -1183,7 +1189,7 @@ assert (
     > 1e-6
 )
 #
-srcField.setNature(ExtensiveMaximum)
+srcField.setNature(mc.ExtensiveMaximum)
 trgFieldI = remap.transferField(srcField, 1e300)
 #
 print(
@@ -1202,9 +1208,6 @@ assert (
 
 ######
 
-from numpy import *
-from math import acos
-
 med_root_dir = os.getenv("MEDCOUPLING_ROOT_DIR")
 agitateur_file = ""
 if med_root_dir:
@@ -1217,13 +1220,13 @@ if not os.path.exists(agitateur_file):
         current_dir, "..", "..", "..", "resources", "agitateur.med"
     )
 pass
-data = MEDFileData(agitateur_file)
+data = mc.MEDFileData(agitateur_file)
 ts = data.getFields()[0].getTimeSteps()
 print(ts)
 #
 fMts = data.getFields()["DISTANCE_INTERFACE_ELEM_BODY_ELEM_DOM"]
 f1ts = fMts[(2, -1)]
-fMc = f1ts.getFieldAtLevel(ON_CELLS, 0)
+fMc = f1ts.getFieldAtLevel(mc.ON_CELLS, 0)
 arr = fMc.getArray()
 arr.getMinMaxPerComponent()  # juste pour voir la plage de variation du champ par compo
 ids = arr.findIdsInRange(0.0, 1.0)
@@ -1231,7 +1234,7 @@ f2Mc = fMc[ids]
 #
 pressMts = data.getFields()["PRESSION_ELEM_DOM"]
 press1ts = pressMts[(2, -1)]
-pressMc = press1ts.getFieldAtLevel(ON_CELLS, 0)
+pressMc = press1ts.getFieldAtLevel(mc.ON_CELLS, 0)
 pressOnAgitateurMc = pressMc[ids]
 #
 pressOnAgitateurMc.getMesh().zipCoords()
@@ -1262,7 +1265,7 @@ centerOfMass = singlePolyhedron.computeCellCenterOfMass()
 barySkin = agitateurSkinMc.computeCellCenterOfMass()
 posSkin = barySkin - centerOfMass
 
-torquePerCellOnSkin = DataArrayDouble.CrossProduct(posSkin, forceVectSkin)
+torquePerCellOnSkin = mc.DataArrayDouble.CrossProduct(posSkin, forceVectSkin)
 
 zeTorque = torquePerCellOnSkin.accumulate()
 print("couple = %r N.m" % (zeTorque[2]))
@@ -1270,9 +1273,9 @@ assert abs(zeTorque[2] - 0.37) < 1e-2
 
 speedMts = data.getFields()["VITESSE_ELEM_DOM"]
 speed1ts = speedMts[(2, -1)]
-speedMc = speed1ts.getFieldAtLevel(ON_CELLS, 0)
+speedMc = speed1ts.getFieldAtLevel(mc.ON_CELLS, 0)
 speedOnSkin = speedMc.getArray()[tupleIdsInField]
-powerSkin = DataArrayDouble.Dot(forceVectSkin, speedOnSkin)
+powerSkin = mc.DataArrayDouble.Dot(forceVectSkin, speedOnSkin)
 power = powerSkin.accumulate()[0]
 print("power = %r W" % (power))
 assert abs(power - 4.22) < 1e-2
@@ -1283,15 +1286,16 @@ y2 = posSkin[:, 1] * posSkin[:, 1]
 y2 = y2.accumulate()[0]
 xy = posSkin[:, 0] * posSkin[:, 1]
 xy = xy.accumulate()[0]
-inertiaSkin = matrix([[x2, xy], [xy, y2]])
-inertiaSkinValues, inertiaSkinVects = linalg.eig(inertiaSkin)
-pos = max(enumerate(inertiaSkinValues), key=lambda x: x[1])[0]
+inertiaSkin = np.matrix([[x2, xy], [xy, y2]])
+inertiaSkinValues, inertiaSkinVects = np.linalg.eig(inertiaSkin)
+# pos = max(enumerate(inertiaSkinValues), key=lambda x: x[1])[0]
+pos = int(np.argmax(inertiaSkinValues))
 vect0 = inertiaSkinVects[pos].tolist()[0]
 print(vect0)
 
 
 def computeAngle(locAgitateur1ts):
-    fMc = locAgitateur1ts.getFieldAtLevel(ON_CELLS, 0)
+    fMc = locAgitateur1ts.getFieldAtLevel(mc.ON_CELLS, 0)
     arr = fMc.getArray()
     ids = arr.findIdsInRange(0.0, 1.0)
     f2Mc = fMc[ids]
@@ -1313,9 +1317,10 @@ def computeAngle(locAgitateur1ts):
     y2 = y2.accumulate()[0]
     xy = posSkin[:, 0] * posSkin[:, 1]
     xy = xy.accumulate()[0]
-    inertiaSkin = matrix([[x2, xy], [xy, y2]])
-    inertiaSkinValues, inertiaSkinVects = linalg.eig(inertiaSkin)
-    pos = max(enumerate(inertiaSkinValues), key=lambda x: x[1])[0]
+    inertiaSkin = np.matrix([[x2, xy], [xy, y2]])
+    inertiaSkinValues, inertiaSkinVects = np.linalg.eig(inertiaSkin)
+    # pos = max(enumerate(inertiaSkinValues), key=lambda x: x[1])[0]
+    pos = np.argmax(inertiaSkinValues)
     vect0 = inertiaSkinVects[pos].tolist()[0]
     return vect0
 
@@ -1330,15 +1335,15 @@ for itts, locAgitateur1ts in zip(
 
 angle2 = len(ts) * [0.0]
 for pos in range(2, len(vects)):
-    norm1 = sqrt(
+    norm1 = math.sqrt(
         vects[pos - 1][0] * vects[pos - 1][0] + vects[pos - 1][1] * vects[pos - 1][1]
     )
-    norm2 = sqrt(vects[pos][0] * vects[pos][0] + vects[pos][1] * vects[pos][1])
+    norm2 = math.sqrt(vects[pos][0] * vects[pos][0] + vects[pos][1] * vects[pos][1])
     crs = vects[pos - 1][0] * vects[pos][0] + vects[pos - 1][1] * vects[pos][1]
     crs /= norm1
     crs /= norm2
     crs = min(crs, 1.0)
-    angle2[pos] = acos(crs)  # /(ts[pos][2]-ts[pos-1][2])
+    angle2[pos] = math.acos(crs)  # /(ts[pos][2]-ts[pos-1][2])
     pass
 
 omega = sum(angle2) / (ts[-1][2] - ts[0][2])
