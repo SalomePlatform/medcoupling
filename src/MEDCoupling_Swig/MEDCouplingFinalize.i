@@ -18,8 +18,11 @@
 //
 
 %pythoncode %{
+def DataArrayAsciiCharIteratoriter(self):
+  return self
 InterpKernelException.__reduce__=INTERPKERNELExceptionReduce
 
+DataArrayDoubleIterator.__iter__ = DataArrayAsciiCharIteratoriter
 DataArrayDouble.__reduce__=MEDCouplingDataArrayDoubleReduce
 DataArrayDouble.__iadd__=MEDCouplingDataArrayDoubleIadd
 DataArrayDouble.__isub__=MEDCouplingDataArrayDoubleIsub
@@ -33,6 +36,7 @@ DataArrayDouble.__floordiv__=DataArrayDouble.__div__
 DataArrayDouble.__ifloordiv__=MEDCouplingDataArrayDoubleIdiv
 DataArrayDouble.__rfloordiv__=DataArrayDouble.__rdiv__
 
+DataArrayInt32Iterator.__iter__ = DataArrayAsciiCharIteratoriter
 DataArrayInt32.__reduce__=MEDCouplingDataArrayInt32Reduce
 DataArrayInt32.__iadd__=MEDCouplingDataArrayInt32Iadd
 DataArrayInt32.__isub__=MEDCouplingDataArrayInt32Isub
@@ -47,6 +51,7 @@ DataArrayInt32.__floordiv__=DataArrayInt32.__div__
 DataArrayInt32.__ifloordiv__=MEDCouplingDataArrayInt32Idiv
 DataArrayInt32.__rfloordiv__=DataArrayInt32.__rdiv__
 
+DataArrayInt64Iterator.__iter__ = DataArrayAsciiCharIteratoriter
 DataArrayInt64.__reduce__=MEDCouplingDataArrayInt64Reduce
 DataArrayInt64.__iadd__=MEDCouplingDataArrayInt64Iadd
 DataArrayInt64.__isub__=MEDCouplingDataArrayInt64Isub
@@ -61,8 +66,12 @@ DataArrayInt64.__floordiv__=DataArrayInt64.__div__
 DataArrayInt64.__ifloordiv__=MEDCouplingDataArrayInt64Idiv
 DataArrayInt64.__rfloordiv__=DataArrayInt64.__rdiv__
 
+DataArrayByteIterator.__iter__ = DataArrayAsciiCharIteratoriter
 DataArrayByte.__reduce__=MEDCouplingDataArrayByteReduce
 
+DataArrayAsciiCharIterator.__iter__ = DataArrayAsciiCharIteratoriter
+
+DataArrayFloatIterator.__iter__ = DataArrayAsciiCharIteratoriter
 DataArrayFloat.__reduce__=MEDCouplingDataArrayFloatReduce
 DataArrayFloat.__iadd__=MEDCouplingDataArrayFloatIadd
 DataArrayFloat.__isub__=MEDCouplingDataArrayFloatIsub
@@ -117,6 +126,8 @@ DataArrayInt64Tuple.__imod__=MEDCouplingDataArrayInt64TupleImod
 DenseMatrix.__iadd__=MEDCouplingDenseMatrixIadd
 DenseMatrix.__isub__=MEDCouplingDenseMatrixIsub
 
+MEDCouplingUMeshCellIterator.__iter__ = DataArrayAsciiCharIteratoriter
+MEDCouplingUMeshCellByTypeIterator.__iter__ = DataArrayAsciiCharIteratoriter
 MEDCouplingUMesh.__reduce__=MEDCouplingUMeshReduce
 MEDCoupling1DGTUMesh.__reduce__=MEDCoupling1DGTUMeshReduce
 MEDCoupling1SGTUMesh.__reduce__=MEDCoupling1SGTUMeshReduce
@@ -132,7 +143,7 @@ DataArrayDoubleIterator.__next__ = DataArrayDoubleIterator.next
 MEDCouplingUMeshCellIterator.__next__ = MEDCouplingUMeshCellIterator.next
 MEDCouplingUMeshCellByTypeIterator.__next__ = MEDCouplingUMeshCellByTypeIterator.next
 
-
+del DataArrayAsciiCharIteratoriter
 del INTERPKERNELExceptionReduce
 del MEDCoupling1SGTUMeshReduce
 del MEDCouplingCMeshReduce
