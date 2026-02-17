@@ -171,7 +171,7 @@ def FindIdFromPathAndPattern(fname, pat):
     import re
     from pathlib import Path
 
-    patRe = Path(pat).name.replace("*", "([\d]+)")
+    patRe = Path(pat).name.replace("*", r"([\d]+)")
     patReRe = re.compile(patRe)
     m = patReRe.match(Path(fname).name)
     if not m:
@@ -205,7 +205,7 @@ def GetNodesFusionInfoFromJointsOf(pat: str):
             if joint.getNumberOfSteps() != 1:
                 raise NotImplementedError("Juste single timestep joint supported")
             # p0 is for receiving proc. p1 is for sending proc
-            p0, p1 = [int(p) for p in re.split("[\s]+", joint.getJointName())]
+            p0, p1 = [int(p) for p in re.split(r"[\s]+", joint.getJointName())]
             if (p0 != iPart) and (p1 != iPart):
                 raise RuntimeError(
                     "Unexpected joint name {!r} in proc {}".format(
