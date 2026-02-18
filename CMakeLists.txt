@@ -53,7 +53,7 @@ endif()
 
 # Versioning
 # ===========
-salome_setup_version(9.14.0)
+salome_setup_version(9.15.0)
 message(
   STATUS
     "Building ${PROJECT_NAME_UC} ${${PROJECT_NAME_UC}_VERSION} from \"${${PROJECT_NAME_UC}_GIT_SHA1}\""
