@@ -245,6 +245,23 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
         ec = mc.MEDCoupling1DGTUMesh(mesh_3D).computeEulerCharacteristic()
         self.assertTrue(ec.isEqual(mc.DataArrayInt32([2])))
 
+    def test_bug26801_sortToHaveConsecutivePairs(self):
+        """
+        EDF26801 : fix bug in
+        """
+        import itertools
+
+        data = [(11, 10), (10, 14), (15, 13), (12, 11), (13, 12)]
+        ref = mc.DataArrayInt([15, 13, 12, 11, 10, 14])
+
+        def check(permut):
+            a = mc.DataArrayInt(data)[list(permut)]
+            a.sortToHaveConsecutivePairs()
+            self.assertTrue(a.fromLinkedListOfPairToList().isEqual(ref))
+
+        for permutation in itertools.permutations(range(5)):
+            check(permutation)
+
 
 if __name__ == "__main__":
     unittest.main()
