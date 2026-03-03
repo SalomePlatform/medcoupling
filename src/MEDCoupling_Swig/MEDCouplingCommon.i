@@ -278,6 +278,7 @@ typedef long mcPyPtrType;
 %newobject MEDCoupling::MEDCouplingFieldDouble::cellToNodeDiscretization;
 %newobject MEDCoupling::MEDCouplingFieldDouble::getValueOnMulti;
 %newobject MEDCoupling::MEDCouplingFieldDouble::computeVectorFieldCyl;
+%newobject MEDCoupling::MEDCouplingFieldDouble::locateDotSignChangeFor;
 %newobject MEDCoupling::MEDCouplingFieldInt32::New;
 %newobject MEDCoupling::MEDCouplingFieldInt32::convertToDblField;
 %newobject MEDCoupling::MEDCouplingFieldInt32::getArray;
@@ -4220,6 +4221,12 @@ namespace MEDCoupling
         std::ostringstream oss;
         self->reprQuickOverview(oss);
         return oss.str();
+      }
+
+      DataArrayIdType *locateDotSignChangeFor( const DataArrayDouble *positions ) const
+      {
+        MCAuto< DataArrayIdType > ret( self->locateDotSignChangeFor( positions) );
+        return ret.retn();
       }
 
       PyObject *isEqualIfNotWhy(const MEDCouplingFieldDouble *other, double meshPrec, double valsPrec) const

@@ -135,6 +135,7 @@ class MEDCouplingFieldDouble : public MEDCouplingFieldT<double>
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *deviator() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *magnitude() const;
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *maxPerTuple() const;
+    MEDCOUPLING_EXPORT MCAuto<DataArrayIdType> locateDotSignChangeFor(const DataArrayDouble *positions) const;
     MEDCOUPLING_EXPORT void changeNbOfComponents(std::size_t newNbOfComp, double dftValue = 0.);
     MEDCOUPLING_EXPORT MEDCouplingFieldDouble *keepSelectedComponents(const std::vector<std::size_t> &compoIds) const;
     MEDCOUPLING_EXPORT void setSelectedComponents(
