@@ -25,6 +25,7 @@
 #include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingFieldFloat.hxx"
 #include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingCurveLinearMesh.hxx"
 #include "MEDCouplingTimeDiscretization.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "MCAuto.txx"
@@ -36,6 +37,7 @@
 #include "InterpKernelGaussCoords.hxx"
 
 #include <sstream>
+#include <cmath>
 #include <limits>
 #include <algorithm>
 #include <functional>
@@ -2451,6 +2453,124 @@ MEDCouplingFieldDouble::maxPerTuple() const
     ret->setName(oss.str());
     ret->setMesh(getMesh());
     return ret.retn();
+}
+
+namespace
+{
+template <int spaceDim>
+mcIdType
+LocateDotSignChangeForInternal3(mcIdType nbPts, const double *oneDPos, const double *pos)
+{
+    double tmp1[spaceDim] = {pos[0] - oneDPos[0], pos[1] - oneDPos[1], pos[2] - oneDPos[2]};
+    double tmp2[spaceDim] = {
+        pos[0] - oneDPos[(nbPts - 1) * spaceDim],
+        pos[1] - oneDPos[(nbPts - 1) * spaceDim + 1],
+        pos[2] - oneDPos[(nbPts - 1) * spaceDim + 2]
+    };
+    if (INTERP_KERNEL::norm<spaceDim>(tmp1) < INTERP_KERNEL::norm<spaceDim>(tmp2))
+    {
+        return 0;
+    }
+    else
+    {  // See EDF26801
+        return nbPts - 2;
+    }
+}
+
+template <int spaceDim>
+double
+LocateDotSignChangeForInternal2(const double *oneDPos, const double *oneDTangVect, const double *pos)
+{
+    double tmp[spaceDim] = {pos[0] - oneDPos[0], pos[1] - oneDPos[1], pos[2] - oneDPos[2]};
+    return INTERP_KERNEL::dotprod<spaceDim>(tmp, oneDTangVect);
+}
+
+/*!
+ * Kernel of MEDCouplingFieldDouble::locateDotSignChangeFor.
+ * precondition : nbPts >= 2
+ */
+template <int spaceDim>
+mcIdType
+LocateDotSignChangeForInternal(mcIdType nbPts, const double *oneDPos, const double *oneDTangVect, const double *pos)
+{
+    double v(LocateDotSignChangeForInternal2<spaceDim>(oneDPos, oneDTangVect, pos));
+    std::vector<mcIdType> ret;
+    for (mcIdType i = 1; i < nbPts; ++i)
+    {
+        double v2(LocateDotSignChangeForInternal2<spaceDim>(oneDPos + i * spaceDim, oneDTangVect + i * spaceDim, pos));
+        if (std::signbit(v) != std::signbit(v2))
+        {
+            v = v2;
+            ret.push_back(i - 1);
+        }
+    }
+    if (!ret.empty())
+    {
+        if (ret.size() == 1)
+            return ret[0];
+        else
+        {
+            double cur(std::numeric_limits<double>::max());
+            mcIdType curRet(std::numeric_limits<mcIdType>::max());
+            for (mcIdType cand : ret)
+            {
+                double tmp1[spaceDim] = {
+                    pos[0] - oneDPos[cand * spaceDim + 0],
+                    pos[1] - oneDPos[cand * spaceDim + 1],
+                    pos[2] - oneDPos[cand * spaceDim + 2]
+                };
+                double n(INTERP_KERNEL::norm<spaceDim>(tmp1));
+                if (n < cur)
+                {
+                    cur = n;
+                    curRet = cand;
+                }
+            }
+            return curRet;
+        }
+    }
+    return LocateDotSignChangeForInternal3<spaceDim>(nbPts, oneDPos, pos);
+}
+}  // namespace
+
+/*!
+ * \a this is expected to be an \a ON_NODES vector (nb of components == 3) field lying on 1D MEDCouplingCurveLinearMesh
+ * mesh.
+ * \a positions is expected to be a nbOfCommponents == 3 also.
+ *
+ * This method computes for each position in \a positions location in \a this->getMesh() where sign of dot changes
+ */
+MCAuto<DataArrayIdType>
+MEDCouplingFieldDouble::locateDotSignChangeFor(const DataArrayDouble *positions) const
+{
+    constexpr int spaceDim = 3;
+    this->checkConsistencyLight();
+    TypeOfField tf(this->getTypeOfField());
+    if (tf != ON_NODES)
+        THROW_IK_EXCEPTION("this field is expected to be on ON_NODES !");
+    if (this->getMesh()->getMeshDimension() != 1)
+        THROW_IK_EXCEPTION("underlying mesh is expected to have meshDim == 1 !");
+    if (this->getMesh()->getSpaceDimension() != spaceDim)
+        THROW_IK_EXCEPTION("underlying mesh is expected to have meshDim == 1 !");
+    if (!positions)
+        THROW_IK_EXCEPTION("input array is null !");
+    if (this->getMesh()->getNumberOfNodes() < 2)
+        THROW_IK_EXCEPTION("Underlying mesh is expected to have at least one node");
+    const MEDCouplingCurveLinearMesh *psm(dynamic_cast<const MEDCouplingCurveLinearMesh *>(this->getMesh()));
+    if (!psm)
+        THROW_IK_EXCEPTION("Underlying mesh MEDCouplingCurveLinearMesh cast has failed");
+    mcIdType nbPts(this->getMesh()->getNumberOfNodes()), nbOfPositions(positions->getNumberOfTuples());
+    positions->checkNbOfComps(spaceDim, "invalid nb of tuples of input array");
+    MCAuto<DataArrayIdType> ret(DataArrayIdType::New());
+    ret->alloc(nbOfPositions);
+    //
+    const double *posPtr(positions->begin()), *coordsPtr(psm->getCoords()->begin()), *arrPtr(this->getArray()->begin());
+    mcIdType *retPtr(ret->getPointer());
+    for (mcIdType i = 0; i < nbOfPositions; ++i)
+    {
+        retPtr[i] = LocateDotSignChangeForInternal<spaceDim>(nbPts, coordsPtr, arrPtr, posPtr + i * spaceDim);
+    }
+    return ret;
 }
 
 /*!
