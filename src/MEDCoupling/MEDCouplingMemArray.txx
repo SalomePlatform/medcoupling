@@ -38,6 +38,8 @@
 #include <algorithm>
 #include <iterator>
 #include <fstream>
+#include <utility>
+#include <list>
 #include <unordered_map>
 
 namespace MEDCoupling
@@ -7204,6 +7206,104 @@ DataArrayDiscrete<T>::sortEachPairToMakeALinkedList()
     }
 }
 
+namespace
+{
+template <class T>
+class PairAggregator
+{
+   public:
+    PairAggregator(T a, T b) : _data(1, {a, b}) {}
+    bool tryToAggregate(PairAggregator &other)
+    {
+        if (back() == other.front())
+        {
+            _data.splice(_data.end(), std::move(other._data));
+            return true;
+        }
+        if (front() == other.back())
+        {
+            _data.splice(_data.begin(), std::move(other._data));
+            return true;
+        }
+        if (front() == other.front())
+        {
+            other.reserse();
+            _data.splice(_data.begin(), std::move(other._data));
+            return true;
+        }
+        if (back() == other.back())
+        {
+            other.reserse();
+            _data.splice(_data.end(), std::move(other._data));
+            return true;
+        }
+        return false;
+    }
+    void reserse()
+    {
+        std::reverse(_data.begin(), _data.end());
+        for (auto &p : _data)
+        {
+            std::swap(p.first, p.second);
+        }
+    }
+    T front() const { return _data.front().first; }
+    T back() const { return _data.back().second; }
+    void fill(T *&ptr) const
+    {
+        for (auto &p : _data)
+        {
+            *ptr++ = p.first;
+            *ptr++ = p.second;
+        }
+    }
+    void print(std::ostream &oss) const
+    {
+        for (auto &p : _data)
+        {
+            oss << p.first << " " << p.second << " ";
+        }
+    }
+
+   private:
+    std::list<std::pair<T, T>> _data;
+};
+
+template <class T>
+void
+findMaxLengthLines(std::list<PairAggregator<T>> &tab)
+{
+    bool mergeOpDone(false);
+    do
+    {
+        if (!tab.empty())
+        {
+            mergeOpDone = false;
+            typename std::list<PairAggregator<T>>::iterator it(tab.begin());
+            do
+            {
+                PairAggregator<T> &base(*it);
+                typename std::list<PairAggregator<T>>::iterator it2(it);
+                it2++;
+                while (it2 != tab.end())
+                {
+                    if (base.tryToAggregate(*it2))
+                    {
+                        it2 = tab.erase(it2);
+                        mergeOpDone = true;
+                    }
+                    else
+                    {
+                        it2++;
+                    }
+                }
+                it++;
+            } while (it != tab.end());
+        }
+    } while (mergeOpDone);
+}
+}  // namespace
+
 /*!
  * This method is the improvement from the method sortEachPairToMakeALinkedList().
  *
@@ -7221,49 +7321,28 @@ DataArrayDiscrete<T>::sortToHaveConsecutivePairs()
             "equal to 2 !"
         );
     mcIdType nbOfTuples(this->getNumberOfTuples());
+    if (nbOfTuples == 0)
+        return;
     T *thisPtr(this->getPointer());
-    mcIdType idOfLastTuple = 0;
-    std::pair<T *, T *> tmp;
-    if (thisPtr[0] == thisPtr[1])
+    std::list<PairAggregator<T>> zeList;
+    for (mcIdType i = 0; i < nbOfTuples; ++i)
     {
-        THROW_IK_EXCEPTION(
-            "DataArrayInt::sortToHaveConsecutivePairs : In the first tuple presence of a pair filled with same ids !"
-        );
+        zeList.emplace_back(PairAggregator<T>(thisPtr[2 * i], thisPtr[2 * i + 1]));
     }
-    while (idOfLastTuple < nbOfTuples - 1)
+    findMaxLengthLines<T>(zeList);
+    if (zeList.size() == 1)
     {
-        mcIdType i = idOfLastTuple + 1;
-        tmp.first = &thisPtr[2 * i];
-        tmp.second = &thisPtr[2 * i + 1];
-        if (std::get<0>(tmp)[0] == std::get<1>(tmp)[0])
-        {
-            THROW_IK_EXCEPTION(
-                "DataArrayInt::sortToHaveConsecutivePairs : In the tuple #"
-                << i << " presence of a pair filled with same ids !"
-            );
-        }
-        while ((this->getIJ(idOfLastTuple, 1) != std::get<0>(tmp)[0] &&
-                this->getIJ(idOfLastTuple, 1) != std::get<1>(tmp)[0]) &&
-               i < nbOfTuples - 1)
-        {
-            std::swap(std::get<0>(tmp)[0], thisPtr[2 * (i + 1)]);
-            std::swap(std::get<1>(tmp)[0], thisPtr[2 * (i + 1) + 1]);
-            i++;
-        }
-        if (i < nbOfTuples - 1 || this->getIJ(idOfLastTuple, 1) == std::get<0>(tmp)[0] ||
-            this->getIJ(idOfLastTuple, 1) == std::get<1>(tmp)[0])
-        {
-            if (this->getIJ(idOfLastTuple, 1) != std::get<0>(tmp)[0])
-                std::swap(std::get<0>(tmp)[0], std::get<1>(tmp)[0]);
-            idOfLastTuple++;
-        }
-        else
-        {
-            THROW_IK_EXCEPTION(
-                "DataArrayInt::sortToHaveConsecutivePairs : not found the tuple which have the common noeud = "
-                << this->getIJ(idOfLastTuple, 1)
-            );
-        }
+        zeList.front().fill(thisPtr);
+        return;
+    }
+    std::ostringstream oss;
+    oss << "Found " << zeList.size() << " chains" << std::endl;
+    for (auto &p : zeList)
+    {
+        oss << " - ";
+        p.print(oss);
+        oss << std::endl;
+        throw INTERP_KERNEL::Exception(oss.str());
     }
 }
 
