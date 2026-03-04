@@ -136,7 +136,6 @@ class MEDConverterMesh:
         self._verbose = False
 
     def _get_file_encoding(self, filename):
-
         encodings = "utf8 latin_1 cp437".split()
 
         for enc in encodings:
@@ -202,7 +201,6 @@ class MEDConverterMesh:
                     )
 
     def _make_continuous(self):
-
         self.groups_e_continuous = OrderedDict()
         self.cells_continuous = OrderedDict()
 

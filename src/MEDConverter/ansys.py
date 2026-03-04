@@ -494,7 +494,6 @@ dicoOpt = {
 class MEDConverterAnsys(MEDConverterMesh):
     @staticmethod
     def convert_ansys_to_med(filename_ansys, verbose=False):
-
         tic = time.perf_counter()
         c = MEDConverterAnsys()
         c.verbose = verbose
@@ -527,7 +526,6 @@ class MEDConverterAnsys(MEDConverterMesh):
         tic = time.perf_counter()
         # Lecture du fichier .cdb où les blocs sont separés par des BEGIN_* et END_*
         with open(filename, "r", encoding=self._get_file_encoding(filename)) as file:
-
             for line in file:
                 strip_line = line.strip().upper()
 

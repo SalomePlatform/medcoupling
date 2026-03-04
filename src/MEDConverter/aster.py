@@ -37,7 +37,6 @@ ASTER_CELLS_SHIFT = 1  # La numérotation ASTER des élements démarre à 1
 class MEDConverterAster(MEDConverterMesh):
     @staticmethod
     def convert_aster_to_med(filename_aster, verbose=False):
-
         tic = time.perf_counter()
         c = MEDConverterAster()
         c.verbose = verbose

@@ -13,7 +13,6 @@ from .connectivity import ConnectivityRenumberer
 class MEDConverterTetgen(MEDConverterMesh):
     @staticmethod
     def convert_tetgen_to_med(filename_tetgen, verbose=False):
-
         tic = time.perf_counter()
         c = MEDConverterTetgen()
         c.verbose = verbose

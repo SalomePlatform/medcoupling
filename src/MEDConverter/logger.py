@@ -36,6 +36,7 @@
 """
 This package defines the *logger* of the *MEDConverter* plugin.
 """
+
 import logging
 
 

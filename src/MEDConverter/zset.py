@@ -35,7 +35,6 @@ ZSET_CELLS_SHIFT = 1  # La numérotation ZSET des élements démarre à 1
 class MEDConverterZset(MEDConverterMesh):
     @staticmethod
     def convert_zset_to_med(filename_zset, verbose=False):
-
         tic = time.perf_counter()
         c = MEDConverterZset()
         c.verbose = verbose

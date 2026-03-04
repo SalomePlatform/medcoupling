@@ -23,7 +23,6 @@ from collections import OrderedDict
 
 
 class CellsTypeConverter:
-
     _systus_to_med = {
         "0001": "POINT1",
         "1002": "SEG2",
@@ -725,7 +724,6 @@ class CellsTypeConverter:
 
 
 class GroupCellsTypeConverter(CellsTypeConverter):
-
     _systus_to_med = {}
     _abaqus_to_med = {}
     _aster_to_med = {}
