@@ -32,7 +32,8 @@ struct MPITraits
 {
     static const MPI_Datatype MPIType;
 };
-template<> const MPI_Datatype MPITraits<char>::MPIType = MPI_CHAR;
+template <>
+const MPI_Datatype MPITraits<char>::MPIType = MPI_CHAR;
 
 template <>
 struct MPITraits<std::int64_t>

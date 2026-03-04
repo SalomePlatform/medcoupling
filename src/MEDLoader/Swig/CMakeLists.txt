@@ -111,20 +111,21 @@ salome_install_scripts(
 install(FILES MEDLoaderSplitter.py MEDLoaderFinalize.py
         DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/abaqus.py
-              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/ansys.py
-              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/aster.py
-              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/cells.py
-              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/connectivity.py
-              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/logger.py
-              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/MEDConverter.py
-              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/MEDConverterMesh.py
-              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/systus.py
-              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/tetgen.py
-              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/utilities.py
-              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/zset.py
-              ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/__init__.py
-        DESTINATION ${MEDCOUPLING_INSTALL_PYTHON}/MEDConverter)
+install(
+  FILES ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/abaqus.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/ansys.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/aster.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/cells.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/connectivity.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/logger.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/MEDConverter.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/MEDConverterMesh.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/systus.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/tetgen.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/utilities.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/zset.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/__init__.py
+  DESTINATION ${MEDCOUPLING_INSTALL_PYTHON}/MEDConverter)
 
 install(
   FILES ${ALL_TESTS}

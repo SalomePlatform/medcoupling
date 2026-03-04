@@ -34,7 +34,6 @@ SYSTUS_CELLS_SHIFT = 1  # La numérotation SYSTUS des élements démarre à 1
 class MEDConverterSystus(MEDConverterMesh):
     @staticmethod
     def convert_systus_to_med(filename_systus, skip_types, verbose=False):
-
         tic = time.perf_counter()
         c = MEDConverterSystus()
         c.verbose = verbose
@@ -71,7 +70,6 @@ class MEDConverterSystus(MEDConverterMesh):
             self.mesh_name = line_1 or osp.splitext(osp.split(filename)[-1])[0]
 
             for line in f:
-
                 if flag["NODES"] == 1:
                     NODES.append(line)
                 elif flag["ELEMENTS"] == 1:
@@ -268,9 +266,7 @@ BEGIN_INFORMATIONS
  4 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
  0 0 0 0 0 0 0 0 0 0 3 3 9 0 0 0 0 9 0 0 0 0 6 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0
 END_INFORMATIONS
-""".format(
-            *[time.strftime("%y%m%d %H%M%S"), self.mesh_name, nb_nodes, nb_elements]
-        )
+""".format(*[time.strftime("%y%m%d %H%M%S"), self.mesh_name, nb_nodes, nb_elements])
 
         txt_nodes = "BEGIN_NODES %d %d\n%s\nEND_NODES\n" % (
             nb_nodes,

@@ -21,8 +21,8 @@
 
 from collections import OrderedDict
 
-class ConnectivityRenumberer:
 
+class ConnectivityRenumberer:
     # Les items d'une liste indiquent à quelle position MED se trouve le noeud SYSTUS correspondant à l'index dans la liste.
     # e.g. pour le QUAD8 :
     # Le noeud 0 SYSTUS correspond au noeud 0 MED
