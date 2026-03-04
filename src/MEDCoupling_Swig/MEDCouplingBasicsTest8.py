@@ -247,7 +247,7 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
 
     def test_bug26801_sortToHaveConsecutivePairs(self):
         """
-        EDF26801 : fix bug in
+        EDF26801 : fix bug in sortToHaveConsecutivePairs + sortToHaveConsecutivePairs
         """
         import itertools
 
@@ -261,6 +261,28 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
 
         for permutation in itertools.permutations(range(5)):
             check(permutation)
+
+        #
+        permutation = mc.DataArrayInt([4, 2, 1, 3, 5, 0])
+        data2 = mc.DataArrayInt(
+            [(11, 10), (10, 14), (12, 11), (21, 20), (20, 24), (22, 21)]
+        )
+        data2 = data2[permutation]
+        # 2 chains -> raises
+        self.assertRaises(mc.InterpKernelException, data2.sortToHaveConsecutivePairs)
+        ret = data2.splitPairsIntoChains()
+        self.assertEqual(len(ret), 2)
+        self.assertTrue(mc.DataArrayInt([(22, 21), (21, 20), (20, 24)]).isEqual(ret[0]))
+        self.assertTrue(mc.DataArrayInt([(12, 11), (11, 10), (10, 14)]).isEqual(ret[1]))
+        # 2 chains with cycle
+        data3 = mc.DataArrayInt(
+            [(11, 10), (10, 12), (12, 11), (21, 20), (20, 22), (22, 21)]
+        )
+        data3 = data3[permutation]
+        ret = data3.splitPairsIntoChains()
+        self.assertEqual(len(ret), 2)
+        self.assertTrue(mc.DataArrayInt([(21, 20), (20, 22), (22, 21)]).isEqual(ret[0]))
+        self.assertTrue(mc.DataArrayInt([(10, 12), (12, 11), (11, 10)]).isEqual(ret[1]))
 
 
 if __name__ == "__main__":

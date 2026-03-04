@@ -910,6 +910,7 @@ class MEDCOUPLING_EXPORT_TEMPLATE DataArrayDiscrete : public DataArrayTemplateCl
     DataArrayType *findIdInRangeForEachTuple(const DataArrayType *ranges) const;
     void sortEachPairToMakeALinkedList();
     void sortToHaveConsecutivePairs();
+    std::vector<MCAuto<DataArrayType> > splitPairsIntoChains() const;
     MCAuto<DataArrayType> fromLinkedListOfPairToList() const;
     DataArrayType *getDifferentValues() const;
     MCAuto<DataArrayType> forThisAsPartitionBuildReduction(

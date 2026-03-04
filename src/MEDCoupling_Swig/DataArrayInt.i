@@ -2023,6 +2023,19 @@
         return pyRet;
       }
 
+      PyObject *splitPairsIntoChains() const
+      {
+        std::vector< MCAuto<ARRAY> > ret( self->splitPairsIntoChains() );
+        std::size_t sz( ret.size() );
+        //
+        PyObject *pyRet=PyList_New( sz );
+        for( std::size_t i = 0 ; i < sz ; ++i )
+        {
+          PyList_SetItem(pyRet,i,SWIG_NewPointerObj(SWIG_as_voidptr(ret[i].retn()),SWIGTITraits<INT>::TI, SWIG_POINTER_OWN | 0 ));
+        }
+        return pyRet;
+      }
+
       DataArrayIdType *locateComponentId(const ARRAY *valToSearchIntoTuples, const DataArrayIdType *tupleIdHint) const
       {
         return self->locateComponentId(valToSearchIntoTuples,tupleIdHint);
