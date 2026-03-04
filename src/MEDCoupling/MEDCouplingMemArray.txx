@@ -7249,6 +7249,7 @@ class PairAggregator
     }
     T front() const { return _data.front().first; }
     T back() const { return _data.back().second; }
+    std::size_t size() const { return _data.size(); }
     void fill(T *&ptr) const
     {
         for (auto &p : _data)
@@ -7308,7 +7309,7 @@ findMaxLengthLines(std::list<PairAggregator<T>> &tab)
  * This method is the improvement from the method sortEachPairToMakeALinkedList().
  *
  * \sa MEDCouplingUMesh::orderConsecutiveCells1D, DataArrayInt::sortEachPairToMakeALinkedList(),
- * DataArrayInt::fromLinkedListOfPairToList
+ * DataArrayInt::splitPairsIntoChains DataArrayInt::fromLinkedListOfPairToList
  */
 template <class T>
 void
@@ -7342,8 +7343,49 @@ DataArrayDiscrete<T>::sortToHaveConsecutivePairs()
         oss << " - ";
         p.print(oss);
         oss << std::endl;
-        throw INTERP_KERNEL::Exception(oss.str());
     }
+    throw INTERP_KERNEL::Exception(oss.str());
+}
+
+/*!
+ * Generalization method of sortToHaveConsecutivePairs.
+ *
+ * \sa DataArrayInt::sortToHaveConsecutivePairs
+ */
+template <class T>
+std::vector<MCAuto<typename Traits<T>::ArrayType>>
+DataArrayDiscrete<T>::splitPairsIntoChains() const
+{
+    std::vector<MCAuto<typename Traits<T>::ArrayType>> ret;
+    this->checkAllocated();
+    if (this->getNumberOfComponents() != 2)
+        throw INTERP_KERNEL::Exception(
+            "splitPairsIntoChains : Only works on DataArrayInt instance with nb of components "
+            "equal to 2 !"
+        );
+    mcIdType nbOfTuples(this->getNumberOfTuples());
+    if (nbOfTuples == 0)
+        return ret;
+    const T *thisPtr(this->begin());
+    std::list<PairAggregator<T>> zeList;
+    for (mcIdType i = 0; i < nbOfTuples; ++i)
+    {
+        zeList.emplace_back(PairAggregator<T>(thisPtr[2 * i], thisPtr[2 * i + 1]));
+    }
+    findMaxLengthLines<T>(zeList);
+    std::size_t sz(zeList.size());
+    ret.resize(sz);
+    typename std::list<PairAggregator<T>>::const_iterator it(zeList.cbegin());
+    for (std::size_t i = 0; i < sz; ++i)
+    {
+        MCAuto<typename Traits<T>::ArrayType> elt(Traits<T>::ArrayType::New());
+        const PairAggregator<T> eltConst(*it++);
+        elt->alloc(ToIdType<std::size_t>(eltConst.size()), 2);
+        T *ptr(elt->getPointer());
+        eltConst.fill(ptr);
+        ret[i] = elt;
+    }
+    return ret;
 }
 
 /*!
