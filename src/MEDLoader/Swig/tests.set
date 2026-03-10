@@ -20,6 +20,7 @@
 SET(BASE_TESTS
   MEDLoaderTest123.py
   MEDLoaderTest4.py
+  MEDLoaderAggregatorTest.py
   MEDLoaderExamplesTest.py
   UsersGuideExamplesTest_ML.py
   MeshFormatWriterTest1.py

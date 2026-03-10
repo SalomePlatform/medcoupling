@@ -108,7 +108,7 @@ salome_install_scripts(
   ${CMAKE_CURRENT_BINARY_DIR}/MEDLoader.py ${MEDCOUPLING_INSTALL_PYTHON}
   EXTRA_DPYS "${SWIG_MODULE_MEDLoader_REAL_NAME}")
 
-install(FILES MEDLoaderSplitter.py MEDLoaderFinalize.py
+install(FILES MEDLoaderSplitter.py MEDLoaderFinalize.py MEDLoaderAggregator.py
         DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
 install(

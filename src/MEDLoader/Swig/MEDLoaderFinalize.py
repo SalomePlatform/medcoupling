@@ -43,6 +43,7 @@ def MEDFileUMeshFuseNodesAndCells(
 def getLogger(level=logging.INFO):
     FORMAT = "%(levelname)s : %(asctime)s : [%(filename)s:%(funcName)s:%(lineno)s] : %(message)s"
     logging.basicConfig(format=FORMAT, level=level)
+    logging.getLogger().setLevel(level)
     return logging.getLogger()
 
 
@@ -116,14 +117,14 @@ def MEDFileUMeshFuseNodesAndCellsAdv(
     for lev in self.getNonEmptyLevels():
         logger.debug(f"Begin level {lev}")
         m1 = self[lev].deepCopy()
-        logger.debug(f"Begin renumbering connectivity of level {lev}")
+        logger.debug(f"Begin renumbering connectivity at level {lev}")
         m1.renumberNodesInConn(o2nNodes)
-        logger.debug(f"End renumbering connectivity of level {lev}")
+        logger.debug(f"End renumbering connectivity at level {lev}")
         m1.setCoords(newCoords)
-        logger.info(f"Begin of finding of same cells of level {lev}")
+        logger.info(f"Begin of finding same cells at level {lev}")
         cce, ccei = m1.findCommonCells(compType, 0)
         logger.info(
-            f"End of finding of same cells of level {lev} : Nb of cells groups to be merged : {len(ccei) - 1} / {m1.getNumberOfCells()}"
+            f"End of finding same cells at level {lev} : Nb of cells groups to be merged : {len(ccei) - 1} / {m1.getNumberOfCells()}"
         )
         famsCell = self.getFamilyFieldAtLevel(lev)
         if famsCell:
@@ -362,14 +363,7 @@ def FuseCellsAndNodesInMEDFile(
     """
     from distutils.version import StrictVersion
     import MEDLoader as ml
-
-    def reduceOnCells(fIn, n2os):
-        fOut = fIn[n2os[0]]
-        return fOut
-
-    def reduceOnNodes(fIn, n2os):
-        fIn.setArray(fIn.getArray()[n2os[1]])
-        return fIn
+    from MEDLoaderAggregator import FuseCellAndNodesField1TS
 
     inpVersion = StrictVersion(ml.MEDFileVersionOfFileStr(fnameIn)).version
     logger = getLogger(logLev)
@@ -384,17 +378,7 @@ def FuseCellsAndNodesInMEDFile(
     ]
     for fmts in fmtss:
         for f1ts in fmts:
-            with f1ts:
-                logger.info(
-                    f"Dealing field {f1ts.getName()!r} time step {f1ts.getTime()[2]}"
-                )
-                fIn = f1ts.field(mm)
-                if fIn.getDiscretization().getEnum() == ml.ON_NODES:
-                    fOut = reduceOnNodes(fIn, n2os)
-                else:
-                    fOut = reduceOnCells(fIn, n2os)
-            f1tsOut = ml.MEDFileField1TS()
-            f1tsOut.setFieldNoProfileSBT(fOut)
+            f1tsOut = FuseCellAndNodesField1TS(f1ts, mm, mmOut, n2os, logLev)
             f1tsOut.writeXX(fnameOut, 0, *inpVersion)
 
 

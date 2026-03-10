@@ -351,6 +351,7 @@ class MEDFileFieldPerMeshPerTypeCommon : public RefCountObject, public MEDFileWr
     void assignNodeFieldProfile(
         mcIdType &start,
         const DataArrayIdType *pfl,
+        bool isIotaPfl,
         const MEDCouplingFieldTemplate *field,
         const DataArray *arr,
         MEDFileFieldGlobsReal &glob,
@@ -606,6 +607,7 @@ class MEDFileFieldPerMesh : public RefCountObject, public MEDFileWritable
     void assignNodeFieldProfile(
         mcIdType &start,
         const DataArrayIdType *pfl,
+        bool isIotaPfl,
         const MEDCouplingFieldTemplate *field,
         const DataArray *arr,
         MEDFileFieldGlobsReal &glob,
