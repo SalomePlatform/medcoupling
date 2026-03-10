@@ -1767,6 +1767,7 @@ void
 MEDFileFieldPerMeshPerTypeCommon::assignNodeFieldProfile(
     mcIdType &start,
     const DataArrayIdType *pfl,
+    bool isIotaPfl,
     const MEDCouplingFieldTemplate *field,
     const DataArray *arr,
     MEDFileFieldGlobsReal &glob,
@@ -1780,8 +1781,9 @@ MEDFileFieldPerMeshPerTypeCommon::assignNodeFieldProfile(
         );
     _field_pm_pt_pd.resize(1);
     _field_pm_pt_pd[0] = MEDFileFieldPerMeshPerTypePerDisc::New(this, ON_NODES, -3);
+    DataArrayIdType *pfl3(isIotaPfl ? nullptr : pfl2);
     _field_pm_pt_pd[0]->assignFieldProfile(
-        true, start, pfl, pfl2, pfl2, -1, field, arr, 0, glob, nasc
+        true, start, pfl, pfl2, pfl3, -1, field, arr, 0, glob, nasc
     );  // mesh is not requested so 0 is send.
 }
 
@@ -2903,6 +2905,7 @@ void
 MEDFileFieldPerMesh::assignNodeFieldProfile(
     mcIdType &start,
     const DataArrayIdType *pfl,
+    bool isIotaPfl,
     const MEDCouplingFieldTemplate *field,
     const DataArray *arr,
     MEDFileFieldGlobsReal &glob,
@@ -2910,7 +2913,7 @@ MEDFileFieldPerMesh::assignNodeFieldProfile(
 )
 {
     mcIdType pos = addNewEntryIfNecessary(INTERP_KERNEL::NORM_ERROR);
-    _field_pm_pt[pos]->assignNodeFieldProfile(start, pfl, field, arr, glob, nasc);
+    _field_pm_pt[pos]->assignNodeFieldProfile(start, pfl, isIotaPfl, field, arr, glob, nasc);
 }
 
 void

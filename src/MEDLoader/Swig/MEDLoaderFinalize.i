@@ -43,6 +43,9 @@ ConvertFromTetgenToMEDFile = MEDConverter.ConvertFromTetgenToMEDFile
 LoadGeofFileInMEDFileUMeshInstance = MEDConverter.LoadGeofFileInMEDFileUMeshInstance
 ConvertFromGeofToMEDFile = MEDConverter.ConvertFromGeofToMEDFile
 del MEDConverter
+import MEDLoaderAggregator
+AggregateMEDFilesNoFusion = MEDLoaderAggregator.AggregateMEDFilesNoFusion
+del MEDLoaderAggregator
 MEDFileMeshesIterator.__next__ = MEDFileMeshesIterator.next
 MEDFileAnyTypeFieldMultiTSIterator.__next__ = MEDFileAnyTypeFieldMultiTSIterator.next
 MEDFileFieldsIterator.__next__ = MEDFileFieldsIterator.next

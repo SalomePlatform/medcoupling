@@ -1200,7 +1200,8 @@ MEDFileAnyTypeField1TSWithoutSDA::setFieldProfile(
         }
         mcIdType start(copyTinyInfoFrom(th, field, arrOfVals));
         mcIdType pos(addNewEntryIfNecessary(m));
-        _field_per_mesh[pos]->assignNodeFieldProfile(start, profile, field, arrOfVals, glob, nasc);
+        bool isIota(profile->isIota(mesh->getNumberOfNodes()));
+        _field_per_mesh[pos]->assignNodeFieldProfile(start, profile, isIota, field, arrOfVals, glob, nasc);
     }
 }
 
