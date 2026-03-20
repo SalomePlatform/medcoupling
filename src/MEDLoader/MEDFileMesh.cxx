@@ -38,6 +38,7 @@
 #include <cmath>
 #include <memory>
 #include <numeric>
+#include <algorithm>
 
 // From MEDLOader.cxx TU
 extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
@@ -5739,7 +5740,17 @@ MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMesh *> &meshes)
     }
     const MEDFileUMesh *ref(meshes[0]);
     int spaceDim(ref->getSpaceDimension()), meshDim(ref->getMeshDimension());
-    std::vector<int> levs(ref->getNonEmptyLevels());
+    // All levs are computed by fusion of all levels of all meshes. In case of a presence of a specific lev not present
+    // at rank 0
+    std::vector<int> levs;
+    for (const auto &msh : meshes)
+    {
+        std::vector<int> curLev(msh->getNonEmptyLevels());
+        levs.insert(levs.end(), curLev.begin(), curLev.end());
+        std::sort(levs.begin(), levs.end(), std::greater<int>());
+        levs.erase(std::unique(levs.begin(), levs.end()), levs.end());
+    }
+    //
     std::map<int, std::vector<const DataArrayIdType *>> m_fam, m_renum;
     std::map<int, std::vector<MCAuto<MEDCouplingUMesh>>> m_mesh2;
     std::map<int, std::vector<const MEDCouplingUMesh *>> m_mesh;
@@ -5766,10 +5777,6 @@ MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMesh *> &meshes)
             throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : space dimension must be homogeneous !");
         if (msh->getMeshDimension() != meshDim)
             throw INTERP_KERNEL::Exception("MEDFileUMesh::Aggregate : mesh dimension must be homogeneous !");
-        if (msh->getNonEmptyLevels() != levs)
-            throw INTERP_KERNEL::Exception(
-                "MEDFileUMesh::Aggregate : levels must be the same for elements in input vector !"
-            );
 
         const std::map<std::string, mcIdType> &locMap1(msh->getFamilyInfo());
         std::map<std::string, std::string> substitute;
@@ -5841,6 +5848,9 @@ MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMesh *> &meshes)
 
         for (const auto &level : levs)
         {
+            std::vector<int> curLev(msh->getNonEmptyLevels());
+            if (std::find(curLev.cbegin(), curLev.cend(), level) == curLev.cend())
+                continue;  // if level is not present in msh just skip it
             MCAuto<MEDCouplingUMesh> locMesh(msh->getMeshAtLevel(level));
             m_mesh[level].push_back(locMesh);
             m_mesh2[level].push_back(locMesh);

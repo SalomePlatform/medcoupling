@@ -22,13 +22,6 @@ from dataclasses import dataclass
 import logging
 import abc
 
-
-def getLogger(level=logging.INFO):
-    FORMAT = "%(levelname)s : %(asctime)s : [%(filename)s:%(funcName)s:%(lineno)s] : %(message)s"
-    logging.basicConfig(format=FORMAT, level=level)
-    return logging.getLogger()
-
-
 __iiiPfl = 0
 
 
@@ -39,10 +32,13 @@ def GetUniquePflName() -> str:
     return ret
 
 
-def getLogger(level=logging.INFO):
+def positionLogger(level):
     FORMAT = "%(levelname)s : %(asctime)s : [%(filename)s:%(funcName)s:%(lineno)s] : %(message)s"
     logging.basicConfig(format=FORMAT, level=level)
     logging.getLogger().setLevel(level)
+
+
+def getLogger():
     return logging.getLogger()
 
 
@@ -107,6 +103,19 @@ class FieldAssignator(abc.ABC):
         """
         raise RuntimeError("To be overloaded")
 
+    def manageProfile(self, session, pfl):
+        """
+        :param session: CommonSession
+        :param pfl: ml.DataArrayInt
+        :return: ml.DataArrayInt
+        """
+        candPfl = ProfileHashable(pfl)
+        if candPfl in session._father.pfl_manager:
+            candPfl = session._father.pfl_manager.get(candPfl)
+        else:
+            session._father.pfl_manager[candPfl] = candPfl
+        return candPfl.get()
+
 
 class SimpleFieldAssignator(FieldAssignator):
     def assign(self, f1tsToAssign, f, session, lev: int, pfl):
@@ -117,15 +126,17 @@ class SimpleFieldAssignator(FieldAssignator):
         :param lev: level
         :param pfl: ml.DataArrayInt
         """
+
+        zePfl = self.manageProfile(session, pfl)
         f1tsToAssign.setFieldProfile(
-            f, session._father.global_mesh, lev, pfl
+            f, session._father.global_mesh, lev, zePfl
         )  # <- ze call
 
 
 class FieldFuseAssignator(FieldAssignator):
     def __init__(self, mmMerged, n2os):
         """
-        :param n2os: dict ssee MEDFileUMesh.fuseNodesAndCellsAdv
+        :param n2os: dict see MEDFileUMesh.fuseNodesAndCellsAdv
         """
         self._mm_merged = mmMerged
         self._n2os = n2os
@@ -154,9 +165,9 @@ class FieldFuseAssignator(FieldAssignator):
                 )
             )
         f.checkConsistencyLight()
-        f1tsToAssign.setFieldProfile(
-            f, self._mm_merged, lev, pfl_in_new_ref
-        )  # <- ze call
+        #
+        zePfl = self.manageProfile(session, pfl_in_new_ref)
+        f1tsToAssign.setFieldProfile(f, self._mm_merged, lev, zePfl)  # <- ze call
 
 
 class CommonSession(abc.ABC):
@@ -211,21 +222,38 @@ class CommonSession(abc.ABC):
         import MEDLoader as ml
 
         def prepareArray(
-            nbOfCompoTarget: int, arr: ml.DataArrayDouble, iPart: int
-        ) -> ml.DataArrayDouble:
+            arrRef: ml.DataArrayDouble,
+            iPartRef: int,
+            arr: ml.DataArrayDouble,
+            iPart: int,
+        ) -> tuple:
+            """
+            Method in charge to deal with number of components of arr.
+
+            If arrRef.getNumberOfComponents() > arr.getNumberOfComponents(), arr resized to nbOfCompoOfRef is returned. The nbOfCompoOfRef becomes the new ref.
+
+            If arrRef.getNumberOfComponents() == arr.getNumberOfComponents(). arr is returned like this, reference is the same
+
+            If arrRef.getNumberOfComponents() < arr.getNumberOfComponents(), arr is returned like this, reference is the same
+
+            :param iPartRef: Proc id associated to arrRef
+
+            :param iPart: Proc id corresponding to the input arr
+
+            :return: tuple. First element is ml.DataArrayDouble. 2nd element is int giving the proc id corresponding to the current component numbers reference
+            """
+            nbOfCompoOfRef = arrRef.getNumberOfComponents()
             curNbCompo = arr.getNumberOfComponents()
             dftValue = 0.0
-            if curNbCompo == nbOfCompoTarget:
-                return arr
-            else:
+            if nbOfCompoOfRef <= curNbCompo:
+                return arr, iPartRef
+            else:  # nbOfCompoOfRef > curNbCompo:
                 getLogger().warning(
-                    f"For field {f1ts.getName()}. Rank 0 has {nbOfCompoTarget} components and current #{iPart} has {curNbCompo} components. Put {dftValue} for {nbOfCompoTarget - curNbCompo} last components."
+                    f"For field {f1ts.getName()}. Rank {iPartRef} has {nbOfCompoOfRef} components and current #{iPart} has {curNbCompo} components => Put {dftValue} for {nbOfCompoOfRef - curNbCompo} last components of all ranks < {iPartRef}."
                 )
-                if curNbCompo > nbOfCompoTarget:
-                    raise RuntimeError(
-                        f"For field {f1ts.getName()}. Rank 0 has {nbOfCompoTarget} components and current #{iPart} has {curNbCompo} components."
-                    )
-                return arr.changeNbOfComponents(nbOfCompoTarget, dftValue)
+                arrRet = arr.changeNbOfComponents(nbOfCompoOfRef, dftValue)
+                arrRet.setInfoOnComponents(arrRef.getInfoOnComponents())
+                return arrRet, iPart
 
         if len(self._subparts) < 1:
             raise RuntimeError("Internal Error")
@@ -241,19 +269,20 @@ class CommonSession(abc.ABC):
         base = sortedSubparts[0]
         lev = base.getLevel()
         baseArray = base.constructArray()
+        ref_part_id = 0
         pfl = base.getProfile()
         geoSupport = self.getGeoSupport(base)
         for sbp in sortedSubparts[1:]:
-            baseArray = baseArray.__class__.Aggregate(
-                [
-                    baseArray,
-                    prepareArray(
-                        baseArray.getNumberOfComponents(),
-                        sbp.constructArray(),
-                        sbp.cur_part,
-                    ),
-                ]
+            curArr = sbp.constructArray()
+            # posttreat nb of components for a safe aggregation
+            baseArray, ref_part_id = prepareArray(
+                curArr, sbp.cur_part, baseArray, ref_part_id
             )
+            curArr, ref_part_id = prepareArray(
+                baseArray, ref_part_id, curArr, sbp.cur_part
+            )
+            # end of posttreat nb of components for a safe aggregation
+            baseArray = baseArray.__class__.Aggregate([baseArray, curArr])
             pfl = pfl.__class__.Aggregate([pfl, sbp.getProfile()])
             geoSupport = ml.MEDCouplingUMesh.MergeUMeshes(
                 [geoSupport, self.getGeoSupport(sbp)]
@@ -386,7 +415,7 @@ class SubPart:
 
 
 class AssignmentSession(DefaultIterator):
-    def __init__(self, listOfMeshes: list, mmagg):
+    def __init__(self, listOfMeshes: list, mmagg, pflMngr: dict):
         """
         :param mmagg: ml.MEDFileUMesh
         """
@@ -408,6 +437,9 @@ class AssignmentSession(DefaultIterator):
         self._offsets = {}
         # immutable accross walk. { dim : { geotypeEnum : offset inside current dim } } in aggregated mesh referential
         self._agg_distribution = defaultdict(dict)
+        #
+        self._pfl_manager = pflMngr
+        #
         tmp = defaultdict(int)
         aggDistribution = MEDFileUMeshGetDistributionOfTypesHelper(
             self._mm_agg
@@ -424,6 +456,10 @@ class AssignmentSession(DefaultIterator):
         :return: ml.MEDFileUMesh
         """
         return self._mm_agg
+
+    @property
+    def pfl_manager(self):
+        return self._pfl_manager
 
     def build(self, f1ts, fieldAssign: FieldAssignator):
         """
@@ -575,7 +611,7 @@ def FieldWalkerTexasRanger(listOfMEDFileField1TS: list, iterator):
 
 
 def AggregateFieldsNoFusionOnListOfF1TS(
-    listOfMEDFileField1TS: list, listOfMeshes: list, mmagg
+    listOfMEDFileField1TS: list, listOfMeshes: list, mmagg, pflMngr: dict
 ):
     """
     :param mmagg : ml.MEDFileUMesh
@@ -585,7 +621,7 @@ def AggregateFieldsNoFusionOnListOfF1TS(
 
     if len(listOfMEDFileField1TS) < 1:
         raise RuntimeError("List is excepted to be of size >=1 !")
-    asignment = AssignmentSession(listOfMeshes, mmagg)
+    asignment = AssignmentSession(listOfMeshes, mmagg, pflMngr)
     FieldWalkerTexasRanger(listOfMEDFileField1TS, asignment)
     ret = ml.MEDFileField1TS()
     ret.setName(listOfMEDFileField1TS[0].getName())
@@ -593,6 +629,25 @@ def AggregateFieldsNoFusionOnListOfF1TS(
     assign = SimpleFieldAssignator()
     asignment.build(ret, assign)
     return ret
+
+
+class ProfileHashable:
+    def __init__(self, arr):
+        """
+        :param arr: ml.DataArrayInt
+        """
+        self._arr = arr
+
+    def __eq__(self, other):
+        if self._arr.getNbOfElems() != other._arr.getNbOfElems():
+            return False
+        return self._arr.isEqualWithoutConsideringStr(other._arr)
+
+    def __hash__(self):
+        return self._arr.getHashCode2()
+
+    def get(self):
+        return self._arr
 
 
 def AggregateMEDFilesNoFusion(pat: str, fnameOut: str, logLev=logging.INFO):
@@ -613,7 +668,7 @@ def AggregateMEDFilesNoFusion(pat: str, fnameOut: str, logLev=logging.INFO):
     from glob import glob
     from distutils.version import StrictVersion
 
-    logger = getLogger(logLev)
+    positionLogger(logLev)
     filesToMerge = sorted(glob(pat), key=lambda x: FindIdFromPathAndPattern(x, pat))
     inpVersion = StrictVersion(ml.MEDFileVersionOfFileStr(filesToMerge[0])).version
     meshes = [ml.MEDFileMesh.New(elt) for elt in filesToMerge]
@@ -626,6 +681,8 @@ def AggregateMEDFilesNoFusion(pat: str, fnameOut: str, logLev=logging.INFO):
         for fieldName in allFields
     ]
 
+    pflMngr = {}
+
     for iField, listOfFmts in enumerate(fmts):
         refField = listOfFmts[0]
         nbTs = len(refField)
@@ -636,10 +693,12 @@ def AggregateMEDFilesNoFusion(pat: str, fnameOut: str, logLev=logging.INFO):
                 listOfF1ts = [
                     listOfFmts[iPart][iTs] for iPart in range(len(listOfFmts))
                 ]
-                logger.info(
+                getLogger().info(
                     f"Dealing field {refField.getName()!r} time step {listOfFmts[0][iTs].getTime()[2]}"
                 )
-                f1tsagg = AggregateFieldsNoFusionOnListOfF1TS(listOfF1ts, meshes, mm)
+                f1tsagg = AggregateFieldsNoFusionOnListOfF1TS(
+                    listOfF1ts, meshes, mm, pflMngr
+                )
                 f1tsagg.writeXX(fnameOut, 0, *inpVersion)
 
 
@@ -673,10 +732,10 @@ def FuseCellAndNodesField1TS_NoProfile(f1tsIn, mm, n2os):
     return f1tsOut
 
 
-def FuseCellAndNodesField1TS_Profile(f1tsIn, mm, mmMerged, n2os):
+def FuseCellAndNodesField1TS_Profile(f1tsIn, mm, mmMerged, n2os, pflMngr: dict):
     import MEDLoader as ml
 
-    asignment = AssignmentSession([mm], mm)
+    asignment = AssignmentSession([mm], mm, pflMngr)
     FieldWalkerTexasRanger([f1tsIn], asignment)
     ret = ml.MEDFileField1TS()
     ret.setName(f1tsIn.getName())
@@ -687,17 +746,22 @@ def FuseCellAndNodesField1TS_Profile(f1tsIn, mm, mmMerged, n2os):
     return ret
 
 
-def FuseCellAndNodesField1TS(f1tsIn, mm, mmMerged, n2os, logLev=logging.INFO):
+def FuseCellAndNodesField1TS(
+    f1tsIn, mm, mmMerged, n2os, pflMngr: dict, logLev=logging.INFO
+):
     """
     :param f1tsIn: ml.MEDFileField1TS single time step to be merged
     :param mm: original ml.MEDFileMesh not merged
     :param mmMerged: ml.MEDFileMesh merged
     :param n2os: tuple see MEDFileUMesh.fuseNodesAndCellsAdv
+
     :return: ml.MEDFileField1TS
     """
-    logger = getLogger(logLev)
-    logger.info(f"Dealing field {f1tsIn.getName()!r} time step {f1tsIn.getTime()[2]}")
+    positionLogger(logLev)
+    getLogger().info(
+        f"Dealing field {f1tsIn.getName()!r} time step {f1tsIn.getTime()[2]}"
+    )
     if len(f1tsIn.getPflsReallyUsed()) > 0:
-        return FuseCellAndNodesField1TS_Profile(f1tsIn, mm, mmMerged, n2os)
+        return FuseCellAndNodesField1TS_Profile(f1tsIn, mm, mmMerged, n2os, pflMngr)
     else:
         return FuseCellAndNodesField1TS_NoProfile(f1tsIn, mm, n2os)

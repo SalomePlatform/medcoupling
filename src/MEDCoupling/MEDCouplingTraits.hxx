@@ -23,6 +23,7 @@
 #include "MEDCoupling.hxx"
 #include "MCType.hxx"
 #include <vector>
+#include <type_traits>
 
 namespace MEDCoupling
 {
@@ -85,6 +86,7 @@ struct MEDCOUPLING_EXPORT Traits<Int32>
     static const char NPYStr[];
     static const char ReprStr[];
     static const char VTKReprStr[];
+    static constexpr std::make_unsigned_t<Int32> ConstantForHash = 0x9e3779b9UL;
     using ArrayType = DataArrayInt32;
     using ArrayTypeCh = DataArrayInt32;
     using FieldType = MEDCouplingFieldInt32;
@@ -100,6 +102,8 @@ struct MEDCOUPLING_EXPORT Traits<Int64>
     static const char NPYStr[];
     static const char ReprStr[];
     static const char VTKReprStr[];
+    static constexpr std::make_unsigned_t<Int64> ConstantForHash = 0x9e3779b97f4a7c15ULL;
+    using UnsignedType = std::uint64_t;
     using ArrayType = DataArrayInt64;
     using ArrayTypeCh = DataArrayInt64;
     using FieldType = MEDCouplingFieldInt64;
@@ -111,6 +115,7 @@ template <>
 struct MEDCOUPLING_EXPORT Traits<char>
 {
     static const char ArrayTypeName[];
+    using UnsignedType = std::uint64_t;
     using ArrayTypeCh = DataArrayByte;
     using ArrayType = DataArrayChar;
     using ArrayTuple = DataArrayByteTuple;

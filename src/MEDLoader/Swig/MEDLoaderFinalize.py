@@ -376,9 +376,10 @@ def FuseCellsAndNodesInMEDFile(
     fmtss = [
         ml.MEDFileFieldMultiTS(fnameIn, fieldName, False) for fieldName in allFields
     ]
+    pflMngr = {}
     for fmts in fmtss:
         for f1ts in fmts:
-            f1tsOut = FuseCellAndNodesField1TS(f1ts, mm, mmOut, n2os, logLev)
+            f1tsOut = FuseCellAndNodesField1TS(f1ts, mm, mmOut, n2os, pflMngr, logLev)
             f1tsOut.writeXX(fnameOut, 0, *inpVersion)
 
 

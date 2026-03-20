@@ -814,6 +814,7 @@ class MEDCOUPLING_EXPORT_TEMPLATE DataArrayDiscrete : public DataArrayTemplateCl
     void checkStrictlyMonotonic(bool increasing) const;
     bool isStrictlyMonotonic(bool increasing) const;
     mcIdType getHashCode() const;
+    mcIdType getHashCode2() const;
     void reprCppStream(const std::string &varName, std::ostream &stream) const;
     void reprQuickOverview(std::ostream &stream) const;
     void reprQuickOverviewData(std::ostream &stream, std::size_t maxNbOfByteInRepr) const;

@@ -4469,7 +4469,8 @@ DataArrayDiscrete<T>::checkStrictlyMonotonic(bool increasing) const
 
 /*!
  * Returns an integer value characterizing \a this array, which is useful for a quick
- * comparison of many instances of DataArrayInt.
+ * comparison of many instances of DataArrayInt. Implementation not smart at all.
+ * Only few elements in array are used to compute returned value to reduce data fetching
  *  \return mcIdType - the hash value.
  *  \throw If \a this is not allocated.
  */
@@ -4487,6 +4488,30 @@ DataArrayDiscrete<T>::getHashCode() const
     const T *pt(this->begin());
     for (mcIdType i = 0; i < nbOfElems; i += delta) ret0 += pt[i] & 0x1FFF;
     return ToIdType(ret + ret0);
+}
+
+/*!
+ * Returns an integer value characterizing \a this array, which is useful for a quick
+ * comparison of many instances of DataArrayInt. Version inspired from boost that walk along
+ * all elements.
+ *  \return mcIdType - the hash value.
+ *  \throw If \a this is not allocated.
+ */
+template <class T>
+mcIdType
+DataArrayDiscrete<T>::getHashCode2() const
+{
+    using TUnsigned = typename std::make_unsigned_t<T>;
+    this->checkAllocated();
+    auto nbOfElems(this->getNbOfElems());
+    TUnsigned ret(0);
+    const T *pt(this->begin());
+    for (auto i = 0; i < nbOfElems; ++i)
+    {
+        ret ^= TUnsigned(pt[i]) + Traits<T>::ConstantForHash + (ret << 6) + (ret >> 2);
+    }
+    // https://www.boost.org/doc/libs/1_35_0/doc/html/boost/hash_combine_id241013.html
+    return ToIdType(ret);
 }
 
 template <class T>

@@ -32,6 +32,7 @@
     static ARRAY *New();
     INT intValue() const;
     INT getHashCode() const;
+    INT getHashCode2() const;
     bool empty() const;
     void aggregate(const ARRAY *other);
     ARRAY *performCopyOrIncrRef(bool deepCopy) const;
