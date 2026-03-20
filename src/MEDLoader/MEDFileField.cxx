@@ -123,7 +123,7 @@ MEDFileFields::getHeapMemorySizeWithoutChildren() const
 std::vector<const BigMemoryObject *>
 MEDFileFields::getDirectChildrenWithNull() const
 {
-    std::vector<const BigMemoryObject *> ret;
+    std::vector<const BigMemoryObject *> ret(MEDFileFieldGlobsReal::getDirectChildrenWithNull());
     for (std::vector<MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA>>::const_iterator it = _fields.begin();
          it != _fields.end();
          it++)

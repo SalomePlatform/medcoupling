@@ -843,6 +843,194 @@ class MEDLoaderAggregatorTest(unittest.TestCase):
         self.assertTrue( f1ts.getUndergroundDataArray().getInfoOnComponents() == ['zeFieldzeField'] )
         # fmt: on
 
+    @WriteInTmpDir
+    def testggregation7(self):
+        """
+        Like testAggregation3 but with number of components differents.
+        """
+        # fmt: off
+        file0_name = "field0.med"
+        file1_name = "field1.med"
+        merge_name = "merge.med"
+        #
+        zeFieldName = "zeField"
+        td0 = [(NORM_SEG2,4), (NORM_TRI3,10), (NORM_QUAD4,12), (NORM_TETRA4,20), (NORM_HEXA8,30)]
+        mi0 = MeshInfo( name = "mesh0", typeDistribution = td0, nodeOffsetInConn = 100000, cooOffset = 0.5 )
+        fd0 = { NORM_ERROR : DataArrayInt([0,2,4,7,14,21,28]) }
+        fi0 = FieldInfo( name = zeFieldName, mi = mi0, distribution = fd0, valueOffset = 10000. )
+        GenerateFile( file0_name, fi0, GenerateMesh )
+
+        td1 = [(NORM_SEG2,5),(NORM_TRI3,6), (NORM_QUAD4,5), (NORM_HEXA8,10)]
+        mi1 = MeshInfo( name = "mesh0", typeDistribution = td1, nodeOffsetInConn = 200000, cooOffset = 0.25 )
+        fd1 = { NORM_ERROR : None }
+        fi1 = FieldInfo( name = zeFieldName, mi = mi1, distribution = fd1, valueOffset = 20000. )
+        GenerateFile( file1_name, fi1, GenerateMesh )
+        # Aim of the test : Patching number of components of field. And to be vicious put 2 components for proc 1 and proc0 stays with 1 component.
+        mfd = MEDFileData( file1_name )
+        f1ts = mfd.getFields()[zeFieldName][0]
+        arr = f1ts.getUndergroundDataArray()
+        arr2 = arr.changeNbOfComponents(2,0.) ; arr2[:,1] = 100000
+        arr2.setInfoOnComponents( ["aa","bbb"] )
+        arr.deepCopyFrom( arr2 )
+        mfd.getFields()[zeFieldName].setInfo( arr2.getInfoOnComponents() )
+        mfd.write( file1_name, 2 ) ; del mfd
+        #
+
+        AggregateMEDFilesNoFusion("field*.med",merge_name, logLev = logging.ERROR)
+        f1ts = MEDFileField1TS.New( merge_name )
+        self.assertTrue( f1ts.getTime() == [1,2,3.5])
+        arr = f1ts.getUndergroundDataArray()
+        self.assertTrue( arr.getInfoOnComponents()==["aa","bbb"] )
+        fieldSpectrum = f1ts.getFieldSplitedByType()
+        self.assertTrue( len(fieldSpectrum) == 1 )
+        gt, allGeoDistOnGt = fieldSpectrum[0]
+        self.assertTrue( gt == NORM_ERROR )
+        self.assertTrue( len( allGeoDistOnGt ) == 1 )
+        spatialDisc, (start,endd), pfl, loc = allGeoDistOnGt[0]
+        self.assertTrue( spatialDisc == ON_NODES )
+        self.assertTrue( pfl != "" )
+        self.assertTrue( f1ts.getProfile( pfl ).isEqualWithoutConsideringStr( DataArrayInt( [0, 2, 4, 7, 14, 21, 28, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59] ) ) )
+        self.assertTrue( (start,endd) == (0,17) )
+        self.assertTrue( arr.isEqualWithoutConsideringStr( DataArrayDouble( [(15000, 0), (15002, 0), (15004, 0), (15007, 0), (15014, 0), (15021, 0), (15028, 0), (25000, 100000), (25001, 100000), (25002, 100000), (25003, 100000), (25004, 100000), (25005, 100000), (25006, 100000), (25007, 100000), (25008, 100000), (25009, 100000)]) , 1e-200) )
+
+        # now inversely proc0 has 2 components and proc1 has 1 component
+        mfd1 = MEDFileData( file1_name )
+        f1ts = mfd1.getFields()[zeFieldName][0]
+        arr = f1ts.getUndergroundDataArray()
+        arr2 = arr.changeNbOfComponents(1,0.)
+        arr2.setInfoOnComponents( ["proc1_compo0"] )
+        arr.deepCopyFrom( arr2 )
+        mfd1.getFields()[zeFieldName].setInfo( arr2.getInfoOnComponents() )
+        mfd1.write( file1_name, 2 ) ; del mfd1
+        mfd0 = MEDFileData( file0_name )
+        f1ts = mfd0.getFields()[zeFieldName][0]
+        arr = f1ts.getUndergroundDataArray()
+        arr2 = arr.changeNbOfComponents(2,0.) ; arr2[:,1] = 300000
+        arr2.setInfoOnComponents( ["proc0_compo0", "proc0_compo1"] )
+        arr.deepCopyFrom( arr2 )
+        mfd0.getFields()[zeFieldName].setInfo( arr2.getInfoOnComponents() )
+        mfd0.write( file0_name, 2 )
+
+        AggregateMEDFilesNoFusion("field*.med",merge_name, logLev = logging.ERROR)
+        f1ts = MEDFileField1TS.New( merge_name )
+        self.assertTrue( f1ts.getTime() == [1,2,3.5])
+        arr = f1ts.getUndergroundDataArray()
+        self.assertTrue( arr.getInfoOnComponents()==["proc0_compo0","proc0_compo1"] )
+        fieldSpectrum = f1ts.getFieldSplitedByType()
+        self.assertTrue( len(fieldSpectrum) == 1 )
+        gt, allGeoDistOnGt = fieldSpectrum[0]
+        self.assertTrue( gt == NORM_ERROR )
+        self.assertTrue( len( allGeoDistOnGt ) == 1 )
+        spatialDisc, (start,endd), pfl, loc = allGeoDistOnGt[0]
+        self.assertTrue( spatialDisc == ON_NODES )
+        self.assertTrue( pfl != "" )
+        self.assertTrue( f1ts.getProfile( pfl ).isEqualWithoutConsideringStr( DataArrayInt( [0, 2, 4, 7, 14, 21, 28, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59] ) ) )
+        self.assertTrue( (start,endd) == (0,17) )
+        self.assertTrue( arr.isEqualWithoutConsideringStr( DataArrayDouble([(15000, 300000), (15002, 300000), (15004, 300000), (15007, 300000), (15014, 300000), (15021, 300000), (15028, 300000), (25000, 0), (25001, 0), (25002, 0), (25003, 0), (25004, 0), (25005, 0), (25006, 0), (25007, 0), (25008, 0), (25009, 0)]) , 1e-200) )
+        # fmt: on
+
+    @WriteInTmpDir
+    def testggregation8(self):
+        """
+        Like testAggregation3 but with number of levels different for rank1 (richer) and rank0
+        """
+        # fmt: off
+        file0_name = "field0.med"
+        file1_name = "field1.med"
+        merge_name = "merge.med"
+        #
+        zeFieldName = "zeField"
+        td0 = [(NORM_TRI3,10), (NORM_QUAD4,12), (NORM_TETRA4,20), (NORM_HEXA8,30)]
+        mi0 = MeshInfo( name = "mesh0", typeDistribution = td0, nodeOffsetInConn = 100000, cooOffset = 0.5 )
+        fd0 = { NORM_ERROR : DataArrayInt([0,2,4,7,14,21,28]) }
+        fi0 = FieldInfo( name = zeFieldName, mi = mi0, distribution = fd0, valueOffset = 10000. )
+        GenerateFile( file0_name, fi0, GenerateMesh )
+
+        td1 = [(NORM_SEG2,5),(NORM_TRI3,6), (NORM_QUAD4,5), (NORM_HEXA8,10)] # interesting point is here. Presence of -2 level for proc1. -2 is not present pour proc0.
+        mi1 = MeshInfo( name = "mesh0", typeDistribution = td1, nodeOffsetInConn = 200000, cooOffset = 0.25 )
+        fd1 = { NORM_ERROR : None }
+        fi1 = FieldInfo( name = zeFieldName, mi = mi1, distribution = fd1, valueOffset = 20000. )
+        GenerateFile( file1_name, fi1, GenerateMesh )
+        #
+        AggregateMEDFilesNoFusion("field*.med",merge_name, logLev = logging.ERROR)
+        #
+        mm = MEDFileMesh.New( merge_name )
+        self.assertEqual( mm.getNumberOfNodes(), 60 )
+        self.assertEqual( mm.getNumberOfCellsAtLevel(0), 60 )
+        self.assertEqual( mm.getNumberOfCellsAtLevel(-1), 33 )
+        self.assertEqual( mm.getNumberOfCellsAtLevel(-2), 5 )
+        toTest = MEDCoupling1SGTUMesh( mm[-2] )
+        self.assertEqual( toTest.getCellModelEnum(), NORM_SEG2 )
+        self.assertTrue( toTest.getNodalConnectivity().isEqual( DataArrayInt([221000, 221001, 221030, 221031, 221060, 221061, 221090, 221091, 221120, 221121]) ) )
+        #
+        f1ts = MEDFileField1TS.New( merge_name )
+        self.assertTrue( f1ts.getTime() == [1,2,3.5])
+        arr = f1ts.getUndergroundDataArray()
+        self.assertTrue( arr.getInfoOnComponents()==['zeFieldzeField'] )
+        fieldSpectrum = f1ts.getFieldSplitedByType()
+        self.assertTrue( len(fieldSpectrum) == 1 )
+        gt, allGeoDistOnGt = fieldSpectrum[0]
+        self.assertTrue( gt == NORM_ERROR )
+        self.assertTrue( len( allGeoDistOnGt ) == 1 )
+        spatialDisc, (start,endd), pfl, loc = allGeoDistOnGt[0]
+        self.assertTrue( spatialDisc == ON_NODES )
+        self.assertTrue( pfl != "" )
+        self.assertTrue( f1ts.getProfile( pfl ).isEqualWithoutConsideringStr( DataArrayInt( [0, 2, 4, 7, 14, 21, 28, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59] ) ) )
+        self.assertTrue( (start,endd) == (0,17) )
+        self.assertTrue( arr.isEqualWithoutConsideringStr( DataArrayDouble( [15000, 15002, 15004, 15007, 15014, 15021, 15028, 25000, 25001, 25002, 25003, 25004, 25005, 25006, 25007, 25008, 25009]) , 1e-200) )
+        # fmt: on
+
+    @WriteInTmpDir
+    def testAggregation9(self):
+        """
+        Like testAggregation3 but here profile frugality
+        """
+        # fmt: off
+        file0_name = "field0.med"
+        file1_name = "field1.med"
+        merge_name = "merge.med"
+        #
+        zeFieldName = "zeField"
+        td0 = [(NORM_SEG2,4), (NORM_TRI3,10), (NORM_QUAD4,12), (NORM_TETRA4,20), (NORM_HEXA8,30)]
+        mi0 = MeshInfo( name = "mesh0", typeDistribution = td0, nodeOffsetInConn = 100000, cooOffset = 0.5 )
+        fd0 = { NORM_ERROR : DataArrayInt([0,2,4,7,14,21,28]) }
+        fi0 = FieldInfo( name = zeFieldName, mi = mi0, distribution = fd0, valueOffset = 10000. )
+        GenerateFile( file0_name, fi0, GenerateMesh )
+
+        td1 = [(NORM_SEG2,5),(NORM_TRI3,6), (NORM_QUAD4,5), (NORM_HEXA8,10)]
+        mi1 = MeshInfo( name = "mesh0", typeDistribution = td1, nodeOffsetInConn = 200000, cooOffset = 0.25 )
+        fd1 = { NORM_ERROR : None }
+        fi1 = FieldInfo( name = zeFieldName, mi = mi1, distribution = fd1, valueOffset = 20000. )
+        GenerateFile( file1_name, fi1, GenerateMesh )
+
+        # create an additional time step
+        newTime = ( 3,4, 7.6 )
+        for fname in [file0_name, file1_name]:
+            f1ts = MEDFileField1TS( fname )
+            f1ts.setTime( *newTime )
+            f1ts.write( fname, 0 )
+        #
+        AggregateMEDFilesNoFusion("field*.med",merge_name, logLev = logging.WARNING)
+        fs = MEDFileFields( merge_name )
+        self.assertEqual( len( fs.getPfls() ), 1 ) # <- the aim of test is here. If equal 2 means that profile management failed
+        #
+        f1ts = MEDFileField1TS.New( merge_name )
+        self.assertTrue( f1ts.getTime() == [1,2,3.5])
+        arr = f1ts.getUndergroundDataArray()
+        self.assertTrue( arr.getInfoOnComponents()==['zeFieldzeField'] )
+        fieldSpectrum = f1ts.getFieldSplitedByType()
+        self.assertTrue( len(fieldSpectrum) == 1 )
+        gt, allGeoDistOnGt = fieldSpectrum[0]
+        self.assertTrue( gt == NORM_ERROR )
+        self.assertTrue( len( allGeoDistOnGt ) == 1 )
+        spatialDisc, (start,endd), pfl, loc = allGeoDistOnGt[0]
+        self.assertTrue( spatialDisc == ON_NODES )
+        self.assertTrue( pfl != "" )
+        self.assertTrue( f1ts.getProfile( pfl ).isEqualWithoutConsideringStr( DataArrayInt( [0, 2, 4, 7, 14, 21, 28, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59] ) ) )
+        self.assertTrue( (start,endd) == (0,17) )
+        self.assertTrue( arr.isEqualWithoutConsideringStr( DataArrayDouble( [15000, 15002, 15004, 15007, 15014, 15021, 15028, 25000, 25001, 25002, 25003, 25004, 25005, 25006, 25007, 25008, 25009]) , 1e-200) )
+        # fmt: on
+
     pass
 
 
