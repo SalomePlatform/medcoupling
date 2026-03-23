@@ -961,7 +961,7 @@ class MEDLoaderAggregatorTest(unittest.TestCase):
         self.assertEqual( mm.getNumberOfCellsAtLevel(-2), 5 )
         toTest = MEDCoupling1SGTUMesh( mm[-2] )
         self.assertEqual( toTest.getCellModelEnum(), NORM_SEG2 )
-        self.assertTrue( toTest.getNodalConnectivity().isEqual( DataArrayInt([221000, 221001, 221030, 221031, 221060, 221061, 221090, 221091, 221120, 221121]) ) )
+        self.assertTrue( toTest.getNodalConnectivity().isEqual( DataArrayInt([221050, 221051, 221080, 221081, 221110, 221111, 221140, 221141, 221170, 221171]) ) )
         #
         f1ts = MEDFileField1TS.New( merge_name )
         self.assertTrue( f1ts.getTime() == [1,2,3.5])

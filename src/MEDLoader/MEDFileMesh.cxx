@@ -5850,7 +5850,16 @@ MEDFileUMesh::Aggregate(const std::vector<const MEDFileUMesh *> &meshes)
         {
             std::vector<int> curLev(msh->getNonEmptyLevels());
             if (std::find(curLev.cbegin(), curLev.cend(), level) == curLev.cend())
+            {
+                MCAuto<MEDCouplingUMesh> locMesh(
+                    MEDCouplingUMesh::New(msh->getName(), msh->getMeshDimension() + level)
+                );
+                locMesh->setCoords(msh->getCoords());
+                locMesh->allocateCells();
+                m_mesh[level].push_back(locMesh);
+                m_mesh2[level].push_back(locMesh);
                 continue;  // if level is not present in msh just skip it
+            }
             MCAuto<MEDCouplingUMesh> locMesh(msh->getMeshAtLevel(level));
             m_mesh[level].push_back(locMesh);
             m_mesh2[level].push_back(locMesh);
