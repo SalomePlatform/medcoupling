@@ -221,40 +221,6 @@ class CommonSession(abc.ABC):
         """
         import MEDLoader as ml
 
-        def prepareArray(
-            arrRef: ml.DataArrayDouble,
-            iPartRef: int,
-            arr: ml.DataArrayDouble,
-            iPart: int,
-        ) -> tuple:
-            """
-            Method in charge to deal with number of components of arr.
-
-            If arrRef.getNumberOfComponents() > arr.getNumberOfComponents(), arr resized to nbOfCompoOfRef is returned. The nbOfCompoOfRef becomes the new ref.
-
-            If arrRef.getNumberOfComponents() == arr.getNumberOfComponents(). arr is returned like this, reference is the same
-
-            If arrRef.getNumberOfComponents() < arr.getNumberOfComponents(), arr is returned like this, reference is the same
-
-            :param iPartRef: Proc id associated to arrRef
-
-            :param iPart: Proc id corresponding to the input arr
-
-            :return: tuple. First element is ml.DataArrayDouble. 2nd element is int giving the proc id corresponding to the current component numbers reference
-            """
-            nbOfCompoOfRef = arrRef.getNumberOfComponents()
-            curNbCompo = arr.getNumberOfComponents()
-            dftValue = 0.0
-            if nbOfCompoOfRef <= curNbCompo:
-                return arr, iPartRef
-            else:  # nbOfCompoOfRef > curNbCompo:
-                getLogger().warning(
-                    f"For field {f1ts.getName()}. Rank {iPartRef} has {nbOfCompoOfRef} components and current #{iPart} has {curNbCompo} components => Put {dftValue} for {nbOfCompoOfRef - curNbCompo} last components of all ranks < {iPartRef}."
-                )
-                arrRet = arr.changeNbOfComponents(nbOfCompoOfRef, dftValue)
-                arrRet.setInfoOnComponents(arrRef.getInfoOnComponents())
-                return arrRet, iPart
-
         if len(self._subparts) < 1:
             raise RuntimeError("Internal Error")
         # very important transpose _subparts. From (P0, TRI3), (P0, QUAD4), (P1,TRI3), (P1, QUAD4), (P2, TRI3), (P3,QUAD4)
@@ -269,31 +235,41 @@ class CommonSession(abc.ABC):
         base = sortedSubparts[0]
         lev = base.getLevel()
         baseArray = base.constructArray()
-        ref_part_id = 0
+        baseArrays = [baseArray]
         pfl = base.getProfile()
+        pfls = [pfl]
         geoSupport = self.getGeoSupport(base)
+        geoSupports = [geoSupport]
+        getLogger().debug("Start iterating on subparts")
         for sbp in sortedSubparts[1:]:
-            curArr = sbp.constructArray()
-            # posttreat nb of components for a safe aggregation
-            baseArray, ref_part_id = prepareArray(
-                curArr, sbp.cur_part, baseArray, ref_part_id
-            )
-            curArr, ref_part_id = prepareArray(
-                baseArray, ref_part_id, curArr, sbp.cur_part
-            )
-            # end of posttreat nb of components for a safe aggregation
-            baseArray = baseArray.__class__.Aggregate([baseArray, curArr])
-            pfl = pfl.__class__.Aggregate([pfl, sbp.getProfile()])
-            geoSupport = ml.MEDCouplingUMesh.MergeUMeshes(
-                [geoSupport, self.getGeoSupport(sbp)]
-            )
+            baseArrays.append(sbp.constructArray())
+            pfls.append(sbp.getProfile())
+            geoSupports.append(self.getGeoSupport(sbp))
             pass
+        dftValue = 0.0
+        maxNbCompo, arrWithMaxNbOfCompo = max(
+            [(elt.getNumberOfComponents(), elt) for elt in baseArrays],
+            key=lambda x: x[0],
+        )
+        minNbCompo = min([elt.getNumberOfComponents() for elt in baseArrays])
+        if maxNbCompo != minNbCompo:
+            for i in range(len(baseArrays)):
+                if baseArrays[i].getNumberOfComponents() != maxNbCompo:
+                    arrRet = baseArrays[i].changeNbOfComponents(maxNbCompo, dftValue)
+                    arrRet.setInfoOnComponents(
+                        arrWithMaxNbOfCompo.getInfoOnComponents()
+                    )
+                    baseArrays[i] = arrRet
+        baseArray = baseArray.__class__.Aggregate(baseArrays)
+        pfl = pfl.__class__.Aggregate(pfls)
+        geoSupport = ml.MEDCouplingUMesh.MergeUMeshes(geoSupports)
+        getLogger().debug("Start iterating on subparts")
         pfl.setName(GetUniquePflName())
         f = ml.MEDCouplingFieldDouble(self.getSpationDiscretization())
         f.setName(f1ts.getName())
         dt, it, zeTime = f1ts.getTime()
         f.setTime(zeTime, dt, it)
-        f.setArray(baseArray)  # TODO : componames
+        f.setArray(baseArray)
         f.setMesh(geoSupport)
         fieldAssign.assign(f1ts, f, self, lev, pfl)  # <- ze call
         pass
@@ -622,12 +598,20 @@ def AggregateFieldsNoFusionOnListOfF1TS(
     if len(listOfMEDFileField1TS) < 1:
         raise RuntimeError("List is excepted to be of size >=1 !")
     asignment = AssignmentSession(listOfMeshes, mmagg, pflMngr)
+    getLogger().debug(
+        f"Start walking accross {len(listOfMEDFileField1TS)} instances of MEDFileField1TS to prepare assignation"
+    )
     FieldWalkerTexasRanger(listOfMEDFileField1TS, asignment)
+    getLogger().debug(
+        f"End of walking accross {len(listOfMEDFileField1TS)} instances of MEDFileField1TS to prepare assignation"
+    )
     ret = ml.MEDFileField1TS()
     ret.setName(listOfMEDFileField1TS[0].getName())
     ret.setTime(*(listOfMEDFileField1TS[0].getTime()))
     assign = SimpleFieldAssignator()
+    getLogger().debug(f"Start feeding output MEDFileField1TS result")
     asignment.build(ret, assign)
+    getLogger().debug(f"End feeding output MEDFileField1TS result")
     return ret
 
 
@@ -671,16 +655,26 @@ def AggregateMEDFilesNoFusion(pat: str, fnameOut: str, logLev=logging.INFO):
     positionLogger(logLev)
     filesToMerge = sorted(glob(pat), key=lambda x: FindIdFromPathAndPattern(x, pat))
     inpVersion = StrictVersion(ml.MEDFileVersionOfFileStr(filesToMerge[0])).version
+    getLogger().debug(
+        f"Start to load all {len(filesToMerge)} meshes in memory to perform aggregation"
+    )
     meshes = [ml.MEDFileMesh.New(elt) for elt in filesToMerge]
+    getLogger().debug(
+        f"End of load all {len(filesToMerge)} meshes in memory to perform aggregation. Start aggregation of meshes"
+    )
     mm = ml.MEDFileUMesh.Aggregate(meshes)
+    getLogger().debug(f"End aggregation of meshes. Start writing back into {fnameOut}")
     mm.writeXX(fnameOut, 2, *inpVersion)
+    getLogger().debug(f"End writing back into {fnameOut}")
     allFields = ml.GetAllFieldNames(filesToMerge[0])
-
+    getLogger().debug(f"Start reading structure of fields of {len(filesToMerge)} files")
     fmts = [
         [ml.MEDFileFieldMultiTS(fn, fieldName, False) for fn in filesToMerge]
         for fieldName in allFields
     ]
-
+    getLogger().debug(
+        f"End of reading structure of fields of {len(filesToMerge)} files"
+    )
     pflMngr = {}
 
     for iField, listOfFmts in enumerate(fmts):
@@ -688,6 +682,9 @@ def AggregateMEDFilesNoFusion(pat: str, fnameOut: str, logLev=logging.INFO):
         nbTs = len(refField)
         for iTs in range(nbTs):
             with contextlib.ExitStack() as stack:
+                getLogger().debug(
+                    f"Start reading {iTs}/{nbTs} time step fields of {len(filesToMerge)} files for {refField.getName()}"
+                )
                 for iPart in range(len(listOfFmts)):
                     stack.enter_context(listOfFmts[iPart][iTs])
                 listOfF1ts = [
@@ -699,7 +696,13 @@ def AggregateMEDFilesNoFusion(pat: str, fnameOut: str, logLev=logging.INFO):
                 f1tsagg = AggregateFieldsNoFusionOnListOfF1TS(
                     listOfF1ts, meshes, mm, pflMngr
                 )
+                getLogger().debug(
+                    f"Start writing {iTs}/{nbTs} time step field {refField.getName()!r} of {len(filesToMerge)} files for {refField.getName()}"
+                )
                 f1tsagg.writeXX(fnameOut, 0, *inpVersion)
+                getLogger().debug(
+                    f"End writing {iTs}/{nbTs} time step field {refField.getName()!r} of {len(filesToMerge)} files for {refField.getName()}"
+                )
 
 
 def FuseCellAndNodesField1TS_NoProfile(f1tsIn, mm, n2os):
