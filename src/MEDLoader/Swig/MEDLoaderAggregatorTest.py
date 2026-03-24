@@ -753,13 +753,16 @@ class MEDLoaderAggregatorTest(unittest.TestCase):
 
         AggregateMEDFilesNoFusion("field*.med",merge_name, logLev = logging.WARNING)
 
+        # 5 pairs of nodes to be merged
         c = DataArrayInt([10,50,11,51,31,53,37,56,57,59])
         ci = DataArrayInt.Range(0,12,2)
         # 60 == 50 (#nodes Part0) + 10 (#nodes Part1)
         o2nNodes, newNbNodes = DataArrayInt.ConvertIndexArrayToO2N(60,c,ci)
         n2oNodes = o2nNodes.invertArrayO2N2N2O(newNbNodes)
         self.assertTrue( MEDFileMesh.New( merge_name ).getCoords().getInfoOnComponents() == ["XX","YYY","ZZZZ"])
-        FuseCellsAndNodesInMEDFile( merge_name, merge_name_no_dup, infoWrapNodes = ( c, ci, o2nNodes, n2oNodes), logLev = logging.WARNING )
+        #
+        FuseCellsAndNodesInMEDFile( merge_name, merge_name_no_dup, infoWrapNodes = ( c, ci, o2nNodes, n2oNodes), logLev = logging.WARNING )# <<<< ze call aim of test
+        #
         f1ts = MEDFileField1TS.New( merge_name_no_dup )
         fieldSpectrum = f1ts.getFieldSplitedByType()
         self.assertTrue( len(fieldSpectrum) == 1 )

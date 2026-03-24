@@ -59,38 +59,6 @@ def MEDFileUMeshFuseNodesAndCellsAdv(
     """
     import MEDLoader as ml
 
-    def updateMap(
-        mm: ml.MEDFileUMesh,
-        lev: int,
-        famMap: ml.DataArrayInt,
-        famMapI: ml.DataArrayInt,
-        famIdOffset: int,
-    ):
-        """
-        mm instance to be updated
-        """
-
-        def famIdManager(lev, famId):
-            if lev <= 0:
-                return -famId
-            else:
-                return famId
-
-        nbOfPartSetToBeUpdated = len(famMapI) - 1
-        for partSetId in range(nbOfPartSetToBeUpdated):
-            newFamId = famIdManager(lev, famMap[famMapI[partSetId]] + famIdOffset)
-            newFamName = f"Family_{newFamId}"
-            logger.debug(f"For level {lev} new family : {newFamId}")
-            mm.addFamily(newFamName, newFamId)
-            for famId in famMap[famMapI[partSetId] + 1 : famMapI[partSetId + 1]]:
-                zeFamId = famIdManager(lev, int(famId))
-                if not mm.existsFamily(zeFamId):
-                    continue
-                grpsToBeUpdated = mm.getGroupsOnFamily(mm.getFamilyNameGivenId(zeFamId))
-                for grpToBeUpdated in grpsToBeUpdated:
-                    mm.addFamilyOnGrp(grpToBeUpdated, newFamName)
-        pass
-
     famIdZeroForNewFamilies = self.getMaxAbsFamilyIdInArrays() + 1
     n2oHolder = {}
     logger = getLogger(level=logLev)
@@ -137,9 +105,17 @@ def MEDFileUMeshFuseNodesAndCellsAdv(
             famsMergedCell[famsMergedCell.findIdsGreaterOrEqualTo(localFamRef)] += (
                 famIdZeroForNewFamilies - localFamRef
             )
-            updateMap(
-                mmOut, lev, famMap, famMapI, famIdZeroForNewFamilies - localFamRef
+
+            logger.debug(
+                f"For lev {lev} number of families to deal : {len(famMapI) - 1} : Start processing"
             )
+            mmOut.updateFamilies(
+                lev, famMap, famMapI, famIdZeroForNewFamilies - localFamRef
+            )
+            logger.debug(
+                f"For lev {lev} number of families to deal : {len(famMapI) - 1} : End processing"
+            )
+
             famsMergedCell = -famsMergedCell
             famIdZeroForNewFamilies += nbOfNewFamsToCreate
         o2nCells, newNbCells = ml.DataArrayInt.ConvertIndexArrayToO2N(
@@ -163,7 +139,14 @@ def MEDFileUMeshFuseNodesAndCellsAdv(
         famsMergedNode[famsMergedNode.findIdsGreaterOrEqualTo(localFamRef)] += (
             famIdZeroForNewFamilies - localFamRef
         )
-        updateMap(mmOut, 1, famMap, famMapI, famIdZeroForNewFamilies - localFamRef)
+        logger.debug(
+            f"For lev 1 number of families to deal : {len(famMapI) - 1} : Start processing"
+        )
+        mmOut.updateFamilies(1, famMap, famMapI, famIdZeroForNewFamilies - localFamRef)
+        logger.debug(
+            f"For lev 1 number of families to deal : {len(famMapI) - 1} : End processing"
+        )
+
         mmOut.setFamilyFieldArr(1, famsMergedNode)
     return mmOut, n2oHolder
 
@@ -350,10 +333,24 @@ def AggregateMEDFilesNoProfilesNoFusion(pat: str, fnameOut: str, logLev=logging.
 
 
 def FuseCellsAndNodesInMEDFile(
-    fnameIn, fnameOut, compType=2, eps=1e-6, logLev=logging.INFO, infoWrapNodes=None
+    fnameIn,
+    fnameOut,
+    compType=2,
+    eps=1e-6,
+    logLev=logging.INFO,
+    infoWrapNodes=None,
+    zipFamilies=True,
 ):
     """
     This method read fnameIn MED file, perform operation of fusion and write the result back MED fnameOut file.
+
+    :param compType : see MEDCouplingPointSet.zipConnectivityTraducer method for explanations
+    :param eps: see DataArrayDouble.findCommonTuples for explanations.
+    :param logLev: Integer specifying log level
+    :param infoWrapNodes : see infoWrapNodes param of MEDFileUMeshFuseNodesAndCells
+    :param zipFamilies: if True : families are manipulated with MEDFileMesh.zipFamilies. Put False if you take advantage of families in your code ( which is )
+
+    :return: MEDFileUMesh instance containing the result of nodes and cells fusion
 
     Warning : fnameIn is expected to follow MED file convention. Positive fam values for nodes, negative for cells.
 
@@ -369,6 +366,16 @@ def FuseCellsAndNodesInMEDFile(
     logger = getLogger(logLev)
     mm = ml.MEDFileMesh.New(fnameIn)
     mm.removeOrphanFamilies()
+
+    if zipFamilies:
+        logger.info(
+            f"Zip Families requested : start zip process. Nb of families before zip : {len(mm.getFamiliesNames())}"
+        )
+        mm.zipFamilies()
+        logger.info(
+            f"Zip Families requested : end zip process. Nb of families after zip : {len(mm.getFamiliesNames())}"
+        )
+
     mmOut, n2os = mm.fuseNodesAndCellsAdv(compType, eps, logLev, infoWrapNodes)
     allFields = ml.GetAllFieldNames(fnameIn)
     mmOut.writeXX(fnameOut, 2, *inpVersion)

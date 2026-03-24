@@ -1469,6 +1469,7 @@ namespace MEDCoupling
     void setMeshAtLevel(int meshDimRelToMax, MEDCoupling1GTUMesh *m);
     void setMeshAtLevel(int meshDimRelToMax, MEDCouplingUMesh *m, bool newOrOld=false);
     void optimizeFamilies();
+    void updateFamilies(int meshDimRelToMaxExt, DataArrayIdType *famMap, DataArrayIdType *famMapI, mcIdType famIdOffset);
     DataArrayIdType *computeFetchedNodeIds() const;
     DataArrayIdType *zipCoords();
     DataArrayIdType *extractFamilyFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;

@@ -263,7 +263,7 @@ class CommonSession(abc.ABC):
         baseArray = baseArray.__class__.Aggregate(baseArrays)
         pfl = pfl.__class__.Aggregate(pfls)
         geoSupport = ml.MEDCouplingUMesh.MergeUMeshes(geoSupports)
-        getLogger().debug("Start iterating on subparts")
+        getLogger().debug("End iterating on subparts")
         pfl.setName(GetUniquePflName())
         f = ml.MEDCouplingFieldDouble(self.getSpationDiscretization())
         f.setName(f1ts.getName())
