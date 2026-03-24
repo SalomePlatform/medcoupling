@@ -518,6 +518,9 @@ class MEDFileUMesh : public MEDFileMesh
         int meshDimRelToMax, const std::vector<const MEDCouplingUMesh *> &ms, bool renum = false
     );
     MEDLOADER_EXPORT void optimizeFamilies();
+    MEDLOADER_EXPORT void updateFamilies(
+        int meshDimRelToMaxExt, DataArrayIdType *famMap, DataArrayIdType *famMapI, mcIdType famIdOffset
+    );
     // tools
     MEDLOADER_EXPORT std::map<mcIdType, std::map<mcIdType, mcIdType>> crackAlong(
         const std::string &grpNameM1, bool grpMustBeFullyDup = true

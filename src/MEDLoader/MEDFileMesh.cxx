@@ -4781,7 +4781,7 @@ MEDFileUMesh::optimizeFamilies()
     std::set<std::string> famNamesToKill;
     for (std::map<std::string, mcIdType>::const_iterator it = _families.begin(); it != _families.end(); it++)
     {
-        if (allFamsIds.find((*it).second) != allFamsIds.end())
+        if (allFamsIds.find((*it).second) == allFamsIds.end())
             famNamesToKill.insert((*it).first);
     }
     for (std::set<std::string>::const_iterator it = famNamesToKill.begin(); it != famNamesToKill.end(); it++)
@@ -4802,6 +4802,51 @@ MEDFileUMesh::optimizeFamilies()
     }
     for (std::vector<std::string>::const_iterator it = grpNamesToKill.begin(); it != grpNamesToKill.end(); it++)
         _groups.erase(*it);
+}
+
+/*!
+ * In fusion of cells and node context method updating families and groups in \a this according to the arrays returned
+ by DataArrayInt::forThisAsPartitionBuildReduction.
+ *
+ /sa FuseCellsAndNodesInMEDFile, DataArrayInt::forThisAsPartitionBuildReduction
+ */
+void
+MEDFileUMesh::updateFamilies(
+    int meshDimRelToMaxExt, DataArrayIdType *famMap, DataArrayIdType *famMapI, mcIdType famIdOffset
+)
+{
+    if (!famMap || !famMapI)
+        THROW_IK_EXCEPTION("Input arrays must be not null");
+    auto famIdManager = [](int lev, mcIdType famId)
+    {
+        if (lev <= 0)
+            return -famId;
+        else
+            return famId;
+    };
+    famMap->checkAllocated();
+    famMapI->checkAllocated();
+    mcIdType nbOfPartSetToBeUpdated(famMapI->getNumberOfTuples() - 1);
+    const mcIdType *famMapPt(famMap->begin()), *famMapIPt(famMapI->begin());
+    for (mcIdType partSetId = 0; partSetId < nbOfPartSetToBeUpdated; ++partSetId)
+    {
+        mcIdType newFamId = famIdManager(meshDimRelToMaxExt, famMapPt[famMapIPt[partSetId]] + famIdOffset);
+        std::ostringstream newFamName;
+        newFamName << "Family_" << newFamId;
+        this->addFamily(newFamName.str(), newFamId);
+        for (const mcIdType *famId = famMapPt + famMapIPt[partSetId] + 1; famId != famMapPt + famMapIPt[partSetId + 1];
+             ++famId)
+        {
+            mcIdType zeFamId = famIdManager(meshDimRelToMaxExt, *famId);
+            if (!this->existsFamily(zeFamId))
+                continue;
+            std::vector<std::string> grpsToBeUpdated(this->getGroupsOnFamily(this->getFamilyNameGivenId(zeFamId)));
+            for (auto grpToBeUpdated : grpsToBeUpdated)
+            {
+                this->addFamilyOnGrp(grpToBeUpdated, newFamName.str());
+            }
+        }
+    }
 }
 
 /**
