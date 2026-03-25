@@ -154,6 +154,7 @@ set(TEST_INSTALL_DIRECTORY ${MEDCOUPLING_INSTALL_TESTS}/ParaMEDMEM_Swig)
 install(
   FILES test_InterpKernelDEC.py
         test_InterpKernelDEC_easy.py
+        test_InterpKernelDEC_overlap.py
         test_NonCoincidentDEC.py
         test_OverlapDEC.py
         test_StructuredCoincidentDEC.py

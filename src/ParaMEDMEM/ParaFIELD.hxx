@@ -51,9 +51,12 @@ class ParaFIELD
     DataArrayIdType *returnGlobalNumbering() const;
     Topology *getTopology() const { return _topology; }
     ParaMESH *getSupport() const { return _support; }
+    const ProcessorGroup *getProcGroup() const { return _topology->getProcGroup(); }
     int nbComponents() const;
     double getVolumeIntegral(int icomp, bool isWAbs) const;
     double getL2Norm() const { return -1; }
+    TypeOfField getTypeOfField() const;
+    void setGlobalNumbering(DataArrayIdType *globalNum) const;
 
    private:
     MEDCouplingFieldDouble *_field;

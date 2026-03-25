@@ -69,3 +69,18 @@ set(tfile PyPara_CFEMDEC_0)
 set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
 add_test(${TEST_NAME} ${MPIEXEC} -np 7 ${_oversub_opt} ${Python3_EXECUTABLE} test_CFEMDEC.py)
 set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
+
+set(tfile PyPara_InterpKernelDEC_overlap_2)
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+add_test(${TEST_NAME} ${MPIEXEC} -np 2 ${_oversub_opt} ${Python3_EXECUTABLE} test_InterpKernelDEC_overlap.py)
+set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
+
+set(tfile PyPara_InterpKernelDEC_overlap_4)
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+add_test(${TEST_NAME} ${MPIEXEC} -np 4 ${_oversub_opt} ${Python3_EXECUTABLE} test_InterpKernelDEC_overlap.py)
+set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})
+
+set(tfile PyPara_InterpKernelDEC_overlap_5)
+set(TEST_NAME ${COMPONENT_NAME}_${TEST_NAMES}_${tfile})
+add_test(${TEST_NAME} ${MPIEXEC} -np 5 ${_oversub_opt} ${Python3_EXECUTABLE} test_InterpKernelDEC_overlap.py)
+set_tests_properties(${TEST_NAME} PROPERTIES LABELS "${COMPONENT_NAME}" TIMEOUT ${TIMEOUT})

@@ -34,6 +34,7 @@ class MEDDoubleField;
 namespace MEDCoupling
 {
 class ProcessorGroup;
+class MPIProcessorGroup;
 class ParaFIELD;
 
 class DisjointDECAbstract : public DEC
@@ -58,6 +59,7 @@ class DisjointDECAbstract : public DEC
 
     virtual void computeProcGroup() {}
     //
+    MPIProcessorGroup *getMyProcGroup() const;
     ProcessorGroup *getSourceGrp() const { return _source_group; }
     ProcessorGroup *getTargetGrp() const { return _target_group; }
     ProcessorGroup *getUnionGrp() const { return _union_group; }

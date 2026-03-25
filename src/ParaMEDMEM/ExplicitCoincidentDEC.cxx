@@ -420,7 +420,6 @@ ExplicitCoincidentDEC::recvData()
     // mechanism for creating the union group yet
     MESSAGE("recvData");
 
-    cout << "start AllToAll" << endl;
     _comm_interface->allToAllV(
         _sendbuffer,
         _sendcounts,
@@ -432,7 +431,6 @@ ExplicitCoincidentDEC::recvData()
         MPI_DOUBLE,
         MPI_COMM_WORLD
     );
-    cout << "end AllToAll" << endl;
     mcIdType nb_local = _topotarget->getNbLocalElements();
     double *value = new double[nb_local * _topotarget->getNbComponents()];
 
@@ -463,13 +461,8 @@ void
 ExplicitCoincidentDEC::sendData()
 {
     MESSAGE("sendData");
-    for (int i = 0; i < 4; i++) cout << _sendcounts[i] << " ";
-    cout << endl;
-    for (int i = 0; i < 4; i++) cout << _senddispls[i] << " ";
-    cout << endl;
     // MPI_COMM_WORLD is used instead of group because there is no
     // mechanism for creating the union group yet
-    cout << "start AllToAll" << endl;
     _comm_interface->allToAllV(
         _sendbuffer,
         _sendcounts,
