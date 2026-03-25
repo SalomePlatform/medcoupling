@@ -29,6 +29,7 @@
 #include "ByStringMPIProcessorGroup.hxx"
 #include "DEC.hxx"
 #include "InterpKernelDEC.hxx"
+#include "InterpKernelDECWithOverlap.hxx"
 #include "CFEMDEC.hxx"
 #include "NonCoincidentDEC.hxx"
 #include "StructuredCoincidentDEC.hxx"
@@ -341,6 +342,15 @@ namespace MEDCoupling
       }
   };
 
+  class InterpKernelDECWithOverlap : public InterpKernelDEC
+  {
+  public:
+    InterpKernelDECWithOverlap(ProcessorGroup &source_group, ProcessorGroup &target_group);
+    ~InterpKernelDECWithOverlap();
+    void attachLocalField(MEDCouplingFieldDouble *field, DataArrayIdType *globalIds = nullptr);
+    void attachLocalField(const ParaFIELD *field, bool ownPt = false);
+  };
+
   class OverlapDEC : public DEC, public INTERP_KERNEL::InterpolationOptions
   {
       public:
@@ -380,9 +390,10 @@ namespace MEDCoupling
             return new OverlapDEC(ids, *(reinterpret_cast<MPI_Comm*>(another_comm)) ); // I know, ugly cast ...
           }
         }
-   };
+  };
 
-   class CFEMDEC : public DisjointDECAbstract, public INTERP_KERNEL::InterpolationOptions
+
+  class CFEMDEC : public DisjointDECAbstract, public INTERP_KERNEL::InterpolationOptions
   {
     public:
       CFEMDEC();

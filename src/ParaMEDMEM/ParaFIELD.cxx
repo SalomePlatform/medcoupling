@@ -202,7 +202,7 @@ ParaFIELD::returnCumulativeGlobalNumbering() const
 {
     if (!_field)
         return 0;
-    TypeOfField type = _field->getTypeOfField();
+    TypeOfField type = this->getTypeOfField();
     switch (type)
     {
         case ON_CELLS:
@@ -219,7 +219,7 @@ ParaFIELD::returnGlobalNumbering() const
 {
     if (!_field)
         return 0;
-    TypeOfField type = _field->getTypeOfField();
+    TypeOfField type = this->getTypeOfField();
     switch (type)
     {
         case ON_CELLS:
@@ -230,6 +230,29 @@ ParaFIELD::returnGlobalNumbering() const
             return 0;
     }
 }
+
+void
+ParaFIELD::setGlobalNumbering(DataArrayIdType *globalNum) const
+{
+    if (!_field)
+        return;
+    TypeOfField type = this->getTypeOfField();
+    switch (type)
+    {
+        case ON_CELLS:
+            return _support->setCellGlobal(globalNum);
+        case ON_NODES:
+            return _support->setNodeGlobal(globalNum);
+        default:
+            return;
+    }
+};
+
+TypeOfField
+ParaFIELD::getTypeOfField() const
+{
+    return _field->getTypeOfField();
+};
 
 int
 ParaFIELD::nbComponents() const

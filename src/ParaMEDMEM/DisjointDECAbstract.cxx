@@ -89,7 +89,10 @@ DisjointDECAbstract::copyInstance(const DisjointDECAbstract &other)
         }
     }
     if (_source_group && _target_group)
+    {
+        delete _union_group;
         _union_group = _source_group->fuse(*_target_group);
+    }
 }
 
 DisjointDECAbstract::DisjointDECAbstract(
@@ -154,6 +157,21 @@ DisjointDECAbstract::DisjointDECAbstract(
 }
 
 DisjointDECAbstract::~DisjointDECAbstract() { cleanInstance(); }
+
+MPIProcessorGroup *
+DisjointDECAbstract::getMyProcGroup() const
+{
+    if (_source_group->containsMyRank())
+    {
+        return dynamic_cast<MPIProcessorGroup *>(_source_group);
+    }
+    else if (_target_group->containsMyRank())
+    {
+        return dynamic_cast<MPIProcessorGroup *>(_target_group);
+    }
+    else
+        throw INTERP_KERNEL::Exception("Invalid procgroup for field attachment to DEC");
+}
 
 void
 DisjointDECAbstract::cleanInstance()

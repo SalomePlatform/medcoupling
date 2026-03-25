@@ -138,15 +138,15 @@ class InterpKernelDEC : public DisjointDEC, public INTERP_KERNEL::InterpolationO
     virtual ~InterpKernelDEC();
     void release();
 
-    void synchronize();
+    void synchronize() override;
     void synchronizeWithDefaultValue(double val);
     MCAuto<DataArrayIdType> retrieveNonFetchedIds() const;
-    void recvData();
+    void recvData() override;
     void recvData(double time);
-    void sendData();
+    void sendData() override;
     void sendData(double time, double deltatime);
-    void prepareSourceDE() {}
-    void prepareTargetDE() {}
+    void prepareSourceDE() override {}
+    void prepareTargetDE() override {}
 
    private:
     MCAuto<DataArrayIdType> retrieveNonFetchedIdsSource() const;

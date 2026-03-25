@@ -49,6 +49,7 @@ set(paramedmem_SOURCES
     ExplicitMapping.cxx
     ExplicitTopology.cxx
     InterpKernelDEC.cxx
+    InterpKernelDECWithOverlap.cxx
     InterpolationMatrix.cxx
     LinearTimeInterpolator.cxx
     MPIProcessorGroup.cxx
@@ -57,6 +58,7 @@ set(paramedmem_SOURCES
     OverlapDEC.cxx
     OverlapElementLocator.cxx
     OverlapInterpolationMatrix.cxx
+    OverlapManagerDEC.cxx
     OverlapMapping.cxx
     ParaDataArray.cxx
     ParaFIELD.cxx

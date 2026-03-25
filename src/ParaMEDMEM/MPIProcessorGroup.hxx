@@ -50,20 +50,20 @@ class MPIProcessorGroup : public ProcessorGroup
     virtual ~MPIProcessorGroup();
     void release();
 
-    virtual MPIProcessorGroup *deepCopy() const;
-    virtual ProcessorGroup *fuse(const ProcessorGroup &) const;
-    void intersect(ProcessorGroup &) {}
-    int myRank() const;
-    bool containsMyRank() const
+    MPIProcessorGroup *deepCopy() const override;
+    ProcessorGroup *fuse(const ProcessorGroup &) const override;
+    void intersect(ProcessorGroup &) override {}
+    int myRank() const override;
+    bool containsMyRank() const override
     {
         int rank;
         MPI_Group_rank(_group, &rank);
         return (rank != MPI_UNDEFINED);
     }
-    int translateRank(const ProcessorGroup *group, int rank) const;
+    int translateRank(const ProcessorGroup *group, int rank) const override;
     const MPI_Comm *getComm() const { return &_comm; }
     ProcessorGroup *createComplementProcGroup() const;
-    ProcessorGroup *createProcGroup() const;
+    ProcessorGroup *createProcGroup() const override;
     MPI_Comm getWorldComm() { return _world_comm; }
     MPI_Group getGroup() const { return _group; }
 
