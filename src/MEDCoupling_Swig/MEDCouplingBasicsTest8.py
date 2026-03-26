@@ -284,6 +284,72 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
         self.assertTrue(mc.DataArrayInt([(21, 20), (20, 22), (22, 21)]).isEqual(ret[0]))
         self.assertTrue(mc.DataArrayInt([(10, 12), (12, 11), (11, 10)]).isEqual(ret[1]))
 
+    def test_bug35017_distanceToPoint(self):
+        """
+        [EDF35017] : Fix distanceToPoint
+        """
+        # fmt: off
+        from math import sqrt, pi
+        def rotate( mesh, ptsMesh, rotationInRad ):
+            retMesh = mesh.deepCopy()
+            retMesh.rotate( [0,0,0], [0,0,1], rotationInRad )
+            retPtsMesh = ptsMesh.deepCopy()
+            retPtsMesh.rotate( [0,0,0], [0,0,1], rotationInRad )
+            return retMesh, retPtsMesh
+
+        coo = mc.DataArrayDouble( [(0,0),(2,0),(2,1),(0,1)] )
+        n2o = mc.DataArrayInt( [0,2,3,1] )
+        o2n = n2o.invertArrayN2O2O2N(4)
+        self.assertTrue( o2n.isEqual( mc.DataArrayInt( [0,3,1,2] ) ) )
+        m = mc.MEDCouplingUMesh("",2)
+        m.setCoords( coo[n2o] )
+        m.allocateCells()
+        m.insertNextCell( mc.NORM_QUAD4, o2n.getValues() )
+        m.changeSpaceDimension(3,0.)
+        # First testing pts outside polygon
+        ptsOut = mc.DataArrayDouble( [(-1,-1), (0,-1), (1.8,-1), (3,-1), (3,0.7), (3,2), (0.8, 2), (-1,2), (-1, 0.9) ] )
+        ptsOut = ptsOut.changeNbOfComponents(3,0.)
+        pts = mc.MEDCouplingUMesh.Build0DMeshFromCoords( ptsOut )
+        rotations = [ 0., pi/6, pi/3, pi/2, 3*pi/4, pi, 5*pi/4, 11 * pi /6 ]
+        ref_ptsOut = mc.DataArrayDouble([ sqrt(2.0), 1.0, 1.0, sqrt(2.0), 1.0, sqrt(2.0), 1.0, sqrt(2.0), 1.0 ])
+        for curRot in rotations:
+            mCpy, ptsCpy = rotate( m, pts, curRot )
+            self.assertTrue( mCpy.distanceToPoints( ptsCpy.getCoords() )[0].isEqual( ref_ptsOut, 1e-12 ) )
+        # Now manage Z
+        for zLev in [2.0, -3.0]:
+            pts.getCoords()[:,2] = zLev
+            for curRot in rotations:
+                mCpy, ptsCpy = rotate( m, pts, curRot )
+                mCpy.distanceToPoints( ptsCpy.getCoords() )
+                curRef = ( ref_ptsOut**2 + zLev**2 )**0.5
+                self.assertTrue( mCpy.distanceToPoints( ptsCpy.getCoords() )[0].isEqual( curRef, 1e-12 ) )
+        # Now testing points inside polygon
+        ptsIn = mc.DataArrayDouble( [(0.1,0.1), (1.9,0.1), (1.0, 0.5), (0.1,0.9), (0,0),(2,0),(2,1),(0,1) ] )
+        ptsIn = ptsIn.changeNbOfComponents(3,0.)
+        pts = mc.MEDCouplingUMesh.Build0DMeshFromCoords( ptsIn )
+        for curRot in rotations:
+            mCpy, ptsCpy = rotate( m, pts, curRot )
+            self.assertTrue( mCpy.distanceToPoints( ptsCpy.getCoords() )[0].isUniform( 0, 1e-12 ) )
+        # Now manage Z
+        for zLev in [2.0, -3.0]:
+            pts.getCoords()[:,2] = zLev
+            for curRot in rotations:
+                mCpy, ptsCpy = rotate( m, pts, curRot )
+                mCpy.distanceToPoints( ptsCpy.getCoords() )
+                self.assertTrue( mCpy.distanceToPoints( ptsCpy.getCoords() )[0].isUniform( abs( zLev ), 1e-12 ) )
+        # And to finish : a test in 3D
+        coords = mc.DataArrayDouble( [(-9.529956, -29.38396651, 8.2), (-9.529956, -30.37755672, 8.2), (-9.329956, -30.24157895, 8.2), (-9.329956, -29.26605263, 8.2), (-9.329956, -30.125, 9.224), (-9.329956, -29.18833333, 9.224)] )
+        m3D = mc.MEDCouplingUMesh("",2)
+        m3D.setCoords( coords )
+        m3D.allocateCells()
+        m3D.insertNextCell( mc.NORM_QUAD4, [0,1,2,3] )
+        m3D.insertNextCell( mc.NORM_QUAD4, [4,1,0,5] )
+        pt = mc.DataArrayDouble( [-9.35495563, -30.0, 8.2] , 1, 3 )
+        a,b = m3D.distanceToPoints(pt)
+        self.assertTrue( a.isEqual( mc.DataArrayDouble([0.0]), 1e-12 ) )
+        self.assertTrue( b.isEqual( mc.DataArrayInt([0]) ) )
+        # fmt: on
+
 
 if __name__ == "__main__":
     unittest.main()

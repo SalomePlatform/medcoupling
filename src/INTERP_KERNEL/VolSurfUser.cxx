@@ -246,6 +246,72 @@ DistanceFromPtToTriInSpaceDim3(const double *pt, const double *pt0Tri3, const do
     return sqrt(sDist);
 }
 
+namespace
+{
+double
+SqDistPtToSegment(const double pt[2], const double a[2], const double b[2])
+{
+    double len(distance2<2>(a, b));
+    const double ap[2] = {pt[0] - a[0], pt[1] - a[1]};
+    const double ab[2] = {b[0] - a[0], b[1] - a[1]};
+    double curvAbsciss(dotprod<2>(ap, ab) / len);
+    if (curvAbsciss < 0.0)
+    {
+        return distance2<2>(pt, a);
+    }
+    else if (curvAbsciss > 1.0)
+    {
+        return distance2<2>(pt, b);
+    }
+    else
+    {
+        const double projPOnSeg[2] = {a[0] + curvAbsciss * ab[0], a[1] + curvAbsciss * ab[1]};
+        return distance2<2>(pt, projPOnSeg);
+    }
+}
+
+bool
+IsInsideConvexPolygionInDim2(const double pt[2], std::size_t nbPts, const double *polyCoords)
+{
+    double prev(0.0);
+    for (std::size_t i = 0; i < nbPts; ++i)
+    {
+        double c(crossprodDim2(polyCoords + 2 * i, polyCoords + 2 * ((i + 1) % nbPts), pt));
+        if (c != 0.0)
+        {
+            if (prev == 0.0)
+            {
+                prev = c;
+            }
+            else if (c * prev < 0.0)
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+double
+SqDistFromPtToConvexPolygonInDim2(const double pt[2], std::size_t nbPts, const double *polyCoords)
+{
+    if (IsInsideConvexPolygionInDim2(pt, nbPts, polyCoords))
+    {
+        return 0.0;
+    }
+    double minDist(std::numeric_limits<double>::max());
+    for (std::size_t i = 0; i < nbPts; ++i)
+    {
+        double curDist(SqDistPtToSegment(pt, polyCoords + 2 * i, polyCoords + 2 * ((i + 1) % nbPts)));
+        if (curDist < minDist)
+        {
+            minDist = curDist;
+        }
+    }
+    return minDist;
+}
+}  // namespace
+
 double
 DistanceFromPtToPolygonInSpaceDim3(
     const double *pt, const mcIdType *connOfPolygonBg, const mcIdType *connOfPolygonEnd, const double *coords
@@ -293,18 +359,8 @@ DistanceFromPtToPolygonInSpaceDim3(
         matrix[4] * pt[0] + matrix[5] * pt[1] + matrix[6] * pt[2] + matrix[7]
     };
     double z = matrix[8] * pt[0] + matrix[9] * pt[1] + matrix[10] * pt[2] + matrix[11];
-    double ret = std::numeric_limits<double>::max();
-    std::size_t nbOfHint = 0;
-    for (std::size_t i = 0; i < nbOfEdges; i++)
-    {
-        double tmp = SquareDistanceFromPtToSegInSpaceDim2(
-            xy, ((double *)ptXY) + 2 * i, ((double *)ptXY) + 2 * ((i + 1) % nbOfEdges), nbOfHint
-        );
-        ret = std::min(ret, z * z + tmp);
-    }
-    if (nbOfHint == nbOfEdges)
-        ret = std::min(ret, z * z);
-    return sqrt(ret);
+    double distIn2DSq(SqDistFromPtToConvexPolygonInDim2(xy, nbOfEdges, ptXY));
+    return sqrt(z * z + distIn2DSq);
 }
 
 inline double
