@@ -1227,6 +1227,16 @@ determinant(double *a, double *b, double *c)
 /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
 /* Computes the cross product of AB and AC */
 /*_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _*/
+inline double
+crossprodDim2(const double *A, const double *B, const double *C)
+{
+    double AB[2];
+    double AC[2];
+    for (int idim = 0; idim < 2; idim++) AB[idim] = B[idim] - A[idim];  // B-A
+    for (int idim = 0; idim < 2; idim++) AC[idim] = C[idim] - A[idim];  // C-A;
+
+    return determinant(AB, AC);
+}
 
 template <int dim>
 inline void
@@ -1236,12 +1246,7 @@ template <>
 inline void
 crossprod<2>(const double *A, const double *B, const double *C, double *V)
 {
-    double AB[2];
-    double AC[2];
-    for (int idim = 0; idim < 2; idim++) AB[idim] = B[idim] - A[idim];  // B-A
-    for (int idim = 0; idim < 2; idim++) AC[idim] = C[idim] - A[idim];  // C-A;
-
-    V[0] = determinant(AB, AC);
+    V[0] = crossprodDim2(A, B, C);
     V[1] = 0;
 }
 template <>
