@@ -203,10 +203,8 @@ IsInside(
         }  // Something get wrong during Newton process
         if (ret)
         {  // Newton has converged. Now check if it converged to a point inside cell
-            // TODO: add in a class method ?
             if (INTERP_KERNEL::GaussInfo::IsInOrOutForReference(ct, refCoo, vini.data(), EPS_IN_OUT))
             {
-                // converged but locInReal has been detected outside of cell
                 for (int i = 0; i < SPACEDIM; i++)
                 {
                     locInRef[i] = vini[i];
@@ -217,6 +215,109 @@ IsInside(
     }
     std::fill(locInRef, locInRef + SPACEDIM, std::numeric_limits<double>::max());
     return false;
+}
+
+/* Search closest point on the surface unsing orthogonal projection.
+ *  See pj3da3.F90 routine of code_aster
+ */
+
+static bool
+ClosestPoint_TRIA3_3D(
+    const MEDCouplingGaussLocalization &gl,
+    const std::vector<double> &ptsInCell,
+    const double locInReal[3],
+    double locInRef[2],
+    double &dist
+)
+{
+    constexpr double EPS_IN_OUT = 1e-12;
+    dist = std::numeric_limits<double>::max();
+    std::fill(locInRef, locInRef + 2, std::numeric_limits<double>::max());
+
+    // Vérification TRIA3
+    if (gl.getType() != INTERP_KERNEL::NORM_TRI3)
+    {
+        throw std::runtime_error("This is not a TRI3");
+    }
+
+    const double *A = &ptsInCell[0];
+    const double *B = &ptsInCell[3];
+    const double *C = &ptsInCell[6];
+    const double *M = locInReal;
+
+    std::array<double, 3> AB, AC, AM;
+    for (int i = 0; i < 3; ++i)
+    {
+        AB[i] = B[i] - A[i];
+        AC[i] = C[i] - A[i];
+        AM[i] = M[i] - A[i];
+    }
+
+    // Produits scalaires
+    const double a11 = AB[0] * AB[0] + AB[1] * AB[1] + AB[2] * AB[2];
+    const double a22 = AC[0] * AC[0] + AC[1] * AC[1] + AC[2] * AC[2];
+    const double a12 = AB[0] * AC[0] + AB[1] * AC[1] + AB[2] * AC[2];
+
+    double b1 = AB[0] * AM[0] + AB[1] * AM[1] + AB[2] * AM[2];
+    double b2 = AC[0] * AM[0] + AC[1] * AM[1] + AC[2] * AM[2];
+
+    double delta = a11 * a22 - a12 * a12;
+    if (std::abs(delta) < 1e-14)
+        return false;  // triangle dégénéré
+
+    // Barycentric coordinates
+    double lb = (a22 * b1 - a12 * b2) / delta;
+    double lc = (a11 * b2 - a12 * b1) / delta;
+    double la = 1.0 - lb - lc;
+
+    const double *refCoo(gl.getRefCoords().data());
+
+    std::array<double, 2> para;
+    if (refCoo[0] < -0.5)
+    {
+        para[0] = 2.0 * lc - 1.0;
+        para[1] = 2.0 * la - 1.0;
+    }
+    else
+    {
+        para[0] = lb;
+        para[1] = lc;
+    }
+
+    INTERP_KERNEL::NormalizedCellType ct(gl.getType());
+    if (!INTERP_KERNEL::GaussInfo::IsInOrOutForReference(ct, refCoo, para.data(), EPS_IN_OUT))
+    {
+        // Project on edges
+        INTERP_KERNEL::GaussInfo::AdapatCoorForReference(ct, refCoo, para.data());
+        if (refCoo[0] < -0.5)
+        {
+            la = 0.5 * (1.0 + para[1]);
+            lb = 0.5 * (1.0 - para[0] - para[1]);
+            lc = 0.5 * (1.0 + para[0]);
+        }
+        else
+        {
+            la = 1.0 - para[0] - para[1];
+            lb = para[0];
+            lc = para[1];
+        }
+    }
+
+    locInRef[0] = para[0];
+    locInRef[1] = para[1];
+
+    // Calcul distance exacte
+    std::array<double, 3> P;
+    dist = 0.0;
+    for (int i = 0; i < 3; ++i)
+    {
+        P[i] = la * A[i] + lb * B[i] + lc * C[i];
+        const double d = M[i] - P[i];
+        dist += d * d;
+    }
+    dist = std::sqrt(dist);
+
+    return true;
 }
 
 /* Search closest point on the surface unsing orthogonal projection.
@@ -232,6 +333,12 @@ ClosestPoint(
     double &dist
 )
 {
+    /* Specailization for TRI3 */
+    if (gl.getType() == INTERP_KERNEL::NORM_TRI3 && SPACEDIM == 3)
+    {
+        return ClosestPoint_TRIA3_3D(gl, ptsInCell, locInReal, locInRef, dist);
+    }
+
     constexpr double EPS_IN_OUT = 1e-12;
     std::size_t nbPtsInCell(ptsInCell.size() / SPACEDIM);
     bool ret(false);
@@ -341,8 +448,6 @@ ClosestPoint(
         }
     };
 
-    bool find_one = false;
-    std::vector<double> vtmp;
     // loop on refcoords as initialization point for Newton algo. vini is the initialization vector of Newton.
     for (std::size_t attemptId = 0; attemptId < nbPtsInCell + 1; ++attemptId)
     {
@@ -369,34 +474,21 @@ ClosestPoint(
             ret = false;
         }  // Something get wrong during Newton process
         if (ret)
-        {  // Newton has converged. Now check if it converged to a point inside cell
-            if (INTERP_KERNEL::GaussInfo::IsInOrOutForReference(ct, refCoo, vini.data(), EPS_IN_OUT))
-            {
-                // converged but locInReal has been detected outside of cell
-                for (int i = 0; i < (SPACEDIM - 1); i++)
-                {
-                    locInRef[i] = vini[i];
-                }
-                dist = distance(vini);
-                return true;
-            }
-            if (!find_one)
-            {
-                find_one = true;
-                vtmp = vini;
-            }
-        }
-    }
-    // No point inside but at least one on the border
-    if (find_one)
-    {
-        INTERP_KERNEL::GaussInfo::AdapatCoorForReference(ct, refCoo, vtmp.data());
-        for (int i = 0; i < (SPACEDIM - 1); i++)
         {
-            locInRef[i] = vtmp[i];
+            // Newton has converged. Now check if it converged to a point inside cell
+            if (!INTERP_KERNEL::GaussInfo::IsInOrOutForReference(ct, refCoo, vini.data(), EPS_IN_OUT))
+            {
+                // No point inside but at least one on the border
+                INTERP_KERNEL::GaussInfo::AdapatCoorForReference(ct, refCoo, vini.data());
+            }
+
+            for (int i = 0; i < (SPACEDIM - 1); i++)
+            {
+                locInRef[i] = vini[i];
+            }
+            dist = distance(vini);
+            return true;
         }
-        dist = distance(vtmp);
-        return true;
     }
     std::fill(locInRef, locInRef + (SPACEDIM - 1), std::numeric_limits<double>::max());
     dist = std::numeric_limits<double>::max();
@@ -581,15 +673,15 @@ MEDCouplingFieldDiscretizationOnNodesFE::GetClosestRefCoordOfListOf1PtInND(
 {
     constexpr int SPACEDIM = BBTree::dimension;
     const double *coordsOfMesh(umesh->getCoords()->begin());
-    // EDF31461 : TODO : An algorithm could be implemented to automatically reduce number of candidates.
-    // std::vector<mcIdType> elems;
-    // tree.getElementsAroundPoint(ptCoor.data(), elems);
     bool found = false;
     double dist_min = std::numeric_limits<double>::max(), dist_loc;
     MEDCouplingGaussLocalization gl_min(INTERP_KERNEL::NORM_SEG2);
     mcIdType cell_id;
 
-    // for( mcIdType cellId : elems ) //
+    // EDF31461 : TODO : An algorithm could be implemented to automatically reduce number of candidates.
+    // std::vector<mcIdType> elems;
+    // tree.getElementsAroundPoint(ptCoor.data(), elems);
+    // for (mcIdType cellId : elems)
     for (mcIdType cellId = 0; cellId < umesh->getNumberOfCells(); ++cellId)
     {
         INTERP_KERNEL::NormalizedCellType gt(umesh->getTypeOfCell(cellId));

@@ -438,10 +438,9 @@ class ParaMEDMEM_IKo_DEC_Test2(unittest.TestCase):
             # print(f"Should be run on {len(procs_source) + len(procs_target)} procs!")
             return
 
-        interface = CommInterface()
-        source_group = MPIProcessorGroup(interface, procs_source)
-        target_group = MPIProcessorGroup(interface, procs_target)
-        idec = InterpKernelDECWithOverlap(source_group, target_group)
+        idec = InterpKernelDECWithOverlap(procs_source, procs_target)
+        source_group = idec.getSourceGrp()
+        target_group = idec.getTargetGrp()
 
         # reference solution without overlapping on 1 mpi
         _, full_src, _ = self.generateFullSource()
@@ -467,6 +466,28 @@ class ParaMEDMEM_IKo_DEC_Test2(unittest.TestCase):
             43.8,
         ]
 
+        # different since projection is not invertible
+        ref_src_recv = [
+            9.066666666666666,
+            19.599999999999998,
+            13.733333333333334,
+            26.599999999999994,
+            20.4,
+            36.599999999999994,
+            28.266666666666666,
+            48.39999999999999,
+            32.93333333333333,
+            55.4,
+            39.599999999999994,
+            65.39999999999999,
+            41.06666666666666,
+            67.6,
+            45.733333333333334,
+            74.6,
+            52.400000000000006,
+            84.6,
+        ]
+
         #
         # OK, let's go DEC !!
         #
@@ -487,15 +508,6 @@ class ParaMEDMEM_IKo_DEC_Test2(unittest.TestCase):
 
             self.checkValues(ref_src, fieldS, cells_source[local_rank])
 
-            # FIXME
-            # first recv
-            # arr = fieldS.getArray()
-            # arr *= 0.0
-            # self.checkValues([0.0] * len(ref_src), fieldS, cells_source[local_rank])
-
-            # idec.recvData()
-            # self.checkValues(ref_src, fieldS, cells_source[local_rank])
-
             # second send - modify array but not local field
             arr = fieldS.getArray()
             arr *= 2.0
@@ -503,6 +515,14 @@ class ParaMEDMEM_IKo_DEC_Test2(unittest.TestCase):
                 [2.0 * v for v in ref_src], fieldS, cells_source[local_rank]
             )
             idec.sendData()
+
+            # first recv
+            arr = fieldS.getArray()
+            arr *= 0.0
+            self.checkValues([0.0] * len(ref_src), fieldS, cells_source[local_rank])
+
+            idec.recvData()
+            self.checkValues(ref_src_recv, fieldS, cells_source[local_rank])
 
         if target_group.containsMyRank():
             local_rank = target_group.myRank()
@@ -522,21 +542,20 @@ class ParaMEDMEM_IKo_DEC_Test2(unittest.TestCase):
 
             self.checkValues(ref_trg, fieldT, cells_target[local_rank])
 
-            # first send
-            # FIXME
-            # idec.sendData()
-            # self.checkValues(ref_trg, fieldT, cells_target[local_rank])
-
             # second recv
             idec.recvData()
             self.checkValues(
                 [2.0 * v for v in ref_trg], fieldT, cells_target[local_rank]
             )
 
+            # first send
+            idec.sendData()
+            self.checkValues(
+                [2.0 * v for v in ref_trg], fieldT, cells_target[local_rank]
+            )
+
         # Release DEC (this involves MPI exchanges -- notably the release of the communicator -- so better be done before MPI.Finalize()
         idec.release()
-        source_group.release()
-        target_group.release()
         MPI.COMM_WORLD.Barrier()
 
 

@@ -31,6 +31,12 @@ class InterpKernelDECWithOverlap : public InterpKernelDEC
         : InterpKernelDEC(source_group, target_group)
     {
     }
+    InterpKernelDECWithOverlap(
+        const std::set<int> &src_ids, const std::set<int> &trg_ids, const MPI_Comm &world_comm = MPI_COMM_WORLD
+    )
+        : InterpKernelDEC(src_ids, trg_ids, world_comm)
+    {
+    }
     ~InterpKernelDECWithOverlap();
     void attachLocalField(MEDCouplingFieldDouble *field, DataArrayIdType *globalIds = nullptr);
     void attachLocalField(const ParaFIELD *field, bool ownPt = false);
