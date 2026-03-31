@@ -656,7 +656,7 @@ GaussInfo::IsInOrOutForReference(NormalizedCellType ct, const double *refCoo, co
             if (refCoo[0] < -0.5)
             {
                 return (xi > -1.0 - eps) && (xi < 1.0 + eps) && (eta > -1.0 - eps) && (eta < 1.0 + eps) &&
-                       (xi + eta < 1.0 + eps);
+                       (xi + eta < 0.0 + eps);
             }
             return (xi > -eps) && (xi < 1.0 + eps) && (eta > -eps) && (eta < 1.0 + eps) && (xi + eta < 1.0 + eps);
         }
