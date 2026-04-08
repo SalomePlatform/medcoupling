@@ -182,11 +182,22 @@ MCData *BuildNewInstance(PyObject *elt0Arr, int npyObjectType, PyTypeObject *pyt
       std::ostringstream oss; oss << "Input numpy array has not itemSize set to " << sizeof(T) << " !";
       throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
-  if(itemSize*sz1!=PyArray_STRIDE(elt0,0))
-    throw INTERP_KERNEL::Exception("Input numpy array has stride that mismatches the item size ! Data are not packed in the right way for DataArrays !");
-  if(ndim==2)
-    if(itemSize!=PyArray_STRIDE(elt0,1))
-      throw INTERP_KERNEL::Exception("Input numpy array has stride that mismatches the item size ! Data are not packed in the right way for DataArrays for component #1 !");
+  if( sz0 > 0 )
+  {
+    // bos50817 / github issue11. For Numpy version >= 1.24 stride of empty array is equal to 0 whereas for version < 1.24 stride is equal to itemSize*sz1.
+    // To deal with this modification of beheviour for empty array skip check
+    if(itemSize*sz1!=PyArray_STRIDE(elt0,0))
+    {
+      throw INTERP_KERNEL::Exception("Input numpy array has stride that mismatches the item size ! Data are not packed in the right way for DataArrays !");
+    }
+    if(ndim==2)
+    {
+      if(itemSize!=PyArray_STRIDE(elt0,1))
+      {
+        throw INTERP_KERNEL::Exception("Input numpy array has stride that mismatches the item size ! Data are not packed in the right way for DataArrays for component #1 !");
+      }
+    }
+  }
   const char *data=PyArray_BYTES(elt0);
   typename MEDCoupling::MCAuto<MCData> ret=MCData::New();
   if(PyArray_ISBEHAVED(elt0))//aligned and writeable and in machine byte-order

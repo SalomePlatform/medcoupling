@@ -2162,6 +2162,20 @@ class MEDCouplingNumPyTest(unittest.TestCase):
         gc.collect()  # important : destroy d after b and array to be sure to let the ownership to d.
         pass
 
+    def test42(self):
+        """
+        bos50817 / github11 : exception on mapping of empty np array
+        """
+        # fmt: off
+        arr = empty((0, 3), dtype = float64)
+        mcArr = DataArrayDouble( arr )
+        self.assertTrue( mcArr.empty() )
+        #
+        arr = empty((0), dtype = float64)
+        mcArr = DataArrayDouble( arr )
+        self.assertTrue( mcArr.empty() )
+        # fmt: on
+
     def setUp(self):
         pass
 
