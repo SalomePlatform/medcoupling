@@ -108,7 +108,7 @@ INTERP_KERNEL::quadAspectRatio(const double *coo)
     };
     double e =
         sqrt(ab[0] * ab[0] + ab[1] * ab[1] + ab[2] * ab[2]) + sqrt(cd[0] * cd[0] + cd[1] * cd[1] + cd[2] * cd[2]);
-    if (d > 1e-15)
+    if (e > 1e-15)
         return 0.5 * (a + b + c + d) * hm / e;
     else
         return std::numeric_limits<double>::max();
