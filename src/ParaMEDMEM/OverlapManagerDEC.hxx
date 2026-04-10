@@ -52,8 +52,8 @@ class OverlapManagerDEC
     void computeOwnership();
     bool recomputeOwnership() const;
 
-    ParaFIELD *restrict(const ParaFIELD *pfield) const;
-    ParaMESH *restrict(const MEDCouplingMesh *mesh) const;
+    ParaFIELD *restrictField(const ParaFIELD *pfield) const;
+    ParaMESH *restrictMesh(const MEDCouplingMesh *mesh) const;
 
     const ProcessorGroup *_local_group;
     MPIProcessorGroup *_mpi_group;

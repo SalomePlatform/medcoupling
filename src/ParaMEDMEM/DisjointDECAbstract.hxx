@@ -44,8 +44,8 @@ class DisjointDECAbstract : public DEC
         : _union_group(nullptr),
           _source_group(nullptr),
           _target_group(nullptr),
-          _comm_interface(nullptr),
           _owns_groups(false),
+          _comm_interface(nullptr),
           _union_comm(MPI_COMM_NULL)
     {
     }
