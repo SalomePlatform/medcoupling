@@ -256,7 +256,7 @@ OverlapManagerDEC::attachLocalField(const ParaFIELD *field, const MPI_Comm &comm
 
     if (_hasGlobalOverlap)
     {
-        _restrictedField = this->restrict(_originalField);
+        _restrictedField = this->restrictField(_originalField);
         _own_restrictedField = true;
     }
 };
@@ -742,7 +742,8 @@ OverlapManagerDEC::computeOwnership()
 /*********************************************************************
  * Restreindre un maillage
  *********************************************************************/
-ParaMESH *OverlapManagerDEC::restrict(const MEDCouplingMesh *mesh) const
+ParaMESH *
+OverlapManagerDEC::restrictMesh(const MEDCouplingMesh *mesh) const
 {
     ParaMESH *paramesh = new ParaMESH(
         static_cast<MEDCouplingPointSet *>(const_cast<MEDCouplingMesh *>(mesh)), *_local_group, mesh->getName()
@@ -753,7 +754,8 @@ ParaMESH *OverlapManagerDEC::restrict(const MEDCouplingMesh *mesh) const
 /*********************************************************************
  * Restreindre un ParaFIELD
  *********************************************************************/
-ParaFIELD *OverlapManagerDEC::restrict(const ParaFIELD *pfield) const
+ParaFIELD *
+OverlapManagerDEC::restrictField(const ParaFIELD *pfield) const
 {
     MEDCouplingFieldDouble *field = _originalField->getField();
 
@@ -772,7 +774,7 @@ ParaFIELD *OverlapManagerDEC::restrict(const ParaFIELD *pfield) const
                   << ", after = " << field_res->getNumberOfValues() << std::endl;
     }
 
-    ParaMESH *pmesh_res = this->restrict(field_res->getMesh());
+    ParaMESH *pmesh_res = this->restrictMesh(field_res->getMesh());
 
     ParaFIELD *pfield_res = new ParaFIELD(field_res, pmesh_res, *_local_group);
     pfield_res->setOwnSupport(true);
