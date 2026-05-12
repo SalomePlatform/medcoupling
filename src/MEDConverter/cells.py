@@ -678,10 +678,10 @@ class CellsTypeConverter:
             # SOLID291
             ("291_10", "TETRA10"),
             # PLANE292
-            ("292_3", "TRIA3"),
+            ("292_3", "TRI3"),
             ("292_4", "QUAD4"),
             # PLANE293
-            ("292_6", "TRIA6"),
+            ("292_6", "TRI6"),
             ("292_8", "QUAD8"),
         )
     )

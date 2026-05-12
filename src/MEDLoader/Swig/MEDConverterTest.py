@@ -1706,7 +1706,7 @@ FIN
         )
         self.assertSequenceEqual(grps, grps_ref)
 
-    def tessCDB(self):
+    def testCDB(self):
         """
         Non regression test to fix
         """
