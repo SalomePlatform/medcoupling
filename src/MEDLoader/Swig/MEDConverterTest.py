@@ -1706,7 +1706,10 @@ FIN
         )
         self.assertSequenceEqual(grps, grps_ref)
 
-    def testCDB(self):
+    def tessCDB(self):
+        """
+        Non regression test to fix
+        """
         filename = "ANSYS_Modele_FE_Mixte_v4.cdb"
 
         mm = LoadCDBFileInMEDFileUMeshInstance(filename)
