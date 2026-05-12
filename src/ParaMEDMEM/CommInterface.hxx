@@ -425,10 +425,16 @@ class CommInterface
         }
     }
 
+    /*!
+    Warning array is expected to have nbCompo = 1
+
+    \return nb procs in \a comm
+     */
     template <class T>
-    int allGatherArraysT(
+    int allGatherArraysTT(
         MPI_Comm comm,
-        const typename Traits<T>::ArrayType *array,
+        const T *array,
+        mcIdType arraySz,
         std::unique_ptr<T[]> &result,
         std::unique_ptr<mcIdType[]> &resultIndex
     ) const
@@ -436,15 +442,14 @@ class CommInterface
         int size;
         this->commSize(comm, &size);
         std::unique_ptr<mcIdType[]> nbOfElems(new mcIdType[size]);
-        mcIdType nbOfCellsRequested(array->getNumberOfTuples());
-        this->allGather(&nbOfCellsRequested, 1, MPI_ID_TYPE, nbOfElems.get(), 1, MPI_ID_TYPE, comm);
+        this->allGather(&arraySz, 1, MPI_ID_TYPE, nbOfElems.get(), 1, MPI_ID_TYPE, comm);
         mcIdType nbOfCellIdsSum(std::accumulate(nbOfElems.get(), nbOfElems.get() + size, 0));
         result.reset(new T[nbOfCellIdsSum]);
         std::unique_ptr<int[]> nbOfElemsInt(CommInterface::ToIntArray<mcIdType>(nbOfElems, size));
         std::unique_ptr<int[]> offsetsIn(CommInterface::ComputeOffset(nbOfElemsInt, size));
         this->allGatherV(
-            array->begin(),
-            FromIdType<int>(nbOfCellsRequested),
+            array,
+            FromIdType<int>(arraySz),
             ParaTraits<T>::MPIDataType,
             result.get(),
             nbOfElemsInt.get(),
@@ -456,6 +461,25 @@ class CommInterface
         return size;
     }
 
+    /*!
+    Warning array is expected to have nbCompo = 1
+
+    \return nb procs in \a comm
+     */
+    template <class T>
+    int allGatherArraysT(
+        MPI_Comm comm,
+        const typename Traits<T>::ArrayType *array,
+        std::unique_ptr<T[]> &result,
+        std::unique_ptr<mcIdType[]> &resultIndex
+    ) const
+    {
+        return this->allGatherArraysTT<T>(comm, array->begin(), array->getNumberOfTuples(), result, resultIndex);
+    }
+
+    /*!
+    Warning array is expected to have nbCompo = 1
+     */
     template <class T>
     void allGatherArraysT2(
         MPI_Comm comm,

@@ -167,6 +167,8 @@ install(
         test_CFEMDEC_2_pres_0.med
         test_CFEMDEC_2_pres_1.med
         test_CFEMDEC.med
+        test_CFEMDEC_3.py
+        test_CFEMDEC_4.py
   DESTINATION ${TEST_INSTALL_DIRECTORY})
 
 install(FILES ParaMEDMEMFinalize.py DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})

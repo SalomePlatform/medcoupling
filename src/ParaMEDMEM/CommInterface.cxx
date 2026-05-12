@@ -37,7 +37,9 @@ CommInterface::gatherArrays(
 
 /*!
  * Generalized AllGather collective communication.
+ *
  * This method send input \a array to all procs.
+ *  \warning \a array is expected to be one compo array
  */
 void
 CommInterface::allGatherArrays(

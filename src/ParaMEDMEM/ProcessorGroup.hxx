@@ -17,12 +17,12 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __PROCESSORGROUP_HXX__
-#define __PROCESSORGROUP_HXX__
+#pragma once
 
 #include "CommInterface.hxx"
 
 #include <set>
+#include <vector>
 
 namespace MEDCoupling
 {
@@ -39,6 +39,7 @@ class ProcessorGroup
         : _comm_interface(interface), _proc_ids(proc_ids)
     {
     }
+    ProcessorGroup(const CommInterface &interface, const std::vector<int> &proc_ids);
     ProcessorGroup(const ProcessorGroup &proc_group, std::set<int> proc_ids)
         : _comm_interface(proc_group.getCommInterface()), _proc_ids(proc_ids)
     {
@@ -58,6 +59,7 @@ class ProcessorGroup
     virtual ~ProcessorGroup() {}
     virtual ProcessorGroup *deepCopy() const = 0;
     virtual ProcessorGroup *fuse(const ProcessorGroup &) const = 0;
+    virtual ProcessorGroup *fuseNotOrdered(const ProcessorGroup &) const = 0;
     virtual void intersect(ProcessorGroup &) = 0;
     bool contains(int rank) const { return _proc_ids.find(rank) != _proc_ids.end(); }
     virtual bool containsMyRank() const = 0;
@@ -79,5 +81,3 @@ class ProcessorGroup
     std::set<int> _proc_ids;
 };
 }  // namespace MEDCoupling
-
-#endif

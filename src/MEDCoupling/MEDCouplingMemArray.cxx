@@ -20,7 +20,8 @@
 
 #include "MEDCouplingMemArray.txx"
 
-#include "BBTree.txx"
+#include "BBTreeClosest.txx"
+#include "InterpKernelBBoxDistance.txx"
 #include "GenMathFormulae.hxx"
 #include "InterpKernelAutoPtr.hxx"
 #include "InterpKernelExprParser.hxx"
@@ -1390,6 +1391,17 @@ DataArrayDouble::findClosestTupleId(const DataArrayDouble *other) const
     return ret.retn();
 }
 
+template <int spaceDim>
+inline void
+ComputeNbOfInteractionsWithInternal(
+    mcIdType *retPtr, mcIdType nbOfTuples, const double *thisBBPtr, const DataArrayDouble *otherBBoxFrmt, double eps
+)
+{
+    BBTree<spaceDim, mcIdType> bbt(otherBBoxFrmt->begin(), 0, 0, otherBBoxFrmt->getNumberOfTuples(), eps);
+    for (mcIdType i = 0; i < nbOfTuples; i++, retPtr++, thisBBPtr += 2 * spaceDim)
+        *retPtr = bbt.getNbOfIntersectingElems(thisBBPtr);
+}
+
 /*!
  * This method expects that \a this and \a otherBBoxFrmt arrays are bounding box arrays ( as the output of
  * MEDCouplingPointSet::getBoundingBoxForBBTree method ). This method will return a DataArrayInt array having the same
@@ -1437,23 +1449,17 @@ DataArrayDouble::computeNbOfInteractionsWith(const DataArrayDouble *otherBBoxFrm
     {
         case 3:
         {
-            BBTree<3, mcIdType> bbt(otherBBoxFrmt->begin(), 0, 0, otherBBoxFrmt->getNumberOfTuples(), eps);
-            for (mcIdType i = 0; i < nbOfTuples; i++, retPtr++, thisBBPtr += nbOfComp)
-                *retPtr = bbt.getNbOfIntersectingElems(thisBBPtr);
+            ComputeNbOfInteractionsWithInternal<3>(retPtr, nbOfTuples, thisBBPtr, otherBBoxFrmt, eps);
             break;
         }
         case 2:
         {
-            BBTree<2, mcIdType> bbt(otherBBoxFrmt->begin(), 0, 0, otherBBoxFrmt->getNumberOfTuples(), eps);
-            for (mcIdType i = 0; i < nbOfTuples; i++, retPtr++, thisBBPtr += nbOfComp)
-                *retPtr = bbt.getNbOfIntersectingElems(thisBBPtr);
+            ComputeNbOfInteractionsWithInternal<2>(retPtr, nbOfTuples, thisBBPtr, otherBBoxFrmt, eps);
             break;
         }
         case 1:
         {
-            BBTree<1, mcIdType> bbt(otherBBoxFrmt->begin(), 0, 0, otherBBoxFrmt->getNumberOfTuples(), eps);
-            for (mcIdType i = 0; i < nbOfTuples; i++, retPtr++, thisBBPtr += nbOfComp)
-                *retPtr = bbt.getNbOfIntersectingElems(thisBBPtr);
+            ComputeNbOfInteractionsWithInternal<1>(retPtr, nbOfTuples, thisBBPtr, otherBBoxFrmt, eps);
             break;
         }
         default:
@@ -1955,6 +1961,91 @@ DataArrayDouble::distanceToTuple(const double *tupleBg, const double *tupleEnd, 
         }
     }
     return sqrt(ret0);
+}
+
+template <int spaceDim>
+void
+CandidatesClosestToInternal(
+    const double *ptPtr,
+    mcIdType nbPts,
+    const double *bboxPtr,
+    mcIdType nbCells,
+    MCAuto<DataArrayIdType> &tuples,
+    MCAuto<DataArrayIdType> &tuplesIndex
+)
+{
+    BBTreeClosest<spaceDim, mcIdType> myTree(bboxPtr, nullptr, 0, nbCells);
+    tuplesIndex = DataArrayIdType::New();
+    tuplesIndex->alloc(nbPts + 1);
+    tuples = DataArrayIdType::New();
+    tuples->alloc(0);
+    mcIdType *tuplesIndexPtr(tuplesIndex->getPointer());
+    tuplesIndexPtr[0] = 0;
+    auto BackInserter = [&tuples](mcIdType v) { tuples->pushBackSilent(v); };
+    for (mcIdType iPt = 0; iPt < nbPts; ++iPt)
+    {
+        double minOfMaxes(myTree.getMinOfMaxes(ptPtr + spaceDim * iPt));
+        minOfMaxes = myTree.refineMax(ptPtr + spaceDim * iPt, minOfMaxes);
+        myTree.filter(minOfMaxes, BackInserter);
+        tuplesIndexPtr[1] = tuples->getNumberOfTuples();
+        ++tuplesIndexPtr;
+    }
+}
+
+/*!
+ * This method find for each tuple in \a this candidates in \a bboxes closest to it. \a bboxes is expected to be in a
+ * minmax like format storing bboxes (see MEDCouplingPointSet::getBoundingBoxForBBTree) Number of components of \a
+ * bboxes is expected to be equal to 2 * this->getNumberOfComponents. This method is expected to be fast and returns
+ * candidates by cuting off bboxes.
+ *
+ * \param [out] tuples are ids in bboxes
+ * \param [out] tuplesIndex indexes to point into \a tuples
+ *
+ * \sa DataArrayDouble::distanceToTuple, DataArrayDouble::findClosestTupleId, MEDCouplingCMesh.ComputeBinsOfCells
+ */
+void
+DataArrayDouble::candidatesClosestTo(
+    const DataArrayDouble *bboxes, MCAuto<DataArrayIdType> &tuples, MCAuto<DataArrayIdType> &tuplesIndex
+) const
+{
+    if (!bboxes)
+    {
+        THROW_IK_EXCEPTION("Input bboxes is nullptr !");
+    }
+    checkAllocated();
+    mcIdType nbCompo(this->getNumberOfComponents());
+    bboxes->checkNbOfComps(2 * nbCompo, "bboxes number of components is expected to be equal to this * 2 !");
+    //
+    mcIdType nbCells(bboxes->getNumberOfTuples());
+    const double *bboxPtr(bboxes->begin());
+    switch (nbCompo)
+    {
+        case 3:
+        {
+            CandidatesClosestToInternal<3>(
+                this->begin(), this->getNumberOfTuples(), bboxPtr, nbCells, tuples, tuplesIndex
+            );
+            break;
+        }
+        case 2:
+        {
+            CandidatesClosestToInternal<2>(
+                this->begin(), this->getNumberOfTuples(), bboxPtr, nbCells, tuples, tuplesIndex
+            );
+            break;
+        }
+        case 1:
+        {
+            CandidatesClosestToInternal<1>(
+                this->begin(), this->getNumberOfTuples(), bboxPtr, nbCells, tuples, tuplesIndex
+            );
+            break;
+        }
+        default:
+        {
+            THROW_IK_EXCEPTION("Only 3D, 2D and 1D are managed for candidatesClosestTo");
+        }
+    }
 }
 
 /*!

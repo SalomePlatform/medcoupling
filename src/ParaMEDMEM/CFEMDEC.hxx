@@ -27,6 +27,8 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MCAuto.hxx"
 
+#include "BBTreeClosest.txx"
+
 #include <map>
 #include <memory>
 #include <vector>
@@ -41,7 +43,7 @@ class CFEMDECAccessToMaster
 {
    public:
     CFEMDECAccessToMaster(CFEMDEC *master) : _master(master) {}
-    MPIProcessorGroup *getUnionGrp() const;
+    virtual MPIProcessorGroup *getUnionGrp() const = 0;
     virtual MPIProcessorGroup *getSourceGrp() const = 0;
     virtual MPIProcessorGroup *getTargetGrp() const = 0;
 
@@ -53,6 +55,7 @@ class CFEMDECDirectAccess : public CFEMDECAccessToMaster
 {
    public:
     CFEMDECDirectAccess(CFEMDEC *master) : CFEMDECAccessToMaster(master) {}
+    MPIProcessorGroup *getUnionGrp() const override;
     MPIProcessorGroup *getSourceGrp() const override;
     MPIProcessorGroup *getTargetGrp() const override;
 };
@@ -61,6 +64,7 @@ class CFEMDECReverseAccess : public CFEMDECAccessToMaster
 {
    public:
     CFEMDECReverseAccess(CFEMDEC *master) : CFEMDECAccessToMaster(master) {}
+    MPIProcessorGroup *getUnionGrp() const override;
     MPIProcessorGroup *getSourceGrp() const override;
     MPIProcessorGroup *getTargetGrp() const override;
 };
@@ -76,20 +80,28 @@ class CFEMDECOneWay : public INTERP_KERNEL::InterpolationOptions
     //
     MPIProcessorGroup *getSourceGrp() const;
     MPIProcessorGroup *getTargetGrp() const;
+    MPIProcessorGroup *getUnionGrp() const;
     //
     void smartSynchronize();
     //
     virtual void sendToTarget(MEDCouplingFieldDouble *srcFieldOnLocal) = 0;
     virtual MCAuto<MEDCouplingFieldDouble> receiveFromSource() = 0;
     virtual void computeMatrix(
-        const std::vector<MCAuto<MEDCouplingUMesh> > &srcMeshes,
-        const std::vector<MCAuto<DataArrayIdType> > &srcGlobalNodeIds
+        const std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes,
+        const std::vector<MCAuto<DataArrayIdType>> &srcGlobalNodeIds
     ) = 0;
 
-   private:
+   protected:
     MCAuto<MEDCouplingUMesh> getLocalMesh() const;
+    MCAuto<DataArrayIdType> getGlobalNodeIdsOnLocalMesh() const;
+
+   private:
     bool isMatrixToRecompute();
     void synchronize();
+    void dispatchMeshParts(
+        std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes, std::vector<MCAuto<DataArrayIdType>> &srcGlobalNodeIds
+    );
+    void checkSameSpaceDim();
 
    protected:
     std::unique_ptr<CFEMDECAccessToMaster> _to_master;
@@ -107,14 +119,35 @@ class CFEMDECOneWaySource : public CFEMDECOneWay
     void sendToTarget(MEDCouplingFieldDouble *srcFieldOnLocal) override;
     MCAuto<MEDCouplingFieldDouble> receiveFromSource() override { return MCAuto<MEDCouplingFieldDouble>(); }
     void computeMatrix(
-        const std::vector<MCAuto<MEDCouplingUMesh> > &srcMeshes,
-        const std::vector<MCAuto<DataArrayIdType> > &srcGlobalNodeIds
+        const std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes,
+        const std::vector<MCAuto<DataArrayIdType>> &srcGlobalNodeIds
     ) override
     {
     }
 
+   public:
+    static MCAuto<MEDCouplingUMesh> ReduceMesh(
+        const MEDCouplingUMesh *mesh,
+        const DataArrayIdType *globalNodeIds,
+        const mcIdType *bg,
+        const mcIdType *end,
+        MCAuto<DataArrayIdType> &globalNodeIdsOut
+    );
+
+    template <int spaceDim>
+    void dispatchMeshPartsSrcOnly(
+        MPIProcessorGroup *unionGrp,
+        const MEDCouplingUMesh *mesh,
+        const DataArrayIdType *glblNodeIds,
+        const BBTreeClosest<spaceDim, mcIdType> &myTreeBase,
+        const std::vector<BBTreeClosest<spaceDim, mcIdType>> &ret
+    );
+
    private:
     void checkMesh(MEDCouplingFieldDouble *field);
+
+   private:
+    std::vector<MCAuto<DataArrayIdType>> _glb_nodes_in_whole_per_trg;
 };
 
 class CFEMDECOneWayTarget : public CFEMDECOneWay
@@ -128,22 +161,36 @@ class CFEMDECOneWayTarget : public CFEMDECOneWay
     void sendToTarget(MEDCouplingFieldDouble *srcFieldOnLocal) override {}
     MCAuto<MEDCouplingFieldDouble> receiveFromSource() override;
     void computeMatrix(
-        const std::vector<MCAuto<MEDCouplingUMesh> > &srcMeshes,
-        const std::vector<MCAuto<DataArrayIdType> > &srcGlobalNodeIds
+        const std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes,
+        const std::vector<MCAuto<DataArrayIdType>> &srcGlobalNodeIds
     ) override;
+
+   public:
+    void dispatchMeshPartsTrgOnly(
+        int spaceDim,
+        MPIProcessorGroup *unionGrp,
+        const MEDCouplingUMesh *mesh,
+        std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes /*output */,
+        std::vector<MCAuto<DataArrayIdType>> &srcGlobalNodeIds /*output */
+    );
 
    private:
     mcIdType _nb_nodes_src_mesh = 0;
-    std::vector<MCAuto<DataArrayIdType> > _src_rank_of_nodes_in_whole;
-    std::vector<std::map<mcIdType, double> > _matrix;
+    std::vector<MCAuto<DataArrayIdType>> _src_rank_of_nodes_in_whole;
+    std::vector<std::map<mcIdType, double>> _matrix;
 };
 
+/*!
+ * EDF34966
+ */
 class CFEMDEC : public DisjointDECAbstract, public INTERP_KERNEL::InterpolationOptions
 {
    public:
     CFEMDEC() {}
     CFEMDEC(ProcessorGroup &source_group, ProcessorGroup &target_group);
     CFEMDEC(const std::set<int> &src_ids, const std::set<int> &trg_ids, const MPI_Comm &world_comm = MPI_COMM_WORLD);
+    //
+    ProcessorGroup *getReverseUnionGrp() const;
     //
     void attachLocalMesh(MEDCouplingUMesh *mesh, DataArrayIdType *globalNodeIds);
     MCAuto<MEDCouplingUMesh> getLocalMesh() const { return _local_mesh; }
@@ -175,6 +222,8 @@ class CFEMDEC : public DisjointDECAbstract, public INTERP_KERNEL::InterpolationO
     MCAuto<DataArrayIdType> _global_node_ids;
     std::unique_ptr<CFEMDECOneWay> _engine;
     std::unique_ptr<CFEMDECOneWay> _reverse_engine;
+    //! Mirror of DisjointDECAbstract::_union_group
+    mutable std::unique_ptr<ProcessorGroup> _reverse_union_group;
 };
 
 }  // namespace MEDCoupling

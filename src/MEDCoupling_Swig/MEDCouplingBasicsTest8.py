@@ -350,6 +350,50 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
         self.assertTrue( b.isEqual( mc.DataArrayInt([0]) ) )
         # fmt: on
 
+    def testDADoubleCandidatesClosestTo(self):
+        """
+        [EDF34966] : Useful method to find cells candidates close to point
+        """
+        from math import pi
+
+        nbPtsMesh = 10
+        arr = mc.DataArrayDouble(nbPtsMesh)
+        arr.iota()
+        arr *= 1 / float(nbPtsMesh)
+        mesh = mc.MEDCouplingCMesh()
+        mesh.setCoords(arr, arr, arr)
+        mesh = mesh.buildUnstructured()
+        mesh.rotate([0, 0, 0], [1, 0, 0], pi / 4)
+        mesh.rotate([0, 0, 0], [0, 0, 1], pi / 4)
+        bbox = mesh.getBoundingBoxForBBTree()
+        #
+        bins = mc.MEDCouplingCMesh.ComputeBinsOfCells(bbox)  # here only to ease debug
+        self.assertTrue(bins.getNumberOfCells() < mesh.getNumberOfCells() // 10)
+        #
+        nbOfPts = 8
+
+        def generate(nbOfPts: int):
+            nbPtsGrid = int(float(nbOfPts) ** (1 / 3))
+            arr = mc.DataArrayDouble(nbPtsGrid)
+            arr.iota()
+            arr *= 10 / float(nbPtsGrid)
+            pts = mc.MEDCouplingCMesh()
+            pts.setCoords(arr, arr, arr)
+            pts = pts.buildUnstructured().getCoords()
+            return pts
+
+        pts = generate(nbOfPts)
+
+        c, ci = pts.candidatesClosestTo(bbox)
+
+        comass = mesh.computeCellCenterOfMass()
+
+        # check that among candidates returned there is those whose center of mass is closer.
+        for i in range(pts.getNumberOfTuples()):
+            _, pos = (comass - pts[i]).magnitude().getMinValue()
+            self.assertTrue(pos in c[ci[i] : ci[i + 1]])
+        pass
+
 
 if __name__ == "__main__":
     unittest.main()

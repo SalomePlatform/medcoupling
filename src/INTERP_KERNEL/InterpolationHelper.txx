@@ -29,9 +29,9 @@
 
 namespace INTERP_KERNEL
 {
-template <class MyMeshType, int dim = 3>
-BBTreeStandAlone<dim, typename MyMeshType::MyConnType>
-BuildBBTreeWithAdjustment(
+template <class MyMeshType, int dim, class BBTreeStandAloneClass>
+BBTreeStandAloneClass
+BuildBBTreeWithAdjustmentGen(
     const MyMeshType &srcMesh, std::function<void(double *, typename MyMeshType::MyConnType)> bboxAdjuster
 )
 {
@@ -50,13 +50,35 @@ BuildBBTreeWithAdjustment(
         box->fillInXMinXmaxYminYmaxZminZmaxFormat(bboxes.get() + 2 * dim * i);
     }
     bboxAdjuster(bboxes.get(), nbElts);
-    return BBTreeStandAlone<dim, ConnType>(std::move(bboxes), numSrcElems);
+    return BBTreeStandAloneClass(std::move(bboxes), numSrcElems);
+}
+
+template <class MyMeshType, int dim = 3>
+BBTreeStandAlone<dim, typename MyMeshType::MyConnType>
+BuildBBTreeWithAdjustment(
+    const MyMeshType &srcMesh, std::function<void(double *, typename MyMeshType::MyConnType)> bboxAdjuster
+)
+{
+    return BuildBBTreeWithAdjustmentGen<MyMeshType, dim, BBTreeStandAlone<dim, typename MyMeshType::MyConnType>>(
+        srcMesh, bboxAdjuster
+    );
 }
 
 template <class MyMeshType, int dim = 3>
 BBTreeStandAlone<dim, typename MyMeshType::MyConnType>
 BuildBBTree(const MyMeshType &srcMesh)
 {
-    return BuildBBTreeWithAdjustment<MyMeshType, dim>(srcMesh, [](double *, typename MyMeshType::MyConnType) {});
+    return BuildBBTreeWithAdjustmentGen<MyMeshType, dim, BBTreeStandAlone<dim, typename MyMeshType::MyConnType>>(
+        srcMesh, [](double *, typename MyMeshType::MyConnType) {}
+    );
+}
+
+template <class MyMeshType, int dim = 3>
+BBTreeClosestStandAlone<dim, typename MyMeshType::MyConnType>
+BuildBBTreeClosest(const MyMeshType &srcMesh)
+{
+    return BuildBBTreeWithAdjustmentGen<MyMeshType, dim, BBTreeClosestStandAlone<dim, typename MyMeshType::MyConnType>>(
+        srcMesh, [](double *, typename MyMeshType::MyConnType) {}
+    );
 }
 }  // namespace INTERP_KERNEL

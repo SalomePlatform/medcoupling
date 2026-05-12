@@ -681,6 +681,9 @@ class MEDCOUPLING_EXPORT DataArrayDouble : public DataArrayTemplateFP<double>
     DataArrayDouble *accumulatePerChunck(const mcIdType *bgOfIndex, const mcIdType *endOfIndex) const;
     MCAuto<DataArrayDouble> cumSum() const;
     double distanceToTuple(const double *tupleBg, const double *tupleEnd, mcIdType &tupleId) const;
+    void candidatesClosestTo(
+        const DataArrayDouble *bboxes, MCAuto<DataArrayIdType> &tuples, MCAuto<DataArrayIdType> &tuplesIndex
+    ) const;
     DataArrayDouble *fromPolarToCart() const;
     DataArrayDouble *fromCylToCart() const;
     DataArrayDouble *fromSpherToCart() const;

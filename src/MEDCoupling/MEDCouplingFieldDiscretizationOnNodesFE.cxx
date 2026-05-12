@@ -670,9 +670,10 @@ MEDCouplingFieldDiscretizationOnNodesFE::GetClosestRefCoordOfListOfNDPtsInND(
         THROW_IK_EXCEPTION("GetClosestRefCoordOfListOfNDPtsInND : mesh and parameter have a different dimension !")
     }
     MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, SPACEDIM - 1> mesh_wrapper(umesh);
-    auto tree = INTERP_KERNEL::BuildBBTree<MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, SPACEDIM - 1>, SPACEDIM>(
-        mesh_wrapper
-    );
+    auto tree =
+        INTERP_KERNEL::BuildBBTreeClosest<MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, SPACEDIM - 1>, SPACEDIM>(
+            mesh_wrapper
+        );
     for (mcIdType iPt = 0; iPt < nbOfPts; ++iPt)
     {
         const std::vector<double> gsCoo(ptsCoo + iPt * SPACEDIM, ptsCoo + (iPt + 1) * SPACEDIM);
@@ -699,11 +700,10 @@ MEDCouplingFieldDiscretizationOnNodesFE::GetClosestRefCoordOfListOf1PtInND(
     MEDCouplingGaussLocalization gl_min_b(INTERP_KERNEL::NORM_SEG2);
     mcIdType cell_id, cell_id_b;
 
-    // EDF31461 : TODO : An algorithm could be implemented to automatically reduce number of candidates.
-    // std::vector<mcIdType> elems;
-    // tree.getElementsAroundPoint(ptCoor.data(), elems);
-    // for (mcIdType cellId : elems)
-    for (mcIdType cellId = 0; cellId < umesh->getNumberOfCells(); ++cellId)
+    // EDF31461, EDF34966 : reduce candidates
+    std::vector<mcIdType> elems;
+    tree.getClosestCandidates(ptCoor.data(), elems);
+    for (mcIdType cellId : elems)
     {
         INTERP_KERNEL::NormalizedCellType gt(umesh->getTypeOfCell(cellId));
         std::vector<mcIdType> conn;
@@ -953,6 +953,10 @@ MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrixNd(
         auto tree = INTERP_KERNEL::BuildBBTree<MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, SPACEDIM>, SPACEDIM>(
             mesh_wrapper
         );
+        auto treeClosest =
+            INTERP_KERNEL::BuildBBTreeClosest<MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, SPACEDIM>, SPACEDIM>(
+                mesh_wrapper
+            );
 
         MEDCouplingUMesh *srcSkinMesh = nullptr;
         if (projOnSurf)
@@ -973,7 +977,7 @@ MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrixNd(
                 {
                     try
                     {
-                        GetClosestRefCoordOfListOf1PtInND(srcSkinMesh, tree, gsCoo, matrixFeeder, dist_max);
+                        GetClosestRefCoordOfListOf1PtInND(srcSkinMesh, treeClosest, gsCoo, matrixFeeder, dist_max);
                     }
                     catch (INTERP_KERNEL::Exception & /*e*/)
                     {
@@ -1000,15 +1004,16 @@ MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrixNd(
     {
         // Compute bounding box
         MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, SPACEDIM - 1> mesh_wrapper(srcMesh);
-        auto tree = INTERP_KERNEL::BuildBBTree<MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, SPACEDIM - 1>, SPACEDIM>(
-            mesh_wrapper
-        );
+        auto treeClosest =
+            INTERP_KERNEL::BuildBBTreeClosest<MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, SPACEDIM - 1>, SPACEDIM>(
+                mesh_wrapper
+            );
         for (mcIdType iPt = 0; iPt < nbOfPts; ++iPt)
         {
             const std::vector<double> gsCoo(ptsCoo + iPt * SPACEDIM, ptsCoo + (iPt + 1) * SPACEDIM);
             try
             {
-                GetClosestRefCoordOfListOf1PtInND(srcMesh, tree, gsCoo, matrixFeeder, dist_max);
+                GetClosestRefCoordOfListOf1PtInND(srcMesh, treeClosest, gsCoo, matrixFeeder, dist_max);
             }
             catch (INTERP_KERNEL::Exception & /*e*/)
             {

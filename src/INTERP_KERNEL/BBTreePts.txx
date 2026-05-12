@@ -16,12 +16,13 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#ifndef __BBTREEPTS_TXX__
-#define __BBTREEPTS_TXX__
+
+#pragma once
 
 #include <vector>
 #include <algorithm>
 
+#include <memory>
 #include <iostream>
 #include <limits>
 #include <cmath>
@@ -65,36 +66,38 @@ class BBTreePts
       \endcode
     */
     BBTreePts(const double *pts, const ConnType *elems, int level, ConnType nbelems, double epsilon = 1e-12)
-        : _left(0),
-          _right(0),
+        : _left(nullptr),
+          _right(nullptr),
           _level(level),
           _pts(pts),
           _terminal(nbelems < MIN_NB_ELEMS || level > MAX_LEVEL),
           _nbelems(nbelems),
           _epsilon(std::abs(epsilon))
     {
-        double *nodes = new double[nbelems];
-        _elems.resize(nbelems);
-        for (ConnType i = 0; i < nbelems; i++)
+        double median(std::numeric_limits<double>::max());
         {
-            ConnType elem;
-            if (elems != 0)
-                elem = elems[i];
-            else
-                elem = i;
+            std::unique_ptr<double[]> nodes(new double[nbelems]);
+            _elems.resize(nbelems);
+            for (ConnType i = 0; i < nbelems; i++)
+            {
+                ConnType elem;
+                if (elems != 0)
+                    elem = elems[i];
+                else
+                    elem = i;
 
-            _elems[i] = elem;
-            nodes[i] = pts[elem * dim + (level % dim)];
+                _elems[i] = elem;
+                nodes[i] = pts[elem * dim + (level % dim)];
+            }
+            if (_terminal)
+            {
+                return;
+            }
+            _elems.clear();
+            //
+            std::nth_element<double *>(nodes.get(), nodes.get() + nbelems / 2, nodes.get() + nbelems);
+            median = *(nodes.get() + nbelems / 2);
         }
-        if (_terminal)
-        {
-            delete[] nodes;
-            return;
-        }
-        //
-        std::nth_element<double *>(nodes, nodes + nbelems / 2, nodes + nbelems);
-        double median = *(nodes + nbelems / 2);
-        delete[] nodes;
         std::vector<ConnType> new_elems_left, new_elems_right;
 
         new_elems_left.reserve(nbelems / 2 + 1);
@@ -124,14 +127,13 @@ class BBTreePts
         }
         _max_left = max_left + _epsilon;
         _min_right = min_right - _epsilon;
-        ConnType *tmp;
-        tmp = 0;
+        ConnType *tmp(nullptr);
         if (!new_elems_left.empty())
-            tmp = &(new_elems_left[0]);
+            tmp = new_elems_left.data();
         _left = new BBTreePts(pts, tmp, level + 1, (ConnType)new_elems_left.size(), _epsilon);
-        tmp = 0;
+        tmp = nullptr;
         if (!new_elems_right.empty())
-            tmp = &(new_elems_right[0]);
+            tmp = new_elems_right.data();
         _right = new BBTreePts(pts, tmp, level + 1, (ConnType)new_elems_right.size(), _epsilon);
     }
 
@@ -237,5 +239,3 @@ class BBTreePts
         return _left->size() + _right->size();
     }
 };
-
-#endif

@@ -28,4 +28,11 @@ ProcessorGroup::ProcessorGroup(const CommInterface &interface, int start, int en
         throw INTERP_KERNEL::Exception("wrong call to Processor group constructor");
     for (int i = start; i <= end; i++) _proc_ids.insert(i);
 }
+
+ProcessorGroup::ProcessorGroup(const CommInterface &interface, const std::vector<int> &proc_ids)
+    : _comm_interface(interface)
+{
+    _proc_ids.insert(proc_ids.cbegin(), proc_ids.cend());
+}
+
 }  // namespace MEDCoupling

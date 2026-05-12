@@ -17,8 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __MPIPROCESSORGROUP_HXX__
-#define __MPIPROCESSORGROUP_HXX__
+#pragma once
 
 #include "ProcessorGroup.hxx"
 
@@ -37,6 +36,9 @@ class MPIProcessorGroup : public ProcessorGroup
         const CommInterface &interface, std::set<int> proc_ids, const MPI_Comm &world_comm = MPI_COMM_WORLD
     );
     MPIProcessorGroup(
+        const CommInterface &interface, const std::vector<int> &proc_ids, const MPI_Comm &world_comm = MPI_COMM_WORLD
+    );
+    MPIProcessorGroup(
         const CommInterface &interface,
         std::map<std::string, std::set<int>> proc_ids_by_name,
         const std::string &simCodeTag,
@@ -52,6 +54,7 @@ class MPIProcessorGroup : public ProcessorGroup
 
     MPIProcessorGroup *deepCopy() const override;
     ProcessorGroup *fuse(const ProcessorGroup &) const override;
+    ProcessorGroup *fuseNotOrdered(const ProcessorGroup &) const override;
     void intersect(ProcessorGroup &) override {}
     int myRank() const override;
     bool containsMyRank() const override
@@ -77,5 +80,3 @@ class MPIProcessorGroup : public ProcessorGroup
     MPI_Comm _comm;
 };
 }  // namespace MEDCoupling
-
-#endif

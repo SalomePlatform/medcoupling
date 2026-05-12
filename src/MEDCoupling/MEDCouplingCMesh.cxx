@@ -22,8 +22,10 @@
 #include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingCurveLinearMesh.hxx"
+#include "MEDCoupling1GTUMesh.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
+#include "BBTreeClosest.txx"
 
 #include <functional>
 #include <algorithm>
@@ -862,6 +864,120 @@ void
 MEDCouplingCMesh::renumberCells(const mcIdType *old2NewBg, bool check)
 {
     throw INTERP_KERNEL::Exception("Functionality of renumbering cell not available for CMesh !");
+}
+
+namespace
+{
+template <int dim, class ConnType>
+class BBTreeTerminalVertex
+{
+   private:
+    BBTreeClosestCompact<dim, ConnType> *_terminal = nullptr;
+
+   public:
+    BBTreeTerminalVertex(BBTreeClosestCompact<dim, ConnType> *vertex) : _terminal(vertex) {}
+    const std::array<double, 2 * dim> &getBoundary() const { return _terminal->getBBox(); }
+};
+}  // namespace
+
+template <int spaceDim>
+MCAuto<MEDCoupling1SGTUMesh>
+ComputeBinsOfCellsInternal(const DataArrayDouble *bboxes)
+{
+    mcIdType nbCells(bboxes->getNumberOfTuples());
+    const double *cooPtr(bboxes->begin());
+    BBTreeClosest<spaceDim, mcIdType> myTreeBase(cooPtr, nullptr, 0, nbCells);
+    using MyBBTreeTerminalVertex = BBTreeTerminalVertex<spaceDim, mcIdType>;
+    //
+    std::vector<bool> structure;
+    std::vector<std::array<double, 2 * spaceDim> > bboxData;
+    myTreeBase.serializeCompact(structure, bboxData);
+    BBTreeClosestCompact<spaceDim, mcIdType> myTree(
+        BBTreeClosestCompact<spaceDim, mcIdType>::Deserialize(structure, bboxData)
+    );
+    //
+    std::vector<MyBBTreeTerminalVertex> container;
+    myTree.walk(container);
+    std::size_t nbOfCellsOut(container.size());
+    MCAuto<DataArrayDouble> coo(DataArrayDouble::New());
+    INTERP_KERNEL::NormalizedCellType gt(MEDCouplingStructuredMesh::GetGeoTypeGivenMeshDimension(spaceDim));
+    const INTERP_KERNEL::CellModel &cm(INTERP_KERNEL::CellModel::GetCellModel(gt));
+    unsigned nbNodesPerCell(cm.getNumberOfNodes());
+    coo->alloc(ToIdType(nbOfCellsOut * nbNodesPerCell), spaceDim);
+    double *outCooPtr(coo->getPointer());
+    MCAuto<DataArrayIdType> conn(DataArrayIdType::New());
+    conn->alloc(ToIdType(nbOfCellsOut * nbNodesPerCell));
+    mcIdType *connPtr(conn->getPointer());
+    mcIdType nodeSt[spaceDim];
+    std::fill(nodeSt, nodeSt + spaceDim, 2);
+    MCAuto<DataArrayIdType> connTemplate(
+        MEDCouplingStructuredMesh::Build1GTNodalConnectivity(nodeSt, nodeSt + spaceDim)
+    );
+    const mcIdType *connTemplatePtr(connTemplate->begin());
+    mcIdType tmp[spaceDim], tmp2[spaceDim];
+    {
+        mcIdType mul(1);
+        for (int i = 0; i < spaceDim; ++i)
+        {
+            tmp[i] = mul;
+            mul *= 2;
+        }
+    }
+    for (std::size_t i = 0; i < nbOfCellsOut; ++i)
+    {
+        const BBTreeTerminalVertex<spaceDim, mcIdType> &elt(container[i]);
+        const std::array<double, 2 * spaceDim> &boundary(elt.getBoundary());
+        for (unsigned j = 0; j < nbNodesPerCell; ++j)
+        {
+            MEDCouplingCMesh::GetPosFromId(j, spaceDim, tmp, tmp2);
+            for (int k = 0; k < spaceDim; ++k)
+            {
+                outCooPtr[spaceDim * (nbNodesPerCell * i + j) + k] = boundary[2 * k + tmp2[k]];
+            }
+        }
+        std::for_each(
+            connTemplatePtr,
+            connTemplatePtr + nbNodesPerCell,
+            [&connPtr, i, nbNodesPerCell](mcIdType elt) { *connPtr++ = i * nbNodesPerCell + elt; }
+        );
+    }
+    MCAuto<MEDCoupling1SGTUMesh> ret(MEDCoupling1SGTUMesh::New("", gt));
+    ret->setCoords(coo);
+    ret->setNodalConnectivity(conn);
+    return ret;
+}
+
+/*!
+ * \param in bboxes - Instance typically coming from MEDCouplingUMesh::getBoundingBoxForBBTree
+ */
+MEDCoupling1SGTUMesh *
+MEDCouplingCMesh::ComputeBinsOfCells(const DataArrayDouble *bboxes)
+{
+    if (!bboxes)
+    {
+        THROW_IK_EXCEPTION("Input DataArrayDouble must be not null");
+    }
+    int spaceDim(FromIdType<int>(bboxes->getNumberOfComponents() / 2));
+    switch (spaceDim)
+    {
+        case 3:
+        {
+            MCAuto<MEDCoupling1SGTUMesh> ret(ComputeBinsOfCellsInternal<3>(bboxes));
+            return ret.retn();
+        }
+        case 2:
+        {
+            MCAuto<MEDCoupling1SGTUMesh> ret(ComputeBinsOfCellsInternal<2>(bboxes));
+            return ret.retn();
+        }
+        case 1:
+        {
+            MCAuto<MEDCoupling1SGTUMesh> ret(ComputeBinsOfCellsInternal<1>(bboxes));
+            return ret.retn();
+        }
+        default:
+            throw INTERP_KERNEL::Exception("Unexpected spacedim of coords for computeBinsOfCells. Must be 1, 2 or 3.");
+    }
 }
 
 void

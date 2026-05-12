@@ -440,6 +440,7 @@ typedef long mcPyPtrType;
 %newobject MEDCoupling::MEDCouplingCMesh::New;
 %newobject MEDCoupling::MEDCouplingCMesh::getCoordsAt;
 %newobject MEDCoupling::MEDCouplingCMesh::buildCurveLinear;
+%newobject MEDCoupling::MEDCouplingCMesh::ComputeBinsOfCells;
 %newobject MEDCoupling::MEDCouplingIMesh::New;
 %newobject MEDCoupling::MEDCouplingIMesh::asSingleCell;
 %newobject MEDCoupling::MEDCouplingIMesh::buildWithGhost;
@@ -3664,6 +3665,7 @@ namespace MEDCoupling
                    const DataArrayDouble *coordsZ=0);
     void setCoordsAt(int i, const DataArrayDouble *arr);
     MEDCouplingCurveLinearMesh *buildCurveLinear() const;
+    static MEDCoupling1SGTUMesh *ComputeBinsOfCells( const DataArrayDouble *bboxes );
     %extend {
       MEDCouplingCMesh()
       {

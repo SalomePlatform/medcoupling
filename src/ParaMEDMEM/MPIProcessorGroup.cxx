@@ -22,10 +22,12 @@
 #include "CommInterface.hxx"
 #include "InterpolationUtils.hxx"
 
+#include "mpi.h"
+
 #include <iostream>
 #include <set>
+#include <vector>
 #include <algorithm>
-#include "mpi.h"
 
 using namespace std;
 
@@ -81,10 +83,65 @@ MPIProcessorGroup::MPIProcessorGroup(const CommInterface &interface)
   to be understood in terms of MPI_COMM_WORLD ranks.
 */
 
+namespace
+{
+void
+CreateGroup(
+    const CommInterface &commInterface,
+    const std::vector<int> &ranks,
+    const MPI_Comm *worldComm,
+    /* output */
+    MPI_Group *outGrp,
+    MPI_Comm *outComm
+)
+{
+    // Creation of a communicator
+    MPI_Group group_world;
+
+    int size_world;
+    commInterface.commSize(*worldComm, &size_world);
+    int rank_world;
+    commInterface.commRank(*worldComm, &rank_world);
+    commInterface.commGroup(*worldComm, &group_world);
+
+    // copying proc_ids in ranks
+    for (auto rk : ranks)
+        if (rk > size_world - 1)
+        {
+            commInterface.groupFree(
+                &group_world
+            );  // MPI_Group is a C structure and won't get de-allocated automatically?
+            throw INTERP_KERNEL::Exception("invalid rank in set<int> argument of MPIProcessorGroup constructor");
+        }
+
+    commInterface.groupIncl(group_world, static_cast<int>(ranks.size()), const_cast<int *>(ranks.data()), outGrp);
+
+    commInterface.commCreate(*worldComm, *outGrp, outComm);
+
+    // clean-up
+    commInterface.groupFree(&group_world);  // MPI_Group is a C structure and won't get de-allocated automatically?
+}
+}  // namespace
+
 MPIProcessorGroup::MPIProcessorGroup(const CommInterface &interface, set<int> proc_ids, const MPI_Comm &world_comm)
     : ProcessorGroup(interface, proc_ids), _world_comm(world_comm)
 {
     updateMPISpecificAttributes();
+}
+
+MPIProcessorGroup::MPIProcessorGroup(
+    const CommInterface &interface, const std::vector<int> &proc_ids, const MPI_Comm &world_comm
+)
+    : ProcessorGroup(interface, proc_ids), _world_comm(world_comm)
+{
+    CreateGroup(
+        _comm_interface,
+        proc_ids,
+        &_world_comm,
+        /*output*/
+        &_group,
+        &_comm
+    );
 }
 
 /*! Creates a processor group that is based on the processors included in \a proc_ids_by_name[name].
@@ -111,36 +168,15 @@ MPIProcessorGroup::MPIProcessorGroup(
 void
 MPIProcessorGroup::updateMPISpecificAttributes()
 {
-    // Creation of a communicator
-    MPI_Group group_world;
-
-    int size_world;
-    _comm_interface.commSize(_world_comm, &size_world);
-    int rank_world;
-    _comm_interface.commRank(_world_comm, &rank_world);
-    _comm_interface.commGroup(_world_comm, &group_world);
-
-    int *ranks = new int[_proc_ids.size()];
-
-    // copying proc_ids in ranks
-    copy<set<int>::const_iterator, int *>(_proc_ids.begin(), _proc_ids.end(), ranks);
-    for (int i = 0; i < (int)_proc_ids.size(); i++)
-        if (ranks[i] > size_world - 1)
-        {
-            delete[] ranks;
-            _comm_interface.groupFree(
-                &group_world
-            );  // MPI_Group is a C structure and won't get de-allocated automatically?
-            throw INTERP_KERNEL::Exception("invalid rank in set<int> argument of MPIProcessorGroup constructor");
-        }
-
-    _comm_interface.groupIncl(group_world, (int)_proc_ids.size(), ranks, &_group);
-
-    _comm_interface.commCreate(_world_comm, _group, &_comm);
-
-    // clean-up
-    delete[] ranks;
-    _comm_interface.groupFree(&group_world);  // MPI_Group is a C structure and won't get de-allocated automatically?
+    std::vector<int> ranks(_proc_ids.begin(), _proc_ids.end());
+    CreateGroup(
+        _comm_interface,
+        ranks,
+        &_world_comm,
+        /*output*/
+        &_group,
+        &_comm
+    );
 }
 
 /*! Creates a processor group that is based on the processors between \a pstart and \a pend.
@@ -262,12 +298,18 @@ MPIProcessorGroup::deepCopy() const
 ProcessorGroup *
 MPIProcessorGroup::fuse(const ProcessorGroup &group) const
 {
-    set<int> procs = _proc_ids;
+    set<int> procs(_proc_ids);
     const set<int> &distant_proc_ids = group.getProcIDs();
-    for (set<int>::const_iterator iter = distant_proc_ids.begin(); iter != distant_proc_ids.end(); iter++)
-    {
-        procs.insert(*iter);
-    }
+    procs.insert(distant_proc_ids.cbegin(), distant_proc_ids.cend());
+    return new MPIProcessorGroup(_comm_interface, procs, _world_comm);
+}
+
+ProcessorGroup *
+MPIProcessorGroup::fuseNotOrdered(const ProcessorGroup &group) const
+{
+    std::vector<int> procs(_proc_ids.cbegin(), _proc_ids.cend());
+    const set<int> &distant_proc_ids = group.getProcIDs();
+    procs.insert(procs.end(), distant_proc_ids.cbegin(), distant_proc_ids.cend());
     return new MPIProcessorGroup(_comm_interface, procs, _world_comm);
 }
 

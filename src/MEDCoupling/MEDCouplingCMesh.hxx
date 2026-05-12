@@ -77,6 +77,7 @@ class MEDCouplingCMesh : public MEDCouplingStructuredMesh
     MEDCOUPLING_EXPORT DataArrayDouble *computeCellCenterOfMass() const;
     MEDCOUPLING_EXPORT DataArrayDouble *computeIsoBarycenterOfNodesPerCell() const;
     MEDCOUPLING_EXPORT void renumberCells(const mcIdType *old2NewBg, bool check = true);
+    MEDCOUPLING_EXPORT static MEDCoupling1SGTUMesh *ComputeBinsOfCells(const DataArrayDouble *bboxes);
     // some useful methods
     MEDCOUPLING_EXPORT void getNodeGridStructure(mcIdType *res) const;
     MEDCOUPLING_EXPORT std::vector<mcIdType> getNodeGridStructure() const;

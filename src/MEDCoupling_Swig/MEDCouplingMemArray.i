@@ -1520,6 +1520,16 @@ typedef DataArrayInt64 DataArrayIdType;
         return res;
       }
 
+      PyObject *candidatesClosestTo( const DataArrayDouble *bboxes ) const
+      {
+        MCAuto< DataArrayIdType > tuples, tuplesIndex;
+        self->candidatesClosestTo( bboxes, tuples, tuplesIndex );
+        PyObject *ret=PyTuple_New(2);
+        PyTuple_SetItem(ret,0,SWIG_NewPointerObj(SWIG_as_voidptr(tuples.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        PyTuple_SetItem(ret,1,SWIG_NewPointerObj(SWIG_as_voidptr(tuplesIndex.retn()),SWIGTITraits<mcIdType>::TI, SWIG_POINTER_OWN | 0 ));
+        return ret;
+      }
+
       PyObject *distanceToTuple(PyObject *tuple) const
       {
         double val;

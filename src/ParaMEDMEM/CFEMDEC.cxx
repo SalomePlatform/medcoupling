@@ -23,11 +23,14 @@
 #include "MEDCouplingFieldDiscretizationOnNodesFE.hxx"
 
 #include <functional>
+#include <cstdint>
+#include <cstddef>
+#include <cstring>
 
 using namespace MEDCoupling;
 
 MPIProcessorGroup *
-CFEMDECAccessToMaster::getUnionGrp() const
+CFEMDECDirectAccess::getUnionGrp() const
 {
     return static_cast<MPIProcessorGroup *>(_master->getUnionGrp());
 }
@@ -42,6 +45,12 @@ MPIProcessorGroup *
 CFEMDECDirectAccess::getTargetGrp() const
 {
     return static_cast<MPIProcessorGroup *>(_master->getTargetGrp());
+}
+
+MPIProcessorGroup *
+CFEMDECReverseAccess::getUnionGrp() const
+{
+    return static_cast<MPIProcessorGroup *>(_master->getReverseUnionGrp());
 }
 
 MPIProcessorGroup *
@@ -74,10 +83,22 @@ CFEMDECOneWay::getTargetGrp() const
     return _to_master->getTargetGrp();
 }
 
+MPIProcessorGroup *
+CFEMDECOneWay::getUnionGrp() const
+{
+    return _to_master->getUnionGrp();
+}
+
 MCAuto<MEDCouplingUMesh>
 CFEMDECOneWay::getLocalMesh() const
 {
     return _master->getLocalMesh();
+}
+
+MCAuto<DataArrayIdType>
+CFEMDECOneWay::getGlobalNodeIdsOnLocalMesh() const
+{
+    return _master->getGlobalNodeIdsOnLocalMesh();
 }
 
 static bool
@@ -96,7 +117,7 @@ CFEMDECOneWay::isMatrixToRecompute()
     if (getLocalMesh().isNull())
         THROW_IK_EXCEPTION("isMatrixToRecompute : no mesh attached !");
     char toRecomputeLocal = char((MEDCouplingUMesh *)getLocalMesh() != _local_mesh_stamp_on_sync);
-    MPIProcessorGroup *grp(_to_master->getUnionGrp());
+    MPIProcessorGroup *grp(getUnionGrp());
     auto size(grp->size());
     std::unique_ptr<char[]> recvData(new char[size]);
     grp->getCommInterface().allGather(&toRecomputeLocal, 1, MPI_CHAR, recvData.get(), 1, MPI_CHAR, *grp->getComm());
@@ -173,6 +194,140 @@ std::vector<T>
 bCastTArrayFromProcInternal(MPIProcessorGroup *grp, const T *arrToSend, mcIdType sz, int rkBroadCasting)
 {
     return bCastTArrayFromProcInternal2<T, std::vector<T>, BCastVectorFunctor<T>>(grp, arrToSend, sz, rkBroadCasting);
+}
+
+template <typename T>
+struct VectorMCDAPolicy
+{
+};
+
+template <typename T>
+struct VectorMCDAPolicy<std::vector<T>>
+{
+    static auto size(const std::vector<T> &obj) -> decltype(obj.size()) { return obj.size(); }
+
+    static auto begin(const std::vector<T> &obj) -> decltype(obj.begin()) { return obj.begin(); }
+
+    static auto end(const std::vector<T> &obj) -> decltype(obj.end()) { return obj.end(); }
+};
+
+template <typename U>
+struct VectorMCDAPolicy<MCAuto<U>>
+{
+    static auto size(const MCAuto<U> &obj) -> decltype(obj->getNbOfElems())
+    {
+        if (obj.isNull())
+            return 0;
+        return obj->getNbOfElems();
+    }
+
+    static auto begin(const MCAuto<U> &obj) -> decltype(obj->begin())
+    {
+        if (obj.isNull())
+            return nullptr;
+        return obj->begin();
+    }
+
+    static auto end(const MCAuto<U> &obj) -> decltype(obj->end())
+    {
+        if (obj.isNull())
+            return nullptr;
+        return obj->end();
+    }
+};
+
+template <class T, class RET>
+std::vector<RET>
+all2allInternal2(MPIProcessorGroup *grp, const std::vector<RET> &input, std::function<RET(std::size_t, T *, T *)> func)
+{
+    using RETWrapper = VectorMCDAPolicy<RET>;
+    const MPI_Comm *comm(grp->getComm());
+
+    int size(static_cast<int>(input.size()));
+
+    MPI_Datatype dtype = MPITraits<T>::MPIType;
+
+    std::vector<std::int32_t> sendcounts(size);
+    for (int i = 0; i < size; ++i)
+    {
+        sendcounts[i] = static_cast<std::int32_t>(RETWrapper::size(input[i]));
+    }
+
+    std::vector<std::int32_t> recvcounts(size, 125);
+    grp->getCommInterface().allToAll(sendcounts.data(), 1, MPI_INT32_T, recvcounts.data(), 1, MPI_INT32_T, *comm);
+
+    std::vector<std::int32_t> sdispls(size, 0);
+    for (int i = 1; i < size; ++i)
+    {
+        sdispls[i] = sdispls[i - 1] + sendcounts[i - 1];
+    }
+
+    std::vector<T> sendbuf;
+    sendbuf.reserve(sdispls.back() + sendcounts.back());
+    for (const auto &v : input)
+    {
+        sendbuf.insert(sendbuf.end(), RETWrapper::begin(v), RETWrapper::end(v));
+    }
+
+    std::vector<int> rdispls(size, 0);
+    for (int i = 1; i < size; ++i) rdispls[i] = rdispls[i - 1] + recvcounts[i - 1];
+
+    std::vector<T> recvbuf(rdispls.back() + recvcounts.back());
+
+    grp->getCommInterface().allToAllV(
+        sendbuf.data(),
+        sendcounts.data(),
+        sdispls.data(),
+        dtype,
+        recvbuf.data(),
+        recvcounts.data(),
+        rdispls.data(),
+        dtype,
+        *comm
+    );
+
+    std::vector<RET> ret(size);
+    for (int i = 0; i < size; ++i)
+    {
+        int nbElems(recvcounts[i]);
+        ret[i] = func(nbElems, recvbuf.data() + rdispls[i], recvbuf.data() + rdispls[i] + nbElems);
+    }
+
+    return ret;
+}
+
+template <class T>
+std::vector<typename std::vector<T>>
+all2allVector(MPIProcessorGroup *grp, const std::vector<typename std::vector<T>> &input)
+{
+    return all2allInternal2<T, typename std::vector<T>>(
+        grp,
+        input,
+        [](std::size_t nbElems, T *bg, T *end)
+        {
+            std::vector<T> elt(nbElems);
+            std::copy(bg, end, elt.data());
+            return elt;
+        }
+    );
+}
+
+template <class T>
+std::vector<MCAuto<typename MPITraits<T>::ArrayType>>
+all2allDA(MPIProcessorGroup *grp, const std::vector<MCAuto<typename MPITraits<T>::ArrayType>> &input)
+{
+    return all2allInternal2<T, MCAuto<typename MPITraits<T>::ArrayType>>(
+        grp,
+        input,
+        [](std::size_t nbElems, T *bg, T *end)
+        {
+            using ArrayType = typename MPITraits<T>::ArrayType;
+            MCAuto<ArrayType> elt(ArrayType::New());
+            elt->alloc(nbElems, 1);
+            std::copy(bg, end, elt->getPointer());
+            return elt;
+        }
+    );
 }
 
 template <class T, class RET>
@@ -289,77 +444,388 @@ gatherTArrayOnProc(MPIProcessorGroup *grp, int rkGathering, const typename MPITr
     );
 }
 
-void
-CFEMDECOneWay::synchronize()
+namespace
 {
-    int rkGathering(_to_master->getUnionGrp()->translateRank(_to_master->getTargetGrp(), 0));
-    // MCAuto< DataArray>
-    std::vector<double> td;
-    std::vector<mcIdType> ti;
-    std::vector<std::string> ts;
-    MCAuto<MEDCouplingUMesh> locMesh(_master->getLocalMesh());
-    MCAuto<DataArrayIdType> bi;
-    MCAuto<DataArrayDouble> bd;
-    int spaceDim(locMesh->getSpaceDimension());
-    if (_to_master->getSourceGrp()->containsMyRank())
+std::vector<std::int8_t>
+packBits(const std::vector<bool> &bits)
+{
+    std::size_t n = bits.size();
+    std::size_t byte_count = (n + 7) / 8;
+    std::vector<std::int8_t> result(byte_count, 0);
+    for (std::size_t i = 0; i < n; ++i)
     {
-        locMesh->getTinySerializationInformation(td, ti, ts);
+        if (bits[i])
         {
-            DataArrayIdType *biTmp(nullptr);
-            DataArrayDouble *bdTmp(nullptr);
-            locMesh->serialize(biTmp, bdTmp);
-            bi = biTmp;
-            bd = bdTmp;
+            std::size_t byte_index = i / 8;
+            std::size_t bit_index = i % 8;
+
+            result[byte_index] |= static_cast<std::int8_t>(1 << bit_index);
         }
     }
-    else
+    return result;
+}
+
+std::vector<bool>
+unpackBits(const std::int8_t *bytesPtr, std::size_t original_size)
+{
+    std::vector<bool> result;
+    result.reserve(original_size);
+    for (std::size_t i = 0; i < original_size; ++i)
+    {
+        std::size_t byte_index = i / 8;
+        std::size_t bit_index = i % 8;
+
+        bool bit = (bytesPtr[byte_index] >> bit_index) & 0x01;
+        result.push_back(bit);
+    }
+    return result;
+}
+
+std::vector<std::vector<bool>>
+allGatherVectBoolOnProc(MPIProcessorGroup *grp, const std::vector<bool> &structure)
+{
+    int nbOfProcs(grp->size());
+    CommInterface ci(grp->getCommInterface());
+    std::vector<std::int8_t> structure2(packBits(structure));
+    std::vector<std::vector<bool>> structures(nbOfProcs);
+    std::vector<mcIdType> vbPerProc(nbOfProcs);
+    mcIdType szSt(structure.size());
+    ci.allGather(
+        &szSt, 1, MPITraits<mcIdType>::MPIType, vbPerProc.data(), 1, MPITraits<mcIdType>::MPIType, *(grp->getComm())
+    );
+    {
+        std::vector<int> vbPerProc1(nbOfProcs), vbPerProc2(nbOfProcs + 1);
+        vbPerProc2[0] = 0;
+        int *vbPerProc1Ptr(vbPerProc1.data()), *vbPerProc2Ptr(vbPerProc2.data());
+        std::for_each(
+            vbPerProc.cbegin(),
+            vbPerProc.cend(),
+            [&vbPerProc1Ptr, &vbPerProc2Ptr](mcIdType v)
+            {
+                *vbPerProc1Ptr = int((v + 7) / 8);
+                vbPerProc2Ptr[1] = vbPerProc2Ptr[0] + *vbPerProc1Ptr++;
+                vbPerProc2Ptr++;
+            }
+        );
+        std::vector<std::int8_t> data(vbPerProc2.back());
+        ci.allGatherV(
+            structure2.data(),
+            (int)structure2.size(),
+            MPI_CHAR,
+            data.data(),
+            vbPerProc1.data(),
+            vbPerProc2.data(),
+            MPI_CHAR,
+            *(grp->getComm())
+        );
+        for (int i = 0; i < nbOfProcs; ++i)
+        {
+            structures[i] = unpackBits(data.data() + vbPerProc2[i], vbPerProc[i]);
+        }
+    }
+    return structures;
+}
+
+template <int spaceDim>
+void
+PrintSelectionOfCells(
+    int trgProcId, mcIdType nbCells, const std::set<const BBTreeClosest<spaceDim, mcIdType> *> &selectionPerTrgProc
+)
+{
+    std::size_t sz2(0);
+    for (const auto &blk : selectionPerTrgProc)
+    {
+        sz2 += blk->getElements().size();
+    }
+    std::cout << "  - to send to trg " << trgProcId << " " << sz2 << " ( in " << selectionPerTrgProc.size()
+              << " blocks )" << " / " << nbCells << std::endl;
+}
+
+void
+WriteVTUOfSrcMeshCandidateTrg(
+    MPIProcessorGroup *unionGrp, MPIProcessorGroup *sourceGrp, const std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes
+)
+{
+    int curProc(unionGrp->myRank()), nbProcSrc(sourceGrp->size());
+    for (int i = 0; i < nbProcSrc; ++i)
+    {
+        std::ostringstream oss;
+        oss << "file_" << curProc << "_" << i << ".vtu";
+        if (srcMeshes[i]->getNumberOfCells() > 0)
+        {
+            srcMeshes[i]->writeVTK(oss.str());
+        }
+    }
+}
+
+}  // namespace
+
+template <int spaceDim>
+BBTreeClosest<spaceDim, mcIdType>
+ShareBBTreesOfAllProcs(
+    MPIProcessorGroup *unionGrp, const MEDCouplingUMesh *mesh, std::vector<BBTreeClosest<spaceDim, mcIdType>> &ret
+)
+{
+    const MPI_Comm *comm(unionGrp->getComm());
+    int unionGrpSz(unionGrp->size());
+    MCAuto<DataArrayDouble> bbox(mesh->getBoundingBoxForBBTree());
+    mcIdType nbCells(mesh->getNumberOfCells());
+    const double *bboxPtr(bbox->begin());
+    BBTreeClosest<spaceDim, mcIdType> myTreeBase(bboxPtr, nullptr, 0, nbCells);
+    std::vector<bool> structure;
+    std::vector<std::array<double, 2 * spaceDim>> bboxData;
+    myTreeBase.serializeCompact(structure, bboxData);
+    std::vector<std::vector<bool>> structures(allGatherVectBoolOnProc(unionGrp, structure));
+    std::vector<std::vector<std::array<double, 2 * spaceDim>>> bboxes;
+    {
+        std::unique_ptr<double[]> result;
+        std::unique_ptr<mcIdType[]> resultIndex;
+        int nbProcs(unionGrp->getCommInterface().allGatherArraysTT<double>(
+            *comm,
+            reinterpret_cast<double *>(bboxData.data()),
+            ToIdType(bboxData.size() * 2 * spaceDim),
+            result,
+            resultIndex
+        ));
+        bboxes.resize(nbProcs);
+        for (int iProc = 0; iProc < nbProcs; ++iProc)
+        {
+            mcIdType nbOfBlocksToCpy(resultIndex[iProc + 1] - resultIndex[iProc]);
+            bboxes[iProc].resize(nbOfBlocksToCpy / (2 * spaceDim));
+            std::memcpy(bboxes[iProc].data(), result.get() + resultIndex[iProc], nbOfBlocksToCpy * sizeof(double));
+        }
+    }
+    std::size_t nbOfProcs(structures.size());
+    ret.resize(nbOfProcs);
+    for (std::size_t iProc = 0; iProc < nbOfProcs; ++iProc)
+    {
+        ret[iProc] = std::move(BBTreeClosest<spaceDim, mcIdType>::DeserializeCompact(structures[iProc], bboxes[iProc]));
+    }
+    return myTreeBase;
+}
+
+/*!
+ *  Associated method : CFEMDECOneWayTarget::dispatchMeshPartsTrgOnly
+ */
+template <int spaceDim>
+void
+CFEMDECOneWaySource::dispatchMeshPartsSrcOnly(
+    MPIProcessorGroup *unionGrp,
+    const MEDCouplingUMesh *mesh,
+    const DataArrayIdType *glblNodeIds,
+    const BBTreeClosest<spaceDim, mcIdType> &myTreeBase,
+    const std::vector<BBTreeClosest<spaceDim, mcIdType>> &ret
+)
+{
+    const MPI_Comm *comm(unionGrp->getComm());
+    int unionGrpSz(unionGrp->size());
+    int nbProcSrc(getSourceGrp()->size());
+    int nbProcTrg(unionGrpSz - nbProcSrc);
+    std::vector<std::vector<mcIdType>> tis(unionGrpSz);
+    std::vector<std::vector<double>> tds(unionGrpSz);
+    std::vector<MCAuto<DataArrayIdType>> bis(unionGrpSz);
+    std::vector<MCAuto<DataArrayDouble>> bds(unionGrpSz);
+    std::vector<MCAuto<DataArrayIdType>> globalNodeIds(unionGrpSz);
+    int curProc(getSourceGrp()->myRank());
+    {
+        for (int iProcTrg = 0; iProcTrg < nbProcTrg; ++iProcTrg)
+        {
+            std::set<const BBTreeClosest<spaceDim, mcIdType> *> blockSelectedPerTrgProc;
+            std::vector<mcIdType> cellsToSendToTrg;
+            const BBTreeClosest<spaceDim, mcIdType> &curBBTree(ret[nbProcSrc + iProcTrg]);
+            // iterate over all terminal nodes of targetProc iProcTrg
+            for (const auto &leaf : curBBTree)
+            {
+                const BBTreeClosest<spaceDim, mcIdType> &leaf2(
+                    static_cast<const BBTreeClosest<spaceDim, mcIdType> &>(leaf)
+                );
+                // compute min of maxes over all source procs
+                double zeMin(std::numeric_limits<double>::max());
+                for (int iProcSrc = 0; iProcSrc < nbProcSrc; ++iProcSrc)
+                {
+                    ret[iProcSrc].bboxMinOfMaxes(leaf2.getBBox(), zeMin);
+                }
+                myTreeBase.bboxSelect(leaf2.getBBox(), zeMin, blockSelectedPerTrgProc);
+            }
+            //
+            // PrintSelectionOfCells<spaceDim>(iProcTrg, mesh->getNumberOfCells(), blockSelectedPerTrgProc);
+            //
+            for (auto block : blockSelectedPerTrgProc)
+            {
+                const std::vector<mcIdType> &elems(block->getElements());
+                cellsToSendToTrg.insert(cellsToSendToTrg.end(), elems.cbegin(), elems.cend());
+            }
+            MCAuto<DataArrayIdType> glbNodeIdsOfPart;
+            MCAuto<MEDCouplingUMesh> part(this->ReduceMesh(
+                mesh,
+                glblNodeIds,
+                cellsToSendToTrg.data(),
+                cellsToSendToTrg.data() + cellsToSendToTrg.size(),
+                glbNodeIdsOfPart  // output
+            ));
+            globalNodeIds[iProcTrg + nbProcSrc] = glbNodeIdsOfPart;
+            {
+                std::vector<double> td;
+                std::vector<mcIdType> ti;
+                std::vector<std::string> ts;
+                part->getTinySerializationInformation(td, ti, ts);
+                tis[iProcTrg + nbProcSrc] = ti;
+                tds[iProcTrg + nbProcSrc] = td;
+                {
+                    DataArrayIdType *biTmp(nullptr);
+                    DataArrayDouble *bdTmp(nullptr);
+                    part->serialize(biTmp, bdTmp);
+                    bis[iProcTrg + nbProcSrc] = biTmp;
+                    bdTmp->rearrange(1);
+                    bds[iProcTrg + nbProcSrc] = bdTmp;
+                }
+            }
+        }
+    }
+    all2allVector<mcIdType>(unionGrp, tis);
+    all2allVector<double>(unionGrp, tds);
+    all2allDA<mcIdType>(unionGrp, bis);
+    all2allDA<double>(unionGrp, bds);
+    all2allDA<mcIdType>(unionGrp, globalNodeIds);
+    _glb_nodes_in_whole_per_trg = std::move(globalNodeIds);
+    _glb_nodes_in_whole_per_trg.erase(
+        _glb_nodes_in_whole_per_trg.begin(), _glb_nodes_in_whole_per_trg.begin() + this->getSourceGrp()->size()
+    );
+}
+
+/*!
+ *  Associated method : CFEMDECOneWaySource::dispatchMeshPartsSrcOnly
+ */
+void
+CFEMDECOneWayTarget::dispatchMeshPartsTrgOnly(
+    int spaceDim,
+    MPIProcessorGroup *unionGrp,
+    const MEDCouplingUMesh *mesh,
+    std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes /*output */,
+    std::vector<MCAuto<DataArrayIdType>> &srcGlobalNodeIds
+)
+{
+    int unionGrpSz(unionGrp->size());
+    int nbProcSrc(getSourceGrp()->size());
+    std::vector<std::vector<mcIdType>> tis(unionGrpSz);
+    std::vector<std::vector<double>> tds(unionGrpSz);
+    std::vector<MCAuto<DataArrayIdType>> bis(unionGrpSz);
+    std::vector<MCAuto<DataArrayDouble>> bds(unionGrpSz);
+    std::vector<MCAuto<DataArrayIdType>> globalNodeIds(unionGrpSz);
+    std::vector<std::string> ts;
     {
         std::vector<double> tdFake;
         std::vector<mcIdType> tiFake;
-        locMesh->getTinySerializationInformation(tdFake, tiFake, ts);
+        mesh->getTinySerializationInformation(tdFake, tiFake, ts);
     }
-    // retrieve all srcMeshes on proc0 of target ( see EDF31187 )
-    std::vector<std::vector<mcIdType>> tiGathered(
-        gatherTArrayOnProcInternal<mcIdType>(_to_master->getUnionGrp(), rkGathering, ti.data(), ti.size())
-    );
-    std::vector<std::vector<double>> tdGathered(
-        gatherTArrayOnProcInternal<double>(_to_master->getUnionGrp(), rkGathering, td.data(), td.size())
-    );
-    std::vector<MCAuto<DataArrayIdType>> biGathered(
-        gatherTArrayOnProc<mcIdType>(_to_master->getUnionGrp(), rkGathering, bi)
-    );
-    std::vector<MCAuto<DataArrayDouble>> bdGathered(
-        gatherTArrayOnProc<double>(_to_master->getUnionGrp(), rkGathering, bd)
-    );
-    std::vector<MCAuto<MEDCouplingUMesh>> srcMeshes;
-    if (_to_master->getUnionGrp()->myRank() == rkGathering)
+    std::vector<std::vector<mcIdType>> tisFromSrc(all2allVector<mcIdType>(unionGrp, tis));
+    std::vector<std::vector<double>> tdsFromSrc(all2allVector<double>(unionGrp, tds));
+    std::vector<MCAuto<DataArrayIdType>> bisFromSrc(all2allDA<mcIdType>(unionGrp, bis));
+    std::vector<MCAuto<DataArrayDouble>> bdsFromSrc(all2allDA<double>(unionGrp, bds));
+    srcMeshes.resize(nbProcSrc);
+    for (int i = 0; i < nbProcSrc; ++i)
     {
-        std::size_t nbPartsExp(_to_master->getSourceGrp()->size());
-        if (tiGathered.size() != nbPartsExp || tdGathered.size() != nbPartsExp || biGathered.size() != nbPartsExp ||
-            bdGathered.size() != nbPartsExp)
-            THROW_IK_EXCEPTION("All gathered parts must have a size equal to src group ( " << nbPartsExp << " ) !");
-        srcMeshes.resize(nbPartsExp);
-        for (std::size_t i = 0; i < nbPartsExp; i++)
+        srcMeshes[i] = MEDCouplingUMesh::New();
+        bdsFromSrc[i]->rearrange(spaceDim);
+        srcMeshes[i]->unserialization(tdsFromSrc[i], tisFromSrc[i], bisFromSrc[i], bdsFromSrc[i], ts);
+    }
+    srcGlobalNodeIds = all2allDA<mcIdType>(unionGrp, globalNodeIds);
+    srcGlobalNodeIds.erase(srcGlobalNodeIds.begin() + nbProcSrc, srcGlobalNodeIds.end());
+    // WriteVTUOfSrcMeshCandidateTrg(unionGrp, getSourceGrp(), srcMeshes); // For debug
+}
+
+template <int spaceDim>
+void
+DispatchMeshPartsInternal(
+    CFEMDECOneWay *cfemdec,
+    MPIProcessorGroup *unionGrp,
+    const MEDCouplingUMesh *mesh,
+    const DataArrayIdType *glblNodeIds,
+    std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes,
+    std::vector<MCAuto<DataArrayIdType>> &srcGlobalNodeIds
+)
+{
+    std::vector<BBTreeClosest<spaceDim, mcIdType>> ret;
+    BBTreeClosest<spaceDim, mcIdType> myTreeBase(ShareBBTreesOfAllProcs<spaceDim>(unionGrp, mesh, ret /*output*/));
+    if (dynamic_cast<CFEMDECOneWaySource *>(cfemdec))
+    {  // source side
+        dynamic_cast<CFEMDECOneWaySource *>(cfemdec)->dispatchMeshPartsSrcOnly<spaceDim>(
+            unionGrp, mesh, glblNodeIds, myTreeBase, ret
+        );
+    }
+    else
+    {  // target side
+        dynamic_cast<CFEMDECOneWayTarget *>(cfemdec)->dispatchMeshPartsTrgOnly(
+            spaceDim, unionGrp, mesh, srcMeshes, srcGlobalNodeIds
+        );
+    }
+}
+
+/*!
+ * EDF34966 : dispatch relevant mesh parts
+ */
+void
+CFEMDECOneWay::dispatchMeshParts(
+    std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes, std::vector<MCAuto<DataArrayIdType>> &srcGlobalNodeIds
+)
+{
+    MCAuto<MEDCouplingUMesh> locMesh(_master->getLocalMesh());
+    MCAuto<DataArrayIdType> locGlblNodeIds(_master->getGlobalNodeIdsOnLocalMesh());
+    MPIProcessorGroup *unionGrp(getUnionGrp());
+    switch (locMesh->getSpaceDimension())
+    {
+        case 3:
         {
-            // assume that local spacedim is equal to remote spacedim
-            bdGathered[i]->rearrange(spaceDim);
-            MCAuto<MEDCouplingUMesh> mesh(MEDCouplingUMesh::New());
-            mesh->unserialization(tdGathered[i], tiGathered[i], biGathered[i], bdGathered[i], ts);
-            srcMeshes[i] = mesh;
+            DispatchMeshPartsInternal<3>(this, unionGrp, locMesh, locGlblNodeIds, srcMeshes, srcGlobalNodeIds);
+            break;
+        }
+        case 2:
+        {
+            DispatchMeshPartsInternal<2>(this, unionGrp, locMesh, locGlblNodeIds, srcMeshes, srcGlobalNodeIds);
+            break;
+        }
+        case 1:
+        {
+            DispatchMeshPartsInternal<1>(this, unionGrp, locMesh, locGlblNodeIds, srcMeshes, srcGlobalNodeIds);
+            break;
+        }
+        default:
+        {
+            THROW_IK_EXCEPTION("CFEMDECOneWay::dispatchMeshParts : Manage only spaceDim 1, 2 or 3.")
         }
     }
-    // global node ids
-    MCAuto<DataArrayIdType> gni;
-    if (_to_master->getSourceGrp()->containsMyRank())
+}
+
+void
+CFEMDECOneWay::checkSameSpaceDim()
+{
+    MCAuto<MEDCouplingUMesh> locMesh(_master->getLocalMesh());
+    MPIProcessorGroup *unionGrp(getUnionGrp());
+    const MPI_Comm *comm(unionGrp->getComm());
+    int unionGrpSz(unionGrp->size());
+    int spaceDim(locMesh->getSpaceDimension());
+    std::vector<int> spaceDimsOnAllProcs(unionGrpSz);
+    unionGrp->getCommInterface().allGather(&spaceDim, 1, MPI_INT, spaceDimsOnAllProcs.data(), 1, MPI_INT, *comm);
+    for (int curSpaceDim : spaceDimsOnAllProcs)
     {
-        gni = _master->getGlobalNodeIdsOnLocalMesh();
+        if (curSpaceDim != spaceDim)
+        {
+            THROW_IK_EXCEPTION("Different spaceDim detected accross procs !");
+        }
     }
-    std::vector<MCAuto<DataArrayIdType>> srcGlobalNodeIds(
-        gatherTArrayOnProc<mcIdType>(_to_master->getUnionGrp(), rkGathering, gni)
-    );
+}
+
+void
+CFEMDECOneWay::synchronize()
+{
+    checkSameSpaceDim();
     reinitializeOnNewMesh();
+    std::vector<MCAuto<MEDCouplingUMesh>> srcMeshes;
+    std::vector<MCAuto<DataArrayIdType>> srcGlobalNodeIds;
+    dispatchMeshParts(srcMeshes, srcGlobalNodeIds);
     computeMatrix(srcMeshes, srcGlobalNodeIds);
-    _local_mesh_stamp_on_sync = locMesh;
+    // keep track of local mesh pointer to determine if matrix computation is needed
+    _local_mesh_stamp_on_sync = _master->getLocalMesh();
 }
 
 void
@@ -431,12 +897,12 @@ CFEMDECOneWaySource::sendToTarget(MEDCouplingFieldDouble *srcFieldOnLocal)
     int nbCompo((int)srcFieldOnLocal->getNumberOfComponents());
     std::vector<std::string> comps(srcFieldOnLocal->getArray()->getInfoOnComponents());
     int sizeOfStr(int(FromVectorStringToCharSize(comps)));
-    int nbSrcProcs(_to_master->getSourceGrp()->size());
+    int nbSrcProcs(getSourceGrp()->size());
     {
         int tmp[2] = {nbCompo, sizeOfStr};
         std::unique_ptr<int[]> nbCompos(new int[2 * nbSrcProcs]);
         _to_master->getSourceGrp()->getCommInterface().allGather(
-            tmp, 2, MPI_INT32_T, nbCompos.get(), 2, MPI_INT32_T, *_to_master->getSourceGrp()->getComm()
+            tmp, 2, MPI_INT32_T, nbCompos.get(), 2, MPI_INT32_T, *getSourceGrp()->getComm()
         );
         for (auto iSrcProc = 0; iSrcProc < nbSrcProcs; ++iSrcProc)
         {
@@ -458,23 +924,35 @@ CFEMDECOneWaySource::sendToTarget(MEDCouplingFieldDouble *srcFieldOnLocal)
     }
     // send nbCompo to all target procs. First send nbCompo to proc #0 of targets
     // send compostrings to all target procs. First send compostrings to proc #0 of targets
-    int rkDest(_to_master->getUnionGrp()->translateRank(_to_master->getTargetGrp(), 0));
-    if (_to_master->getSourceGrp()->myRank() == 0)
+    int rkDest(getUnionGrp()->translateRank(getTargetGrp(), 0));
+    if (getSourceGrp()->myRank() == 0)
     {
         {
             int tmp[2] = {nbCompo, sizeOfStr};
-            _to_master->getUnionGrp()->getCommInterface().send(
-                tmp, 2, MPI_INT32_T, rkDest, 1234, *_to_master->getUnionGrp()->getComm()
-            );
+            getUnionGrp()->getCommInterface().send(tmp, 2, MPI_INT32_T, rkDest, 1234, *getUnionGrp()->getComm());
         }
         {
             std::unique_ptr<char[]> stringsToSend(FromVectorStringToChar(comps));
-            _to_master->getUnionGrp()->getCommInterface().send(
-                stringsToSend.get(), sizeOfStr, MPI_INT8_T, rkDest, 1235, *_to_master->getUnionGrp()->getComm()
+            getUnionGrp()->getCommInterface().send(
+                stringsToSend.get(), sizeOfStr, MPI_INT8_T, rkDest, 1235, *getUnionGrp()->getComm()
             );
         }
     }
-    gatherTArrayOnProc<double>(_to_master->getUnionGrp(), rkDest, srcFieldOnLocal->getArray());
+    MPIProcessorGroup *unionGrp(getUnionGrp());
+    int srcGrpSz(getSourceGrp()->size());
+    std::vector<MCAuto<DataArrayDouble>> arrsToSend(unionGrp->size());
+    MCAuto<DataArrayIdType> globalNodeIds(getGlobalNodeIdsOnLocalMesh());
+    const DataArrayDouble *array(srcFieldOnLocal->getArray());
+
+    for (std::size_t i = 0; i < _glb_nodes_in_whole_per_trg.size(); ++i)
+    {
+        MCAuto<DataArrayIdType> locIdsToSendForCurTrgProc(
+            globalNodeIds->findIdForEach(_glb_nodes_in_whole_per_trg[i]->begin(), _glb_nodes_in_whole_per_trg[i]->end())
+        );
+        arrsToSend[nbSrcProcs + i] =
+            array->selectByTupleId(locIdsToSendForCurTrgProc->begin(), locIdsToSendForCurTrgProc->end());
+    }
+    all2allDA<double>(unionGrp, arrsToSend);
 }
 
 /*
@@ -491,7 +969,9 @@ CFEMDECOneWaySource::checkMesh(MEDCouplingFieldDouble *field)
         THROW_IK_EXCEPTION("Input field lies on a geometrical support different than local mesh specified !");
 }
 
-static MCAuto<DataArrayDouble>
+namespace
+{
+MCAuto<DataArrayDouble>
 MatrixVectorMultiplySingleCompo(const std::vector<std::map<mcIdType, double>> &matrix, const DataArrayDouble *vectorArr)
 {
     std::size_t nbOfRows(matrix.size());
@@ -525,6 +1005,40 @@ MatrixVectorMultiply(const std::vector<std::map<mcIdType, double>> &matrix, cons
 }
 
 /*!
+ * Target side : Computes wholeMesh aggregation of srcMeshes from which duplicated cells are removed. globalNodeIds are
+ * used to determine common cells across source processors.
+ *
+ *  \param [out] wholeMesh without duplication of cells
+ *  \return for each source proc node Ids in \a wholeMesh referential of its contribution
+ */
+std::vector<MCAuto<DataArrayIdType>>
+ComputeNodeIdsPerProc(
+    const std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes,
+    const std::vector<MCAuto<DataArrayIdType>> &srcGlobalNodeIds,
+    MCAuto<MEDCouplingUMesh> &wholeMesh
+)
+{
+    std::size_t nbOfSrcProcs(srcGlobalNodeIds.size());
+    MCAuto<DataArrayIdType> o2n(DataArrayIdType::Aggregate(FromVecAutoToVecOfConst<DataArrayIdType>(srcGlobalNodeIds)));
+    MCAuto<DataArrayIdType> b(o2n->buildUniqueNotSorted());
+    MCAuto<MapKeyVal<mcIdType, mcIdType>> zeMap(b->invertArrayN2O2O2NOptimized());
+    o2n->transformWithIndArr(*zeMap);
+    mcIdType nbOfNodesWithoutDup(o2n->getMaxAbsValueInArray() + 1);
+    wholeMesh = MEDCouplingUMesh::MergeUMeshes(FromVecAutoToVecOfConst<MEDCouplingUMesh>(srcMeshes));
+    wholeMesh->renumberNodes(o2n->begin(), nbOfNodesWithoutDup);
+    wholeMesh->checkConsistencyLight();
+    // remove ghost cells
+    std::vector<MCAuto<DataArrayIdType>> ret(nbOfSrcProcs);
+    for (std::size_t i = 0; i < nbOfSrcProcs; ++i)
+    {
+        ret[i] = b->findIdForEach(srcGlobalNodeIds[i]->begin(), srcGlobalNodeIds[i]->end());
+    }
+    wholeMesh->zipConnectivityTraducer(0);
+    return ret;
+}
+}  // namespace
+
+/*!
  * Synchronized with CFEMDECOneWaySource::sendToTarget
  */
 MCAuto<MEDCouplingFieldDouble>
@@ -536,20 +1050,12 @@ CFEMDECOneWayTarget::receiveFromSource()
     std::unique_ptr<char[]> stringsToRecv;
     if (_to_master->getTargetGrp()->myRank() == 0)
     {
-        int rkOrig(_to_master->getUnionGrp()->translateRank(_to_master->getSourceGrp(), 0));
+        int rkOrig(getUnionGrp()->translateRank(_to_master->getSourceGrp(), 0));
         MPI_Status status;
-        _to_master->getUnionGrp()->getCommInterface().recv(
-            tmp, 2, MPI_INT32_T, rkOrig, 1234, *_to_master->getUnionGrp()->getComm(), &status
-        );
+        getUnionGrp()->getCommInterface().recv(tmp, 2, MPI_INT32_T, rkOrig, 1234, *getUnionGrp()->getComm(), &status);
         stringsToRecv.reset(new char[tmp[SIZE_OF_STR_POS]]);
-        _to_master->getUnionGrp()->getCommInterface().recv(
-            stringsToRecv.get(),
-            tmp[SIZE_OF_STR_POS],
-            MPI_INT8_T,
-            rkOrig,
-            1235,
-            *_to_master->getUnionGrp()->getComm(),
-            &status
+        getUnionGrp()->getCommInterface().recv(
+            stringsToRecv.get(), tmp[SIZE_OF_STR_POS], MPI_INT8_T, rkOrig, 1235, *getUnionGrp()->getComm(), &status
         );
     }
     // broadcast nb compo over target group procs
@@ -568,30 +1074,25 @@ CFEMDECOneWayTarget::receiveFromSource()
         FromCharToVectorString(stringsToRecv.get(), tmp[SIZE_OF_STR_POS], tmp[NB_COMPO_POS])
     );
     //
-    int rkGathering(_to_master->getUnionGrp()->translateRank(_to_master->getTargetGrp(), 0));
+    int rkGathering(getUnionGrp()->translateRank(_to_master->getTargetGrp(), 0));
     std::vector<MCAuto<DataArrayDouble>> arrs;
-    {
-        MCAuto<DataArrayDouble> arr;
-        arrs = gatherTArrayOnProc<double>(_to_master->getUnionGrp(), rkGathering, arr);
-    }
     // broadcast of arrs on all procs of targets and assign srcValues
     MCAuto<DataArrayDouble> srcArr = DataArrayDouble::New();
     srcArr->alloc(_nb_nodes_src_mesh, tmp[0]);
-    //
+    std::vector<MCAuto<DataArrayDouble>> dummy(getUnionGrp()->size());
+    std::vector<MCAuto<DataArrayDouble>> perSrcProc(all2allDA<double>(getUnionGrp(), dummy));
     int szSrcGrp(_to_master->getSourceGrp()->size());
-    if (_to_master->getTargetGrp()->myRank() != 0)
-        arrs.resize(szSrcGrp);
     for (int i = 0; i < szSrcGrp; ++i)
     {
-        MCAuto<DataArrayDouble> arrFieldSrc(bCastTArrayFromProc<double>(_to_master->getTargetGrp(), arrs[i], 0));
-        arrFieldSrc->rearrange(tmp[NB_COMPO_POS]);
-        srcArr->setPartOfValuesBase3(
-            arrFieldSrc,
+        perSrcProc[i]->rearrange(tmp[NB_COMPO_POS]);
+        srcArr->setPartOfValues3(
+            perSrcProc[i],
             _src_rank_of_nodes_in_whole[i]->begin(),
             _src_rank_of_nodes_in_whole[i]->end(),
             0,
             tmp[NB_COMPO_POS],
-            1
+            1,
+            true
         );
     }
     // matrix * vector (srcArr)
@@ -603,32 +1104,6 @@ CFEMDECOneWayTarget::receiveFromSource()
     ret->setMesh(_master->getLocalMesh());
     ret->setName("Field");
     ret->checkConsistencyLight();
-    return ret;
-}
-
-static std::vector<MCAuto<DataArrayIdType>>
-ComputeNodeIdsPerProc(
-    const std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes,
-    const std::vector<MCAuto<DataArrayIdType>> &srcGlobalNodeIds,
-    MCAuto<MEDCouplingUMesh> &wholeMesh
-)
-{
-    MCAuto<DataArrayIdType> o2n(DataArrayIdType::Aggregate(FromVecAutoToVecOfConst<DataArrayIdType>(srcGlobalNodeIds)));
-    MCAuto<DataArrayIdType> b(o2n->buildUniqueNotSorted());
-    MCAuto<MapKeyVal<mcIdType, mcIdType>> zeMap((b->invertArrayN2O2O2NOptimized()));
-    o2n->transformWithIndArr(*zeMap);
-    mcIdType nbOfNodesWithoutDup(o2n->getMaxAbsValueInArray() + 1);
-    wholeMesh = MEDCouplingUMesh::MergeUMeshes(FromVecAutoToVecOfConst<MEDCouplingUMesh>(srcMeshes));
-    wholeMesh->renumberNodes(o2n->begin(), nbOfNodesWithoutDup);
-    wholeMesh->checkConsistencyLight();
-    // remove ghost cells
-    std::size_t nbOfSrcProcs(srcGlobalNodeIds.size());
-    std::vector<MCAuto<DataArrayIdType>> ret(nbOfSrcProcs);
-    for (std::size_t i = 0; i < nbOfSrcProcs; ++i)
-    {
-        ret[i] = b->findIdForEach(srcGlobalNodeIds[i]->begin(), srcGlobalNodeIds[i]->end());
-    }
-    wholeMesh->zipConnectivityTraducer(0);
     return ret;
 }
 
@@ -644,58 +1119,11 @@ CFEMDECOneWayTarget::computeMatrix(
     const std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes, const std::vector<MCAuto<DataArrayIdType>> &srcGlobalNodeIds
 )
 {
-    bool isProc0Target(_to_master->getTargetGrp()->myRank() == 0);
     MCAuto<MEDCouplingUMesh> wholeMesh;
-    if (isProc0Target)
-        _src_rank_of_nodes_in_whole = ComputeNodeIdsPerProc(srcMeshes, srcGlobalNodeIds, wholeMesh);
-    // broadcast wholeMesh over all target procs
-    std::vector<double> td;
-    std::vector<mcIdType> ti;
-    std::vector<std::string> ts;
-    MCAuto<DataArrayIdType> bi;
-    MCAuto<DataArrayDouble> bd;
-    if (isProc0Target)
-    {
-        wholeMesh->getTinySerializationInformation(td, ti, ts);
-        {
-            DataArrayIdType *biTmp(nullptr);
-            DataArrayDouble *bdTmp(nullptr);
-            wholeMesh->serialize(biTmp, bdTmp);
-            bi = biTmp;
-            bd = bdTmp;
-        }
-    }
-    else
-    {
-        std::vector<double> tdFake;
-        std::vector<mcIdType> tiFake;
-        _master->getLocalMesh()->getTinySerializationInformation(tdFake, tiFake, ts);
-    }
-    MPIProcessorGroup *trgGrp(_to_master->getTargetGrp());
-    ti = bCastTArrayFromProcInternal<mcIdType>(trgGrp, ti.data(), ti.size(), 0);
-    td = bCastTArrayFromProcInternal<double>(trgGrp, td.data(), td.size(), 0);
-    bi = bCastTArrayFromProc<mcIdType>(trgGrp, bi, 0);
-    bd = bCastTArrayFromProc<double>(trgGrp, bd, 0);
-    bd->rearrange(_master->getLocalMesh()->getSpaceDimension());
-    if (!isProc0Target)
-    {
-        wholeMesh = MEDCouplingUMesh::New();
-        wholeMesh->unserialization(td, ti, bi, bd, ts);
-    }
+    _src_rank_of_nodes_in_whole = ComputeNodeIdsPerProc(srcMeshes, srcGlobalNodeIds, wholeMesh);
     this->_nb_nodes_src_mesh = wholeMesh->getNumberOfNodes();
-    // broadcast _src_rank_of_nodes_in_whole over all target procs
-    int nbSrcProcs(_to_master->getSourceGrp()->size());
-    if (!isProc0Target)
-    {
-        _src_rank_of_nodes_in_whole.resize(nbSrcProcs);
-    }
-    for (int i = 0; i < nbSrcProcs; ++i)
-    {
-        MCAuto<DataArrayIdType> srcRk(_src_rank_of_nodes_in_whole[i]);
-        MCAuto<DataArrayIdType> srcRk2(bCastTArrayFromProc<mcIdType>(trgGrp, srcRk, 0));
-        if (!isProc0Target)
-            _src_rank_of_nodes_in_whole[i] = srcRk2;
-    }
+    // send srcNodeIds to source groups
+    int nbProcUnion(getUnionGrp()->size());
     // compute matrix
     const double *coordsOfTrgMesh(_master->getLocalMesh()->getCoords()->begin());
     const mcIdType nbOfTrgPts(_master->getLocalMesh()->getNumberOfNodes());
@@ -703,6 +1131,23 @@ CFEMDECOneWayTarget::computeMatrix(
     MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrix(
         wholeMesh, coordsOfTrgMesh, nbOfTrgPts, this->_matrix, this->getFEOptions()
     );
+}
+
+MCAuto<MEDCouplingUMesh>
+CFEMDECOneWaySource::ReduceMesh(
+    const MEDCouplingUMesh *mesh,
+    const DataArrayIdType *globalNodeIds,
+    const mcIdType *bg,
+    const mcIdType *end,
+    MCAuto<DataArrayIdType> &globalNodeIdsOut
+)
+{
+    MCAuto<MEDCouplingUMesh> part(mesh->buildPartOfMySelf(bg, end, true));
+    MCAuto<DataArrayIdType> nodeIdsFetched(part->computeFetchedNodeIds());
+    MCAuto<DataArrayIdType> o2n(nodeIdsFetched->invertArrayN2O2O2N(mesh->getNumberOfNodes()));
+    part->renumberNodes(o2n->begin(), nodeIdsFetched->getNumberOfTuples());
+    globalNodeIdsOut = globalNodeIds->selectByTupleIdSafe(nodeIdsFetched->begin(), nodeIdsFetched->end());
+    return part;
 }
 
 CFEMDEC::CFEMDEC(ProcessorGroup &source_group, ProcessorGroup &target_group)
@@ -713,6 +1158,17 @@ CFEMDEC::CFEMDEC(ProcessorGroup &source_group, ProcessorGroup &target_group)
 CFEMDEC::CFEMDEC(const std::set<int> &src_ids, const std::set<int> &trg_ids, const MPI_Comm &world_comm)
     : DisjointDECAbstract(src_ids, trg_ids, world_comm)
 {
+}
+
+ProcessorGroup *
+CFEMDEC::getReverseUnionGrp() const
+{
+    if (!_reverse_union_group.get())
+    {
+        // warning to order. Use fuseNotOrdered and not fuse for collectives
+        _reverse_union_group.reset(getTargetGrp()->fuseNotOrdered(*getSourceGrp()));
+    }
+    return _reverse_union_group.get();
 }
 
 void
