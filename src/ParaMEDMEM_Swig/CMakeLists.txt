@@ -161,6 +161,11 @@ install(
         ParaMEDMEMTestTools.py
         test_BasicOperation.py
         test_CFEMDEC.py
+        test_CFEMDEC_2.py
+        test_CFEMDEC.med
+        test_CFEMDEC_2_pres_SEQ.med
+        test_CFEMDEC_2_pres_0.med
+        test_CFEMDEC_2_pres_1.med
         test_CFEMDEC.med
   DESTINATION ${TEST_INSTALL_DIRECTORY})
 

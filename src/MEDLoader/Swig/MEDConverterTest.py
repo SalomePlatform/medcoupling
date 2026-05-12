@@ -1693,6 +1693,19 @@ FIN
             mm.getGroupArr(0, "HEX8").isEqualWithoutConsideringStr(DataArrayInt([3]))
         )
 
+        grps = mm.getGroupsNames()
+        grps_ref = (
+            "Grp_FE_C3D4",
+            "Grp_FE_C3D5",
+            "Grp_FE_C3D6",
+            "Grp_FE_C3D8",
+            "HEX8",
+            "PENTA6",
+            "PYRA5",
+            "TET4",
+        )
+        self.assertSequenceEqual(grps, grps_ref)
+
     def testCDB(self):
         filename = "ANSYS_Modele_FE_Mixte_v4.cdb"
 
@@ -1809,6 +1822,29 @@ FIN
                 )
             )
         )
+
+        grps = mm.getGroupsNames()
+        grps_ref = (
+            "CL_UXYZ",
+            "CL_UXYZ_RXYZ",
+            "EFFORTS_MOMENTS",
+            "EFFORTS_X",
+            "EL_BEAM188",
+            "EL_BEAM189",
+            "EL_COMBIN14",
+            "EL_LINK180_BARRES",
+            "EL_LINK180_CABLES",
+            "EL_MASS21",
+            "EL_SHELL181",
+            "Grp_FE_14",
+            "Grp_FE_180",
+            "Grp_FE_181",
+            "Grp_FE_188",
+            "Grp_FE_189",
+            "Grp_FE_21",
+            "_Y1",
+        )
+        self.assertSequenceEqual(grps, grps_ref)
 
     def testASC(self):
         filename = "SYSTUS_MULTI_DONN1.ASC"
@@ -1929,6 +1965,28 @@ FIN
                 )
             )
         )
+
+        grps = mm.getGroupsNames()
+        grps_ref = (
+            "1D_LINEAIRE",
+            "1D_QUAD",
+            "2D_LINEAIRE",
+            "2D_QUAD",
+            "3D_LINEAIRE",
+            "3D_QUAD",
+            "Grp_FE_c3d10",
+            "Grp_FE_c3d13",
+            "Grp_FE_c3d15",
+            "Grp_FE_c3d20",
+            "Grp_FE_c3d4",
+            "Grp_FE_c3d5",
+            "Grp_FE_c3d6",
+            "Grp_FE_c3d8",
+            "N_LINEAIRE",
+            "N_QUAD",
+        )
+
+        self.assertSequenceEqual(grps, grps_ref)
 
 
 if __name__ == "__main__":

@@ -32,6 +32,13 @@ using namespace MEDCoupling;
 
 const char MEDCouplingFieldDiscretizationOnNodesFE::REPR[] = "FE";
 
+enum class ProjectionResult
+{
+    INSIDE_CELL,
+    ON_BOUNDARY,
+    OUTSIDE_CELL
+};
+
 std::string
 MEDCouplingFieldDiscretizationOnNodesFE::getStringRepr() const
 {
@@ -221,7 +228,7 @@ IsInside(
  *  See pj3da3.F90 routine of code_aster
  */
 
-static bool
+static ProjectionResult
 ClosestPoint_TRIA3_3D(
     const MEDCouplingGaussLocalization &gl,
     const std::vector<double> &ptsInCell,
@@ -263,7 +270,7 @@ ClosestPoint_TRIA3_3D(
 
     double delta = a11 * a22 - a12 * a12;
     if (std::abs(delta) < 1e-14)
-        return false;  // triangle dégénéré
+        return ProjectionResult::OUTSIDE_CELL;  // triangle dégénéré
 
     // Barycentric coordinates
     double lb = (a22 * b1 - a12 * b2) / delta;
@@ -284,6 +291,8 @@ ClosestPoint_TRIA3_3D(
         para[1] = lc;
     }
 
+    ProjectionResult ret = ProjectionResult::INSIDE_CELL;
+
     INTERP_KERNEL::NormalizedCellType ct(gl.getType());
     if (!INTERP_KERNEL::GaussInfo::IsInOrOutForReference(ct, refCoo, para.data(), EPS_IN_OUT))
     {
@@ -292,8 +301,8 @@ ClosestPoint_TRIA3_3D(
         if (refCoo[0] < -0.5)
         {
             la = 0.5 * (1.0 + para[1]);
-            lb = 0.5 * (1.0 - para[0] - para[1]);
             lc = 0.5 * (1.0 + para[0]);
+            lb = 1.0 - la - lc;
         }
         else
         {
@@ -301,6 +310,12 @@ ClosestPoint_TRIA3_3D(
             lb = para[0];
             lc = para[1];
         }
+        ret = ProjectionResult::ON_BOUNDARY;
+    }
+
+    if (std::abs(la + lb + lc - 1.0) > 1e-12)
+    {
+        THROW_IK_EXCEPTION("Problem with the computation of barycentric coordinates");
     }
 
     locInRef[0] = para[0];
@@ -317,14 +332,14 @@ ClosestPoint_TRIA3_3D(
     }
     dist = std::sqrt(dist);
 
-    return true;
+    return ret;
 }
 
 /* Search closest point on the surface unsing orthogonal projection.
  *  See mmnewt.F90 routine of code_aster
  */
 template <int SPACEDIM>
-bool
+ProjectionResult
 ClosestPoint(
     const MEDCouplingGaussLocalization &gl,
     const std::vector<double> &ptsInCell,
@@ -375,7 +390,7 @@ ClosestPoint(
     auto dist_pt = [nbPtsInCell, ptsInCell, locInReal](const MCAuto<DataArrayDouble> &shapeFunc)
     {
         const double *shapeFuncPtr(shapeFunc->begin());
-        std::vector<double> posi(SPACEDIM, 0);
+        std::vector<double> posi(SPACEDIM, 0.);
         for (std::size_t iPt = 0; iPt < nbPtsInCell; ++iPt)
         {
             for (short iDim = 0; iDim < SPACEDIM; ++iDim)
@@ -448,6 +463,8 @@ ClosestPoint(
         }
     };
 
+    ProjectionResult retp = ProjectionResult::OUTSIDE_CELL;
+
     // loop on refcoords as initialization point for Newton algo. vini is the initialization vector of Newton.
     for (std::size_t attemptId = 0; attemptId < nbPtsInCell + 1; ++attemptId)
     {
@@ -475,11 +492,13 @@ ClosestPoint(
         }  // Something get wrong during Newton process
         if (ret)
         {
+            retp = ProjectionResult::INSIDE_CELL;
             // Newton has converged. Now check if it converged to a point inside cell
             if (!INTERP_KERNEL::GaussInfo::IsInOrOutForReference(ct, refCoo, vini.data(), EPS_IN_OUT))
             {
                 // No point inside but at least one on the border
                 INTERP_KERNEL::GaussInfo::AdapatCoorForReference(ct, refCoo, vini.data());
+                retp = ProjectionResult::ON_BOUNDARY;
             }
 
             for (int i = 0; i < (SPACEDIM - 1); i++)
@@ -487,12 +506,12 @@ ClosestPoint(
                 locInRef[i] = vini[i];
             }
             dist = distance(vini);
-            return true;
+            return retp;
         }
     }
     std::fill(locInRef, locInRef + (SPACEDIM - 1), std::numeric_limits<double>::max());
     dist = std::numeric_limits<double>::max();
-    return false;
+    return retp;
 }
 
 void
@@ -673,10 +692,12 @@ MEDCouplingFieldDiscretizationOnNodesFE::GetClosestRefCoordOfListOf1PtInND(
 {
     constexpr int SPACEDIM = BBTree::dimension;
     const double *coordsOfMesh(umesh->getCoords()->begin());
-    bool found = false;
+    ProjectionResult found = ProjectionResult::OUTSIDE_CELL;
     double dist_min = std::numeric_limits<double>::max(), dist_loc;
+    double dist_min_b = std::numeric_limits<double>::max();
     MEDCouplingGaussLocalization gl_min(INTERP_KERNEL::NORM_SEG2);
-    mcIdType cell_id;
+    MEDCouplingGaussLocalization gl_min_b(INTERP_KERNEL::NORM_SEG2);
+    mcIdType cell_id, cell_id_b;
 
     // EDF31461 : TODO : An algorithm could be implemented to automatically reduce number of candidates.
     // std::vector<mcIdType> elems;
@@ -699,20 +720,38 @@ MEDCouplingFieldDiscretizationOnNodesFE::GetClosestRefCoordOfListOf1PtInND(
             { ptsInCell.insert(ptsInCell.end(), coordsOfMesh + c * SPACEDIM, coordsOfMesh + (c + 1) * SPACEDIM); }
         );
         std::vector<double> locInRef(SPACEDIM - 1);
-        if (ClosestPoint<SPACEDIM>(gl, ptsInCell, ptCoor.data(), locInRef.data(), dist_loc))
+        const auto ret = ClosestPoint<SPACEDIM>(gl, ptsInCell, ptCoor.data(), locInRef.data(), dist_loc);
+        if (ret == ProjectionResult::INSIDE_CELL)
         {
             if (dist_loc <= dist_max && dist_loc < dist_min)
             {
-                found = true;
+                found = ProjectionResult::INSIDE_CELL;
                 cell_id = cellId;
                 gl_min = gl;
                 gl_min.setGaussCoords(locInRef);
                 dist_min = dist_loc;
             }
         }
+        else if (ret == ProjectionResult::ON_BOUNDARY && found != ProjectionResult::INSIDE_CELL)
+        {
+            if (dist_loc <= dist_max && dist_loc < dist_min_b)
+            {
+                found = ProjectionResult::ON_BOUNDARY;
+                cell_id_b = cellId;
+                gl_min_b = gl;
+                gl_min_b.setGaussCoords(locInRef);
+                dist_min_b = dist_loc;
+            }
+        }
     }
-    if (found)
+    if (found == ProjectionResult::INSIDE_CELL || found == ProjectionResult::ON_BOUNDARY)
     {
+        if (found == ProjectionResult::ON_BOUNDARY)
+        {
+            cell_id = cell_id_b;
+            gl_min = gl_min_b;
+        }
+
         std::vector<mcIdType> conn;
         umesh->getNodeIdsOfCell(cell_id, conn);
         customFunc(gl_min, conn);

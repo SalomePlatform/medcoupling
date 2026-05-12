@@ -924,20 +924,22 @@ class MEDConverterAbaqus(MEDConverterMesh):
         # Les groups
         # Nodes' group
         for group in mesh.Nset:
-            group_name = group.getName()
+            group_name = group.getName().strip()
             group_nodes_abaqus = map(int, group.getGroup())
             self.add_group_nodes(group_name, group_nodes_abaqus)
 
         # Element's group
         for group in mesh.Elset:
-            group_name = group.getName()
+            group_name = group.getName().strip()
             group_element_abaqus = map(int, group.getGroup())
             self.add_group_cells(group_name, group_element_abaqus)
 
         # Add a group by cell type:
         for group_name, group_element_abaqus in groups_by_elem.items():
             if group_name not in mesh.ElsetName:
-                self.add_group_cells(group_name, group_element_abaqus)
+                self.add_group_cells(
+                    "Grp_FE_" + group_name.strip(), group_element_abaqus
+                )
 
     def _read_meshname(self, filename):
         return osp.splitext(osp.basename(filename))[0]

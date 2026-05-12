@@ -135,16 +135,27 @@ class CellsTypeConverter:
             ("S8R", "QUAD8"),
             ("S8RS", "QUAD8"),
             ("S9R5", "QUAD9"),
+            # Axisymmetric Structural Element
+            ("SAX1", "SEG2"),
+            ("SAX2", "SEG3"),
+            ("SAX2T", "SEG3"),
             # Structural Element
             ("S3", "TRI3"),
             ("S4", "QUAD4"),
+            ("STRI3", "TRI3"),
+            ("STRI65", "TRI6"),
+            # Cohesive Element
+            ("COH3D6", "PENTA6"),
+            ("COH3D8", "HEXA8"),
             # Reduced Continuum Element
             ("CPE4R", "QUAD4"),
             ("CPE4RH", "QUAD4"),
             ("CPE8R", "QUAD8"),
             ("CPE8RH", "QUAD8"),
             ("CPS4R", "QUAD4"),
+            ("CPS4RH", "QUAD4"),
             ("CPS8R", "QUAD8"),
+            ("CPS8RH", "QUAD8"),
             ("C3D8R", "HEXA8"),
             ("C3D8RH", "HEXA8"),
             ("C3D20R", "HEXA20"),
@@ -371,17 +382,17 @@ class CellsTypeConverter:
             ("75_4", "QUAD4"),
             ("75_3", "TRI3"),
             # PLANE77
-            ("77_4", "QUAD8"),
-            ("77_3", "TRI6"),
+            ("77_6", "QUAD8"),
+            ("77_6", "TRI6"),
             # PLANE78
-            ("78_4", "QUAD8"),
-            ("78_3", "TRI6"),
+            ("78_8", "QUAD8"),
+            ("78_6", "TRI6"),
             # PLANE82
             ("82_8", "QUAD8"),
             ("82_6", "TRI6"),
             # PLANE83
-            ("83_4", "QUAD8"),
-            ("83_3", "TRI6"),
+            ("83_8", "QUAD8"),
+            ("83_6", "TRI6"),
             # SOLID87
             ("87_10", "TETRA10"),
             # SOLID90
@@ -566,13 +577,15 @@ class CellsTypeConverter:
             # INTER202
             ("202_4", "QUAD4"),
             # INTER204
-            ("204_5", "HEXA8"),
+            ("204_8", "HEXA8"),
+            # INTER205
+            ("205_8", "HEXA8"),
             # CPT212
             ("212_4", "QUAD4"),
             ("212_3", "TRI3"),
             # CPT213
             ("213_8", "QUAD8"),
-            ("213_3", "TRI6"),
+            ("213_6", "TRI6"),
             # CPT215
             ("215_8", "HEXA8"),
             ("215_6", "PENTA6"),
@@ -649,6 +662,8 @@ class CellsTypeConverter:
             ("279_10", "TETRA10"),
             ("279_13", "PYRA13"),
             ("279_15", "PENTA15"),
+            # CABLE280
+            ("280_3", "SEG3"),
             # SHELL281
             ("281_8", "QUAD8"),
             ("281_6", "TRI6"),
@@ -660,6 +675,14 @@ class CellsTypeConverter:
             ("289_3", "SEG3"),
             # ELBOW290
             ("290_3", "SEG3"),
+            # SOLID291
+            ("291_10", "TETRA10"),
+            # PLANE292
+            ("292_3", "TRIA3"),
+            ("292_4", "QUAD4"),
+            # PLANE293
+            ("292_6", "TRIA6"),
+            ("292_8", "QUAD8"),
         )
     )
 

@@ -108,6 +108,8 @@ class MEDConverterZset(MEDConverterMesh):
         g_conv = GroupCellsTypeConverter("ZSET")
         c_renum = ConnectivityRenumberer("ZSET")
 
+        groups_by_elem = {}
+
         tic = time.perf_counter()
         for line in ELEMENTS[1:-1]:
             spline = line.split()
@@ -121,6 +123,10 @@ class MEDConverterZset(MEDConverterMesh):
             )
 
             self.add_cell(idx_element_zset, element_medcoupling_type, element_nodes_med)
+
+            if element_zset_type not in groups_by_elem:
+                groups_by_elem[element_zset_type] = []
+            groups_by_elem[element_zset_type].append(idx_element_zset)
 
         toc = time.perf_counter()
         logger.debug(
@@ -174,6 +180,10 @@ class MEDConverterZset(MEDConverterMesh):
             self._add_bset(liset_name, items, g_conv, c_renum)
         toc = time.perf_counter()
         logger.debug(" Add %d liset (in %0.4f seconds)" % (len(liset), toc - tic))
+
+        # Add a group by cell type:
+        for group_name, group_element_zset in groups_by_elem.items():
+            self.add_group_cells("Grp_FE_" + group_name.strip(), group_element_zset)
 
     def _add_bset(self, bset_name, bset_items, g_conv, c_renum):
         max_idx_elements = max(

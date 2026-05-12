@@ -114,383 +114,6 @@ class Repere:
             return (self.angle[0], self.angle[2], self.angle[1])
 
 
-dicoMod = {
-    "5_2": "MMA-3D",
-    "5_8": "TMA-3D",
-    "11": "MBA-BARRE",
-    "13_3_3": "MMA-AXIS",
-    "13_3": "MMA-C_PLAN",
-    "13_2_3": "TMA-PLAN",
-    "13_2": "TMA-PLAN",
-    "14": "MDI-DIS_T",
-    "14_0": "MDI-DIS_T",
-    "14_2": "MDD-2D_DIS_T",
-    "16": "MPO-POU_D_T",
-    "16_2": "NAN-undefined",
-    "16_3": "NAN-undefined",
-    "18": "MPO-POU_D_T",
-    "18_2": "NAN-undefined",
-    "18_3": "NAN-undefined",
-    "21": "MDI-DIS_TR",
-    "21_0": "MDI-DIS_TR",
-    "21_2": "MDI-DIS_T",
-    "21_3": "MDD-2D_DIS_TR",
-    "21_4": "MDD-2D_DIS_T",
-    "25": "MMA-AXIS",
-    "25_3": "MMA-AXIS",
-    "25_4": "MMA-D_PLAN",
-    "27": "NAN-undefined",
-    "29_3": "MMA-AXIS",
-    "29": "MMA-D_PLAN_HHM",
-    "30": "AMA-3D",
-    "31": "TMA-AXIS",
-    "33": "TMA-AXIS",
-    "34": "TMA-AXIS",
-    "35": "TMA-PLAN",
-    "39": "NAN-undefined",
-    "40": "NAN-undefined",
-    "40_0": "NAN-undefined",
-    "40_1": "NAN-undefined",
-    "40_2": "NAN-undefined",
-    "40_3": "NAN-undefined",
-    "40_4": "NAN-undefined",
-    "40_5": "NAN-undefined",
-    "40_6": "NAN-undefined",
-    "40_7": "NAN-undefined",
-    "40_8": "NAN-undefined",
-    "42": "MMA-C_PLAN",
-    "42_0_3": "MMA-AXIS",
-    "42_2_3": "MMA-AXIS",
-    "42_0": "MMA-C_PLAN",
-    "42_2": "MMA-D_PLAN",
-    "45": "MMA-3D",
-    "45_0": "MMA-3D",
-    "45_1": "MMA-3D",
-    "47": "TMA-PLAN",
-    "47_1": "TMA-PLAN",
-    "55": "TMA-PLAN",
-    "59": "MPO-POU_D_T",
-    "59_1": "MCA-CABLE",
-    "59_0": "MDD-2D_POU_D_TR",
-    "59_2": "MDD-2D_POU_D_TR",
-    "61": "MCO-COQUE_AXIS",
-    "63": "MCO-DKT",
-    "65": "MMA-3D",
-    "68": "TMA-AXIS",
-    "70": "TMA-3D",
-    "71": "NAN-undefined",
-    "75": "TMA-PLAN",
-    "77": "TMA-PLAN",
-    "78": "TMA-PLAN",
-    "82": "MMA-C_PLAN",
-    "83": "MMA-C_PLAN",
-    "87": "TMA-3D",
-    "90": "TMA-3D",
-    "92": "MMA-3D",
-    "95": "MMA-3D",
-    "95_0": "MMA-3D",
-    "95_1": "MMA-3D",
-    "96": "NAN-undefined",
-    "98": "MMA-3D",
-    "98_2": "MMA-3D",
-    "98_8": "TMA-3D",
-    "111": "NAN-undefined",
-    "111_3": "TMA-3D",
-    "116": "TMA-AXIS",
-    "116_0": "TMA-AXIS",
-    "116_1": "TMA-AXIS",
-    "116_2": "NAN-undefined",
-    "116_3": "NAN-undefined",
-    "120": "NAN-undefined",
-    "121": "NAN-undefined",
-    "122": "NAN-undefined",
-    "123": "NAN-undefined",
-    "129": "NAN-undefined",
-    "131": "TCO-COQUE",
-    "132": "TCO-COQUE",
-    "136": "MMA-D_PLAN_HM",
-    "138": "NAN-undefined",
-    "43": "MCO-Q4G",
-    "43_0": "MCO-Q4G",
-    "43_1": "MCO-Q4G",
-    "143": "MCO-Q4G",
-    "143_0": "MCO-Q4G",
-    "143_1": "MCO-Q4G",
-    "151": "TMA-AXIS",
-    "152": "TMA-PLAN",
-    "153": "MMA-AXIS",
-    "154": "NAN-undefined",
-    "156": "MMA-AXIS",
-    "157": "TCO-COQUE",
-    "160": "MBA-BARRE",
-    "161": "MPO-POU_D_T",
-    "162": "NAN-undefined",
-    "163": "NAN-undefined",
-    "164": "MMA-3D",
-    "164_0": "NAN-undefined",
-    "164_1": "NAN-undefined",
-    "164_2": "NAN-undefined",
-    "165": "MDI-DIS_T",
-    "165_0": "MDI-DIS_T",
-    "165_1": "MDI-DIS_TR",
-    "166": "MDI-DIS_T",
-    "167": "MCA-CABLE",
-    "168": "MMA-3D",
-    "169": "NAN-undefined",
-    "169_3": "NAN-undefined",
-    "170": "NAN-undefined",
-    "171": "NAN-undefined",
-    "171_0": "NAN-undefined",
-    "171_1": "NAN-undefined",
-    "171_2": "NAN-undefined",
-    "171_7": "NAN-undefined",
-    "171_8": "NAN-undefined",
-    "171_9": "NAN-undefined",
-    "171_10": "NAN-undefined",
-    "172": "NAN-undefined",
-    "172_0": "NAN-undefined",
-    "172_1": "NAN-undefined",
-    "172_2": "NAN-undefined",
-    "172_7": "NAN-undefined",
-    "172_8": "NAN-undefined",
-    "172_9": "NAN-undefined",
-    "172_10": "NAN-undefined",
-    "173": "NAN-undefined",
-    "173_0": "NAN-undefined",
-    "173_1": "NAN-undefined",
-    "173_2": "NAN-undefined",
-    "173_8": "NAN-undefined",
-    "173_9": "NAN-undefined",
-    "173_10": "NAN-undefined",
-    "174": "NAN-undefined",
-    "174_0": "NAN-undefined",
-    "174_1": "NAN-undefined",
-    "174_2": "NAN-undefined",
-    "174_8": "NAN-undefined",
-    "174_9": "NAN-undefined",
-    "174_10": "NAN-undefined",
-    "175": "NAN-undefined",
-    "175_0": "NAN-undefined",
-    "175_1": "NAN-undefined",
-    "175_2": "NAN-undefined",
-    "175_8": "NAN-undefined",
-    "175_9": "NAN-undefined",
-    "175_10": "NAN-undefined",
-    "176": "NAN-undefined",
-    "177": "NAN-undefined",
-    "180_0": "MBA-BARRE",
-    "180_1": "MCA-CABLE",
-    "181": "MCO-Q4G",
-    "181_0": "MCO-Q4G",
-    "181_1": "MCO-Q4G",
-    "182": "MMA-C_PLAN",
-    "182_0": "MMA-AXIS",
-    "182_2": "MMA-D_PLAN",
-    "182_3": "MMA-AXIS",
-    "182_5": "MMA-C_PLAN",
-    "183": "MMA-C_PLAN",
-    "183_0": "MMA-C_PLAN",
-    "183_2": "MMA-C_PLAN",
-    "183_3": "MMA-C_PLAN",
-    "183_5": "MMA-C_PLAN",
-    "184": "MPO-POU_D_T",
-    "185": "MMA-3D",
-    "186": "MMA-3D_SI",
-    "186_0": "MMA-3D_SI",
-    "186_1": "MMA-3D",
-    "187": "MMA-3D",
-    "4": "MPO-POU_D_T",
-    "4_3": "MPO-POU_D_T",
-    "44": "MPO-POU_D_T",
-    "44_3": "MPO-POU_D_T",
-    "188": "MPO-POU_D_T",
-    "189": "MPO-POU_D_T",
-    "189_3": "MPO-POU_D_T",
-    "190": "MCO-DKT",
-    "192": "M-PLAN_JOINT",
-    "195": "M-3D_JOINT",
-    "200": "NAN-undefined",
-    "202": "MMA-C_PLAN",
-    "202_0": "MMA-C_PLAN",
-    "202_2": "MMA-D_PLAN",
-    "202_3": "MMA-C_PLAN",
-    "204": "MMA-3D",
-    "212_3": "NAN-undefined",
-    "212": "NAN-undefined",
-    "213_3": "M-D_PLAN_HM",
-    "213": "M-D_PLAN_HHM",
-    "215": "NAN-undefined",
-    "216": "M-3D_HM",
-    "217": "NAN-undefined",
-    "218": "M-D_PLAN_THH",
-    "218_0": "NAN-undefined",
-    "218_1": "M-D_PLAN_THH",
-    "220": "AMA-3D",
-    "221": "AMA-3D",
-    "223": "NAN-undefined",
-    "223_11": "NAN-undefined",
-    "223_100001": "NAN-undefined",
-    "223_100010": "NAN-undefined",
-    "223_100011": "NAN-undefined",
-    "226": "NAN-undefined",
-    "226_11": "NAN-undefined",
-    "226_100001": "NAN-undefined",
-    "226_100010": "NAN-undefined",
-    "226_100011": "NAN-undefined",
-    "227": "NAN-undefined",
-    "227_11": "NAN-undefined",
-    "227_100001": "NAN-undefined",
-    "227_100010": "NAN-undefined",
-    "227_100011": "NAN-undefined",
-    "230": "NAN-undefined",
-    "231": "NAN-undefined",
-    "232": "NAN-undefined",
-    "233": "NAN-undefined",
-    "236": "NAN-undefined",
-    "237": "NAN-undefined",
-    "238": "NAN-undefined",
-    "239": "NAN-undefined",
-    "240": "NAN-undefined",
-    "251": "NAN-undefined",
-    "252": "NAN-undefined",
-    "278": "NAN-undefined",
-    "279": "NAN-undefined",
-    "281": "MCO-COQUE_3D",
-    "281_0": "MCO-COQUE_3D",
-    "281_1": "MCO-COQUE_3D",
-    "285": "NAN-undefined",
-    "288": "MPO-POU_D_T",
-    "289_3": "MPO-TUYAU_3M",
-    "290": "MPO-TUYAU_3M",
-}
-
-dicoOpt = {
-    "4": None,
-    "5": 1,
-    "11": None,
-    "13": 1,
-    "14": 3,
-    "16": None,
-    "18": None,
-    "21": 3,
-    "25": None,
-    "27": None,
-    "29": None,
-    "30": None,
-    "31": None,
-    "33": None,
-    "34": None,
-    "35": None,
-    "39": 4,
-    "40": 3,
-    "42": 3,
-    "44": None,
-    "45": 2,
-    "47": 1,
-    "55": None,
-    "59": 1,
-    "61": None,
-    "63": None,
-    "65": None,
-    "68": None,
-    "70": None,
-    "71": None,
-    "75": None,
-    "77": None,
-    "78": None,
-    "82": None,
-    "83": None,
-    "87": None,
-    "90": None,
-    "92": None,
-    "95": 11,
-    "96": None,
-    "98": 1,
-    "111": 1,
-    "116": 1,
-    "120": None,
-    "121": None,
-    "122": None,
-    "123": None,
-    "129": None,
-    "131": None,
-    "132": None,
-    "136": None,
-    "138": None,
-    "143": 1,
-    "151": None,
-    "152": None,
-    "153": None,
-    "154": None,
-    "156": None,
-    "157": None,
-    "160": None,
-    "161": None,
-    "162": None,
-    "163": None,
-    "164": 1,
-    "165": 1,
-    "166": None,
-    "167": None,
-    "168": None,
-    "169": None,
-    "170": None,
-    "171": 1,
-    "172": 1,
-    "173": 1,
-    "174": 1,
-    "175": 1,
-    "176": None,
-    "177": None,
-    "180": None,
-    "43": 1,
-    "181": 1,
-    "182": 3,
-    "183": 3,
-    "184": None,
-    "185": None,
-    "186": None,
-    "187": None,
-    "188": None,
-    "189": None,
-    "190": None,
-    "192": None,
-    "195": None,
-    "200": None,
-    "202": 3,
-    "204": None,
-    "212": None,
-    "213": None,
-    "215": None,
-    "216": None,
-    "217": None,
-    "218": 1,
-    "220": None,
-    "221": None,
-    "223": 1,
-    "226": 1,
-    "227": 1,
-    "230": None,
-    "231": None,
-    "232": None,
-    "233": None,
-    "236": None,
-    "237": None,
-    "238": None,
-    "239": None,
-    "240": None,
-    "251": None,
-    "252": None,
-    "278": None,
-    "279": None,
-    "281": 1,
-    "285": None,
-    "288": None,
-    "289": None,
-    "290": None,
-}
-
-
 class MEDConverterAnsys(MEDConverterMesh):
     @staticmethod
     def convert_ansys_to_med(filename_ansys, verbose=False):
@@ -554,6 +177,8 @@ class MEDConverterAnsys(MEDConverterMesh):
                 elif strip_line.startswith("ET,"):
                     sspline = strip_line.split(",")
                     ElemAnsys[int(sspline[1])] = int(sspline[2])
+                elif strip_line.startswith("ETBLOCK"):
+                    ElemAnsys = self.__read_elem(file, ElemAnsys)
                 elif strip_line.startswith("ESEL,"):
                     sspline = strip_line.split(",")
                     assert sspline[1] in ("S", "ALL", "A")
@@ -660,28 +285,6 @@ class MEDConverterAnsys(MEDConverterMesh):
                 )
                 del cell.nodes[2]
 
-            # add cell in medcoupling format
-            if (
-                cell.type in ElemOpt
-                and ElemOpt[cell.type][0] == dicoOpt[str(element_ansys_type)]
-            ):
-                element_group_type = (
-                    str(element_ansys_type) + "_" + str(ElemOpt[cell.type][1])
-                )
-            else:
-                element_group_type = str(element_ansys_type)
-            if nb_nodes == 3:
-                element_group_type = element_group_type + "_" + str(nb_nodes)
-            if element_group_type == "180":
-                element_group_type = (
-                    element_group_type + "_" + str(Sect[cell.sec].option)
-                )
-            try:
-                element_group = dicoMod[element_group_type]
-            except (ValueError, TypeError):
-                msg = "Erreur: Option de l'élément non traitée"
-                raise RuntimeError(msg)
-
             elements_nodes_ansys = list(OrderedDict.fromkeys(cell.nodes[:nb_nodes]))
 
             if element_ansys_type == 200:
@@ -708,6 +311,7 @@ class MEDConverterAnsys(MEDConverterMesh):
             )
 
             # add group
+            element_group = element_ansys_type.split("_")[0]
             if element_group in GROUPSMODELE:
                 GROUPSMODELE[element_group].append(cell.id)
             else:
@@ -729,9 +333,9 @@ class MEDConverterAnsys(MEDConverterMesh):
                     values += range(values[-1] + 1, (-elem) + 1)
 
             if group.type == "NODE":
-                self.add_group_nodes(group.name, values)
+                self.add_group_nodes(group.name.strip(), values)
             elif group.type == "ELEM":
-                self.add_group_cells(group.name, values)
+                self.add_group_cells(group.name.strip(), values)
             else:
                 raise RuntimeError("Unknown group's type")
 
@@ -741,10 +345,10 @@ class MEDConverterAnsys(MEDConverterMesh):
             for ent in elem:
                 values += ElemEntities[ent]
 
-            self.add_group_cells(name, values)
+            self.add_group_cells(name.strip(), values)
 
         for group in GROUPSMODELE:
-            rname = group.replace("-", "_")
+            rname = "Grp_FE_" + group.replace("-", "_").strip()
             self.add_group_cells(rname, GROUPSMODELE[group])
 
         toc = time.perf_counter()
@@ -766,6 +370,28 @@ class MEDConverterAnsys(MEDConverterMesh):
             return elems[0:3]
         else:
             return elems + [0.0] * (3 - nbElem)
+
+    def __read_elem(self, file, elem):
+        while True:
+            line = file.readline()
+            strip_line = line.strip()
+            if strip_line.startswith("("):
+                [nbElem, LongInt] = self.elem_format(strip_line)
+            elif strip_line.startswith("-1"):
+                break
+            else:
+                rline = line.rstrip()
+                enum = [
+                    int(rline[i : i + LongInt]) for i in range(0, len(rline), LongInt)
+                ]
+                assert len(enum) <= nbElem
+                elem_id = enum[0]
+                elem_type = enum[1]
+                if elem_id in elem:
+                    assert elem[elem_id] == elem_type
+                else:
+                    elem[elem_id] = elem_type
+        return elem
 
     def __read_nodes(self, file, nodes):
         while True:
@@ -841,6 +467,16 @@ class MEDConverterAnsys(MEDConverterMesh):
 
     def decode_format(self, line):
         return line.strip().lstrip("(").rstrip(")").split(",")
+
+    def elem_format(self, line):
+        format = self.decode_format(line)
+        s0 = format[0].split("i")
+        s1 = format[1].split("a")
+        nbElem = int(s0[0]) + int(s1[0])
+        long = int(s0[1])
+        assert long == int(s0[1])
+
+        return [nbElem, long]
 
     def node_format(self, line):
         format = self.decode_format(line)
