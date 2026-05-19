@@ -958,7 +958,7 @@ MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrixNd(
                 mesh_wrapper
             );
 
-        MEDCouplingUMesh *srcSkinMesh = nullptr;
+        MCAuto<MEDCouplingUMesh> srcSkinMesh;
         if (projOnSurf)
         {
             srcSkinMesh = srcMesh->computeSkin();
