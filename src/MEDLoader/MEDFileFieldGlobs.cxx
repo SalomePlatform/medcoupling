@@ -1356,10 +1356,15 @@ MEDFileFieldGlobsReal::contentNotNull() const
 
 //= MEDFileFieldNameScope
 
-MEDFileFieldNameScope::MEDFileFieldNameScope() {}
+MEDFileFieldNameScope::MEDFileFieldNameScope()
+    : _quantity_kind(MCAuto<QuantityKindAbstract>(QuantityKindUnDef::New().retn()))
+{
+}
 
-MEDFileFieldNameScope::MEDFileFieldNameScope(const std::string &fieldName, const std::string &meshName)
-    : _name(fieldName), _mesh_name(meshName)
+MEDFileFieldNameScope::MEDFileFieldNameScope(
+    const std::string &fieldName, const std::string &meshName, MCAuto<QuantityKindAbstract> qk
+)
+    : _name(fieldName), _mesh_name(meshName), _quantity_kind(qk)
 {
 }
 
@@ -1413,6 +1418,7 @@ MEDFileFieldNameScope::copyNameScope(const MEDFileFieldNameScope &other)
     _name = other._name;
     _mesh_name = other._mesh_name;
     _dt_unit = other._dt_unit;
+    _quantity_kind = other._quantity_kind;
 }
 
 /*!
@@ -1430,4 +1436,21 @@ void
 MEDFileFieldNameScope::setMeshName(const std::string &meshName)
 {
     _mesh_name = meshName;
+}
+
+MCAuto<QuantityKindAbstract>
+MEDFileFieldNameScope::getQuantityKind() const
+{
+    return this->_quantity_kind;
+}
+
+void
+MEDFileFieldNameScope::setQuantityKind(QuantityKindAbstract *newQKind)
+{
+    if (!newQKind)
+    {
+        THROW_IK_EXCEPTION("setQuantityKind : input must be not nullptr");
+    }
+    newQKind->incrRef();
+    this->_quantity_kind = newQKind;
 }

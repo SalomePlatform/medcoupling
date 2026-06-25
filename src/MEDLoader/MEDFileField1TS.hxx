@@ -41,7 +41,7 @@ class MEDFileAnyTypeField1TSWithoutSDA : public RefCountObject, public MEDFileFi
    public:
     MEDLOADER_EXPORT MEDFileAnyTypeField1TSWithoutSDA();
     MEDLOADER_EXPORT MEDFileAnyTypeField1TSWithoutSDA(
-        const std::string &fieldName, const std::string &meshName, int csit, int iteration, int order
+        const MEDFileFieldNameScope &ns, int csit, int iteration, int order
     );
     MEDLOADER_EXPORT std::string getClassName() const override
     {
@@ -278,10 +278,8 @@ template <class T>
 class MEDFileField1TSTemplateWithoutSDA : public MEDFileAnyTypeField1TSWithoutSDA
 {
    protected:
-    MEDFileField1TSTemplateWithoutSDA(
-        const std::string &fieldName, const std::string &meshName, int csit, int iteration, int order
-    )
-        : MEDFileAnyTypeField1TSWithoutSDA(fieldName, meshName, csit, iteration, order)
+    MEDFileField1TSTemplateWithoutSDA(const MEDFileFieldNameScope &ns, int csit, int iteration, int order)
+        : MEDFileAnyTypeField1TSWithoutSDA(ns, csit, iteration, order)
     {
     }
     MEDFileField1TSTemplateWithoutSDA() {}
@@ -331,23 +329,13 @@ class MEDFileField1TSWithoutSDA : public MEDFileField1TSTemplateWithoutSDA<doubl
     MEDLOADER_EXPORT static void CheckMeshDimRel(int meshDimRelToMax);
     MEDLOADER_EXPORT static std::vector<mcIdType> CheckSBTMesh(const MEDCouplingMesh *mesh);
     MEDLOADER_EXPORT static MEDFileField1TSWithoutSDA *New(
-        const std::string &fieldName,
-        const std::string &meshName,
-        int csit,
-        int iteration,
-        int order,
-        const std::vector<std::string> &infos
+        const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
     );
 
    public:
     MEDLOADER_EXPORT MEDFileField1TSWithoutSDA();
     MEDLOADER_EXPORT MEDFileField1TSWithoutSDA(
-        const std::string &fieldName,
-        const std::string &meshName,
-        int csit,
-        int iteration,
-        int order,
-        const std::vector<std::string> &infos
+        const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
     );
     MEDLOADER_EXPORT MEDFileField1TSWithoutSDA *shallowCpy() const;
     MEDLOADER_EXPORT MEDFileField1TSWithoutSDA *deepCopy() const;
@@ -368,14 +356,9 @@ class MEDFileField1TSNDTemplateWithoutSDA : public MEDFileField1TSTemplateWithou
    protected:
     MEDFileField1TSNDTemplateWithoutSDA() {}
     MEDFileField1TSNDTemplateWithoutSDA(
-        const std::string &fieldName,
-        const std::string &meshName,
-        int csit,
-        int iteration,
-        int order,
-        const std::vector<std::string> &infos
+        const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
     )
-        : MEDFileField1TSTemplateWithoutSDA<T>(fieldName, meshName, csit, iteration, order)
+        : MEDFileField1TSTemplateWithoutSDA<T>(ns, csit, iteration, order)
     {
     }
 };
@@ -389,12 +372,7 @@ class MEDFileInt32Field1TSWithoutSDA : public MEDFileField1TSNDTemplateWithoutSD
     MEDLOADER_EXPORT MEDFileInt32Field1TSWithoutSDA();
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileInt32Field1TSWithoutSDA"); }
     MEDLOADER_EXPORT static MEDFileInt32Field1TSWithoutSDA *New(
-        const std::string &fieldName,
-        const std::string &meshName,
-        int csit,
-        int iteration,
-        int order,
-        const std::vector<std::string> &infos
+        const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
     );
     MEDLOADER_EXPORT MEDFileInt32Field1TSWithoutSDA *deepCopy() const;
     MEDLOADER_EXPORT MEDFileInt32Field1TSWithoutSDA *shallowCpy() const;
@@ -410,12 +388,7 @@ class MEDFileInt32Field1TSWithoutSDA : public MEDFileField1TSNDTemplateWithoutSD
 
    protected:
     MEDFileInt32Field1TSWithoutSDA(
-        const std::string &fieldName,
-        const std::string &meshName,
-        int csit,
-        int iteration,
-        int order,
-        const std::vector<std::string> &infos
+        const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
     );
 
    public:
@@ -431,12 +404,7 @@ class MEDFileInt64Field1TSWithoutSDA : public MEDFileField1TSNDTemplateWithoutSD
     MEDLOADER_EXPORT MEDFileInt64Field1TSWithoutSDA();
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileInt64Field1TSWithoutSDA"); }
     MEDLOADER_EXPORT static MEDFileInt64Field1TSWithoutSDA *New(
-        const std::string &fieldName,
-        const std::string &meshName,
-        int csit,
-        int iteration,
-        int order,
-        const std::vector<std::string> &infos
+        const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
     );
     MEDLOADER_EXPORT MEDFileInt64Field1TSWithoutSDA *deepCopy() const;
     MEDLOADER_EXPORT MEDFileInt64Field1TSWithoutSDA *shallowCpy() const;
@@ -452,12 +420,7 @@ class MEDFileInt64Field1TSWithoutSDA : public MEDFileField1TSNDTemplateWithoutSD
 
    protected:
     MEDFileInt64Field1TSWithoutSDA(
-        const std::string &fieldName,
-        const std::string &meshName,
-        int csit,
-        int iteration,
-        int order,
-        const std::vector<std::string> &infos
+        const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
     );
 
    public:
@@ -473,12 +436,7 @@ class MEDFileFloatField1TSWithoutSDA : public MEDFileField1TSNDTemplateWithoutSD
     MEDLOADER_EXPORT MEDFileFloatField1TSWithoutSDA();
     MEDLOADER_EXPORT std::string getClassName() const override { return std::string("MEDFileFloatField1TSWithoutSDA"); }
     MEDLOADER_EXPORT static MEDFileFloatField1TSWithoutSDA *New(
-        const std::string &fieldName,
-        const std::string &meshName,
-        int csit,
-        int iteration,
-        int order,
-        const std::vector<std::string> &infos
+        const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
     );
     MEDLOADER_EXPORT MEDFileFloatField1TSWithoutSDA *deepCopy() const;
     MEDLOADER_EXPORT MEDFileFloatField1TSWithoutSDA *shallowCpy() const;
@@ -494,12 +452,7 @@ class MEDFileFloatField1TSWithoutSDA : public MEDFileField1TSNDTemplateWithoutSD
 
    protected:
     MEDFileFloatField1TSWithoutSDA(
-        const std::string &fieldName,
-        const std::string &meshName,
-        int csit,
-        int iteration,
-        int order,
-        const std::vector<std::string> &infos
+        const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
     );
 
    public:
@@ -623,6 +576,8 @@ class MEDFileAnyTypeField1TS : public RefCountObject, public MEDFileWritableStan
     MEDLOADER_EXPORT std::string getDtUnit() const;
     MEDLOADER_EXPORT void setDtUnit(const std::string &dtUnit);
     MEDLOADER_EXPORT std::string getMeshName() const;
+    MEDLOADER_EXPORT MCAuto<QuantityKindAbstract> getQuantityKind() const;
+    MEDLOADER_EXPORT void setQuantityKind(QuantityKindAbstract *newQKind);
     MEDLOADER_EXPORT void setMeshName(const std::string &newMeshName);
     MEDLOADER_EXPORT bool changeMeshNames(const std::vector<std::pair<std::string, std::string> > &modifTab);
     MEDLOADER_EXPORT int getMeshIteration() const;
@@ -712,7 +667,8 @@ class MEDFileAnyTypeField1TS : public RefCountObject, public MEDFileWritableStan
         med_field_type &typcha,
         std::vector<std::string> &infos,
         std::string &dtunitOut,
-        std::string &meshName
+        std::string &meshName,
+        MCAuto<QuantityKindAbstract> &qk
     );
     MEDLOADER_EXPORT static int LocateField(
         med_idt fid,
@@ -721,7 +677,8 @@ class MEDFileAnyTypeField1TS : public RefCountObject, public MEDFileWritableStan
         med_field_type &typcha,
         std::vector<std::string> &infos,
         std::string &dtunitOut,
-        std::string &meshName
+        std::string &meshName,
+        MCAuto<QuantityKindAbstract> &qk
     );
 
    public:

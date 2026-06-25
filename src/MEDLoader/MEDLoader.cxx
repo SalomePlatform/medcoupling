@@ -383,6 +383,16 @@ MEDCoupling::MEDFileVersion(int &major, int &minor, int &release)
     release = FromMedInt<int>(rell);
 }
 
+bool
+MEDCoupling::MEDFileHasQKMngt()
+{
+#if MED_NUM_MAJEUR > 6 || (MED_NUM_MAJEUR == 6 && MED_NUM_MINEUR >= 1)
+    return true;
+#else
+    return false;
+#endif
+}
+
 /*!
  * This method sets the epsilon value used for node comparison when trying to build a profile for a field on node/cell
  * on an already written mesh.

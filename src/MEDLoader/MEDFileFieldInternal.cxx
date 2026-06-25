@@ -4029,6 +4029,7 @@ MEDFileFieldPerMesh::finishField(
     ret->setTime(getTime(), getIteration(), getOrder());
     ret->setTimeUnit(nasc.getDtUnit().c_str());
     ret->setDescription(nasc.getDescription());
+    ret->setQuantityKind(nasc.getQuantityKind());
     MCAuto<DataArray> da = getOrCreateAndGetArray()->selectByTupleRanges(dads);
     const std::vector<std::string> &infos = getInfo();
     da->setInfoOnComponents(infos);

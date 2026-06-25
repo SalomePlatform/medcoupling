@@ -174,6 +174,18 @@ typedef long mcPyPtrType;
 //$$$$$$$$$$$$$$$$$$
 
 ////////////////////
+%typemap(out) MEDCoupling::QuantityKindAbstract*
+{
+  $result=convertQK($1,$owner);
+}
+
+%typemap(out) QuantityKindAbstract*
+{
+  $result=convertQK($1,$owner);
+}
+//$$$$$$$$$$$$$$$$$$
+
+////////////////////
 %typemap(out) MEDCoupling::MEDCouplingField*
 {
   $result=convertField($1,$owner);
@@ -307,6 +319,11 @@ typedef long mcPyPtrType;
 %newobject MEDCoupling::MEDCouplingFieldFloat::buildSubPartRange;
 %newobject MEDCoupling::MEDCouplingFieldFloat::__getitem__;
 %newobject MEDCoupling::MEDCouplingFieldTemplate::New;
+%newobject MEDCoupling::MEDCouplingFieldT::getQuantityKind;
+%newobject MEDCoupling::QuantityKindAbstract::Deserialize;
+%newobject MEDCoupling::QuantityKindUnDef::New;
+%newobject MEDCoupling::QuantityKindEnum::New;
+%newobject MEDCoupling::QuantityKindUser::New;
 %newobject MEDCoupling::MEDCouplingMesh::deepCopy;
 %newobject MEDCoupling::MEDCouplingMesh::clone;
 %newobject MEDCoupling::MEDCouplingMesh::checkDeepEquivalOnSameNodesWith;
@@ -510,6 +527,9 @@ typedef long mcPyPtrType;
 %feature("unref") MEDCouplingIMesh "$this->decrRef();"
 %feature("unref") MEDCouplingCurveLinearMesh "$this->decrRef();"
 %feature("unref") MEDCouplingField "$this->decrRef();"
+%feature("unref") QuantityKindUnDef "$this->decrRef();"
+%feature("unref") QuantityKindEnum "$this->decrRef();"
+%feature("unref") QuantityKindUser "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDiscretizationP0 "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDiscretizationP1 "$this->decrRef();"
 %feature("unref") MEDCouplingFieldDiscretizationGauss "$this->decrRef();"
@@ -3873,6 +3893,97 @@ namespace MEDCoupling
 
 namespace MEDCoupling
 {
+  class QuantityKindAbstract : public RefCountObject
+  {
+    protected:
+       ~QuantityKindAbstract();
+       QuantityKindAbstract();
+    public:
+      std::string repr() const;
+      std::string getClassName() const;
+      std::string serialize() const;
+    %extend
+    {
+      static QuantityKindAbstract *Deserialize(const std::string &s)
+      {
+        MCAuto<QuantityKindAbstract> ret( QuantityKindAbstract::Deserialize(s));
+        return ret.retn();
+      }
+
+      std::string __str__() const
+      {
+        return self->repr();
+      }
+    }
+  };
+
+  class QuantityKindUnDef : public QuantityKindAbstract
+  {
+    private:
+      ~QuantityKindUnDef();
+    public:
+    %extend
+    {
+      QuantityKindUnDef()
+      {
+        MCAuto<QuantityKindUnDef> ret( QuantityKindUnDef::New() );
+        return ret.retn();
+      }
+      std::string __repr__() const
+      {
+        std::ostringstream oss; oss << "QuantityKind C++ instance at " << self << "." << std::endl;
+        oss << self->repr();
+        return oss.str();
+      }
+    }
+  };
+
+  class QuantityKindEnum : public QuantityKindAbstract
+  {
+    private:
+      ~QuantityKindEnum();
+    public:
+      const std::string &value() const;
+      static const std::vector<std::string> &AllowedValues();
+      static int MCIdOfValue( const std::string& value );
+      %extend
+      {
+        QuantityKindEnum(std::string value)
+        {
+         MCAuto<QuantityKindEnum> ret( QuantityKindEnum::New(value) );
+         return ret.retn();
+        }
+      std::string __repr__() const
+      {
+        std::ostringstream oss; oss << "QuantityKind C++ instance at " << self << "." << std::endl;
+        oss << self->repr();
+        return oss.str();
+      }
+      }
+  };
+
+  class QuantityKindUser : public QuantityKindAbstract
+  {
+    private:
+      ~QuantityKindUser();
+    public:
+      const std::string &value() const;
+      %extend
+      {
+        QuantityKindUser(std::string value)
+        {
+         MCAuto<QuantityKindUser> ret( QuantityKindUser::New(value) );
+         return ret.retn();
+        }
+      std::string __repr__() const
+      {
+        std::ostringstream oss; oss << "QuantityKind C++ instance at " << self << "." << std::endl;
+        oss << self->repr();
+        return oss.str();
+      }
+      }
+  };
+
   class MEDCouplingField : public MEDCoupling::RefCountObject, public MEDCoupling::TimeLabel
   {
   public:
@@ -4088,6 +4199,15 @@ namespace MEDCoupling
   {
   public:
     TypeOfTimeDiscretization getTimeDiscretization() const;
+    void setQuantityKind( QuantityKindAbstract *newQKind );
+    %extend
+    {
+      QuantityKindAbstract *getQuantityKind() const
+      {
+        MCAuto<QuantityKindAbstract> ret( self->getQuantityKind() );
+        return ret.retn();
+      }
+    }
   protected:
     MEDCouplingFieldT();
     ~MEDCouplingFieldT();

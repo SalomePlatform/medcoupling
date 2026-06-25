@@ -106,7 +106,7 @@ static PyObject *convertMesh(MEDCoupling::MEDCouplingMesh *mesh, int owner)
 
 static PyObject *convertFieldDiscretization(MEDCoupling::MEDCouplingFieldDiscretization *fd, int owner)
 {
-  PyObject *ret=0;
+  PyObject *ret(nullptr);
   if(!fd)
     {
       Py_XINCREF(Py_None);
@@ -129,9 +129,28 @@ static PyObject *convertFieldDiscretization(MEDCoupling::MEDCouplingFieldDiscret
   return ret;
 }
 
+static PyObject *convertQK(MEDCoupling::QuantityKindAbstract *f, int owner)
+{
+  PyObject *ret(nullptr);
+  if(!f)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
+  if(dynamic_cast<MEDCoupling::QuantityKindUnDef *>(f))
+    ret=SWIG_NewPointerObj(reinterpret_cast<void*>(f),SWIGTYPE_p_MEDCoupling__QuantityKindUnDef,owner);
+  if(dynamic_cast<MEDCoupling::QuantityKindEnum *>(f))
+    ret=SWIG_NewPointerObj(reinterpret_cast<void*>(f),SWIGTYPE_p_MEDCoupling__QuantityKindEnum,owner);
+  if(dynamic_cast<MEDCoupling::QuantityKindUser *>(f))
+    ret=SWIG_NewPointerObj(reinterpret_cast<void*>(f),SWIGTYPE_p_MEDCoupling__QuantityKindUser,owner);
+  if(!ret)
+    throw INTERP_KERNEL::Exception("Not recognized type of QK on downcast !");
+  return ret;
+}
+
 static PyObject *convertField(MEDCoupling::MEDCouplingField *f, int owner)
 {
-  PyObject *ret(NULL);
+  PyObject *ret(nullptr);
   if(!f)
     {
       Py_XINCREF(Py_None);
@@ -152,7 +171,7 @@ static PyObject *convertField(MEDCoupling::MEDCouplingField *f, int owner)
 
 static PyObject* convertMultiFields(MEDCoupling::MEDCouplingMultiFields *mfs, int owner)
 {
-  PyObject *ret=0;
+  PyObject *ret(nullptr);
   if(!mfs)
     {
       Py_XINCREF(Py_None);

@@ -200,6 +200,18 @@ DynamicCast(typename MEDCoupling::MCAuto<T> &autoSubPtr) noexcept(true)
 
 template <class T, class U>
 typename MEDCoupling::MCAuto<U>
+StaticCast(typename MEDCoupling::MCAuto<T> &&autoSubPtr) noexcept(true)
+{
+    T *subPtr(autoSubPtr);
+    U *ptr(static_cast<U *>(subPtr));
+    typename MEDCoupling::MCAuto<U> ret(ptr);
+    if (ptr)
+        ptr->incrRef();
+    return ret;
+}
+
+template <class T, class U>
+typename MEDCoupling::MCAuto<U>
 DynamicCastSafe(typename MEDCoupling::MCAuto<T> &autoSubPtr)
 {
     T *subPtr(autoSubPtr);

@@ -177,6 +177,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::__iter__;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::extractPart;
 %newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::buildNewEmpty;
+%newobject MEDCoupling::MEDFileAnyTypeFieldMultiTS::getQuantityKind;
 %newobject MEDCoupling::MEDFileFieldMultiTS::New;
 %newobject MEDCoupling::MEDFileFieldMultiTS::LoadSpecificEntities;
 %newobject MEDCoupling::MEDFileFieldMultiTS::field;
@@ -224,6 +225,7 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::deepCopy;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::extractPart;
 %newobject MEDCoupling::MEDFileAnyTypeField1TS::buildNewEmpty;
+%newobject MEDCoupling::MEDFileAnyTypeField1TS::getQuantityKind;
 %newobject MEDCoupling::MEDFileField1TS::New;
 %newobject MEDCoupling::MEDFileField1TS::field;
 %newobject MEDCoupling::MEDFileField1TS::getFieldAtLevel;
@@ -380,6 +382,7 @@ namespace MEDCoupling
   void SetCompPolicyForCell(int val);
   void SetTooLongStrPolicy(int val);
   void CheckFileForRead(const std::string& fileName);
+  bool MEDFileHasQKMngt();
   std::vector<std::string> GetMeshNames(const std::string& fileName);
   std::vector<std::string> GetMeshNamesOnField(const std::string& fileName, const std::string& fieldName);
   std::vector<std::string> GetMeshGroupsNames(const std::string& fileName, const std::string& meshName);
@@ -2247,6 +2250,7 @@ namespace MEDCoupling
     MEDFileAnyTypeField1TS *deepCopy() const;
     std::string getDtUnit() const;
     void setDtUnit(const std::string& dtUnit);
+    void setQuantityKind( QuantityKindAbstract *newQKind );
     %extend
     {
       PyObject *getTime()
@@ -2258,6 +2262,12 @@ namespace MEDCoupling
         PyList_SetItem(res,1,SWIG_From_int(tmp2));
         PyList_SetItem(res,2,SWIG_From_double(tmp0));
         return res;
+      }
+
+      QuantityKindAbstract *getQuantityKind() const
+      {
+        MCAuto<QuantityKindAbstract> ret( self->getQuantityKind() );
+        return ret.retn();
       }
 
       PyObject *getDtIt() const
@@ -2749,6 +2759,7 @@ namespace MEDCoupling
     void setDtUnit(const std::string& dtUnit);
     std::string getMeshName() const;
     void setMeshName(const std::string& newMeshName);
+    void setQuantityKind(QuantityKindAbstract *newQKind);
     void setInfo(const std::vector<std::string>& infos);
     const std::vector<std::string>& getInfo() const;
     bool presenceOfMultiDiscPerGeoType() const;
@@ -2773,6 +2784,12 @@ namespace MEDCoupling
       int __len__() const
       {
         return self->getNumberOfTS();
+      }
+
+      QuantityKindAbstract *getQuantityKind() const
+      {
+        MCAuto<QuantityKindAbstract> ret( self->getQuantityKind() );
+        return ret.retn();
       }
 
       int getTimeId(PyObject *elt0) const

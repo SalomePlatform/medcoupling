@@ -16,13 +16,13 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (EDF R&D)
 
 #pragma once
 
 #include "MEDCouplingField.hxx"
 #include "MEDCouplingTraits.hxx"
 #include "MEDCouplingTimeDiscretization.hxx"
+#include "MEDCouplingQuantityKind.hxx"
 
 #include <sstream>
 
@@ -44,6 +44,7 @@ class MEDCouplingFieldT : public MEDCouplingField
         MEDCouplingFieldDiscretization *type, NatureOfField n, MEDCouplingTimeDiscretizationTemplate<T> *timeDiscr
     );
     ~MEDCouplingFieldT();
+    void initQuantityKind();
 
    public:
     MEDCOUPLING_EXPORT TypeOfTimeDiscretization getTimeDiscretization() const;
@@ -88,6 +89,8 @@ class MEDCouplingFieldT : public MEDCouplingField
     double getStartTime(int &iteration, int &order) const { return _time_discr->getStartTime(iteration, order); }
     double getEndTime(int &iteration, int &order) const { return _time_discr->getEndTime(iteration, order); }
     T getIJ(mcIdType tupleId, std::size_t compoId) const { return getArray()->getIJ(tupleId, compoId); }
+    MEDCOUPLING_EXPORT MCAuto<QuantityKindAbstract> getQuantityKind() const;
+    MEDCOUPLING_EXPORT void setQuantityKind(QuantityKindAbstract *newQKind);
     MEDCOUPLING_EXPORT virtual bool isEqual(const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec) const;
     MEDCOUPLING_EXPORT virtual bool isEqualIfNotWhy(
         const MEDCouplingFieldT<T> *other, double meshPrec, T valsPrec, std::string &reason
@@ -136,5 +139,6 @@ class MEDCouplingFieldT : public MEDCouplingField
 
    protected:
     MEDCouplingTimeDiscretizationTemplate<T> *_time_discr;
+    MCAuto<QuantityKindAbstract> _quantity_kind;
 };
 }  // namespace MEDCoupling

@@ -308,34 +308,37 @@ try : MEDFileFieldGlobsReal(fid)
     {
         std::vector<std::string> infos;
         std::string fieldName, dtunit, meshName;
-        int nbOfStep(MEDFileAnyTypeField1TS::LocateField2(fid, i, false, fieldName, typcha, infos, dtunit, meshName));
+        MCAuto<QuantityKindAbstract> qk;
+        int nbOfStep(
+            MEDFileAnyTypeField1TS::LocateField2(fid, i, false, fieldName, typcha, infos, dtunit, meshName, qk)
+        );
+        MEDFileFieldNameScope ns(fieldName, meshName, qk);
         switch (typcha)
         {
             case MED_FLOAT64:
             {
-                _fields[i] = MEDFileFieldMultiTSWithoutSDA::New(
-                    fid, fieldName, meshName, typcha, infos, nbOfStep, dtunit, loadAll, ms, entities
-                );
+                _fields[i] =
+                    MEDFileFieldMultiTSWithoutSDA::New(fid, ns, typcha, infos, nbOfStep, dtunit, loadAll, ms, entities);
                 break;
             }
             case MED_INT32:
             {
                 _fields[i] = MEDFileInt32FieldMultiTSWithoutSDA::New(
-                    fid, fieldName, meshName, typcha, infos, nbOfStep, dtunit, loadAll, ms, entities
+                    fid, ns, typcha, infos, nbOfStep, dtunit, loadAll, ms, entities
                 );
                 break;
             }
             case MED_INT64:
             {
                 _fields[i] = MEDFileInt64FieldMultiTSWithoutSDA::New(
-                    fid, fieldName, meshName, typcha, infos, nbOfStep, dtunit, loadAll, ms, entities
+                    fid, ns, typcha, infos, nbOfStep, dtunit, loadAll, ms, entities
                 );
                 break;
             }
             case MED_FLOAT32:
             {
                 _fields[i] = MEDFileFloatFieldMultiTSWithoutSDA::New(
-                    fid, fieldName, meshName, typcha, infos, nbOfStep, dtunit, loadAll, ms, entities
+                    fid, ns, typcha, infos, nbOfStep, dtunit, loadAll, ms, entities
                 );
                 break;
             }
@@ -344,7 +347,7 @@ try : MEDFileFieldGlobsReal(fid)
                 if (sizeof(med_int) == sizeof(int))
                 {
                     _fields[i] = MEDFileInt32FieldMultiTSWithoutSDA::New(
-                        fid, fieldName, meshName, typcha, infos, nbOfStep, dtunit, loadAll, ms, entities
+                        fid, ns, typcha, infos, nbOfStep, dtunit, loadAll, ms, entities
                     );
                     break;
                 }

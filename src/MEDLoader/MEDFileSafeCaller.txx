@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDFILESAFECALLER_TXX__
-#define __MEDFILESAFECALLER_TXX__
+#pragma once
 
 #include "med.h"
 
@@ -56,5 +55,3 @@
             throw INTERP_KERNEL::Exception(osszz.str().c_str());                                                  \
         }                                                                                                         \
     }
-
-#endif

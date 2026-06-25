@@ -18,16 +18,21 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#ifndef __MEDFILEUTILITIES_HXX__
-#define __MEDFILEUTILITIES_HXX__
+#pragma once
 
 #include "InterpKernelException.hxx"
 #include "MEDLoaderDefines.hxx"
 
 #include "MCAuto.hxx"
 #include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingQuantityKind.hxx"
 
 #include "med.h"
+
+namespace MEDCoupling
+{
+class MEDFileWritable;
+}
 
 namespace MEDFileUtilities
 {
@@ -39,6 +44,18 @@ MEDLOADER_EXPORT void
 CheckMEDCode(int code, med_idt fid, const std::string &msg);
 MEDLOADER_EXPORT void
 CheckFileForRead(const std::string &fileName);
+
+void
+WrapperOf_MEDfieldQuantityKindWr(
+    med_idt fid,
+    const std::string &fieldName,
+    const MEDCoupling::QuantityKindAbstract *qk,
+    const MEDCoupling::MEDFileWritable &opts
+);
+void
+WrapperOf_MEDfieldQuantityKindRd(
+    med_idt fid, const std::string &fieldName, MEDCoupling::MCAuto<MEDCoupling::QuantityKindAbstract> &qk
+);
 
 class MEDLOADER_EXPORT AutoFid
 {
@@ -103,6 +120,5 @@ class MEDFileCapability
 };
 MEDFileUtilities::AutoFid
 OpenMEDFileForRead(const std::string &fileName);
-}  // namespace MEDCoupling
 
-#endif
+}  // namespace MEDCoupling

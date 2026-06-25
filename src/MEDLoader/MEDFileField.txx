@@ -521,6 +521,7 @@ MEDFileTemplateField1TS<T>::SetDataArrayInField(MEDCouplingFieldDouble *f, MCAut
     ret->setTime(t0, t1, t2);
     ret->setArray(arr2);
     ret->setTimeUnit(tu);
+    ret->setQuantityKind(f->getQuantityKind());
     return ret.retn();
 }
 
@@ -777,6 +778,7 @@ MEDFileTemplateField1TS<T>::setFieldNoProfileSBT(const typename Traits<T>::Field
 {
     setFileName("");
     MCAuto<MEDCouplingFieldTemplate> ft(MEDCouplingFieldTemplate::New(*field));
+    this->setQuantityKind(field->getQuantityKind());
     contentNotNull()->setFieldNoProfileSBT(field->timeDiscrSafe(), ft, field->getArray(), *this, *contentNotNull());
 }
 
@@ -842,6 +844,7 @@ MEDFileTemplateField1TS<T>::setFieldProfileGeneral(
 )
 {
     setFileName("");
+    this->setQuantityKind(field->getQuantityKind());
     MCAuto<MEDCouplingFieldTemplate> ft(MEDCouplingFieldTemplate::NewWithoutCheck(*field));
     contentNotNull()->setFieldProfile(
         field->timeDiscrSafe(),
@@ -966,8 +969,7 @@ template <class T>
 typename MLFieldTraits<T>::FMTSWSDAType *
 MEDFileTemplateFieldMultiTSWithoutSDA<T>::New(
     med_idt fid,
-    const std::string &fieldName,
-    const std::string &meshName,
+    const MEDFileFieldNameScope &ns,
     med_field_type fieldTyp,
     const std::vector<std::string> &infos,
     int nbOfStep,
@@ -977,9 +979,8 @@ MEDFileTemplateFieldMultiTSWithoutSDA<T>::New(
     const MEDFileEntities *entities
 )
 {
-    return new typename MLFieldTraits<T>::FMTSWSDAType(
-        fid, fieldName, meshName, fieldTyp, infos, nbOfStep, dtunit, loadAll, ms, entities
-    );
+    return new
+        typename MLFieldTraits<T>::FMTSWSDAType(fid, ns, fieldTyp, infos, nbOfStep, dtunit, loadAll, ms, entities);
 }
 
 template <class T>

@@ -53,6 +53,8 @@ MEDLOADER_EXPORT std::string
 MEDFileVersionOfFileStr(const std::string &fileName);
 MEDLOADER_EXPORT void
 MEDFileVersion(int &major, int &minor, int &release);
+MEDLOADER_EXPORT bool
+MEDFileHasQKMngt();
 MEDLOADER_EXPORT void
 CheckFileForRead(const std::string &fileName);
 MEDLOADER_EXPORT std::vector<std::string>

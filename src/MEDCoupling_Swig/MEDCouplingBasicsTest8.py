@@ -394,6 +394,64 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
             self.assertTrue(pos in c[ci[i] : ci[i + 1]])
         pass
 
+    def testQuantityKind(self):
+        """
+        [EDF32036] : Basic test of QuantityKind management
+        """
+        # fmt: off
+        from copy import deepcopy
+
+        qku = mc.QuantityKindUnDef()
+        repr( qku )
+        str( qku )
+        self.assertTrue( isinstance( mc.QuantityKindAbstract.Deserialize( qku.serialize() ) , mc.QuantityKindUnDef ) )
+
+        qke = mc.QuantityKindEnum("Displacement")
+        self.assertRaises(mc.InterpKernelException, mc.QuantityKindEnum, "Displacemen") # check that non recognized entry raises
+        av = mc.QuantityKindEnum.AllowedValues()
+        self.assertEqual( len(av), len( set(av) ) ) # check unicity of entries
+        for elt in av:
+            self.assertTrue( isinstance(elt, str) )
+            self.assertTrue( len(elt) > 0 )
+        repr( qke )
+        str( qke )
+        self.assertTrue( isinstance( mc.QuantityKindAbstract.Deserialize( qke.serialize() ) , mc.QuantityKindEnum ) )
+        self.assertTrue( qke.value() == "Displacement" )
+
+        qkus = mc.QuantityKindUser("aa")
+        repr( qkus )
+        str( qkus )
+        self.assertTrue( qkus.value() == "aa" )
+        self.assertTrue( isinstance( mc.QuantityKindAbstract.Deserialize( qkus.serialize() ) , mc.QuantityKindUser ) )
+
+        qkus2 = mc.QuantityKindAbstract.Deserialize( qkus.serialize() )
+        self.assertTrue( qkus.value() == qkus2.value() )
+        self.assertTrue( qkus.value() == "aa" )
+        self.assertTrue( isinstance( qkus2, mc.QuantityKindUser ) )
+
+        qkus3 = mc.QuantityKindUser("Displacement")
+        qkus4 = mc.QuantityKindAbstract.Deserialize( qkus3.serialize() )
+        self.assertTrue( qkus4.value() == "Displacement" )
+        self.assertTrue( isinstance( qkus4, mc.QuantityKindUser ) )
+        self.assertTrue( not isinstance( qkus4, mc.QuantityKindEnum ) )
+
+        arr = mc.DataArrayDouble(5) ; arr.iota()
+        m = mc.MEDCouplingCMesh() ; m.setCoords(arr,arr)
+        f = mc.MEDCouplingFieldDouble( mc.ON_CELLS )
+        f.setMesh( m )
+        self.assertTrue( isinstance( f.getQuantityKind(), mc.QuantityKindUnDef ) )
+        f.setQuantityKind( mc.QuantityKindUser("bb") )
+        f2 = f.deepCopy()
+        del f
+        self.assertTrue( isinstance( f2.getQuantityKind(), mc.QuantityKindUser ) )
+        f2.setArray( mc.DataArrayDouble( m.getNumberOfCells() ) )
+        f2.getArray()[:]=10
+        self.assertTrue( f2.getQuantityKind().value() == "bb" )
+
+        f3 = deepcopy(f2)
+        self.assertTrue( isinstance( f3.getQuantityKind(), mc.QuantityKindUser ) )
+        # fmt: on
+
 
 if __name__ == "__main__":
     unittest.main()

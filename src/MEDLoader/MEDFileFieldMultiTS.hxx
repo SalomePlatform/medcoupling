@@ -40,14 +40,13 @@ class MEDFileAnyTypeFieldMultiTSWithoutSDA : public RefCountObject, public MEDFi
 {
    protected:
     MEDFileAnyTypeFieldMultiTSWithoutSDA();
-    MEDFileAnyTypeFieldMultiTSWithoutSDA(const std::string &fieldName, const std::string &meshName);
+    MEDFileAnyTypeFieldMultiTSWithoutSDA(const MEDFileFieldNameScope &ns);
     MEDFileAnyTypeFieldMultiTSWithoutSDA(
         med_idt fid, int fieldId, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities
     );
     MEDFileAnyTypeFieldMultiTSWithoutSDA(
         med_idt fid,
-        const std::string &fieldName,
-        const std::string &meshName,
+        const MEDFileFieldNameScope &ns,
         med_field_type fieldTyp,
         const std::vector<std::string> &infos,
         int nbOfStep,
@@ -199,8 +198,7 @@ class MEDFileTemplateFieldMultiTSWithoutSDA : public MEDFileAnyTypeFieldMultiTSW
    public:
     MEDLOADER_EXPORT static typename MLFieldTraits<T>::FMTSWSDAType *New(
         med_idt fid,
-        const std::string &fieldName,
-        const std::string &meshName,
+        const MEDFileFieldNameScope &ns,
         med_field_type fieldTyp,
         const std::vector<std::string> &infos,
         int nbOfStep,
@@ -219,10 +217,7 @@ class MEDFileTemplateFieldMultiTSWithoutSDA : public MEDFileAnyTypeFieldMultiTSW
 
    protected:
     MEDFileTemplateFieldMultiTSWithoutSDA() {}
-    MEDFileTemplateFieldMultiTSWithoutSDA(const std::string &fieldName, const std::string &meshName)
-        : MEDFileAnyTypeFieldMultiTSWithoutSDA(fieldName, meshName)
-    {
-    }
+    MEDFileTemplateFieldMultiTSWithoutSDA(const MEDFileFieldNameScope &ns) : MEDFileAnyTypeFieldMultiTSWithoutSDA(ns) {}
     /** \param [in] fieldId field id in C mode */
     MEDFileTemplateFieldMultiTSWithoutSDA(
         med_idt fid, int fieldId, bool loadAll, const MEDFileMeshes *ms, const MEDFileEntities *entities
@@ -232,8 +227,7 @@ class MEDFileTemplateFieldMultiTSWithoutSDA : public MEDFileAnyTypeFieldMultiTSW
     }
     MEDFileTemplateFieldMultiTSWithoutSDA(
         med_idt fid,
-        const std::string &fieldName,
-        const std::string &meshName,
+        const MEDFileFieldNameScope &ns,
         med_field_type fieldTyp,
         const std::vector<std::string> &infos,
         int nbOfStep,
@@ -242,9 +236,7 @@ class MEDFileTemplateFieldMultiTSWithoutSDA : public MEDFileAnyTypeFieldMultiTSW
         const MEDFileMeshes *ms,
         const MEDFileEntities *entities
     )
-        : MEDFileAnyTypeFieldMultiTSWithoutSDA(
-              fid, fieldName, meshName, fieldTyp, infos, nbOfStep, dtunit, loadAll, ms, entities
-          )
+        : MEDFileAnyTypeFieldMultiTSWithoutSDA(fid, ns, fieldTyp, infos, nbOfStep, dtunit, loadAll, ms, entities)
     {
     }
     void checkCoherencyOfType(const MEDFileAnyTypeField1TSWithoutSDA *f1ts) const;
@@ -279,14 +271,12 @@ class MEDFileFieldMultiTSWithoutSDA : public MEDFileTemplateFieldMultiTSWithoutS
     MEDLOADER_EXPORT MCAuto<MEDFileAnyTypeFieldMultiTS> createNewWithSDA() const override;
 
    protected:
-    MEDFileFieldMultiTSWithoutSDA(const std::string &fieldName, const std::string &meshName)
-        : MEDFileTemplateFieldMultiTSWithoutSDA<double>(fieldName, meshName)
+    MEDFileFieldMultiTSWithoutSDA(const MEDFileFieldNameScope &ns) : MEDFileTemplateFieldMultiTSWithoutSDA<double>(ns)
     {
     }
     MEDFileFieldMultiTSWithoutSDA(
         med_idt fid,
-        const std::string &fieldName,
-        const std::string &meshName,
+        const MEDFileFieldNameScope &ns,
         med_field_type fieldTyp,
         const std::vector<std::string> &infos,
         int nbOfStep,
@@ -296,7 +286,7 @@ class MEDFileFieldMultiTSWithoutSDA : public MEDFileTemplateFieldMultiTSWithoutS
         const MEDFileEntities *entities
     )
         : MEDFileTemplateFieldMultiTSWithoutSDA<double>(
-              fid, fieldName, meshName, fieldTyp, infos, nbOfStep, dtunit, loadAll, ms, entities
+              fid, ns, fieldTyp, infos, nbOfStep, dtunit, loadAll, ms, entities
           )
     {
     }
@@ -320,14 +310,13 @@ class MEDFileNDTemplateFieldMultiTSWithoutSDA : public MEDFileTemplateFieldMulti
         : MEDFileTemplateFieldMultiTSWithoutSDA<T>(fid, fieldId, loadAll, ms, entities)
     {
     }
-    MEDFileNDTemplateFieldMultiTSWithoutSDA(const std::string &fieldName, const std::string &meshName)
-        : MEDFileTemplateFieldMultiTSWithoutSDA<T>(fieldName, meshName)
+    MEDFileNDTemplateFieldMultiTSWithoutSDA(const MEDFileFieldNameScope &ns)
+        : MEDFileTemplateFieldMultiTSWithoutSDA<T>(ns)
     {
     }
     MEDFileNDTemplateFieldMultiTSWithoutSDA(
         med_idt fid,
-        const std::string &fieldName,
-        const std::string &meshName,
+        const MEDFileFieldNameScope &ns,
         med_field_type fieldTyp,
         const std::vector<std::string> &infos,
         int nbOfStep,
@@ -336,9 +325,7 @@ class MEDFileNDTemplateFieldMultiTSWithoutSDA : public MEDFileTemplateFieldMulti
         const MEDFileMeshes *ms,
         const MEDFileEntities *entities
     )
-        : MEDFileTemplateFieldMultiTSWithoutSDA<T>(
-              fid, fieldName, meshName, fieldTyp, infos, nbOfStep, dtunit, loadAll, ms, entities
-          )
+        : MEDFileTemplateFieldMultiTSWithoutSDA<T>(fid, ns, fieldTyp, infos, nbOfStep, dtunit, loadAll, ms, entities)
     {
     }
 };
@@ -365,14 +352,13 @@ class MEDFileInt32FieldMultiTSWithoutSDA : public MEDFileNDTemplateFieldMultiTSW
     MEDLOADER_EXPORT MCAuto<MEDFileAnyTypeFieldMultiTS> createNewWithSDA() const override;
 
    protected:
-    MEDFileInt32FieldMultiTSWithoutSDA(const std::string &fieldName, const std::string &meshName)
-        : MEDFileNDTemplateFieldMultiTSWithoutSDA<Int32>(fieldName, meshName)
+    MEDFileInt32FieldMultiTSWithoutSDA(const MEDFileFieldNameScope &ns)
+        : MEDFileNDTemplateFieldMultiTSWithoutSDA<Int32>(ns)
     {
     }
     MEDFileInt32FieldMultiTSWithoutSDA(
         med_idt fid,
-        const std::string &fieldName,
-        const std::string &meshName,
+        const MEDFileFieldNameScope &ns,
         med_field_type fieldTyp,
         const std::vector<std::string> &infos,
         int nbOfStep,
@@ -382,7 +368,7 @@ class MEDFileInt32FieldMultiTSWithoutSDA : public MEDFileNDTemplateFieldMultiTSW
         const MEDFileEntities *entities
     )
         : MEDFileNDTemplateFieldMultiTSWithoutSDA<Int32>(
-              fid, fieldName, meshName, fieldTyp, infos, nbOfStep, dtunit, loadAll, ms, entities
+              fid, ns, fieldTyp, infos, nbOfStep, dtunit, loadAll, ms, entities
           )
     {
     }
@@ -414,14 +400,13 @@ class MEDFileInt64FieldMultiTSWithoutSDA : public MEDFileNDTemplateFieldMultiTSW
     MEDLOADER_EXPORT MCAuto<MEDFileAnyTypeFieldMultiTS> createNewWithSDA() const override;
 
    protected:
-    MEDFileInt64FieldMultiTSWithoutSDA(const std::string &fieldName, const std::string &meshName)
-        : MEDFileNDTemplateFieldMultiTSWithoutSDA<Int64>(fieldName, meshName)
+    MEDFileInt64FieldMultiTSWithoutSDA(const MEDFileFieldNameScope &ns)
+        : MEDFileNDTemplateFieldMultiTSWithoutSDA<Int64>(ns)
     {
     }
     MEDFileInt64FieldMultiTSWithoutSDA(
         med_idt fid,
-        const std::string &fieldName,
-        const std::string &meshName,
+        const MEDFileFieldNameScope &ns,
         med_field_type fieldTyp,
         const std::vector<std::string> &infos,
         int nbOfStep,
@@ -431,7 +416,7 @@ class MEDFileInt64FieldMultiTSWithoutSDA : public MEDFileNDTemplateFieldMultiTSW
         const MEDFileEntities *entities
     )
         : MEDFileNDTemplateFieldMultiTSWithoutSDA<Int64>(
-              fid, fieldName, meshName, fieldTyp, infos, nbOfStep, dtunit, loadAll, ms, entities
+              fid, ns, fieldTyp, infos, nbOfStep, dtunit, loadAll, ms, entities
           )
     {
     }
@@ -463,14 +448,13 @@ class MEDFileFloatFieldMultiTSWithoutSDA : public MEDFileNDTemplateFieldMultiTSW
     MEDLOADER_EXPORT MCAuto<MEDFileAnyTypeFieldMultiTS> createNewWithSDA() const override;
 
    protected:
-    MEDFileFloatFieldMultiTSWithoutSDA(const std::string &fieldName, const std::string &meshName)
-        : MEDFileNDTemplateFieldMultiTSWithoutSDA<float>(fieldName, meshName)
+    MEDFileFloatFieldMultiTSWithoutSDA(const MEDFileFieldNameScope &ns)
+        : MEDFileNDTemplateFieldMultiTSWithoutSDA<float>(ns)
     {
     }
     MEDFileFloatFieldMultiTSWithoutSDA(
         med_idt fid,
-        const std::string &fieldName,
-        const std::string &meshName,
+        const MEDFileFieldNameScope &ns,
         med_field_type fieldTyp,
         const std::vector<std::string> &infos,
         int nbOfStep,
@@ -480,7 +464,7 @@ class MEDFileFloatFieldMultiTSWithoutSDA : public MEDFileNDTemplateFieldMultiTSW
         const MEDFileEntities *entities
     )
         : MEDFileNDTemplateFieldMultiTSWithoutSDA<float>(
-              fid, fieldName, meshName, fieldTyp, infos, nbOfStep, dtunit, loadAll, ms, entities
+              fid, ns, fieldTyp, infos, nbOfStep, dtunit, loadAll, ms, entities
           )
     {
     }
@@ -572,6 +556,8 @@ class MEDFileAnyTypeFieldMultiTS : public RefCountObject, public MEDFileWritable
     MEDLOADER_EXPORT std::string getDtUnit() const;
     MEDLOADER_EXPORT void setDtUnit(const std::string &dtUnit);
     MEDLOADER_EXPORT std::string getMeshName() const;
+    MEDLOADER_EXPORT MCAuto<QuantityKindAbstract> getQuantityKind() const;
+    MEDLOADER_EXPORT void setQuantityKind(QuantityKindAbstract *newQKind);
     MEDLOADER_EXPORT void setMeshName(const std::string &newMeshName);
     MEDLOADER_EXPORT std::string simpleRepr() const;
     MEDLOADER_EXPORT void simpleRepr(int bkOffset, std::ostream &oss, int fmtsId) const;

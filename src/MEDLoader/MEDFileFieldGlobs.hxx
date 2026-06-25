@@ -16,15 +16,14 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDFILEFIELDGLOBS_HXX__
-#define __MEDFILEFIELDGLOBS_HXX__
+#pragma once
 
 #include "MEDLoaderDefines.hxx"
 
 #include "NormalizedGeometricTypes"
 #include "MEDCouplingMemArray.hxx"
+#include "MEDCouplingQuantityKind.hxx"
 #include "MCAuto.hxx"
 
 #include "med.h"
@@ -203,7 +202,10 @@ class MEDFileFieldNameScope
 {
    public:
     MEDLOADER_EXPORT MEDFileFieldNameScope();
-    MEDLOADER_EXPORT MEDFileFieldNameScope(const std::string &fieldName, const std::string &meshName);
+    MEDLOADER_EXPORT MEDFileFieldNameScope(const MEDFileFieldNameScope &other) = default;
+    MEDLOADER_EXPORT MEDFileFieldNameScope(
+        const std::string &fieldName, const std::string &meshName, MCAuto<QuantityKindAbstract> qk
+    );
     MEDLOADER_EXPORT std::string getName() const;
     MEDLOADER_EXPORT void setName(const std::string &fieldName);
     MEDLOADER_EXPORT std::string getDescription() const;
@@ -213,13 +215,14 @@ class MEDFileFieldNameScope
     MEDLOADER_EXPORT void copyNameScope(const MEDFileFieldNameScope &other);
     MEDLOADER_EXPORT std::string getMeshName() const;
     MEDLOADER_EXPORT void setMeshName(const std::string &meshName);
+    MEDLOADER_EXPORT MCAuto<QuantityKindAbstract> getQuantityKind() const;
+    MEDLOADER_EXPORT void setQuantityKind(QuantityKindAbstract *newQKind);
 
    protected:
     std::string _name;
     std::string _dt_unit;
     std::string _mesh_name;
     std::string _description;
+    MCAuto<QuantityKindAbstract> _quantity_kind;
 };
 }  // namespace MEDCoupling
-
-#endif

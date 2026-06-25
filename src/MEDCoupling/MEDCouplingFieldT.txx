@@ -16,10 +16,8 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDCOUPLINGFIELDT_TXX__
-#define __MEDCOUPLINGFIELDT_TXX__
+#pragma once
 
 #include "MEDCouplingTimeDiscretization.hxx"
 #include "MEDCouplingMesh.hxx"
@@ -28,7 +26,9 @@ namespace MEDCoupling
 {
 template <class T>
 MEDCouplingFieldT<T>::MEDCouplingFieldT(const MEDCouplingFieldT<T> &other, bool deepCopy)
-    : MEDCouplingField(other, deepCopy), _time_discr(other._time_discr->performCopyOrIncrRef(deepCopy))
+    : MEDCouplingField(other, deepCopy),
+      _time_discr(other._time_discr->performCopyOrIncrRef(deepCopy)),
+      _quantity_kind(StaticCast<QuantityKindAbstract, QuantityKindAbstract>(other._quantity_kind->clone()))
 {
 }
 
@@ -56,12 +56,14 @@ MEDCouplingFieldT<T>::MEDCouplingFieldT(
 )
     : MEDCouplingField(other, deepCopy), _time_discr(timeDiscr)
 {
+    initQuantityKind();
 }
 
 template <class T>
 MEDCouplingFieldT<T>::MEDCouplingFieldT(TypeOfField type, MEDCouplingTimeDiscretizationTemplate<T> *timeDiscr)
     : MEDCouplingField(type), _time_discr(timeDiscr)
 {
+    initQuantityKind();
 }
 
 template <class T>
@@ -70,12 +72,39 @@ MEDCouplingFieldT<T>::MEDCouplingFieldT(
 )
     : MEDCouplingField(type, n), _time_discr(timeDiscr)
 {
+    initQuantityKind();
 }
 
 template <class T>
 MEDCouplingFieldT<T>::~MEDCouplingFieldT()
 {
     delete _time_discr;
+}
+
+template <class T>
+void
+MEDCouplingFieldT<T>::initQuantityKind()
+{
+    _quantity_kind = StaticCast<QuantityKindUnDef, QuantityKindAbstract>(QuantityKindUnDef::New());
+}
+
+template <class T>
+MCAuto<QuantityKindAbstract>
+MEDCouplingFieldT<T>::getQuantityKind() const
+{
+    return this->_quantity_kind;
+}
+
+template <class T>
+void
+MEDCouplingFieldT<T>::setQuantityKind(QuantityKindAbstract *newQKind)
+{
+    if (!newQKind)
+    {
+        THROW_IK_EXCEPTION("setQuantityKind : input must be not nullptr");
+    }
+    newQKind->incrRef();
+    this->_quantity_kind = newQKind;
 }
 
 /*!
@@ -212,6 +241,7 @@ MEDCouplingFieldT<T>::copyTinyAttrFrom(const MEDCouplingFieldT<T> *other)
     if (other)
     {
         _time_discr->copyTinyAttrFrom(*other->_time_discr);
+        _quantity_kind = StaticCast<QuantityKindAbstract, QuantityKindAbstract>(other->_quantity_kind->clone());
     }
 }
 
@@ -383,6 +413,10 @@ MEDCouplingFieldT<T>::simpleRepr() const
     std::ostringstream ret;
     ret << Traits<T>::FieldTypeName << " with name : \"" << getName() << "\"\n";
     ret << "Description of field is : \"" << getDescription() << "\"\n";
+    if (_quantity_kind.isNotNull())
+    {
+        ret << "Quantity Kind : " << _quantity_kind->repr() << std::endl;
+    }
     if (_type)
     {
         ret << Traits<T>::FieldTypeName << " space discretization is : " << _type->getStringRepr() << "\n";
@@ -685,6 +719,7 @@ MEDCouplingFieldT<T>::getTinySerializationStrInformation(std::vector<std::string
     tinyInfo.push_back(_name);
     tinyInfo.push_back(_desc);
     tinyInfo.push_back(getTimeUnit());
+    tinyInfo.push_back(_quantity_kind->serialize());
 }
 
 /*!
@@ -816,9 +851,10 @@ MEDCouplingFieldT<T>::finishUnserialization(
     _nature = (NatureOfField)tinyInfoI[2];
     _type->finishUnserialization(tmp2);
     std::size_t nbOfElemS = tinyInfoS.size();
-    _name = tinyInfoS[nbOfElemS - 3];
-    _desc = tinyInfoS[nbOfElemS - 2];
-    setTimeUnit(tinyInfoS[nbOfElemS - 1]);
+    _name = tinyInfoS[nbOfElemS - 4];
+    _desc = tinyInfoS[nbOfElemS - 3];
+    setTimeUnit(tinyInfoS[nbOfElemS - 2]);
+    _quantity_kind = QuantityKindAbstract::Deserialize(tinyInfoS[nbOfElemS - 1]);
 }
 
 /*!
@@ -835,5 +871,3 @@ MEDCouplingFieldT<T>::serialize(DataArrayIdType *&dataInt, std::vector<typename 
     _type->getSerializationIntArray(dataInt);
 }
 }  // namespace MEDCoupling
-
-#endif

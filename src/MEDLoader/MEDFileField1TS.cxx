@@ -163,13 +163,9 @@ MEDFileAnyTypeField1TSWithoutSDA::splitComponents() const
 }
 
 MEDFileAnyTypeField1TSWithoutSDA::MEDFileAnyTypeField1TSWithoutSDA(
-    const std::string &fieldName, const std::string &meshName, int csit, int iteration, int order
+    const MEDFileFieldNameScope &ns, int csit, int iteration, int order
 )
-    : MEDFileFieldNameScope(fieldName, meshName),
-      _iteration(iteration),
-      _order(order),
-      _csit(csit),
-      _nb_of_tuples_to_be_allocated(-2)
+    : MEDFileFieldNameScope(ns), _iteration(iteration), _order(order), _csit(csit), _nb_of_tuples_to_be_allocated(-2)
 {
 }
 
@@ -1627,6 +1623,7 @@ MEDFileAnyTypeField1TSWithoutSDA::getFieldOnMeshAtLevel(
     bool isPfl = false;
     MCAuto<MEDCouplingFieldDouble> ret =
         _field_per_mesh[0]->getFieldOnMeshAtLevel(type, glob, mesh, isPfl, arrOut, nasc);
+    ret->setQuantityKind(this->getQuantityKind());
     switch (renumPol)
     {
         case 0:
@@ -1799,15 +1796,10 @@ MEDFileField1TSWithoutSDA::CheckSBTMesh(const MEDCouplingMesh *mesh)
 
 MEDFileField1TSWithoutSDA *
 MEDFileField1TSWithoutSDA::New(
-    const std::string &fieldName,
-    const std::string &meshName,
-    int csit,
-    int iteration,
-    int order,
-    const std::vector<std::string> &infos
+    const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
 )
 {
-    return new MEDFileField1TSWithoutSDA(fieldName, meshName, csit, iteration, order, infos);
+    return new MEDFileField1TSWithoutSDA(ns, csit, iteration, order, infos);
 }
 
 /*!
@@ -1935,14 +1927,9 @@ MEDFileField1TSWithoutSDA::getUndergroundDataArrayExt(
 }
 
 MEDFileField1TSWithoutSDA::MEDFileField1TSWithoutSDA(
-    const std::string &fieldName,
-    const std::string &meshName,
-    int csit,
-    int iteration,
-    int order,
-    const std::vector<std::string> &infos
+    const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
 )
-    : MEDFileField1TSTemplateWithoutSDA<double>(fieldName, meshName, csit, iteration, order)
+    : MEDFileField1TSTemplateWithoutSDA<double>(ns, csit, iteration, order)
 {
     DataArrayDouble *arr(getOrCreateAndGetArrayTemplate());
     arr->setInfoAndChangeNbOfCompo(infos);
@@ -1971,28 +1958,18 @@ MEDFileField1TSWithoutSDA::deepCopy() const
 
 MEDFileInt32Field1TSWithoutSDA *
 MEDFileInt32Field1TSWithoutSDA::New(
-    const std::string &fieldName,
-    const std::string &meshName,
-    int csit,
-    int iteration,
-    int order,
-    const std::vector<std::string> &infos
+    const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
 )
 {
-    return new MEDFileInt32Field1TSWithoutSDA(fieldName, meshName, csit, iteration, order, infos);
+    return new MEDFileInt32Field1TSWithoutSDA(ns, csit, iteration, order, infos);
 }
 
 MEDFileInt32Field1TSWithoutSDA::MEDFileInt32Field1TSWithoutSDA() {}
 
 MEDFileInt32Field1TSWithoutSDA::MEDFileInt32Field1TSWithoutSDA(
-    const std::string &fieldName,
-    const std::string &meshName,
-    int csit,
-    int iteration,
-    int order,
-    const std::vector<std::string> &infos
+    const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
 )
-    : MEDFileField1TSNDTemplateWithoutSDA<int>(fieldName, meshName, csit, iteration, order, infos)
+    : MEDFileField1TSNDTemplateWithoutSDA<int>(ns, csit, iteration, order, infos)
 {
     DataArrayInt32 *arr(getOrCreateAndGetArrayTemplate());
     arr->setInfoAndChangeNbOfCompo(infos);
@@ -2081,28 +2058,18 @@ MEDFileInt32Field1TSWithoutSDA::deepCopy() const
 
 MEDFileInt64Field1TSWithoutSDA *
 MEDFileInt64Field1TSWithoutSDA::New(
-    const std::string &fieldName,
-    const std::string &meshName,
-    int csit,
-    int iteration,
-    int order,
-    const std::vector<std::string> &infos
+    const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
 )
 {
-    return new MEDFileInt64Field1TSWithoutSDA(fieldName, meshName, csit, iteration, order, infos);
+    return new MEDFileInt64Field1TSWithoutSDA(ns, csit, iteration, order, infos);
 }
 
 MEDFileInt64Field1TSWithoutSDA::MEDFileInt64Field1TSWithoutSDA() {}
 
 MEDFileInt64Field1TSWithoutSDA::MEDFileInt64Field1TSWithoutSDA(
-    const std::string &fieldName,
-    const std::string &meshName,
-    int csit,
-    int iteration,
-    int order,
-    const std::vector<std::string> &infos
+    const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
 )
-    : MEDFileField1TSNDTemplateWithoutSDA<Int64>(fieldName, meshName, csit, iteration, order, infos)
+    : MEDFileField1TSNDTemplateWithoutSDA<Int64>(ns, csit, iteration, order, infos)
 {
     DataArrayInt64 *arr(getOrCreateAndGetArrayTemplate());
     arr->setInfoAndChangeNbOfCompo(infos);
@@ -2191,28 +2158,18 @@ MEDFileInt64Field1TSWithoutSDA::deepCopy() const
 
 MEDFileFloatField1TSWithoutSDA *
 MEDFileFloatField1TSWithoutSDA::New(
-    const std::string &fieldName,
-    const std::string &meshName,
-    int csit,
-    int iteration,
-    int order,
-    const std::vector<std::string> &infos
+    const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
 )
 {
-    return new MEDFileFloatField1TSWithoutSDA(fieldName, meshName, csit, iteration, order, infos);
+    return new MEDFileFloatField1TSWithoutSDA(ns, csit, iteration, order, infos);
 }
 
 MEDFileFloatField1TSWithoutSDA::MEDFileFloatField1TSWithoutSDA() {}
 
 MEDFileFloatField1TSWithoutSDA::MEDFileFloatField1TSWithoutSDA(
-    const std::string &fieldName,
-    const std::string &meshName,
-    int csit,
-    int iteration,
-    int order,
-    const std::vector<std::string> &infos
+    const MEDFileFieldNameScope &ns, int csit, int iteration, int order, const std::vector<std::string> &infos
 )
-    : MEDFileField1TSNDTemplateWithoutSDA<float>(fieldName, meshName, csit, iteration, order, infos)
+    : MEDFileField1TSNDTemplateWithoutSDA<float>(ns, csit, iteration, order, infos)
 {
     DataArrayFloat *arr(getOrCreateAndGetArrayTemplate());
     arr->setInfoAndChangeNbOfCompo(infos);
@@ -2311,9 +2268,11 @@ MEDFileAnyTypeField1TS::AllocateContentFrom(med_idt fid, const std::string &fiel
     int iii(-1);
     int nbOfStep2(-1);
     std::string fName(fieldName);
+    MCAuto<QuantityKindAbstract> qk;
     if (fName.empty())
-        LocateField2(fid, 0, true, fName, typcha, infos, dtunit, meshName);
-    nbOfStep2 = LocateField(fid, fName, iii, typcha, infos, dtunit, meshName);
+        LocateField2(fid, 0, true, fName, typcha, infos, dtunit, meshName, qk);
+    nbOfStep2 = LocateField(fid, fName, iii, typcha, infos, dtunit, meshName, qk);
+    MEDFileFieldNameScope ns(fName, meshName, qk);
     if (nbOfStep2 < 1)
     {
         std::ostringstream oss;
@@ -2326,34 +2285,29 @@ MEDFileAnyTypeField1TS::AllocateContentFrom(med_idt fid, const std::string &fiel
     {
         case MED_FLOAT64:
         {
-            ret = MEDFileField1TSWithoutSDA::New(fName, meshName, -1, iteration, order, std::vector<std::string>());
+            ret = MEDFileField1TSWithoutSDA::New(ns, -1, iteration, order, std::vector<std::string>());
             break;
         }
         case MED_INT32:
         {
-            ret =
-                MEDFileInt32Field1TSWithoutSDA::New(fName, meshName, -1, iteration, order, std::vector<std::string>());
+            ret = MEDFileInt32Field1TSWithoutSDA::New(ns, -1, iteration, order, std::vector<std::string>());
             break;
         }
         case MED_INT64:
         {
-            ret =
-                MEDFileInt64Field1TSWithoutSDA::New(fName, meshName, -1, iteration, order, std::vector<std::string>());
+            ret = MEDFileInt64Field1TSWithoutSDA::New(ns, -1, iteration, order, std::vector<std::string>());
             break;
         }
         case MED_FLOAT32:
         {
-            ret =
-                MEDFileFloatField1TSWithoutSDA::New(fName, meshName, -1, iteration, order, std::vector<std::string>());
+            ret = MEDFileFloatField1TSWithoutSDA::New(ns, -1, iteration, order, std::vector<std::string>());
             break;
         }
         case MED_INT:
         {
             if (sizeof(med_int) == sizeof(int))
             {
-                ret = MEDFileInt32Field1TSWithoutSDA::New(
-                    fName, meshName, -1, iteration, order, std::vector<std::string>()
-                );
+                ret = MEDFileInt32Field1TSWithoutSDA::New(ns, -1, iteration, order, std::vector<std::string>());
                 break;
             }
         }
@@ -2690,7 +2644,8 @@ MEDFileAnyTypeField1TS::LocateField2(
     med_field_type &typcha,
     std::vector<std::string> &infos,
     std::string &dtunitOut,
-    std::string &meshName
+    std::string &meshName,
+    MCAuto<QuantityKindAbstract> &qk
 )
 {
     if (checkFieldId)
@@ -2716,6 +2671,7 @@ MEDFileAnyTypeField1TS::LocateField2(
         MEDfieldInfo, (fid, fieldIdCFormat + 1, nomcha, nomMaa, &localMesh, &typcha, comp, unit, dtunit, &nbOfStep)
     );
     fieldName = MEDLoaderBase::buildStringFromFortran(nomcha, MED_NAME_SIZE);
+    MEDFileUtilities::WrapperOf_MEDfieldQuantityKindRd(fid, fieldName, qk);
     dtunitOut = MEDLoaderBase::buildStringFromFortran(dtunit, MED_LNAME_SIZE);
     meshName = MEDLoaderBase::buildStringFromFortran(nomMaa, MED_NAME_SIZE);
     infos.clear();
@@ -2741,7 +2697,8 @@ MEDFileAnyTypeField1TS::LocateField(
     med_field_type &typcha,
     std::vector<std::string> &infos,
     std::string &dtunitOut,
-    std::string &meshName
+    std::string &meshName,
+    MCAuto<QuantityKindAbstract> &qk
 )
 {
     med_int nbFields = MEDnField(fid);
@@ -2751,13 +2708,15 @@ MEDFileAnyTypeField1TS::LocateField(
     for (int i = 0; i < nbFields && !found; i++)
     {
         std::string tmp, tmp2;
-        nbOfStep2 = LocateField2(fid, i, false, tmp, typcha, infos, dtunitOut, tmp2);
+        MCAuto<QuantityKindAbstract> qkLoc;
+        nbOfStep2 = LocateField2(fid, i, false, tmp, typcha, infos, dtunitOut, tmp2, qkLoc);
         fns[i] = tmp;
         found = (tmp == fieldName);
         if (found)
         {
             posCFormat = i;
             meshName = tmp2;
+            qk = qkLoc;
         }
     }
     if (!found)
@@ -2991,6 +2950,7 @@ MEDFileAnyTypeField1TS::writeLL(med_idt fid) const
          getDtUnit().c_str(),
          getMeshName().c_str())
     );
+    MEDFileUtilities::WrapperOf_MEDfieldQuantityKindWr(fid, getName(), getQuantityKind(), *this);
     contentNotNullBase()->writeDescription(fid, *this);
     writeGlobals(fid, *this);
     contentNotNullBase()->writeLL(fid, *this, *contentNotNullBase());
@@ -3159,6 +3119,18 @@ std::string
 MEDFileAnyTypeField1TS::getMeshName() const
 {
     return contentNotNullBase()->getMeshName();
+}
+
+MCAuto<QuantityKindAbstract>
+MEDFileAnyTypeField1TS::getQuantityKind() const
+{
+    return contentNotNullBase()->getQuantityKind();
+}
+
+void
+MEDFileAnyTypeField1TS::setQuantityKind(QuantityKindAbstract *newQKind)
+{
+    contentNotNullBase()->setQuantityKind(newQKind);
 }
 
 void

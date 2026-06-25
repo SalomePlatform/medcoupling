@@ -53,10 +53,8 @@ ConvertGeometryType(med_geometry_type geotype);
 
 MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA() {}
 
-MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(
-    const std::string &fieldName, const std::string &meshName
-)
-    : MEDFileFieldNameScope(fieldName, meshName)
+MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(const MEDFileFieldNameScope &ns)
+    : MEDFileFieldNameScope(ns)
 {
 }
 
@@ -69,16 +67,20 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(
 {
     med_field_type typcha;
     std::string dtunitOut, meshName;
-    int nbOfStep(MEDFileAnyTypeField1TS::LocateField2(fid, fieldId, false, _name, typcha, _infos, dtunitOut, meshName));
+    MCAuto<QuantityKindAbstract> qk;
+    int nbOfStep(
+        MEDFileAnyTypeField1TS::LocateField2(fid, fieldId, false, _name, typcha, _infos, dtunitOut, meshName, qk)
+    );
+    setQuantityKind(qk);
     setMeshName(meshName);
     setDtUnit(dtunitOut.c_str());
+    setQuantityKind(qk);
     loadStructureOrStructureAndBigArraysRecursively(fid, nbOfStep, typcha, loadAll, ms, entities);
 }
 
 MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(
     med_idt fid,
-    const std::string &fieldName,
-    const std::string &meshName,
+    const MEDFileFieldNameScope &ns,
     med_field_type fieldTyp,
     const std::vector<std::string> &infos,
     int nbOfStep,
@@ -87,7 +89,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(
     const MEDFileMeshes *ms,
     const MEDFileEntities *entities
 )
-try : MEDFileFieldNameScope(fieldName, meshName), _infos(infos)
+try : MEDFileFieldNameScope(ns), _infos(infos)
 {
     setDtUnit(dtunit.c_str());
     loadStructureOrStructureAndBigArraysRecursively(fid, nbOfStep, fieldTyp, loadAll, ms, entities);
@@ -567,6 +569,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA::pushBackTimeStep(MCAuto<MEDFileAnyTypeFiel
     {
         setName(tse2->getName());
         setMeshName(tse2->getMeshName());
+        setQuantityKind(tse2->getQuantityKind());
         setInfo(tse2->getInfo());
     }
     checkThatComponentsMatch(tse2->getInfo());
@@ -652,29 +655,28 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysRecurs
         {
             case MED_FLOAT64:
             {
-                _time_steps[i] = MEDFileField1TSWithoutSDA::New(
-                    getName(), getMeshName(), i + 1, FromMedInt<int>(numdt), FromMedInt<int>(numo), _infos
-                );
+                _time_steps[i] =
+                    MEDFileField1TSWithoutSDA::New(*this, i + 1, FromMedInt<int>(numdt), FromMedInt<int>(numo), _infos);
                 break;
             }
             case MED_INT32:
             {
                 _time_steps[i] = MEDFileInt32Field1TSWithoutSDA::New(
-                    getName(), getMeshName(), i + 1, FromMedInt<int>(numdt), FromMedInt<int>(numo), _infos
+                    *this, i + 1, FromMedInt<int>(numdt), FromMedInt<int>(numo), _infos
                 );
                 break;
             }
             case MED_INT64:
             {
                 _time_steps[i] = MEDFileInt64Field1TSWithoutSDA::New(
-                    getName(), getMeshName(), i + 1, FromMedInt<int>(numdt), FromMedInt<int>(numo), _infos
+                    *this, i + 1, FromMedInt<int>(numdt), FromMedInt<int>(numo), _infos
                 );
                 break;
             }
             case MED_FLOAT32:
             {
                 _time_steps[i] = MEDFileFloatField1TSWithoutSDA::New(
-                    getName(), getMeshName(), i + 1, FromMedInt<int>(numdt), FromMedInt<int>(numo), _infos
+                    *this, i + 1, FromMedInt<int>(numdt), FromMedInt<int>(numo), _infos
                 );
                 break;
             }
@@ -683,7 +685,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysRecurs
                 if (sizeof(med_int) == sizeof(int))
                 {
                     _time_steps[i] = MEDFileInt32Field1TSWithoutSDA::New(
-                        getName(), getMeshName(), i + 1, FromMedInt<int>(numdt), FromMedInt<int>(numo), _infos
+                        *this, i + 1, FromMedInt<int>(numdt), FromMedInt<int>(numo), _infos
                     );
                     break;
                 }
@@ -699,7 +701,6 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA::loadStructureOrStructureAndBigArraysRecurs
         else
             _time_steps[i]->loadOnlyStructureOfDataRecursively(fid, *this, ms, entitiesForSubInstances, &mfcap);
     }
-    synchronizeNameScope();
 }
 
 void
@@ -735,6 +736,7 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA::writeLL(med_idt fid, const MEDFileWritable
          getDtUnit().c_str(),
          getMeshName().c_str())
     );
+    MEDFileUtilities::WrapperOf_MEDfieldQuantityKindWr(fid, getName(), getQuantityKind(), opts);
     std::size_t nbOfTS = _time_steps.size();
     for (std::size_t i = 0; i < nbOfTS; i++) _time_steps[i]->writeLL(fid, opts, *this);
 }
@@ -1284,6 +1286,7 @@ void
 MEDFileAnyTypeFieldMultiTSWithoutSDA::copyTinyInfoFrom(const MEDCouplingFieldDouble *field, const DataArray *arr)
 {
     setName(field->getName());
+    setQuantityKind(field->getQuantityKind());
     if (field->getMesh())
         setMeshName(field->getMesh()->getName());
     if (_name.empty())
@@ -1545,7 +1548,8 @@ MEDFileAnyTypeFieldMultiTS::BuildContentFrom(
     std::string dtunit;
     std::string meshName;
     int i(-1);
-    MEDFileAnyTypeField1TS::LocateField(fid, fieldName, i, typcha, infos, dtunit, meshName);
+    MCAuto<QuantityKindAbstract> qk;
+    MEDFileAnyTypeField1TS::LocateField(fid, fieldName, i, typcha, infos, dtunit, meshName, qk);
     MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> ret;
     switch (typcha)
     {
@@ -1586,6 +1590,7 @@ MEDFileAnyTypeFieldMultiTS::BuildContentFrom(
             throw INTERP_KERNEL::Exception(oss.str());
         }
     }
+    ret->setQuantityKind(qk);
     ret->setMeshName(meshName);
     ret->setDtUnit(dtunit.c_str());
     return ret.retn();
@@ -1598,7 +1603,8 @@ MEDFileAnyTypeFieldMultiTS::BuildContentFrom(med_idt fid, bool loadAll, const ME
     //
     std::vector<std::string> infos;
     std::string dtunit, fieldName, meshName;
-    MEDFileAnyTypeField1TS::LocateField2(fid, 0, true, fieldName, typcha, infos, dtunit, meshName);
+    MCAuto<QuantityKindAbstract> qk;
+    MEDFileAnyTypeField1TS::LocateField2(fid, 0, true, fieldName, typcha, infos, dtunit, meshName, qk);
     MCAuto<MEDFileAnyTypeFieldMultiTSWithoutSDA> ret;
     switch (typcha)
     {
@@ -1639,6 +1645,7 @@ MEDFileAnyTypeFieldMultiTS::BuildContentFrom(med_idt fid, bool loadAll, const ME
             throw INTERP_KERNEL::Exception(oss.str());
         }
     }
+    ret->setQuantityKind(qk);
     ret->setMeshName(meshName);
     ret->setDtUnit(dtunit.c_str());
     return ret.retn();
@@ -2014,6 +2021,18 @@ std::string
 MEDFileAnyTypeFieldMultiTS::getMeshName() const
 {
     return contentNotNullBase()->getMeshName();
+}
+
+MCAuto<QuantityKindAbstract>
+MEDFileAnyTypeFieldMultiTS::getQuantityKind() const
+{
+    return contentNotNullBase()->getQuantityKind();
+}
+
+void
+MEDFileAnyTypeFieldMultiTS::setQuantityKind(QuantityKindAbstract *newQKind)
+{
+    contentNotNullBase()->setQuantityKind(newQKind);
 }
 
 void

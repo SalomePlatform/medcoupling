@@ -83,7 +83,8 @@ set(medcoupling_SOURCES
     MEDCouplingMatrix.cxx
     MEDCouplingPartDefinition.cxx
     MEDCouplingSkyLineArray.cxx
-    MEDCouplingVoronoi.cxx)
+    MEDCouplingVoronoi.cxx
+    MEDCouplingQuantityKind.cxx)
 
 set(medcouplingremapper_SOURCES MEDCouplingRemapper.cxx)
 
