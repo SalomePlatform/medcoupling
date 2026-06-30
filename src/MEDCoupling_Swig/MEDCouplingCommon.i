@@ -6405,3 +6405,5 @@ if __filename and os.path.isfile(__filename):
     with open(__filename) as __fp:
         exec(__fp.read())
 %}
+
+%include "to_pyvista.py"
