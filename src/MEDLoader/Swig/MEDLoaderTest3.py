@@ -6894,9 +6894,15 @@ class MEDLoaderTest3(unittest.TestCase):
         #
         self.assertEqual(mm.getGroupArr(0, "grp0_L0").getValues(), grp0_L0.getValues())
         self.assertEqual(mm.getGroupArr(0, "grp1_L0").getValues(), grp1_L0.getValues())
-        self.assertEqual(mm.getGroupArr(-1, "grp0_LM1").getValues(), grp0_LM1.getValues())
-        self.assertEqual(mm.getGroupArr(-1, "grp1_LM1").getValues(), grp1_LM1.getValues())
-        self.assertEqual(mm.getGroupArr(-1, "grp2_LM1").getValues(), grp2_LM1.getValues())
+        self.assertEqual(
+            mm.getGroupArr(-1, "grp0_LM1").getValues(), grp0_LM1.getValues()
+        )
+        self.assertEqual(
+            mm.getGroupArr(-1, "grp1_LM1").getValues(), grp1_LM1.getValues()
+        )
+        self.assertEqual(
+            mm.getGroupArr(-1, "grp2_LM1").getValues(), grp2_LM1.getValues()
+        )
         # to test
         mm.setRenumFieldArr(0, None)
         mm.setFamilyFieldArr(-1, None)
