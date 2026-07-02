@@ -70,7 +70,7 @@
 
 %inline
 {
-  std::vector<std::string> AllPossibleExtensions()
+  std::vector<std::string> AllPossibleStaticExtensions()
   {
     std::vector<std::string> ret(EXTENSIONS,EXTENSIONS+NB_OF_EXTENSIONS);
     return ret;
@@ -157,7 +157,7 @@
 #endif
   }
 
-  std::vector<std::string> ActiveExtensions()
+  std::vector<std::string> ActiveStaticExtensions()
   {
     std::vector<std::string> ret;
     ret.push_back(std::string(SEQ_INTERPOL_EXT));

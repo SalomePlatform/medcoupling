@@ -19,6 +19,14 @@
 #
 
 
+def MEDCouplingHasPyVistaSupport():
+    try:
+        import pyvista
+    except:
+        return False
+    return True
+
+
 def DADfitPlaneL2(self):
     """
     Adjust plan : a*x + b*y + c*z + d = 0

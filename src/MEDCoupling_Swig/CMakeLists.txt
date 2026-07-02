@@ -57,7 +57,6 @@ set(MC_pyTestFiles ${ALL_TESTS} MEDCouplingDataForTest.py)
 set(MC_Swig_interf
     MEDCoupling.i
     MEDCouplingCommon.i
-    to_pyvista.py
     MEDCouplingRemapperCommon.i
     MEDCouplingRefCountObject.i
     MEDCouplingMemArray.i
@@ -69,6 +68,7 @@ set(MC_Swig_interf
     MEDCouplingTypemaps.i
     MEDCouplingDataArrayTypemaps.i
     MEDCouplingDataArrayTraits.hxx
+    MEDCouplingPyvista.i
     ../ICoCo/Swig/ICoCoMEDField.i)
 
 include_directories(
@@ -192,7 +192,7 @@ else()
   set(PYFILES_TO_INSTALL ${PYFILES_TO_INSTALL}
                          ${CMAKE_CURRENT_BINARY_DIR}/MEDCoupling.py)
 endif()
-install(FILES vtk2medcoupling.py geom2medcoupling.py to_pyvista.py
+install(FILES vtk2medcoupling.py geom2medcoupling.py
         DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
 install(FILES MEDCouplingFinalize.py DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})

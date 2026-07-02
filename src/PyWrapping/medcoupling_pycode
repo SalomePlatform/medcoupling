@@ -17,9 +17,24 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-// Author : Anthony Geay (EDF R&D)
-
 %pythoncode %{
+
+PYVISTA_SUPPORT = "Pyvista support"
+
+def AllPossibleDynamicExtensions():
+    return [PYVISTA_SUPPORT]
+
+def ActiveDynamicExtensions():
+    ret = []
+    if MEDCouplingHasPyVistaSupport():
+        ret.append( PYVISTA_SUPPORT )
+    return ret
+
+def AllPossibleExtensions():
+    return list(AllPossibleStaticExtensions()) + AllPossibleDynamicExtensions()
+
+def ActiveExtensions():
+    return list(ActiveStaticExtensions()) + ActiveDynamicExtensions()
 
 def ExtensionsStr(sz=60):
     tab=["No","Yes"]

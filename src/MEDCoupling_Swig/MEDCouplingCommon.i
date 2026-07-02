@@ -6406,4 +6406,4 @@ if __filename and os.path.isfile(__filename):
         exec(__fp.read())
 %}
 
-%include "to_pyvista.py"
+%include "MEDCouplingPyvista.i"
