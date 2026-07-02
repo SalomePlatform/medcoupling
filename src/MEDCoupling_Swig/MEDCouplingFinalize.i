@@ -18,6 +18,10 @@
 //
 
 %pythoncode %{
+import MEDCouplingFinalize
+DataArrayDouble.fitPlaneL2 = MEDCouplingFinalize.DADfitPlaneL2
+DataArrayDouble.maxDistanceToPlane = MEDCouplingFinalize.DADmaxDistanceToPlane
+
 def DataArrayAsciiCharIteratoriter(self):
   return self
 InterpKernelException.__reduce__=INTERPKERNELExceptionReduce

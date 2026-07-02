@@ -248,7 +248,7 @@ class PointLocatorAlgos : public GenericPointLocatorAlgos
                     coords + SPACEDIM * (OTT<ConnType, numPol>::coo2C(connOfSon[(1 + i_permutation) % nb_face_nodes]));
                 const double *CC =
                     coords + SPACEDIM * (OTT<ConnType, numPol>::coo2C(connOfSon[(2 + i_permutation) % nb_face_nodes]));
-                if (cmType.getEnum() == NORM_POLYHED && isColinear3DPts(AA, BB, CC, eps) &&
+                if (cmType.getEnum() == NORM_POLYHED && isColinear3DPtsRelative(AA, BB, CC, eps) &&
                     i_permutation < nb_face_nodes)
                     // points are colinear => use next 3 other points
                     i_permutation += 1;

@@ -166,28 +166,38 @@ epsilonEqual(const double x, const double y, const double errTol = DEFAULT_ABS_T
  * Implemented by checking that the norm of the cross product is null.
  */
 inline bool
-isColinear3D(const double *v1, const double *v2, const double eps = DEFAULT_ABS_TOL)
+isColinear3D(const double *v1, const double *v2, const double absEps = DEFAULT_ABS_TOL)
 {
     double cros[3];
     cross(v1, v2, cros);
-    return epsilonEqual(dot(cros, cros), 0.0, eps);
+    return epsilonEqual(dot(cros, cros), 0.0, absEps);
 }
 
 /**
  * Test whether three 3D points are colinear.
- * Implemented by calling overload isColinear3D(v1,v2, eps)
+ *
+ * \param [in] eps - relative tolerance
  */
 inline bool
-isColinear3DPts(const double *p1, const double *p2, const double *p3, const double eps = DEFAULT_ABS_TOL)
+isColinear3DPtsRelative(const double p1[3], const double p2[3], const double p3[3], const double eps)
 {
     // check if these points are colinear
     double vec1[3];
     // p2-p1
-    std::transform(p2, p2 + 3, p1, vec1, std::minus<double>());
+    std::transform(p2, p2 + 3, p1, vec1, [](double a, double b) { return a - b; });
     double vec2[3];
     // p3-p2
-    std::transform(p3, p3 + 3, p2, vec2, std::minus<double>());
-    return isColinear3D(vec1, vec2, eps);
+    std::transform(p3, p3 + 3, p2, vec2, [](double a, double b) { return a - b; });
+    // convert input relative tolerance to absolute tolerance requested by isColinear3D
+    double v1(sqrt(dot(vec1, vec1))), v2(sqrt(dot(vec2, vec2)));
+    if (std::min(v1, v2) < eps)
+        return true;
+    double ref(std::max(v1, v2));
+    double cros[3];
+    std::for_each(vec1, vec1 + 3, [ref](double &v) { v /= ref; });
+    std::for_each(vec2, vec2 + 3, [ref](double &v) { v /= ref; });
+    cross(vec1, vec2, cros);
+    return epsilonEqual(dot(cros, cros), 0.0, eps);
 }
 
 /**

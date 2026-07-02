@@ -452,6 +452,68 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
         self.assertTrue( isinstance( f3.getQuantityKind(), mc.QuantityKindUser ) )
         # fmt: on
 
+    def testDADWarpDetector(self):
+        """
+        [EDF35792] : tune eps in MEDCouplingUMesh.getCellsContainingPoints for polyhedrons with warped faces.
+        """
+
+        # fmt: off
+        def myPrint( *args ):
+            #print( *args )
+            pass
+
+        coo = mc.DataArrayDouble( [-0.3331208160298692,-0.025026273442846012,0.061287507751474263,-0.33314750008570815,-0.025033320057416444,0.061302020051235417,-0.33313438994837752,-0.025026820064993835,0.061300831512057674,-0.33507052630935885,-0.031992494567202656,0.069062343308511728,-0.33488145822070564,-0.031048079938340724,0.068917983051779555,-0.33526870531355502,-0.035313955968305916,0.062995737117182454,-0.33321334893255383,-0.025079841460425242,0.061339451019924093,-0.33432034744036804,-0.028471454941929708,0.067886357064984013,-0.33057202919351508,-0.04237041951523076,0.060902399419648645,-0.32386153517155836,-0.040354721725469431,0.057239317148965685,-0.3238418703960606,-0.028355766236869598,0.056562229245244081,-0.32691675290660277,-0.02542541371805674,0.058026593022270208,-0.33488923908719104,-0.032053091505812883,0.069341694420429145,-0.33093196747143705,-0.035885541054966719,0.071499845756423125,-0.32720270880350633,-0.042935659873021399,0.067502067459213569,-0.31872663920259736,-0.031954868088473705,0.063191747397899789,-0.32115642558020907,-0.040395049714716039,0.060636275076532881,-0.33108028979306903,-0.026833915956851175,0.067522044860005362,-0.3208923811219424,-0.0291572144856742,0.069437153519792003,-0.32094942346622801,-0.029168336328965067,0.069531610543058189,-0.32486739272737786,-0.035254550958827582,0.071813067311537596,-0.32587536651666743,-0.042693071017823873,0.067655758713261419], 22, 3 )
+        conn = mc.DataArrayInt( [31,5,6,1,0,11,10,9,8,-1,17,19,18,11,0,2,-1,3,4,7,6,5,-1,17,2,1,6,7,-1,2,0,1,-1,7,4,12,13,20,19,17,-1,5,8,14,13,12,3,-1,8,9,16,21,14,-1,11,18,15,10,-1,16,15,18,19,20,21,-1,15,16,9,10,-1,20,13,14,21,-1,12,4,3] )
+        connI = mc.DataArrayInt( [0, 79] )
+
+        mesh = mc.MEDCouplingUMesh("",3)
+        mesh.setCoords( coo )
+        mesh.setConnectivity( conn, connI, True )
+        mesh.checkConsistencyLight()
+
+        faces = mesh.buildDescendingConnectivity()[0]
+        ptsToTest = coo[[13]]
+
+        zeComputedEps = 2e-3
+        res, resi = mesh.getCellsContainingPoints( ptsToTest, zeComputedEps )# aim of test is here 2e-3
+        self.assertTrue( resi.isIota( 2 ) )
+        self.assertTrue( res.isEqual( mc.DataArrayInt([0]) ) )
+        self.assertTrue( mesh.getCellsContainingPoints( ptsToTest, 1e-4 )[0].empty() )# 1e-4 : to small regarding warping of face 5
+
+        # face 5 [7,4,12]
+        faceIdWithPb = 5
+        faceWithPb = faces[faceIdWithPb]
+        faceWithPb = mc.MEDCoupling1GTUMesh.New( faceWithPb )
+        faceWithPb.buildUnstructured()
+        faceWithPb.buildUnstructured().distanceToPoint(ptsToTest)
+        nbPtsInFace = len( faceWithPb.computeFetchedNodeIds() )
+
+        points = faceWithPb.getCoords()[faceWithPb.computeFetchedNodeIds()]
+        a,b,c,d = points.fitPlaneL2( )
+        md = points.maxDistanceToPlane( a, b, c, d )
+        myPrint( f"Eqn of plane : {a} * x + {b} * y + {c} * z + d = 0. Max distance = {md}" )
+        mmx = mc.DataArrayDouble( points.getMinMaxPerComponent() )
+        refLength = (mmx[:,1] - mmx[:,0]).getMaxValueInArray()
+
+        myPrint( f"Analyze triangle by triangle of face {faceIdWithPb}" )
+        for i in range(nbPtsInFace):
+            subFace5 = mc.MEDCoupling1SGTUMesh( "", mc.NORM_TRI3 )
+            conn = faceWithPb.getNodalConnectivity()[:]
+            conn.circularPermutation( i )
+            subFace5.setNodalConnectivity( conn[:3] )
+            subFace5.setCoords( faceWithPb.getCoords() )
+            subFace5 = subFace5.buildUnstructured()
+            a0,b0,c0,d0 = subFace5.computePlaneEquationOf3DFaces().getValuesAsTuple()[0]
+            myPrint( a0,b0,c0,d0 )
+            dist = a0*ptsToTest[0,0] + b0*ptsToTest[0,1] + c0*ptsToTest[0,2] + d0
+            myPrint( f"For tri #{i} of face#{faceIdWithPb} : {dist}"  )
+
+        myPrint( f"Max distance to mean plane : {md}" )
+        myPrint( f"Carac distance of face {faceIdWithPb} : {refLength}" )
+        # zeComputedEps is deduced here
+        myPrint( f"Epsilon for detection of inside / outside of polyedron regarding face #{faceIdWithPb} : {md / refLength}" )
+        # fmt: on
+
 
 if __name__ == "__main__":
     unittest.main()

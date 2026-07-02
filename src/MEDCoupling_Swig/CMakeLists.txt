@@ -194,6 +194,8 @@ endif()
 install(FILES vtk2medcoupling.py geom2medcoupling.py
         DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
+install(FILES MEDCouplingFinalize.py DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
+
 salome_install_scripts(
   "${PYFILES_TO_INSTALL}"
   ${MEDCOUPLING_INSTALL_PYTHON}
