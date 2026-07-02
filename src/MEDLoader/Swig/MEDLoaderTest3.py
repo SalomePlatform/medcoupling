@@ -6875,6 +6875,34 @@ class MEDLoaderTest3(unittest.TestCase):
         self.assertEqual(mm.getGroupArr(1, "grp0_Node").getValues(), [0, 11, 15, 16])
         self.assertEqual(mm.getGroupArr(1, "grp1_Node").getValues(), [1, 2, 13, 14, 16])
         self.assertEqual(mm.getFamilyFieldAtLevel(1).getValues(), ref)
+        # Check that groups doesn't get empty after unPolyze when elements are not renumbered
+        grp0_L0 = mm.getGroupArr(-0, "grp0_L0")
+        grp1_L0 = mm.getGroupArr(-0, "grp1_L0")
+        grp0_LM1 = mm.getGroupArr(-1, "grp0_LM1")
+        grp1_LM1 = mm.getGroupArr(-1, "grp1_LM1")
+        grp2_LM1 = mm.getGroupArr(-1, "grp2_LM1")
+        mesh_L0 = mm.getMeshAtLevel(0)
+        mesh_LM1 = mm.getMeshAtLevel(-1)
+        mesh_L0.convertToPolyTypes(list(range(mesh_L0.getNumberOfCells())))
+        mesh_LM1.convertToPolyTypes(list(range(mesh_LM1.getNumberOfCells())))
+        mm.setMeshAtLevel(0, mesh_L0)
+        mm.setMeshAtLevel(-1, mesh_LM1)
+        mm.setGroupsAtLevel(0, [grp0_L0, grp1_L0])
+        mm.setGroupsAtLevel(-1, [grp0_LM1, grp1_LM1, grp2_LM1])
+        #
+        mm.unPolyze()
+        #
+        self.assertEqual(mm.getGroupArr(0, "grp0_L0").getValues(), grp0_L0.getValues())
+        self.assertEqual(mm.getGroupArr(0, "grp1_L0").getValues(), grp1_L0.getValues())
+        self.assertEqual(
+            mm.getGroupArr(-1, "grp0_LM1").getValues(), grp0_LM1.getValues()
+        )
+        self.assertEqual(
+            mm.getGroupArr(-1, "grp1_LM1").getValues(), grp1_LM1.getValues()
+        )
+        self.assertEqual(
+            mm.getGroupArr(-1, "grp2_LM1").getValues(), grp2_LM1.getValues()
+        )
         # to test
         mm.setRenumFieldArr(0, None)
         mm.setFamilyFieldArr(-1, None)

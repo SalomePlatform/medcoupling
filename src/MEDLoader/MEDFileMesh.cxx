@@ -5131,7 +5131,13 @@ MEDFileUMesh::unPolyze(std::vector<mcIdType> &oldCode, std::vector<mcIdType> &ne
             newCode.insert(newCode.end(), code2.begin(), code2.end());
             //
             if (o2nCellsPart2->isIota(o2nCellsPart2->getNumberOfTuples()))
+            {
+                if (famField)
+                    setFamilyFieldArr(*it, const_cast<DataArrayIdType *>(famField));
+                if (numField)
+                    setRenumFieldArr(*it, const_cast<DataArrayIdType *>(numField));
                 continue;
+            }
             if (famField)
             {
                 MCAuto<DataArrayIdType> newFamField = famField->renumber(o2nCellsPart2->getConstPointer());

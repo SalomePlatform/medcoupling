@@ -191,7 +191,7 @@ else()
   set(PYFILES_TO_INSTALL ${PYFILES_TO_INSTALL}
                          ${CMAKE_CURRENT_BINARY_DIR}/MEDCoupling.py)
 endif()
-install(FILES vtk2medcoupling.py geom2medcoupling.py
+install(FILES vtk2medcoupling.py geom2medcoupling.py to_pyvista.py
         DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
 install(FILES MEDCouplingFinalize.py DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
