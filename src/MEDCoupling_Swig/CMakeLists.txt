@@ -57,6 +57,7 @@ set(MC_pyTestFiles ${ALL_TESTS} MEDCouplingDataForTest.py)
 set(MC_Swig_interf
     MEDCoupling.i
     MEDCouplingCommon.i
+    to_pyvista.py
     MEDCouplingRemapperCommon.i
     MEDCouplingRefCountObject.i
     MEDCouplingMemArray.i
