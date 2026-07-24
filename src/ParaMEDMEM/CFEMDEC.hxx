@@ -43,6 +43,7 @@ class CFEMDECAccessToMaster
 {
    public:
     CFEMDECAccessToMaster(CFEMDEC *master) : _master(master) {}
+    virtual ~CFEMDECAccessToMaster() = default;
     virtual MPIProcessorGroup *getUnionGrp() const = 0;
     virtual MPIProcessorGroup *getSourceGrp() const = 0;
     virtual MPIProcessorGroup *getTargetGrp() const = 0;
@@ -76,6 +77,9 @@ class CFEMDECOneWay : public INTERP_KERNEL::InterpolationOptions
         : _to_master(std::move(accessToMaster)), _master(master)
     {
     }
+
+    virtual ~CFEMDECOneWay() = default;
+
     virtual void reinitializeOnNewMesh();
     //
     MPIProcessorGroup *getSourceGrp() const;
