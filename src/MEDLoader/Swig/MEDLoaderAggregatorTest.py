@@ -1177,7 +1177,6 @@ class MEDLoaderAggregatorTest(unittest.TestCase):
         self.assertTrue( m0ret.getNodalConnectivity().isEqual(DataArrayInt( [ 1, 0, 2, 3, 5, 4, 6, 7 ] ) ) )
         m1ret = MEDCoupling1SGTUMesh(mret[-1])
         mret.setName("Mesh")
-        mret.write("res.med",2)
         self.assertTrue( m1ret.getNodalConnectivity().isEqual( DataArrayInt( [2, 6, 4, 0, 5, 7, 6, 4, 1, 0, 2, 3, 2, 6, 4, 0] ) ) )
         # fmt: on
 
