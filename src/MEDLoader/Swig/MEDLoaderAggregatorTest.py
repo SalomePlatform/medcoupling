@@ -1034,6 +1034,119 @@ class MEDLoaderAggregatorTest(unittest.TestCase):
         self.assertTrue( arr.isEqualWithoutConsideringStr( DataArrayDouble( [15000, 15002, 15004, 15007, 15014, 15021, 15028, 25000, 25001, 25002, 25003, 25004, 25005, 25006, 25007, 25008, 25009]) , 1e-200) )
         # fmt: on
 
+    @WriteInTmpDir
+    def testAggregation10(self):
+        """
+        [EDF35935] : Test aggregation of Gauss_pt without profile
+        """
+        # fmt: off
+        file0_name = "field0.med"
+        file1_name = "field1.med"
+        fieldName = "Field"
+        merge_name = "mergePG.med"
+
+        def generateTri6( vect ):
+            arr = DataArrayDouble([0,0, 1,0, 0,1],3,2)
+            ret = MEDCouplingUMesh( "mesh", 2 )
+            ret.setCoords( arr )
+            ret.allocateCells()
+            ret.insertNextCell( NORM_TRI3, [0,1,2] )
+            ret.convertLinearCellsToQuadratic()
+            ret.translate( vect )
+            return ret
+
+        def generateQuad8( vect ):
+            arr = DataArrayDouble([0,0, 1,0, 1,1, 0,1],4,2)
+            ret = MEDCouplingUMesh( "mesh", 2 )
+            ret.setCoords( arr )
+            ret.allocateCells()
+            ret.insertNextCell( NORM_QUAD4, [0,1,2,3] )
+            ret.convertLinearCellsToQuadratic()
+            ret.translate( vect )
+            return ret
+
+        refcoo_quad8 = (-1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 0.0, -1.0, 1.0, 0.0, 0.0, 1.0, -1.0, 0.0)
+        gausscoo_quad8 = (-0.5773502691896257, -0.5773502691896257, 0.5773502691896257, -0.5773502691896257, 0.5773502691896257, 0.5773502691896257, -0.5773502691896257, 0.5773502691896257)
+        weights_quad8 = (1.0, 1.0, 1.0, 1.0)
+
+        refcoo_tri6 = (0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.5, 0.0, 0.5, 0.5, 0.0, 0.5)
+        gausscoo_tri6 = (0.16666666666666666, 0.16666666666666666, 0.6666666666666666, 0.16666666666666666, 0.16666666666666666, 0.6666666666666666)
+        weights_tri6 = (0.16666666666666666, 0.16666666666666666, 0.16666666666666666)
+        # mesh 0 : 5 tri6 10 quad8
+        m0_tri6 = [generateTri6( [1.5*i, 0 ] ) for i in range(5)]
+        m0_quad8 = [generateQuad8( [1.5*i, 1.5 ] ) for i in range(10)]
+        m0 = MEDCouplingUMesh.MergeUMeshes(m0_tri6 + m0_quad8)
+        m0.setName("mesh")
+        f0 = MEDCouplingFieldDouble(ON_GAUSS_PT)
+        f0.setMesh( m0 )
+        f0.setGaussLocalizationOnType(NORM_TRI6, refcoo_tri6, gausscoo_tri6, weights_tri6)
+        f0.setGaussLocalizationOnType(NORM_QUAD8, refcoo_quad8, gausscoo_quad8, weights_quad8)
+        arr0 = DataArrayDouble( 55 ) ; arr0.iota()
+        f0.setArray( arr0 )
+        f0.setName( fieldName )
+        f0.checkConsistencyLight()
+        WriteField(file0_name, f0, True)
+
+        # mesh 1 : 14 tri6 7 quad8
+        m1_tri6 = [generateTri6( [1.5*i, 3 ] ) for i in range(14)]
+        m1_quad8 = [generateQuad8( [1.5*i, 4.5 ] ) for i in range(7)]
+        m1 = MEDCouplingUMesh.MergeUMeshes(m1_tri6 + m1_quad8)
+        m1.setName("mesh")
+        f1 = MEDCouplingFieldDouble(ON_GAUSS_PT)
+        f1.setMesh( m1 )
+        f1.setGaussLocalizationOnType(NORM_TRI6, refcoo_tri6, gausscoo_tri6, weights_tri6)
+        f1.setGaussLocalizationOnType(NORM_QUAD8, refcoo_quad8, gausscoo_quad8, weights_quad8)
+        arr1 = DataArrayDouble( 70 ) ; arr1.iota() ; arr1 += 100
+        f1.setArray( arr1 )
+        f1.setName( fieldName )
+        f1.checkConsistencyLight()
+        WriteField(file1_name, f1, True)
+
+        AggregateMEDFilesNoFusion("field*.med",merge_name, logLev = logging.WARNING)
+        mm = MEDFileMesh.New( merge_name )
+        f1ts = MEDFileField1TS( merge_name )
+        self.assertTrue( f1ts.getName() == fieldName )
+        self.assertTrue( f1ts.getTime() == [-1,-1,0.] )
+        fieldSpectrum = f1ts.getFieldSplitedByType()
+        self.assertTrue( len(fieldSpectrum) == 2 )
+        # check of tri6
+        gt, allGeoDistOnGt = fieldSpectrum[0]
+        self.assertTrue( gt == NORM_TRI6 )
+        self.assertTrue( len(allGeoDistOnGt) == 1 ) # single disc attached on TRI6
+        allGeoDistOnGt = allGeoDistOnGt[0]
+        disc, startStop, pfl, loc = allGeoDistOnGt
+        self.assertTrue( disc == ON_GAUSS_PT )
+        self.assertTrue( startStop == (0,57) ) # 19 TRI6 * 3 GP == 57
+        self.assertTrue( pfl == "" )
+        self.assertTrue( f1ts.getLocalization( loc ).getRefCoords() == refcoo_tri6 )
+        self.assertTrue( f1ts.getLocalization( loc ).getGaussCoords() == gausscoo_tri6 )
+        self.assertTrue( f1ts.getLocalization( loc ).getGaussWeights() == weights_tri6 )
+        # check of Quad8
+        gt, allGeoDistOnGt = fieldSpectrum[1]
+        self.assertTrue( gt == NORM_QUAD8 )
+        self.assertTrue( len(allGeoDistOnGt) == 1 ) # single disc attached on TRI6
+        allGeoDistOnGt = allGeoDistOnGt[0]
+        disc, startStop, pfl, loc = allGeoDistOnGt
+        self.assertTrue( disc == ON_GAUSS_PT )
+        self.assertTrue( startStop == (57,125) ) # 17 QUAD8 * 4 GP == 68
+        self.assertTrue( pfl == "" )
+        self.assertTrue( f1ts.getLocalization( loc ).getRefCoords() == refcoo_quad8 )
+        self.assertTrue( f1ts.getLocalization( loc ).getGaussCoords() == gausscoo_quad8 )
+        self.assertTrue( f1ts.getLocalization( loc ).getGaussWeights() == weights_quad8 )
+        ref_values_of_field = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169]
+        self.assertTrue( f1ts.getUndergroundDataArray().convertToInt64Arr().isEqual( DataArrayInt64( ref_values_of_field ) ) )
+        # mesh check
+        mRef = mm[0]
+        cooRef = DataArrayDouble( [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0), (0.5, 0.0), (0.5, 0.5), (0.0, 0.5), (1.5, 0.0), (2.5, 0.0), (1.5, 1.0), (2.0, 0.0), (2.0, 0.5), (1.5, 0.5), (3.0, 0.0), (4.0, 0.0), (3.0, 1.0), (3.5, 0.0), (3.5, 0.5), (3.0, 0.5), (4.5, 0.0), (5.5, 0.0), (4.5, 1.0), (5.0, 0.0), (5.0, 0.5), (4.5, 0.5), (6.0, 0.0), (7.0, 0.0), (6.0, 1.0), (6.5, 0.0), (6.5, 0.5), (6.0, 0.5), (0.0, 1.5), (1.0, 1.5), (1.0, 2.5), (0.0, 2.5), (0.5, 1.5), (1.0, 2.0), (0.5, 2.5), (0.0, 2.0), (1.5, 1.5), (2.5, 1.5), (2.5, 2.5), (1.5, 2.5), (2.0, 1.5), (2.5, 2.0), (2.0, 2.5), (1.5, 2.0), (3.0, 1.5), (4.0, 1.5), (4.0, 2.5), (3.0, 2.5), (3.5, 1.5), (4.0, 2.0), (3.5, 2.5), (3.0, 2.0), (4.5, 1.5), (5.5, 1.5), (5.5, 2.5), (4.5, 2.5), (5.0, 1.5), (5.5, 2.0), (5.0, 2.5), (4.5, 2.0), (6.0, 1.5), (7.0, 1.5), (7.0, 2.5), (6.0, 2.5), (6.5, 1.5), (7.0, 2.0), (6.5, 2.5), (6.0, 2.0), (7.5, 1.5), (8.5, 1.5), (8.5, 2.5), (7.5, 2.5), (8.0, 1.5), (8.5, 2.0), (8.0, 2.5), (7.5, 2.0), (9.0, 1.5), (10.0, 1.5), (10.0, 2.5), (9.0, 2.5), (9.5, 1.5), (10.0, 2.0), (9.5, 2.5), (9.0, 2.0), (10.5, 1.5), (11.5, 1.5), (11.5, 2.5), (10.5, 2.5), (11.0, 1.5), (11.5, 2.0), (11.0, 2.5), (10.5, 2.0), (12.0, 1.5), (13.0, 1.5), (13.0, 2.5), (12.0, 2.5), (12.5, 1.5), (13.0, 2.0), (12.5, 2.5), (12.0, 2.0), (13.5, 1.5), (14.5, 1.5), (14.5, 2.5), (13.5, 2.5), (14.0, 1.5), (14.5, 2.0), (14.0, 2.5), (13.5, 2.0), (0.0, 3.0), (1.0, 3.0), (0.0, 4.0), (0.5, 3.0), (0.5, 3.5), (0.0, 3.5), (1.5, 3.0), (2.5, 3.0), (1.5, 4.0), (2.0, 3.0), (2.0, 3.5), (1.5, 3.5), (3.0, 3.0), (4.0, 3.0), (3.0, 4.0), (3.5, 3.0), (3.5, 3.5), (3.0, 3.5), (4.5, 3.0), (5.5, 3.0), (4.5, 4.0), (5.0, 3.0), (5.0, 3.5), (4.5, 3.5), (6.0, 3.0), (7.0, 3.0), (6.0, 4.0), (6.5, 3.0), (6.5, 3.5), (6.0, 3.5), (7.5, 3.0), (8.5, 3.0), (7.5, 4.0), (8.0, 3.0), (8.0, 3.5), (7.5, 3.5), (9.0, 3.0), (10.0, 3.0), (9.0, 4.0), (9.5, 3.0), (9.5, 3.5), (9.0, 3.5), (10.5, 3.0), (11.5, 3.0), (10.5, 4.0), (11.0, 3.0), (11.0, 3.5), (10.5, 3.5), (12.0, 3.0), (13.0, 3.0), (12.0, 4.0), (12.5, 3.0), (12.5, 3.5), (12.0, 3.5), (13.5, 3.0), (14.5, 3.0), (13.5, 4.0), (14.0, 3.0), (14.0, 3.5), (13.5, 3.5), (15.0, 3.0), (16.0, 3.0), (15.0, 4.0), (15.5, 3.0), (15.5, 3.5), (15.0, 3.5), (16.5, 3.0), (17.5, 3.0), (16.5, 4.0), (17.0, 3.0), (17.0, 3.5), (16.5, 3.5), (18.0, 3.0), (19.0, 3.0), (18.0, 4.0), (18.5, 3.0), (18.5, 3.5), (18.0, 3.5), (19.5, 3.0), (20.5, 3.0), (19.5, 4.0), (20.0, 3.0), (20.0, 3.5), (19.5, 3.5), (0.0, 4.5), (1.0, 4.5), (1.0, 5.5), (0.0, 5.5), (0.5, 4.5), (1.0, 5.0), (0.5, 5.5), (0.0, 5.0), (1.5, 4.5), (2.5, 4.5), (2.5, 5.5), (1.5, 5.5), (2.0, 4.5), (2.5, 5.0), (2.0, 5.5), (1.5, 5.0), (3.0, 4.5), (4.0, 4.5), (4.0, 5.5), (3.0, 5.5), (3.5, 4.5), (4.0, 5.0), (3.5, 5.5), (3.0, 5.0), (4.5, 4.5), (5.5, 4.5), (5.5, 5.5), (4.5, 5.5), (5.0, 4.5), (5.5, 5.0), (5.0, 5.5), (4.5, 5.0), (6.0, 4.5), (7.0, 4.5), (7.0, 5.5), (6.0, 5.5), (6.5, 4.5), (7.0, 5.0), (6.5, 5.5), (6.0, 5.0), (7.5, 4.5), (8.5, 4.5), (8.5, 5.5), (7.5, 5.5), (8.0, 4.5), (8.5, 5.0), (8.0, 5.5), (7.5, 5.0), (9.0, 4.5), (10.0, 4.5), (10.0, 5.5), (9.0, 5.5), (9.5, 4.5), (10.0, 5.0), (9.5, 5.5), (9.0, 5.0)] )
+        self.assertTrue( mRef.getCoords().isEqual( cooRef, 1e-12 ) )
+        parts = [MEDCoupling1SGTUMesh(elt) for elt in mRef.splitByType()]
+        self.assertTrue( len(parts) == 2 )
+        self.assertTrue( parts[0].getCellModelEnum() == NORM_TRI6 )
+        self.assertTrue( parts[0].getNodalConnectivity().isEqual( DataArrayInt( [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193] ) ) )
+        self.assertTrue( parts[1].getCellModelEnum() == NORM_QUAD8 )
+        self.assertTrue( parts[1].getNodalConnectivity().isEqual( DataArrayInt( [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249] ) ) )
+        # fmt: on
+
     pass
 
 

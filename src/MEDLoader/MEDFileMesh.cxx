@@ -3838,10 +3838,10 @@ MEDFileUMesh::getFamsNonEmptyLevelsExt(const std::vector<std::string> &fams) con
 mcIdType
 MEDFileUMesh::getMaxAbsFamilyIdInArrays() const
 {
-    mcIdType ret = -std::numeric_limits<mcIdType>::max(), tmp = -1;
+    mcIdType ret = -std::numeric_limits<mcIdType>::max();
     if ((const DataArrayIdType *)_fam_coords)
     {
-        mcIdType val = _fam_coords->getMaxValue(tmp);
+        mcIdType val = _fam_coords->getMaxAbsValueInArray();
         ret = std::max(ret, std::abs(val));
     }
     for (std::vector<MCAuto<MEDFileUMeshSplitL1>>::const_iterator it = _ms.begin(); it != _ms.end(); it++)
@@ -3851,7 +3851,7 @@ MEDFileUMesh::getMaxAbsFamilyIdInArrays() const
             const DataArrayIdType *da = (*it)->getFamilyField();
             if (da)
             {
-                mcIdType val = da->getMaxValue(tmp);
+                mcIdType val = da->getMaxAbsValueInArray();
                 ret = std::max(ret, std::abs(val));
             }
         }

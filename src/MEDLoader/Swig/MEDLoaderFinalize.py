@@ -96,12 +96,18 @@ def MEDFileUMeshFuseNodesAndCellsAdv(
         )
         famsCell = self.getFamilyFieldAtLevel(lev)
         if famsCell:
+            # put famcells >= 0
             famsCell = -famsCell
+            # remind the max value
             localFamRef = famsCell.getMaxAbsValueInArray() + 1
+            # compute famsCell after fusion of cells given by (cce, ccei)
+            # famsMergedCell is the array of famIds after fusion needing posttreatment
+            # famMap, famMapI gives the new families to be created
             famsMergedCell, famMap, famMapI = famsCell.forThisAsPartitionBuildReduction(
                 cce, ccei
             )  # <- method updating family field array
             nbOfNewFamsToCreate = famMapI.getNumberOfTuples() - 1
+            # perform a translation operation of familiesids the idea is to avoid clashing families with other levels
             famsMergedCell[famsMergedCell.findIdsGreaterOrEqualTo(localFamRef)] += (
                 famIdZeroForNewFamilies - localFamRef
             )
@@ -109,6 +115,7 @@ def MEDFileUMeshFuseNodesAndCellsAdv(
             logger.debug(
                 f"For lev {lev} number of families to deal : {len(famMapI) - 1} : Start processing"
             )
+            # update groups containing families implied in families fusion
             mmOut.updateFamilies(
                 lev, famMap, famMapI, famIdZeroForNewFamilies - localFamRef
             )

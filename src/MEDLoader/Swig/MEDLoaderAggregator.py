@@ -171,13 +171,30 @@ class FieldFuseAssignator(FieldAssignator):
 
 
 class CommonSession(abc.ABC):
+    """
+    Intermediate level. Class cascade : AssignmentSession -> CommonSession -> SubPart
+    """
+
     def __init__(self, father):
+        """
+        :param father: AssignmentSession instance
+        """
         self._father = father
         self._subparts = []
 
     @abc.abstractmethod
     def getSpationDiscretization(self):
         raise RuntimeError("Must be overloaded")
+
+    def dealWithGaussPt(self, f, sortedSubparts: list):
+        """
+        Put GaussPts info on f instance : if necessary. Raise Exeception if inconsistency in GaussPts araised
+
+        :param f: MEDCouplingFieldDouble instance
+        :param sortedSubparts: list of SubPart instances sorted
+        """
+        # nothing to do. Only relevant for OnGaussPtSession
+        pass
 
     @abc.abstractmethod
     def getGeoSupport(self, session):
@@ -195,28 +212,45 @@ class CommonSession(abc.ABC):
         startPos: int,
         endPos: int,
         pfl,
+        localisationStruct,
     ):
         """
         :param mesh: ml.MEDFileMesh
         :param arr: ml.DataArrayDouble
         :param pfl: ml.DataArrayInt
         """
-        self._subparts.append(
-            SubPart(
+        import MEDLoader as ml
+
+        if geoType == ml.NORM_ERROR:
+            subpart = SubPartNode(
                 self,
                 self._father._cur_part,
                 mesh,
-                geoType,
                 posInAggMesh,
                 arr,
                 startPos,
                 endPos,
                 pfl,
             )
-        )
+        else:
+            subpart = SubPartCell(
+                self,
+                self._father._cur_part,
+                mesh,
+                posInAggMesh,
+                arr,
+                startPos,
+                endPos,
+                pfl,
+                geoType,
+                localisationStruct,
+            )
+
+        self._subparts.append(subpart)
 
     def build(self, f1ts, fieldAssign: FieldAssignator):
         """
+        Key method that assign inside f1ts instance the result of aggregation of all parts of a same field.
         :param f1ts: ml.MEDFileField1TS
         """
         import MEDLoader as ml
@@ -229,7 +263,7 @@ class CommonSession(abc.ABC):
         allGeoTypes.append(ml.NORM_ERROR)
         dictGeoType = {gt: i for i, gt in enumerate(allGeoTypes)}
         sortedSubparts = sorted(
-            self._subparts, key=lambda sbp: dictGeoType[sbp.geoType]
+            self._subparts, key=lambda sbp: dictGeoType[sbp.getGeoType()]
         )
         # end of transposition
         base = sortedSubparts[0]
@@ -269,8 +303,9 @@ class CommonSession(abc.ABC):
         f.setName(f1ts.getName())
         dt, it, zeTime = f1ts.getTime()
         f.setTime(zeTime, dt, it)
-        f.setArray(baseArray)
         f.setMesh(geoSupport)
+        self.dealWithGaussPt(f, sortedSubparts)
+        f.setArray(baseArray)
         fieldAssign.assign(f1ts, f, self, lev, pfl)  # <- ze call
         pass
 
@@ -303,7 +338,7 @@ class OnNodesSession(CommonSession):
         return ret
 
 
-class OnCellsSession(CommonSession):
+class OnCellsGenericSession(CommonSession):
     def __init__(self, father, dim: int):
         super().__init__(father)
         self._dim = dim
@@ -311,11 +346,6 @@ class OnCellsSession(CommonSession):
     @property
     def dim(self):
         return self._dim
-
-    def getSpationDiscretization(self):
-        import MEDLoader as ml
-
-        return ml.ON_CELLS
 
     def getGeoSupport(self, subPart):
         """
@@ -326,17 +356,82 @@ class OnCellsSession(CommonSession):
         return geoSupport
 
 
+class OnCellsSession(OnCellsGenericSession):
+    def __init__(self, father, dim: int):
+        super().__init__(father, dim)
+
+    def getSpationDiscretization(self):
+        import MEDLoader as ml
+
+        return ml.ON_CELLS
+
+
+class OnGaussPtSession(OnCellsGenericSession):
+    def __init__(self, father, dim: int):
+        super().__init__(father, dim)
+
+    def getSpationDiscretization(self):
+        import MEDLoader as ml
+
+        return ml.ON_GAUSS_PT
+
+    def dealWithGaussPt(self, f, sortedSubparts: list):
+        """
+        Put GaussPts info on f instance : if necessary. Raise Exeception if inconsistency in GaussPts araised
+
+        :param f: MEDCouplingFieldDouble instance
+        :param sortedSubparts: list of SubPart instances sorted
+        """
+        from collections import defaultdict
+
+        dico = defaultdict(list)
+        for sb in sortedSubparts:
+            dico[sb.getGeoType()].append(sb)
+        for _, subPartOfOneGT in dico.items():
+            ref = subPartOfOneGT[0]
+            for elt in subPartOfOneGT[1:]:
+                if (
+                    ref.localizationSt.getRefCoords()
+                    != elt.localizationSt.getRefCoords()
+                ):
+                    raise RuntimeError(
+                        "Not managed aggregation of GaussPt Field with different localizations ( reference coords )"
+                    )
+                if (
+                    ref.localizationSt.getGaussWeights()
+                    != elt.localizationSt.getGaussWeights()
+                ):
+                    raise RuntimeError(
+                        "Not managed aggregation of GaussPt Field with different localizations ( weights )"
+                    )
+                if (
+                    ref.localizationSt.getGaussCoords()
+                    != elt.localizationSt.getGaussCoords()
+                ):
+                    raise RuntimeError(
+                        "Not managed aggregation of GaussPt Field with different localizations ( gauss coords )"
+                    )
+                pass
+            f.setGaussLocalizationOnType(
+                ref.geoType,
+                ref.localizationSt.getRefCoords(),
+                ref.localizationSt.getGaussCoords(),
+                ref.localizationSt.getGaussWeights(),
+            )
+
+
 @dataclass(frozen=True)
-class SubPart:
+class SubPart(abc.ABC):
     """
     Represent a contribution inside a geometric type corresponding of a filePart
+
+    Bottom class cascade : AssignmentSession -> CommonSession -> SubPart
     """
 
     father: CommonSession
     cur_part: int
     # mesh : ml.MEDFileMesh
     mesh: list
-    geoType: int
     posInAggMesh: int
     # arr : ml.DataArrayDouble
     arr: list
@@ -345,28 +440,22 @@ class SubPart:
     # pfl may be None ml.DataArrayInt
     pfl: list
 
+    @abc.abstractmethod
     def getLevel(self):
-        import MEDLoader as ml
-
-        return (
-            ml.MEDCouplingUMesh.GetDimensionOfGeometricType(self.geoType)
-            - self.mesh.getMeshDimension()
-            if self.geoType != ml.NORM_ERROR
-            else 1
-        )
+        raise RuntimeError("Not implemented")
 
     def constructArray(self):
         return self.arr[self.startPos : self.endPos]
 
+    @abc.abstractmethod
     def getNbOfEntitiesInPart(self):
-        import MEDLoader as ml
+        raise RuntimeError("Not implemented")
 
-        if self.geoType != ml.NORM_ERROR:
-            return self.mesh.getNumberOfCellsWithType(self.geoType)
-        else:
-            return self.mesh.getNumberOfNodes()
+    @abc.abstractmethod
+    def getGeoType(self):
+        raise RuntimeError("Not implemented")
 
-    def getProfileInLocalRef(self):
+    def getProfileInLocalRefInGeoType(self):
         """
         :return: ml.DataArrayInt
         """
@@ -381,16 +470,117 @@ class SubPart:
             ret = ret[:]
         return ret
 
+    @abc.abstractmethod
+    def getProfileInLocalRef(self):
+        """
+        :return: ml.DataArrayInt
+        """
+        raise RuntimeError("Not implemented")
+
     def getProfile(self):
         """
         :return: ml.DataArrayInt
         """
-        ret = self.getProfileInLocalRef()
+        ret = self.getProfileInLocalRefInGeoType()
         ret += self.posInAggMesh
         return ret
 
 
+@dataclass(frozen=True)
+class SubPartNode(SubPart):
+    def getNbOfEntitiesInPart(self):
+        import MEDLoader as ml
+
+        return self.mesh.getNumberOfNodes()
+
+    def getGeoType(self):
+        import MEDLoader as ml
+
+        return ml.NORM_ERROR
+
+    def getLevel(self):
+        return 1
+
+    def getProfileInLocalRef(self):
+        """
+        For nodes only one geo type -> no offset to apply
+        :return: ml.DataArrayInt
+        """
+        return self.getProfileInLocalRefInGeoType()
+
+
+class SubPartCell(SubPart):
+    def __init__(
+        self,
+        father: CommonSession,
+        cur_part: int,
+        mesh: list,
+        posInAggMesh: int,
+        arr: list,
+        startPos: int,
+        endPos: int,
+        pfl: list,
+        geoType: int,
+        localizationSt,
+    ):
+        """
+        :param localizationSt: of type medcoupling MEDFileFieldLoc
+        """
+        super().__init__(
+            father=father,
+            cur_part=cur_part,
+            mesh=mesh,
+            posInAggMesh=posInAggMesh,
+            arr=arr,
+            startPos=startPos,
+            endPos=endPos,
+            pfl=pfl,
+        )
+        self.geoType = geoType
+        # of type MEDFileFieldLoc
+        self.localizationSt = localizationSt
+
+    def getNbOfEntitiesInPart(self):
+        return self.mesh.getNumberOfCellsWithType(self.geoType)
+
+    def getLevel(self):
+        import MEDLoader as ml
+
+        return (
+            ml.MEDCouplingUMesh.GetDimensionOfGeometricType(self.geoType)
+            - self.mesh.getMeshDimension()
+        )
+
+    def getGeoType(self):
+        return self.geoType
+
+    def getProfileInLocalRef(self):
+        """
+        :return: ml.DataArrayInt
+        """
+        # start of computation of offset
+        from itertools import accumulate
+
+        dot = self.mesh.getDistributionOfTypes(self.getLevel())
+        dot = [tuple(dot[i : i + 3]) for i in range(0, len(dot), 3)]
+        types = [typ for typ, _, _ in dot]
+        nbByType = [nb for _, nb, _ in dot]
+        offsets = list(accumulate(nbByType, initial=0))  # eq to np.cumsum
+        ind = types.index(self.geoType)
+        if ind == -1:
+            raise RuntimeError("Internal error")
+        # end of computation of offset
+        ret = self.getProfileInLocalRefInGeoType()
+        ret += offsets[ind]
+        return ret
+
+
 class AssignmentSession(DefaultIterator):
+    """
+    Top class for walking
+    Class cascade :  AssignmentSession -> CommonSession -> SubPart
+    """
+
     def __init__(self, listOfMeshes: list, mmagg, pflMngr: dict):
         """
         :param mmagg: ml.MEDFileUMesh
@@ -494,6 +684,18 @@ class AssignmentSession(DefaultIterator):
                 sess = OnCellsSession(self, dim=dimRequested)
                 self._sessions.append(sess)
                 return sess
+        elif spatialDisc == ml.ON_GAUSS_PT:
+            dimRequested = ml.MEDCouplingUMesh.GetDimensionOfGeometricType(self._gt)
+            sess = [elt for elt in self._sessions if isinstance(elt, OnGaussPtSession)]
+            sess = [elt for elt in sess if elt.dim == dimRequested]
+            if len(sess) > 1:
+                raise RuntimeError("Internal error")
+            if len(sess) == 1:
+                return sess[0]
+            else:
+                sess = OnGaussPtSession(self, dim=dimRequested)
+                self._sessions.append(sess)
+                return sess
         else:
             raise RuntimeError(f"Spatial disc {spatialDisc} not managed yet")
 
@@ -529,6 +731,7 @@ class AssignmentSession(DefaultIterator):
             startPos,
             endPos,
             zePfl,
+            None,
         )
 
     def __hit_on_cells(
@@ -540,6 +743,9 @@ class AssignmentSession(DefaultIterator):
         dim = ml.MEDCouplingUMesh.GetDimensionOfGeometricType(self._gt)
         if dim not in self._agg_distribution:
             raise RuntimeError("Internal error")
+        locStructure = None
+        if locStr != "":
+            locStructure = self._f1ts.getLocalization(locStr)
         sess.append(
             self._list_of_meshes[self._cur_part],
             self._gt,
@@ -548,6 +754,7 @@ class AssignmentSession(DefaultIterator):
             startPos,
             endPos,
             zePfl,
+            locStructure,
         )
 
     def hit(self, spatialDisc: int, startPos: int, endPos: int, pfl: str, locStr: str):
