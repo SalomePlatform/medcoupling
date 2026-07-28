@@ -514,6 +514,24 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
         myPrint( f"Epsilon for detection of inside / outside of polyedron regarding face #{faceIdWithPb} : {md / refLength}" )
         # fmt: on
 
+    def testDAFindIdForEachMulti(self):
+        """
+        [EDF35942]
+        """
+        # fmt: off
+        a = mc.DataArrayInt( [17, 27, 2, 10, -4, 3, 12, -4, 27, 16] )
+        b = mc.DataArrayInt( [3, 16, -4, 27, 17] )
+        c = a.findIdForEachMulti( b )
+        exp0 = mc.DataArrayInt( [5, 9, 4, 7, 1, 8, 0] )
+        # exp0 length is not equal to b length because -4 is contained twice in a
+        self.assertTrue( c.isEqual( exp0 ) )
+        #
+        a = mc.DataArrayInt( [17, 27, 2, 10, -4, 3, 12, -4, 27, 16] )
+        b = mc.DataArrayInt( [3, 16, -4, -5, 17] )
+        # -5 not in a -> raises
+        self.assertRaises(mc.InterpKernelException, a.findIdForEachMulti, b )
+        # fmt: on
+
 
 if __name__ == "__main__":
     unittest.main()

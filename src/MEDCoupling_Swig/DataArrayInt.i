@@ -307,6 +307,12 @@
         return self->iterator();
       }
 
+      DataArrayIdType *findIdForEachMulti(const ARRAY& partOfThis) const
+      {
+        MCAuto<DataArrayIdType> ret( self->findIdForEachMulti(partOfThis) );
+        return ret.retn();
+      }
+
       PyObject *accumulate() const
       {
         mcIdType sz=ToIdType(self->getNumberOfComponents());

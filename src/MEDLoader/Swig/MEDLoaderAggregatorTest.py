@@ -1147,6 +1147,40 @@ class MEDLoaderAggregatorTest(unittest.TestCase):
         self.assertTrue( parts[1].getNodalConnectivity().isEqual( DataArrayInt( [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249] ) ) )
         # fmt: on
 
+    def testUMeshReduceToCells0(self):
+        """
+        [EDF35942] : management in MEDFileUMesh.reduceToCells of duplication of cells lying on selected
+        """
+        # fmt: off
+        m = MEDCouplingCMesh()
+        # build 4 HEXA8 along X
+        m.setCoords( DataArrayDouble([0,1,2,3,4]), DataArrayDouble([0,1]), DataArrayDouble([0,1])  )
+        m = m.buildUnstructured()
+
+        threeDCellToKeep = DataArrayInt([2])
+        m1 = MEDCoupling1SGTUMesh("",NORM_QUAD4)
+        m1.setCoords(m.getCoords())
+        # [3,4,10,12,11,10] of m.buildDescendingConnectivity()[0]. Aim of test. Voluntarary duplicate cells 10 that lie on subMesh of keep
+        m1.setNodalConnectivity( DataArrayInt([0, 10, 15, 5, 5, 15, 16, 6, 7, 17, 12, 2, 13, 18, 17, 12, 3, 2, 7, 8, 7, 17, 12, 2]))
+        m1 = m1.buildUnstructured()
+
+        mm = MEDFileUMesh()
+        mm[0] = m
+        mm[-1] = m1
+
+        mret = mm.reduceToCells(0,threeDCellToKeep)#<- sensitive call is here
+
+        self.assertTrue( mret.getNonEmptyLevels() == (0,-1) )
+        cooRef = DataArrayDouble( [(2, 0, 0), (3, 0, 0), (2, 1, 0), (3, 1, 0), (2, 0, 1), (3, 0, 1), (2, 1, 1), (3, 1, 1)] )
+        self.assertTrue( mret.getCoords().isEqual( cooRef, 1e-12 ) )
+        m0ret = MEDCoupling1SGTUMesh(mret[0])
+        self.assertTrue( m0ret.getNodalConnectivity().isEqual(DataArrayInt( [ 1, 0, 2, 3, 5, 4, 6, 7 ] ) ) )
+        m1ret = MEDCoupling1SGTUMesh(mret[-1])
+        mret.setName("Mesh")
+        mret.write("res.med",2)
+        self.assertTrue( m1ret.getNodalConnectivity().isEqual( DataArrayInt( [2, 6, 4, 0, 5, 7, 6, 4, 1, 0, 2, 3, 2, 6, 4, 0] ) ) )
+        # fmt: on
+
     pass
 
 

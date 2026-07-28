@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
-#ifndef __PARAMEDMEM_MEDCOUPLINGMEMARRAY_TXX__
-#define __PARAMEDMEM_MEDCOUPLINGMEMARRAY_TXX__
+#pragma once
 
 #include "MEDCouplingMemArray.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
@@ -4300,11 +4299,16 @@ DataArrayDiscrete<T>::buildPermutationArr(const DataArrayDiscrete<T> &other) con
  * For example, if \a this array contents are [9,10,0,6,4,11,3,8] and if \a partOfThis contains [6,0,11,8]
  * the return array will contain [3,2,5,7].
  *
+ * This method is close to findIdForEach method. Difference is only in the management of case of multiple same values
+ * in \a this. This method, is less tolerant, it throws. findIdForEach return the last entry position.
+ *
  * \a this is expected to be a 1 compo allocated array.
  * \param [in] partOfThis - A 1 compo allocated array
  * \return - A newly allocated array to be dealed by caller having the same number of tuples than \a partOfThis.
  * \throw if two same element is present twice in \a this
  * \throw if an element in \a partOfThis is \b NOT in \a this.
+ *
+ * \sa DataArrayInt::findIdForEach, DataArrayInt::findIdForEachMulti
  */
 template <class T>
 DataArrayIdType *
@@ -4339,6 +4343,84 @@ DataArrayDiscrete<T>::indicesOfSubPart(const DataArrayDiscrete<T> &partOfThis) c
         }
     }
     return ret.retn();
+}
+
+/*!
+ * Elements of \a partOfThis are expected to be included in \a this.
+ * The returned array \a ret is so that this[ret] ~= partOfThis. As findIdForEach this method supports multiple same
+ * entry in \a this.
+ *
+ * For example, if \a this array contents are [17, 27, 2, 10, -4, 3, 12, -4, 27, 16] and if \a partOfThis contains [3,
+ * 16, -4, 27, 17] the return array will contain [5, 9, 4, 7, 1, 8, 0].
+ *
+ * This method is close to findIdForEach method. Difference is only in the management of case of multiple same values
+ * in \a this. This method, all positions are added. findIdForEach return the last entry position.
+ *
+ * \a this is expected to be a 1 compo allocated array.
+ * \param [in] partOfThis - A 1 compo allocated array
+ * \return - A newly allocated array to be dealed by caller having the same number of tuples than \a partOfThis.
+ * \throw if an element in \a partOfThis is \b NOT in \a this.
+ *
+ * \sa DataArrayInt::indicesOfSubPart, DataArrayInt::findIdForEachMulti
+ */
+template <class T>
+MCAuto<DataArrayIdType>
+DataArrayDiscrete<T>::findIdForEachMulti(const DataArrayDiscrete<T> &partOfThis) const
+{
+    if (this->getNumberOfComponents() != 1 || partOfThis.getNumberOfComponents() != 1)
+        throw INTERP_KERNEL::Exception(
+            "DataArrayInt::indicesOfSubPart : this and input array must be one component array !"
+        );
+    this->checkAllocated();
+    partOfThis.checkAllocated();
+    //
+    // Pour chaque valeur recherchée, mémorise ses positions dans array.
+    std::unordered_map<T, std::vector<mcIdType>> positions;
+
+    positions.reserve(partOfThis.getNumberOfTuples());
+    positions.max_load_factor(0.7f);
+
+    // only values in partOfThis are inserted
+    for (const T *value = partOfThis.begin(); value != partOfThis.end(); ++value)
+    {
+        positions.emplace(*value, std::vector<mcIdType>{});
+    }
+    const T *thisPt(this->begin());
+    // Single pass on this
+    for (mcIdType index = 0; index < this->getNumberOfTuples(); ++index)
+    {
+        const auto it = positions.find(thisPt[index]);
+
+        if (it != positions.end())
+        {
+            it->second.push_back(index);
+        }
+    }
+    // compute size of result
+    mcIdType resultSize(0);
+
+    for (const T *value = partOfThis.begin(); value != partOfThis.end(); ++value)
+    {
+        const auto it = positions.find(*value);
+        // it->second necessarely exists. If empty -> throw
+        if (it->second.empty())
+        {
+            THROW_IK_EXCEPTION(
+                "DataArrayInt::findIdForEachMulti : presence of value in partOfThis ( " << *value
+                                                                                        << " ) not present in this !"
+            );
+        }
+        resultSize += it->second.size();
+    }
+    MCAuto<DataArrayIdType> ret(DataArrayIdType::New());
+    ret->alloc(resultSize, 1);
+    mcIdType *retPtr(ret->getPointer());
+    for (const T *value = partOfThis.begin(); value != partOfThis.end(); ++value)
+    {
+        const auto &valuePositions = positions.at(*value);
+        retPtr = std::copy(valuePositions.begin(), valuePositions.end(), retPtr);
+    }
+    return ret;
 }
 
 /*!
@@ -5251,6 +5333,9 @@ DataArrayDiscrete<T>::giveN2OOptimized() const
  * this method will return the tuple id of last element found. If there is no element in \a this equal to ELT
  * an exception will be thrown.
  *
+ *  This method is close to indicesOfSubPart method. Difference is only in the management of case of multiple same
+ * values in \a this. This method, is more tolerant, it returns the last entry position. indicesOfSubPart throws.
+ *
  * In case of success this[ret]==vals. Samely ret->transformWithIndArr(this->begin(),this->end())==vals.
  * Where \a vals is the [valsBg,valsEnd) array and \a ret the array returned by this method.
  * This method can be seen as an extension of FindPermutationFromFirstToSecond.
@@ -5262,7 +5347,8 @@ DataArrayDiscrete<T>::giveN2OOptimized() const
  *
  * \return - An array of size std::distance(valsBg,valsEnd)
  *
- * \sa DataArrayInt::FindPermutationFromFirstToSecond , DataArrayInt::FindPermutationFromFirstToSecondDuplicate
+ * \sa DataArrayInt::FindPermutationFromFirstToSecond , DataArrayInt::FindPermutationFromFirstToSecondDuplicate,
+ * DataArrayInt::indicesOfSubPart, DataArrayInt::findIdForEachMulti
  */
 template <class T>
 MCAuto<DataArrayIdType>
@@ -9649,5 +9735,3 @@ DataArrayDiscreteSigned<T>::isFittingWith(const std::vector<bool> &v) const
     return w == end2;
 }
 }  // namespace MEDCoupling
-
-#endif

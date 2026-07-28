@@ -128,6 +128,7 @@
 %newobject MEDCoupling::DataArrayInt32::BuildIntersection;
 %newobject MEDCoupling::DataArrayInt32::Range;
 %newobject MEDCoupling::DataArrayInt32::indicesOfSubPart;
+%newobject MEDCoupling::DataArrayInt32::findIdForEachMulti;
 %newobject MEDCoupling::DataArrayInt32::fromNoInterlace;
 %newobject MEDCoupling::DataArrayInt32::toNoInterlace;
 %newobject MEDCoupling::DataArrayInt32::buildComplement;
@@ -205,6 +206,7 @@
 %newobject MEDCoupling::DataArrayInt64::BuildIntersection;
 %newobject MEDCoupling::DataArrayInt64::Range;
 %newobject MEDCoupling::DataArrayInt64::indicesOfSubPart;
+%newobject MEDCoupling::DataArrayInt64::findIdForEachMulti;
 %newobject MEDCoupling::DataArrayInt64::fromNoInterlace;
 %newobject MEDCoupling::DataArrayInt64::toNoInterlace;
 %newobject MEDCoupling::DataArrayInt64::buildComplement;

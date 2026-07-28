@@ -849,6 +849,7 @@ class MEDCOUPLING_EXPORT_TEMPLATE DataArrayDiscrete : public DataArrayTemplateCl
     MCAuto<MapKeyVal<T, mcIdType> > invertArrayN2O2O2NOptimized() const;
     MCAuto<MapKeyVal<mcIdType, T> > giveN2OOptimized() const;
     MCAuto<DataArrayIdType> findIdForEach(const T *valsBg, const T *valsEnd) const;
+    MCAuto<DataArrayIdType> findIdForEachMulti(const DataArrayDiscrete<T> &partOfThis) const;
     DataArrayIdType *checkAndPreparePermutation() const;
     void changeSurjectiveFormat(T targetNb, DataArrayIdType *&arr, DataArrayIdType *&arrI) const;
     DataArrayIdType *buildPermArrPerLevel() const;

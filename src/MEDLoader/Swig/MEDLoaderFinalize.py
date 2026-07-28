@@ -679,11 +679,13 @@ def MEDFileUMeshReduceToCells(self, level, keepCells, removeOrphanNodes=True):
         allMeshLev, d, di, rd, rdi = allRefMesh.explodeMeshTo(curLev - level)
         a, b = allMeshLev.areCellsIncludedIn(meshLev, 2)
         if not a:
-            raise RuntimeError("Error in mesh {}")
+            raise RuntimeError(
+                f"Error in mesh at level {curLev} : some cells in {curLev} level are not attachable to selected cells."
+            )
         dlev, dlevi = ml.DataArrayInt.ExtractFromIndexedArrays(keepCells, d, di)
         dlev2 = dlev.buildUniqueNotSorted()
         cellsToKeepLev = ml.DataArrayInt.BuildIntersection([dlev2, b])
-        cellsToKeepLev = b.indicesOfSubPart(cellsToKeepLev)
+        cellsToKeepLev = b.findIdForEachMulti(cellsToKeepLev)
         cellsToKeepLev.sort()
         mmOut[curLev] = meshLev[cellsToKeepLev]
         mmOut.setFamilyFieldArr(curLev, famFieldLev[cellsToKeepLev])
