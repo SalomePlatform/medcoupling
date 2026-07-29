@@ -17,34 +17,12 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#pragma once
-
-#include "MEDCouplingMemArray.hxx"
-
-#include <mpi.h>
-
-#include <cstdint>
+#include "MPITraits.hxx"
 
 namespace MEDCoupling
 {
-template <class T>
-struct MPITraits
-{
-    static const MPI_Datatype MPIType;
-};
-
 template <>
-struct MPITraits<std::int64_t>
-{
-    static const MPI_Datatype MPIType;
-    using ArrayType = DataArrayInt64;
-};
-
-template <>
-struct MPITraits<double>
-{
-    static const MPI_Datatype MPIType;
-    using ArrayType = DataArrayDouble;
-};
-
+const MPI_Datatype MPITraits<char>::MPIType = MPI_CHAR;
+const MPI_Datatype MPITraits<std::int64_t>::MPIType = MPI_INT64_T;
+const MPI_Datatype MPITraits<double>::MPIType = MPI_DOUBLE;
 }  // namespace MEDCoupling

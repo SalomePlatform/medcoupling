@@ -96,6 +96,7 @@ class CFEMDECOneWay : public INTERP_KERNEL::InterpolationOptions
     ) = 0;
 
    protected:
+    virtual void checkConsistency() const = 0;
     MCAuto<MEDCouplingUMesh> getLocalMesh() const;
     MCAuto<DataArrayIdType> getGlobalNodeIdsOnLocalMesh() const;
 
@@ -123,21 +124,13 @@ class CFEMDECOneWaySource : public CFEMDECOneWay
     void sendToTarget(MEDCouplingFieldDouble *srcFieldOnLocal) override;
     MCAuto<MEDCouplingFieldDouble> receiveFromSource() override { return MCAuto<MEDCouplingFieldDouble>(); }
     void computeMatrix(
-        const std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes,
-        const std::vector<MCAuto<DataArrayIdType>> &srcGlobalNodeIds
+        const std::vector<MCAuto<MEDCouplingUMesh>> & /*srcMeshes*/,
+        const std::vector<MCAuto<DataArrayIdType>> & /*srcGlobalNodeIds*/
     ) override
     {
     }
 
    public:
-    static MCAuto<MEDCouplingUMesh> ReduceMesh(
-        const MEDCouplingUMesh *mesh,
-        const DataArrayIdType *globalNodeIds,
-        const mcIdType *bg,
-        const mcIdType *end,
-        MCAuto<DataArrayIdType> &globalNodeIdsOut
-    );
-
     template <int spaceDim>
     void dispatchMeshPartsSrcOnly(
         MPIProcessorGroup *unionGrp,
@@ -148,6 +141,7 @@ class CFEMDECOneWaySource : public CFEMDECOneWay
     );
 
    private:
+    void checkConsistency() const override;
     void checkMesh(MEDCouplingFieldDouble *field);
 
    private:
@@ -162,7 +156,7 @@ class CFEMDECOneWayTarget : public CFEMDECOneWay
     {
     }
     void reinitializeOnNewMesh();
-    void sendToTarget(MEDCouplingFieldDouble *srcFieldOnLocal) override {}
+    void sendToTarget(MEDCouplingFieldDouble * /*srcFieldOnLocal*/) override {}
     MCAuto<MEDCouplingFieldDouble> receiveFromSource() override;
     void computeMatrix(
         const std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes,
@@ -177,6 +171,9 @@ class CFEMDECOneWayTarget : public CFEMDECOneWay
         std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes /*output */,
         std::vector<MCAuto<DataArrayIdType>> &srcGlobalNodeIds /*output */
     );
+
+   private:
+    void checkConsistency() const override;
 
    private:
     mcIdType _nb_nodes_src_mesh = 0;

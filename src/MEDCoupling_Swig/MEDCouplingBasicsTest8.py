@@ -532,6 +532,72 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
         self.assertRaises(mc.InterpKernelException, a.findIdForEachMulti, b )
         # fmt: on
 
+    def testFromJointsPerProcToGlobalIDs0(self):
+        """
+        [EDF35942]
+        """
+        # fmt: off
+        #case1 no compression
+        exp_case1 = [[0, 1, 2, 3],[4, 5, 6],[7, 8, 9, 10, 11]]
+        for i in range(3):
+            ret = mc.FromJointsPerProcToGlobalIDs(i,[4,3,5], [[], [], []], False)
+            self.assertTrue( ret.isEqual( mc.DataArrayInt( exp_case1[i] ) ) )
+            #
+            ret = mc.FromJointsPerProcToGlobalIDs(i,[4,3,5], [[], [], []], True)
+            self.assertTrue( ret.isEqual( mc.DataArrayInt( exp_case1[i] ) ) )
+        # case2. Single merging
+        exp_case2_0 = [[0, 1, 2, 3, 4],[5, 6, 7, 8],[9, 4, 11]]
+        exp_case2_1 = [[0, 1, 2, 3, 4],[5, 6, 7, 8],[9, 4, 10]]
+        for i in range(3):
+            da0 = mc.DataArrayInt([(4,1)]) ; da0.setInfoOnComponents(["0","2"])
+            # raises because da0 refers to point #4 on proc0 having 4 pts
+            self.assertRaises(mc.InterpKernelException, mc.FromJointsPerProcToGlobalIDs, i, [4,5,5], [[da0], [], []], False )
+            ret = mc.FromJointsPerProcToGlobalIDs(i,[5,4,3], [[da0], [], []], False)
+            self.assertTrue( ret.isEqual( mc.DataArrayInt( exp_case2_0[i] ) ) )
+            #
+            ret = mc.FromJointsPerProcToGlobalIDs(i,[5,4,3], [[da0], [], []], True)
+            self.assertTrue( ret.isEqual( mc.DataArrayInt( exp_case2_1[i] ) ) )
+        # case3. Transitivity
+        exp_case3_0 = [[0, 1, 2, 3, 4],[5, 2, 7, 8, 9],[10, 11, 12, 2, 14]]
+        exp_case3_1 = [[0, 1, 2, 3, 4],[5, 2, 6, 7, 8],[9, 10, 11, 2, 12]]
+        for i in range(3):
+            da0 = mc.DataArrayInt([(2,1)]) ; da0.setInfoOnComponents(["0","1"])
+            da1 = mc.DataArrayInt([(1,3)]) ; da1.setInfoOnComponents(["1","2"])
+            #
+            ret = mc.FromJointsPerProcToGlobalIDs(i,[5,5,5], [[da0], [da1], []], False)
+            self.assertTrue( ret.isEqual( mc.DataArrayInt( exp_case3_0[i] ) ) )
+            #
+            ret = mc.FromJointsPerProcToGlobalIDs(i,[5,5,5], [[da0], [da1], []], True)
+            self.assertTrue( ret.isEqual( mc.DataArrayInt( exp_case3_1[i] ) ) )
+        # case4. Several disjoint set
+        exp_case4_0 = [[0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 1, 11], [5, 13, 1, 15, 16, 6]]
+        exp_case4_1 = [ [0, 1, 2, 3, 4, 5], [6, 7, 8, 9, 1, 10], [5, 11, 1, 12, 13, 6] ]
+        for i in range(3):
+            da0 = mc.DataArrayInt([(1,4)]) ; da0.setInfoOnComponents(["0","1"])
+            da1 = mc.DataArrayInt([(1,2),(5,0)]) ; da1.setInfoOnComponents(["0","2"])
+            da2 = mc.DataArrayInt([(0,5)]) ; da2.setInfoOnComponents(["1","2"])
+            #
+            ret = mc.FromJointsPerProcToGlobalIDs(i,[6,6,6], [[da0,da1], [da2], []], False)
+            self.assertTrue( ret.isEqual( mc.DataArrayInt( exp_case4_0[i] ) ) )
+            #
+            ret = mc.FromJointsPerProcToGlobalIDs(i,[6,6,6], [[da0,da1], [da2], []], True)
+            self.assertTrue( ret.isEqual( mc.DataArrayInt( exp_case4_1[i] ) ) )
+        # case5. Full case
+        exp_case5_0 = [[0, 1, 2, 3, 4, 5, 6],[7, 6, 9, 10, 11, 2, 13],[6, 15, 16, 17, 2, 19, 0]]
+        exp_case5_1 = [[0, 1, 2, 3, 4, 5, 6],[7, 6, 8, 9, 10, 2, 11],[6, 12, 13, 14, 2, 15, 0]]
+        for i in range(3):
+            da0 = mc.DataArrayInt([(2,5),(6,1)]) ; da0.setInfoOnComponents(["0","1"])
+            da1 = mc.DataArrayInt([(2,4),(0,6)]) ; da1.setInfoOnComponents(["0","2"])
+            da2 = mc.DataArrayInt([(5,4),(1,0)]) ; da2.setInfoOnComponents(["1","2"])
+            #
+            ret = mc.FromJointsPerProcToGlobalIDs(i,[7,7,7], [[da0,da1], [da2], []], False)
+            self.assertTrue( ret.isEqual( mc.DataArrayInt( exp_case5_0[i] ) ) )
+            #
+            ret = mc.FromJointsPerProcToGlobalIDs(i,[7,7,7], [[da0,da1], [da2], []], True)
+            self.assertTrue( ret.isEqual( mc.DataArrayInt( exp_case5_1[i] ) ) )
+        # fmt: on
+        pass
+
 
 if __name__ == "__main__":
     unittest.main()

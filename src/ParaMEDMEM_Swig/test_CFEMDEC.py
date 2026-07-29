@@ -31,6 +31,12 @@ from mpi4py import MPI
 
 globalComm = MPI.COMM_WORLD
 
+
+def MyAssert(v):
+    if not v:
+        raise RuntimeError("Assertion failed !")
+
+
 size = globalComm.size
 rank = globalComm.rank
 
@@ -45,6 +51,7 @@ idec = mc.CFEMDEC(procs_source, procs_target)
 
 def createSourceFieldExNihilo(src_mesh):
     src_field = mc.MEDCouplingFieldDouble(mc.ON_NODES_FE)
+    src_field.setName("MyFieldName")
     src_field.setMesh(src_mesh)
     #
     coords = src_mesh.getCoords()
@@ -53,7 +60,6 @@ def createSourceFieldExNihilo(src_mesh):
     value = x**2 + y**2
     #
     src_field.setArray(value)
-    src_field.setName("Field")
     src_field.setNature(mc.IntensiveMaximum)
     value.setInfoOnComponents(["ABC"])
     return src_field
@@ -95,10 +101,14 @@ def addGhostCells(fieldGlob, meshLoc):
     return globalNodeIds, ghostCells_mesh, arrWithGhost
 
 
-def buildLocalFieldFromGlobal(arrWithGhost, ghostCells_mesh):
+def buildLocalFieldFromGlobal(
+    arrWithGhost: mc.DataArrayDouble,
+    ghostCells_mesh: mc.MEDCouplingUMesh,
+    fieldName: str,
+):
     field_on_local = mc.MEDCouplingFieldDouble(mc.ON_NODES)
     field_on_local.setMesh(ghostCells_mesh)
-    field_on_local.setName("globalnodeids_field")
+    field_on_local.setName(fieldName)
 
     field_on_local.setArray(arrWithGhost)
     return field_on_local
@@ -126,7 +136,7 @@ if rank in procs_source:
         src_field, src_submeshes
     )
     src_field_on_local = buildLocalFieldFromGlobal(
-        src_arrWithGhost, src_ghostCells_mesh
+        src_arrWithGhost, src_ghostCells_mesh, src_field.getName()
     )
 
     # All data are prepared let s go for the test
@@ -150,11 +160,11 @@ if rank in procs_source:
     )
     # fmt: on
     zeResu3 = idec.receiveFromTarget()
-    assert zeResu3.getArray().getInfoOnComponents() == ["LMNOP"]
+    MyAssert(zeResu3.getArray().getInfoOnComponents() == ["LMNOP"])
     a, n2o = src_mesh.getCoords().areIncludedInMe(zeResu3.getMesh().getCoords(), 1e-12)
-    assert a
+    MyAssert(a)
     # fmt: off
-    assert expected_values_on_whole_src_mesh[n2o].isEqualWithoutConsideringStr( zeResu3.getArray(), 1e-11 )
+    MyAssert( expected_values_on_whole_src_mesh[n2o].isEqualWithoutConsideringStr( zeResu3.getArray(), 1e-11 ) )
     # fmt: on
 
 if rank in procs_target:
@@ -191,28 +201,35 @@ if rank in procs_target:
         expected_field_target, proc_trg_mesh
     )
     expected_trg_field_on_local = buildLocalFieldFromGlobal(
-        trg_arrWithGhost, trg_ghostCells_mesh
+        trg_arrWithGhost, trg_ghostCells_mesh, expected_field_target.getName()
     )
     # All data are prepared let s go for the test
 
     # first basic test. Scalar src -> trg
     idec.attachLocalMesh(trg_ghostCells_mesh, trg_globalNodeIds)
     zeResu = idec.receiveFromSource()
-    assert expected_trg_field_on_local.getArray().isEqualWithoutConsideringStr(
-        zeResu.getArray(), 1e-11
+    MyAssert(zeResu.getName() == "MyFieldName")
+    MyAssert(
+        expected_trg_field_on_local.getArray().isEqualWithoutConsideringStr(
+            zeResu.getArray(), 1e-11
+        )
     )
-    assert zeResu.getArray().getInfoOnComponents() == ["ABC"]
+    MyAssert(zeResu.getArray().getInfoOnComponents() == ["ABC"])
     # createFieldForParaView(zeResu).writeVTK(f"trg_field_array{rank}.vtu")
 
     # second test vector field src -> trg
     zeResu2 = idec.receiveFromSource()
-    assert zeResu2.getArray().getNumberOfComponents() == 2
-    assert zeResu2.getArray().getInfoOnComponents() == ["DEF", "GHIJK"]
-    assert expected_trg_field_on_local.getArray().isEqualWithoutConsideringStr(
-        zeResu2.getArray()[:, 0], 1e-11
+    MyAssert(zeResu2.getArray().getNumberOfComponents() == 2)
+    MyAssert(zeResu2.getArray().getInfoOnComponents() == ["DEF", "GHIJK"])
+    MyAssert(
+        expected_trg_field_on_local.getArray().isEqualWithoutConsideringStr(
+            zeResu2.getArray()[:, 0], 1e-11
+        )
     )
-    assert expected_trg_field_on_local.getArray().isEqualWithoutConsideringStr(
-        zeResu2.getArray()[:, 1] / 2, 1e-11
+    MyAssert(
+        expected_trg_field_on_local.getArray().isEqualWithoutConsideringStr(
+            zeResu2.getArray()[:, 1] / 2, 1e-11
+        )
     )
 
     # third test scalar field trg -> src

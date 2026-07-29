@@ -1543,4 +1543,13 @@ DataArrayTemplate<T>::pushBackValsSilent(InputIterator valsBg, InputIterator val
         throw INTERP_KERNEL::Exception(oss.str().c_str());
     }
 }
+
+MCAuto<DataArrayInt64>
+FromJointsPerProcToGlobalIDs(
+    Int64 myRank,
+    const std::vector<Int64> &pointCountByRank,
+    const std::vector<std::vector<MCAuto<DataArrayInt64> > > &listOfJoints,
+    bool compactIds = false
+);
+
 }  // namespace MEDCoupling

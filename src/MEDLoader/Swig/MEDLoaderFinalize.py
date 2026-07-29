@@ -158,7 +158,43 @@ def MEDFileUMeshFuseNodesAndCellsAdv(
     return mmOut, n2oHolder
 
 
-def FindIdFromPathAndPattern(fname, pat):
+class JointInfoOfOneProc:
+    """
+    Class representing joint info of one proc
+    """
+
+    def __init__(self, daJoint: list, nbOfNodes: int):
+        """
+            :param daJoint: list of of 2 components mc.DataArrayInt giving pair correspondance in local reference of proc specified in associated component name. To avoid duplication. If any first component give the proc Id
+        of information in memory only case where int(compo#1) > int(compo#0).
+            :param nbOfNodes: nb of nodes
+        """
+        self._das = daJoint
+        self._nb_of_nodes = nbOfNodes
+
+    @property
+    def jointArrays(self):
+        return self._das
+
+    @property
+    def nbOfNodes(self):
+        return self._nb_of_nodes
+
+    @property
+    def locProcID(self):
+        import MEDLoader as ml
+
+        if len(self._das) < 1:
+            raise ml.InterpKernelException(
+                "Corresponding JointInfoOfOneProc has no arrays -> impossible to detect procId"
+            )
+        return int(self._das[0].getInfoOnComponent(0))
+
+
+def FindIdFromPathAndPattern(fname: str, pat: str) -> int:
+    """
+    Given "myParallelMEDFile_*.med" and "myParallelMEDFile_1234.med" return 1234
+    """
     import re
     from pathlib import Path
 
@@ -170,18 +206,41 @@ def FindIdFromPathAndPattern(fname, pat):
     return int(m.group(1))
 
 
-def GetNodesFusionInfoFromJointsOf(pat: str):
+def SortedListOfFilesGivenPattern(pat: str) -> list:
     """
-    [EDF32671]. This method expects that each MED file fitting pat pattern contains joints with correspondance on NODES. If yes a n2o conversion array will be computed and returned
-    This output may be used by MEDFileUMesh.fuseNodesAndCells.
-
-
-    :param pat : Pattern pointing to MED files candidates of fusion.
-    :return: tuple of size 4 ( cNode, ciNodes, o2nNodes, n2oNodes ) fully defining the merge of nodes ( may be useful for MEDFileUMesh.fuseNodesAndCells )
+    Given pattern "myParallelMEDFile_*.med" return ["myParallelMEDFile_0.med", "myParallelMEDFile_1.med", "myParallelMEDFile_2.med" ...]
     """
-
-    import re
     from glob import glob
+
+    return sorted(glob(pat), key=lambda x: FindIdFromPathAndPattern(x, pat))
+
+
+def GetGlobalIdsFromJointsOf(rank: int, pattern: str):
+    """
+    Given a pattern "myParallelMEDFile_*.med" returns mc.DataArrayInt of global node ids of length nb of nodes of specified rank.
+    """
+    import MEDLoader as ml
+
+    jointsInfo = GetJointsInfoForFileNamePattern(pattern)
+    if rank < 0 or rank >= len(jointsInfo):
+        raise ml.InterpKernelException(f"Rank {rank} must be in [0,{len(jointsInfo)})")
+    jointsInfoLL = [elt.jointArrays for elt in jointsInfo]
+    nbNodesPerProc = [elt.nbOfNodes for elt in jointsInfo]
+    return ml.FromJointsPerProcToGlobalIDs(rank, nbNodesPerProc, jointsInfoLL, False)
+
+
+def GetJointsInfoForFileNamePattern(pat: str):
+    """
+    Given a pattern "myParallelMEDFile_*.med" returns 2 lists having same size :
+
+    - allNodesCorr : list of 2 components DataArrayInt giving pair correspondance in local reference of proc specified in associated component name. To avoid duplication
+    of information in memory only case where int(compo#1) > int(compo#0).
+
+    - nbNodesPerProc : list of int representing for its corresponding file its number of nodes.
+
+    Proc ID is the value of first component of allNodesCorr
+
+    """
     import MEDLoader as ml
 
     def GetAllCommonNodesRegardingJoints(iPart, fileToMerge):
@@ -193,6 +252,8 @@ def GetNodesFusionInfoFromJointsOf(pat: str):
             """
             Returns for one joint the
             """
+            import re
+
             if joint.getNumberOfSteps() != 1:
                 raise NotImplementedError("Juste single timestep joint supported")
             # p0 is for receiving proc. p1 is for sending proc
@@ -246,7 +307,7 @@ def GetNodesFusionInfoFromJointsOf(pat: str):
         ]
         return [elt for elt in ret if elt is not None]
 
-    filesToMerge = sorted(glob(pat), key=lambda x: FindIdFromPathAndPattern(x, pat))
+    filesToMerge = SortedListOfFilesGivenPattern(pat)
 
     nbNodesPerProc = []
     allNodesCorr = []
@@ -260,9 +321,30 @@ def GetNodesFusionInfoFromJointsOf(pat: str):
             )
         _, _, _, curNbNodes = ml.GetUMeshGlobalInfo(fileToMerge, allMeshNames[0])
         curNodeCorr = GetAllCommonNodesRegardingJoints(iPart, fileToMerge)
-        allNodesCorr += curNodeCorr
+        allNodesCorr.append(curNodeCorr)
         nbNodesPerProc.append(curNbNodes)
 
+    return [
+        JointInfoOfOneProc(da, nbOfNodes)
+        for da, nbOfNodes in zip(allNodesCorr, nbNodesPerProc)
+    ]
+
+
+def GetNodesFusionInfoFromJointsOf(pat: str):
+    """
+    [EDF32671, 35712]. This method expects that each MED file fitting pat pattern contains joints with correspondance on NODES. If yes a n2o conversion array will be computed and returned
+    This output may be used by MEDFileUMesh.fuseNodesAndCells.
+
+
+    :param pat : Pattern pointing to MED files candidates of fusion.
+    :return: tuple of size 4 ( cNode, ciNodes, o2nNodes, n2oNodes ) fully defining the merge of nodes ( may be useful for MEDFileUMesh.fuseNodesAndCells )
+    """
+
+    import MEDLoader as ml
+
+    jointsInfo = GetJointsInfoForFileNamePattern(pat)
+    allNodesCorr = sum([elt.jointArrays for elt in jointsInfo], [])
+    nbNodesPerProc = [elt.nbOfNodes for elt in jointsInfo]
     # apply node offsets
 
     nodeOffsets = ml.DataArrayInt(nbNodesPerProc)
@@ -293,11 +375,10 @@ def AggregateMEDFilesNoProfilesNoFusion(pat: str, fnameOut: str, logLev=logging.
     """
     import MEDLoader as ml
     import contextlib
-    from glob import glob
     from distutils.version import StrictVersion
 
     logger = getLogger(logLev)
-    filesToMerge = sorted(glob(pat), key=lambda x: FindIdFromPathAndPattern(x, pat))
+    filesToMerge = SortedListOfFilesGivenPattern(pat)
     inpVersion = StrictVersion(ml.MEDFileVersionOfFileStr(filesToMerge[0])).version
     meshes = [ml.MEDFileMesh.New(elt) for elt in filesToMerge]
     mm = ml.MEDFileUMesh.Aggregate(meshes)

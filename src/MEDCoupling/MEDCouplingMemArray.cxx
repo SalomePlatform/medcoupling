@@ -35,6 +35,7 @@
 #include <set>
 #include <cmath>
 #include <limits>
+#include <string>
 #include <numeric>
 #include <algorithm>
 #include <functional>
@@ -4335,4 +4336,321 @@ DataArrayInt64 *
 DataArrayInt64::deepCopy() const
 {
     return new DataArrayInt64(*this);
+}
+
+namespace
+{
+/**
+ * Union-Find containg only shared points. Disjoint Set Union
+ *
+ * Each entry of DSU (Disjoint Set Union) correspond to sparseKeys.
+ */
+class SparseDisjointSet
+{
+   public:
+    explicit SparseDisjointSet(const std::vector<Int64> &sparseKeys)
+        : _parent(sparseKeys.size()), _rank(sparseKeys.size(), 0), _componentMin(sparseKeys)
+    {
+        std::iota(_parent.begin(), _parent.end(), std::size_t{0});
+    }
+
+    /*!
+     * Find the ID of set. It also update the chain
+     */
+    std::size_t find(std::size_t x)
+    {
+        // Iterative compression path
+        while (_parent[x] != x)
+        {
+            _parent[x] = _parent[_parent[x]];
+            x = _parent[x];
+        }
+
+        return x;
+    }
+
+    void unite(std::size_t a, std::size_t b)
+    {
+        a = find(a);
+        b = find(b);
+
+        if (a == b)
+            return;
+
+        // Union by rank - Fuse the small tree under big tree
+        if (_rank[a] < _rank[b])
+            std::swap(a, b);
+
+        _parent[b] = a;
+        _componentMin[a] = std::min(_componentMin[a], _componentMin[b]);
+
+        if (_rank[a] == _rank[b])
+            ++_rank[a];
+    }
+
+    Int64 componentMin(std::size_t x) { return _componentMin[find(x)]; }
+
+   private:
+    //! contains the id of set
+    std::vector<std::size_t> _parent;
+    //! attribute to detect order of fusion to limit cost of fusion
+    std::vector<unsigned char> _rank;
+    //! attribute giving the value of global ID of disjoint set
+    std::vector<Int64> _componentMin;
+};
+}  // namespace
+
+/*!
+ * See EDF35712. Method useful in parallel mode with MPI paradigm. This method takes in input joints representation
+ * (typically those implemented in MED file) and convert it into a global ID. This method returns an array of length
+ * pointCountByRank[ myRank ]
+ *
+ * \param [in] compactIds If true holes in output numbering are removed (with extra computationnal cost)
+ */
+MCAuto<DataArrayInt64>
+MEDCoupling::FromJointsPerProcToGlobalIDs(
+    Int64 myRank,
+    const std::vector<Int64> &pointCountByRank,
+    const std::vector<std::vector<MCAuto<DataArrayInt64> > > &listOfJoints,
+    bool compactIds
+)
+{
+    // philosophy of algorithm : listOfJoints stores edges of graph
+    const Int64 processCount(static_cast<Int64>(pointCountByRank.size()));
+
+    if (myRank < 0 || myRank >= processCount)
+    {
+        THROW_IK_EXCEPTION("myRank (" << myRank << ") should be in [0," << processCount << ") !");
+    }
+    std::vector<Int64> offsets(processCount + 1, 0);
+    for (auto r = 0; r < processCount; ++r)
+    {
+        offsets[r + 1] = offsets[r] + pointCountByRank[r];
+    }
+    const Int64 localPointCount(pointCountByRank[myRank]);
+
+    MCAuto<DataArrayInt64> result(DataArrayInt64::New());
+    result->alloc(localPointCount, 1);
+    Int64 *resultPtr(result->getPointer());
+    for (auto local = 0; local < localPointCount; ++local)
+    {
+        resultPtr[local] = offsets[myRank] + local;
+    }
+
+    std::size_t edgeCount(0), mySharedOccurrenceCount(0);
+    int ownerRank(0);
+    for (const auto &rankAndNeighbor : listOfJoints)
+    {
+        for (const auto &neighbor : rankAndNeighbor)
+        {
+            edgeCount += neighbor->getNumberOfTuples();
+            int otherRank(0);
+            try
+            {
+                otherRank = std::stoi(neighbor->getInfoOnComponent(1));
+            }
+            catch (const std::invalid_argument &e)
+            {
+                THROW_IK_EXCEPTION("Presence of component with name impossible to convert into int as spec require !");
+            }
+            if (ownerRank == myRank || static_cast<Int64>(otherRank) == myRank)
+            {
+                mySharedOccurrenceCount += neighbor->getNumberOfTuples();
+            }
+        }
+        ++ownerRank;
+    }
+
+    // sparseKeys contains temporary IDs of extremity of edges.
+    // size equals 2 * edgeCount
+    std::vector<Int64> sparseKeys;
+
+    sparseKeys.reserve(2 * edgeCount);
+
+    std::vector<Int64> mySharedLocalIds;
+
+    mySharedLocalIds.reserve(mySharedOccurrenceCount);
+    const auto validateInt64 = [&](Int64 rank, Int64 local)
+    {
+        if (rank < 0 || rank >= processCount)
+        {
+            THROW_IK_EXCEPTION("Invalid rank " << rank << " ! Must be in [0, " << processCount << ") !");
+        }
+
+        if (local < 0 || local >= pointCountByRank[rank])
+        {
+            THROW_IK_EXCEPTION(
+                "Invalid local index " << local << " ! Must be in [0," << pointCountByRank[rank] << ") !"
+            );
+        }
+    };
+
+    const auto provisionalId = [&offsets](Int64 rank, Int64 local) -> Int64 { return offsets[rank] + local; };
+
+    ownerRank = 0;
+    for (const auto &rankAndNeighbor0 : listOfJoints)
+    {
+        for (const auto &rankAndNeighbor : rankAndNeighbor0)
+        {
+            const Int64 otherRank(static_cast<Int64>(std::stoi(rankAndNeighbor->getInfoOnComponent(1))));
+            if (otherRank < 0 || otherRank >= processCount)
+            {
+                THROW_IK_EXCEPTION("Invalid otherRank (" << otherRank << "). Must be in [0," << processCount << ")");
+            }
+
+            if (otherRank <= ownerRank)
+            {
+                THROW_IK_EXCEPTION(
+                    "Input 2 compo DataArrayInt64 does not follow the rule that first compo must < second compo"
+                );
+            }
+            mcIdType nbOfCouples(rankAndNeighbor->getNumberOfTuples());
+            const Int64 *couplesPtr(rankAndNeighbor->begin());
+            for (auto i = 0; i < nbOfCouples; ++i)
+            {
+                const Int64 ownerLocal = couplesPtr[2 * i];
+                const Int64 otherLocal = couplesPtr[2 * i + 1];
+
+                validateInt64(ownerRank, ownerLocal);
+                validateInt64(otherRank, otherLocal);
+
+                sparseKeys.push_back(provisionalId(ownerRank, ownerLocal));
+
+                sparseKeys.push_back(provisionalId(otherRank, otherLocal));
+
+                if (ownerRank == myRank)
+                    mySharedLocalIds.push_back(ownerLocal);
+
+                if (otherRank == myRank)
+                    mySharedLocalIds.push_back(otherLocal);
+            }
+        }
+        ++ownerRank;
+    }
+    if (sparseKeys.empty())
+        return result;
+
+    // sort and supress double entries in sparseKeys
+    std::sort(sparseKeys.begin(), sparseKeys.end());
+    sparseKeys.erase(std::unique(sparseKeys.begin(), sparseKeys.end()), sparseKeys.end());
+    // sparseKeys contains all ids in joints in the referential of global with duplication sorted and not duplicated
+    SparseDisjointSet dsu(sparseKeys);
+
+    // Equivalence to map locate position in sparseKeys
+    const auto sparseIndex = [&](Int64 id) -> std::size_t
+    {
+        const auto position = std::lower_bound(sparseKeys.begin(), sparseKeys.end(), id);
+        if (position == sparseKeys.end() || *position != id)
+        {
+            THROW_IK_EXCEPTION("ID " << id << " not in sparseKeys");
+        }
+
+        return static_cast<std::size_t>(position - sparseKeys.begin());
+    };
+
+    // Core operation is here. Unify common couples
+    // management of transitivity paires A == B and B == C become A == B == C thanks to unite method
+    ownerRank = 0;
+    for (const auto &rankAndNeighbor : listOfJoints)
+    {
+        for (const auto &neighbor : rankAndNeighbor)
+        {
+            const int otherRank = (static_cast<Int64>(std::stoi(neighbor->getInfoOnComponent(1))));
+            mcIdType nbOfCouples(neighbor->getNumberOfTuples());
+            const Int64 *couplesPtr(neighbor->begin());
+            for (auto i = 0; i < nbOfCouples; ++i)
+            {
+                const Int64 ownerId(provisionalId(ownerRank, couplesPtr[2 * i]));
+                const Int64 otherId(provisionalId(otherRank, couplesPtr[2 * i + 1]));
+                // unify two sets
+                dsu.unite(sparseIndex(ownerId), sparseIndex(otherId));
+            }
+        }
+        ++ownerRank;
+    }
+
+    // At this step all common pairs have be compressed. Now feed result
+    // To feed result only assign componentMin thanks to compressed DSU
+    ownerRank = 0;
+    for (const auto &rankAndNeighbor : listOfJoints)
+    {
+        for (const auto &neighbor : rankAndNeighbor)
+        {
+            const int otherRank = (static_cast<Int64>(std::stoi(neighbor->getInfoOnComponent(1))));
+            mcIdType nbOfCouples(neighbor->getNumberOfTuples());
+            const Int64 *couplesPtr(neighbor->begin());
+            for (auto i = 0; i < nbOfCouples; ++i)
+            {
+                const Int64 ownerLocal = couplesPtr[2 * i];
+                const Int64 otherLocal = couplesPtr[2 * i + 1];
+
+                if (ownerRank == myRank)
+                {
+                    const Int64 id = provisionalId(myRank, ownerLocal);
+                    resultPtr[ownerLocal] = dsu.componentMin(sparseIndex(id));
+                }
+
+                if (otherRank == myRank)
+                {
+                    const Int64 id = provisionalId(myRank, otherLocal);
+                    resultPtr[otherLocal] = dsu.componentMin(sparseIndex(id));
+                }
+            }
+        }
+        ++ownerRank;
+    }
+
+    if (compactIds)
+    {
+        std::size_t writePosition(0);
+        for (std::size_t index = 0; index < sparseKeys.size(); ++index)
+        {
+            const Int64 key = sparseKeys[index];
+
+            if (key != dsu.componentMin(index))
+            {
+                sparseKeys[writePosition] = key;
+                ++writePosition;
+            }
+        }
+
+        sparseKeys.resize(writePosition);
+
+        // sparseKeys stays sorted
+        for (auto local = 0; local < localPointCount; ++local)
+        {
+            Int64 &id(resultPtr[local]);
+            const std::size_t removedBeforeId = static_cast<std::size_t>(
+                std::upper_bound(sparseKeys.begin(), sparseKeys.end(), id) - sparseKeys.begin()
+            );
+            id -= static_cast<Int64>(removedBeforeId);
+        }
+    }
+
+    std::sort(mySharedLocalIds.begin(), mySharedLocalIds.end());
+
+    mySharedLocalIds.erase(std::unique(mySharedLocalIds.begin(), mySharedLocalIds.end()), mySharedLocalIds.end());
+
+    std::sort(
+        mySharedLocalIds.begin(),
+        mySharedLocalIds.end(),
+        [&](Int64 a, Int64 b)
+        {
+            const Int64 globalA = resultPtr[a];
+            const Int64 globalB = resultPtr[b];
+            if (globalA != globalB)
+                return globalA < globalB;
+            return a < b;
+        }
+    );
+
+    for (std::size_t k = 1; k < mySharedLocalIds.size(); ++k)
+    {
+        const Int64 previous(mySharedLocalIds[k - 1]), current(mySharedLocalIds[k]);
+        if (previous != current && resultPtr[previous] == resultPtr[current])
+        {
+            THROW_IK_EXCEPTION("Error : presence of same global id inside of a same rank while not shared");
+        }
+    }
+    return result;
 }

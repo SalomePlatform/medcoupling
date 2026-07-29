@@ -31,6 +31,7 @@
 #include "InterpKernelDEC.hxx"
 #include "InterpKernelDECWithOverlap.hxx"
 #include "CFEMDEC.hxx"
+#include "OverlapCFEMDEC.hxx"
 #include "NonCoincidentDEC.hxx"
 #include "StructuredCoincidentDEC.hxx"
 #include "OverlapDEC.hxx"
@@ -84,6 +85,7 @@ using namespace ICoCo;
 %newobject MEDCoupling::OverlapDEC::_NewWithComm_internal;
 %newobject MEDCoupling::CFEMDEC::receiveFromSource;
 %newobject MEDCoupling::CFEMDEC::receiveFromTarget;
+%newobject MEDCoupling::OverlapCFEMDEC::computeTargetField;
 
 %feature("unref") ParaSkyLineArray "$this->decrRef();"
 %feature("unref") ParaUMesh "$this->decrRef();"
@@ -442,6 +444,22 @@ namespace MEDCoupling
       }
   };
 
+  class OverlapCFEMDEC : public INTERP_KERNEL::InterpolationOptions
+  {
+  public:
+    OverlapCFEMDEC(const std::set<int> &procIds);
+    void attachSourceField(MEDCouplingFieldDouble *srcField, DataArrayIdType *srcGlobalNodeIds);
+    void attachTargetMesh(MEDCouplingUMesh *trgMesh, DataArrayIdType *trgGlobalNodeIds);
+    void synchronize();
+    %extend
+    {
+      MEDCouplingFieldDouble *computeTargetField()
+      {
+        MCAuto<MEDCouplingFieldDouble> ret( self->computeTargetField() );
+        return ret.retn();
+      }
+    }
+  };
 } // end namespace MEDCoupling
 
 %extend MEDCoupling::ParaMESH

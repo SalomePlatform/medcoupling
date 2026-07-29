@@ -71,7 +71,10 @@ set(paramedmem_SOURCES
     TimeInterpolator.cxx
     MPIAccess/MPIAccess.cxx
     MPIAccess/MPIAccessDEC.cxx
-    CFEMDEC.cxx)
+    CFEMDEC.cxx
+    OverlapCFEMDEC.cxx
+    CommonCFEMDEC.cxx
+    MPITraits.cxx)
 
 add_library(paramedmem ${paramedmem_SOURCES})
 target_link_libraries(paramedmem medcouplingcpp medicoco ${MPI_LIBRARIES})

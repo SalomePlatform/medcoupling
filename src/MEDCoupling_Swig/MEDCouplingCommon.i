@@ -515,6 +515,7 @@ typedef long mcPyPtrType;
 %newobject MEDCoupling::MEDCouplingSkyLineArray::uniqueNotSortedByPack;
 %newobject MEDCoupling::MEDCouplingSkyLineArray::AggregatePacks;
 %newobject MEDCoupling::MEDCouplingSkyLineArray::deepCopy;
+%newobject FromJointsPerProcToGlobalIDsSwig;
 
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
 %feature("unref") MEDCouplingMesh "$this->decrRef();"
@@ -566,6 +567,7 @@ typedef long mcPyPtrType;
 // on the Python side. Must be put BEFORE the %rename clause:
 %exceptionclass INTERP_KERNEL::Exception;
 %rename (InterpKernelException) INTERP_KERNEL::Exception;
+%rename (FromJointsPerProcToGlobalIDs) FromJointsPerProcToGlobalIDsSwig;
 
 %include "MEDCouplingRefCountObject.i"
 %include "MEDCouplingMemArray.i"
@@ -1518,6 +1520,38 @@ namespace MEDCoupling
 }
 
 %include "MEDCouplingFieldDiscretization.i"
+
+%inline
+{
+  MEDCoupling::DataArrayInt64 *FromJointsPerProcToGlobalIDsSwig(MEDCoupling::Int64 myRank, const std::vector<MEDCoupling::Int64>& pointCountByRank, PyObject *listOfJoints, bool compactIds = false)
+  {
+    std::vector< std::vector < MCAuto< MEDCoupling::DataArrayInt64 > > > listOfJointsCpp;
+    if(PyList_Check(listOfJoints))
+    {
+      auto sz( PyList_Size( listOfJoints ) );
+      listOfJointsCpp.resize( sz );
+      for( auto i = 0 ; i < sz ; ++i )
+      {
+        PyObject *joint( PyList_GetItem(listOfJoints,i) );
+        std::vector< MEDCoupling::DataArrayInt64 * > jointCpp;
+        convertFromPyObjVectorOfObj<MEDCoupling::DataArrayInt64 *>(joint,SWIGTYPE_p_MEDCoupling__DataArrayInt64,"DataArrayInt64",jointCpp);
+        std::size_t sz2( jointCpp.size() );
+        listOfJointsCpp[i].resize( sz2 );
+        for( std::size_t j = 0 ; j < sz2 ; ++j )
+        {
+          listOfJointsCpp[i][j].takeRef( jointCpp[j] );
+        }
+      }
+    }
+    else
+    {
+      THROW_IK_EXCEPTION( "listOfJoints must be a list !" );
+    }
+    //
+    MEDCoupling::MCAuto<MEDCoupling::DataArrayInt64> ret( MEDCoupling::FromJointsPerProcToGlobalIDs(myRank, pointCountByRank, listOfJointsCpp, compactIds) );
+    return ret.retn();
+  }
+}
 
 //== MEDCouplingPointSet
 

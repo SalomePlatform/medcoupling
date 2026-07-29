@@ -39,6 +39,7 @@ class MCAuto
         return ret;
     }
     MCAuto(const MCAuto &other) : _ptr(nullptr) { referPtr(other._ptr); }
+    MCAuto(MCAuto &&other) : _ptr(other._ptr) { other._ptr = nullptr; }
     MCAuto(T *ptr = nullptr) : _ptr(ptr) {}
     ~MCAuto() { destroyPtr(); }
     void checkNotNull() const
@@ -55,6 +56,16 @@ class MCAuto
     }
     bool operator==(const MCAuto &other) const { return _ptr == other._ptr; }
     bool operator==(const T *other) const { return _ptr == other; }
+    MCAuto &operator=(MCAuto &&other)
+    {
+        if (_ptr != other._ptr)
+        {
+            destroyPtr();
+            _ptr = other._ptr;
+            other._ptr = nullptr;
+        }
+        return *this;
+    }
     MCAuto &operator=(const MCAuto &other)
     {
         if (_ptr != other._ptr)
