@@ -216,12 +216,13 @@ class hashtable
     typedef _Hashtable_node<_Val> _Node;
 
    public:
-    typedef typename _Alloc::template rebind<value_type>::other allocator_type;
+    using allocator_type = typename std::allocator_traits<_Alloc>::template rebind_alloc<value_type>;
     allocator_type get_allocator() const { return _M_node_allocator; }
 
    private:
-    typedef typename _Alloc::template rebind<_Node>::other _Node_Alloc;
-    typedef typename _Alloc::template rebind<_Node *>::other _Nodeptr_Alloc;
+    using _Node_Alloc = typename std::allocator_traits<_Alloc>::template rebind_alloc<_Node>;
+    using _Nodeptr_Alloc = typename std::allocator_traits<_Alloc>::template rebind_alloc<_Node *>;
+
     typedef std::vector<_Node *, _Nodeptr_Alloc> _Vector_type;
 
     _Node_Alloc _M_node_allocator;
@@ -488,7 +489,8 @@ class hashtable
         __n->_M_next = 0;
         try
         {
-            this->get_allocator().construct(&__n->_M_val, __obj);
+            allocator_type a = this->get_allocator();
+            std::allocator_traits<allocator_type>::construct(a, &__n->_M_val, __obj);
             return __n;
         }
         catch (...)
@@ -500,7 +502,9 @@ class hashtable
 
     void _M_delete_node(_Node *__n)
     {
-        this->get_allocator().destroy(&__n->_M_val);
+        allocator_type a = this->get_allocator();
+        std::allocator_traits<allocator_type>::destroy(a, &__n->_M_val);
+
         _M_put_node(__n);
     }
 
