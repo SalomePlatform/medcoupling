@@ -43,6 +43,10 @@ class QuantityKindAbstract : public RefCountObject
 
     MEDCOUPLING_EXPORT virtual std::string serialize() const = 0;
 
+    MEDCOUPLING_EXPORT virtual std::string getDescription() const = 0;
+
+    MEDCOUPLING_EXPORT virtual std::string getValue() const = 0;
+
     MEDCOUPLING_EXPORT static MCAuto<QuantityKindAbstract> Deserialize(const std::string &s);
 
     std::vector<const MEDCoupling::BigMemoryObject *> getDirectChildrenWithNull() const override;
@@ -55,6 +59,19 @@ class QuantityKindAbstract : public RefCountObject
     static int hexValue(char c);
 };
 
+MEDCOUPLING_EXPORT MCAuto<QuantityKindAbstract>
+QuantityKind(const std::string &qkStr);
+
+class QuantityKindWithDescription : public QuantityKindAbstract
+{
+   public:
+    MEDCOUPLING_EXPORT std::string getDescription() const override { return _description; }
+    MEDCOUPLING_EXPORT void setDescription(const std::string &description) { _description = description; }
+
+   private:
+    std::string _description;
+};
+
 class QuantityKindUnDef : public QuantityKindAbstract
 {
    private:
@@ -62,6 +79,8 @@ class QuantityKindUnDef : public QuantityKindAbstract
     ~QuantityKindUnDef() = default;
 
    public:
+    MEDCOUPLING_EXPORT std::string getValue() const override;
+    MEDCOUPLING_EXPORT std::string getDescription() const override;
     MEDCOUPLING_EXPORT std::string repr() const override;
     MEDCOUPLING_EXPORT virtual MCAuto<QuantityKindAbstract> clone() const override;
     MEDCOUPLING_EXPORT std::string getClassName() const override { return "QuantityKindUnDef"; }
@@ -71,7 +90,7 @@ class QuantityKindUnDef : public QuantityKindAbstract
     MEDCOUPLING_EXPORT std::string serialize() const override;
 };
 
-class QuantityKindEnum : public QuantityKindAbstract
+class QuantityKindEnum : public QuantityKindWithDescription
 {
    private:
     explicit QuantityKindEnum(std::string value);
@@ -87,7 +106,7 @@ class QuantityKindEnum : public QuantityKindAbstract
 
     MEDCOUPLING_EXPORT static MCAuto<QuantityKindEnum> New(std::string value);
 
-    MEDCOUPLING_EXPORT const std::string &value() const;
+    MEDCOUPLING_EXPORT std::string getValue() const override;
 
     MEDCOUPLING_EXPORT static const std::vector<std::string> &AllowedValues();
 
@@ -124,9 +143,13 @@ class QuantityKindUser : public QuantityKindAbstract
 
     MEDCOUPLING_EXPORT static MCAuto<QuantityKindUser> New(std::string value);
 
-    MEDCOUPLING_EXPORT const std::string &value() const;
+    MEDCOUPLING_EXPORT std::string getValue() const override;
 
     MEDCOUPLING_EXPORT std::string serialize() const override;
+
+    MEDCOUPLING_EXPORT std::string getDescription() const override;
+
+    MEDCOUPLING_EXPORT void setDescription(const std::string &description);
 
     std::size_t getHeapMemorySizeWithoutChildren() const override;
 

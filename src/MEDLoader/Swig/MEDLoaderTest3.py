@@ -972,9 +972,11 @@ class MEDLoaderTest3(unittest.TestCase):
         d.setFields(fs)
         #
         fname2 = "Pyfile29_2.med"
+        d.setHeader("zeHeader")
         d.write(fname2, 2)
         #
         d2 = MEDFileData.New(fname2)
+        self.assertEqual("zeHeader", d2.getHeader())
         self.assertEqual(2, d2.getNumberOfMeshes())
         self.assertEqual(3, d2.getNumberOfFields())
         self.assertTrue(isinstance(d2.getMeshes().getMeshAtPos(0), MEDFileUMesh))

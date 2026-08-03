@@ -20,6 +20,8 @@
 
 %pythoncode %{
 import MEDLoaderFinalize
+setattr( QuantityKindAbstract,"frenchDecr", property(MEDLoaderFinalize.QKfrenchReprProperty) )
+setattr( QuantityKindAbstract,"uri", property(MEDLoaderFinalize.QKuriProperty) )
 MEDFileUMesh.reduceToCells = MEDLoaderFinalize.MEDFileUMeshReduceToCells
 MEDFileUMesh.tetrahedrize = MEDLoaderFinalize.MEDFileUMeshTetrahedrize
 MEDFileUMesh.fuseNodesAndCells = MEDLoaderFinalize.MEDFileUMeshFuseNodesAndCells

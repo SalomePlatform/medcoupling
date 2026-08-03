@@ -96,6 +96,21 @@ QuantityKindAbstract::hexValue(char c)
 }
 
 MCAuto<QuantityKindAbstract>
+MEDCoupling::QuantityKind(const std::string &qkStr)
+{
+    if (qkStr.empty())
+    {
+        return StaticCast<QuantityKindUnDef, QuantityKindAbstract>(QuantityKindUnDef::New());
+    }
+    const std::vector<std::string> &valuesForEnum(QuantityKindEnum::AllowedValues());
+    if (std::find(valuesForEnum.cbegin(), valuesForEnum.cend(), qkStr) != valuesForEnum.cend())
+    {
+        return StaticCast<QuantityKindEnum, QuantityKindAbstract>(QuantityKindEnum::New(qkStr));
+    }
+    return StaticCast<QuantityKindUser, QuantityKindAbstract>(QuantityKindUser::New(qkStr));
+}
+
+MCAuto<QuantityKindAbstract>
 QuantityKindAbstract::Deserialize(const std::string &s)
 {
     const std::string prefix = "QK1|";
@@ -129,7 +144,15 @@ QuantityKindAbstract::Deserialize(const std::string &s)
 
     if (type == "ENUM")
     {
-        return StaticCast<QuantityKindEnum, QuantityKindAbstract>(QuantityKindEnum::New(hexDecode(payload)));
+        const std::size_t valueEnd(payload.find('|'));
+        if (valueEnd == std::string::npos)
+        {
+            THROW_IK_EXCEPTION("For enum type missing description !");
+        }
+        const std::string justValue(payload.substr(0, valueEnd)), description(payload.substr(valueEnd + 1));
+        MCAuto<QuantityKindEnum> ret(QuantityKindEnum::New(hexDecode(justValue)));
+        ret->setDescription(hexDecode(description));
+        return StaticCast<QuantityKindEnum, QuantityKindAbstract>(std::move(ret));
     }
 
     if (type == "USER")
@@ -161,6 +184,18 @@ IsEqualCommon(const IN *zeThis, const QuantityKindAbstract *other, std::string &
     return otherC;
 }
 }  // namespace
+
+std::string
+QuantityKindUnDef::getValue() const
+{
+    return std::string();
+}
+
+std::string
+QuantityKindUnDef::getDescription() const
+{
+    return std::string();
+}
 
 std::string
 QuantityKindUnDef::repr() const
@@ -206,14 +241,16 @@ std::string
 QuantityKindEnum::repr() const
 {
     std::ostringstream oss;
-    oss << "Enum QK with value \"" << _value << "\"";
+    oss << "Enum QK with value \"" << _value << "\" with description \"" << getDescription() << "\"";
     return oss.str();
 }
 
 MCAuto<QuantityKindAbstract>
 QuantityKindEnum::clone() const
 {
-    return MCAuto<QuantityKindAbstract>(QuantityKindEnum::New(this->_value).retn());
+    MCAuto<QuantityKindEnum> ret(QuantityKindEnum::New(this->_value).retn());
+    ret->setDescription(this->getDescription());
+    return StaticCast<QuantityKindEnum, QuantityKindAbstract>(std::move(ret));
 }
 
 QuantityKindEnum::QuantityKindEnum(std::string value) : _value(std::move(value))
@@ -237,6 +274,11 @@ QuantityKindEnum::isEqual(const QuantityKindAbstract *other, std::string &reason
             reason = "QK different";
             return false;
         }
+        if (getDescription() != otherC->getDescription())
+        {
+            reason = "Description different";
+            return false;
+        }
         return true;
     }
     else
@@ -249,8 +291,8 @@ QuantityKindEnum::New(std::string value)
     return MCAuto(new QuantityKindEnum(value));
 }
 
-const std::string &
-QuantityKindEnum::value() const
+std::string
+QuantityKindEnum::getValue() const
 {
     return _value;
 }
@@ -367,7 +409,7 @@ QuantityKindEnum::IsValidValue(const std::string &value)
 std::string
 QuantityKindEnum::serialize() const
 {
-    return "QK1|ENUM|" + hexEncode(_value);
+    return "QK1|ENUM|" + hexEncode(_value) + "|" + hexEncode(getDescription());
 }
 
 std::size_t
@@ -417,8 +459,8 @@ QuantityKindUser::isEqual(const QuantityKindAbstract *other, std::string &reason
 
 QuantityKindUser::QuantityKindUser(std::string value) : _value(std::move(value)) {}
 
-const std::string &
-QuantityKindUser::value() const
+std::string
+QuantityKindUser::getValue() const
 {
     return _value;
 }
@@ -433,4 +475,22 @@ std::size_t
 QuantityKindUser::getHeapMemorySizeWithoutChildren() const
 {
     return sizeof(QuantityKindUser) + _value.capacity();
+}
+
+/*!
+ * [EDF32036] For the moment description is linked to value. No separate data.
+ */
+std::string
+QuantityKindUser::getDescription() const
+{
+    return _value;
+}
+
+/*!
+ * [EDF32036] For the moment description is linked to value. No separate data.
+ */
+void
+QuantityKindUser::setDescription(const std::string &description)
+{
+    _value = description;
 }

@@ -64,16 +64,17 @@ QKToMedFileEnum(const MEDCoupling::QuantityKindAbstract *qk, std::string &mqkDes
     const MEDCoupling::QuantityKindUser *qkus(dynamic_cast<const MEDCoupling::QuantityKindUser *>(qk));
     if (qkus)
     {
-        mqkDesc = qkus->value();
+        mqkDesc = qkus->getValue();
         return MED_PQK_USER;
     }
     const MEDCoupling::QuantityKindEnum *qke(dynamic_cast<const MEDCoupling::QuantityKindEnum *>(qk));
     if (qke)
     {
+        mqkDesc = qke->getDescription();
         med_quantity_kind ret(
-            QKToMedFileEnum_ForQuantityKindEnum(MEDCoupling::QuantityKindEnum::MCIdOfValue(qke->value()))
+            QKToMedFileEnum_ForQuantityKindEnum(MEDCoupling::QuantityKindEnum::MCIdOfValue(qke->getValue()))
         );
-        med_quantity_kind ret2(MEDphysicalQuantityKindFromStr(qke->value().c_str()));
+        med_quantity_kind ret2(MEDphysicalQuantityKindFromStr(qke->getValue().c_str()));
         if (ret == ret2)
         {
             return ret;
@@ -81,12 +82,10 @@ QKToMedFileEnum(const MEDCoupling::QuantityKindAbstract *qk, std::string &mqkDes
         const char *medfileStr(MEDphysicalQuantityKindStr(ret));
         if (!medfileStr)
         {
-            mqkDesc.clear();
             return MED_PQK_UNDEF;
         }
-        if (qke->value() != std::string(medfileStr))
+        if (qke->getValue() != std::string(medfileStr))
         {  // smells bad. See QKToMedFileEnum_ForQuantityKindEnum implementation
-            mqkDesc.clear();
             return MED_PQK_UNDEF;
         }
         return ret;
@@ -103,22 +102,46 @@ QKFromMedFile(med_quantity_kind mqk, const std::string &value)
     switch (mqk)
     {
         case MED_PQK_UNDEF:
+        {
+            MEDCoupling::MCAuto<MEDCoupling::QuantityKindUnDef> ret(MEDCoupling::QuantityKindUnDef::New());
             return MEDCoupling::StaticCast<MEDCoupling::QuantityKindUnDef, MEDCoupling::QuantityKindAbstract>(
-                MEDCoupling::QuantityKindUnDef::New()
+                std::move(ret)
             );
+        }
         case MED_PQK_USER:
+        {
             return MEDCoupling::StaticCast<MEDCoupling::QuantityKindUser, MEDCoupling::QuantityKindAbstract>(
                 MEDCoupling::QuantityKindUser::New(value)
             );
+        }
         default:
         {
             int id(QKFromMedFileEnum_ToMCId(mqk));
-            return MEDCoupling::StaticCast<MEDCoupling::QuantityKindEnum, MEDCoupling::QuantityKindAbstract>(
+            MEDCoupling::MCAuto<MEDCoupling::QuantityKindEnum> ret(
                 MEDCoupling::QuantityKindEnum::New(MEDCoupling::QuantityKindEnum::AllowedValuesAt(id))
+            );
+            ret->setDescription(value);
+            return MEDCoupling::StaticCast<MEDCoupling::QuantityKindEnum, MEDCoupling::QuantityKindAbstract>(
+                std::move(ret)
             );
         }
     }
 }
+
+std::string
+FromMCQKEnumStrToFrenchDescr(const std::string &valueEnum)
+{
+    med_quantity_kind ret(QKToMedFileEnum_ForQuantityKindEnum(MEDCoupling::QuantityKindEnum::MCIdOfValue(valueEnum)));
+    return MEDphysicalQuantityKindDescription(ret);
+}
+
+std::string
+FromMCQKEnumStrToQUDTUri(const std::string &valueEnum)
+{
+    med_quantity_kind ret(QKToMedFileEnum_ForQuantityKindEnum(MEDCoupling::QuantityKindEnum::MCIdOfValue(valueEnum)));
+    return MEDphysicalQuantityKindQUDTUri(ret);
+}
+
 }  // namespace
 
 void
@@ -153,4 +176,66 @@ MEDFileUtilities::WrapperOf_MEDfieldQuantityKindRd(
     MEDFILESAFECALLERRD0(MEDfieldQuantityKindRd, (fid, fieldName.c_str(), &mqk, nomdesc));
     std::string qkValue(MEDLoaderBase::buildStringFromFortran(nomdesc, MED_COMMENT_SIZE));
     qk = QKFromMedFile(mqk, qkValue);
+}
+
+std::string
+MEDFileUtilities::WrapperOf_ToFrenchDescr(MEDCoupling::MCAuto<MEDCoupling::QuantityKindAbstract> obj)
+{
+    if (obj.isNull())
+    {
+        THROW_IK_EXCEPTION("Nullptr QuantityKind : no description");
+    }
+    MEDCoupling::QuantityKindUnDef *obj1(
+        dynamic_cast<MEDCoupling::QuantityKindUnDef *>((MEDCoupling::QuantityKindAbstract *)obj)
+    );
+    if (obj1)
+    {
+        return std::string();
+    }
+    MEDCoupling::QuantityKindUser *obj2(
+        dynamic_cast<MEDCoupling::QuantityKindUser *>((MEDCoupling::QuantityKindAbstract *)obj)
+    );
+    if (obj2)
+    {
+        return std::string();
+    }
+    MEDCoupling::QuantityKindEnum *obj3(
+        dynamic_cast<MEDCoupling::QuantityKindEnum *>((MEDCoupling::QuantityKindAbstract *)obj)
+    );
+    if (obj3)
+    {
+        return FromMCQKEnumStrToFrenchDescr(obj3->getValue());
+    }
+    THROW_IK_EXCEPTION("Not managed QuantityKind class for FrenchDescription.");
+}
+
+std::string
+MEDFileUtilities::WrapperOf_ToQUDTUri(MEDCoupling::MCAuto<MEDCoupling::QuantityKindAbstract> obj)
+{
+    if (obj.isNull())
+    {
+        THROW_IK_EXCEPTION("Nullptr QuantityKind : no description");
+    }
+    MEDCoupling::QuantityKindUnDef *obj1(
+        dynamic_cast<MEDCoupling::QuantityKindUnDef *>((MEDCoupling::QuantityKindAbstract *)obj)
+    );
+    if (obj1)
+    {
+        THROW_IK_EXCEPTION("No QUDTUri for UndefKind.");
+    }
+    MEDCoupling::QuantityKindUser *obj2(
+        dynamic_cast<MEDCoupling::QuantityKindUser *>((MEDCoupling::QuantityKindAbstract *)obj)
+    );
+    if (obj2)
+    {
+        THROW_IK_EXCEPTION("No QUDTUri for UserKind.");
+    }
+    MEDCoupling::QuantityKindEnum *obj3(
+        dynamic_cast<MEDCoupling::QuantityKindEnum *>((MEDCoupling::QuantityKindAbstract *)obj)
+    );
+    if (obj3)
+    {
+        return FromMCQKEnumStrToQUDTUri(obj3->getValue());
+    }
+    THROW_IK_EXCEPTION("Not managed QuantityKind class for QUDTUri.");
 }

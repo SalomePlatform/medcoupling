@@ -460,6 +460,18 @@ namespace MEDCoupling
     return ret.retn();
   }
 
+  std::string QKToFrenchDescr(MEDCoupling::QuantityKindAbstract *qk)
+  {
+    MEDCoupling::MCAuto<MEDCoupling::QuantityKindAbstract> qk2( MEDCoupling::MCAuto<MEDCoupling::QuantityKindAbstract>::TakeRef( qk ) );
+    return MEDFileUtilities::WrapperOf_ToFrenchDescr( qk2 );
+  }
+
+  std::string QKToQUDTUri(MEDCoupling::QuantityKindAbstract *qk)
+  {
+    MEDCoupling::MCAuto<MEDCoupling::QuantityKindAbstract> qk2( MEDCoupling::MCAuto<MEDCoupling::QuantityKindAbstract>::TakeRef( qk ) );
+    return MEDFileUtilities::WrapperOf_ToQUDTUri( qk2 );
+  }
+
   MEDCoupling::MEDCouplingField *ReadFieldSwig(const std::string& fileName)
   {
     MCAuto<MEDCoupling::MEDCouplingField> ret(MEDCoupling::ReadField(fileName));
@@ -2251,6 +2263,8 @@ namespace MEDCoupling
     std::string getDtUnit() const;
     void setDtUnit(const std::string& dtUnit);
     void setQuantityKind( QuantityKindAbstract *newQKind );
+    std::string getQuantityKindFrenchDescription() const;
+    std::string getQuantityKindQUDTUri() const;
     %extend
     {
       PyObject *getTime()
@@ -2779,6 +2793,8 @@ namespace MEDCoupling
     void pushBackTimeStep(MEDFileAnyTypeField1TS *f1ts);
     void synchronizeNameScope();
     MEDFileAnyTypeFieldMultiTS *buildNewEmpty() const;
+    std::string getQuantityKindFrenchDescription() const;
+    std::string getQuantityKindQUDTUri() const;
     %extend
     {
       int __len__() const

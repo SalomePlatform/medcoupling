@@ -577,6 +577,8 @@ class MEDFileAnyTypeField1TS : public RefCountObject, public MEDFileWritableStan
     MEDLOADER_EXPORT void setDtUnit(const std::string &dtUnit);
     MEDLOADER_EXPORT std::string getMeshName() const;
     MEDLOADER_EXPORT MCAuto<QuantityKindAbstract> getQuantityKind() const;
+    MEDLOADER_EXPORT std::string getQuantityKindFrenchDescription() const;
+    MEDLOADER_EXPORT std::string getQuantityKindQUDTUri() const;
     MEDLOADER_EXPORT void setQuantityKind(QuantityKindAbstract *newQKind);
     MEDLOADER_EXPORT void setMeshName(const std::string &newMeshName);
     MEDLOADER_EXPORT bool changeMeshNames(const std::vector<std::pair<std::string, std::string> > &modifTab);

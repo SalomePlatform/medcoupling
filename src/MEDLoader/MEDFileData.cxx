@@ -401,7 +401,7 @@ void
 MEDFileData::readHeader(med_idt fid)
 {
     INTERP_KERNEL::AutoPtr<char> header(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
-    int ret(MEDfileCommentRd(fid, header));
+    int ret(MEDfileDescriptionRd(fid, header));
     if (ret == 0)
         _header = MEDLoaderBase::buildStringFromFortran(header, MED_COMMENT_SIZE);
 }
@@ -411,5 +411,5 @@ MEDFileData::writeHeader(med_idt fid) const
 {
     INTERP_KERNEL::AutoPtr<char> header(MEDLoaderBase::buildEmptyString(MED_COMMENT_SIZE));
     MEDLoaderBase::safeStrCpy(_header.c_str(), MED_COMMENT_SIZE, header, _too_long_str);
-    MEDFILESAFECALLERWR0(MEDfileCommentWr, (fid, header));
+    MEDFILESAFECALLERWR0(MEDfileDescriptionWr, (fid, header));
 }

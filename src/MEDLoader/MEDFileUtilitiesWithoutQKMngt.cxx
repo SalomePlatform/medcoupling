@@ -42,3 +42,15 @@ MEDFileUtilities::WrapperOf_MEDfieldQuantityKindRd(
 {
     qk = QuantityKindUnDef::New().retn();
 }
+
+std::string
+MEDFileUtilities::WrapperOf_ToFrenchDescr(MEDCoupling::MCAuto<MEDCoupling::QuantityKindAbstract> qk)
+{
+    THROW_IK_EXCEPTION("FromMCQKEnumStrToDescr : not available for MEDFile <= 6.0");
+}
+
+std::string
+MEDFileUtilities::WrapperOf_ToQUDTUri(MEDCoupling::MCAuto<MEDCoupling::QuantityKindAbstract> obj)
+{
+    THROW_IK_EXCEPTION("FromMCQKEnumStrToQUDTUri : not available for MEDFile <= 6.0");
+}

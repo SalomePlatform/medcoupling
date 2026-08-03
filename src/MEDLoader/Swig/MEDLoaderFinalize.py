@@ -21,6 +21,24 @@
 import logging
 
 
+def QKfrenchReprProperty(self):
+    """
+    property of QuantityKindAbstract
+    """
+    import MEDLoader as ml
+
+    return ml.QKToFrenchDescr(self)
+
+
+def QKuriProperty(self):
+    """
+    property of QuantityKindAbstract
+    """
+    import MEDLoader as ml
+
+    return ml.QKToQUDTUri(self)
+
+
 def MEDFileUMeshFuseNodesAndCells(
     self, compType=2, eps=1e-6, logLev=logging.INFO, infoWrapNodes=None
 ):

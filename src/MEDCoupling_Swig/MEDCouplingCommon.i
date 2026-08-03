@@ -516,6 +516,7 @@ typedef long mcPyPtrType;
 %newobject MEDCoupling::MEDCouplingSkyLineArray::AggregatePacks;
 %newobject MEDCoupling::MEDCouplingSkyLineArray::deepCopy;
 %newobject FromJointsPerProcToGlobalIDsSwig;
+%newobject QuantityKindSwig;
 
 %feature("unref") MEDCouplingPointSet "$this->decrRef();"
 %feature("unref") MEDCouplingMesh "$this->decrRef();"
@@ -568,6 +569,7 @@ typedef long mcPyPtrType;
 %exceptionclass INTERP_KERNEL::Exception;
 %rename (InterpKernelException) INTERP_KERNEL::Exception;
 %rename (FromJointsPerProcToGlobalIDs) FromJointsPerProcToGlobalIDsSwig;
+%rename (QuantityKind) QuantityKindSwig;
 
 %include "MEDCouplingRefCountObject.i"
 %include "MEDCouplingMemArray.i"
@@ -1523,8 +1525,10 @@ namespace MEDCoupling
 
 %inline
 {
-  MEDCoupling::DataArrayInt64 *FromJointsPerProcToGlobalIDsSwig(MEDCoupling::Int64 myRank, const std::vector<MEDCoupling::Int64>& pointCountByRank, PyObject *listOfJoints, bool compactIds = false)
+  MEDCoupling::DataArrayInt64 *FromJointsPerProcToGlobalIDsSwig(MEDCoupling::Int64 myRank, const std::vector<int>& pointCountByRank, PyObject *listOfJoints, bool compactIds = false)
   {
+    // trick to avoid memory leak
+    std::vector<MEDCoupling::Int64> pointCountByRankCpp(pointCountByRank.cbegin(),pointCountByRank.cend());
     std::vector< std::vector < MCAuto< MEDCoupling::DataArrayInt64 > > > listOfJointsCpp;
     if(PyList_Check(listOfJoints))
     {
@@ -1548,7 +1552,13 @@ namespace MEDCoupling
       THROW_IK_EXCEPTION( "listOfJoints must be a list !" );
     }
     //
-    MEDCoupling::MCAuto<MEDCoupling::DataArrayInt64> ret( MEDCoupling::FromJointsPerProcToGlobalIDs(myRank, pointCountByRank, listOfJointsCpp, compactIds) );
+    MEDCoupling::MCAuto<MEDCoupling::DataArrayInt64> ret( MEDCoupling::FromJointsPerProcToGlobalIDs(myRank, pointCountByRankCpp, listOfJointsCpp, compactIds) );
+    return ret.retn();
+  }
+
+  QuantityKindAbstract *QuantityKindSwig( const std::string& qkStr )
+  {
+    MCAuto<QuantityKindAbstract> ret( MEDCoupling::QuantityKind( qkStr ) );
     return ret.retn();
   }
 }
@@ -3936,6 +3946,8 @@ namespace MEDCoupling
       std::string repr() const;
       std::string getClassName() const;
       std::string serialize() const;
+      std::string getDescription() const;
+      std::string getValue() const;
     %extend
     {
       static QuantityKindAbstract *Deserialize(const std::string &s)
@@ -3949,6 +3961,12 @@ namespace MEDCoupling
         return self->repr();
       }
     }
+  };
+
+  class QuantityKindWithDescription : public QuantityKindAbstract
+  {
+    public:
+        void setDescription( const std::string& description );
   };
 
   class QuantityKindUnDef : public QuantityKindAbstract
@@ -3972,12 +3990,11 @@ namespace MEDCoupling
     }
   };
 
-  class QuantityKindEnum : public QuantityKindAbstract
+  class QuantityKindEnum : public QuantityKindWithDescription
   {
     private:
       ~QuantityKindEnum();
     public:
-      const std::string &value() const;
       static const std::vector<std::string> &AllowedValues();
       static int MCIdOfValue( const std::string& value );
       %extend
@@ -4001,7 +4018,7 @@ namespace MEDCoupling
     private:
       ~QuantityKindUser();
     public:
-      const std::string &value() const;
+      void setDescription(const std::string &description);
       %extend
       {
         QuantityKindUser(std::string value)

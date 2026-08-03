@@ -83,3 +83,17 @@ def DADmaxDistanceToPlane(self, a, b, c, d):
 
     distances = np.abs(P @ np.array([a, b, c]) + d) / normal_norm
     return float(np.max(distances))
+
+
+def QKvalueProperty(self):
+    """
+    property of QuantityKindAbstract
+    """
+    return self.getValue()
+
+
+def QKdescriptionProperty(self):
+    """
+    property of QuantityKindAbstract
+    """
+    return self.getDescription()

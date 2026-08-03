@@ -3127,6 +3127,18 @@ MEDFileAnyTypeField1TS::getQuantityKind() const
     return contentNotNullBase()->getQuantityKind();
 }
 
+std::string
+MEDFileAnyTypeField1TS::getQuantityKindFrenchDescription() const
+{
+    return contentNotNullBase()->getQuantityKindFrenchDescription();
+}
+
+std::string
+MEDFileAnyTypeField1TS::getQuantityKindQUDTUri() const
+{
+    return contentNotNullBase()->getQuantityKindQUDTUri();
+}
+
 void
 MEDFileAnyTypeField1TS::setQuantityKind(QuantityKindAbstract *newQKind)
 {

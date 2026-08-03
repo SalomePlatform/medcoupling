@@ -185,6 +185,32 @@ class medcouplingTest(unittest.TestCase):
         srMesh = ShapeRecognMeshBuilder(m)
         rem = srMesh.recognize()
 
+    @unittest.skipUnless(HasMEDFileExt(), "Requires link to MED file")
+    def test7(self):
+        """
+        [EDF32036] : test properties of QuantityKindAbstract ( 2 props coming from MEDCoupling 2 from MEDLoader )
+        """
+
+        def has_property(obj: object, name: str) -> bool:
+            import inspect
+
+            try:
+                attribute = inspect.getattr_static(obj, name)
+            except AttributeError:
+                return False
+            return isinstance(attribute, property)
+
+        qk = QuantityKindEnum("Displacement")
+        qk.setDescription("abc")
+        self.assertEqual(qk.value, "Displacement")
+        self.assertEqual(qk.description, "abc")
+        self.assertTrue(has_property(qk, "uri"))
+        self.assertTrue(has_property(qk, "frenchDecr"))
+        if MEDFileHasQKMngt():
+            self.assertTrue(qk.uri[:8] == "https://" and qk.uri[-5:] == ".html")
+            self.assertTrue(len(qk.frenchDecr) > 30)
+        pass
+
     def partitionerTesterHelper(self, algoSelected):
         arr = DataArrayDouble(10)
         arr.iota()

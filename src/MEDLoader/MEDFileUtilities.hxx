@@ -57,6 +57,12 @@ WrapperOf_MEDfieldQuantityKindRd(
     med_idt fid, const std::string &fieldName, MEDCoupling::MCAuto<MEDCoupling::QuantityKindAbstract> &qk
 );
 
+MEDLOADER_EXPORT std::string
+WrapperOf_ToFrenchDescr(MEDCoupling::MCAuto<MEDCoupling::QuantityKindAbstract> qk);
+
+MEDLOADER_EXPORT std::string
+WrapperOf_ToQUDTUri(MEDCoupling::MCAuto<MEDCoupling::QuantityKindAbstract> qk);
+
 class MEDLOADER_EXPORT AutoFid
 {
    public:

@@ -32,6 +32,10 @@ template <class T>
 class MCAuto
 {
    public:
+    template <class X, class Y>
+    friend MCAuto<Y> StaticCast(MCAuto<X> &&input) noexcept(true);
+
+   public:
     static MCAuto TakeRef(T *ptr)
     {
         MCAuto ret;
@@ -216,8 +220,7 @@ StaticCast(typename MEDCoupling::MCAuto<T> &&autoSubPtr) noexcept(true)
     T *subPtr(autoSubPtr);
     U *ptr(static_cast<U *>(subPtr));
     typename MEDCoupling::MCAuto<U> ret(ptr);
-    if (ptr)
-        ptr->incrRef();
+    autoSubPtr._ptr = nullptr;
     return ret;
 }
 

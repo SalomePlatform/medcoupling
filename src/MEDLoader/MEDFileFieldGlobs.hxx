@@ -216,6 +216,8 @@ class MEDFileFieldNameScope
     MEDLOADER_EXPORT std::string getMeshName() const;
     MEDLOADER_EXPORT void setMeshName(const std::string &meshName);
     MEDLOADER_EXPORT MCAuto<QuantityKindAbstract> getQuantityKind() const;
+    MEDLOADER_EXPORT std::string getQuantityKindFrenchDescription() const;
+    MEDLOADER_EXPORT std::string getQuantityKindQUDTUri() const;
     MEDLOADER_EXPORT void setQuantityKind(QuantityKindAbstract *newQKind);
 
    protected:

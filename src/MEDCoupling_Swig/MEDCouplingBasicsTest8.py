@@ -400,7 +400,16 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
         """
         # fmt: off
         from copy import deepcopy
-
+        #
+        qk0 = mc.QuantityKind("")
+        self.assertTrue( isinstance( qk0, mc.QuantityKindUnDef ) )
+        qk0 = mc.QuantityKind("Displacement")
+        self.assertTrue( isinstance( qk0, mc.QuantityKindEnum) )
+        self.assertTrue( qk0.getValue() == "Displacement" )
+        qk0 = mc.QuantityKind("Displacemen")
+        self.assertTrue( isinstance( qk0, mc.QuantityKindUser ) )
+        self.assertTrue( qk0.getValue() == "Displacemen" )
+        #
         qku = mc.QuantityKindUnDef()
         repr( qku )
         str( qku )
@@ -416,24 +425,41 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
         repr( qke )
         str( qke )
         self.assertTrue( isinstance( mc.QuantityKindAbstract.Deserialize( qke.serialize() ) , mc.QuantityKindEnum ) )
-        self.assertTrue( qke.value() == "Displacement" )
+        self.assertTrue( qke.getValue() == "Displacement" )
 
         qkus = mc.QuantityKindUser("aa")
         repr( qkus )
         str( qkus )
-        self.assertTrue( qkus.value() == "aa" )
+        self.assertTrue( qkus.getValue() == "aa" )
+        self.assertTrue( qkus.getDescription() == "aa" )
+        qkus.setDescription("bb") # for the moment synchronization of value and description for user kind
+        qkus.setDescription("bb")
+        self.assertTrue( qkus.getDescription() == "bb" )
+        self.assertTrue( qkus.description == "bb" ) # property
+        self.assertTrue( qkus.getValue() == "bb" )
+        qkus.setDescription("aa")
         self.assertTrue( isinstance( mc.QuantityKindAbstract.Deserialize( qkus.serialize() ) , mc.QuantityKindUser ) )
 
         qkus2 = mc.QuantityKindAbstract.Deserialize( qkus.serialize() )
-        self.assertTrue( qkus.value() == qkus2.value() )
-        self.assertTrue( qkus.value() == "aa" )
+        self.assertTrue( qkus.getValue() == qkus2.getValue() )
+        self.assertTrue( qkus.getValue() == "aa" )
         self.assertTrue( isinstance( qkus2, mc.QuantityKindUser ) )
 
         qkus3 = mc.QuantityKindUser("Displacement")
+        self.assertTrue( qkus3.value == "Displacement" ) # property
         qkus4 = mc.QuantityKindAbstract.Deserialize( qkus3.serialize() )
-        self.assertTrue( qkus4.value() == "Displacement" )
+        self.assertTrue( qkus4.getValue() == "Displacement" )
         self.assertTrue( isinstance( qkus4, mc.QuantityKindUser ) )
         self.assertTrue( not isinstance( qkus4, mc.QuantityKindEnum ) )
+
+        #
+        qkus5 = mc.QuantityKindEnum("Displacement")
+        qkus5.setDescription( "zeDesc" )
+        qkus6 = mc.QuantityKindAbstract.Deserialize( qkus5.serialize() )
+        self.assertTrue( qkus6.getValue() == "Displacement" )
+        self.assertTrue( qkus6.getDescription() == "zeDesc" )
+        self.assertTrue( isinstance( qkus6, mc.QuantityKindEnum ) )
+        #
 
         arr = mc.DataArrayDouble(5) ; arr.iota()
         m = mc.MEDCouplingCMesh() ; m.setCoords(arr,arr)
@@ -446,10 +472,25 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
         self.assertTrue( isinstance( f2.getQuantityKind(), mc.QuantityKindUser ) )
         f2.setArray( mc.DataArrayDouble( m.getNumberOfCells() ) )
         f2.getArray()[:]=10
-        self.assertTrue( f2.getQuantityKind().value() == "bb" )
+        self.assertTrue( f2.getQuantityKind().getValue() == "bb" )
 
         f3 = deepcopy(f2)
         self.assertTrue( isinstance( f3.getQuantityKind(), mc.QuantityKindUser ) )
+        f3.setQuantityKind( mc.QuantityKind("Displacement") )
+        f3.getQuantityKind().setDescription("ppp")
+        f4 = deepcopy( f3 )
+        self.assertTrue( f3.isEqual(f4,1e-12,1e-12) )
+        self.assertTrue( f4.getQuantityKind().getDescription() == "ppp" )
+        f4.getQuantityKind().setDescription("pp")
+        self.assertTrue( not f3.isEqual(f4,1e-12,1e-12) )
+        f4.getQuantityKind().setDescription("ppp")
+        self.assertTrue( f3.isEqual(f4,1e-12,1e-12) )
+        f5 = f3.deepCopy()
+        self.assertTrue( f5.getQuantityKind().getDescription() == "ppp" )
+        f5.getQuantityKind().setDescription("pp")
+        self.assertTrue( not f3.isEqual(f5,1e-12,1e-12) )
+        f5.getQuantityKind().setDescription("ppp")
+        self.assertTrue( f3.isEqual(f5,1e-12,1e-12) )
         # fmt: on
 
     def testDADWarpDetector(self):

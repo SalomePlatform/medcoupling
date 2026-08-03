@@ -2029,6 +2029,18 @@ MEDFileAnyTypeFieldMultiTS::getQuantityKind() const
     return contentNotNullBase()->getQuantityKind();
 }
 
+std::string
+MEDFileAnyTypeFieldMultiTS::getQuantityKindFrenchDescription() const
+{
+    return contentNotNullBase()->getQuantityKindFrenchDescription();
+}
+
+std::string
+MEDFileAnyTypeFieldMultiTS::getQuantityKindQUDTUri() const
+{
+    return contentNotNullBase()->getQuantityKindQUDTUri();
+}
+
 void
 MEDFileAnyTypeFieldMultiTS::setQuantityKind(QuantityKindAbstract *newQKind)
 {

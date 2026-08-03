@@ -1444,6 +1444,18 @@ MEDFileFieldNameScope::getQuantityKind() const
     return this->_quantity_kind;
 }
 
+std::string
+MEDFileFieldNameScope::getQuantityKindFrenchDescription() const
+{
+    return MEDFileUtilities::WrapperOf_ToFrenchDescr(this->getQuantityKind());
+}
+
+std::string
+MEDFileFieldNameScope::getQuantityKindQUDTUri() const
+{
+    return MEDFileUtilities::WrapperOf_ToQUDTUri(this->getQuantityKind());
+}
+
 void
 MEDFileFieldNameScope::setQuantityKind(QuantityKindAbstract *newQKind)
 {

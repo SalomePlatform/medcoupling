@@ -182,7 +182,21 @@ MEDCouplingFieldT<T>::isEqualIfNotWhy(
         reason.insert(0, "In FieldT time discretizations differ :");
         return false;
     }
-    return true;
+    // QuantityKind
+    if ((_quantity_kind.isNull() && other->_quantity_kind.isNotNull()) ||
+        (_quantity_kind.isNotNull() && other->_quantity_kind.isNull()))
+    {
+        reason.insert(0, "Mismatch In QuantityKind");
+        return false;
+    }
+    if (_quantity_kind.isNull() && other->_quantity_kind.isNull())
+    {
+        return true;
+    }
+    else
+    {
+        return _quantity_kind->isEqual(other->_quantity_kind, reason);
+    }
 }
 
 /*!

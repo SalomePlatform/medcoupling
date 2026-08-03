@@ -16458,15 +16458,15 @@ class MEDLoaderTest4(unittest.TestCase):
         medfield = MEDFileField1TS()
         medfield.setFieldNoProfileSBT(medc_node_field)
         self.assertTrue(isinstance(medc_node_field.getQuantityKind(), QuantityKindUser))
-        self.assertEqual(medc_node_field.getQuantityKind().value(), "bb")
+        self.assertEqual(medc_node_field.getQuantityKind().getValue(), "bb")
         self.assertTrue(isinstance(medfield.getQuantityKind(), QuantityKindUser))
 
         rel = medfield.field(mm)
         self.assertEqual(medfield.getDescription(), zeDescription)
         self.assertEqual(rel.getDescription(), zeDescription)
-        self.assertEqual(rel.getQuantityKind().value(), "bb")
+        self.assertEqual(rel.getQuantityKind().getValue(), "bb")
         self.assertTrue(isinstance(rel.getQuantityKind(), QuantityKindUser))
-        self.assertEqual(medfield.getQuantityKind().value(), "bb")
+        self.assertEqual(medfield.getQuantityKind().getValue(), "bb")
         #
         medfield.write(fname, 0)
         #
@@ -16474,7 +16474,7 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue(
             isinstance(medfieldFromFile.getQuantityKind(), QuantityKindUser)
         )
-        self.assertTrue(medfieldFromFile.getQuantityKind().value(), "bb")
+        self.assertTrue(medfieldFromFile.getQuantityKind().getValue(), "bb")
         self.assertEqual(
             medfieldFromFile.getDescription(), zeDescription
         )  # aim of the test is here
@@ -16482,51 +16482,75 @@ class MEDLoaderTest4(unittest.TestCase):
         medfield2 = MEDFileFieldMultiTS()
         medfield2.pushBackTimeStep(medfield)
         self.assertTrue(isinstance(medfield.getQuantityKind(), QuantityKindUser))
-        self.assertTrue(medfield.getQuantityKind().value(), "bb")
+        self.assertTrue(medfield.getQuantityKind().getValue(), "bb")
         self.assertTrue(isinstance(medfield2.getQuantityKind(), QuantityKindUser))
-        self.assertTrue(medfield2.getQuantityKind().value(), "bb")
+        self.assertTrue(medfield2.getQuantityKind().getValue(), "bb")
         medfield2.write(fname, 2)
         medfieldFromFile2 = MEDFileFieldMultiTS(fname, field_name)
         self.assertTrue(
             isinstance(medfieldFromFile2.getQuantityKind(), QuantityKindUser)
         )
-        self.assertTrue(medfieldFromFile2.getQuantityKind().value(), "bb")
+        self.assertTrue(medfieldFromFile2.getQuantityKind().getValue(), "bb")
         self.assertTrue(
             isinstance(medfieldFromFile2[0].getQuantityKind(), QuantityKindUser)
         )
-        self.assertTrue(medfieldFromFile2[0].getQuantityKind().value(), "bb")
+        self.assertTrue(medfieldFromFile2[0].getQuantityKind().getValue(), "bb")
         self.assertEqual(medfieldFromFile2[0].getDescription(), zeDescription)
         ## test on fields
         medfield3 = MEDFileFields()
         medfield3.pushField(medfield2)
         medfield3.write(fname, 2)
         self.assertTrue(isinstance(medfield2.getQuantityKind(), QuantityKindUser))
-        self.assertTrue(medfield2.getQuantityKind().value(), "bb")
+        self.assertTrue(medfield2.getQuantityKind().getValue(), "bb")
         self.assertTrue(isinstance(medfield2[0].getQuantityKind(), QuantityKindUser))
-        self.assertTrue(medfield2[0].getQuantityKind().value(), "bb")
+        self.assertTrue(medfield2[0].getQuantityKind().getValue(), "bb")
         medfieldFromFile3 = MEDFileFields(fname)
         self.assertEqual(medfieldFromFile3[0][0].getDescription(), zeDescription)
         self.assertTrue(
             isinstance(medfieldFromFile3[0].getQuantityKind(), QuantityKindUser)
         )
-        self.assertTrue(medfieldFromFile3[0].getQuantityKind().value(), "bb")
+        self.assertTrue(medfieldFromFile3[0].getQuantityKind().getValue(), "bb")
         self.assertTrue( isinstance( medfieldFromFile3[0][0].getQuantityKind(), QuantityKindUser ) )
-        self.assertTrue( medfieldFromFile3[0][0].getQuantityKind().value(), "bb" )
+        self.assertTrue( medfieldFromFile3[0][0].getQuantityKind().getValue(), "bb" )
         # test on fields on QuantityKindEnum
         medfield2.setQuantityKind( QuantityKindEnum("Displacement") )
+        medfield2.getQuantityKind().setDescription("MyDescription")
         medfield4 = MEDFileFields()
         medfield4.pushField(medfield2)
         medfield4.write(fname, 2)
         self.assertTrue(isinstance(medfield2.getQuantityKind(), QuantityKindEnum))
-        self.assertTrue(medfield2.getQuantityKind().value(), "Displacement")
+        self.assertEqual( medfield2.getQuantityKind().getDescription() , "MyDescription" )
+        self.assertTrue( isinstance(medfield2.getQuantityKindFrenchDescription(),str) )#<- check retrieve medfile description
+        self.assertTrue( len(medfield2.getQuantityKindFrenchDescription()) > 30 )#<- check retrieve medfile description*
+        self.assertTrue( len(medfield2.getQuantityKind().frenchDecr) > 30 )
+        frenchDesc = QKToFrenchDescr( medfield2.getQuantityKind() )
+        self.assertTrue( len( frenchDesc ) > 30 )#<- check retrieve medfile description
+        uri = medfield2.getQuantityKindQUDTUri()
+        self.assertTrue( uri[:8] == "https://" and uri[-5:] == ".html" )
+        uri = QKToQUDTUri( medfield2.getQuantityKind() )
+        self.assertTrue( uri[:8] == "https://" and uri[-5:] == ".html" )
+        uri = medfield2.getQuantityKind().uri
+        self.assertTrue( uri[:8] == "https://" and uri[-5:] == ".html" )
+        self.assertTrue(medfield2.getQuantityKind().getValue(), "Displacement")
         medfieldFromFile4 = MEDFileFields(fname)
         self.assertEqual(medfieldFromFile4[0][0].getDescription(), zeDescription)
         self.assertTrue(
             isinstance(medfieldFromFile4[0].getQuantityKind(), QuantityKindEnum)
         )
-        self.assertTrue(medfieldFromFile4[0].getQuantityKind().value(), "Displacement")
+        self.assertTrue(medfieldFromFile4[0].getQuantityKind().getValue(), "Displacement")
+        self.assertTrue( isinstance(medfieldFromFile4[0][0], MEDFileField1TS) )
         self.assertTrue( isinstance( medfieldFromFile4[0][0].getQuantityKind(), QuantityKindEnum ) )
-        self.assertTrue( medfieldFromFile4[0][0].getQuantityKind().value(), "Displacement" )
+        self.assertTrue( medfieldFromFile4[0][0].getQuantityKind().getValue(), "Displacement" )
+        self.assertTrue( isinstance(medfieldFromFile4[0][0].getQuantityKindFrenchDescription() , str ) )#<- check retrieve medfile description
+        uri = medfieldFromFile4[0][0].getQuantityKindQUDTUri()
+        self.assertTrue( uri[:8] == "https://" and uri[-5:] == ".html" )
+        # test on
+        medfield5 = MEDFileField1TS()
+        medc_node_field.setQuantityKind(QuantityKindUnDef())
+        medfield5.setFieldNoProfileSBT(medc_node_field)
+        medfield5.write(fname, 2)
+        medfield6 = MEDFileField1TS(fname)
+        self.assertTrue( isinstance( medfield6.getQuantityKind(), QuantityKindUnDef ) )
         # fmt: on
 
     def test52(self):

@@ -22,6 +22,9 @@ import MEDCouplingFinalize
 DataArrayDouble.fitPlaneL2 = MEDCouplingFinalize.DADfitPlaneL2
 DataArrayDouble.maxDistanceToPlane = MEDCouplingFinalize.DADmaxDistanceToPlane
 MEDCouplingHasPyVistaSupport = MEDCouplingFinalize.MEDCouplingHasPyVistaSupport
+setattr( QuantityKindAbstract,"value", property(MEDCouplingFinalize.QKvalueProperty) )
+setattr( QuantityKindAbstract,"description", property(MEDCouplingFinalize.QKdescriptionProperty) )
+del MEDCouplingFinalize
 
 def DataArrayAsciiCharIteratoriter(self):
   return self
