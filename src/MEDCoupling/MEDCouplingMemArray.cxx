@@ -4345,7 +4345,7 @@ namespace
  *
  * Each entry of DSU (Disjoint Set Union) correspond to sparseKeys.
  */
-class SparseDisjointSet
+class MEDCOUPLING_EXPORT SparseDisjointSet
 {
    public:
     explicit SparseDisjointSet(const std::vector<Int64> &sparseKeys)

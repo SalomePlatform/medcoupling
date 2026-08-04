@@ -1544,7 +1544,7 @@ DataArrayTemplate<T>::pushBackValsSilent(InputIterator valsBg, InputIterator val
     }
 }
 
-MCAuto<DataArrayInt64>
+MCAuto<DataArrayInt64> MEDCOUPLING_EXPORT
 FromJointsPerProcToGlobalIDs(
     Int64 myRank,
     const std::vector<Int64> &pointCountByRank,
