@@ -135,6 +135,20 @@ class ConnectivityRenumberer:
         "HEXA20": range(20),
     }
 
+    _radioss = {
+        "POINT1": [0],
+        "SEG2": range(2),
+        "TRI3": range(3),
+        "QUAD4": range(4),
+        "TETRA4": [0, 2, 1, 3],
+        "PYRA5": [0, 3, 2, 1, 4],
+        "PENTA6": [0, 2, 1, 3, 5, 4],
+        "HEXA8": [0, 3, 2, 1, 4, 7, 6, 5],
+        "TETRA10": [0, 2, 1, 3, 6, 5, 4, 7, 9, 8],
+        "HEXA20": [0, 3, 2, 1, 4, 7, 6, 5, 11, 10, 9, 8,
+                   15, 14, 13, 12, 16, 19, 18, 17],
+    }
+
     _med_types = "POINT1 SEG2 TRI3 QUAD4 TETRA4 HEXA8 PYRA5 PENTA6 SEG3 TRI6 QUAD8 TETRA10 HEXA20 PYRA13 PENTA15 SEG4 TRI7 QUAD9 PENTA18 HEXA27".split()
     # fmt: on
 

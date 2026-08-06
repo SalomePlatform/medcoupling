@@ -1796,32 +1796,7 @@ FIN
         self.assertTrue(
             mm.getGroupArr(-1, "EL_BEAM189").isEqualWithoutConsideringStr(
                 DataArrayInt(
-                    [
-                        148,
-                        149,
-                        150,
-                        151,
-                        152,
-                        153,
-                        154,
-                        155,
-                        156,
-                        157,
-                        158,
-                        159,
-                        160,
-                        161,
-                        162,
-                        163,
-                        164,
-                        165,
-                        166,
-                        167,
-                        168,
-                        169,
-                        170,
-                        171,
-                    ]
+                    list(range(206, 230))
                 )
             )
         )
@@ -1987,6 +1962,171 @@ FIN
             "Grp_FE_c3d8",
             "N_LINEAIRE",
             "N_QUAD",
+        )
+
+        self.assertSequenceEqual(grps, grps_ref)
+
+    def testRAD(self):
+        filename = "RADIOSS_MIXT_ELEMENT.rad"
+
+        mm = LoadRadiossFileInMEDFileUMeshInstance(filename)
+
+        # TEST
+        self.assertTrue(len(mm.getCoords()) == 100)
+        self.assertTrue(mm.getName() == "RADIOSS_MIXT_ELEMENT")
+        self.assertTrue(mm.getNonEmptyLevels() == (0, -1, -2, -3))
+        # niveau0
+        self.assertTrue(
+            [
+                MEDCoupling1SGTUMesh(elt).getNumberOfCells()
+                for elt in mm[0].splitByType()
+            ]
+            == [2, 1, 2, 2, 1, 1]
+        )
+
+        self.assertTrue(
+            [
+                MEDCouplingUMesh.GetReprOfGeometricType(
+                    MEDCoupling1SGTUMesh(elt).getCellModelEnum()
+                )
+                for elt in mm[0].splitByType()
+            ]
+            == [
+                "NORM_TETRA4",
+                "NORM_PYRA5",
+                "NORM_PENTA6",
+                "NORM_HEXA8",
+                "NORM_TETRA10",
+                "NORM_HEXA20",
+            ]
+        )
+
+        self.assertTrue(
+            mm[0]
+            .getNodalConnectivityIndex()
+            .isEqual(DataArrayInt([0, 5, 10, 16, 23, 30, 39, 48, 59, 80]))
+        )
+
+        # niveau -1
+        self.assertTrue(
+            [
+                MEDCoupling1SGTUMesh(elt).getNumberOfCells()
+                for elt in mm[-1].splitByType()
+            ]
+            == [2, 9]
+        )
+
+        self.assertTrue(
+            [
+                MEDCouplingUMesh.GetReprOfGeometricType(
+                    MEDCoupling1SGTUMesh(elt).getCellModelEnum()
+                )
+                for elt in mm[-1].splitByType()
+            ]
+            == ["NORM_TRI3", "NORM_QUAD4"]
+        )
+
+        self.assertTrue(
+            mm[-1]
+            .getNodalConnectivityIndex()
+            .isEqual(DataArrayInt([0, 4, 8, 13, 18, 23, 28, 33, 38, 43, 48, 53]))
+        )
+
+        # niveau -2
+        self.assertTrue(
+            [
+                MEDCoupling1SGTUMesh(elt).getNumberOfCells()
+                for elt in mm[-2].splitByType()
+            ]
+            == [3]
+        )
+
+        self.assertTrue(
+            [
+                MEDCouplingUMesh.GetReprOfGeometricType(
+                    MEDCoupling1SGTUMesh(elt).getCellModelEnum()
+                )
+                for elt in mm[-2].splitByType()
+            ]
+            == ["NORM_SEG2"]
+        )
+
+        self.assertTrue(
+            mm[-2].getNodalConnectivityIndex().isEqual(DataArrayInt([0, 3, 6, 9]))
+        )
+
+        # niveau -3
+        self.assertTrue(
+            [
+                MEDCoupling1SGTUMesh(elt).getNumberOfCells()
+                for elt in mm[-3].splitByType()
+            ]
+            == [1]
+        )
+
+        self.assertTrue(
+            [
+                MEDCouplingUMesh.GetReprOfGeometricType(
+                    MEDCoupling1SGTUMesh(elt).getCellModelEnum()
+                )
+                for elt in mm[-3].splitByType()
+            ]
+            == ["NORM_POINT1"]
+        )
+
+        self.assertTrue(mm.getMeshDimension() == 3)
+
+        grps = mm.getGroupsNames()
+        grps_ref = (
+            "Grp_FE_SHELL_24",
+            "Grp_FE_SOLID_0",
+            "Grp_FE_SOLID_16",
+            "Grp_FE_SOLID_24",
+            "Grp_FE_SPR_GENE",
+            "Grp_FE_TYPE2",
+            "Grp_FE_TYPE20",
+            "Grp_FE_TYPE3",
+            "all_volume_parts",
+            "beam_group",
+            "degenerated_penta6",
+            "degenerated_pyra5",
+            "degenerated_tetra4",
+            "native_beam",
+            "native_hexa20",
+            "native_hexa8",
+            "native_penta6",
+            "native_quad2d",
+            "native_shel16",
+            "native_shell3",
+            "native_shell4",
+            "native_spring",
+            "native_tetra10",
+            "native_tetra4",
+            "native_tria2d",
+            "native_truss",
+            "node_direct",
+            "node_generated",
+            "node_generated_increment",
+            "node_group_union",
+            "node_nodens",
+            "nodes_from_part",
+            "nodes_from_surface",
+            "point_mass",
+            "quad_group",
+            "sh3n_group",
+            "shell_group",
+            "solid_group",
+            "spring_group",
+            "surface_explicit_segment",
+            "surface_external_hexa",
+            "surface_from_grsh3n",
+            "surface_from_grshel",
+            "surface_from_material",
+            "surface_from_parts",
+            "surface_from_property",
+            "surface_union",
+            "tria_group",
+            "truss_group",
         )
 
         self.assertSequenceEqual(grps, grps_ref)

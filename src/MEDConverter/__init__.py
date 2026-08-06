@@ -26,10 +26,12 @@ from .MEDConverter import (
     ConvertFromINPToMEDFile,
     ConvertFromMailToMEDFile,
     ConvertFromTetgenToMEDFile,
+    ConvertFromRadiossToMEDFile,
     LoadASCFileInMEDFileUMeshInstance,
     LoadCDBFileInMEDFileUMeshInstance,
     LoadGeofFileInMEDFileUMeshInstance,
     LoadINPFileInMEDFileUMeshInstance,
     LoadMailFileInMEDFileUMeshInstance,
     LoadTetgenFileInMEDFileUMeshInstance,
+    LoadRadiossFileInMEDFileUMeshInstance,
 )

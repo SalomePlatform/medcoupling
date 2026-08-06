@@ -27,6 +27,7 @@ from .aster import MEDConverterAster
 from .systus import MEDConverterSystus
 from .tetgen import MEDConverterTetgen
 from .zset import MEDConverterZset
+from .radioss import MEDConverterRadioss
 
 
 # ABAQUS mesh
@@ -119,5 +120,19 @@ def LoadGeofFileInMEDFileUMeshInstance(inputMailFilePath: str, verbose=False):
 
 def ConvertFromGeofToMEDFile(inputMailFilePath: str, outputMedFilePath: str):
     mm = LoadGeofFileInMEDFileUMeshInstance(inputMailFilePath)
+    mm.write(outputMedFilePath, 2)
+    return outputMedFilePath
+
+
+# RADIOSS mesh
+def LoadRadiossFileInMEDFileUMeshInstance(inputMailFilePath: str, verbose=False):
+    """
+    :return: MEDFileUMesh instance representing MED file structure in memory
+    """
+    return MEDConverterRadioss.convert_radioss_to_med(inputMailFilePath, verbose)
+
+
+def ConvertFromRadiossToMEDFile(inputMailFilePath: str, outputMedFilePath: str):
+    mm = LoadRadiossFileInMEDFileUMeshInstance(inputMailFilePath)
     mm.write(outputMedFilePath, 2)
     return outputMedFilePath

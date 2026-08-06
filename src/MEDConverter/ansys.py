@@ -19,477 +19,907 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import time
-import os.path as osp
+"""ANSYS CDB mesh reader for MEDConverter.
+
+Scope
+-----
+This reader intentionally keeps only data required to build a MED mesh:
+
+* nodes and their global coordinates;
+* finite-element type entities and topology-relevant KEYOPT values;
+* element connectivities;
+* node and element components/groups.
+
+Material identifiers, real constants, sections, element coordinate systems,
+section orientations, loads and analysis properties are deliberately ignored.
+
+Supported CDB representations
+-----------------------------
+* classic blocked NBLOCK and EBLOCK;
+* EBLOCK with the COMPACT label, when a current TYPE context is available;
+* ET and ETBLOCK element-type declarations;
+* unblocked N, EN, E and EMORE mesh commands;
+* CMBLOCK components;
+* NSEL, ESEL, CM, CMSEL, CMGRP, CMEDIT, CMDELE and ALLSEL.
+"""
+
 from collections import OrderedDict
+from dataclasses import dataclass, field
+import os.path as osp
+import re
+import time
 
 from .logger import logger
 from .MEDConverterMesh import MEDConverterMesh
 from .cells import CellsTypeConverter
 from .connectivity import ConnectivityRenumberer
 
-# doc: https://www.mm.bme.hu/~gyebro/files/ans_help_v182/ans_cmd/Hlp_C_CM.html
-# doc: http://oss.jishulink.com/caenet/forums/upload/2013/11/25/389/21437609302438.pdf
+
+@dataclass
+class AnsysElementType:
+    entity_id: int
+    ansys_type: int
+    # Only topology-relevant options are retained. At present this is used by
+    # MESH200 KEYOPT(1). No physical/property KEYOPT is preserved.
+    topology_options: dict = field(default_factory=dict)
 
 
+@dataclass
 class AnsysCell:
-    def __init__(
-        self,
-        elem_type=None,
-        elem_id=None,
-        elem_nodes=None,
-        sec_id=None,
-        elem_rep=None,
-        elem_const=None,
-        elem_tension=None,
-    ):
-        self.id = elem_id
-        if elem_nodes != None:
-            self.nodes = elem_nodes
-        else:
-            self.nodes = []
-        self.type = elem_type
-        self.sec = sec_id
-        self.rep = elem_rep
-        self.const = elem_const
-        self.tension = elem_tension
-
-    def __repr__(self):
-        return "<Cell> Id: {0}, Type: {1}, Nodes: {2}".format(
-            self.id, self.type, self.nodes
-        )
-
-    def __str__(self):
-        return "<Cell> Id: {0}, Type: {1}, Nodes: {2}".format(
-            self.id, self.type, self.nodes
-        )
+    id: int
+    type_entity: int
+    nodes: list
 
 
-class AnsysGroup:
-    def __init__(self, name=None, typeg=None, group=None):
-        self.name = name
-        self.type = typeg
-        if group != None:
-            self.elems = group
-        else:
-            self.elems = []
-
-    def __repr__(self):
-        return "<Group> Name: {0}, Instance: {1}, Group: {2}".format(
-            self.name, self.type, self.elems
-        )
-
-    def __str__(self):
-        return "<Group> Name: {0}, Instance: {1}, Group: {2}".format(
-            self.name, self.type, self.elems
-        )
-
-
-class Section:
-    def __init__(self, sec_type, sec_subtype, sec_data=None, option=0, courbure=0.0):
-        self.type = sec_type
-        self.subtype = sec_subtype
-
-    def setData(self, sec_data):
-        self.data = sec_data
-
-
-class Repere:
-    def __init__(self, rep_type):
-        self.type = rep_type
-        self.orig = []
-        self.angle = []
-
-    def getRep(self, coord_nodes):
-        if self.type == "CS":
-            x1 = coord_nodes[self.angle[0]][0] - coord_nodes[self.orig[0]][0]
-            x2 = coord_nodes[self.angle[0]][1] - coord_nodes[self.orig[0]][1]
-            x3 = coord_nodes[self.angle[0]][2] - coord_nodes[self.orig[0]][2]
-            y1 = coord_nodes[self.angle[1]][0] - coord_nodes[self.orig[0]][0]
-            y2 = coord_nodes[self.angle[1]][1] - coord_nodes[self.orig[0]][1]
-            y3 = coord_nodes[self.angle[1]][2] - coord_nodes[self.orig[0]][2]
-            return (x1, x2, x3, y1, y2, y3)
-
-        elif self.type == "LOCAL" or "CLOCAL":
-            return (self.angle[0], self.angle[2], self.angle[1])
+@dataclass
+class AnsysComponent:
+    name: str
+    entity: str
+    ids: list = field(default_factory=list)
+    children: list = field(default_factory=list)
 
 
 class MEDConverterAnsys(MEDConverterMesh):
+    """Convert ANSYS CDB mesh topology and groups to MED."""
+
+    # Number of geometrical nodes for variants carrying one trailing
+    # orientation node. The orientation node itself is intentionally ignored.
+    _SUPPORT_NODE_COUNT = {
+        (16, 3): 2,
+        (18, 3): 2,
+        (188, 3): 2,
+        (288, 3): 2,
+        (189, 4): 3,
+        (289, 4): 3,
+    }
+
     @staticmethod
     def convert_ansys_to_med(filename_ansys, verbose=False):
         tic = time.perf_counter()
-        c = MEDConverterAnsys()
-        c.verbose = verbose
-        c.read_ansys_mesh(filename_ansys)
-        c.create_UMesh()
-        toc = time.perf_counter()
-        logger.debug("Mesh converted (in %0.4f seconds)" % (toc - tic))
-        return c.umesh
+        converter = MEDConverterAnsys()
+        converter.verbose = verbose
+        converter.read_ansys_mesh(filename_ansys)
+        converter.create_UMesh()
+        logger.debug(
+            "Mesh converted (in %0.4f seconds)",
+            time.perf_counter() - tic,
+        )
+        return converter.umesh
 
     def __init__(self):
-        super(MEDConverterAnsys, self).__init__()
+        super().__init__()
         self.ansysmesh = None
+        self._warned = set()
+
+    def _warn_once(self, key, message, *args):
+        if key not in self._warned:
+            logger.warning(message, *args)
+            self._warned.add(key)
+
+    @staticmethod
+    def _split(line):
+        return [field.strip() for field in line.strip().split(",")]
+
+    @staticmethod
+    def _to_int(value, default=None):
+        value = value.strip()
+        if not value:
+            return default
+        return int(float(value))
+
+    @staticmethod
+    def _fortran_float(value):
+        value = value.strip().replace("D", "E").replace("d", "e")
+        return float(value) if value else 0.0
+
+    @staticmethod
+    def _fixed_ints(line, width):
+        raw = line.rstrip("\r\n")
+        values = []
+        for start in range(0, len(raw), width):
+            token = raw[start : start + width].strip()
+            if token:
+                values.append(int(token))
+        return values
+
+    @staticmethod
+    def _parse_int_format(line):
+        match = re.search(r"(\d+)\s*[iI]\s*(\d+)", line)
+        if not match:
+            raise RuntimeError("Unsupported ANSYS integer format: %s" % line.strip())
+        return int(match.group(1)), int(match.group(2))
+
+    @staticmethod
+    def _parse_node_format(line):
+        integer = re.search(r"(\d+)\s*[iI]\s*(\d+)", line)
+        real = re.search(r"(?:\d+\s*)?[eE]\s*(\d+)\.", line)
+        if not integer or not real:
+            raise RuntimeError("Unsupported ANSYS node format: %s" % line.strip())
+        first_real = int(integer.group(1)) * int(integer.group(2))
+        return first_real, int(real.group(1))
+
+    @staticmethod
+    def _node_coordinates(line, first_real, real_width):
+        raw = line.rstrip("\r\n")
+        return tuple(
+            MEDConverterAnsys._fortran_float(
+                raw[
+                    first_real
+                    + index * real_width : first_real
+                    + (index + 1) * real_width
+                ]
+            )
+            for index in range(3)
+        )
+
+    @staticmethod
+    def _clean_group_name(name):
+        return name.strip()
+
+    def _read_nblock(self, stream, nodes):
+        first_real = real_width = None
+        while True:
+            line = stream.readline()
+            if not line:
+                raise RuntimeError("Unexpected end of file inside ANSYS NBLOCK")
+            stripped = line.lstrip()
+            upper = stripped.upper()
+            if stripped.startswith("("):
+                first_real, real_width = self._parse_node_format(stripped)
+                continue
+            if stripped.startswith("-1") or upper.startswith("N,"):
+                return
+            if not stripped.strip() or stripped.startswith("!"):
+                continue
+            if first_real is None:
+                raise RuntimeError("ANSYS NBLOCK data precedes its format line")
+            node_id = int(stripped.split(None, 1)[0])
+            if node_id in nodes:
+                raise RuntimeError("Duplicate ANSYS node %s" % node_id)
+            nodes[node_id] = self._node_coordinates(line, first_real, real_width)
+
+    def _append_cell(self, cells, cell_ids, element_id, type_entity, nodes):
+        if element_id in cell_ids:
+            raise RuntimeError("Duplicate ANSYS element %s" % element_id)
+        if type_entity is None:
+            raise RuntimeError(
+                "ANSYS element %s has no element TYPE context" % element_id
+            )
+        if not nodes:
+            raise RuntimeError(
+                "ANSYS element %s has an empty connectivity" % element_id
+            )
+        cells.append(AnsysCell(element_id, type_entity, list(nodes)))
+        cell_ids.add(element_id)
+
+    def _read_classic_eblock(self, stream, cells, cell_ids):
+        fields_per_line = integer_width = None
+        pending = None
+        while True:
+            line = stream.readline()
+            if not line:
+                raise RuntimeError("Unexpected end of file inside ANSYS EBLOCK")
+            stripped = line.lstrip()
+            if stripped.startswith("("):
+                fields_per_line, integer_width = self._parse_int_format(stripped)
+                continue
+            if stripped.startswith("-1"):
+                if pending is not None:
+                    raise RuntimeError(
+                        "Incomplete ANSYS element %s at end of EBLOCK" % pending["id"]
+                    )
+                return
+            if not stripped.strip() or stripped.startswith("!"):
+                continue
+            if integer_width is None:
+                raise RuntimeError("ANSYS EBLOCK data precedes its format line")
+            values = self._fixed_ints(line, integer_width)
+            if fields_per_line is not None and len(values) > fields_per_line:
+                raise RuntimeError("Too many fields in ANSYS EBLOCK record")
+
+            if pending is None:
+                if len(values) < 11:
+                    raise RuntimeError("Invalid classic ANSYS EBLOCK record")
+                pending = {
+                    "type": values[1],
+                    "count": values[8],
+                    "id": values[10],
+                    "nodes": list(values[11:]),
+                }
+            else:
+                pending["nodes"].extend(values)
+
+            if len(pending["nodes"]) > pending["count"]:
+                raise RuntimeError(
+                    "ANSYS element %s has too many node entries" % pending["id"]
+                )
+            if len(pending["nodes"]) == pending["count"]:
+                self._append_cell(
+                    cells,
+                    cell_ids,
+                    pending["id"],
+                    pending["type"],
+                    pending["nodes"],
+                )
+                pending = None
+
+    def _read_compact_eblock(self, stream, cells, cell_ids, current_type_entity):
+        """Read EBLOCK,COMPACT records.
+
+        A compact record contains the element identifier followed by node
+        identifiers. Because it does not carry the classic attribute header,
+        a current TYPE command must identify the element-type entity.
+        """
+        integer_width = None
+        while True:
+            line = stream.readline()
+            if not line:
+                raise RuntimeError("Unexpected end of file inside compact ANSYS EBLOCK")
+            stripped = line.lstrip()
+            if stripped.startswith("("):
+                _, integer_width = self._parse_int_format(stripped)
+                continue
+            if stripped.startswith("-1"):
+                return
+            if not stripped.strip() or stripped.startswith("!"):
+                continue
+            if integer_width is None:
+                # Accept whitespace-separated compact records as well.
+                values = [int(value) for value in stripped.split()]
+            else:
+                values = self._fixed_ints(line, integer_width)
+            if len(values) < 2:
+                raise RuntimeError("Invalid compact ANSYS EBLOCK record")
+            self._append_cell(
+                cells, cell_ids, values[0], current_type_entity, values[1:]
+            )
+
+    def _read_etblock(self, stream, element_types):
+        """Read modern ETBLOCK records including embedded KEYOPT values."""
+        integer_width = None
+        character_fields = 0
+        character_width = None
+        while True:
+            line = stream.readline()
+            if not line:
+                raise RuntimeError("Unexpected end of file inside ETBLOCK")
+            stripped = line.lstrip()
+            if stripped.startswith("("):
+                integer_match = re.search(r"(\d+)\s*[iI]\s*(\d+)", stripped)
+                char_match = re.search(r"(\d+)\s*[aA]\s*(\d+)", stripped)
+                if not integer_match:
+                    raise RuntimeError(
+                        "Unsupported ANSYS ETBLOCK format: %s" % stripped.strip()
+                    )
+                integer_width = int(integer_match.group(2))
+                if char_match:
+                    character_fields = int(char_match.group(1))
+                    character_width = int(char_match.group(2))
+                continue
+            if stripped.startswith("-1"):
+                return
+            if not stripped.strip() or stripped.startswith("!"):
+                continue
+            if integer_width is None:
+                raise RuntimeError("ANSYS ETBLOCK data precedes its format line")
+
+            raw = line.rstrip("\r\n")
+            entity_id = int(raw[0:integer_width])
+            ansys_type = int(raw[integer_width : 2 * integer_width])
+            descriptor = AnsysElementType(entity_id, ansys_type)
+
+            # In the common (2i9,19a9) representation, each A-field contains
+            # a numeric KEYOPT value. Only KEYOPT(1) is retained, because it
+            # determines the MESH200 topology. Other properties are ignored.
+            if character_fields and character_width:
+                offset = 2 * integer_width
+                options = []
+                for index in range(character_fields):
+                    token = raw[
+                        offset
+                        + index * character_width : offset
+                        + (index + 1) * character_width
+                    ].strip()
+                    if token:
+                        try:
+                            options.append(int(float(token)))
+                        except ValueError:
+                            options.append(0)
+                    else:
+                        options.append(0)
+                if options:
+                    descriptor.topology_options[1] = options[0]
+            element_types[entity_id] = descriptor
+
+    def _read_cmblock(self, stream, command):
+        fields = self._split(command)
+        if len(fields) < 4:
+            raise RuntimeError("Invalid ANSYS CMBLOCK command")
+        name = fields[1]
+        entity = fields[2].upper()
+
+        # The declared CMBLOCK count is the number of encoded integer
+        # fields, not the number of identifiers obtained after expanding
+        # negative range terminators. Example: 42302, -42316 contains two
+        # encoded fields but represents identifiers 42302 through 42316.
+        expected_encoded = int(fields[3].split()[0])
+        width = None
+        encoded_values = []
+
+        while len(encoded_values) < expected_encoded:
+            line = stream.readline()
+            if not line:
+                raise RuntimeError("Unexpected end of file inside CMBLOCK")
+            stripped = line.lstrip()
+            if stripped.startswith("("):
+                _, width = self._parse_int_format(stripped)
+                continue
+            if not stripped.strip() or stripped.startswith("!"):
+                continue
+            if width is None:
+                raise RuntimeError("ANSYS CMBLOCK data precedes its format line")
+
+            encoded_values.extend(self._fixed_ints(line, width))
+            if len(encoded_values) > expected_encoded:
+                raise RuntimeError(
+                    "Too many encoded entries in ANSYS component %s" % name
+                )
+
+        values = []
+        for encoded in encoded_values:
+            if encoded >= 0:
+                values.append(encoded)
+                continue
+
+            if not values:
+                raise RuntimeError(
+                    "Invalid compressed ANSYS component %s: "
+                    "negative range terminator appears first" % name
+                )
+
+            previous = values[-1]
+            range_end = -encoded
+            if range_end < previous:
+                raise RuntimeError(
+                    "Invalid compressed ANSYS component %s: "
+                    "decreasing range %s to %s" % (name, previous, range_end)
+                )
+            values.extend(range(previous + 1, range_end + 1))
+
+        return AnsysComponent(name, entity, values)
+
+    @staticmethod
+    def _selection_range(fields):
+        first = MEDConverterAnsys._to_int(fields[4], None) if len(fields) > 4 else None
+        last = MEDConverterAnsys._to_int(fields[5], first) if len(fields) > 5 else first
+        step = MEDConverterAnsys._to_int(fields[6], 1) if len(fields) > 6 else 1
+        if step is None or step <= 0:
+            raise RuntimeError("Selection increment must be positive")
+        return first, last, step
+
+    def _apply_id_selection(self, fields, universe, selected):
+        operation = fields[1].upper() if len(fields) > 1 and fields[1] else "S"
+        if operation == "ALL":
+            return set(universe)
+        if operation == "NONE":
+            return set()
+        if operation == "INVE":
+            return set(universe) - selected
+        if operation == "STAT":
+            return selected
+        if operation not in {"S", "R", "A", "U"}:
+            self._warn_once(
+                ("SELECT_OPERATION", operation),
+                "Unsupported ANSYS selection operation ignored: %s",
+                operation,
+            )
+            return selected
+        first, last, step = self._selection_range(fields)
+        if first is None:
+            return selected
+        matches = set(range(first, last + 1, step)) & set(universe)
+        if operation == "S":
+            return matches
+        if operation == "R":
+            return selected & matches
+        if operation == "A":
+            return selected | matches
+        return selected - matches
+
+    def _apply_nsel(self, fields, nodes, selected):
+        item = fields[2].upper() if len(fields) > 2 and fields[2] else "NODE"
+        if item in {"NODE", ""}:
+            return self._apply_id_selection(fields, nodes.keys(), selected)
+        if item == "LOC":
+            operation = fields[1].upper() if len(fields) > 1 else "S"
+            axis = fields[3].upper() if len(fields) > 3 else ""
+            axis_index = {"X": 0, "Y": 1, "Z": 2}.get(axis)
+            if axis_index is None:
+                self._warn_once(
+                    ("NSEL_AXIS", axis),
+                    "Unsupported ANSYS NSEL LOC axis ignored: %s",
+                    axis,
+                )
+                return selected
+            first, last, _ = self._selection_range(fields)
+            if first is None:
+                return selected
+            lower, upper = sorted((float(first), float(last)))
+            tolerance = max(1.0, abs(lower), abs(upper)) * 1.0e-12
+            matches = {
+                node_id
+                for node_id, coordinates in nodes.items()
+                if lower - tolerance <= coordinates[axis_index] <= upper + tolerance
+            }
+            if operation == "S":
+                return matches
+            if operation == "R":
+                return selected & matches
+            if operation == "A":
+                return selected | matches
+            if operation == "U":
+                return selected - matches
+            if operation == "ALL":
+                return set(nodes)
+            if operation == "NONE":
+                return set()
+            if operation == "INVE":
+                return set(nodes) - selected
+            return selected
+        self._warn_once(
+            ("NSEL_ITEM", item),
+            "Unsupported ANSYS NSEL item ignored: %s",
+            item,
+        )
+        return selected
+
+    def _apply_esel(self, fields, cells, selected):
+        item = fields[2].upper() if len(fields) > 2 and fields[2] else "ELEM"
+        if item in {"ELEM", ""}:
+            return self._apply_id_selection(
+                fields, (cell.id for cell in cells), selected
+            )
+        if item == "TYPE":
+            operation = fields[1].upper() if len(fields) > 1 else "S"
+            first, last, step = self._selection_range(fields)
+            if first is None:
+                return selected
+            wanted = set(range(first, last + 1, step))
+            matches = {cell.id for cell in cells if cell.type_entity in wanted}
+            if operation == "S":
+                return matches
+            if operation == "R":
+                return selected & matches
+            if operation == "A":
+                return selected | matches
+            if operation == "U":
+                return selected - matches
+            if operation == "ALL":
+                return {cell.id for cell in cells}
+            if operation == "NONE":
+                return set()
+            if operation == "INVE":
+                return {cell.id for cell in cells} - selected
+            return selected
+        self._warn_once(
+            ("ESEL_ITEM", item),
+            "Unsupported ANSYS ESEL item ignored because properties are not read: %s",
+            item,
+        )
+        return selected
+
+    @staticmethod
+    def _component_ids(component, components, entity, visited=None):
+        if component is None:
+            return set()
+        if visited is None:
+            visited = set()
+        key = component.name.upper()
+        if key in visited:
+            raise RuntimeError(
+                "Cyclic ANSYS component assembly detected at %s" % component.name
+            )
+        visited = set(visited)
+        visited.add(key)
+        if component.entity == entity:
+            return set(component.ids)
+        if component.entity != "GROUP":
+            return set()
+        result = set()
+        for child_name in component.children:
+            child = components.get(child_name.upper())
+            result.update(
+                MEDConverterAnsys._component_ids(child, components, entity, visited)
+            )
+        return result
+
+    def _apply_cmsel(self, fields, components, selected_nodes, selected_elements):
+        operation = fields[1].upper() if len(fields) > 1 and fields[1] else "S"
+        name = fields[2].upper() if len(fields) > 2 else ""
+        component = components.get(name)
+        if component is None:
+            self._warn_once(
+                ("CMSEL_UNKNOWN", name),
+                "Unknown ANSYS component in CMSEL ignored: %s",
+                name,
+            )
+            return selected_nodes, selected_elements
+
+        node_ids = self._component_ids(component, components, "NODE")
+        element_ids = self._component_ids(component, components, "ELEM")
+
+        def apply(current, values):
+            if operation == "S":
+                return set(values)
+            if operation == "A":
+                return current | values
+            if operation == "R":
+                return current & values
+            if operation == "U":
+                return current - values
+            return current
+
+        return apply(selected_nodes, node_ids), apply(selected_elements, element_ids)
+
+    def _support_nodes(self, ansys_type, raw_nodes):
+        count = self._SUPPORT_NODE_COUNT.get(
+            (ansys_type, len(raw_nodes)), len(raw_nodes)
+        )
+        # Repeated positions encode degenerate solid/shell topologies.
+        return list(dict.fromkeys(raw_nodes[:count]))
+
+    @staticmethod
+    def _topology_key(descriptor, support_nodes):
+        if descriptor.ansys_type == 200:
+            option = descriptor.topology_options.get(1)
+            if option is None:
+                raise RuntimeError(
+                    "MESH200 type entity %s has no topology KEYOPT(1)"
+                    % descriptor.entity_id
+                )
+            return "200_%s_%s" % (len(support_nodes), option)
+        return "%s_%s" % (descriptor.ansys_type, len(support_nodes))
 
     def read_ansys_mesh(self, filename):
-        logger.debug("Read ANSYS mesh.")
-
         self._reset_structures()
-        Cells, Groups, title = [], [], None
-        (nb_total_cells, last_idx_sec) = (0, 0)
-        time_nodes, time_cell, time_groups = (0.0, 0.0, 0.0)
-        Esel = []
-        ElemEntities = {}
-        ElemAnsys = {}
-        ElemOpt = {}
-        Sect = {}
-        nodes = {}
-        GROUPSMODELE = {}
-        CMELEM = {}
+        self.space_dim = 3
+        self.mesh_name = osp.splitext(osp.basename(filename))[0]
 
-        tic = time.perf_counter()
-        # Lecture du fichier .cdb où les blocs sont separés par des BEGIN_* et END_*
-        with open(filename, "r", encoding=self._get_file_encoding(filename)) as file:
-            for line in file:
-                strip_line = line.strip().upper()
+        nodes = OrderedDict()
+        cells = []
+        cell_ids = set()
+        element_types = {}
+        components = OrderedDict()
+        selected_nodes = set()
+        selected_elements = set()
+        current_type_entity = None
+        pending_unblocked = None
+        declared_cells = 0
+        classic_cells_read = 0
 
-                if strip_line.startswith("NBLOCK"):
-                    tic0 = time.perf_counter()
-                    nline = line.split(",")
-                    dim = int(nline[1])
-                    if dim == 6:
-                        self.space_dim = 3
-                    else:
-                        self.space_dim = dim
-                    nodes = self.__read_nodes(file, nodes)
-                    toc0 = time.perf_counter()
-                    time_nodes += toc0 - tic0
-                elif strip_line.startswith("EBLOCK"):
-                    tic0 = time.perf_counter()
-                    nb_total_cells += int(line.split(",")[4])
-                    self.__read_cells(file, Cells)
-                    toc0 = time.perf_counter()
-                    time_cell += toc0 - tic0
-                elif strip_line.startswith("CMBLOCK"):
-                    tic0 = time.perf_counter()
-                    self.__read_groups(file, line, Groups)
-                    toc0 = time.perf_counter()
-                    time_groups += toc0 - tic0
-                elif strip_line.startswith("ET,"):
-                    sspline = strip_line.split(",")
-                    ElemAnsys[int(sspline[1])] = int(sspline[2])
-                elif strip_line.startswith("ETBLOCK"):
-                    ElemAnsys = self.__read_elem(file, ElemAnsys)
-                elif strip_line.startswith("ESEL,"):
-                    sspline = strip_line.split(",")
-                    assert sspline[1] in ("S", "ALL", "A")
-                    if sspline[1] in ("S", "ALL"):
-                        Esel = []
+        with open(filename, "r", encoding=self._get_file_encoding(filename)) as stream:
+            for line in stream:
+                stripped = line.strip()
+                upper = stripped.upper()
+                if not stripped or stripped.startswith("!"):
+                    continue
 
-                    if sspline[1] in ("S", "A") and sspline[2] == "TYPE":
-                        if len(sspline) == 6:
-                            for i in range(int(sspline[4]), int(sspline[5]) + 1):
-                                Esel.append(i)
-                        else:
-                            Esel.append(int(sspline[4]))
-                elif strip_line.startswith("CM,"):
-                    sspline = strip_line.split(",")
-                    cname = sspline[1]
-                    entity = sspline[2]
-                    if entity == "ELEM":
-                        CMELEM[cname] = Esel
-                elif strip_line.startswith("KEYOP"):
-                    sspline = strip_line.split(",")
-                    ElemOpt[int(sspline[1])] = [int(sspline[2]), int(sspline[3])]
-                elif strip_line.startswith("SECTYPE"):
-                    sspline = strip_line.split(",")
-                    Sect[int(sspline[1])] = Section(sspline[2], sspline[3].strip())
-                    last_idx_sec = int(sspline[1])
-                elif strip_line.startswith("SECDATA"):
-                    sspline = strip_line.split(",")
-                    if sspline[-1] == "":
-                        sspline.pop(-1)
-                    data = [float(i) for i in sspline[1:]]
-                    Sect[last_idx_sec].setData(data)
-                elif strip_line.startswith("SECBLOCK"):
-                    sspline = strip_line.split(",")
-                    for i in range(int(sspline[1])):
-                        nextLine = next(file)
-                        next_strip = nextLine.strip()
-                        snext = next_strip.split(",")
-                        data = [float(i) for i in snext[0:-1]]
-                        Sect[last_idx_sec].setData(data)
-                        line = nextLine
-                elif strip_line.startswith("SECCONTROL"):
-                    sspline = strip_line.split(",")
-                    if len(sspline) > 2:
-                        tmp = float(sspline[2].strip())
-                        Sect[last_idx_sec].option = int(tmp)
-                elif strip_line.startswith("ESYS"):
-                    sspline = strip_line.split(",")
-                elif "/TITLE" in line:
-                    # Gestion du titre
-                    title = line.split(",")[1].strip().replace("\n", "")
-
-        # assert nb_total_nodes == len(self.nodes)
-        assert nb_total_cells == len(Cells)
-        # Réupération du nom du maillage
-        self.mesh_name = title or osp.splitext(osp.split(filename)[-1])[0]
-
-        toc = time.perf_counter()
-        logger.debug(
-            " File name : %s (parsed in %0.4f seconds)" % (filename, toc - tic)
-        )
-        logger.debug(
-            " -> nodes: %d (parsed in %0.4f seconds)" % (len(self.nodes), time_nodes)
-        )
-        logger.debug(
-            " -> cells: %d (parsed in %0.4f seconds)" % (nb_total_cells, time_cell)
-        )
-        logger.debug(
-            " -> groups: %d (parsed in %0.4f seconds)"
-            % (len(Groups) + len(CMELEM), time_groups)
-        )
-
-        logger.debug(" Mesh name : %s" % self.mesh_name)
-        logger.debug(" Space Dimension : %d" % self.space_dim)
-        logger.debug(" Number of nodes : %d" % (len(self.nodes)))
-
-        # Les elements
-        tic = time.perf_counter()
-        e_conv = CellsTypeConverter("ANSYS")
-        c_renum = ConnectivityRenumberer("ANSYS")
-        for cell in Cells:
-            if cell.type not in ElemEntities:
-                ElemEntities[cell.type] = []
-            ElemEntities[cell.type].append(cell.id)
-            element_ansys_type = ElemAnsys[cell.type]
-            # some trick for few cells (remove last node)
-            element_ansys_test = str(element_ansys_type) + "_" + str(len(cell.nodes))
-            if element_ansys_test in (
-                "16_3",
-                "18_3",
-                "188_3",
-                "189_4",
-                "288_3",
-                "289_4",
-            ):
-                nb_nodes = len(cell.nodes) - 1
-                # logger.debug("Présence de noeuds orphelins")
-            else:
-                nb_nodes = len(cell.nodes)
-
-            if "189" in element_ansys_test:
-                nb_nodes = nb_nodes - 1
-                logger.debug(
-                    "Présence de BEAM189 : Passage d'une maille support SEG3 à SEG2"
-                )
-                del cell.nodes[2]
-
-            elements_nodes_ansys = list(OrderedDict.fromkeys(cell.nodes[:nb_nodes]))
-
-            if element_ansys_type == 200:
-                element_ansys_type = "_".join(
-                    map(
-                        str,
-                        (
-                            element_ansys_type,
-                            len(elements_nodes_ansys),
-                            ElemOpt[cell.type][1],
-                        ),
+                # E starts an unblocked element and EMORE extends it. Any
+                # other command closes the pending element before that command
+                # is interpreted, so selections/components can see it.
+                if pending_unblocked is not None and not upper.startswith("EMORE,"):
+                    self._append_cell(
+                        cells,
+                        cell_ids,
+                        pending_unblocked[0],
+                        pending_unblocked[1],
+                        pending_unblocked[2],
                     )
-                )
-            else:
-                element_ansys_type = "_".join(
-                    map(str, (element_ansys_type, len(elements_nodes_ansys)))
-                )
+                    pending_unblocked = None
 
-            element_medcoupling_type = e_conv.external_to_medcoupling(
-                element_ansys_type
+                if upper.startswith("/TITLE"):
+                    fields = self._split(line)
+                    if len(fields) > 1 and fields[1]:
+                        self.mesh_name = fields[1]
+                elif upper.startswith("NBLOCK"):
+                    self._read_nblock(stream, nodes)
+                elif upper.startswith("EBLOCK"):
+                    fields = self._split(line)
+                    if "COMPACT" in upper:
+                        self._read_compact_eblock(
+                            stream, cells, cell_ids, current_type_entity
+                        )
+                    else:
+                        if len(fields) <= 4 or not fields[4]:
+                            raise RuntimeError(
+                                "Invalid classic ANSYS EBLOCK header: %s" % stripped
+                            )
+                        declared_cells += int(fields[4])
+                        before = len(cells)
+                        self._read_classic_eblock(stream, cells, cell_ids)
+                        classic_cells_read += len(cells) - before
+                elif upper.startswith("ETBLOCK"):
+                    self._read_etblock(stream, element_types)
+                elif upper.startswith("ET,"):
+                    fields = self._split(line)
+                    entity_id = int(fields[1])
+                    element_types[entity_id] = AnsysElementType(
+                        entity_id, int(fields[2])
+                    )
+                elif upper.startswith("KEYOP"):
+                    fields = self._split(line)
+                    if len(fields) >= 4:
+                        entity_id = int(fields[1])
+                        option_id = int(fields[2])
+                        value = int(float(fields[3]))
+                        # Only MESH200 KEYOPT(1) influences topology.
+                        if option_id == 1:
+                            descriptor = element_types.get(entity_id)
+                            if descriptor is None:
+                                descriptor = AnsysElementType(entity_id, 200)
+                                element_types[entity_id] = descriptor
+                            descriptor.topology_options[1] = value
+                elif upper.startswith("TYPE,"):
+                    fields = self._split(line)
+                    current_type_entity = int(fields[1])
+                elif upper.startswith("N,"):
+                    fields = self._split(line)
+
+                    # Classic NBLOCK exports may be followed by one or more
+                    # control records such as:
+                    #   N,UNBL,LOC,-1
+                    #   N,R5.1,LOC,-1
+                    # They are not unblocked node definitions. An actual
+                    # unblocked N command has a numeric node identifier in
+                    # its second field.
+                    try:
+                        node_id = int(fields[1])
+                    except (IndexError, ValueError):
+                        continue
+
+                    coords = tuple(
+                        (
+                            self._fortran_float(fields[index])
+                            if index < len(fields)
+                            else 0.0
+                        )
+                        for index in range(2, 5)
+                    )
+                    if node_id in nodes:
+                        raise RuntimeError("Duplicate ANSYS node %s" % node_id)
+                    nodes[node_id] = coords
+                elif upper.startswith("EN,"):
+                    fields = self._split(line)
+
+                    # Un EBLOCK classique peut être suivi de :
+                    #
+                    # EN,UNBL,ATTR,-1
+                    #
+                    # Ce n'est pas une définition d'élément.
+                    try:
+                        element_id = int(fields[1])
+                    except (IndexError, ValueError):
+                        continue
+
+                    connectivity = []
+
+                    for value in fields[2:]:
+                        if not value:
+                            continue
+
+                    try:
+                        connectivity.append(int(value))
+                    except ValueError as exc:
+                        raise RuntimeError(
+                            "Invalid ANSYS EN connectivity "
+                            "for element %s: %s"
+                            % (
+                                element_id,
+                                value,
+                            )
+                        ) from exc
+
+                    self._append_cell(
+                        cells,
+                        cell_ids,
+                        element_id,
+                        current_type_entity,
+                        connectivity,
+                    )
+                elif upper.startswith("E,"):
+                    fields = self._split(line)
+                    node_values = [int(value) for value in fields[1:] if value]
+                    if not node_values:
+                        raise RuntimeError("Invalid ANSYS E command")
+                    next_id = max(cell_ids, default=0) + 1
+                    pending_unblocked = [next_id, current_type_entity, node_values]
+                elif upper.startswith("EMORE,"):
+                    if pending_unblocked is None:
+                        raise RuntimeError("ANSYS EMORE without preceding E")
+                    fields = self._split(line)
+                    pending_unblocked[2].extend(
+                        int(value) for value in fields[1:] if value
+                    )
+                elif upper.startswith("CMBLOCK"):
+                    component = self._read_cmblock(stream, line)
+                    components[component.name.upper()] = component
+                elif upper.startswith("NSEL,"):
+                    selected_nodes = self._apply_nsel(
+                        self._split(line), nodes, selected_nodes
+                    )
+                elif upper.startswith("ESEL,"):
+                    selected_elements = self._apply_esel(
+                        self._split(line), cells, selected_elements
+                    )
+                elif upper.startswith("ALLSEL"):
+                    selected_nodes = set(nodes)
+                    selected_elements = {cell.id for cell in cells}
+                elif upper.startswith("CM,"):
+                    fields = self._split(line)
+                    if len(fields) >= 3:
+                        name, entity = fields[1], fields[2].upper()
+                        if entity == "NODE":
+                            ids = sorted(selected_nodes)
+                        elif entity == "ELEM":
+                            ids = sorted(selected_elements)
+                        else:
+                            self._warn_once(
+                                ("CM_ENTITY", entity),
+                                "Unsupported ANSYS CM entity ignored: %s",
+                                entity,
+                            )
+                            continue
+                        components[name.upper()] = AnsysComponent(name, entity, ids)
+                elif upper.startswith("CMSEL,"):
+                    selected_nodes, selected_elements = self._apply_cmsel(
+                        self._split(line),
+                        components,
+                        selected_nodes,
+                        selected_elements,
+                    )
+                elif upper.startswith("CMGRP,"):
+                    fields = self._split(line)
+                    if len(fields) >= 3:
+                        name = fields[1]
+                        children = [value.upper() for value in fields[2:] if value]
+                        components[name.upper()] = AnsysComponent(
+                            name, "GROUP", children=children
+                        )
+                elif upper.startswith("CMEDIT,"):
+                    fields = self._split(line)
+                    if len(fields) >= 4:
+                        name = fields[1].upper()
+                        operation = fields[2].upper()
+                        children = [value.upper() for value in fields[3:] if value]
+                        component = components.get(name)
+                        if component is None or component.entity != "GROUP":
+                            self._warn_once(
+                                ("CMEDIT_UNKNOWN", name),
+                                "Unknown ANSYS component assembly ignored: %s",
+                                name,
+                            )
+                        elif operation in {"ADD", "A"}:
+                            component.children.extend(
+                                child
+                                for child in children
+                                if child not in component.children
+                            )
+                        elif operation in {"DELE", "DELETE", "D"}:
+                            component.children = [
+                                child
+                                for child in component.children
+                                if child not in children
+                            ]
+                        else:
+                            self._warn_once(
+                                ("CMEDIT_OPERATION", operation),
+                                "Unsupported ANSYS CMEDIT operation ignored: %s",
+                                operation,
+                            )
+                elif upper.startswith("CMDELE,"):
+                    fields = self._split(line)
+                    if len(fields) > 1:
+                        components.pop(fields[1].upper(), None)
+
+        if pending_unblocked is not None:
+            self._append_cell(
+                cells,
+                cell_ids,
+                pending_unblocked[0],
+                pending_unblocked[1],
+                pending_unblocked[2],
             )
-            element_nodes_med = c_renum.external_to_medcoupling(
-                element_medcoupling_type, elements_nodes_ansys
+        if declared_cells and declared_cells != classic_cells_read:
+            raise RuntimeError(
+                "Classic ANSYS EBLOCK declared %d elements, but %d classic "
+                "elements were read" % (declared_cells, classic_cells_read)
             )
 
-            # add group
-            element_group = element_ansys_type.split("_")[0]
-            if element_group in GROUPSMODELE:
-                GROUPSMODELE[element_group].append(cell.id)
-            else:
-                GROUPSMODELE[element_group] = [cell.id]
+        for node_id, coordinates in nodes.items():
+            self.add_node(node_id, coordinates)
 
-            self.add_cell(cell.id, element_medcoupling_type, element_nodes_med)
+        type_converter = CellsTypeConverter("ANSYS")
+        connectivity_converter = ConnectivityRenumberer("ANSYS")
+        groups_by_type = OrderedDict()
 
-        toc = time.perf_counter()
-        logger.debug(" Load %d cells (in %0.4f seconds)" % (len(Cells), toc - tic))
+        for cell in cells:
+            descriptor = element_types.get(cell.type_entity)
+            if descriptor is None:
+                raise RuntimeError(
+                    "ANSYS element %s references undefined type entity %s"
+                    % (cell.id, cell.type_entity)
+                )
+            support_nodes = self._support_nodes(descriptor.ansys_type, cell.nodes)
+            missing = [node for node in support_nodes if node not in nodes]
+            if missing:
+                raise RuntimeError(
+                    "ANSYS element %s references missing nodes %s" % (cell.id, missing)
+                )
+            topology_key = self._topology_key(descriptor, support_nodes)
+            try:
+                med_type = type_converter.external_to_medcoupling(topology_key)
+            except (KeyError, RuntimeError) as exc:
+                raise RuntimeError(
+                    "Unsupported ANSYS element topology %s for element %s"
+                    % (topology_key, cell.id)
+                ) from exc
+            med_nodes = connectivity_converter.external_to_medcoupling(
+                med_type, support_nodes
+            )
+            self.add_cell(cell.id, med_type, med_nodes)
+            groups_by_type.setdefault(str(descriptor.ansys_type), []).append(cell.id)
 
-        # Les groups
-        tic = time.perf_counter()
-        for group in Groups:
-            values = []
-            for elem in group.elems:
-                if elem > 0:
-                    values.append(elem)
-                else:
-                    values += range(values[-1] + 1, (-elem) + 1)
+        # Flatten component assemblies by entity type for MED groups.
+        materialized = list(components.values())
+        for component in materialized:
+            if component.entity == "GROUP":
+                node_ids = sorted(self._component_ids(component, components, "NODE"))
+                element_ids = sorted(self._component_ids(component, components, "ELEM"))
+                if node_ids:
+                    self.add_group_nodes(component.name, node_ids)
+                if element_ids:
+                    self.add_group_cells(component.name, element_ids)
+                continue
 
-            if group.type == "NODE":
-                self.add_group_nodes(group.name.strip(), values)
-            elif group.type == "ELEM":
-                self.add_group_cells(group.name.strip(), values)
-            else:
-                raise RuntimeError("Unknown group's type")
+            ids = list(dict.fromkeys(component.ids))
+            if component.entity == "NODE":
+                missing = [value for value in ids if value not in nodes]
+                if missing:
+                    raise RuntimeError(
+                        "ANSYS node component %s references missing nodes %s"
+                        % (component.name, missing[:10])
+                    )
+                if ids:
+                    self.add_group_nodes(component.name, ids)
+            elif component.entity == "ELEM":
+                missing = [value for value in ids if value not in cell_ids]
+                if missing:
+                    raise RuntimeError(
+                        "ANSYS element component %s references missing elements %s"
+                        % (component.name, missing[:10])
+                    )
+                if ids:
+                    self.add_group_cells(component.name, ids)
 
-        # CMELEM
-        for name, elem in CMELEM.items():
-            values = []
-            for ent in elem:
-                values += ElemEntities[ent]
-
-            self.add_group_cells(name.strip(), values)
-
-        for group in GROUPSMODELE:
-            rname = "Grp_FE_" + group.replace("-", "_").strip()
-            self.add_group_cells(rname, GROUPSMODELE[group])
-
-        toc = time.perf_counter()
-        logger.debug(
-            " Load %d groups (in %0.4f seconds)"
-            % (len(Groups) + len(CMELEM), toc - tic)
-        )
-
-    def getCoor(self, line, firstStr, longFloat):
-        # le premier decimal commence a la colonne firstStrg
-        rline = line.rstrip()[firstStr:]
-        elems = [
-            float(rline[i : i + longFloat]) for i in range(0, len(rline), longFloat)
-        ]
-
-        nbElem = len(elems)
-
-        if nbElem >= 3:
-            return elems[0:3]
-        else:
-            return elems + [0.0] * (3 - nbElem)
-
-    def __read_elem(self, file, elem):
-        while True:
-            line = file.readline()
-            strip_line = line.strip()
-            if strip_line.startswith("("):
-                [nbElem, LongInt] = self.elem_format(strip_line)
-            elif strip_line.startswith("-1"):
-                break
-            else:
-                rline = line.rstrip()
-                enum = [
-                    int(rline[i : i + LongInt]) for i in range(0, len(rline), LongInt)
-                ]
-                assert len(enum) <= nbElem
-                elem_id = enum[0]
-                elem_type = enum[1]
-                if elem_id in elem:
-                    assert elem[elem_id] == elem_type
-                else:
-                    elem[elem_id] = elem_type
-        return elem
-
-    def __read_nodes(self, file, nodes):
-        while True:
-            line = file.readline()
-            strip_line = line.strip()
-            if strip_line.startswith("("):
-                [firstStr, LongFloat] = self.node_format(strip_line)
-            elif strip_line.startswith("N,") or strip_line.startswith("-1"):
-                break
-            else:
-                spline = strip_line.split()
-                self.add_node(int(spline[0]), self.getCoor(line, firstStr, LongFloat))
-                nodes[int(spline[0])] = self.getCoor(line, firstStr, LongFloat)
-        return nodes
-
-    def __read_cells(self, file, Cells):
-        l_new_cell = True
-        while True:
-            line = file.readline()
-            rline = line.rstrip()
-            strip_line = rline.lstrip()
-            if strip_line.startswith("("):
-                nbElem, LongInt = self.cell_format(strip_line)
-            elif strip_line.startswith("-1"):
-                break
-            else:
-                enum = [
-                    int(rline[i : i + LongInt]) for i in range(0, len(rline), LongInt)
-                ]
-                assert len(enum) <= nbElem
-
-                if l_new_cell:
-                    cnodes = enum[11:]
-                    nb_nodes = enum[8]
-                    cid = enum[10]
-                    ctype = enum[1]
-                    sec = enum[3]
-                    rep = enum[4]
-                    const = enum[2]
-                    if len(cnodes) < nb_nodes:
-                        l_new_cell = False
-                else:
-                    cnodes += enum
-                    if len(cnodes) == nb_nodes:
-                        l_new_cell = True
-
-                if l_new_cell:
-                    assert len(cnodes) == nb_nodes
-                    Cells.append(AnsysCell(ctype, cid, cnodes, sec, rep, const))
-
-    def __read_groups(self, file, line, Groups):
-        spline = line.split(",")
-        gname = spline[1]
-        gtype = spline[2]
-        nb_elem = int(spline[3].split()[0])
-        elems = []
-        while True:
-            line = file.readline()
-            rline = line.rstrip()
-            strip_line = rline.lstrip()
-            if strip_line.startswith("("):
-                nbElem, LongInt = self.cell_format(strip_line)
-            else:
-                elems += [
-                    int(rline[i : i + LongInt]) for i in range(0, len(rline), LongInt)
-                ]
-
-                if len(elems) == nb_elem:
-                    Groups.append(AnsysGroup(gname, gtype, elems))
-                    break
-                elif len(elems) > nb_elem:
-                    raise RuntimeError("Wrong reading of groups")
-
-    def decode_format(self, line):
-        return line.strip().lstrip("(").rstrip(")").split(",")
-
-    def elem_format(self, line):
-        format = self.decode_format(line)
-        s0 = format[0].split("i")
-        s1 = format[1].split("a")
-        nbElem = int(s0[0]) + int(s1[0])
-        long = int(s0[1])
-        assert long == int(s0[1])
-
-        return [nbElem, long]
-
-    def node_format(self, line):
-        format = self.decode_format(line)
-        s0 = format[0].split("i")
-        firstStr = int(s0[0]) * int(s0[1])
-        long = int(format[1].split("e")[1].split(".")[0])
-
-        return [firstStr, long]
-
-    def cell_format(self, line):
-        format = self.decode_format(line)
-        s0 = format[0].split("i")
-        nbElem = int(s0[0])
-        long = int(s0[1])
-
-        return [nbElem, long]
+        for ansys_type, values in groups_by_type.items():
+            self.add_group_cells("Grp_FE_" + ansys_type, values)

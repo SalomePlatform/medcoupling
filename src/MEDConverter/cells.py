@@ -44,6 +44,15 @@ class CellsTypeConverter:
 
     _abaqus_to_med = OrderedDict(
         (
+            # Internal topology aliases used by generated Abaqus surfaces.
+            ("POINT1", "POINT1"),
+            ("SEG2", "SEG2"),
+            ("SEG3", "SEG3"),
+            ("TRI3", "TRI3"),
+            ("TRI6", "TRI6"),
+            ("QUAD4", "QUAD4"),
+            ("QUAD8", "QUAD8"),
+            ("QUAD9", "QUAD9"),
             ("Node", "POINT1"),
             # Mass element - 0D
             ("MASS", "POINT1"),
@@ -229,6 +238,17 @@ class CellsTypeConverter:
             ("C3D8", "HEXA8"),
             ("C3D20", "HEXA20"),
             ("C3D27", "HEXA27"),
+            # Additional standard mesh aliases.
+            ("ROTARYI", "POINT1"),
+            ("DASHPOT1", "POINT1"),
+            ("DASHPOT2", "SEG2"),
+            ("DASHPOTA", "SEG2"),
+            ("CONN2D2", "SEG2"),
+            ("CONN3D2", "SEG2"),
+            ("CIN3D8", "HEXA8"),
+            ("CIN3D12", "PENTA6"),
+            ("SC6R", "PENTA6"),
+            ("SC8R", "HEXA8"),
         )
     )
 
@@ -382,7 +402,7 @@ class CellsTypeConverter:
             ("75_4", "QUAD4"),
             ("75_3", "TRI3"),
             # PLANE77
-            ("77_6", "QUAD8"),
+            ("77_8", "QUAD8"),
             ("77_6", "TRI6"),
             # PLANE78
             ("78_8", "QUAD8"),
@@ -565,7 +585,6 @@ class CellsTypeConverter:
             # BEAM188
             ("188_2", "SEG2"),
             # BEAM189
-            ("189_2", "SEG2"),
             ("189_3", "SEG3"),
             # SOLSH190
             ("190_8", "HEXA8"),
@@ -686,6 +705,34 @@ class CellsTypeConverter:
         )
     )
 
+    _radioss_to_med = OrderedDict(
+        (
+            ("BRICK", "HEXA8"),
+            ("BRIC20", "HEXA20"),
+            ("TETRA4", "TETRA4"),
+            ("TETRA10", "TETRA10"),
+            ("PYRA5", "PYRA5"),
+            ("PENTA6", "PENTA6"),
+            ("SHEL16", "HEXA8"),
+            # Internal geometric names used for cells generated from /SURF cards.
+            # They deliberately pass through CellsTypeConverter like native
+            # Radioss keywords, so radioss.py never imports MEDLoader directly.
+            ("POINT1", "POINT1"),
+            ("TRI3", "TRI3"),
+            ("TRI6", "TRI6"),
+            ("QUAD4", "QUAD4"),
+            ("QUAD8", "QUAD8"),
+            ("SHELL", "QUAD4"),
+            ("SH3N", "TRI3"),
+            ("QUAD", "QUAD4"),
+            ("TRIA", "TRI3"),
+            ("BEAM", "SEG2"),
+            ("TRUSS", "SEG2"),
+            ("SPRING", "SEG2"),
+            ("ADMAS", "POINT1"),
+        )
+    )
+
     _med_types = "POINT1 SEG2 TRI3 QUAD4 TETRA4 HEXA8 PYRA5 PENTA6 SEG3 TRI6 QUAD8 TETRA10 HEXA20 PYRA13 PENTA15 SEG4 TRI7 QUAD9 PENTA18 HEXA27".split()
 
     def __init__(self, code):
@@ -751,6 +798,7 @@ class GroupCellsTypeConverter(CellsTypeConverter):
     _abaqus_to_med = {}
     _aster_to_med = {}
     _ansys_to_med = {}
+    _radioss_to_med = {}
 
     _zset_to_med = OrderedDict(
         (

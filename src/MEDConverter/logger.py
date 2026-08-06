@@ -33,9 +33,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-"""
-This package defines the *logger* of the *MEDConverter* plugin.
-"""
+"""This package defines the logger of the MEDConverter plugin."""
 
 import logging
 
@@ -44,22 +42,36 @@ class MEDConverterLogger:
     def __init__(self, level=logging.INFO):
         internal_logger = logging.getLogger("med_convert")
         internal_logger.setLevel(level)
-        ch = logging.StreamHandler()
-        formatter = logging.Formatter(" %(message)s")
-        ch.setFormatter(formatter)
-        internal_logger.addHandler(ch)
+
+        # Avoid installing a new handler each time this module is reloaded.
+        if not internal_logger.handlers:
+            handler = logging.StreamHandler()
+            handler.setFormatter(logging.Formatter(" %(message)s"))
+            internal_logger.addHandler(handler)
+
         self._log = internal_logger
 
-    # Methods for logging tasks
     def setLevel(self, level):
-        """Set the level of the logger"""
+        """Set the level of the logger."""
         self._log.setLevel(level)
 
-    def debug(self, msg):
-        self._log.debug(msg)
+    def debug(self, msg, *args, **kwargs):
+        self._log.debug(msg, *args, **kwargs)
 
-    def info(self, msg):
-        self._log.info(msg)
+    def info(self, msg, *args, **kwargs):
+        self._log.info(msg, *args, **kwargs)
+
+    def warning(self, msg, *args, **kwargs):
+        self._log.warning(msg, *args, **kwargs)
+
+    def error(self, msg, *args, **kwargs):
+        self._log.error(msg, *args, **kwargs)
+
+    def exception(self, msg, *args, **kwargs):
+        self._log.exception(msg, *args, **kwargs)
+
+    def critical(self, msg, *args, **kwargs):
+        self._log.critical(msg, *args, **kwargs)
 
 
 logger = MEDConverterLogger()

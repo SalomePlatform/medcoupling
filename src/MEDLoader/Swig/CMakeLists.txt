@@ -120,6 +120,7 @@ install(
         ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/logger.py
         ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/MEDConverter.py
         ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/MEDConverterMesh.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/radioss.py
         ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/systus.py
         ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/tetgen.py
         ${CMAKE_CURRENT_SOURCE_DIR}/../../MEDConverter/utilities.py
@@ -215,6 +216,7 @@ set(MEDLOADER_TEST_FILES
     FilesForTest/ANSYS_Modele_FE_Mixte_v4.cdb
     FilesForTest/SYSTUS_MULTI_DONN1.ASC
     FilesForTest/ZSET_MULTI.geof
+    FilesForTest/RADIOSS_MIXT_ELEMENT.rad
     CaseIO.py
     CaseReader.py
     CaseWriter.py
