@@ -789,7 +789,7 @@ def MEDFileUMeshReduceToCells(self, level, keepCells, removeOrphanNodes=True):
         mmOut[curLev] = meshLev[cellsToKeepLev]
         mmOut.setFamilyFieldArr(curLev, famFieldLev[cellsToKeepLev])
 
-    allFamNodes = mmOut.getFamilyFieldAtLevel(1)
+    allFamNodes = self.getFamilyFieldAtLevel(1)
     if allFamNodes:
         mmOut.setFamilyFieldArr(1, allFamNodes[:])
 

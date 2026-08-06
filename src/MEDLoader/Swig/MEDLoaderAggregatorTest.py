@@ -1167,9 +1167,13 @@ class MEDLoaderAggregatorTest(unittest.TestCase):
         mm = MEDFileUMesh()
         mm[0] = m
         mm[-1] = m1
+        famNodes = DataArrayInt( m1.getNumberOfNodes() ) ; famNodes.iota()
+        mm.setFamilyFieldArr( 1, famNodes )
+        expected = m[threeDCellToKeep].computeFetchedNodeIds()
 
         mret = mm.reduceToCells(0,threeDCellToKeep)#<- sensitive call is here
 
+        self.assertTrue( mret.getFamilyFieldAtLevel( 1 ).isEqual( expected ) )
         self.assertTrue( mret.getNonEmptyLevels() == (0,-1) )
         cooRef = DataArrayDouble( [(2, 0, 0), (3, 0, 0), (2, 1, 0), (3, 1, 0), (2, 0, 1), (3, 0, 1), (2, 1, 1), (3, 1, 1)] )
         self.assertTrue( mret.getCoords().isEqual( cooRef, 1e-12 ) )
