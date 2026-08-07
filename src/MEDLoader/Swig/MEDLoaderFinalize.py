@@ -765,27 +765,43 @@ def MEDFileUMeshReduceToCells(self, level, keepCells, removeOrphanNodes=True):
     allFamilyFields = [self.getFamilyFieldAtLevel(lev) for lev in subLevs]
     allRefMesh = subMeshes[0]
     refMesh = allRefMesh[keepCells]
+    nodeIdsToKeep = refMesh.computeFetchedNodeIds()
+
+    def ComputePartOpt(refMesh, nodeIdsToKeep, meshLev):
+        """
+        Method returning cellIds to select among meshLev
+
+        :param refMesh: top level MEDCouplingUMesh mesh ( on specified level by user ) before reduction
+        :param nodeIdsToKeep: nodesIds in fetched by refMesh
+        :param meshLev: mesh of current level to
+        :return: DataArrayInt giving cellIds among meshLev to keep
+        """
+        cellIdsRefMesh = meshLev.getCellIdsLyingOnNodes(nodeIdsToKeep, True)
+        meshLev2 = meshLev[cellIdsRefMesh]
+        # zeLev: int representing difference of level between refMesh and meshLev
+        zeLev = meshLev.getMeshDimension() - refMesh.getMeshDimension()
+        allMeshLev, d, di, rd, rdi = refMesh.explodeMeshTo(zeLev)
+        a, b = allMeshLev.areCellsIncludedIn(meshLev2, 2)
+        if not a:
+            raise RuntimeError(
+                f"Error in mesh at dim {meshLev.getMeshDimension()} : some cells in dim {meshLev.getMeshDimension()} level are not attachable to selected cells."
+            )
+        dlev2 = d.buildUniqueNotSorted()
+        cellsToKeepLevOpt = ml.DataArrayInt.BuildIntersection([dlev2, b])
+        cellsToKeepLevOpt = b.findIdForEachMulti(cellsToKeepLevOpt)
+        cellsToKeepLevOpt.sort()
+        cellsToKeepLevOpt = cellIdsRefMesh[cellsToKeepLevOpt]
+        return cellsToKeepLevOpt
 
     mmOut = ml.MEDFileUMesh()
     # level 0
     mmOut[0] = refMesh
     mmOut.setFamilyFieldArr(0, allFamilyFields[0][keepCells])
-
     # subLevels
     for curLev, meshLev, famFieldLev in zip(
         subLevs[1:], subMeshes[1:], allFamilyFields[1:]
     ):
-        allMeshLev, d, di, rd, rdi = allRefMesh.explodeMeshTo(curLev - level)
-        a, b = allMeshLev.areCellsIncludedIn(meshLev, 2)
-        if not a:
-            raise RuntimeError(
-                f"Error in mesh at level {curLev} : some cells in {curLev} level are not attachable to selected cells."
-            )
-        dlev, dlevi = ml.DataArrayInt.ExtractFromIndexedArrays(keepCells, d, di)
-        dlev2 = dlev.buildUniqueNotSorted()
-        cellsToKeepLev = ml.DataArrayInt.BuildIntersection([dlev2, b])
-        cellsToKeepLev = b.findIdForEachMulti(cellsToKeepLev)
-        cellsToKeepLev.sort()
+        cellsToKeepLev = ComputePartOpt(refMesh, nodeIdsToKeep, meshLev)
         mmOut[curLev] = meshLev[cellsToKeepLev]
         mmOut.setFamilyFieldArr(curLev, famFieldLev[cellsToKeepLev])
 
