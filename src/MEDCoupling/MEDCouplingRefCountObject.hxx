@@ -145,4 +145,7 @@ class MEDCOUPLING_EXPORT GlobalDict
    private:
     std::map<std::string, std::string> _my_map;
 };
+
+MEDCOUPLING_EXPORT void
+TrapHwOverflow();
 }  // namespace MEDCoupling

@@ -43,6 +43,8 @@ rank = globalComm.rank
 if size != 7:
     raise RuntimeError("Expected to be lanched with 7 procs !")
 
+mc.TrapHwOverflow()
+
 procs_source = [0, 1, 2]
 procs_target = [3, 4, 5, 6]
 

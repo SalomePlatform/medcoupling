@@ -560,5 +560,6 @@ class ParaMEDMEM_IKo_DEC_Test2(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    TrapHwOverflow()
     unittest.main()
     MPI.Finalize()

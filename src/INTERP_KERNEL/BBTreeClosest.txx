@@ -37,17 +37,17 @@ class BBTreeWithBBox
 };
 
 template <int dim, class ConnType>
-class BBTreeClosestCompact : public BBTreeBaseBaseBase<dim, ConnType, BBTreeClosestCompact<dim, ConnType> >,
+class BBTreeClosestCompact : public BBTreeBaseBaseBase<dim, ConnType, BBTreeClosestCompact<dim, ConnType>>,
                              public BBTreeWithBBox<dim>
 {
    public:
-    BBTreeClosestCompact(int level) : BBTreeBaseBaseBase<dim, ConnType, BBTreeClosestCompact<dim, ConnType> >(level) {}
+    BBTreeClosestCompact(int level) : BBTreeBaseBaseBase<dim, ConnType, BBTreeClosestCompact<dim, ConnType>>(level) {}
     // required for walk concept
     bool empty() const { return this->_bbox[0] == std::numeric_limits<double>::max(); }
 
    public:
     static BBTreeClosestCompact<dim, ConnType> Deserialize(
-        const std::vector<bool> &structure, const std::vector<std::array<double, 2 * dim> > &bboxData
+        const std::vector<bool> &structure, const std::vector<std::array<double, 2 * dim>> &bboxData
     )
     {
         size_t structurePt(0);
@@ -58,7 +58,7 @@ class BBTreeClosestCompact : public BBTreeBaseBaseBase<dim, ConnType, BBTreeClos
     void fillDeserializeInternal(
         size_t &structurePt,
         const std::vector<bool> &structure,
-        const std::vector<std::array<double, 2 * dim> > &bboxData
+        const std::vector<std::array<double, 2 * dim>> &bboxData
     )
     {
         this->_bbox = bboxData[structurePt];
@@ -76,7 +76,7 @@ class BBTreeClosestCompact : public BBTreeBaseBaseBase<dim, ConnType, BBTreeClos
         int level,
         size_t &structurePt,
         const std::vector<bool> &structure,
-        const std::vector<std::array<double, 2 * dim> > &bboxData
+        const std::vector<std::array<double, 2 * dim>> &bboxData
     )
     {
         BBTreeClosestCompact<dim, ConnType> ret(level);
@@ -120,18 +120,18 @@ BBTreeBoundaryCompute(const double *bboxPtr, const std::vector<ConnType> &elems,
  * Steps 2, 3, 4 and 5 are repeated for each point.
  */
 template <int dim, class ConnType>
-class BBTreeClosest : public BBTreeBaseBase<dim, ConnType, 15, 12, BBTreeClosest<dim, ConnType> >,
+class BBTreeClosest : public BBTreeBaseBase<dim, ConnType, 15, 12, BBTreeClosest<dim, ConnType>>,
                       public BBTreeWithBBox<dim>
 {
    private:
     mutable double _min = -std::numeric_limits<double>::max();
-    mutable std::vector<std::pair<ConnType, double> > _candidates;
+    mutable std::vector<std::pair<ConnType, double>> _candidates;
 
    private:
     void fillDeserializeInternal(
         size_t &structurePt,
         const std::vector<bool> &structure,
-        const std::vector<std::array<double, 2 * dim> > &bboxData,
+        const std::vector<std::array<double, 2 * dim>> &bboxData,
         size_t &elemsDataPt,
         const std::vector<ConnType> &elemsData
     )
@@ -152,28 +152,11 @@ class BBTreeClosest : public BBTreeBaseBase<dim, ConnType, 15, 12, BBTreeClosest
         this->_right->fillDeserializeInternal(structurePt, structure, bboxData, elemsDataPt, elemsData);
     }
 
-    void fillDeserializeCompactInternal(
-        size_t &structurePt,
-        const std::vector<bool> &structure,
-        const std::vector<std::array<double, 2 * dim> > &bboxData
-    )
-    {
-        this->_bbox = bboxData[structurePt];
-        if (!structure[structurePt++])
-        {
-            return;
-        }
-        this->_left.reset(new BBTreeClosest<dim, ConnType>(this->_level + 1));
-        this->_left->fillDeserializeCompactInternal(structurePt, structure, bboxData);
-        this->_right.reset(new BBTreeClosest<dim, ConnType>(this->_level + 1));
-        this->_right->fillDeserializeCompactInternal(structurePt, structure, bboxData);
-    }
-
     static BBTreeClosest<dim, ConnType> DeserializeInternal(
         int level,
         size_t &structurePt,
         const std::vector<bool> &structure,
-        const std::vector<std::array<double, 2 * dim> > &bboxData,
+        const std::vector<std::array<double, 2 * dim>> &bboxData,
         size_t &elemsDataPt,
         const std::vector<ConnType> &elemsData
     )
@@ -235,12 +218,12 @@ class BBTreeClosest : public BBTreeBaseBase<dim, ConnType, 15, 12, BBTreeClosest
         for (ConnType i = median; i < nbelems; ++i) right.push_back(ElemGetter(idx[i]));
     }
 
-    BBTreeClosest(int level) : BBTreeBaseBase<dim, ConnType, 15, 12, BBTreeClosest<dim, ConnType> >(level) {}
-
    public:
+    BBTreeClosest(int level) : BBTreeBaseBase<dim, ConnType, 15, 12, BBTreeClosest<dim, ConnType>>(level) {}
     BBTreeClosest() = default;
+    //! Warning if you are sensitive to hw overflow be sure that nbelems >= 1
     BBTreeClosest(const double *bbs, const ConnType *elems, int level, ConnType nbelems)
-        : BBTreeBaseBase<dim, ConnType, 15, 12, BBTreeClosest<dim, ConnType> >(bbs, elems, level, nbelems)
+        : BBTreeBaseBase<dim, ConnType, 15, 12, BBTreeClosest<dim, ConnType>>(bbs, elems, level, nbelems)
     {
         if (this->constexprTerminal(level, nbelems))
         {
@@ -269,9 +252,26 @@ class BBTreeClosest : public BBTreeBaseBase<dim, ConnType, 15, 12, BBTreeClosest
         }
     }
 
+    void fillDeserializeCompactInternal(
+        size_t &structurePt,
+        const std::vector<bool> &structure,
+        const std::vector<std::array<double, 2 * dim>> &bboxData
+    )
+    {
+        this->_bbox = bboxData[structurePt];
+        if (!structure[structurePt++])
+        {
+            return;
+        }
+        this->_left.reset(new BBTreeClosest<dim, ConnType>(this->_level + 1));
+        this->_left->fillDeserializeCompactInternal(structurePt, structure, bboxData);
+        this->_right.reset(new BBTreeClosest<dim, ConnType>(this->_level + 1));
+        this->_right->fillDeserializeCompactInternal(structurePt, structure, bboxData);
+    }
+
     void serialize(
         std::vector<bool> &structure,
-        std::vector<std::array<double, 2 * dim> > &bboxData,
+        std::vector<std::array<double, 2 * dim>> &bboxData,
         std::vector<ConnType> &elemsData
     ) const
     {
@@ -290,7 +290,7 @@ class BBTreeClosest : public BBTreeBaseBase<dim, ConnType, 15, 12, BBTreeClosest
         }
     }
 
-    void serializeCompact(std::vector<bool> &structure, std::vector<std::array<double, 2 * dim> > &bboxData) const
+    void serializeCompact(std::vector<bool> &structure, std::vector<std::array<double, 2 * dim>> &bboxData) const
     {
         bboxData.push_back(this->_bbox);
         if (this->terminal())
@@ -307,22 +307,12 @@ class BBTreeClosest : public BBTreeBaseBase<dim, ConnType, 15, 12, BBTreeClosest
 
     static BBTreeClosest<dim, ConnType> Deserialize(
         const std::vector<bool> &structure,
-        const std::vector<std::array<double, 2 * dim> > &bboxData,
+        const std::vector<std::array<double, 2 * dim>> &bboxData,
         const std::vector<ConnType> &elemsData
     )
     {
         size_t structurePt(0), elemsDataPt(0);
         return DeserializeInternal(0, structurePt, structure, bboxData, elemsDataPt, elemsData);
-    }
-
-    static BBTreeClosest<dim, ConnType> DeserializeCompact(
-        const std::vector<bool> &structure, const std::vector<std::array<double, 2 * dim> > &bboxData
-    )
-    {
-        BBTreeClosest<dim, ConnType> ret(0);
-        size_t structurePt(0);
-        ret.fillDeserializeCompactInternal(structurePt, structure, bboxData);
-        return ret;
     }
 
     /*!
@@ -468,4 +458,84 @@ class BBTreeClosest : public BBTreeBaseBase<dim, ConnType, 15, 12, BBTreeClosest
         BBTreeBoundaryCompute<dim, ConnType>(bboxPtr, elems, this->_bbox.data());
     }
 };
+
+/*!
+ * [EDF36048] : Wrapper over BBTreeClosest to deal with special case where nb of cells is 0.
+ */
+template <int dim, class ConnType>
+class BBTreeClosestSafe
+{
+   public:
+    BBTreeClosestSafe() = default;
+    BBTreeClosestSafe(const double *bbs, const ConnType *elems, int level, ConnType nbelems)
+        : _bb(bbs, elems, level, nbelems), _is_null(nbelems == 0)
+    {
+    }
+    void serialize(
+        std::vector<bool> &structure,
+        std::vector<std::array<double, 2 * dim>> &bboxData,
+        std::vector<ConnType> &elemsData
+    ) const
+    {
+        if (!_is_null)
+            _bb.serialize(structure, bboxData, elemsData);
+    }
+
+    void bboxMinOfMaxes(const std::array<double, 2 * dim> &inputBBox, double &res) const
+    {
+        if (!_is_null)
+            return _bb.bboxMinOfMaxes(inputBBox, res);
+    }
+
+    void bboxSelect(
+        const std::array<double, 2 * dim> &inputBBox,
+        double thres,
+        std::set<const BBTreeClosest<dim, ConnType> *> &blockSelected
+    ) const
+    {
+        if (!_is_null)
+            return _bb.bboxSelect(inputBBox, thres, blockSelected);
+    }
+
+    void serializeCompact(std::vector<bool> &structure, std::vector<std::array<double, 2 * dim>> &bboxData) const
+    {
+        if (!_is_null)
+            _bb.serializeCompact(structure, bboxData);
+    }
+
+    static BBTreeClosestSafe<dim, ConnType> DeserializeCompact(
+        const std::vector<bool> &structure, const std::vector<std::array<double, 2 * dim>> &bboxData
+    )
+    {
+        BBTreeClosest<dim, ConnType> ret(0);
+        if (!structure.empty())
+        {
+            size_t structurePt(0);
+            ret.fillDeserializeCompactInternal(structurePt, structure, bboxData);
+        }
+        BBTreeClosestSafe<dim, ConnType> zeRet(std::move(ret), structure.empty());
+        return zeRet;
+    }
+    typename BBTreeBaseBaseBase<dim, ConnType, BBTreeClosest<dim, ConnType>>::LeafIterator begin() const
+    {
+        if (!_is_null)
+            return typename BBTreeBaseBaseBase<dim, ConnType, BBTreeClosest<dim, ConnType>>::LeafIterator(&_bb);
+        else
+            return typename BBTreeBaseBaseBase<dim, ConnType, BBTreeClosest<dim, ConnType>>::LeafIterator();
+    }
+    typename BBTreeBaseBaseBase<dim, ConnType, BBTreeClosest<dim, ConnType>>::LeafIterator end() const
+    {
+        return typename BBTreeBaseBaseBase<dim, ConnType, BBTreeClosest<dim, ConnType>>::LeafIterator();
+    }
+
+   private:
+    BBTreeClosestSafe(BBTreeClosest<dim, ConnType> &&notSafe, bool isNull) : _bb(std::move(notSafe)), _is_null(isNull)
+    {
+    }
+
+   private:
+    BBTreeClosest<dim, ConnType> _bb;
+    bool _is_null = true;
+};
+
 // fmt: on

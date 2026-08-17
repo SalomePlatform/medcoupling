@@ -570,6 +570,7 @@ typedef long mcPyPtrType;
 %rename (InterpKernelException) INTERP_KERNEL::Exception;
 %rename (FromJointsPerProcToGlobalIDs) FromJointsPerProcToGlobalIDsSwig;
 %rename (QuantityKind) QuantityKindSwig;
+%rename (TrapHwOverflow) TrapHwOverflowSwig;
 
 %include "MEDCouplingRefCountObject.i"
 %include "MEDCouplingMemArray.i"

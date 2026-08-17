@@ -136,8 +136,8 @@ class CFEMDECOneWaySource : public CFEMDECOneWay
         MPIProcessorGroup *unionGrp,
         const MEDCouplingUMesh *mesh,
         const DataArrayIdType *glblNodeIds,
-        const BBTreeClosest<spaceDim, mcIdType> &myTreeBase,
-        const std::vector<BBTreeClosest<spaceDim, mcIdType>> &ret
+        const BBTreeClosestSafe<spaceDim, mcIdType> &myTreeBase,
+        const std::vector<BBTreeClosestSafe<spaceDim, mcIdType>> &ret
     );
 
    private:

@@ -63,8 +63,8 @@ OverlapCFEMDEC::synchronizeT(
     std::vector<MCAuto<MEDCouplingUMesh>> &srcMeshes, std::vector<MCAuto<DataArrayIdType>> &srcGlobalNodeIds
 )
 {
-    std::vector<BBTreeClosest<spaceDim, mcIdType>> bbSrc, bbTrg;
-    BBTreeClosest<spaceDim, mcIdType> myBBSrc(
+    std::vector<BBTreeClosestSafe<spaceDim, mcIdType>> bbSrc, bbTrg;
+    BBTreeClosestSafe<spaceDim, mcIdType> myBBSrc(
         ShareBBTreesOfAllProcs<spaceDim>(_group.get(), getSourceLocalMesh(), bbSrc /*output*/)
     );
     ShareBBTreesOfAllProcs<spaceDim>(_group.get(), _trg_mesh, bbTrg /*output*/);
@@ -79,7 +79,7 @@ OverlapCFEMDEC::synchronizeT(
     {
         std::set<const BBTreeClosest<spaceDim, mcIdType> *> blockSelectedPerTrgProc;
         std::vector<mcIdType> cellsToSendToTrg;
-        const BBTreeClosest<spaceDim, mcIdType> &curBBTree(bbTrg[iProcTrg]);
+        const BBTreeClosestSafe<spaceDim, mcIdType> &curBBTree(bbTrg[iProcTrg]);
         // iterate over all terminal nodes of targets
         for (const auto &leaf : curBBTree)
         {

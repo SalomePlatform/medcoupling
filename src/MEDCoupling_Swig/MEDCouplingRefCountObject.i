@@ -176,6 +176,11 @@ namespace MEDCoupling
     return res;
   }
 
+  void TrapHwOverflowSwig()
+  {
+    MEDCoupling::TrapHwOverflow();
+  }
+
   bool MEDCouplingHasNumPyBindings()
   {
 #ifdef WITH_NUMPY

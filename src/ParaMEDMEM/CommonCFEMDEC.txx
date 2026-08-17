@@ -442,16 +442,16 @@ allGatherVectBoolOnProc(MPIProcessorGroup *grp, const std::vector<bool> &structu
 }
 
 template <int spaceDim>
-BBTreeClosest<spaceDim, mcIdType>
+BBTreeClosestSafe<spaceDim, mcIdType>
 MEDCoupling::ShareBBTreesOfAllProcs(
-    MPIProcessorGroup *unionGrp, const MEDCouplingUMesh *mesh, std::vector<BBTreeClosest<spaceDim, mcIdType>> &ret
+    MPIProcessorGroup *unionGrp, const MEDCouplingUMesh *mesh, std::vector<BBTreeClosestSafe<spaceDim, mcIdType>> &ret
 )
 {
     const MPI_Comm *comm(unionGrp->getComm());
     MCAuto<DataArrayDouble> bbox(mesh->getBoundingBoxForBBTree());
     mcIdType nbCells(mesh->getNumberOfCells());
     const double *bboxPtr(bbox->begin());
-    BBTreeClosest<spaceDim, mcIdType> myTreeBase(bboxPtr, nullptr, 0, nbCells);
+    BBTreeClosestSafe<spaceDim, mcIdType> myTreeBase(bboxPtr, nullptr, 0, nbCells);
     std::vector<bool> structure;
     std::vector<std::array<double, 2 * spaceDim>> bboxData;
     myTreeBase.serializeCompact(structure, bboxData);
@@ -479,7 +479,8 @@ MEDCoupling::ShareBBTreesOfAllProcs(
     ret.resize(nbOfProcs);
     for (std::size_t iProc = 0; iProc < nbOfProcs; ++iProc)
     {
-        ret[iProc] = std::move(BBTreeClosest<spaceDim, mcIdType>::DeserializeCompact(structures[iProc], bboxes[iProc]));
+        ret[iProc] =
+            std::move(BBTreeClosestSafe<spaceDim, mcIdType>::DeserializeCompact(structures[iProc], bboxes[iProc]));
     }
     return myTreeBase;
 }

@@ -141,6 +141,8 @@ rank, size = initParallel()
 if size != 5:
     raise RuntimeError("Expected to be lanched with 5 procs !")
 
+mc.TrapHwOverflow()
+
 idec = mc.CFEMDEC(procs_source, procs_target)
 
 if rank in procs_source:

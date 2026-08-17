@@ -36,6 +36,8 @@ rank = globalComm.rank
 if size != 3:
     raise RuntimeError("Expected to be lanched with 3 procs !")
 
+mc.TrapHwOverflow()
+
 procs_source = [
     0,
     1,
@@ -65,7 +67,6 @@ if rank in procs_source:
     idec.sendToTarget(src_field)
 
 if rank in procs_target:
-
     file_name = "test_CFEMDEC_2_pres_SEQ.med"
     trg_mesh = mc.MEDFileMesh.New(file_name, mesh_name)
     trg_mesh_interf = trg_mesh[0]

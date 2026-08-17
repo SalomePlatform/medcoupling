@@ -170,8 +170,8 @@ CFEMDECOneWaySource::dispatchMeshPartsSrcOnly(
     MPIProcessorGroup *unionGrp,
     const MEDCouplingUMesh *mesh,
     const DataArrayIdType *glblNodeIds,
-    const BBTreeClosest<spaceDim, mcIdType> &myTreeBase,
-    const std::vector<BBTreeClosest<spaceDim, mcIdType>> &ret
+    const BBTreeClosestSafe<spaceDim, mcIdType> &myTreeBase,
+    const std::vector<BBTreeClosestSafe<spaceDim, mcIdType>> &ret
 )
 {
     int unionGrpSz(unionGrp->size());
@@ -187,7 +187,7 @@ CFEMDECOneWaySource::dispatchMeshPartsSrcOnly(
         {
             std::set<const BBTreeClosest<spaceDim, mcIdType> *> blockSelectedPerTrgProc;
             std::vector<mcIdType> cellsToSendToTrg;
-            const BBTreeClosest<spaceDim, mcIdType> &curBBTree(ret[nbProcSrc + iProcTrg]);
+            const BBTreeClosestSafe<spaceDim, mcIdType> &curBBTree(ret[nbProcSrc + iProcTrg]);
             // iterate over all terminal nodes of targetProc iProcTrg
             for (const auto &leaf : curBBTree)
             {
@@ -302,8 +302,8 @@ DispatchMeshPartsInternal(
     std::vector<MCAuto<DataArrayIdType>> &srcGlobalNodeIds
 )
 {
-    std::vector<BBTreeClosest<spaceDim, mcIdType>> ret;
-    BBTreeClosest<spaceDim, mcIdType> myTreeBase(ShareBBTreesOfAllProcs<spaceDim>(unionGrp, mesh, ret /*output*/));
+    std::vector<BBTreeClosestSafe<spaceDim, mcIdType>> ret;
+    BBTreeClosestSafe<spaceDim, mcIdType> myTreeBase(ShareBBTreesOfAllProcs<spaceDim>(unionGrp, mesh, ret /*output*/));
     if (dynamic_cast<CFEMDECOneWaySource *>(cfemdec))
     {  // source side
         dynamic_cast<CFEMDECOneWaySource *>(cfemdec)->dispatchMeshPartsSrcOnly<spaceDim>(
@@ -735,14 +735,18 @@ CFEMDECOneWayTarget::computeMatrix(
 {
     MCAuto<MEDCouplingUMesh> wholeMesh;
     _src_rank_of_nodes_in_whole = ComputeNodeIdsPerProc(srcMeshes, srcGlobalNodeIds, wholeMesh);
-    this->_nb_nodes_src_mesh = wholeMesh->getNumberOfNodes();
-    // compute matrix
-    const double *coordsOfTrgMesh(_master->getLocalMesh()->getCoords()->begin());
-    const mcIdType nbOfTrgPts(_master->getLocalMesh()->getNumberOfNodes());
+    this->_nb_nodes_src_mesh = 0;
+    if (wholeMesh.isNotNull())
+    {
+        this->_nb_nodes_src_mesh = wholeMesh->getNumberOfNodes();
+        // compute matrix
+        const double *coordsOfTrgMesh(_master->getLocalMesh()->getCoords()->begin());
+        const mcIdType nbOfTrgPts(_master->getLocalMesh()->getNumberOfNodes());
 
-    MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrix(
-        wholeMesh, coordsOfTrgMesh, nbOfTrgPts, this->_matrix, this->getFEOptions()
-    );
+        MEDCouplingFieldDiscretizationOnNodesFE::computeCrudeMatrix(
+            wholeMesh, coordsOfTrgMesh, nbOfTrgPts, this->_matrix, this->getFEOptions()
+        );
+    }
 }
 
 CFEMDEC::CFEMDEC(ProcessorGroup &source_group, ProcessorGroup &target_group)

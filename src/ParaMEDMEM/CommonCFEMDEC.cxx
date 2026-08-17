@@ -24,19 +24,19 @@ using MEDCoupling::MCAuto;
 using MEDCoupling::MEDCouplingUMesh;
 using MEDCoupling::MPIProcessorGroup;
 
-template BBTreeClosest<1, mcIdType>
+template BBTreeClosestSafe<1, mcIdType>
 MEDCoupling::ShareBBTreesOfAllProcs<1>(
-    MPIProcessorGroup *unionGrp, const MEDCouplingUMesh *mesh, std::vector<BBTreeClosest<1, mcIdType>> &ret
+    MPIProcessorGroup *unionGrp, const MEDCouplingUMesh *mesh, std::vector<BBTreeClosestSafe<1, mcIdType>> &ret
 );
 
-template BBTreeClosest<2, mcIdType>
+template BBTreeClosestSafe<2, mcIdType>
 MEDCoupling::ShareBBTreesOfAllProcs<2>(
-    MPIProcessorGroup *unionGrp, const MEDCouplingUMesh *mesh, std::vector<BBTreeClosest<2, mcIdType>> &ret
+    MPIProcessorGroup *unionGrp, const MEDCouplingUMesh *mesh, std::vector<BBTreeClosestSafe<2, mcIdType>> &ret
 );
 
-template BBTreeClosest<3, mcIdType>
+template BBTreeClosestSafe<3, mcIdType>
 MEDCoupling::ShareBBTreesOfAllProcs<3>(
-    MPIProcessorGroup *unionGrp, const MEDCouplingUMesh *mesh, std::vector<BBTreeClosest<3, mcIdType>> &ret
+    MPIProcessorGroup *unionGrp, const MEDCouplingUMesh *mesh, std::vector<BBTreeClosestSafe<3, mcIdType>> &ret
 );
 
 template std::vector<typename std::vector<mcIdType>>
@@ -91,17 +91,28 @@ MEDCoupling::ComputeNodeIdsPerProc(
     MCAuto<DataArrayIdType> b(o2n->buildUniqueNotSorted());
     MCAuto<MapKeyVal<mcIdType, mcIdType>> zeMap(b->invertArrayN2O2O2NOptimized());
     o2n->transformWithIndArr(*zeMap);
-    mcIdType nbOfNodesWithoutDup(o2n->getMaxAbsValueInArray() + 1);
-    wholeMesh = MEDCouplingUMesh::MergeUMeshes(FromVecAutoToVecOfConst<MEDCouplingUMesh>(srcMeshes));
-    wholeMesh->renumberNodes(o2n->begin(), nbOfNodesWithoutDup);
-    wholeMesh->checkConsistencyLight();
-    // remove ghost cells
     std::vector<MCAuto<DataArrayIdType>> ret(nbOfSrcProcs);
-    for (std::size_t i = 0; i < nbOfSrcProcs; ++i)
+    if (!o2n->empty())
     {
-        ret[i] = b->findIdForEach(srcGlobalNodeIds[i]->begin(), srcGlobalNodeIds[i]->end());
+        mcIdType nbOfNodesWithoutDup(o2n->getMaxAbsValueInArray() + 1);
+        wholeMesh = MEDCouplingUMesh::MergeUMeshes(FromVecAutoToVecOfConst<MEDCouplingUMesh>(srcMeshes));
+        wholeMesh->renumberNodes(o2n->begin(), nbOfNodesWithoutDup);
+        wholeMesh->checkConsistencyLight();
+        // remove ghost cells
+        for (std::size_t i = 0; i < nbOfSrcProcs; ++i)
+        {
+            ret[i] = b->findIdForEach(srcGlobalNodeIds[i]->begin(), srcGlobalNodeIds[i]->end());
+        }
+        wholeMesh->zipConnectivityTraducer(0);
     }
-    wholeMesh->zipConnectivityTraducer(0);
+    else
+    {
+        for (std::size_t i = 0; i < nbOfSrcProcs; ++i)
+        {
+            ret[i] = DataArrayIdType::New();
+            ret[i]->alloc(0, 1);
+        }
+    }
     return ret;
 }
 

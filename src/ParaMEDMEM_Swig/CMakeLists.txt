@@ -169,6 +169,7 @@ install(
         test_CFEMDEC.med
         test_CFEMDEC_3.py
         test_CFEMDEC_4.py
+        test_CFEMDEC_5.py
         test_CFEMDECOverlap_0.py
   DESTINATION ${TEST_INSTALL_DIRECTORY})
 

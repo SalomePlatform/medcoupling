@@ -37,9 +37,9 @@ namespace MEDCoupling
  * EDF35712
  */
 template <int spaceDim>
-BBTreeClosest<spaceDim, mcIdType>
+BBTreeClosestSafe<spaceDim, mcIdType>
 ShareBBTreesOfAllProcs(
-    MPIProcessorGroup *unionGrp, const MEDCouplingUMesh *mesh, std::vector<BBTreeClosest<spaceDim, mcIdType>> &ret
+    MPIProcessorGroup *unionGrp, const MEDCouplingUMesh *mesh, std::vector<BBTreeClosestSafe<spaceDim, mcIdType>> &ret
 );
 
 template <class T>

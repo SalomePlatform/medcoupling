@@ -414,3 +414,19 @@ GlobalDict::printSelf() const
     }
     return oss.str();
 }
+
+#ifndef WIN32
+
+#include <fenv.h>
+
+#endif
+
+void
+MEDCoupling::TrapHwOverflow()
+{
+#ifndef WIN32
+    feenableexcept(FE_OVERFLOW);
+#else
+    THROW_IK_EXCEPTION("TrapHwOverflow not implemented for Win32");
+#endif
+}
