@@ -41,7 +41,7 @@ const double GaussInfo::TRIA3A_REF[6] = {-1.0, 1.0, -1.0, -1.0, 1.0, -1.0};
 
 const double GaussInfo::TRIA3B_REF[6] = {0.0, 0.0, 1.0, 0.0, 0.0, 1.0};
 
-const double GaussInfo::TRIA6A_REF[12] = {-1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 0.0, -1.0, 0.0, 0.0};
+const double GaussInfo::TRIA6A_REF[12] = {-1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0};
 
 const double GaussInfo::TRIA6B_REF[12] = {0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.5, 0.0, 0.5, 0.5, 0.0, 0.5};
 
@@ -1325,7 +1325,7 @@ GaussInfo::tria6aInit()
         funValue[2] = 0.5 * (1.0 + gc[0]) * gc[0];
         funValue[3] = -1.0 * (1.0 + gc[1]) * (gc[0] + gc[1]);
         funValue[4] = -1.0 * (1.0 + gc[0]) * (gc[0] + gc[1]);
-        funValue[5] = (1.0 + gc[1]) * (1.0 + gc[1]);
+        funValue[5] = (1.0 + gc[0]) * (1.0 + gc[1]);
         SHAPE_FUN_MACRO_END;
 
         DEV_SHAPE_FUN_MACRO_BEGIN;
@@ -1345,8 +1345,8 @@ GaussInfo::tria6aInit()
         devFunValue[8] = -1.0 * (2 * gc[0] + gc[1] + 1.0);
         devFunValue[9] = -1.0 * (1.0 + gc[0]);
 
-        devFunValue[10] = 0.0;
-        devFunValue[11] = (2 * gc[1] + 2.0);
+        devFunValue[10] = 1.0 + gc[1];
+        devFunValue[11] = 1.0 + gc[0];
 
         DEV_SHAPE_FUN_MACRO_END;
 }
