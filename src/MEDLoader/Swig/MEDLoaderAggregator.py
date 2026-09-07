@@ -870,6 +870,9 @@ def AggregateMEDFilesNoFusion(pat: str, fnameOut: str, logLev=logging.INFO):
         f"End of load all {len(filesToMerge)} meshes in memory to perform aggregation. Start aggregation of meshes"
     )
     mm = ml.MEDFileUMesh.Aggregate(meshes)
+    getLogger().debug(f"Start to repare families IDs")
+    mm.normalizeFamIdsMEDFile()
+    getLogger().debug(f"End to repare families IDs")
     getLogger().debug(f"End aggregation of meshes. Start writing back into {fnameOut}")
     mm.writeXX(fnameOut, 2, *inpVersion)
     getLogger().debug(f"End writing back into {fnameOut}")

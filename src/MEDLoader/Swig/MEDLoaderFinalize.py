@@ -176,6 +176,28 @@ def MEDFileUMeshFuseNodesAndCellsAdv(
     return mmOut, n2oHolder
 
 
+def MEDFileUMeshcheckMEDFamilyConvention(self):
+    for dim in self.getNonEmptyLevels():
+        fam = self.getFamilyFieldAtLevel(dim)
+        if fam is not None:
+            if not fam.findIdsGreaterThan(0).empty():
+                raise RuntimeError(f"For dim {dim} family ids must be <= 0 !")
+    famNode = self.getFamilyFieldAtLevel(1)
+    if famNode is not None:
+        if not famNode.findIdsLowerThan(0).empty():
+            raise RuntimeError(f"For family ids on nodes must be >= 0 !")
+    #
+    medfileReservedKey = "FAMILLE_ZERO"
+    if medfileReservedKey in self.getFamiliesNames():
+        if self.getFamilyId(medfileReservedKey) != 0:
+            raise RuntimeError(f"Family {medfileReservedKey} must have ID == 0 !")
+    for fam in [fam for fam in self.getFamiliesNames() if fam != medfileReservedKey]:
+        if self.getFamilyId(fam) == 0:
+            raise RuntimeError(
+                f"Only {medfileReservedKey} family is supposed to have ID == 0 !"
+            )
+
+
 class JointInfoOfOneProc:
     """
     Class representing joint info of one proc
@@ -400,6 +422,7 @@ def AggregateMEDFilesNoProfilesNoFusion(pat: str, fnameOut: str, logLev=logging.
     inpVersion = StrictVersion(ml.MEDFileVersionOfFileStr(filesToMerge[0])).version
     meshes = [ml.MEDFileMesh.New(elt) for elt in filesToMerge]
     mm = ml.MEDFileUMesh.Aggregate(meshes)
+    mm.normalizeFamIdsMEDFile()
     mm.writeXX(fnameOut, 2, *inpVersion)
     allFields = ml.GetAllFieldNames(filesToMerge[0])
     ## Trés important on vérifie l'absence de profile

@@ -1964,23 +1964,42 @@ bool
 MEDFileMesh::ensureDifferentFamIdsPerLevel()
 {
     std::vector<int> levs = getNonEmptyLevelsExt();
-    std::set<mcIdType> allFamIds;
-    mcIdType maxId = getMaxFamilyId() + 1;
+    std::map<int, std::set<mcIdType>> allFamIds;
+    mcIdType maxId = getMaxAbsFamilyId() + 1;
     std::map<int, std::vector<mcIdType>> famIdsToRenum;
+    // fill allFamIds
     for (std::vector<int>::const_iterator it = levs.begin(); it != levs.end(); it++)
     {
         const DataArrayIdType *fam = getFamilyFieldAtLevel(*it);
         if (fam)
         {
             MCAuto<DataArrayIdType> tmp = fam->getDifferentValues();
-            std::set<mcIdType> r2;
-            std::set_intersection(
-                tmp->begin(), tmp->end(), allFamIds.begin(), allFamIds.end(), std::inserter(r2, r2.end())
-            );
-            if (!r2.empty())
-                famIdsToRenum[*it].insert(famIdsToRenum[*it].end(), r2.begin(), r2.end());
-            std::set<mcIdType> r3;
-            std::set_union(tmp->begin(), tmp->end(), allFamIds.begin(), allFamIds.end(), std::inserter(r3, r3.end()));
+            allFamIds[*it].insert(tmp->begin(), tmp->end());
+        }
+    }
+    for (std::vector<int>::const_iterator it = levs.begin(); it != levs.end(); it++)
+    {
+        const DataArrayIdType *fam = getFamilyFieldAtLevel(*it);
+        if (fam)
+        {
+            MCAuto<DataArrayIdType> tmp = fam->getDifferentValues();
+            for (const auto &allFamIdsIt : allFamIds)
+            {
+                if (allFamIdsIt.first != *it)
+                {
+                    std::set<mcIdType> r2;
+                    std::set_intersection(
+                        tmp->begin(),
+                        tmp->end(),
+                        allFamIdsIt.second.begin(),
+                        allFamIdsIt.second.end(),
+                        std::inserter(r2, r2.end())
+                    );
+                    r2.erase(0);  // 0 is a spacial case. There is no problem to have 0 for level 1 and level <= 0
+                    if (!r2.empty())
+                        famIdsToRenum[*it].insert(famIdsToRenum[*it].end(), r2.begin(), r2.end());
+                }
+            }
         }
     }
     if (famIdsToRenum.empty())
@@ -2133,7 +2152,12 @@ MEDFileMesh::normalizeFamIdsMEDFile()
         {
             MCAuto<DataArrayIdType> tmp = fam->getDifferentValues();
             std::map<mcIdType, mcIdType> ren;
-            for (const mcIdType *it = tmp->begin(); it != tmp->end(); it++, refId++) ren[*it] = refId;
+            ren[0] = 0;
+            for (const mcIdType *it = tmp->begin(); it != tmp->end(); it++, refId++)
+                if (*it != 0)
+                {
+                    ren[*it] = refId;
+                }
             mcIdType nbOfTuples = fam->getNumberOfTuples();
             mcIdType *start = const_cast<DataArrayIdType *>(fam)->getPointer();
             for (mcIdType *w = start; w != start + nbOfTuples; w++) *w = ren[*w];
@@ -2156,7 +2180,12 @@ MEDFileMesh::normalizeFamIdsMEDFile()
         {
             MCAuto<DataArrayIdType> tmp = fam->getDifferentValues();
             std::map<mcIdType, mcIdType> ren;
-            for (const mcIdType *it = tmp->begin(); it != tmp->end(); it++, refId--) ren[*it] = refId;
+            ren[0] = 0;
+            for (const mcIdType *it = tmp->begin(); it != tmp->end(); it++, refId--)
+                if (*it != 0)
+                {
+                    ren[*it] = refId;
+                }
             mcIdType nbOfTuples = fam->getNumberOfTuples();
             mcIdType *start = const_cast<DataArrayIdType *>(fam)->getPointer();
             for (mcIdType *w = start; w != start + nbOfTuples; w++) *w = ren[*w];
@@ -2172,19 +2201,23 @@ MEDFileMesh::normalizeFamIdsMEDFile()
         }
     }
     //
-    std::vector<std::string> allFams = getFamiliesNames();
-    std::set<std::string> allFamsS(allFams.begin(), allFams.end());
-    std::set<std::string> unFetchedIds;
-    std::set_difference(
-        allFamsS.begin(),
-        allFamsS.end(),
-        famsFetched.begin(),
-        famsFetched.end(),
-        std::inserter(unFetchedIds, unFetchedIds.end())
-    );
-    for (std::set<std::string>::const_iterator it4 = unFetchedIds.begin(); it4 != unFetchedIds.end(); it4++)
-        families[*it4] = _families[*it4];
     _families = families;
+    // remove unfetched families on groups
+    for (auto &grp : _groups)
+    {
+        auto it(grp.second.begin());
+        while (it != grp.second.end())
+        {
+            if (_families.find(*it) == _families.end())
+            {
+                it = grp.second.erase(it);
+            }
+            else
+            {
+                it++;
+            }
+        }
+    }
 }
 
 /*!
