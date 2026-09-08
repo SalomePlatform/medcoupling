@@ -39,6 +39,8 @@
 #include <memory>
 #include <numeric>
 #include <algorithm>
+#include <unordered_map>
+#include <unordered_set>
 
 // From MEDLOader.cxx TU
 extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
@@ -2128,6 +2130,517 @@ MEDFileMesh::normalizeFamIdsTrio()
     _families = families;
 }
 
+namespace
+{
+/*!
+ First method called by MEDFileUMesh.normalizeFamIdsMEDFile.
+ This method renumber families in place in famCells and famNodes.
+ This method returns 2 maps to help groups and families vectors update.
+
+ This method tries to reduce at most creation of families. families are created only if a same family is both on nodes
+ and cells.
+
+ outFamIdModification gives key/val entries. key is old family to renumber. Value the new value.
+ */
+void
+toMEDFileConvention(
+    std::vector<DataArrayIdType *> &famCells,
+    std::vector<DataArrayIdType *> &famNodes,
+    std::map<mcIdType, mcIdType> &outFamIdModification,
+    std::vector<std::pair<mcIdType, mcIdType>> &outFamIdCreation
+)
+{
+    enum : unsigned char
+    {
+        InCells = 1u,
+        InNodes = 2u
+    };
+
+    struct Info
+    {
+        unsigned char presence = 0u;
+
+        mcIdType cellId = 0;
+        mcIdType nodeId = 0;
+
+        bool cellAssigned = false;
+        bool nodeAssigned = false;
+    };
+
+    // Max famIds 100000
+    std::unordered_map<mcIdType, Info> infos;
+    infos.reserve(131072u);
+
+    // Detection of presence of a family on cells / nodes / both
+    for (const auto &zone : famCells)
+    {
+        for (const mcIdType id : *zone) infos[id].presence |= InCells;
+    }
+
+    for (const auto &zone : famNodes)
+    {
+        for (const mcIdType id : *zone) infos[id].presence |= InNodes;
+    }
+
+    // sort all famIds for outFamIdCreation determinism
+    std::vector<mcIdType> ids;
+    ids.reserve(infos.size());
+
+    for (const auto &item : infos) ids.push_back(item.first);
+
+    std::sort(ids.begin(), ids.end());
+
+    /*
+     * famids MED already used
+     * all elements in usedCellIds are < 0 and all elements in usedNodeIds > 0. Always
+     * 0 treated separately
+     */
+    std::unordered_set<mcIdType> usedCellIds;
+    std::unordered_set<mcIdType> usedNodeIds;
+
+    usedCellIds.reserve(infos.size());
+    usedNodeIds.reserve(infos.size());
+
+    /*
+     * First correct famIDs
+     * Important : check that wrong famID must not take ID of a right family
+     */
+    for (const mcIdType id : ids)
+    {
+        Info &info = infos.find(id)->second;
+
+        if (id == 0)
+        {
+            if (info.presence & InCells)
+            {
+                info.cellId = 0;
+                info.cellAssigned = true;
+            }
+
+            if (info.presence & InNodes)
+            {
+                info.nodeId = 0;
+                info.nodeAssigned = true;
+            }
+
+            continue;
+        }
+
+        if ((info.presence & InCells) && id < 0)
+        {
+            info.cellId = id;
+            info.cellAssigned = true;
+            usedCellIds.insert(id);
+        }
+
+        if ((info.presence & InNodes) && id > 0)
+        {
+            info.nodeId = id;
+            info.nodeAssigned = true;
+            usedNodeIds.insert(id);
+        }
+    }
+
+    /*
+     * 3. For wrong IDs just start to invert it.
+     *
+     *       cell : +42 -> -42
+     *       node   : -42 -> +42
+     * In case of failure go to step 4. To be sure to not steal an another family
+     */
+    for (const mcIdType id : ids)
+    {
+        Info &info = infos.find(id)->second;
+
+        if ((info.presence & InCells) && !info.cellAssigned)
+        {
+            /*
+             * here id > 0 because <=0 have been treated already
+             */
+            const mcIdType candidate = -id;
+
+            if (usedCellIds.insert(candidate).second)
+            {
+                info.cellId = candidate;
+                info.cellAssigned = true;
+            }
+        }
+
+        if ((info.presence & InNodes) && !info.nodeAssigned)
+        {
+            /* Ici id < 0. */
+            const mcIdType candidate = -id;
+
+            if (candidate > 0 && usedNodeIds.insert(candidate).second)
+            {
+                info.nodeId = candidate;
+                info.nodeAssigned = true;
+            }
+        }
+    }
+
+    /*
+     * ID generator in case of collision
+     */
+    mcIdType nextCellId = -1;
+
+    auto allocateCellId = [&]() -> mcIdType
+    {
+        while (usedCellIds.find(nextCellId) != usedCellIds.end())
+        {
+            --nextCellId;
+        }
+
+        const mcIdType result = nextCellId;
+        usedCellIds.insert(result);
+        --nextCellId;
+
+        return result;
+    };
+
+    mcIdType nextNodeId = 1;
+
+    auto allocateNodeId = [&]() -> mcIdType
+    {
+        while (usedNodeIds.find(nextNodeId) != usedNodeIds.end())
+        {
+            ++nextNodeId;
+        }
+
+        const mcIdType result = nextNodeId;
+        usedNodeIds.insert(result);
+        ++nextNodeId;
+
+        return result;
+    };
+
+    /*
+     * 4. Solve last remaning collisions
+     */
+    for (const mcIdType id : ids)
+    {
+        Info &info = infos.find(id)->second;
+
+        if ((info.presence & InCells) && !info.cellAssigned)
+        {
+            info.cellId = allocateCellId();
+            info.cellAssigned = true;
+        }
+
+        if ((info.presence & InNodes) && !info.nodeAssigned)
+        {
+            info.nodeId = allocateNodeId();
+            info.nodeAssigned = true;
+        }
+    }
+
+    /*
+     * 5. Construct family to build
+     *
+     * For a family present both cell side and node side
+     *
+     *   id < 0 :
+     *       original family stay cell side
+     *       a new positive family created node side
+     *
+     *   id > 0 :
+     *       original family stay node side
+     *       a new positive family created cell side
+     *
+     * One creation per shared family
+     */
+    outFamIdModification.clear();
+    outFamIdCreation.clear();
+
+    outFamIdCreation.reserve(ids.size());
+
+    auto hint = outFamIdModification.end();
+
+    for (const mcIdType id : ids)
+    {
+        const Info &info = infos.find(id)->second;
+
+        const bool inCells = (info.presence & InCells) != 0;
+
+        const bool inNodes = (info.presence & InNodes) != 0;
+
+        mcIdType primaryId;
+
+        if (id == 0)
+        {
+            primaryId = 0;
+        }
+        else if (inCells && inNodes)
+        {
+            if (id < 0)
+            {
+                /*
+                 * original family stored cell side
+                 */
+                primaryId = info.cellId;  // == id
+
+                outFamIdCreation.emplace_back(id, info.nodeId);
+            }
+            else
+            {
+                /*
+                 * original family stored node side
+                 */
+                primaryId = info.nodeId;  // == id
+
+                outFamIdCreation.emplace_back(id, info.cellId);
+            }
+        }
+        else if (inCells)
+        {
+            primaryId = info.cellId;
+        }
+        else
+        {
+            primaryId = info.nodeId;
+        }
+
+        /*
+         * ids étant trié, emplace_hint(end()) permet de construire
+         * efficacement le std::map.
+         */
+        hint = outFamIdModification.emplace_hint(hint, id, primaryId);
+    }
+
+    /*
+     * 6. In place modification of arrays
+     */
+    for (auto &zone : famCells)
+    {
+        for (mcIdType *id = zone->rwBegin(); id != zone->rwEnd(); ++id)
+        {
+            *id = infos.find(*id)->second.cellId;
+        }
+    }
+
+    for (auto &zone : famNodes)
+    {
+        for (mcIdType *id = zone->rwBegin(); id != zone->rwEnd(); ++id)
+        {
+            *id = infos.find(*id)->second.nodeId;
+        }
+    }
+}
+
+/*!
+ * last step of MEDFileUMesh.normalizeFamIdsMEDFile.
+ * update families and groups map thanks to output of toMEDFileConvention.
+ */
+void
+updateGroupsAndFamiliesForMED(
+    std::map<std::string, std::vector<std::string>> &groups,
+    std::map<std::string, mcIdType> &families,
+    const std::map<mcIdType, mcIdType> &famIdModification,
+    const std::vector<std::pair<mcIdType, mcIdType>> &famIdCreation
+)
+{
+    using Families = std::map<std::string, mcIdType>;
+    using FamilyIterator = Families::iterator;
+
+    /*
+     * Keep a view of the family entries that existed when the function
+     * was called.
+     *
+     * Inserting new elements into std::map does not invalidate existing
+     * iterators. This allows us to create new families first and later
+     * renumber only the original ones.
+     */
+    std::vector<FamilyIterator> familiesToRenumber;
+    familiesToRenumber.reserve(families.size());
+
+    for (auto it = families.begin(); it != families.end(); ++it) familiesToRenumber.push_back(it);
+
+    /*
+     * Keep the set of family IDs that existed on entry.
+     *
+     * This is used to detect an inconsistent famIdCreation referring
+     * to an unknown original family ID.
+     */
+    std::unordered_set<mcIdType> originalFamilyIds;
+    originalFamilyIds.reserve(families.size());
+
+    for (const FamilyIterator it : familiesToRenumber) originalFamilyIds.insert(it->second);
+
+    /*
+     * Map each original family ID that has been split to the name of
+     * the newly created family.
+     *
+     * By construction of toMEDFileConvention(), a non-zero original
+     * family ID can generate at most one additional family.
+     */
+    std::unordered_map<mcIdType, std::string> createdFamilyByOriginalId;
+
+    createdFamilyByOriginalId.reserve(famIdCreation.size());
+
+    /*
+     * Generate a unique family name using the following convention:
+     *
+     *     Family_-42
+     *     Family__-42
+     *     Family___-42
+     *     ...
+     *
+     * Underscores are added until an unused name is found.
+     */
+    auto makeUniqueFamilyName = [&families](const mcIdType famId) -> std::string
+    {
+        std::string prefix = "Family_";
+        const std::string suffix = std::to_string(famId);
+
+        while (true)
+        {
+            const std::string candidate = prefix + suffix;
+
+            if (families.find(candidate) == families.end())
+                return candidate;
+
+            prefix += '_';
+        }
+    };
+
+    /*
+     * Create all additional families before modifying the IDs of the
+     * original families.
+     *
+     * This is important because groups still refer to family names,
+     * and at this point the value associated with an original family
+     * name is still its original ID.
+     */
+    for (const auto &creation : famIdCreation)
+    {
+        const mcIdType oldFamId = creation.first;
+        const mcIdType newFamId = creation.second;
+
+        if (originalFamilyIds.find(oldFamId) == originalFamilyIds.end())
+        {
+            THROW_IK_EXCEPTION("famIdCreation refers to an unknown original family ID: " << std::to_string(oldFamId));
+        }
+
+        /*
+         * toMEDFileConvention() guarantees that a given original
+         * family ID can produce at most one additional family.
+         */
+        if (createdFamilyByOriginalId.find(oldFamId) != createdFamilyByOriginalId.end())
+        {
+            THROW_IK_EXCEPTION(
+                "Several new families are associated with the same original family ID: " << std::to_string(oldFamId)
+            );
+        }
+
+        const std::string newFamilyName = makeUniqueFamilyName(newFamId);
+
+        const auto insertedFamily = families.emplace(newFamilyName, newFamId);
+
+        /*
+         * This should never fail because makeUniqueFamilyName()
+         * has just checked that the name is available.
+         */
+        if (!insertedFamily.second)
+        {
+            THROW_IK_EXCEPTION("Unable to create a unique MED family name");
+        }
+
+        createdFamilyByOriginalId.emplace(oldFamId, newFamilyName);
+    }
+
+    /*
+     * Update the groups.
+     *
+     * When an original family is split into two MED families, the new
+     * family must belong to every group containing the original one.
+     *
+     * The original family IDs have not been modified yet, therefore
+     * families[familyName] still gives us the original ID here.
+     */
+    for (auto &groupEntry : groups)
+    {
+        std::vector<std::string> &familyNames = groupEntry.second;
+
+        /*
+         * Only iterate over the entries that were already present in
+         * the group. Newly appended family names must not themselves
+         * be processed.
+         */
+        const std::size_t originalSize = familyNames.size();
+
+        /*
+         * Protect against adding the same created family more than once
+         * if several family names in the same group happen to reference
+         * the same original family ID.
+         */
+        std::unordered_set<mcIdType> alreadyExpanded;
+        alreadyExpanded.reserve(originalSize);
+
+        for (std::size_t i = 0; i < originalSize; ++i)
+        {
+            const std::string &familyName = familyNames[i];
+
+            const auto familyIt = families.find(familyName);
+
+            /*
+             * The caller guarantees that every family name referenced
+             * by groups is a key of families. Keep the check here to
+             * fail explicitly if the input is inconsistent.
+             */
+            if (familyIt == families.end())
+            {
+                THROW_IK_EXCEPTION("Group references unknown family: " << familyName);
+            }
+
+            const mcIdType oldFamId = familyIt->second;
+
+            const auto createdIt = createdFamilyByOriginalId.find(oldFamId);
+
+            if (createdIt == createdFamilyByOriginalId.end())
+                continue;
+
+            /*
+             * Add at most one copy of the newly created family for a
+             * given original family ID in this group.
+             */
+            if (!alreadyExpanded.insert(oldFamId).second)
+                continue;
+
+            familyNames.push_back(createdIt->second);
+        }
+    }
+
+    /*
+     * Finally renumber the original families.
+     *
+     * Each family ID is looked up exactly once using its ORIGINAL value.
+     * There is deliberately no chained application of the mapping.
+     *
+     * Therefore mappings containing cycles such as
+     *
+     *     2  -> -2
+     *    -2  ->  2
+     *
+     * are handled correctly:
+     *
+     *     FamilyA:  2 -> -2
+     *     FamilyB: -2 ->  2
+     *
+     * Newly created families are not part of familiesToRenumber and
+     * are consequently left untouched.
+     */
+    for (const FamilyIterator familyIt : familiesToRenumber)
+    {
+        const mcIdType oldFamId = familyIt->second;
+
+        const auto modificationIt = famIdModification.find(oldFamId);
+
+        if (modificationIt != famIdModification.end())
+            familyIt->second = modificationIt->second;
+    }
+}
+}  // namespace
+
 /*!
  * This method normalizes fam id with the following policy.
  * Level #0 famids < 0, Level #-1 famids < 0 and for Level #1 famids >= 0
@@ -2137,87 +2650,27 @@ MEDFileMesh::normalizeFamIdsTrio()
 void
 MEDFileMesh::normalizeFamIdsMEDFile()
 {
-    ensureDifferentFamIdsPerLevel();
-    MCAuto<DataArrayIdType> allIds = getAllFamiliesIdsReferenced();
-    std::vector<int> levs = getNonEmptyLevelsExt();
-    std::set<int> levsS(levs.begin(), levs.end());
-    std::set<std::string> famsFetched;
-    std::map<std::string, mcIdType> families;
-    mcIdType refId = 1;
-    if (std::find(levs.begin(), levs.end(), 1) != levs.end())
+    std::vector<DataArrayIdType *> famCells, famNodes;
+    std::map<mcIdType, mcIdType> famIdModification;
+    std::vector<std::pair<mcIdType, mcIdType>> famIdCreation;
+    DataArrayIdType *fam(getFamilyFieldAtLevel(1));
+    if (fam)
     {
-        levsS.erase(1);
-        const DataArrayIdType *fam = getFamilyFieldAtLevel(1);
-        if (fam)
-        {
-            MCAuto<DataArrayIdType> tmp = fam->getDifferentValues();
-            std::map<mcIdType, mcIdType> ren;
-            ren[0] = 0;
-            for (const mcIdType *it = tmp->begin(); it != tmp->end(); it++, refId++)
-                if (*it != 0)
-                {
-                    ren[*it] = refId;
-                }
-            mcIdType nbOfTuples = fam->getNumberOfTuples();
-            mcIdType *start = const_cast<DataArrayIdType *>(fam)->getPointer();
-            for (mcIdType *w = start; w != start + nbOfTuples; w++) *w = ren[*w];
-            for (const mcIdType *it = tmp->begin(); it != tmp->end(); it++)
-            {
-                if (allIds->presenceOfValue(*it))
-                {
-                    std::string famName = getFamilyNameGivenId(*it);
-                    families[famName] = ren[*it];
-                    famsFetched.insert(famName);
-                }
-            }
-        }
+        famNodes.push_back(fam);
     }
-    refId = -1;
-    for (std::set<int>::const_reverse_iterator it2 = levsS.rbegin(); it2 != levsS.rend(); it2++)
+    std::vector<int> levs(getNonEmptyLevels());
+    std::set<int> levsS(levs.begin(), levs.end());
+    for (auto it2 = levsS.rbegin(); it2 != levsS.rend(); it2++)
     {
-        const DataArrayIdType *fam = getFamilyFieldAtLevel(*it2);
+        DataArrayIdType *fam = getFamilyFieldAtLevel(*it2);
         if (fam)
         {
-            MCAuto<DataArrayIdType> tmp = fam->getDifferentValues();
-            std::map<mcIdType, mcIdType> ren;
-            ren[0] = 0;
-            for (const mcIdType *it = tmp->begin(); it != tmp->end(); it++, refId--)
-                if (*it != 0)
-                {
-                    ren[*it] = refId;
-                }
-            mcIdType nbOfTuples = fam->getNumberOfTuples();
-            mcIdType *start = const_cast<DataArrayIdType *>(fam)->getPointer();
-            for (mcIdType *w = start; w != start + nbOfTuples; w++) *w = ren[*w];
-            for (const mcIdType *it = tmp->begin(); it != tmp->end(); it++)
-            {
-                if (allIds->presenceOfValue(*it))
-                {
-                    std::string famName = getFamilyNameGivenId(*it);
-                    families[famName] = ren[*it];
-                    famsFetched.insert(famName);
-                }
-            }
+            famCells.push_back(fam);
         }
     }
     //
-    _families = families;
-    // remove unfetched families on groups
-    for (auto &grp : _groups)
-    {
-        auto it(grp.second.begin());
-        while (it != grp.second.end())
-        {
-            if (_families.find(*it) == _families.end())
-            {
-                it = grp.second.erase(it);
-            }
-            else
-            {
-                it++;
-            }
-        }
-    }
+    toMEDFileConvention(famCells, famNodes, famIdModification, famIdCreation);
+    updateGroupsAndFamiliesForMED(_groups, _families, famIdModification, famIdCreation);
 }
 
 /*!

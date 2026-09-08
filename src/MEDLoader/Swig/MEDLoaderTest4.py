@@ -16764,6 +16764,35 @@ class MEDLoaderTest4(unittest.TestCase):
         mm.normalizeFamIdsMEDFile()
         mm.checkMEDFamilyConvention()
         case3_0( mm )
+        # case4 :  Dont respect MED file law. Aggresive case. -2 and 2 are voluntarary on opposite side
+        mm = generateCase()
+        mm.setFamilyFieldArr(0,DataArrayInt([3, 2, -1, 1]))
+        mm.setFamilyFieldArr(-1,DataArrayInt([1, -1, 2, 3, 0, 0 ]))
+        mm.setFamilyFieldArr(1, DataArrayInt( [ 1, -1, -2, 3, 0, 0, 0, 0, 0 ] ))
+        for id in [ -1, 1, 2, 3, -2]:
+            mm.setFamilyId( f"Family_{id}", id )
+        mm.setFamilyId( "FAMILLE_ZERO", 0 )
+        mm.setFamiliesIdsOnGroup("grp0",[-1,1])
+        mm.setFamiliesIdsOnGroup("grp1",[1,2])
+        mm.setFamiliesIdsOnGroup("grp2",[3,-2,1])
+        def case4_0( mm ):
+            MyAssert( set(mm.getGroupsNames())==set(('grp0', 'grp1', 'grp2')) )
+            MyAssert( mm.getGrpNonEmptyLevelsExt("grp0") == (1, 0, -1) )
+            MyAssert( mm.getGroupArr(0,"grp0").isEqualWithoutConsideringStr( DataArrayInt([2,3]) ) )
+            MyAssert( mm.getGroupArr(1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,1]) ) )
+            MyAssert( mm.getGroupArr(-1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,1]) ) )
+            MyAssert( mm.getGrpNonEmptyLevelsExt("grp1") == (1, 0, -1) )
+            MyAssert( mm.getGroupArr(0,"grp1").isEqualWithoutConsideringStr( DataArrayInt([1,3]) ) )
+            MyAssert( mm.getGroupArr(1,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0]) ) )
+            MyAssert( mm.getGroupArr(-1,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0,2]) ) )
+            MyAssert( mm.getGrpNonEmptyLevelsExt("grp2") == (1, 0, -1) )
+            MyAssert( mm.getGroupArr(0,"grp2").isEqualWithoutConsideringStr( DataArrayInt([0,3]) ) )
+            MyAssert( mm.getGroupArr(1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([0,2,3]) ) )
+            MyAssert( mm.getGroupArr(-1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([0,3]) ) )
+        case4_0( mm )
+        mm.normalizeFamIdsMEDFile()
+        mm.checkMEDFamilyConvention()
+        case4_0( mm )
         # fmt: on
         pass
 
