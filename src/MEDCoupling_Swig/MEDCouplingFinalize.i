@@ -151,6 +151,8 @@ DataArrayDoubleIterator.__next__ = DataArrayDoubleIterator.next
 MEDCouplingUMeshCellIterator.__next__ = MEDCouplingUMeshCellIterator.next
 MEDCouplingUMeshCellByTypeIterator.__next__ = MEDCouplingUMeshCellByTypeIterator.next
 
+MEDCouplingGaussLocalization.getGaussWeights = MEDCouplingGaussLocalization.getWeights
+
 del DataArrayAsciiCharIteratoriter
 del INTERPKERNELExceptionReduce
 del MEDCoupling1SGTUMeshReduce

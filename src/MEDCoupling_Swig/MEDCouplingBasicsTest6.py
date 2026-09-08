@@ -1381,7 +1381,7 @@ class MEDCouplingBasicsTest6(unittest.TestCase):
             glt = f1.getGaussLocalizationIdOfOneType(gt)
             gloc = f1.getGaussLocalization(glt)
             fOut.setGaussLocalizationOnType(
-                gt, gloc.getRefCoords(), gloc.getGaussCoords(), gloc.getWeights()
+                gt, gloc.getRefCoords(), gloc.getGaussCoords(), gloc.getGaussWeights()
             )
         fOut.setArray(DataArrayDouble.Aggregate([f1.getArray(), arr2]))
         fOut.checkConsistencyLight()
