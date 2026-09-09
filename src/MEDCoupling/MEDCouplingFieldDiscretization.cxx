@@ -683,6 +683,22 @@ MEDCouplingFieldDiscretization::setGaussLocalizationOnType(
 }
 
 void
+MEDCouplingFieldDiscretization::setGaussLocalizationOnRangeCells(
+    const MEDCouplingMesh *m,
+    mcIdType start,
+    mcIdType stop,
+    mcIdType step,
+    const std::vector<double> &refCoo,
+    const std::vector<double> &gsCoo,
+    const std::vector<double> &wg
+)
+{
+    THROW_IK_EXCEPTION(
+        "Invalid method for the corresponding field discretization : available only for GaussPoint discretization !"
+    );
+}
+
+void
 MEDCouplingFieldDiscretization::setGaussLocalizationOnCells(
     const MEDCouplingMesh *m,
     const mcIdType *begin,
@@ -2725,11 +2741,11 @@ MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnType(
     const INTERP_KERNEL::CellModel &cm = INTERP_KERNEL::CellModel::GetCellModel(type);
     if (ToIdType(cm.getDimension()) != mesh->getMeshDimension())
     {
-        std::ostringstream oss;
-        oss << "MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnType : mismatch of dimensions ! MeshDim=="
-            << mesh->getMeshDimension();
-        oss << " whereas Type '" << cm.getRepr() << "' has dimension " << cm.getDimension() << " !";
-        throw INTERP_KERNEL::Exception(oss.str().c_str());
+        THROW_IK_EXCEPTION(
+            "MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnType : mismatch of dimensions ! MeshDim=="
+            << mesh->getMeshDimension() << " whereas Type '" << cm.getRepr() << "' has dimension " << cm.getDimension()
+            << " !"
+        );
     }
     buildDiscrPerCellIfNecessary(mesh);
     mcIdType id = ToIdType(_loc.size());
@@ -2744,6 +2760,62 @@ MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnType(
 }
 
 void
+MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnRangeCells(
+    const MEDCouplingMesh *mesh,
+    mcIdType start,
+    mcIdType stop,
+    mcIdType step,
+    const std::vector<double> &refCoo,
+    const std::vector<double> &gsCoo,
+    const std::vector<double> &wg
+)
+{
+    if (!mesh)
+        THROW_IK_EXCEPTION("MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnCells : NULL input mesh !");
+    buildDiscrPerCellIfNecessary(mesh);
+    if (step == 0)
+    {
+        THROW_IK_EXCEPTION("Invalid input step !");
+    }
+    auto myCompare = [step](mcIdType toCompare, mcIdType locStop) -> bool
+    {
+        if (step > 0)
+            return toCompare < locStop;
+        else
+            return toCompare > locStop;
+    };
+    mcIdType nbOfCells(0);
+    for (mcIdType w2 = start; myCompare(w2, stop); w2 += step)
+    {
+        nbOfCells++;
+    }
+    if (nbOfCells == 0)
+        return;
+    INTERP_KERNEL::NormalizedCellType type = mesh->getTypeOfCell(start);
+    MEDCouplingGaussLocalization elt(type, refCoo, gsCoo, wg);
+    mcIdType id = ToIdType(_loc.size());
+    mcIdType *ptr = _discr_per_cell->getPointer();
+    for (mcIdType w = start; myCompare(w, stop); w += step)
+    {
+        if (mesh->getTypeOfCell(w) != type)
+        {
+            THROW_IK_EXCEPTION(
+                "The cell with id " << w
+                                    << " has been detected to be incompatible in the slice(start,stop,step) specified !"
+            );
+        }
+    }
+    //
+    for (mcIdType w2 = start; myCompare(w2, stop); w2 += step)
+    {
+        ptr[w2] = id;
+    }
+    //
+    _loc.push_back(elt);
+    zipGaussLocalizations();
+}
+
+void
 MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnCells(
     const MEDCouplingMesh *mesh,
     const mcIdType *begin,
@@ -2754,12 +2826,10 @@ MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnCells(
 )
 {
     if (!mesh)
-        throw INTERP_KERNEL::Exception(
-            "MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnCells : NULL input mesh !"
-        );
+        THROW_IK_EXCEPTION("MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnCells : NULL input mesh !");
     buildDiscrPerCellIfNecessary(mesh);
     if (std::distance(begin, end) < 1)
-        throw INTERP_KERNEL::Exception("Size of [begin,end) must be equal or greater than 1 !");
+        return;
     INTERP_KERNEL::NormalizedCellType type = mesh->getTypeOfCell(*begin);
     MEDCouplingGaussLocalization elt(type, refCoo, gsCoo, wg);
     mcIdType id = ToIdType(_loc.size());
@@ -2768,10 +2838,10 @@ MEDCouplingFieldDiscretizationGauss::setGaussLocalizationOnCells(
     {
         if (mesh->getTypeOfCell(*w) != type)
         {
-            std::ostringstream oss;
-            oss << "The cell with id " << *w
-                << " has been detected to be incompatible in the [begin,end) array specified !";
-            throw INTERP_KERNEL::Exception(oss.str().c_str());
+            THROW_IK_EXCEPTION(
+                "The cell with id " << *w
+                                    << " has been detected to be incompatible in the [begin,end) array specified !"
+            );
         }
     }
     //

@@ -373,12 +373,29 @@ MEDCouplingField::setGaussLocalizationOnCells(
 )
 {
     if (!_mesh)
-        throw INTERP_KERNEL::Exception("Mesh has to be set before calling setGaussLocalizationOnCells method !");
-    if (!((const MEDCouplingFieldDiscretization *)_type))
-        throw INTERP_KERNEL::Exception(
-            "Spatial discretization not set ! Impossible to call setGaussLocalizationOnCells method !"
-        );
+        THROW_IK_EXCEPTION("Mesh has to be set before calling setGaussLocalizationOnCells method !");
+    if (_type.isNull())
+        THROW_IK_EXCEPTION("Spatial discretization not set ! Impossible to call setGaussLocalizationOnCells method !");
     _type->setGaussLocalizationOnCells(_mesh, begin, end, refCoo, gsCoo, wg);
+}
+
+void
+MEDCouplingField::setGaussLocalizationOnRangeCells(
+    mcIdType start,
+    mcIdType stop,
+    mcIdType step,
+    const std::vector<double> &refCoo,
+    const std::vector<double> &gsCoo,
+    const std::vector<double> &wg
+)
+{
+    if (!_mesh)
+        THROW_IK_EXCEPTION("Mesh has to be set before calling setGaussLocalizationOnRangeCells method !");
+    if (_type.isNull())
+        THROW_IK_EXCEPTION(
+            "Spatial discretization not set ! Impossible to call setGaussLocalizationOnRangeCells method !"
+        );
+    _type->setGaussLocalizationOnRangeCells(_mesh, start, stop, step, refCoo, gsCoo, wg);
 }
 
 /*!

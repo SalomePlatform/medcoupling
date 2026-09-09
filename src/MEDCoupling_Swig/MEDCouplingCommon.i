@@ -4139,6 +4139,12 @@ namespace MEDCoupling
         return self->computeTupleIdsToSelectFromCellIds(cellIdsBg,cellIdsBg+sz);
       }
 
+      void setGaussLocalizationOnRangeCells(mcIdType begin, mcIdType end, mcIdType step, const std::vector<double>& refCoo,
+                                       const std::vector<double>& gsCoo, const std::vector<double>& wg)
+      {
+        self->setGaussLocalizationOnRangeCells(begin, end, step, refCoo, gsCoo, wg);
+      }
+
       void setGaussLocalizationOnCells(PyObject *li, const std::vector<double>& refCoo,
                                        const std::vector<double>& gsCoo, const std::vector<double>& wg)
       {

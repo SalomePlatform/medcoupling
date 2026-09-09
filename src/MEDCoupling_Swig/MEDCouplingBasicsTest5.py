@@ -163,8 +163,9 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         # ON_GAUSS_PT
         f = MEDCouplingFieldDouble(ON_GAUSS_PT)
         f.setMesh(m)
-        f.setGaussLocalizationOnCells(
-            [0, 4], [0, 0, 1, 0, 1, 1, 1, 0], [1.1, 1.1, 2.2, 2.2], [0.2, 0.8]
+        # equivalent to setGaussLocalizationOnCells([0,4]...)
+        f.setGaussLocalizationOnRangeCells(
+            0, 5, 4, [0, 0, 1, 0, 1, 1, 1, 0], [1.1, 1.1, 2.2, 2.2], [0.2, 0.8]
         )
         f.setGaussLocalizationOnCells(
             [3],
@@ -10501,7 +10502,9 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         # Remove unused nodes
         m.zipCoords()
         self.assertTrue(
-            m.getNodalConnectivity().isEqual(DataArrayInt([32, 0, 2, 4, 1, 3, 9, 5, 6, 7, 8]))
+            m.getNodalConnectivity().isEqual(
+                DataArrayInt([32, 0, 2, 4, 1, 3, 9, 5, 6, 7, 8])
+            )
         )
         self.assertTrue(m.getNodalConnectivityIndex().isEqual(DataArrayInt([0, 11])))
         pass

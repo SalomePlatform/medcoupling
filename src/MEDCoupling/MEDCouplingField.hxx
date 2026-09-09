@@ -95,6 +95,14 @@ class MEDCouplingField : public RefCountObject, public TimeLabel
         const std::vector<double> &gsCoo,
         const std::vector<double> &wg
     );
+    MEDCOUPLING_EXPORT void setGaussLocalizationOnRangeCells(
+        mcIdType start,
+        mcIdType stop,
+        mcIdType step,
+        const std::vector<double> &refCoo,
+        const std::vector<double> &gsCoo,
+        const std::vector<double> &wg
+    );
     MEDCOUPLING_EXPORT void clearGaussLocalizations();
     MEDCOUPLING_EXPORT MEDCouplingGaussLocalization &getGaussLocalization(int locId);
     MEDCOUPLING_EXPORT mcIdType getGaussLocalizationIdOfOneType(INTERP_KERNEL::NormalizedCellType type) const;

@@ -154,6 +154,15 @@ class MEDCouplingFieldDiscretization : public RefCountObject, public TimeLabel
         const std::vector<double> &gsCoo,
         const std::vector<double> &wg
     );
+    MEDCOUPLING_EXPORT virtual void setGaussLocalizationOnRangeCells(
+        const MEDCouplingMesh *m,
+        mcIdType start,
+        mcIdType stop,
+        mcIdType step,
+        const std::vector<double> &refCoo,
+        const std::vector<double> &gsCoo,
+        const std::vector<double> &wg
+    );
     MEDCOUPLING_EXPORT virtual void setGaussLocalizationOnCells(
         const MEDCouplingMesh *m,
         const mcIdType *begin,
@@ -493,6 +502,15 @@ class MEDCouplingFieldDiscretizationGauss : public MEDCouplingFieldDiscretizatio
     MEDCOUPLING_EXPORT void setGaussLocalizationOnType(
         const MEDCouplingMesh *mesh,
         INTERP_KERNEL::NormalizedCellType type,
+        const std::vector<double> &refCoo,
+        const std::vector<double> &gsCoo,
+        const std::vector<double> &wg
+    );
+    MEDCOUPLING_EXPORT virtual void setGaussLocalizationOnRangeCells(
+        const MEDCouplingMesh *m,
+        mcIdType start,
+        mcIdType stop,
+        mcIdType step,
         const std::vector<double> &refCoo,
         const std::vector<double> &gsCoo,
         const std::vector<double> &wg
