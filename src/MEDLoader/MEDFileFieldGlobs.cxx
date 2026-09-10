@@ -335,7 +335,6 @@ MEDFileFieldGlobs::changePflsNamesInStruct(
                 if (std::find((*it2).first.begin(), (*it2).first.end(), name) != (*it2).first.end())
                 {
                     elt->setName((*it2).second.c_str());
-                    return;
                 }
             }
         }
@@ -361,7 +360,6 @@ MEDFileFieldGlobs::changeLocsNamesInStruct(
                 if (std::find((*it2).first.begin(), (*it2).first.end(), name) != (*it2).first.end())
                 {
                     elt->setName((*it2).second.c_str());
-                    return;
                 }
             }
         }

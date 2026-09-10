@@ -16639,10 +16639,6 @@ class MEDLoaderTest4(unittest.TestCase):
             mm[-1] = m1
             return mm
 
-        def MyAssert( v ):
-            if not v:
-                raise RuntimeError( "Assertion failed !" )
-
         # case0 : Respect MED file law. Fam0 on level 1 NO FAM 0 on level 0 and -1. no intersection between levels
         mm = generateCase()
         mm.setFamilyFieldArr(0,DataArrayInt([-1,-2,-1,-3]))
@@ -16656,23 +16652,23 @@ class MEDLoaderTest4(unittest.TestCase):
         mm.setFamiliesIdsOnGroup("grp1",[-1,-2])
         mm.setFamiliesIdsOnGroup("grp2",[2])
         mm.checkMEDFamilyConvention()
-        def case0_0( mm ):
-            MyAssert( set(mm.getGroupsNames())==set(('grp0', 'grp1', 'grp2')) )
-            MyAssert( mm.getGrpNonEmptyLevelsExt("grp0") == (1, 0, -1) )
-            MyAssert( mm.getGroupArr(0,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,2,3]) ) )
-            MyAssert( mm.getGroupArr(1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
-            MyAssert( mm.getGroupArr(-1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,2,5]) ) )
-            MyAssert( mm.getGrpNonEmptyLevelsExt("grp1") == (0,) )
-            MyAssert( mm.getGroupArr(0,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
-            MyAssert( mm.getGrpNonEmptyLevelsExt("grp2") == (1,) )
-            MyAssert( mm.getGroupArr(1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([4,5,6,7,8]) ) )
-            MyAssert( mm.getFamNonEmptyLevelsExt("FAMILLE_ZERO") == (1,) )
-            MyAssert( mm.getFamilyArr(1,"FAMILLE_ZERO").isEqualWithoutConsideringStr( DataArrayInt([3]) ) )
-        case0_0( mm )
+        def case0_0( self, mm ):
+            self.assertTrue( set(mm.getGroupsNames())==set(('grp0', 'grp1', 'grp2')) )
+            self.assertTrue( mm.getGrpNonEmptyLevelsExt("grp0") == (1, 0, -1) )
+            self.assertTrue( mm.getGroupArr(0,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,2,3]) ) )
+            self.assertTrue( mm.getGroupArr(1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
+            self.assertTrue( mm.getGroupArr(-1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,2,5]) ) )
+            self.assertTrue( mm.getGrpNonEmptyLevelsExt("grp1") == (0,) )
+            self.assertTrue( mm.getGroupArr(0,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
+            self.assertTrue( mm.getGrpNonEmptyLevelsExt("grp2") == (1,) )
+            self.assertTrue( mm.getGroupArr(1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([4,5,6,7,8]) ) )
+            self.assertTrue( mm.getFamNonEmptyLevelsExt("FAMILLE_ZERO") == (1,) )
+            self.assertTrue( mm.getFamilyArr(1,"FAMILLE_ZERO").isEqualWithoutConsideringStr( DataArrayInt([3]) ) )
+        case0_0( self, mm )
         mm.write(fname,2)
         mm.normalizeFamIdsMEDFile()
         mm.checkMEDFamilyConvention()
-        case0_0( mm )
+        case0_0( self, mm )
         # case1 : Respect MED file law. Fam0 on level 1 Fam0 on level 0 NO FAM 0 on level -1
         mm = generateCase()
         mm.setFamilyFieldArr(0,DataArrayInt([-1,-2,0,0]))
@@ -16686,24 +16682,24 @@ class MEDLoaderTest4(unittest.TestCase):
         mm.setFamiliesIdsOnGroup("grp1",[-1,-2])
         mm.setFamiliesIdsOnGroup("grp2",[2])
         mm.checkMEDFamilyConvention()
-        def case1_0( mm ):
-            MyAssert( set(mm.getGroupsNames())==set(('grp0', 'grp1', 'grp2')) )
-            MyAssert( mm.getGrpNonEmptyLevelsExt("grp0") == (1, 0, -1) )
-            MyAssert( mm.getGroupArr(0,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0]) ) )
-            MyAssert( mm.getGroupArr(1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
-            MyAssert( mm.getGroupArr(-1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,2,5]) ) )
-            MyAssert( mm.getGrpNonEmptyLevelsExt("grp1") == (0,) )
-            MyAssert( mm.getGroupArr(0,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0,1]) ) )
-            MyAssert( mm.getGrpNonEmptyLevelsExt("grp2") == (1,) )
-            MyAssert( mm.getGroupArr(1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([4,5,6,7,8]) ) )
-            MyAssert( mm.getFamNonEmptyLevelsExt("FAMILLE_ZERO") == (1,0) )
-            MyAssert( mm.getFamilyArr(1,"FAMILLE_ZERO").isEqualWithoutConsideringStr( DataArrayInt([3]) ) )
-            MyAssert( mm.getFamilyArr(0,"FAMILLE_ZERO").isEqualWithoutConsideringStr( DataArrayInt([2,3]) ) )
-        case1_0( mm )
+        def case1_0( self, mm ):
+            self.assertTrue( set(mm.getGroupsNames())==set(('grp0', 'grp1', 'grp2')) )
+            self.assertTrue( mm.getGrpNonEmptyLevelsExt("grp0") == (1, 0, -1) )
+            self.assertTrue( mm.getGroupArr(0,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0]) ) )
+            self.assertTrue( mm.getGroupArr(1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
+            self.assertTrue( mm.getGroupArr(-1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,2,5]) ) )
+            self.assertTrue( mm.getGrpNonEmptyLevelsExt("grp1") == (0,) )
+            self.assertTrue( mm.getGroupArr(0,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0,1]) ) )
+            self.assertTrue( mm.getGrpNonEmptyLevelsExt("grp2") == (1,) )
+            self.assertTrue( mm.getGroupArr(1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([4,5,6,7,8]) ) )
+            self.assertTrue( mm.getFamNonEmptyLevelsExt("FAMILLE_ZERO") == (1,0) )
+            self.assertTrue( mm.getFamilyArr(1,"FAMILLE_ZERO").isEqualWithoutConsideringStr( DataArrayInt([3]) ) )
+            self.assertTrue( mm.getFamilyArr(0,"FAMILLE_ZERO").isEqualWithoutConsideringStr( DataArrayInt([2,3]) ) )
+        case1_0( self, mm )
         mm.write(fname,2)
         #mm.ensureDifferentFamIdsPerLevel()
         mm.normalizeFamIdsMEDFile()
-        case1_0( mm )
+        case1_0( self, mm )
         mm.write(fname,2)
         # case2 : Dont respect MED file law on level 1. Fam0 on level 1 no fam0 on lev 0 and -1. And furthermore level 0 and 1 share family 1
         mm = generateCase()
@@ -16716,24 +16712,24 @@ class MEDLoaderTest4(unittest.TestCase):
         mm.setFamiliesIdsOnGroup("grp0",[-1,1,-3,-4])
         mm.setFamiliesIdsOnGroup("grp1",[-1,-2])
         mm.setFamiliesIdsOnGroup("grp2",[2])
-        def case2_0( mm ):
-            MyAssert( set(mm.getGroupsNames())==set(('grp0', 'grp1', 'grp2')) )
-            MyAssert( mm.getGrpNonEmptyLevelsExt("grp0") == (1, 0, -1) )
-            MyAssert( mm.getGroupArr(0,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,2,3]) ) )
-            MyAssert( mm.getGroupArr(1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
-            MyAssert( mm.getGroupArr(-1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,2,5]) ) )
-            MyAssert( mm.getGrpNonEmptyLevelsExt("grp1") == (1,0) )
-            MyAssert( mm.getGroupArr(0,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
-            MyAssert( mm.getGroupArr(1,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
-            MyAssert( mm.getGrpNonEmptyLevelsExt("grp2") == (1,) )
-            MyAssert( mm.getGroupArr(1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([4,5,6,7,8]) ) )
-            MyAssert( mm.getFamNonEmptyLevelsExt("FAMILLE_ZERO") == (1,) )
-            MyAssert( mm.getFamilyArr(1,"FAMILLE_ZERO").isEqualWithoutConsideringStr( DataArrayInt([3]) ) )
-        case2_0( mm )
+        def case2_0( self, mm ):
+            self.assertTrue( set(mm.getGroupsNames())==set(('grp0', 'grp1', 'grp2')) )
+            self.assertTrue( mm.getGrpNonEmptyLevelsExt("grp0") == (1, 0, -1) )
+            self.assertTrue( mm.getGroupArr(0,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,2,3]) ) )
+            self.assertTrue( mm.getGroupArr(1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
+            self.assertTrue( mm.getGroupArr(-1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,2,5]) ) )
+            self.assertTrue( mm.getGrpNonEmptyLevelsExt("grp1") == (1,0) )
+            self.assertTrue( mm.getGroupArr(0,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
+            self.assertTrue( mm.getGroupArr(1,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
+            self.assertTrue( mm.getGrpNonEmptyLevelsExt("grp2") == (1,) )
+            self.assertTrue( mm.getGroupArr(1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([4,5,6,7,8]) ) )
+            self.assertTrue( mm.getFamNonEmptyLevelsExt("FAMILLE_ZERO") == (1,) )
+            self.assertTrue( mm.getFamilyArr(1,"FAMILLE_ZERO").isEqualWithoutConsideringStr( DataArrayInt([3]) ) )
+        case2_0( self, mm )
         mm.write(fname,2)
         mm.normalizeFamIdsMEDFile()
         mm.checkMEDFamilyConvention()
-        case2_0( mm )
+        case2_0( self, mm )
         mm.write(fname,2)
         # case3 : Dont respect MED file law on level 0 and 1. Fam0 on level 1 and -1
         mm = generateCase()
@@ -16746,24 +16742,24 @@ class MEDLoaderTest4(unittest.TestCase):
         mm.setFamiliesIdsOnGroup("grp0",[-1,1,3,-4])
         mm.setFamiliesIdsOnGroup("grp1",[-1,-2])
         mm.setFamiliesIdsOnGroup("grp2",[2])
-        def case3_0( mm ):
-            MyAssert( set(mm.getGroupsNames())==set(('grp0', 'grp1', 'grp2')) )
-            MyAssert( mm.getGrpNonEmptyLevelsExt("grp0") == (1, 0, -1) )
-            MyAssert( mm.getGroupArr(0,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,3]) ) )
-            MyAssert( mm.getGroupArr(1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
-            MyAssert( mm.getGroupArr(-1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,2,5]) ) )
-            MyAssert( mm.getGrpNonEmptyLevelsExt("grp1") == (1,0) )
-            MyAssert( mm.getGroupArr(0,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0,1]) ) )
-            MyAssert( mm.getGroupArr(1,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
-            MyAssert( mm.getGrpNonEmptyLevelsExt("grp2") == (1,) )
-            MyAssert( mm.getGroupArr(1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([4,5,6,7,8]) ) )
-            MyAssert( mm.getFamNonEmptyLevelsExt("FAMILLE_ZERO") == (1,0) )
-            MyAssert( mm.getFamilyArr(1,"FAMILLE_ZERO").isEqualWithoutConsideringStr( DataArrayInt([3]) ) )
-            MyAssert( mm.getFamilyArr(0,"FAMILLE_ZERO").isEqualWithoutConsideringStr( DataArrayInt([2]) ) )
-        case3_0( mm )
+        def case3_0( self, mm ):
+            self.assertTrue( set(mm.getGroupsNames())==set(('grp0', 'grp1', 'grp2')) )
+            self.assertTrue( mm.getGrpNonEmptyLevelsExt("grp0") == (1, 0, -1) )
+            self.assertTrue( mm.getGroupArr(0,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,3]) ) )
+            self.assertTrue( mm.getGroupArr(1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
+            self.assertTrue( mm.getGroupArr(-1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,2,5]) ) )
+            self.assertTrue( mm.getGrpNonEmptyLevelsExt("grp1") == (1,0) )
+            self.assertTrue( mm.getGroupArr(0,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0,1]) ) )
+            self.assertTrue( mm.getGroupArr(1,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0,1,2]) ) )
+            self.assertTrue( mm.getGrpNonEmptyLevelsExt("grp2") == (1,) )
+            self.assertTrue( mm.getGroupArr(1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([4,5,6,7,8]) ) )
+            self.assertTrue( mm.getFamNonEmptyLevelsExt("FAMILLE_ZERO") == (1,0) )
+            self.assertTrue( mm.getFamilyArr(1,"FAMILLE_ZERO").isEqualWithoutConsideringStr( DataArrayInt([3]) ) )
+            self.assertTrue( mm.getFamilyArr(0,"FAMILLE_ZERO").isEqualWithoutConsideringStr( DataArrayInt([2]) ) )
+        case3_0( self, mm )
         mm.normalizeFamIdsMEDFile()
         mm.checkMEDFamilyConvention()
-        case3_0( mm )
+        case3_0( self, mm )
         # case4 :  Dont respect MED file law. Aggresive case. -2 and 2 are voluntarary on opposite side
         mm = generateCase()
         mm.setFamilyFieldArr(0,DataArrayInt([3, 2, -1, 1]))
@@ -16775,24 +16771,116 @@ class MEDLoaderTest4(unittest.TestCase):
         mm.setFamiliesIdsOnGroup("grp0",[-1,1])
         mm.setFamiliesIdsOnGroup("grp1",[1,2])
         mm.setFamiliesIdsOnGroup("grp2",[3,-2,1])
-        def case4_0( mm ):
-            MyAssert( set(mm.getGroupsNames())==set(('grp0', 'grp1', 'grp2')) )
-            MyAssert( mm.getGrpNonEmptyLevelsExt("grp0") == (1, 0, -1) )
-            MyAssert( mm.getGroupArr(0,"grp0").isEqualWithoutConsideringStr( DataArrayInt([2,3]) ) )
-            MyAssert( mm.getGroupArr(1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,1]) ) )
-            MyAssert( mm.getGroupArr(-1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,1]) ) )
-            MyAssert( mm.getGrpNonEmptyLevelsExt("grp1") == (1, 0, -1) )
-            MyAssert( mm.getGroupArr(0,"grp1").isEqualWithoutConsideringStr( DataArrayInt([1,3]) ) )
-            MyAssert( mm.getGroupArr(1,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0]) ) )
-            MyAssert( mm.getGroupArr(-1,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0,2]) ) )
-            MyAssert( mm.getGrpNonEmptyLevelsExt("grp2") == (1, 0, -1) )
-            MyAssert( mm.getGroupArr(0,"grp2").isEqualWithoutConsideringStr( DataArrayInt([0,3]) ) )
-            MyAssert( mm.getGroupArr(1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([0,2,3]) ) )
-            MyAssert( mm.getGroupArr(-1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([0,3]) ) )
-        case4_0( mm )
+        def case4_0( self, mm ):
+            self.assertTrue( set(mm.getGroupsNames())==set(('grp0', 'grp1', 'grp2')) )
+            self.assertTrue( mm.getGrpNonEmptyLevelsExt("grp0") == (1, 0, -1) )
+            self.assertTrue( mm.getGroupArr(0,"grp0").isEqualWithoutConsideringStr( DataArrayInt([2,3]) ) )
+            self.assertTrue( mm.getGroupArr(1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,1]) ) )
+            self.assertTrue( mm.getGroupArr(-1,"grp0").isEqualWithoutConsideringStr( DataArrayInt([0,1]) ) )
+            self.assertTrue( mm.getGrpNonEmptyLevelsExt("grp1") == (1, 0, -1) )
+            self.assertTrue( mm.getGroupArr(0,"grp1").isEqualWithoutConsideringStr( DataArrayInt([1,3]) ) )
+            self.assertTrue( mm.getGroupArr(1,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0]) ) )
+            self.assertTrue( mm.getGroupArr(-1,"grp1").isEqualWithoutConsideringStr( DataArrayInt([0,2]) ) )
+            self.assertTrue( mm.getGrpNonEmptyLevelsExt("grp2") == (1, 0, -1) )
+            self.assertTrue( mm.getGroupArr(0,"grp2").isEqualWithoutConsideringStr( DataArrayInt([0,3]) ) )
+            self.assertTrue( mm.getGroupArr(1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([0,2,3]) ) )
+            self.assertTrue( mm.getGroupArr(-1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([0,3]) ) )
+        case4_0( self, mm )
         mm.normalizeFamIdsMEDFile()
         mm.checkMEDFamilyConvention()
-        case4_0( mm )
+        case4_0( self, mm )
+        # fmt: on
+        pass
+
+    @WriteInTmpDir
+    def test54(self):
+        # fmt: off
+        fname = "test54.med"
+        import math
+        MESH_NAME = "mesh_seg2"
+        FIELD_NAME = "FIELD_GAUSS"
+        PROFILE_Q2_NAME = "PFL_Q2"
+        PROFILE_Q3_NAME = "PFL_Q3"
+
+        def build_mesh():
+            mesh = MEDCouplingUMesh.New(MESH_NAME, 1)
+            coords = []
+            for i in range(10):
+                coords.extend( [ 0.0, float(i), 1.0, float(i), ] )
+            coords = DataArrayDouble(coords, 20, 2)
+            coords.setInfoOnComponents(["X", "Y"])
+            mesh.setCoords(coords)
+            mesh.allocateCells(10)
+            for i in range(10):
+                mesh.insertNextCell( NORM_SEG2, 2, [2 * i, 2 * i + 1] )
+            mesh.finishInsertingCells()
+            mesh.checkConsistencyLight()
+            return mesh
+
+        def build_gauss_field_on_profile(mesh, profile, gauss_coords, gauss_weights, values):
+            sub_mesh = mesh[profile]
+            sub_mesh.setName(mesh.getName())
+
+            field = MEDCouplingFieldDouble.New( ON_GAUSS_PT, ONE_TIME )
+
+            field.setName(FIELD_NAME)
+            field.setTime(0.0, 1, 0)
+            field.setMesh(sub_mesh)
+            ref_coords = [-1.0, 1.0]
+
+            field.setGaussLocalizationOnType( NORM_SEG2, ref_coords, gauss_coords, gauss_weights )
+            array = DataArrayDouble(values, len(values), 1)
+            array.setInfoOnComponent(0, "VALUE")
+            field.setArray(array)
+            field.checkConsistencyLight()
+            return field
+
+        def build_test_case():
+            mesh = build_mesh()
+            pfl_q2 = DataArrayInt([0, 1, 2, 3])
+            pfl_q2.setName(PROFILE_Q2_NAME)
+            g = 1.0 / math.sqrt(3.0)
+            gauss_q2 = [ -g, +g ]
+            weights_q2 = [ 1.0, 1.0 ]
+            values_q2 = [ 100.0, 101.0, 110.0, 111.0, 120.0, 121.0, 130.0, 131.0 ]
+            field_q2 = build_gauss_field_on_profile( mesh, pfl_q2, gauss_q2, weights_q2, values_q2 )
+            # 4 cells * 3 Gauss points = 12 values
+            pfl_q3 = DataArrayInt([6, 7, 8, 9])
+            pfl_q3.setName(PROFILE_Q3_NAME)
+            g = math.sqrt(3.0 / 5.0)
+            gauss_q3 = [ -g, 0.0, +g, ]
+            weights_q3 = [ 5.0 / 9.0, 8.0 / 9.0, 5.0 / 9.0 ]
+            values_q3 = [ 1600.0, 1601.0, 1602.0, 1700.0, 1701.0, 1702.0, 1800.0, 1801.0, 1802.0, 1900.0, 1901.0, 1902.0 ]
+            field_q3 = build_gauss_field_on_profile( mesh, pfl_q3, gauss_q3, weights_q3, values_q3 )
+            #
+            medMesh = MEDFileUMesh()
+            medMesh[0] = mesh
+            medField = MEDFileField1TS()
+            field = MEDCouplingFieldDouble.MergeFields([ field_q2, field_q3 ])
+            pfl = DataArrayInt.Aggregate([pfl_q2,pfl_q3])
+            pfl.setName("PFL")
+            medField.setFieldProfile( field, medMesh, 0, pfl )
+            return medMesh, medField
+
+        medMesh, medField = build_test_case()
+        self.assertTrue( medField.getLocs() == ('Loc_FIELD_GAUSS_NORM_SEG2_0', 'Loc_FIELD_GAUSS_NORM_SEG2_1') )
+        refDistribution = [(1, [(2, (0, 8), 'cc', 'aa'), (2, (8, 20), 'dd', 'bb')])]
+        # renaming zone - aim of test is here
+        newLocsNames = [(["Loc_FIELD_GAUSS_NORM_SEG2_0"],"aa"),(["Loc_FIELD_GAUSS_NORM_SEG2_1"],"bb")]
+        medField.changeLocsNamesInStruct(newLocsNames)
+        medField.changeLocsRefsNamesGen(newLocsNames)
+        newPflNames = [(["PFL_loc_0"],"cc"),(["PFL_loc_1"],"dd")]
+        medField.changePflsNamesInStruct(newPflNames)
+        medField.changePflsRefsNamesGen(newPflNames)
+        # end renaming zone
+        self.assertTrue( medField.getFieldSplitedByType() == refDistribution )# <- ze check
+        self.assertTrue( medField.getLocs() == ('aa', 'bb') )# <- ze check
+        medMesh.write(fname, 2)
+        medField.write(fname, 0)
+        medFieldRead = MEDFileField1TS( fname )
+        self.assertTrue( medFieldRead.getLocs() == ('aa', 'bb') )
+        self.assertTrue( medFieldRead.getFieldSplitedByType() == refDistribution )
+        self.assertTrue( medFieldRead.getLocs() == ('aa', 'bb') )
         # fmt: on
         pass
 
