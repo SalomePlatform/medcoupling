@@ -639,6 +639,15 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
         # fmt: on
         pass
 
+    def testDAIFindIdInRangeForEachTuple(self):
+        # fmt: off
+        a = mc.DataArrayInt( [1,24,7,8,10,17] )
+        ranges = mc.DataArrayInt( [(0,3),(3,8),(8,15),(15,22),(22,30)] )
+        ret = a.findIdInRangeForEachTuple( ranges )
+        self.assertTrue( ret.isEqual( mc.DataArrayInt( [1,2,4,0,2,2] ) ) )
+        # fmt: on
+        pass
+
 
 if __name__ == "__main__":
     unittest.main()

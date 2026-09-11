@@ -7194,30 +7194,51 @@ DataArrayDiscrete<T>::findIdInRangeForEachTuple(const DataArrayType *ranges) con
             "DataArrayInt::findIdInRangeForEachTuple : this should have only one component !"
         );
     mcIdType nbTuples = this->getNumberOfTuples();
-    MCAuto<DataArrayType> ret = DataArrayType::New();
+    MCAuto<DataArrayType> ret(DataArrayType::New());
     ret->alloc(nbTuples, 1);
-    mcIdType nbOfRanges = ranges->getNumberOfTuples();
+    mcIdType nbOfRanges(ranges->getNumberOfTuples());
     const T *rangesPtr = ranges->getConstPointer();
     T *retPtr = ret->getPointer();
-    const T *inPtr = this->getConstPointer();
-    for (mcIdType i = 0; i < nbTuples; i++, retPtr++)
+
+    for (auto i = 0; i < nbOfRanges; ++i)
     {
-        T val = inPtr[i];
-        bool found = false;
-        for (mcIdType j = 0; j < nbOfRanges && !found; j++)
-            if (val >= rangesPtr[2 * j] && val < rangesPtr[2 * j + 1])
-            {
-                *retPtr = val - rangesPtr[2 * j];
-                found = true;
-            }
-        if (found)
-            continue;
-        else
+        const mcIdType first = rangesPtr[2 * i];
+        const mcIdType second = rangesPtr[2 * i + 1];
+
+        if (second <= first)
+            THROW_IK_EXCEPTION(
+                "Each range must satisfy first < second. Not the case here for range " << i << " : first = " << first
+                                                                                       << ". second = " << second
+            );
+
+        if (i > 0 && rangesPtr[2 * i - 1] != first)
+            THROW_IK_EXCEPTION("Ranges must be contiguous");
+    }
+    for (const T value : *this)
+    {
+        if (nbOfRanges == 0 || value < rangesPtr[0] || value >= rangesPtr[2 * (nbOfRanges - 1) + 1])
         {
-            std::ostringstream oss;
-            oss << "DataArrayInt::findIdInRangeForEachTuple : tuple #" << i << " not found by any ranges !";
-            throw INTERP_KERNEL::Exception(oss.str().c_str());
+            THROW_IK_EXCEPTION("Value does not belong to any range");
         }
+        // Find the first range whose upper bound is strictly greater
+        // than value.
+        //
+        // Since ranges are contiguous, this uniquely identifies the
+        // range [first, second) containing value.
+        mcIdType first(0), last(nbOfRanges);
+
+        while (first < last)
+        {
+            const mcIdType mid(first + (last - first) / 2);
+            const mcIdType rangeEnd(rangesPtr[2 * mid + 1]);
+            if (value < rangeEnd)
+                last = mid;
+            else
+                first = mid + 1;
+        }
+
+        const mcIdType rangeIndex(first);
+        *retPtr++ = value - FromIdType<T>(rangesPtr[2 * rangeIndex]);
     }
     return ret.retn();
 }
