@@ -16786,8 +16786,13 @@ class MEDLoaderTest4(unittest.TestCase):
             self.assertTrue( mm.getGroupArr(1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([0,2,3]) ) )
             self.assertTrue( mm.getGroupArr(-1,"grp2").isEqualWithoutConsideringStr( DataArrayInt([0,3]) ) )
         case4_0( self, mm )
+        mm2 = mm.deepCopy()
+        self.assertTrue( mm2.isEqual( mm, 1e-12)[0] )
+        self.assertTrue( mm2.isEffectivelyEqual( mm, 1e-12) )
         mm.normalizeFamIdsMEDFile()
         mm.checkMEDFamilyConvention()
+        self.assertTrue( not mm2.isEqual( mm, 1e-12)[0] )
+        self.assertTrue( mm2.isEffectivelyEqual( mm, 1e-12) )
         case4_0( self, mm )
         # fmt: on
         pass

@@ -198,6 +198,63 @@ def MEDFileUMeshcheckMEDFamilyConvention(self):
             )
 
 
+def MEDFileUMeshIsEffectivelyEqual(self, other, eps) -> bool:
+    """
+    State for equality of 2 MEDFileUMesh instances within eps tolerance but in a less restricted way than isEqual method.
+    What is checks for equality :
+    - check coordinates are equals (components names included)
+    - check connectivity of all levels are equals
+    - check numbering of cells
+    - check for all groups in self are exactly the same than other's groups (levels and ids of course)
+
+    What is NOT considered : families ids partitioning. names of cells / nodes. strings except compo names
+    """
+
+    class _ComparisonMismatch(Exception):
+        pass
+
+    def _MyAssert(v):
+        if not v:
+            raise _ComparisonMismatch()
+
+    try:
+        _MyAssert(self.getCoords().isEqual(other.getCoords(), eps))
+        dims = self.getNonEmptyLevels()
+        for dim in dims:
+            _MyAssert(
+                self[dim]
+                .getNodalConnectivity()
+                .isEqual(other[dim].getNodalConnectivity())
+            )
+            _MyAssert(
+                self[dim]
+                .getNodalConnectivityIndex()
+                .isEqual(other[dim].getNodalConnectivityIndex())
+            )
+            if self.getNumberFieldAtLevel(dim) is None:
+                _MyAssert(other.getNumberFieldAtLevel(dim) is None)
+            else:
+                _MyAssert(
+                    self.getNumberFieldAtLevel(dim).isEqual(
+                        other.getNumberFieldAtLevel(dim)
+                    )
+                )
+
+        groups = self.getGroupsNames()
+        for grp in groups:
+            dimsOfGrp = self.getGrpNonEmptyLevelsExt(grp)
+            _MyAssert(other.getGrpNonEmptyLevelsExt(grp) == dimsOfGrp)
+            for dimOfGrp in dimsOfGrp:
+                _MyAssert(
+                    self.getGroupArr(dimOfGrp, grp).isEqual(
+                        other.getGroupArr(dimOfGrp, grp)
+                    )
+                )
+        return True
+    except _ComparisonMismatch:
+        return False
+
+
 def MEDFileFieldLocIsEquivalentTo(self, other, eps: bool = 1e-7) -> bool:
     """
     Compare self and other field localizations by considereing :
