@@ -16884,6 +16884,41 @@ class MEDLoaderTest4(unittest.TestCase):
         # fmt: on
         pass
 
+    def test55(self):
+        # fmt: off
+        coo = DataArrayDouble([0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.5, 0.0, 0.5, 0.5, 0.0, 0.5]) ; coo.rearrange(2)
+        ref0 =[0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.5, 0.0, 0.5, 0.5, 0.0, 0.5]
+        gp0 = [0.16666666666666666, 0.16666666666666666, 0.6666666666666666, 0.16666666666666666, 0.16666666666666666, 0.6666666666666666]
+        w0 = [0.16666666666666666, 0.16666666666666666, 0.16666666666666666]
+        ref1 = [-1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0]
+        gp1 = [-0.6666666666666669, 0.3333333333333335, -0.6666666666666667, -0.6666666666666665, 0.33333333333333326, -0.6666666666666665]
+        w1 = [0.6666666666666666, 0.6666666666666666, 0.6666666666666666]
+        value = DataArrayDouble(3) ; value[:] = 0
+        gt = NORM_TRI6
+        m = MEDCoupling1SGTUMesh( "mesh", gt )
+        m.setNodalConnectivity( DataArrayInt.Range(0,6,1) )
+        m.setCoords( coo )
+        f0 = MEDCouplingFieldDouble( ON_GAUSS_PT ) ; f0.setName("Field")
+        f0.setMesh( m )
+        f0.setGaussLocalizationOnType( gt, ref0, gp0, w0 )
+        f0.setArray( value )
+        f0.checkConsistencyLight()
+        f1 = MEDCouplingFieldDouble( ON_GAUSS_PT ) ; f1.setName("Field")
+        f1.setMesh( m )
+        f1.setGaussLocalizationOnType( gt, ref1, gp1, w1 )
+        f1.setArray( value )
+        f1.checkConsistencyLight()
+        #
+        f1ts0 = MEDFileField1TS() ; f1ts0.setFieldNoProfileSBT( f0 )
+        f1ts1 = MEDFileField1TS() ; f1ts1.setFieldNoProfileSBT( f1 )
+        #
+        loc0 = f1ts0.getLocalization( f1ts0.getLocs()[0] )
+        loc1 = f1ts1.getLocalization( f1ts1.getLocs()[0] )
+        self.assertTrue( not loc0.isEqual(loc1, eps = 1e-7) )
+        self.assertTrue( loc0.isEquivalentTo(loc1, eps = 1e-7) )
+        # fmt: on
+        pass
+
     pass
 
 

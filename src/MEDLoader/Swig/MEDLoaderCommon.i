@@ -2076,6 +2076,7 @@ namespace MEDCoupling
     const std::vector<double>& getGaussCoords() const;
     const std::vector<double>& getGaussWeights() const;
     bool isEqual(const MEDFileFieldLoc& other, double eps) const;
+    INTERP_KERNEL::NormalizedCellType getGeoType() const;
   %extend
     {
       std::string __str__() const

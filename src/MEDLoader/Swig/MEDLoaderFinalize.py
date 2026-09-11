@@ -198,6 +198,55 @@ def MEDFileUMeshcheckMEDFamilyConvention(self):
             )
 
 
+def MEDFileFieldLocIsEquivalentTo(self, other, eps: bool = 1e-7) -> bool:
+    """
+    Compare self and other field localizations by considereing :
+
+    - position of GaussPts of self and thoose of other using self ref coords
+    - weights of GaussPts of self and other after correction of measures of their associated ref coords
+    """
+    import MEDLoader as ml
+
+    def getLocalizationOfPts(loc: ml.MEDFileFieldLoc, refCoo: list):
+        """
+        :return: coords of type ml.DataArrayDouble and measure of cell
+        """
+
+        def getMesh(gt, coo):
+            dim = ml.MEDCouplingUMesh.GetDimensionOfGeometricType(gt)
+            coo = ml.DataArrayDouble(list(coo))
+            coo.rearrange(dim)
+            mesh = ml.MEDCoupling1SGTUMesh("", loc.getGeoType())
+            mesh.setCoords(coo)
+            mesh.setNodalConnectivity(
+                ml.DataArrayInt(
+                    list(range(ml.MEDCouplingUMesh.GetNumberOfNodesOfGeometricType(gt)))
+                )
+            )
+            return mesh
+
+        meshA = getMesh(loc.getGeoType(), loc.getRefCoords())
+        measure = meshA.getMeasureField(True).getArray()[0]
+        del meshA
+        mesh = getMesh(loc.getGeoType(), refCoo)
+        ft = ml.MEDCouplingFieldTemplate(ml.ON_GAUSS_PT)
+        ft.setMesh(mesh)
+        ft.setGaussLocalizationOnType(
+            mesh.getCellModelEnum(),
+            list(loc.getRefCoords()),
+            list(loc.getGaussCoords()),
+            loc.getGaussWeights(),
+        )
+        return ft.getLocalizationOfDiscr(), ml.DataArrayDouble(
+            list(loc.getGaussWeights())
+        ) / measure
+
+    refA = list(self.getRefCoords())
+    ptsA, wgA = getLocalizationOfPts(self, refA)
+    ptsB, wgB = getLocalizationOfPts(other, refA)
+    return ptsA.isEqual(ptsB, eps) and wgA.isEqual(wgB, eps)
+
+
 class JointInfoOfOneProc:
     """
     Class representing joint info of one proc
