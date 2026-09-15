@@ -202,7 +202,8 @@ class CFEMDEC : public DisjointDECAbstract, public INTERP_KERNEL::InterpolationO
     MCAuto<MEDCouplingFieldDouble> receiveFromTarget();
     //
     void synchronize() override {}
-    void sendRecvData(bool way = true) override {}
+    // way is commented to avoid -Wunused-parameter warning
+    void sendRecvData(bool /*way*/ = true) override {}
 
    private:
     CFEMDECOneWay *getEngine();
