@@ -420,6 +420,11 @@ MEDCouplingGaussLocalization::GetDefaultReferenceCoordinatesOf(INTERP_KERNEL::No
     auto nbDim(cm.getDimension());
     std::size_t sz(retCpp.size());
     MCAuto<DataArrayDouble> ret(DataArrayDouble::New());
+    if (nbDim == 0)  // NORM_POINT1 case
+    {
+        ret->alloc(0, 1);
+        return ret;
+    }
     if (sz % std::size_t(nbDim) != 0)
         THROW_IK_EXCEPTION(
             "GetDefaultReferenceCoordinatesOf : unexpected size of defaut array : " << sz << " % " << nbDim << " != 0 !"

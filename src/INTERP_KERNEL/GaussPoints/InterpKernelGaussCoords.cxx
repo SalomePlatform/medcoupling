@@ -523,6 +523,8 @@ GaussInfo::GetDefaultReferenceCoordinatesOf(NormalizedCellType ct)
 {
     switch (ct)
     {
+        case INTERP_KERNEL::NORM_POINT1:
+            return {};
         case INTERP_KERNEL::NORM_SEG2:
             return std::vector<double>(SEG2A_REF, SEG2A_REF + sizeof(SEG2A_REF) / sizeof(double));
         case INTERP_KERNEL::NORM_SEG3:
