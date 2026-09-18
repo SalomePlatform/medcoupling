@@ -406,6 +406,8 @@ MEDCouplingGaussLocalization::AreAlmostEqual(const std::vector<double> &v1, cons
     std::size_t sz = v1.size();
     if (sz != v2.size())
         return false;
+    if (sz == 0)  // Protect of case where v1 and v2 are empty. For exemple PG on NORM_POINT1.
+        return true;
     std::vector<double> tmp(sz);
     std::transform(v1.begin(), v1.end(), v2.begin(), tmp.begin(), std::minus<double>());
     std::transform(tmp.begin(), tmp.end(), tmp.begin(), [](double c) { return fabs(c); });
