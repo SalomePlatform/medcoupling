@@ -29,7 +29,7 @@
 
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingMemArray.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
 

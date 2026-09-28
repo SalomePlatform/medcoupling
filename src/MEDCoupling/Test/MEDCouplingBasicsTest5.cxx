@@ -24,7 +24,6 @@
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingMemArray.txx"
 #include "MEDCouplingGaussLocalization.hxx"
 #include "MEDCouplingMultiFields.hxx"
 #include "MEDCouplingFieldOverTime.hxx"
@@ -2073,9 +2072,9 @@ MEDCouplingBasicsTest5::testDataArrayIntGetHashCode1()
     d2->iota(0);
     //
     CPPUNIT_ASSERT_EQUAL(d1->getHashCode(), d2->getHashCode());
-    CPPUNIT_ASSERT_EQUAL(ToIdType(232341068), d1->getHashCode());
+    CPPUNIT_ASSERT_EQUAL(std::uint64_t(0x15b185320d6ed91dLL), d1->getHashCode());
     d1->setIJ(886, 0, 6);
-    CPPUNIT_ASSERT_EQUAL(ToIdType(232340188), d1->getHashCode());
+    CPPUNIT_ASSERT_EQUAL(std::uint64_t(-2928151733620787279), d1->getHashCode());
     //
     d1->decrRef();
     d2->decrRef();

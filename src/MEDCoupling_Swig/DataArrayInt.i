@@ -31,8 +31,6 @@
   public:
     static ARRAY *New();
     INT intValue() const;
-    INT getHashCode() const;
-    INT getHashCode2() const;
     bool empty() const;
     void aggregate(const ARRAY *other);
     ARRAY *performCopyOrIncrRef(bool deepCopy) const;
@@ -305,6 +303,12 @@
       ARRAY ## Iterator *__iter__()
       {
         return self->iterator();
+      }
+
+      PyObject *getHashCode() const
+      {
+        std::uint64_t ret( self->getHashCode() );
+        return PyLong_FromUnsignedLongLong( ret );
       }
 
       DataArrayIdType *findIdForEachMulti(const ARRAY& partOfThis) const

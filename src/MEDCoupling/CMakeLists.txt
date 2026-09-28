@@ -68,6 +68,8 @@ set(medcoupling_SOURCES
     MEDCouplingTimeDiscretization.cxx
     MEDCouplingFieldDiscretization.cxx
     MEDCouplingFieldDiscretizationOnNodesFE.cxx
+    MEDCouplingNormalizedUnstructuredMesh.cxx
+    MEDCouplingNormalizedCartesianMesh.cxx
     MEDCouplingRefCountObject.cxx
     MEDCouplingPointSet.cxx
     MEDCouplingFieldTemplate.cxx

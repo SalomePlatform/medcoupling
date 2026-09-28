@@ -835,7 +835,7 @@ class ProfileHashable:
         return self._arr.isEqualWithoutConsideringStr(other._arr)
 
     def __hash__(self):
-        return self._arr.getHashCode2()
+        return self._arr.getHashCode()
 
     def get(self):
         return self._arr

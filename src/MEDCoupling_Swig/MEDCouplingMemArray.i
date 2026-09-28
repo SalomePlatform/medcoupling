@@ -2414,7 +2414,6 @@ typedef DataArrayInt64 DataArrayIdType;
   {
   public:
     virtual DataArrayChar *buildEmptySpecializedDAChar() const;
-    int getHashCode() const;
     bool empty() const;
     void deepCopyFrom(const DataArrayChar& other);
     void reserve(std::size_t nbOfElems);
@@ -2467,6 +2466,12 @@ typedef DataArrayInt64 DataArrayIdType;
           {
             throw INTERP_KERNEL::Exception("DataArrayChar::__len__ : Instance is NOT allocated !");
           }
+      }
+
+      PyObject *getHashCode() const
+      {
+        std::uint64_t ret( self->getHashCode() );
+        return PyLong_FromUnsignedLongLong( ret );
       }
 
       PyObject *isEqualIfNotWhy(const DataArrayChar& other) const

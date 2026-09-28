@@ -44,21 +44,27 @@ typedef double (*MYFUNCPTR)(double);
 
 using namespace MEDCoupling;
 
-template class MEDCOUPLING_EXPORT MEDCoupling::MemArray<mcIdType>;
+template class MEDCOUPLING_EXPORT MEDCoupling::MemArray<Int32>;
+template class MEDCOUPLING_EXPORT MEDCoupling::MemArray<Int64>;
 template class MEDCOUPLING_EXPORT MEDCoupling::MemArray<double>;
-template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTemplate<mcIdType>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTemplate<Int32>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTemplate<Int64>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTemplate<double>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTemplateClassic<Int32>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTemplateClassic<Int64>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTemplateClassic<double>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTemplateFP<double>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayIterator<double>;
-template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayIterator<mcIdType>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayIterator<Int32>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayIterator<Int64>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayDiscrete<Int32>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayDiscreteSigned<Int32>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayDiscrete<Int64>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayDiscreteSigned<Int64>;
-template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTuple<mcIdType>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTools<Int32>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTools<Int64>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTuple<Int32>;
+template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTuple<Int64>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTuple<double>;
 template class MEDCOUPLING_EXPORT MEDCoupling::DataArrayTuple<float>;
 

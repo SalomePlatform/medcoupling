@@ -18,12 +18,10 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#ifndef __MEDFILEBASIS_HXX__
-#define __MEDFILEBASIS_HXX__
+#pragma once
 
 #include "InterpKernelException.hxx"
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingMemArray.txx"
 
 #include <string>
 #include <vector>
@@ -171,5 +169,3 @@ FromMedInt(med_int mi)
 }
 
 }  // namespace MEDCoupling
-
-#endif

@@ -27,12 +27,11 @@
 
 %{
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingMemArray.txx"
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingIMesh.hxx"
-#include "MEDCouplingMap.txx"
+#include "MEDCouplingMap.hxx"
 #include "MEDCouplingCurveLinearMesh.hxx"
 #include "MEDCoupling1GTUMesh.hxx"
 #include "MEDCouplingField.hxx"

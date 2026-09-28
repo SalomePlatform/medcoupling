@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDCOUPLINGMCAUTO_TXX__
-#define __MEDCOUPLINGMCAUTO_TXX__
+#pragma once
 
 #include "MCAuto.hxx"
 
@@ -47,5 +46,3 @@ VecAutoToVecOfPt(const std::vector<typename MEDCoupling::MCAuto<T> > &vect)
     return ret;
 }
 }  // namespace MEDCoupling
-
-#endif

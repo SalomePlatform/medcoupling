@@ -23,7 +23,6 @@
 #include "MEDFileMesh.hxx"
 
 #include "MEDCouplingNormalizedUnstructuredMesh.hxx"
-#include "MEDCouplingNormalizedUnstructuredMesh.txx"
 #include "MEDCouplingFieldDouble.hxx"
 
 #include "Interpolation3DSurf.hxx"

@@ -21,7 +21,7 @@
 %include "MEDCouplingCommon.i"
 
 %{
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingMemArray.hxx"
 #include "MCAuto.hxx"
 #include "MEDCouplingDataArrayTypemaps.i"
 

@@ -24,17 +24,13 @@
 %include "MEDCouplingCommon.i"
 
 %{
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingMemArray.hxx"
 #include "MCAuto.hxx"
 #include "MEDCouplingDataArrayTypemaps.i"
 
 using namespace MEDCoupling;
 using namespace INTERP_KERNEL;
 %}
-
-%template(ivec) std::vector<int>;
-%template(dvec) std::vector<double>;
-%template(svec) std::vector<std::string>;
 
 #ifdef WITH_NUMPY
 %init %{ import_array(); %}

@@ -28,7 +28,7 @@
 #include "MEDFileBlowStrEltUp.hxx"
 #include "MEDFileFieldVisitor.hxx"
 
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "MCType.hxx"
 
@@ -581,7 +581,7 @@ MEDFileFieldGlobs::existsLoc(const std::string &locName) const
 std::vector<std::vector<int> >
 MEDFileFieldGlobs::whichAreEqualProfiles() const
 {
-    std::map<mcIdType, std::vector<int> > m;
+    std::map<std::uint64_t, std::vector<int> > m;
     int i = 0;
     for (std::vector<MCAuto<DataArrayIdType> >::const_iterator it = _pfls.begin(); it != _pfls.end(); it++, i++)
     {
@@ -592,13 +592,13 @@ MEDFileFieldGlobs::whichAreEqualProfiles() const
         }
     }
     std::vector<std::vector<int> > ret;
-    for (std::map<mcIdType, std::vector<int> >::const_iterator it2 = m.begin(); it2 != m.end(); it2++)
+    for (auto it2 = m.cbegin(); it2 != m.cend(); it2++)
     {
         if ((*it2).second.size() > 1)
         {
             std::vector<int> ret0;
             bool equalityOrNot = false;
-            for (std::vector<int>::const_iterator it3 = (*it2).second.begin(); it3 != (*it2).second.end(); it3++)
+            for (auto it3 = (*it2).second.cbegin(); it3 != (*it2).second.cend(); it3++)
             {
                 std::vector<int>::const_iterator it4 = it3;
                 it4++;

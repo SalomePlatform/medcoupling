@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2026  CEA, EDF
+// Copyright (C) 2026  CEA, EDF
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -16,13 +16,13 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (EDF R&D)
 
-#include "MEDCouplingMap.txx"
+#include "MEDCouplingNormalizedUnstructuredMesh.txx"
 
-using namespace MEDCoupling;
-
-template class MEDCOUPLING_EXPORT MEDCoupling::MapKeyVal<mcIdType, mcIdType>;
-template class MEDCOUPLING_EXPORT MEDCoupling::MapKeyVal<mcIdType, int>;
-template class MEDCOUPLING_EXPORT MEDCoupling::MapKeyVal<int, mcIdType>;
-template class MEDCOUPLING_EXPORT MEDCoupling::MapKeyVal<int, int>;
+template class MEDCOUPLING_EXPORT MEDCouplingNormalizedUnstructuredMesh<3, 3>;
+template class MEDCOUPLING_EXPORT MEDCouplingNormalizedUnstructuredMesh<3, 2>;
+template class MEDCOUPLING_EXPORT MEDCouplingNormalizedUnstructuredMesh<3, 1>;
+template class MEDCOUPLING_EXPORT MEDCouplingNormalizedUnstructuredMesh<2, 2>;
+template class MEDCOUPLING_EXPORT MEDCouplingNormalizedUnstructuredMesh<2, 1>;
+template class MEDCOUPLING_EXPORT MEDCouplingNormalizedUnstructuredMesh<1, 1>;
+template class MEDCOUPLING_EXPORT MEDCouplingNormalizedUnstructuredMesh<1, 0>;

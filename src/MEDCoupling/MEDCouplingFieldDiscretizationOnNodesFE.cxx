@@ -23,7 +23,7 @@
 #include "InterpKernelGaussCoords.hxx"
 #include "InterpKernelRootsMultiDim.hxx"
 #include "InterpolationHelper.txx"
-#include "MEDCouplingNormalizedUnstructuredMesh.txx"
+#include "MEDCouplingNormalizedUnstructuredMesh.hxx"
 #include "MEDCouplingUMesh.hxx"
 #include <array>
 #include <sstream>

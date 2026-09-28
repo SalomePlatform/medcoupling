@@ -21,7 +21,6 @@
 #include "MEDFileEquivalence.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDCouplingMemArray.hxx"
-#include "MEDCouplingMemArray.txx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileMesh.hxx"
 #include "InterpKernelAutoPtr.hxx"

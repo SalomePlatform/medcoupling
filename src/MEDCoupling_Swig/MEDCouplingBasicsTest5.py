@@ -1923,10 +1923,9 @@ class MEDCouplingBasicsTest5(unittest.TestCase):
         )  # fast equal
         mcpy.checkFastEquivalWith(mcpy2, 1e-12)
         mcpy2.renumberCells([0, 2, 4, 3, 1, 5])
-        mcpy.checkFastEquivalWith(mcpy2, 1e-12)
-        self.assertEqual(
-            [None, None], mcpy.checkGeoEquivalWith(mcpy2, 1, 1e-12)
-        )  # fast equal
+        self.assertRaises(
+            InterpKernelException, mcpy.checkFastEquivalWith, mcpy2, 1e-12
+        )
         mcpy2.renumberCells([0, 2, 4, 3, 1, 5])
         mcpy2.renumberCells([1, 3, 5, 0, 2, 4])
         self.assertRaises(

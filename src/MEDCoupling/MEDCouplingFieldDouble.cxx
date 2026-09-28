@@ -31,10 +31,11 @@
 #include "MCAuto.txx"
 #include "MEDCouplingVoronoi.hxx"
 #include "MEDCouplingNatureOfField.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingMemArray.hxx"
 
 #include "InterpKernelAutoPtr.hxx"
 #include "InterpKernelGaussCoords.hxx"
+#include "InterpolationUtils.hxx"
 
 #include <sstream>
 #include <cmath>

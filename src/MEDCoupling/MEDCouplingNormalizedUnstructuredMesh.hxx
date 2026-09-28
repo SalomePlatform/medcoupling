@@ -18,9 +18,9 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#ifndef __PARAMEDMEM_MEDCOUPLINGNORMALIZEDUNSTRUCTUREDMESH_HXX__
-#define __PARAMEDMEM_MEDCOUPLINGNORMALIZEDUNSTRUCTUREDMESH_HXX__
+#pragma once
 
+#include "MEDCoupling.hxx"
 #include "NormalizedUnstructuredMesh.hxx"
 #include "MCType.hxx"
 
@@ -30,7 +30,7 @@ class MEDCouplingPointSet;
 }
 
 template <int SPACEDIM, int MESHDIM>
-class MEDCouplingNormalizedUnstructuredMesh
+class MEDCOUPLING_EXPORT MEDCouplingNormalizedUnstructuredMesh
 {
    public:
     static const int MY_SPACEDIM = SPACEDIM;
@@ -59,5 +59,3 @@ class MEDCouplingNormalizedUnstructuredMesh
     mcIdType *_conn_for_interp;
     mcIdType *_conn_index_for_interp;
 };
-
-#endif

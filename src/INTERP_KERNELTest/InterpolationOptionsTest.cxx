@@ -21,7 +21,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 
 #include "InterpolationOptionsTest.hxx"
-#include "MEDCouplingNormalizedUnstructuredMesh.txx"
+#include "MEDCouplingNormalizedUnstructuredMesh.hxx"
 #include "Interpolation2D.txx"
 #include "TestInterpKernelUtils.hxx"
 

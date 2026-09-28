@@ -1692,9 +1692,9 @@ class MEDCouplingBasicsTest4(unittest.TestCase):
         d1 = DataArrayInt.New(list(range(3545)))
         d2 = DataArrayInt.New(list(range(3545)))
         self.assertEqual(d2.getHashCode(), d1.getHashCode())
-        self.assertEqual(232341068, d1.getHashCode())
+        self.assertEqual(1563176995694500125, d1.getHashCode())
         d1[886] = 6
-        self.assertEqual(232340188, d1.getHashCode())
+        self.assertEqual(15518592340088764337, d1.getHashCode())
         pass
 
     def testZipConnectivityPol1(self):

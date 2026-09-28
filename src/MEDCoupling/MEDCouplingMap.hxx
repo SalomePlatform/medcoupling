@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDCOUPLING_MEDCOUPLINGMAP_HXX__
-#define __MEDCOUPLING_MEDCOUPLINGMAP_HXX__
+#pragma once
 
 #include "MEDCoupling.hxx"
 #include "MCAuto.hxx"
@@ -33,7 +32,7 @@
 namespace MEDCoupling
 {
 template <class ID, class T>
-class MapKeyVal : public RefCountObject, public TimeLabel
+class MEDCOUPLING_EXPORT MapKeyVal : public RefCountObject, public TimeLabel
 {
    public:
     static MCAuto<MapKeyVal<ID, T> > New();
@@ -54,5 +53,3 @@ class MapKeyVal : public RefCountObject, public TimeLabel
 
 using MapII = MapKeyVal<mcIdType, mcIdType>;
 }  // namespace MEDCoupling
-
-#endif

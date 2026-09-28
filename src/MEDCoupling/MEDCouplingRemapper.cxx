@@ -25,8 +25,9 @@
 #include "MEDCouplingFieldDiscretization.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingCMesh.hxx"
-#include "MEDCouplingNormalizedUnstructuredMesh.txx"
-#include "MEDCouplingNormalizedCartesianMesh.txx"
+#include "MEDCouplingUMesh.hxx"
+#include "MEDCouplingNormalizedUnstructuredMesh.hxx"
+#include "MEDCouplingNormalizedCartesianMesh.hxx"
 #include "MEDCouplingFieldDiscretizationOnNodesFE.hxx"
 
 #include "Interpolation1D.txx"

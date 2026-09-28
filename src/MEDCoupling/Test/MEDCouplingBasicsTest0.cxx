@@ -30,8 +30,8 @@
 #include "Interpolation2D.txx"
 #include "Interpolation2D3D.txx"
 #include "Interpolation2D1D.txx"
-#include "MEDCouplingNormalizedUnstructuredMesh.txx"
-#include "MEDCouplingNormalizedCartesianMesh.txx"
+#include "MEDCouplingNormalizedUnstructuredMesh.hxx"
+#include "MEDCouplingNormalizedCartesianMesh.hxx"
 
 using namespace MEDCoupling;
 

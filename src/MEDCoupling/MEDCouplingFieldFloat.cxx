@@ -25,7 +25,7 @@
 #include "MEDCouplingFieldInt64.hxx"
 #include "MEDCouplingFieldTemplate.hxx"
 #include "MEDCouplingMesh.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingMemArray.hxx"
 
 using namespace MEDCoupling;
 

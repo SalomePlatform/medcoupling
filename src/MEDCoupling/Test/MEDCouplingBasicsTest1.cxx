@@ -23,7 +23,7 @@
 #include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingMemArray.hxx"
 #include <sstream>
 #include <cmath>
 #include <algorithm>

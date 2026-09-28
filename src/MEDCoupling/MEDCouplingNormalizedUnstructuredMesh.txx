@@ -18,8 +18,7 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#ifndef __MEDCOUPLINGNORMALIZEDUNSTRUCTUREDMESH_TXX__
-#define __MEDCOUPLINGNORMALIZEDUNSTRUCTUREDMESH_TXX__
+#pragma once
 
 #include "MEDCouplingNormalizedUnstructuredMesh.hxx"
 #include "InterpKernelAssert.hxx"
@@ -190,5 +189,3 @@ MEDCouplingNormalizedUnstructuredMesh<SPACEDIM, MESHDIM>::prepare()
         "MEDCouplingUMesh, MEDCoupling1DGTUMesh, MEDCoupling1SGTUMesh !"
     );
 }
-
-#endif

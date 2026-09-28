@@ -90,7 +90,7 @@ class MEDCouplingPointer
 };
 
 template <class T>
-class MemArray
+class MEDCOUPLING_EXPORT MemArray
 {
    public:
     typedef void (*Deallocator)(void *, void *);
@@ -155,7 +155,7 @@ class MemArray
 };
 
 template <class T>
-class DataArrayTools
+class MEDCOUPLING_EXPORT DataArrayTools
 {
    public:
     static void GetSlice(T start, T stop, T step, mcIdType sliceId, mcIdType nbOfSlices, T &startSlice, T &stopSlice);
@@ -816,8 +816,7 @@ class MEDCOUPLING_EXPORT_TEMPLATE DataArrayDiscrete : public DataArrayTemplateCl
     bool isMonotonic(bool increasing) const;
     void checkStrictlyMonotonic(bool increasing) const;
     bool isStrictlyMonotonic(bool increasing) const;
-    mcIdType getHashCode() const;
-    mcIdType getHashCode2() const;
+    std::uint64_t getHashCode() const;
     void reprCppStream(const std::string &varName, std::ostream &stream) const;
     void reprQuickOverview(std::ostream &stream) const;
     void reprQuickOverviewData(std::ostream &stream, std::size_t maxNbOfByteInRepr) const;
@@ -1179,7 +1178,7 @@ class MEDCOUPLING_EXPORT DataArrayChar : public DataArrayTemplate<char>
 {
    public:
     virtual DataArrayChar *buildEmptySpecializedDAChar() const = 0;
-    mcIdType getHashCode() const;
+    std::uint64_t getHashCode() const;
     bool isEqual(const DataArrayChar &other) const;
     virtual bool isEqualIfNotWhy(const DataArrayChar &other, std::string &reason) const;
     bool isEqualWithoutConsideringStr(const DataArrayChar &other) const;

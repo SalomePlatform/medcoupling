@@ -24,7 +24,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "MCAuto.txx"
 
-#include "MEDCouplingNormalizedUnstructuredMesh.txx"
+#include "MEDCouplingNormalizedUnstructuredMesh.hxx"
 #include "Interpolation2D.txx"
 #include "Interpolation3DSurf.hxx"
 

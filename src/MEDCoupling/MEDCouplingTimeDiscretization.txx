@@ -16,13 +16,11 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Author : Anthony Geay (EDF R&D)
 
-#ifndef __MEDCOUPLINGTIMEDISCRETIZATION_TXX__
-#define __MEDCOUPLINGTIMEDISCRETIZATION_TXX__
+#pragma once
 
 #include "MEDCouplingTimeDiscretization.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingMemArray.hxx"
 
 #include <cmath>
 #include <sstream>
@@ -399,5 +397,3 @@ MEDCouplingTimeDiscretizationSimple<T>::MEDCouplingTimeDiscretizationSimple(
 {
 }
 }  // namespace MEDCoupling
-
-#endif

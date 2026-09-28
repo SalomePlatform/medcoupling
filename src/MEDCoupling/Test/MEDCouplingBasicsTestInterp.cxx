@@ -22,6 +22,7 @@
 #include "MEDCouplingUMesh.hxx"
 #include "MEDCouplingMappedExtrudedMesh.hxx"
 #include "MEDCouplingFieldDouble.hxx"
+#include "MEDCouplingCMesh.hxx"
 #include "MEDCouplingMemArray.hxx"
 #include "Interpolation2D.txx"
 #include "Interpolation3DSurf.hxx"
@@ -33,8 +34,8 @@
 #include "Interpolation2DCurve.hxx"
 #include "Interpolation1D.txx"
 
-#include "MEDCouplingNormalizedUnstructuredMesh.txx"
-#include "MEDCouplingNormalizedCartesianMesh.txx"
+#include "MEDCouplingNormalizedUnstructuredMesh.hxx"
+#include "MEDCouplingNormalizedCartesianMesh.hxx"
 
 #include <cmath>
 #include <functional>

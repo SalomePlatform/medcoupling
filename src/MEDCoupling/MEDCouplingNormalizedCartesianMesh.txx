@@ -16,12 +16,10 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// File      : MEDCouplingNormalizedCartesianMesh.txx
-// Created   : Mon Aug 17 12:00:38 2009
 // Author    : Edward AGAPOV (eap)
-//
 
 #include "MEDCouplingNormalizedCartesianMesh.hxx"
+#include "MEDCouplingMemArray.hxx"
 #include "MEDCouplingCMesh.hxx"
 
 template <int SPACEDIM>

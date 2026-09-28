@@ -27,7 +27,7 @@
 #include "MEDCouplingFieldDouble.hxx"
 #include "InterpKernelException.hxx"
 #include "MCAuto.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingMemArray.hxx"
 #include "InterpKernelAutoPtr.hxx"
 
 #include <fstream>

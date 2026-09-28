@@ -39,17 +39,17 @@ template class MEDCoupling::DataArrayTemplate<char>;
  *  \return mcIdType - the hash value.
  *  \throw If \a this is not allocated.
  */
-mcIdType
+std::uint64_t
 DataArrayChar::getHashCode() const
 {
     checkAllocated();
     std::size_t nbOfElems = getNbOfElems();
-    std::size_t ret = nbOfElems * 65536;
-    std::size_t delta = 3;
+    std::uint64_t ret = std::uint64_t(nbOfElems) * 65536;
+    std::uint64_t delta(3);
     if (nbOfElems > 48)
         delta = nbOfElems / 8;
-    mcIdType ret0 = 0;
-    const char *pt = begin();
+    std::uint64_t ret0(0);
+    const char *pt(begin());
     for (std::size_t i = 0; i < nbOfElems; i += delta) ret0 += pt[i];
     return ToIdType(ret) + ret0;
 }

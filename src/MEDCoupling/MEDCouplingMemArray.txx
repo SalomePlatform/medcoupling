@@ -27,7 +27,7 @@
 #include "MEDCouplingPartDefinition.hxx"
 #include "InterpKernelAutoPtr.hxx"
 #include "MCAuto.hxx"
-#include "MEDCouplingMap.txx"
+#include "MEDCouplingMap.hxx"
 #include "BBTreeDiscrete.txx"
 
 #include <set>
@@ -36,6 +36,7 @@
 #include <numeric>
 #include <algorithm>
 #include <iterator>
+#include <cstring>
 #include <fstream>
 #include <utility>
 #include <list>
@@ -4549,51 +4550,156 @@ DataArrayDiscrete<T>::checkStrictlyMonotonic(bool increasing) const
     }
 }
 
-/*!
- * Returns an integer value characterizing \a this array, which is useful for a quick
- * comparison of many instances of DataArrayInt. Implementation not smart at all.
- * Only few elements in array are used to compute returned value to reduce data fetching
- *  \return mcIdType - the hash value.
- *  \throw If \a this is not allocated.
- */
-template <class T>
-mcIdType
-DataArrayDiscrete<T>::getHashCode() const
+namespace
 {
-    this->checkAllocated();
-    mcIdType nbOfElems = ToIdType(this->getNbOfElems());
-    mcIdType ret = nbOfElems * 65536;
-    mcIdType delta = 3;
-    if (nbOfElems > 48)
-        delta = nbOfElems / 8;
-    T ret0(0);
-    const T *pt(this->begin());
-    for (mcIdType i = 0; i < nbOfElems; i += delta) ret0 += pt[i] & 0x1FFF;
-    return ToIdType(ret + ret0);
+namespace hash_detail
+{
+
+static constexpr std::uint64_t P1 = 0x9E3779B185EBCA87ULL;
+static constexpr std::uint64_t P2 = 0xC2B2AE3D27D4EB4FULL;
+static constexpr std::uint64_t P3 = 0x165667B19E3779F9ULL;
+static constexpr std::uint64_t P4 = 0x85EBCA77C2B2AE63ULL;
+static constexpr std::uint64_t P5 = 0x27D4EB2F165667C5ULL;
+
+inline std::uint64_t
+rotl64(std::uint64_t x, unsigned r) noexcept
+{
+    return (x << r) | (x >> (64 - r));
 }
+
+template <class T>
+inline std::uint64_t
+read(const unsigned char *p) noexcept
+{
+    T x;
+    std::memcpy(&x, p, sizeof(x));
+    return x;
+}
+
+inline std::uint64_t
+round64(std::uint64_t acc, std::uint64_t input) noexcept
+{
+    acc += input * P2;
+    acc = rotl64(acc, 31);
+    acc *= P1;
+    return acc;
+}
+
+inline std::uint64_t
+merge_round(std::uint64_t acc, std::uint64_t value) noexcept
+{
+    value = round64(0, value);
+
+    acc ^= value;
+    acc = acc * P1 + P4;
+
+    return acc;
+}
+
+inline std::uint64_t
+avalanche(std::uint64_t h) noexcept
+{
+    h ^= h >> 33;
+    h *= P2;
+    h ^= h >> 29;
+    h *= P3;
+    h ^= h >> 32;
+
+    return h;
+}
+
+template <typename T>
+std::uint64_t
+compute(const T *data, mcIdType nbOfElems) noexcept
+{
+    const std::size_t total_size = FromIdType<std::size_t>(nbOfElems) * sizeof(T);
+
+    const unsigned char *p = reinterpret_cast<const unsigned char *>(data);
+
+    std::size_t remaining = total_size;
+
+    std::uint64_t h;
+
+    if (remaining >= 32)
+    {
+        std::uint64_t v1 = P1 + P2;
+        std::uint64_t v2 = P2;
+        std::uint64_t v3 = 0;
+        std::uint64_t v4 = 0 - P1;
+
+        do
+        {
+            v1 = round64(v1, read<std::uint64_t>(p + 0));
+            v2 = round64(v2, read<std::uint64_t>(p + 8));
+            v3 = round64(v3, read<std::uint64_t>(p + 16));
+            v4 = round64(v4, read<std::uint64_t>(p + 24));
+
+            p += 32;
+            remaining -= 32;
+        } while (remaining >= 32);
+
+        h = rotl64(v1, 1) + rotl64(v2, 7) + rotl64(v3, 12) + rotl64(v4, 18);
+
+        h = merge_round(h, v1);
+        h = merge_round(h, v2);
+        h = merge_round(h, v3);
+        h = merge_round(h, v4);
+    }
+    else
+    {
+        h = P5;
+    }
+
+    h += static_cast<std::uint64_t>(total_size);
+
+    while (remaining >= 8)
+    {
+        const std::uint64_t k = round64(0, read<std::uint64_t>(p));
+
+        h ^= k;
+        h = rotl64(h, 27) * P1 + P4;
+
+        p += 8;
+        remaining -= 8;
+    }
+
+    if (remaining >= 4)
+    {
+        h ^= static_cast<std::uint64_t>(read<std::uint32_t>(p)) * P1;
+
+        h = rotl64(h, 23) * P2 + P3;
+
+        p += 4;
+        remaining -= 4;
+    }
+
+    while (remaining != 0)
+    {
+        h ^= static_cast<std::uint64_t>(*p) * P5;
+
+        h = rotl64(h, 11) * P1;
+
+        ++p;
+        --remaining;
+    }
+
+    return avalanche(h);
+}
+}  // namespace hash_detail
+}  // namespace
 
 /*!
  * Returns an integer value characterizing \a this array, which is useful for a quick
- * comparison of many instances of DataArrayInt. Version inspired from boost that walk along
- * all elements.
+ * comparison of many instances of DataArrayInt.
  *  \return mcIdType - the hash value.
  *  \throw If \a this is not allocated.
  */
 template <class T>
-mcIdType
-DataArrayDiscrete<T>::getHashCode2() const
+std::uint64_t
+DataArrayDiscrete<T>::getHashCode() const
 {
-    using TUnsigned = typename std::make_unsigned_t<T>;
     this->checkAllocated();
-    auto nbOfElems(this->getNbOfElems());
-    TUnsigned ret(0);
-    const T *pt(this->begin());
-    for (auto i = 0; i < nbOfElems; ++i)
-    {
-        ret ^= TUnsigned(pt[i]) + Traits<T>::ConstantForHash + (ret << 6) + (ret >> 2);
-    }
-    // https://www.boost.org/doc/libs/1_35_0/doc/html/boost/hash_combine_id241013.html
-    return ToIdType(ret);
+    return hash_detail::compute<T>(this->begin(), this->getNbOfElems());
 }
 
 template <class T>

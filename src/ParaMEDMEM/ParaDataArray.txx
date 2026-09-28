@@ -22,7 +22,7 @@
 
 #include "ParaDataArray.hxx"
 #include "CommInterface.hxx"
-#include "MEDCouplingMemArray.txx"
+#include "MEDCouplingMemArray.hxx"
 
 #include <sstream>
 

@@ -18,8 +18,10 @@
 //
 // Author : Anthony Geay (CEA/DEN)
 
-#ifndef __PARAMEDMEM_MEDCOUPLINGNORMALIZEDCARTESIANMESH_HXX__
-#define __PARAMEDMEM_MEDCOUPLINGNORMALIZEDCARTESIANMESH_HXX__
+#pragma once
+
+#include "MEDCoupling.hxx"
+#include "MCType.hxx"
 
 #include "NormalizedUnstructuredMesh.hxx"
 
@@ -29,7 +31,7 @@ class MEDCouplingCMesh;
 }
 
 template <int SPACEDIM>
-class MEDCouplingNormalizedCartesianMesh
+class MEDCOUPLING_EXPORT MEDCouplingNormalizedCartesianMesh
 {
    public:
     static const int MY_SPACEDIM = SPACEDIM;
@@ -51,5 +53,3 @@ class MEDCouplingNormalizedCartesianMesh
    private:
     const MEDCoupling::MEDCouplingCMesh *_mesh;
 };
-
-#endif
