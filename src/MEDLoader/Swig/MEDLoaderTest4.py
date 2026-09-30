@@ -16924,6 +16924,87 @@ class MEDLoaderTest4(unittest.TestCase):
         # fmt: on
         pass
 
+    def test56(self):
+        """
+        Test the optimization of profiles usages in multi time steps context where support may changes time steps by timesteps
+        """
+        # fmt: off
+        arr = DataArrayDouble(11) ; arr.iota()
+        m = MEDCouplingCMesh()
+        m.setCoords( arr, arr )
+        m = m.buildUnstructured()
+        m.setName("mesh")
+
+        mm = MEDFileUMesh()
+        mm[0] = m
+
+        fmts = MEDFileFieldMultiTS()
+        fmts.activateHashForProfile() # <<< aim of test is here
+        f1ts_0 = MEDFileField1TS()
+        f1ts_0.activateHashForProfile() # <<< aim of test is here
+        f = MEDCouplingFieldDouble( ON_CELLS ) ; f.setName( "Field" )
+        pfl = DataArrayInt( [2, 4, 6, 7, 10] ) ; pfl.setName( "pfl" )
+        arr = DataArrayDouble( len(pfl) ) ; arr.iota()
+        f.setArray( arr )
+        sup = m[ pfl ]
+        pfl.setName("pfl")
+        f1ts_0.setTime(0,0,0.)
+        f1ts_0.setFieldProfile(f, mm, 0, pfl)
+        self.assertTrue( f1ts_0.getPflsReallyUsed() == ('pfl',))
+        self.assertTrue( len( fmts.getPflsReallyUsed() ) == 0 )
+        self.assertTrue( f1ts_0.getFieldSplitedByType() == [(NORM_QUAD4, [(0, (0, 5), 'pfl', '')])] )
+        fmts.pushBackTimeStep( f1ts_0 )
+        self.assertTrue( f1ts_0.getFieldSplitedByType() == [(NORM_QUAD4, [(0, (0, 5), 'pfl', '')])] )
+        self.assertTrue( fmts.getProfile("pfl").isEqualWithoutConsideringStr( DataArrayInt( [2, 4, 6, 7, 10] ) ) )
+        self.assertTrue( f1ts_0.getPflsReallyUsed() == ('pfl',))
+        self.assertTrue( f1ts_0.getProfile("pfl").isEqualWithoutConsideringStr( DataArrayInt( [2, 4, 6, 7, 10] ) ) )
+        self.assertTrue( fmts.getPflsReallyUsed() == ('pfl',))
+        #
+        f1ts_1 = MEDFileField1TS()
+        f1ts_1.activateHashForProfile() # <<< aim of test is here
+        f = MEDCouplingFieldDouble( ON_CELLS ) ; f.setName( "Field" )
+        pfl = DataArrayInt( [2, 4, 6, 7] ) ; pfl.setName( "pfl" )
+        arr = DataArrayDouble( len(pfl) ) ; arr.iota() ; arr *= 2
+        f.setArray( arr )
+        sup = m[ pfl ]
+        pfl.setName("pfl")
+        f1ts_1.setTime(1,1,1.)
+        f1ts_1.setFieldProfile(f, mm, 0, pfl)
+        self.assertTrue( f1ts_1.getPflsReallyUsed() == ('pfl',))
+        self.assertTrue( f1ts_1.getFieldSplitedByType() == [(NORM_QUAD4, [(0, (0, 4), 'pfl', '')])] )
+        fmts.pushBackTimeStep( f1ts_1 )
+        # f1ts_1 and fmts have "pfl" profile. The content of pfl is different. f1ts_1 pfl profile is renamed into "pfl_1"
+        self.assertTrue( f1ts_1.getFieldSplitedByType() == [(NORM_QUAD4, [(0, (0, 4), 'pfl_1', '')])] )
+        self.assertTrue( f1ts_1.getPflsReallyUsed() == ('pfl_1',))
+        #
+        self.assertTrue( fmts.getPflsReallyUsed() == ('pfl','pfl_1'))
+        self.assertTrue( fmts.getProfile("pfl").isEqualWithoutConsideringStr( DataArrayInt( [2, 4, 6, 7, 10] ) ) )
+        self.assertTrue( f1ts_1.getProfile("pfl_1").isEqualWithoutConsideringStr( DataArrayInt( [2, 4, 6, 7] ) ) )
+        self.assertTrue( fmts.getProfile("pfl_1").isEqualWithoutConsideringStr( DataArrayInt( [2, 4, 6, 7] ) ) )
+        #
+        f1ts_2 = MEDFileField1TS()
+        f1ts_2.activateHashForProfile() # <<< aim of test is here
+        f = MEDCouplingFieldDouble( ON_CELLS ) ; f.setName( "Field" )
+        pfl = DataArrayInt( [2, 4, 6, 7] ) ; pfl.setName( "pfl" )
+        arr = DataArrayDouble( len(pfl) ) ; arr.iota() ; arr *= 2
+        f.setArray( arr )
+        sup = m[ pfl ]
+        pfl.setName("pfl")
+        f1ts_2.setTime(2,2,2.)
+        f1ts_2.setFieldProfile(f, mm, 0, pfl)
+        self.assertTrue( f1ts_2.getFieldSplitedByType() == [(NORM_QUAD4, [(0, (0, 4), 'pfl', '')])] )
+        fmts.pushBackTimeStep( f1ts_2 )
+        # f1ts_2 and fmts have "pfl" profile. The content of pfl is different. f1ts_2 pfl profile is renamed into "pfl_1"
+        self.assertTrue( f1ts_2.getFieldSplitedByType() == [(NORM_QUAD4, [(0, (0, 4), 'pfl_1', '')])] )
+        self.assertTrue( f1ts_2.getPflsReallyUsed() == ('pfl_1',))
+        #
+        self.assertTrue( fmts.getPflsReallyUsed() == ('pfl','pfl_1'))
+        self.assertTrue( fmts.getProfile("pfl").isEqualWithoutConsideringStr( DataArrayInt( [2, 4, 6, 7, 10] ) ) )
+        self.assertTrue( f1ts_2.getProfile("pfl_1").isEqualWithoutConsideringStr( DataArrayInt( [2, 4, 6, 7] ) ) )
+        self.assertTrue( fmts.getProfile("pfl_1").isEqualWithoutConsideringStr( DataArrayInt( [2, 4, 6, 7] ) ) )
+        # fmt: on
+        pass
+
     pass
 
 

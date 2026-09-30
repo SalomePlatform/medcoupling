@@ -2090,11 +2090,12 @@ namespace MEDCoupling
   {
   public:
     void resetContent();
+    void activateHashForProfile();
     void shallowCpyGlobs(const MEDFileFieldGlobsReal& other);
     void deepCpyGlobs(const MEDFileFieldGlobsReal& other);
     void shallowCpyOnlyUsedGlobs(const MEDFileFieldGlobsReal& other);
     void deepCpyOnlyUsedGlobs(const MEDFileFieldGlobsReal& other);
-    void appendGlobs(const MEDFileFieldGlobsReal& other, double eps);
+    void appendGlobs(MEDFileFieldGlobsReal& other, double eps);
     void checkGlobsCoherency() const;
     void checkGlobsPflsPartCoherency() const;
     void checkGlobsLocsPartCoherency() const;

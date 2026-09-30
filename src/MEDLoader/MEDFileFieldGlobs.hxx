@@ -28,6 +28,8 @@
 
 #include "med.h"
 
+#include <memory>
+
 namespace MEDCoupling
 {
 class MEDFileFieldGlobsReal;
@@ -35,11 +37,75 @@ class MEDFileEntities;
 class MEDFileWritable;
 class MEDFileFieldLoc;
 
+class MEDFileProfile
+{
+   public:
+    MEDFileProfile() = default;
+    MEDFileProfile(MEDFileProfile &&other) = default;
+    MEDFileProfile(MCAuto<DataArrayIdType> &&other) : _data(std::move(other)) {}
+    MEDFileProfile(const MEDFileProfile &other) = default;
+    MEDFileProfile &operator=(const MEDFileProfile &other) = default;
+    MEDFileProfile &operator=(MEDFileProfile &&other) = default;
+    MEDFileProfile &operator=(MCAuto<DataArrayIdType> &&other)
+    {
+        _data = std::move(other);
+        return *this;
+    }
+    MCAuto<DataArrayIdType> &operator->() { return this->_data; }
+    const MCAuto<DataArrayIdType> &operator->() const { return this->_data; }
+    operator DataArrayIdType *() { return (DataArrayIdType *)this->_data; }
+    operator const DataArrayIdType *() const { return (const DataArrayIdType *)this->_data; }
+    bool isNotNull() const { return _data.isNotNull(); }
+    virtual std::uint64_t getHashCode() const { return _data->getHashCode(); }
+    virtual std::unique_ptr<MEDFileProfile> deepCopy() const;
+    virtual std::unique_ptr<MEDFileProfile> shallowCopy() const;
+    virtual ~MEDFileProfile() = default;
+
+   protected:
+    MCAuto<DataArrayIdType> _data;
+};
+
+class MEDFileProfileWithHash : public MEDFileProfile
+{
+   public:
+    MEDFileProfileWithHash() = default;
+    MEDFileProfileWithHash(MEDFileProfileWithHash &&other) = default;
+    MEDFileProfileWithHash(MCAuto<DataArrayIdType> &&other) : MEDFileProfile(std::move(other)) { computeHash(); }
+    MEDFileProfileWithHash(const MEDFileProfileWithHash &other) = default;
+    MEDFileProfileWithHash(MCAuto<DataArrayIdType> &&data, std::uint64_t hash)
+        : MEDFileProfile(std::move(data)), _hash(hash)
+    {
+    }
+    MEDFileProfileWithHash &operator=(const MEDFileProfileWithHash &other) = default;
+    MEDFileProfileWithHash &operator=(MEDFileProfileWithHash &&other) = default;
+    MEDFileProfileWithHash &operator=(MCAuto<DataArrayIdType> &&other)
+    {
+        MEDFileProfile::operator=(std::move(other));
+        computeHash();
+        return *this;
+    }
+    std::uint64_t getHashCode() const override { return _hash; }
+    std::unique_ptr<MEDFileProfile> deepCopy() const override;
+    std::unique_ptr<MEDFileProfile> shallowCopy() const override;
+
+   private:
+    void computeHash();
+
+   private:
+    std::uint64_t _hash = 0;
+};
+
+enum class ProfileStyle
+{
+    without_hash,
+    with_hash
+};
+
 class MEDFileFieldGlobs : public RefCountObject
 {
    public:
-    static MEDFileFieldGlobs *New(med_idt fid);
-    static MEDFileFieldGlobs *New();
+    static MEDFileFieldGlobs *New(ProfileStyle style, med_idt fid);
+    static MEDFileFieldGlobs *New(ProfileStyle style);
     std::string getClassName() const override { return std::string("MEDFileFieldGlobs"); }
     std::size_t getHeapMemorySizeWithoutChildren() const;
     std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
@@ -47,7 +113,8 @@ class MEDFileFieldGlobs : public RefCountObject
     MEDFileFieldGlobs *shallowCpyPart(const std::vector<std::string> &pfls, const std::vector<std::string> &locs) const;
     MEDFileFieldGlobs *deepCpyPart(const std::vector<std::string> &pfls, const std::vector<std::string> &locs) const;
     void simpleRepr(std::ostream &oss) const;
-    void appendGlobs(const MEDFileFieldGlobs &other, double eps);
+    void appendGlobs(MEDFileFieldGlobsReal *structToModifyIfNecessary, MEDFileFieldGlobs &other, double eps);
+    std::vector<std::pair<std::string, std::string> > renameProfilesToAvoidClash(MEDFileFieldGlobs &other) const;
     void checkGlobsPflsPartCoherency(const std::vector<std::string> &pflsUsed) const;
     void checkGlobsLocsPartCoherency(const std::vector<std::string> &locsUsed) const;
     void loadProfileInFile(med_idt fid, int id, const std::string &pflName);
@@ -64,6 +131,7 @@ class MEDFileFieldGlobs : public RefCountObject
     std::vector<std::vector<int> > whichAreEqualProfiles() const;
     std::vector<std::vector<int> > whichAreEqualLocs(double eps) const;
     void setFileName(const std::string &fileName) { _file_name = fileName; }
+    void changePflsNamesInStruct(const std::vector<std::pair<std::string, std::string> > &mapOfModif);
     void changePflsNamesInStruct(const std::vector<std::pair<std::vector<std::string>, std::string> > &mapOfModif);
     void changeLocsNamesInStruct(const std::vector<std::pair<std::vector<std::string>, std::string> > &mapOfModif);
     int getNbOfGaussPtPerCell(int locId) const;
@@ -93,13 +161,20 @@ class MEDFileFieldGlobs : public RefCountObject
     //
     static std::string CreateNewNameNotIn(const std::string &prefix, const std::vector<std::string> &namesToAvoid);
 
-   protected:
-    MEDFileFieldGlobs(med_idt fid);
-    MEDFileFieldGlobs();
-    ~MEDFileFieldGlobs();
+   private:
+    std::map<std::string, MEDFileProfile *> getProfileMap() const;
+    void appendGlobsPflPart(MEDFileFieldGlobsReal *structToModifyIfNecessary, MEDFileFieldGlobs &other);
+    void appendGlobsPflPartWithoutHash(MEDFileFieldGlobs &other);
+    void appendGlobsPflPartWithHash(MEDFileFieldGlobsReal *structToModifyIfNecessary, MEDFileFieldGlobs &other);
 
    protected:
-    std::vector<MCAuto<DataArrayIdType> > _pfls;
+    MEDFileFieldGlobs(ProfileStyle style, med_idt fid);
+    MEDFileFieldGlobs(ProfileStyle style);
+    ~MEDFileFieldGlobs() = default;
+
+   protected:
+    ProfileStyle _style_for_pfl = ProfileStyle::without_hash;
+    std::vector<std::unique_ptr<MEDFileProfile> > _pfls;
     std::vector<MCAuto<MEDFileFieldLoc> > _locs;
     std::string _file_name;
 };
@@ -111,16 +186,17 @@ class MEDFileFieldGlobsReal
    public:
     MEDLOADER_EXPORT MEDFileFieldGlobsReal(med_idt fid);
     MEDLOADER_EXPORT MEDFileFieldGlobsReal();
+    MEDLOADER_EXPORT void activateHashForProfile();
     MEDLOADER_EXPORT std::size_t getHeapMemorySizeWithoutChildren() const;
     MEDLOADER_EXPORT std::vector<const BigMemoryObject *> getDirectChildrenWithNull() const;
     MEDLOADER_EXPORT void simpleReprGlobs(std::ostream &oss) const;
-    MEDLOADER_EXPORT void resetContent();
+    MEDLOADER_EXPORT void resetContent(ProfileStyle style = ProfileStyle::without_hash);
     MEDLOADER_EXPORT void killStructureElementsInGlobs();
     MEDLOADER_EXPORT void shallowCpyGlobs(const MEDFileFieldGlobsReal &other);
     MEDLOADER_EXPORT void deepCpyGlobs(const MEDFileFieldGlobsReal &other);
     MEDLOADER_EXPORT void shallowCpyOnlyUsedGlobs(const MEDFileFieldGlobsReal &other);
     MEDLOADER_EXPORT void deepCpyOnlyUsedGlobs(const MEDFileFieldGlobsReal &other);
-    MEDLOADER_EXPORT void appendGlobs(const MEDFileFieldGlobsReal &other, double eps);
+    MEDLOADER_EXPORT void appendGlobs(MEDFileFieldGlobsReal &other, double eps);
     MEDLOADER_EXPORT void checkGlobsCoherency() const;
     MEDLOADER_EXPORT void checkGlobsPflsPartCoherency() const;
     MEDLOADER_EXPORT void checkGlobsLocsPartCoherency() const;
@@ -195,6 +271,7 @@ class MEDFileFieldGlobsReal
     const MEDFileFieldGlobs *contentNotNull() const;
 
    protected:
+    ProfileStyle _style_for_pfl = ProfileStyle::without_hash;
     MCAuto<MEDFileFieldGlobs> _globals;
 };
 

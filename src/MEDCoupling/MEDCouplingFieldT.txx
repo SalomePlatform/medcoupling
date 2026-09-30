@@ -103,8 +103,7 @@ MEDCouplingFieldT<T>::setQuantityKind(QuantityKindAbstract *newQKind)
     {
         THROW_IK_EXCEPTION("setQuantityKind : input must be not nullptr");
     }
-    newQKind->incrRef();
-    this->_quantity_kind = newQKind;
+    this->_quantity_kind.takeRef(newQKind);
 }
 
 /*!

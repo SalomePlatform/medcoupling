@@ -71,7 +71,6 @@ MEDFileAnyTypeFieldMultiTSWithoutSDA::MEDFileAnyTypeFieldMultiTSWithoutSDA(
     int nbOfStep(
         MEDFileAnyTypeField1TS::LocateField2(fid, fieldId, false, _name, typcha, _infos, dtunitOut, meshName, qk)
     );
-    setQuantityKind(qk);
     setMeshName(meshName);
     setDtUnit(dtunitOut.c_str());
     setQuantityKind(qk);

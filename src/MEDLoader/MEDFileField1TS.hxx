@@ -655,10 +655,10 @@ class MEDFileAnyTypeField1TS : public RefCountObject, public MEDFileWritableStan
     MEDLOADER_EXPORT std::vector<std::string> getLocsReallyUsedMulti() const;
     MEDLOADER_EXPORT void changePflsRefsNamesGen(
         const std::vector<std::pair<std::vector<std::string>, std::string> > &mapOfModif
-    );
+    ) override;
     MEDLOADER_EXPORT void changeLocsRefsNamesGen(
         const std::vector<std::pair<std::vector<std::string>, std::string> > &mapOfModif
-    );
+    ) override;
 
    public:
     MEDLOADER_EXPORT static int LocateField2(

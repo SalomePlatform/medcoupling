@@ -615,10 +615,10 @@ class MEDFileAnyTypeFieldMultiTS : public RefCountObject, public MEDFileWritable
     MEDLOADER_EXPORT std::vector<std::string> getLocsReallyUsedMulti() const;
     MEDLOADER_EXPORT void changePflsRefsNamesGen(
         const std::vector<std::pair<std::vector<std::string>, std::string> > &mapOfModif
-    );
+    ) override;
     MEDLOADER_EXPORT void changeLocsRefsNamesGen(
         const std::vector<std::pair<std::vector<std::string>, std::string> > &mapOfModif
-    );
+    ) override;
 
    protected:
     MEDFileAnyTypeFieldMultiTSWithoutSDA *contentNotNullBase();

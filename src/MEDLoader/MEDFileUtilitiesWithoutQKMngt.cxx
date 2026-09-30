@@ -40,7 +40,8 @@ MEDFileUtilities::WrapperOf_MEDfieldQuantityKindRd(
     med_idt fid, const std::string &fieldName, MEDCoupling::MCAuto<MEDCoupling::QuantityKindAbstract> &qk
 )
 {
-    qk = QuantityKindUnDef::New().retn();
+    MEDCoupling::MCAuto<MEDCoupling::QuantityKindUnDef> qk2(QuantityKindUnDef::New());
+    qk = StaticCast<MEDCoupling::QuantityKindUnDef, MEDCoupling::QuantityKindAbstract>(std::move(qk2));
 }
 
 std::string
