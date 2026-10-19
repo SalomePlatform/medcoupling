@@ -15999,7 +15999,7 @@ class MEDLoaderTest3(unittest.TestCase):
         #
         mmOut1 = mm.linearToQuadratic(0, 0.0)
         mmOut1.write(fileName2, 2)
-        mmOut2 = mmOut1.quadraticToLinear(0.0)
+        mmOut2 = mmOut1.quadraticToLinear()
         self.assertTrue(mm.isEqual(mmOut2, 1e-12)[0])
         pass
 
@@ -20192,6 +20192,19 @@ class MEDLoaderTest3(unittest.TestCase):
                 set(mm.getFamiliesIdsOnGroup(grp))
                 == set(mmr.getFamiliesIdsOnGroup(grp))
             )
+
+    def testBugMEDFileMeshQuadraticToLinear(self):
+        # fmt: off
+        mm = MEDFileUMesh()
+        m = MEDCouplingUMesh( "mesh", 2 )
+        m.setCoords( DataArrayDouble( [ (0.5,0), (0.5,0.5), (0,0.5), (0,0), (1,0), (0,1) ] ) )
+        m.allocateCells(1)
+        m.insertNextCell( NORM_TRI6, [3,4,5, 0,1,2] )
+        mm[0] = m
+        mm.setFamilyFieldArr(1, DataArrayInt( [ 100, 101, 102, 103, 104, 105 ] ) )
+        mm2 = mm.quadraticToLinear()
+        self.assertTrue( mm2.getFamilyFieldAtLevel(1).isEqualWithoutConsideringStr( DataArrayInt([103,104,105]) ) )
+        # fmt: on
 
     pass
 

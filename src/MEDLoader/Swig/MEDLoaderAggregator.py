@@ -861,6 +861,11 @@ def AggregateMEDFilesNoFusion(pat: str, fnameOut: str, logLev=logging.INFO):
 
     positionLogger(logLev)
     filesToMerge = sorted(glob(pat), key=lambda x: FindIdFromPathAndPattern(x, pat))
+    if len(filesToMerge) == 0:
+        from pathlib import Path
+
+        zePath = Path(pat).absolute()
+        raise RuntimeError(f"No files correspond to the {zePath} input pattern !")
     inpVersion = StrictVersion(ml.MEDFileVersionOfFileStr(filesToMerge[0])).version
     getLogger().debug(
         f"Start to load all {len(filesToMerge)} meshes in memory to perform aggregation"

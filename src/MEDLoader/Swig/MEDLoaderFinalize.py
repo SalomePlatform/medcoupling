@@ -625,6 +625,38 @@ def FuseCellsAndNodesInMEDFile(
             f1tsOut.writeXX(fnameOut, 0, *inpVersion)
 
 
+def MEDFileUMeshQuadraticToLinear(self):
+    import MEDLoader as ml
+
+    ret = ml.MEDFileUMesh.New()
+    levs = self.getNonEmptyLevels()
+    levsm = []
+    for lev in levs:
+        m0Tmp = self.getMeshAtLevel(lev)
+        m0 = m0Tmp.deepCopy()
+        m0.convertQuadraticCellsToLinear()
+        ids = m0.computeFetchedNodeIds()
+        levsm.append((lev, ids, m0))
+    fni = ml.DataArrayInt.Aggregate([elt[1] for elt in levsm])
+    n2o = fni.buildUniqueNotSorted()
+    o2n = n2o.invertArrayN2O2O2N(self.getNumberOfNodes())
+    newCoo = self.getCoords()[n2o]
+    for lev, _, curMesh in levsm:
+        curMesh.renumberNodesInConn(o2n)
+        curMesh.setCoords(newCoo)
+        ret[lev] = curMesh
+        famField = self.getFamilyFieldAtLevel(lev)
+        if famField is not None:
+            famFieldCpy = famField.deepCopy()
+            ret.setFamilyFieldArr(lev, famFieldCpy)
+    famField = self.getFamilyFieldAtLevel(1)
+    if famField is not None:
+        fam = famField.selectByTupleIdSafe(n2o)
+        ret.setFamilyFieldArr(1, fam)
+    ret.copyFamGrpMapsFrom(self)
+    return ret
+
+
 def MEDFileUMeshTetrahedrize(self, splitType, logLev=logging.INFO):
     """
     [EDF30178] : Method splitting hexa,prisms and underlying quads into resp and underlying triangles

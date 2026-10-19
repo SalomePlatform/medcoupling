@@ -547,7 +547,6 @@ class MEDFileUMesh : public MEDFileMesh
     // implemented in python
     MEDLOADER_EXPORT MEDFileUMesh *buildExtrudedMesh(const MEDCouplingUMesh *m1D, int policy) const;
     MEDLOADER_EXPORT MEDFileUMesh *linearToQuadratic(int conversionType = 0, double eps = 1e-12) const;
-    MEDLOADER_EXPORT MEDFileUMesh *quadraticToLinear(double eps = 1e-12) const;
     MEDLOADER_EXPORT MCAuto<MEDFileUMesh> symmetry3DPlane(const double point[3], const double normalVector[3]) const;
     MEDLOADER_EXPORT static MCAuto<MEDFileUMesh> Aggregate(const std::vector<const MEDFileUMesh *> &meshes);
     MEDLOADER_EXPORT MEDCouplingMappedExtrudedMesh *convertToExtrudedMesh() const;

@@ -5719,7 +5719,7 @@ MEDCouplingUMesh::isPresenceOfQuadratic() const
 
 /*!
  * Converts all quadratic cells to linear ones. If there are no quadratic cells in \a
- * this mesh, it remains unchanged.
+ * this mesh, it remains unchanged. Coordinates are not modified by this call.
  *  \throw If the coordinates array is not set.
  *  \throw If the nodal connectivity of cells is not defined.
  */

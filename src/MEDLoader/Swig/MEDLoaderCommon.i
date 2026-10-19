@@ -129,7 +129,6 @@ using namespace MEDCoupling;
 %newobject MEDCoupling::MEDFileUMesh::extractPart;
 %newobject MEDCoupling::MEDFileUMesh::buildExtrudedMesh;
 %newobject MEDCoupling::MEDFileUMesh::linearToQuadratic;
-%newobject MEDCoupling::MEDFileUMesh::quadraticToLinear;
 %newobject MEDCoupling::MEDFileUMesh::symmetry3DPlane;
 %newobject MEDCoupling::MEDFileUMesh::Aggregate;
 %newobject MEDCoupling::MEDFileUMesh::convertToExtrudedMesh;
@@ -1491,7 +1490,6 @@ namespace MEDCoupling
     DataArrayIdType *extractNumberFieldOnGeoType(INTERP_KERNEL::NormalizedCellType gt) const;
     MEDFileUMesh *buildExtrudedMesh(const MEDCouplingUMesh *m1D, int policy) const;
     MEDFileUMesh *linearToQuadratic(int conversionType=0, double eps=1e-12) const;
-    MEDFileUMesh *quadraticToLinear(double eps=1e-12) const;
     MEDCouplingMappedExtrudedMesh *convertToExtrudedMesh() const;
     %extend
        {
