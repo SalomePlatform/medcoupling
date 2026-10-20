@@ -381,7 +381,7 @@ set(MEDCOUPLING_INSTALL_SCRIPT_PYTHON
     ${MEDCOUPLING_INSTALL_BINS}
     CACHE PATH "Install path: MEDCoupling Python scripts")
 set(MEDCOUPLING_INSTALL_CMAKE_LOCAL
-    cmake_files
+    lib/cmake/MEDCoupling
     CACHE PATH "Install path: local MEDCoupling CMake files")
 
 if(MEDCOUPLING_ENABLE_PYTHON)
