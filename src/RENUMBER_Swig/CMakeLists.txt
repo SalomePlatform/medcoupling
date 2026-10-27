@@ -57,7 +57,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/ExprEval
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/GaussPoints)
 
-if(WIN32)
+IF(WIN32 OR APPLE)
   set_property(SOURCE MEDRenumber.i PROPERTY COMPILE_DEFINITIONS WIN32)
 endif()
 if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
@@ -70,7 +70,7 @@ else()
 endif()
 
 swig_link_libraries(MEDRenumber ${PLATFORM_LIBS} renumbercpp)
-if(WIN32)
+if(WIN32 OR APPLE)
   # PYTHON_LIBRARIES only needed on win32 see
   # https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
   swig_link_libraries(MEDRenumber ${PYTHON_LIBRARIES})

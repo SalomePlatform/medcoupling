@@ -63,6 +63,16 @@ message(
 # ==============
 include(SalomeSetupPlatform)
 
+if(APPLE)
+  # cmake_minimum_required(2.8) leaves CMP0042 OLD: installed dylibs would get a
+  # bare install name (e.g. "libmedpartitionercpp.dylib") that dyld cannot resolve.
+  # Use @rpath install names and embed the install lib dir plus the dirs of all
+  # linked prerequisites (hdf5, medfile, scotch...) so no DYLD_LIBRARY_PATH is needed.
+  set(CMAKE_MACOSX_RPATH ON)
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
+endif()
+
 # [ABN]: use the below for aggressive code quality check: if( EXISTS "aaaa")
 # add_definitions(-Weverything)
 # add_definitions(-Wno-inconsistent-missing-override)
@@ -240,15 +250,27 @@ endif(MEDCOUPLING_ENABLE_RENUMBER)
 
 if(MEDCOUPLING_ENABLE_SHAPERECOGN)
   if(UNIX)
-    set(CBLAS_ROOT_DIR
-        $ENV{CBLAS_ROOT_DIR}
-        CACHE PATH "Path to the LAPACK/CBLAS.")
-    if(CBLAS_ROOT_DIR)
-      list(APPEND CMAKE_PREFIX_PATH "${CBLAS_ROOT_DIR}")
-      find_package(CBLAS REQUIRED)
-    else(CBLAS_ROOT_DIR)
-      find_package(BLAS REQUIRED)
-    endif(CBLAS_ROOT_DIR)
+    if (NOT APPLE)
+        set(CBLAS_ROOT_DIR
+            $ENV{CBLAS_ROOT_DIR}
+            CACHE PATH "Path to the LAPACK/CBLAS.")
+        if(CBLAS_ROOT_DIR)
+          list(APPEND CMAKE_PREFIX_PATH "${CBLAS_ROOT_DIR}")
+          find_package(CBLAS REQUIRED)
+        else(CBLAS_ROOT_DIR)
+          find_package(BLAS REQUIRED)
+        endif(CBLAS_ROOT_DIR)
+    else()
+        set(OPENBLAS_ROOT_DIR
+            $ENV{OPENBLAS_ROOT_DIR}
+            CACHE PATH "Path to the OpenBLAS.")
+        if(OPENBLAS_ROOT_DIR)
+          list(APPEND CMAKE_PREFIX_PATH "${OPENBLAS_ROOT_DIR}")
+          find_package(OpenBLAS REQUIRED)
+        else(OPENBLAS_ROOT_DIR)
+          message(FATAL "Could not find OpenBLAS")
+        endif(OPENBLAS_ROOT_DIR)
+    endif(NOT APPLE)
     set(LAPACK_ROOT_DIR
         $ENV{LAPACK_ROOT_DIR}
         CACHE PATH "Path to the LAPACKE")
@@ -259,13 +281,25 @@ if(MEDCOUPLING_ENABLE_SHAPERECOGN)
       list(APPEND CMAKE_PREFIX_PATH "${LAPACK_ROOT_DIR}")
     endif(LAPACK_ROOT_DIR)
     find_package(LAPACK REQUIRED)
-    find_library(LAPACKE_LIB NAMES lapacke REQUIRED)
+    if (NOT APPLE)
+        find_library(LAPACKE_LIB NAMES lapacke REQUIRED)
+    else()
+        find_library(LAPACKE_LIB NAMES openblas REQUIRED)
+    endif(NOT APPLE)
     set(LAPACK_LIBRARIES ${LAPACKE_LIB} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES}
                          ${CBLAS_LIBRARIES})
-    find_path(
-      LAPACKE_INCLUDE_DIRS
-      NAMES lapacke.h
-      HINTS ${LAPACK_LIBRARIES})
+
+    if (NOT APPLE)
+        find_path(
+          LAPACKE_INCLUDE_DIRS
+          NAMES lapacke.h
+          HINTS ${LAPACK_LIBRARIES})
+    else()
+        find_path(
+          LAPACKE_INCLUDE_DIRS
+          NAMES lapacke.h
+          HINTS ${OpenBLAS_INCLUDE_DIRS})
+    endif(NOT APPLE)
     if(LAPACK_FOUND)
       message(STATUS "Lapacke libraries: ${LAPACK_LIBRARIES}")
       message(STATUS "Lapacke include dirs: ${LAPACKE_INCLUDE_DIRS}")
