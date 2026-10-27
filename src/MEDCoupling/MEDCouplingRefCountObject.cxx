@@ -424,9 +424,23 @@ GlobalDict::printSelf() const
 void
 MEDCoupling::TrapHwOverflow()
 {
-#ifndef WIN32
-    feenableexcept(FE_OVERFLOW);
-#else
+#if defined(WIN32)
     THROW_IK_EXCEPTION("TrapHwOverflow not implemented for Win32");
+#elif defined(__APPLE__)
+    // feenableexcept() is a glibc extension, not available on macOS:
+    // enable the overflow trap directly in the floating point environment
+    fenv_t env;
+    fegetenv(&env);
+#if defined(__aarch64__) || defined(__arm64__)
+    env.__fpcr |= __fpcr_trap_overflow;    // FPCR.OFE
+#elif defined(__x86_64__) || defined(__i386__)
+    env.__control &= ~FE_OVERFLOW;         // x87: unmask overflow
+    env.__mxcsr &= ~(FE_OVERFLOW << 7);    // SSE: exception masks are bits 7..12
+#else
+    THROW_IK_EXCEPTION("TrapHwOverflow not implemented for this architecture");
+#endif
+    fesetenv(&env);
+#else
+    feenableexcept(FE_OVERFLOW);
 #endif
 }
