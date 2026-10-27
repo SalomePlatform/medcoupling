@@ -372,13 +372,13 @@ class hashtable
     template <class _InputIterator>
     void insert_unique(_InputIterator __f, _InputIterator __l)
     {
-        insert_unique(__f, __l, __iterator_category(__f));
+        insert_unique(__f, __l, typename std::iterator_traits<_InputIterator>::iterator_category());
     }
 
     template <class _InputIterator>
     void insert_equal(_InputIterator __f, _InputIterator __l)
     {
-        insert_equal(__f, __l, __iterator_category(__f));
+        insert_equal(__f, __l, typename std::iterator_traits<_InputIterator>::iterator_category());
     }
 
     template <class _InputIterator>
