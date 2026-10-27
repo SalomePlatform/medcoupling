@@ -21,6 +21,7 @@
 #include "MEDFileField1TS.hxx"
 #include "MEDFileFieldVisitor.hxx"
 #include "MEDFileSafeCaller.txx"
+#include "MEDLoaderGeoTypesConverter.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileField.txx"
 
@@ -28,8 +29,6 @@
 #include "MEDCouplingFieldDouble.hxx"
 
 using namespace MEDCoupling;
-
-extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
 
 template class MEDCoupling::MEDFileField1TSTemplateWithoutSDA<Int32>;
 template class MEDCoupling::MEDFileField1TSTemplateWithoutSDA<Int64>;

@@ -83,6 +83,7 @@ set(medloader_SOURCES
     MEDFileStructureElement.cxx
     MEDFileEntities.cxx
     MEDFileBlowStrEltUp.cxx
+    MEDLoaderGeoTypesConverter.cxx
     SauvMedConvertor.cxx
     SauvReader.cxx
     SauvWriter.cxx

@@ -32,6 +32,7 @@
 #include "MEDFileJoint.hxx"
 #include "MEDFileMesh.hxx"
 #include "MEDFileField.hxx"
+#include "MEDLoaderGeoTypesConverter.hxx"
 #include "MEDFileParameter.hxx"
 #include "MEDFileData.hxx"
 #include "MEDFileEquivalence.hxx"
@@ -439,6 +440,34 @@ namespace MEDCoupling
     PyTuple_SetItem(ret,0,SWIG_From_int(major));
     PyTuple_SetItem(ret,1,SWIG_From_int(minor));
     PyTuple_SetItem(ret,2,SWIG_From_int(release));
+    return ret;
+  }
+
+  PyObject *FromMEDFileToMC( )
+  {
+    PyObject *ret(PyDict_New());
+    INTERP_KERNEL::NormalizedCellType result = INTERP_KERNEL::NORM_ERROR;
+    for (int i = 0; i < INTERP_KERNEL::NORM_MAXTYPE; i++)
+    {
+        if( typmai3[i] != MED_NONE)
+        {
+          PyDict_SetItem(ret, PyInt_FromLong(typmai3[i]), PyInt_FromLong(i));
+        }
+    }
+    return ret;
+  }
+
+  PyObject *FromMCToMEDFile( )
+  {
+    PyObject *ret(PyDict_New());
+    INTERP_KERNEL::NormalizedCellType result = INTERP_KERNEL::NORM_ERROR;
+    for (int i = 0; i < INTERP_KERNEL::NORM_MAXTYPE; i++)
+    {
+        if( typmai3[i] != MED_NONE)
+        {
+          PyDict_SetItem(ret, PyInt_FromLong(i), PyInt_FromLong(typmai3[i]));
+        }
+    }
     return ret;
   }
 
