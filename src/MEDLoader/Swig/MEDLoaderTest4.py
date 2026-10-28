@@ -17026,6 +17026,30 @@ class MEDLoaderTest4(unittest.TestCase):
         self.assertTrue( len( { v for k,v in dico1.items() } ) == sz )
         # fmt: on
 
+    @WriteInTmpDir
+    def test58(self):
+        """
+        [Aster] : Test on Gauss points on MED_POINT1. Reveals some troubles when cell dim == 0
+        """
+        # fmt: off
+        fname = "test58.med"
+        arr = DataArrayDouble(5) ; arr.iota()
+        m = MEDCouplingCMesh() ; m.setCoords(arr) ; m = m.buildUnstructured()
+        m = m.buildDescendingConnectivity()[0]
+        m.setName("mesh")
+        f = MEDCouplingFieldDouble( ON_GAUSS_PT )
+        f.setMesh(m)
+        f.setGaussLocalizationOnType( NORM_POINT1, (), (), (1.0,))
+        f.setArray(arr)
+        f.setName("field")
+        f1ts = MEDFileField1TS()
+        f1ts.setFieldNoProfileSBT(f)
+        str( f1ts.getLocalization("Loc_field_NORM_POINT1_0") ) # check protection against SIGFPE
+        repr( f1ts.getLocalization("Loc_field_NORM_POINT1_0") )
+        # MEDFile complains : MEDlocalizationWr(fid, "Loc_POINT1", MED_POINT1, 0, nullptr, MED_FULL_INTERLACE, 1, nullptr, [1], MED_NO_INTERPOLATION, MED_NO_MESH_SUPPORT);
+        #f1ts.write(fname, 2)
+        # fmt: on
+
     pass
 
 
