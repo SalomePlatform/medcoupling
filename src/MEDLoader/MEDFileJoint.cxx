@@ -21,15 +21,11 @@
 #include "MEDFileBasis.hxx"
 #include "MEDLoader.hxx"
 #include "MEDLoaderBase.hxx"
+#include "MEDLoaderGeoTypesConverter.hxx"
 #include "MEDFileSafeCaller.txx"
 
 #include "CellModel.hxx"
 #include "InterpKernelAutoPtr.hxx"
-
-// From MEDLOader.cxx TU
-extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
-extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
-extern med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE];
 
 using namespace MEDCoupling;
 

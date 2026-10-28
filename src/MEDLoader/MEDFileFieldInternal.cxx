@@ -22,6 +22,7 @@
 #include "MEDFileField.hxx"
 #include "MEDFileFieldVisitor.hxx"
 #include "MEDFileStructureElement.hxx"
+#include "MEDLoaderGeoTypesConverter.hxx"
 #include "MEDLoaderBase.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDFileEntities.hxx"
@@ -33,11 +34,6 @@
 #include "MEDFilterEntity.hxx"
 
 #include "CellModel.hxx"
-
-// From MEDLOader.cxx TU
-extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
-extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
-extern med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE];
 
 using namespace MEDCoupling;
 

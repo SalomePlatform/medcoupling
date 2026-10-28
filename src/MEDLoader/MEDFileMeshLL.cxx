@@ -24,6 +24,7 @@
 #include "MEDFileSafeCaller.txx"
 #include "MEDFileMeshReadSelector.hxx"
 #include "MEDFileStructureElement.hxx"
+#include "MEDLoaderGeoTypesConverter.hxx"
 #include "MEDFileMeshSupport.hxx"
 
 #include "MEDCouplingUMesh.hxx"
@@ -34,11 +35,6 @@
 #include "MEDFilterEntity.hxx"
 #include <set>
 #include <iomanip>
-
-// From MEDLOader.cxx TU
-extern med_geometry_type typmai[MED_N_CELL_FIXED_GEO];
-extern INTERP_KERNEL::NormalizedCellType typmai2[MED_N_CELL_FIXED_GEO];
-extern med_geometry_type typmainoeud[1];
 
 using namespace MEDCoupling;
 

@@ -21,6 +21,7 @@
 #include "MEDFileMeshElt.hxx"
 #include "MEDFileSafeCaller.txx"
 #include "MEDFileMeshReadSelector.hxx"
+#include "MEDLoaderGeoTypesConverter.hxx"
 #include "MEDFileBasis.hxx"
 
 #include "MEDCouplingUMesh.hxx"
@@ -32,9 +33,6 @@
 #include "MEDFilterEntity.hxx"
 
 #include <iostream>
-
-// From MEDLOader.cxx TU
-extern med_geometry_type typmai3[INTERP_KERNEL::NORM_MAXTYPE];
 
 using namespace MEDCoupling;
 

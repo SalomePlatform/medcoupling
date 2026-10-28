@@ -17005,6 +17005,27 @@ class MEDLoaderTest4(unittest.TestCase):
         # fmt: on
         pass
 
+    def test57(self):
+        """
+        Test exposure of medcoupling <-> medfile ceonsersion
+        """
+        # fmt: off
+        dico0 = FromMCToMEDFile()
+        sz = len( dico0 )
+        # check usable geo type
+        { MEDCouplingUMesh.GetReprOfGeometricType(k) : v for k,v in dico0.items() }
+        self.assertTrue( len( { v for k,v in dico0.items() } ) == sz )
+        for k,v in dico0.items():
+            if MEDCouplingUMesh.IsStaticGeometricType( k ):
+                self.assertTrue( MEDCouplingUMesh.GetDimensionOfGeometricType( k ) == v // 100 )
+                self.assertTrue( MEDCouplingUMesh.GetNumberOfNodesOfGeometricType( k ) == v % 100 )
+        #
+        dico1 = FromMEDFileToMC()
+        { k : MEDCouplingUMesh.GetReprOfGeometricType(v) for k,v in dico1.items() }
+        self.assertTrue( len( dico1 ) == sz )
+        self.assertTrue( len( { v for k,v in dico1.items() } ) == sz )
+        # fmt: on
+
     pass
 
 
