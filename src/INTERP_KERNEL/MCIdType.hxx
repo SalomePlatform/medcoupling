@@ -36,7 +36,7 @@ typedef std::int64_t mcIdType;
 
 #endif
 
-#ifdef WIN32
+#if defined(WIN32) || defined (__APPLE__)
 typedef long long mcPyPtrType;
 #else
 typedef long mcPyPtrType;

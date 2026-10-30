@@ -28,7 +28,7 @@ add_definitions(
   -DMEDCOUPLING_CONFIG_DT=\"${MEDCOUPLING_CONFIG_TIME}\")
 
 set_source_files_properties(medcoupling.i PROPERTIES CPLUSPLUS ON)
-if(WIN32)
+IF(WIN32 OR APPLE)
   set_property(SOURCE medcoupling.i PROPERTY COMPILE_DEFINITIONS WIN32)
 endif()
 if("${PYTHON_VERSION_MAJOR}" STREQUAL "3")
@@ -75,7 +75,7 @@ include_directories(
   ${PROJECT_BINARY_DIR}/doc)
 
 set(medcoupling_LIB_dependancies ${PLATFORM_LIBS} medcouplingremapper medicoco)
-if(WIN32 OR CYGWIN)
+if(WIN32 OR CYGWIN OR APPLE)
   # PYTHON_LIBRARIES only needed on win32 see
   # https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
   list(APPEND medcoupling_LIB_dependancies ${PYTHON_LIBRARIES})

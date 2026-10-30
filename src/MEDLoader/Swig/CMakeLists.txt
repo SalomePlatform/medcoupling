@@ -72,7 +72,7 @@ if(MEDCOUPLING_BUILD_DOC)
        ${PROJECT_BINARY_DIR}/doc/MEDLoader_doc.i swig_ready)
 endif()
 
-if(WIN32)
+IF(WIN32 OR APPLE)
   set_property(SOURCE MEDLoader.i PROPERTY COMPILE_DEFINITIONS WIN32)
 endif()
 
@@ -86,7 +86,7 @@ else()
 endif()
 
 swig_link_libraries(MEDLoader ${PLATFORM_LIBS} medloader medcouplingcpp)
-if(WIN32 OR CYGWIN)
+if(WIN32 OR CYGWIN OR APPLE)
   # PYTHON_LIBRARIES only needed on win32 see
   # https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
   swig_link_libraries(MEDLoader ${PYTHON_LIBRARIES})

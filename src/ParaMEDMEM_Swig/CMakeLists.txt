@@ -60,6 +60,10 @@ set(SWIG_MODULE_ParaMEDMEM_EXTRA_DEPS
     ${medcoupling_HEADERS_HXX} ${medcoupling_HEADERS_TXX}
     ${interpkernel_HEADERS_HXX} ${interpkernel_HEADERS_TXX})
 
+IF(APPLE)
+  SET_PROPERTY(SOURCE ParaMEDMEM.i PROPERTY COMPILE_DEFINITIONS WIN32)
+ENDIF()
+
 if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
   swig_add_module(ParaMEDMEM python ParaMEDMEM.i)
 else()
@@ -70,7 +74,7 @@ else()
 endif()
 
 swig_link_libraries(ParaMEDMEM paramedmem)
-if(WIN32)
+if(WIN32 OR APPLE)
   # PYTHON_LIBRARIES only needed on win32 see
   # https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
   swig_link_libraries(ParaMEDMEM ${PYTHON_LIBRARIES})

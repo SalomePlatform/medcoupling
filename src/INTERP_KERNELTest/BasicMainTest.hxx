@@ -32,7 +32,7 @@
 #include <iostream>
 #include <fstream>
 
-#if !defined WIN32 && !defined __APPLE__
+#if !defined(WIN32) && !defined(__APPLE__)
 #include <fpu_control.h>
 #endif
 

@@ -69,7 +69,7 @@ else()
 endif()
 
 swig_link_libraries(MEDPartitioner ${PLATFORM_LIBS} medpartitionercpp)
-if(WIN32)
+if(WIN32 OR APPLE)
   # PYTHON_LIBRARIES only needed on win32 see
   # https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
   swig_link_libraries(MEDPartitioner ${PYTHON_LIBRARIES})

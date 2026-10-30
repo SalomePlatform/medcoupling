@@ -372,13 +372,22 @@ class hashtable
     template <class _InputIterator>
     void insert_unique(_InputIterator __f, _InputIterator __l)
     {
+#if defined(__APPLE__)
+        // __iterator_category() is a libstdc++ internal, not available in libc++
+        insert_unique(__f, __l, typename std::iterator_traits<_InputIterator>::iterator_category());
+#else
         insert_unique(__f, __l, __iterator_category(__f));
+#endif
     }
 
     template <class _InputIterator>
     void insert_equal(_InputIterator __f, _InputIterator __l)
     {
+#if defined(__APPLE__)
+        insert_equal(__f, __l, typename std::iterator_traits<_InputIterator>::iterator_category());
+#else
         insert_equal(__f, __l, __iterator_category(__f));
+#endif
     }
 
     template <class _InputIterator>

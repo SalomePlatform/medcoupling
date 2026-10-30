@@ -101,7 +101,7 @@ if(MEDCOUPLING_BUILD_DOC)
        ${PROJECT_BINARY_DIR}/doc/MEDCoupling_doc.i swig_ready)
 endif()
 
-if(WIN32)
+IF(WIN32 OR APPLE)
   # Under Windows MEDCoupling conflicts wiht medcoupling from PyWrapping
   set(MEDCouling_target_name MEDCouplingCompat)
   set_property(SOURCE MEDCoupling.i PROPERTY SWIG_MODULE_NAME MEDCouplingCompat)
@@ -126,7 +126,7 @@ else()
 endif()
 
 swig_link_libraries(${MEDCouling_target_name} ${PLATFORM_LIBS} medcouplingcpp)
-if(WIN32 OR CYGWIN)
+if(WIN32 OR CYGWIN OR APPLE)
   # PYTHON_LIBRARIES only needed on win32 see
   # https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
   swig_link_libraries(${MEDCouling_target_name} ${PYTHON_LIBRARIES})
@@ -134,7 +134,7 @@ endif()
 
 swig_check_generation(${MEDCouling_target_name})
 set_source_files_properties(MEDCouplingRemapper.i PROPERTIES CPLUSPLUS ON)
-if(WIN32)
+IF(WIN32 OR APPLE)
   set_property(SOURCE MEDCouplingRemapper.i PROPERTY COMPILE_DEFINITIONS WIN32)
 endif()
 if("${PYTHON_VERSION_MAJOR}" STREQUAL "3")
@@ -167,7 +167,7 @@ else()
 endif()
 
 swig_link_libraries(MEDCouplingRemapper medcouplingremapper)
-if(WIN32 OR CYGWIN)
+if(WIN32 OR CYGWIN OR APPLE)
   # PYTHON_LIBRARIES only needed on win32 see
   # https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
   swig_link_libraries(MEDCouplingRemapper ${PYTHON_LIBRARIES})
@@ -185,7 +185,7 @@ install(TARGETS ${SWIG_MODULE_${MEDCouling_target_name}_REAL_NAME}
         DESTINATION ${MEDCOUPLING_INSTALL_PYTHON})
 
 set(PYFILES_TO_INSTALL ${CMAKE_CURRENT_BINARY_DIR}/MEDCouplingRemapper.py)
-if(WIN32)
+IF(WIN32 OR APPLE)
   set(PYFILES_TO_INSTALL ${PYFILES_TO_INSTALL}
                          ${CMAKE_CURRENT_BINARY_DIR}/MEDCouplingCompat.py)
 else()
