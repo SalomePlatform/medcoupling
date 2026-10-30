@@ -268,7 +268,7 @@ if(MEDCOUPLING_ENABLE_SHAPERECOGN)
           list(APPEND CMAKE_PREFIX_PATH "${OPENBLAS_ROOT_DIR}")
           find_package(OpenBLAS REQUIRED)
         else(OPENBLAS_ROOT_DIR)
-          message(FATAL "Could not find OpenBLAS")
+          message(FATAL_ERROR "Could not find OpenBLAS: set OPENBLAS_ROOT_DIR")
         endif(OPENBLAS_ROOT_DIR)
     endif(NOT APPLE)
     set(LAPACK_ROOT_DIR

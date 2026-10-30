@@ -25,7 +25,7 @@ endif(MED_INT_IS_LONG)
 # Build-tree Python tests: medcoupling.py imports MEDLoaderFinalize and
 # ParaMEDMEMFinalize, which are only installed, never copied to the build tree.
 # Accumulated here so that every test directory inherits it.
-if(MEDCOUPLING_ENABLE_PYTHON)
+if(APPLE AND MEDCOUPLING_ENABLE_PYTHON)
   salome_accumulate_environment(
     PYTHONPATH NOCHECK ${CMAKE_CURRENT_BINARY_DIR}/PyWrapping
     ${CMAKE_CURRENT_SOURCE_DIR}/MEDLoader/Swig

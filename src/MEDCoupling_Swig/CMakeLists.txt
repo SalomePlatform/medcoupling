@@ -105,7 +105,7 @@ IF(WIN32 OR APPLE)
   # Under Windows MEDCoupling conflicts wiht medcoupling from PyWrapping
   set(MEDCouling_target_name MEDCouplingCompat)
   set_property(SOURCE MEDCoupling.i PROPERTY SWIG_MODULE_NAME MEDCouplingCompat)
-  set_property(SOURCE MEDCoupling.i PROPERTY COMPILE_DEFINITIONS WIN32 APPLE)
+  set_property(SOURCE MEDCoupling.i PROPERTY COMPILE_DEFINITIONS WIN32)
   set(SWIG_MODULE_MEDCouplingCompat_EXTRA_FLAGS
       "${NUMPY_DEFINITIONS};${SCIPY_DEFINITIONS}")
   if(MEDCOUPLING_USE_64BIT_IDS)
@@ -135,7 +135,7 @@ endif()
 swig_check_generation(${MEDCouling_target_name})
 set_source_files_properties(MEDCouplingRemapper.i PROPERTIES CPLUSPLUS ON)
 IF(WIN32 OR APPLE)
-  set_property(SOURCE MEDCouplingRemapper.i PROPERTY COMPILE_DEFINITIONS WIN32 APPLE)
+  set_property(SOURCE MEDCouplingRemapper.i PROPERTY COMPILE_DEFINITIONS WIN32)
 endif()
 if("${PYTHON_VERSION_MAJOR}" STREQUAL "3")
   set_source_files_properties(MEDCouplingRemapper.i PROPERTIES SWIG_FLAGS
