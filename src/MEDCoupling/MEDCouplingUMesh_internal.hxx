@@ -281,6 +281,59 @@ MEDCouplingUMesh::buildDescendingConnectivityNoFuseGen(
 }
 
 /*!
+ * Computes for all subcell of all \a this cells ( level of subcell is specified by SonsGenerator ) le min and max of
+ * associated measure.
+ */
+template <class SonsGenerator>
+void
+MEDCouplingUMesh::getMinMaxIntervalOfMeasureOfSubCellT(bool isAbs, double &minVal, double &maxVal) const
+{
+    checkConnectivityFullyDefined();
+    if (getMeshDimension() == -1)
+    {
+        THROW_IK_EXCEPTION("getMinMaxIntervalOfMeasureOfSubCell : not implemented for dimension == -1");
+    }
+    minVal = std::numeric_limits<double>::max();
+    maxVal = -std::numeric_limits<double>::max();
+    int spaceDim(getSpaceDimension());
+    const mcIdType *conn(_nodal_connec->begin()), *connIndex(_nodal_connec_index->begin());
+    const double *coords(getCoords()->begin());
+    mcIdType nbOfCells(getNumberOfCells());
+    std::vector<mcIdType> tmp(20);
+    for (mcIdType eltId = 0; eltId < nbOfCells; eltId++)
+    {
+        mcIdType pos(connIndex[eltId]), posP1(connIndex[eltId + 1]);
+        mcIdType maxSize(posP1 - pos);
+        if (maxSize > ToIdType(tmp.size()))
+        {
+            tmp.resize(maxSize);
+        }
+        const INTERP_KERNEL::CellModel &cm =
+            INTERP_KERNEL::CellModel::GetCellModel((INTERP_KERNEL::NormalizedCellType)conn[pos]);
+        SonsGenerator sg(cm);
+        unsigned nbOfSons = sg.getNumberOfSons2(conn + pos + 1, posP1 - pos - 1);
+        for (unsigned i = 0; i < nbOfSons; i++)
+        {
+            INTERP_KERNEL::NormalizedCellType cmsId;
+            unsigned nbOfNodesSon =
+                sg.fillSonCellNodalConnectivity2(i, conn + pos + 1, posP1 - pos - 1, tmp.data(), cmsId);
+            //
+            double val = INTERP_KERNEL::computeVolSurfOfCell2<mcIdType, INTERP_KERNEL::ALL_C_MODE>(
+                cmsId, tmp.data(), nbOfNodesSon, coords, spaceDim
+            );
+            //
+            if (isAbs)
+            {
+                val = std::abs(val);
+            }
+            //
+            minVal = std::min(val, minVal);
+            maxVal = std::max(val, maxVal);
+        }
+    }
+}
+
+/*!
  * \b WARNING this method do the assumption that connectivity lies on the coordinates set.
  * For speed reasons no check of this will be done.
  */

@@ -648,6 +648,27 @@ class MEDCouplingBasicsTest8(unittest.TestCase):
         # fmt: on
         pass
 
+    def testUMeshGetMinMaxIntervalOfMeasureOfSubCell(self):
+        # fmt: off
+        a = mc.DataArrayDouble([0,1,3,6])
+        m = mc.MEDCouplingCMesh()
+        m.setCoords( a, a, a)
+        m = m.buildUnstructured()
+        # delta = 0
+        min_0, max_0 = m.getMinMaxIntervalOfMeasureOfSubCell(3)
+        self.assertAlmostEqual( 1.0, min_0, 12 )
+        self.assertAlmostEqual( 27.0, max_0, 12 )
+        # delta = -1
+        min_1, max_1 = m.getMinMaxIntervalOfMeasureOfSubCell(2)
+        self.assertAlmostEqual( 1.0, min_1, 12 )
+        self.assertAlmostEqual( 9.0, max_1, 12 )
+        # delta = -2
+        min_2, max_2 = m.getMinMaxIntervalOfMeasureOfSubCell(1)
+        self.assertAlmostEqual( 1.0, min_2, 12 )
+        self.assertAlmostEqual( 3.0, max_2, 12 )
+        # fmt: on
+        pass
+
 
 if __name__ == "__main__":
     unittest.main()

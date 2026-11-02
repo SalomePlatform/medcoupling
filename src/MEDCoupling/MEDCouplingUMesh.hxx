@@ -181,6 +181,9 @@ class MEDCouplingUMesh : public MEDCouplingPointSet
     MEDCOUPLING_EXPORT MCAuto<MEDCouplingUMesh> buildDescendingConnectivityCrude(
         MCAuto<DataArrayIdType> &descIndx, MCAuto<DataArrayIdType> &revNodalIndx, MCAuto<DataArrayIdType> &revDesc
     ) const;
+    MEDCOUPLING_EXPORT void getMinMaxIntervalOfMeasureOfSubCell(
+        int dimOfSubCell, bool isAbs, double &minVal, double &maxVal
+    ) const;
     MEDCOUPLING_EXPORT MCAuto<MEDCouplingUMesh> explode3DMeshTo1DCrude(
         MCAuto<DataArrayIdType> &descIndx, MCAuto<DataArrayIdType> &revNodalIndx, MCAuto<DataArrayIdType> &revDesc
     ) const;
@@ -657,6 +660,8 @@ class MEDCouplingUMesh : public MEDCouplingPointSet
     MCAuto<MEDCouplingUMesh> buildDescendingConnectivityNoFuseGen(
         DataArrayIdType *descIndx, MCAuto<DataArrayIdType> &revNodalIndx, MCAuto<DataArrayIdType> &revDesc2
     ) const;
+    template <class SonsGenerator>
+    void getMinMaxIntervalOfMeasureOfSubCellT(bool isAbs, double &minVal, double &maxVal) const;
     template <class SonsGenerator>
     MEDCouplingUMesh *buildDescendingConnectivityGen(
         DataArrayIdType *desc,
