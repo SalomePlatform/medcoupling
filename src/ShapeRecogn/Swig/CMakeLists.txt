@@ -58,6 +58,8 @@ set(SWIG_MODULE_ShapeRecogn_EXTRA_DEPS
 
 if(WIN32)
   set_property(SOURCE ShapeRecogn.i PROPERTY COMPILE_DEFINITIONS WIN32)
+elseif(APPLE)
+  set_property(SOURCE ShapeRecogn.i PROPERTY COMPILE_DEFINITIONS APPLE)
 endif()
 
 if(${CMAKE_VERSION} VERSION_LESS "3.8.0")

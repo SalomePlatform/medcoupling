@@ -28,8 +28,10 @@ add_definitions(
   -DMEDCOUPLING_CONFIG_DT=\"${MEDCOUPLING_CONFIG_TIME}\")
 
 set_source_files_properties(medcoupling.i PROPERTIES CPLUSPLUS ON)
-IF(WIN32 OR APPLE)
+if(WIN32)
   set_property(SOURCE medcoupling.i PROPERTY COMPILE_DEFINITIONS WIN32)
+elseif(APPLE)
+  set_property(SOURCE medcoupling.i PROPERTY COMPILE_DEFINITIONS APPLE)
 endif()
 if("${PYTHON_VERSION_MAJOR}" STREQUAL "3")
   set_source_files_properties(medcoupling.i PROPERTIES SWIG_FLAGS "-py3")

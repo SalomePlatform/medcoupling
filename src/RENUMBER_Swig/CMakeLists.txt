@@ -57,8 +57,10 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/ExprEval
   ${CMAKE_CURRENT_SOURCE_DIR}/../INTERP_KERNEL/GaussPoints)
 
-IF(WIN32 OR APPLE)
+if(WIN32)
   set_property(SOURCE MEDRenumber.i PROPERTY COMPILE_DEFINITIONS WIN32)
+elseif(APPLE)
+  set_property(SOURCE MEDRenumber.i PROPERTY COMPILE_DEFINITIONS APPLE)
 endif()
 if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
   swig_add_module(MEDRenumber python MEDRenumber.i)

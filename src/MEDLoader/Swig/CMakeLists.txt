@@ -72,8 +72,10 @@ if(MEDCOUPLING_BUILD_DOC)
        ${PROJECT_BINARY_DIR}/doc/MEDLoader_doc.i swig_ready)
 endif()
 
-IF(WIN32 OR APPLE)
+if(WIN32)
   set_property(SOURCE MEDLoader.i PROPERTY COMPILE_DEFINITIONS WIN32)
+elseif(APPLE)
+  set_property(SOURCE MEDLoader.i PROPERTY COMPILE_DEFINITIONS APPLE)
 endif()
 
 if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
