@@ -2281,6 +2281,16 @@ namespace MEDCoupling
         return ret.retn();
       }
 
+      PyObject *getMinMaxIntervalOfMeasureOfSubCell( int dimOfSubCell, bool isAbs = true ) const
+      {
+        double minVal, maxVal;
+        self->getMinMaxIntervalOfMeasureOfSubCell( dimOfSubCell, isAbs, minVal, maxVal );
+        PyObject *res=PyTuple_New(2);
+        PyTuple_SetItem(res,0,PyFloat_FromDouble( minVal ));
+        PyTuple_SetItem(res,1,PyFloat_FromDouble( maxVal ));
+        return res;
+      }
+
       PyObject *getAllGeoTypesSorted() const
       {
         std::vector<INTERP_KERNEL::NormalizedCellType> result=self->getAllGeoTypesSorted();

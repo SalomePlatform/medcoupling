@@ -361,42 +361,48 @@ MEDFileFieldLoc::repr() const
     oss << _nb_gauss_pt << "\n  - Number of nodes in cell : " << _nb_node_per_cell;
     oss << "\n  - Ref coords are : ";
     std::size_t sz = _ref_coo.size();
-    if (sz % _dim == 0)
+    if (_dim > 0)
     {
-        std::size_t nbOfTuples = sz / _dim;
-        for (std::size_t i = 0; i < nbOfTuples; i++)
+        if (sz % _dim == 0)
         {
-            oss << "(";
-            for (int j = 0; j < _dim; j++)
+            std::size_t nbOfTuples = sz / _dim;
+            for (std::size_t i = 0; i < nbOfTuples; i++)
             {
-                oss << _ref_coo[i * _dim + j];
-                if (j != _dim - 1)
-                    oss << ", ";
+                oss << "(";
+                for (int j = 0; j < _dim; j++)
+                {
+                    oss << _ref_coo[i * _dim + j];
+                    if (j != _dim - 1)
+                        oss << ", ";
+                }
+                oss << ") ";
             }
-            oss << ") ";
         }
+        else
+            std::copy(_ref_coo.begin(), _ref_coo.end(), std::ostream_iterator<double>(oss, " "));
     }
-    else
-        std::copy(_ref_coo.begin(), _ref_coo.end(), std::ostream_iterator<double>(oss, " "));
     oss << "\n  - Gauss coords in reference element : ";
     sz = _gs_coo.size();
-    if (sz % _dim == 0)
+    if (_dim > 0)
     {
-        std::size_t nbOfTuples = sz / _dim;
-        for (std::size_t i = 0; i < nbOfTuples; i++)
+        if (sz % _dim == 0)
         {
-            oss << "(";
-            for (int j = 0; j < _dim; j++)
+            std::size_t nbOfTuples = sz / _dim;
+            for (std::size_t i = 0; i < nbOfTuples; i++)
             {
-                oss << _gs_coo[i * _dim + j];
-                if (j != _dim - 1)
-                    oss << ", ";
+                oss << "(";
+                for (int j = 0; j < _dim; j++)
+                {
+                    oss << _gs_coo[i * _dim + j];
+                    if (j != _dim - 1)
+                        oss << ", ";
+                }
+                oss << ") ";
             }
-            oss << ") ";
         }
+        else
+            std::copy(_gs_coo.begin(), _gs_coo.end(), std::ostream_iterator<double>(oss, " "));
     }
-    else
-        std::copy(_gs_coo.begin(), _gs_coo.end(), std::ostream_iterator<double>(oss, " "));
     oss << "\n  - Weights of Gauss coords are : ";
     std::copy(_w.begin(), _w.end(), std::ostream_iterator<double>(oss, " "));
     return oss.str();

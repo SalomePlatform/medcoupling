@@ -860,6 +860,28 @@ MEDCouplingUMesh::explodeMeshTo(
     THROW_IK_EXCEPTION("Not valid input targetDeltaLevel regarding mesh dimension");
 }
 
+class MinusZeroSonsGenerator
+{
+   public:
+    MinusZeroSonsGenerator(const INTERP_KERNEL::CellModel &cm) : _cm(cm) {}
+    unsigned getNumberOfSons2(const mcIdType *startConn, mcIdType lgth) const { return 1; }
+    unsigned fillSonCellNodalConnectivity2(
+        int sonId,
+        const mcIdType *nodalConn,
+        mcIdType lgth,
+        mcIdType *sonNodalConn,
+        INTERP_KERNEL::NormalizedCellType &typeOfSon
+    ) const
+    {
+        typeOfSon = _cm.getEnum();
+        std::copy(nodalConn, nodalConn + lgth, sonNodalConn);
+        return (unsigned)lgth;
+    }
+
+   private:
+    const INTERP_KERNEL::CellModel &_cm;
+};
+
 class MinusTwoSonsGenerator
 {
    public:
@@ -899,6 +921,35 @@ class MinusTwoSonsGenerator
     const INTERP_KERNEL::CellModel &_cm;
     mutable std::vector<mcIdType> _cache;
 };
+
+void
+MEDCouplingUMesh::getMinMaxIntervalOfMeasureOfSubCell(
+    int dimOfSubCell, bool isAbs, double &minVal, double &maxVal
+) const
+{
+    checkConnectivityFullyDefined();
+    int meshDimension(getMeshDimension());
+    int delta(dimOfSubCell - meshDimension);
+    switch (delta)
+    {
+        case -2:
+        {
+            return getMinMaxIntervalOfMeasureOfSubCellT<MinusTwoSonsGenerator>(isAbs, minVal, maxVal);
+        }
+        case -1:
+        {
+            return getMinMaxIntervalOfMeasureOfSubCellT<MinusOneSonsGenerator>(isAbs, minVal, maxVal);
+        }
+        case 0:
+        {
+            return getMinMaxIntervalOfMeasureOfSubCellT<MinusZeroSonsGenerator>(isAbs, minVal, maxVal);
+        }
+        default:
+        {
+            THROW_IK_EXCEPTION("getMinMaxIntervalOfMeasureOfSubCell : supported delta are 0, -1, -2");
+        }
+    }
+}
 
 /*!
  * \a this has to have a mesh dimension equal to 3. If it is not the case an INTERP_KERNEL::Exception will be thrown.
