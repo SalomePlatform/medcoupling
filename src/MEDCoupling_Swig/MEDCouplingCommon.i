@@ -76,7 +76,7 @@ typedef DataArrayInt32 DataArrayIdType;
 #else
 //typedef std::int64_t mcIdType;
 typedef DataArrayInt64 DataArrayIdType;
-#ifdef WIN32
+#if defined(WIN32) || defined(APPLE)
 %template(ivec) std::vector<long long>;
 typedef long long mcIdType;
 #else
@@ -85,7 +85,7 @@ typedef long int mcIdType;
 #endif
 %template(i32vec) std::vector<int>;
 #endif
-#ifdef WIN32
+#if defined(WIN32) || defined(APPLE)
 typedef long long mcPyPtrType;
 #else
 typedef long mcPyPtrType;

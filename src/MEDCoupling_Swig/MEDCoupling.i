@@ -17,7 +17,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifdef WIN32
+#if defined(WIN32) || defined(APPLE)
 %module MEDCouplingCompat
 #else
 %module MEDCoupling

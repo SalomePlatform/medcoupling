@@ -2662,7 +2662,7 @@ void transformWithIndArr(PyObject *li)
 namespace MEDCoupling
 {
   typedef int      Int32;
-#ifdef WIN32
+#if defined(WIN32) || defined(APPLE)
   typedef long long Int64;
 #else
   typedef long int  Int64;

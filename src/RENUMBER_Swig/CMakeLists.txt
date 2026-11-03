@@ -59,6 +59,8 @@ include_directories(
 
 if(WIN32)
   set_property(SOURCE MEDRenumber.i PROPERTY COMPILE_DEFINITIONS WIN32)
+elseif(APPLE)
+  set_property(SOURCE MEDRenumber.i PROPERTY COMPILE_DEFINITIONS APPLE)
 endif()
 if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
   swig_add_module(MEDRenumber python MEDRenumber.i)
@@ -70,7 +72,7 @@ else()
 endif()
 
 swig_link_libraries(MEDRenumber ${PLATFORM_LIBS} renumbercpp)
-if(WIN32)
+if(WIN32 OR APPLE)
   # PYTHON_LIBRARIES only needed on win32 see
   # https://www.python.org/dev/peps/pep-0513/#libpythonx-y-so-1
   swig_link_libraries(MEDRenumber ${PYTHON_LIBRARIES})
